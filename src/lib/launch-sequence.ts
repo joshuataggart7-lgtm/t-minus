@@ -320,7 +320,8 @@ export function reviewRulesForPhase(
 export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "jofoc") return "JOFOC";
   if (templateKey === "nf-1707") return "Intake";
-  if (templateKey === "tech-eval") return "Technical Evaluation";
+  if (templateKey === "tech-eval" || templateKey === "technical-evaluation-report")
+    return "Technical Evaluation";
   if (templateKey === "nonresponsibility") return "Responsibility Check";
   if (templateKey === "pnm") return "Price Reasonableness";
   if (

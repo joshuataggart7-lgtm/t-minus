@@ -464,3 +464,9 @@ fields filled and the badge showing the HQ effective date.
 - Checked against the Acquisitions tab: running 5, on hold 5, launched this
   quarter 1, scrubbed 0, days returned 0 (ARC), and the same holds-by-reason
   counts.
+
+## E14. NF 1098 file index
+- `src/lib/file-index.ts` builds the contract file index from saved documents, keyed on each template's NF 1098 tab.
+- Required tabs are derived, not hard-coded: core tabbed records (JOFOC 015, Technical Evaluation Report 054, PNM 065, COR appointment 074, CPARS input 099) whose phase appears in the acquisition type's phase plan sequence.
+- The index appears on every acquisition file (tabs present with version counts, then required tabs with no document) and in the NEAR export index page.
+- Fixed `phaseForTemplate` to recognise the actual `technical-evaluation-report` template key.
