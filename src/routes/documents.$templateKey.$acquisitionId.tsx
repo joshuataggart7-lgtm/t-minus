@@ -563,6 +563,7 @@ function DocumentPage() {
       lines.push(`Template revision: ${meta.templateRevision} · Item: ${meta.templateItem}`);
       lines.push(`Template instruction used: ${meta.templateText}`);
       lines.push(`Record fields used: ${meta.recordFields.map((r) => `${r.field} = ${r.value}`).join("; ")}`);
+      lines.push(meta.intakeAnswersUsed ? "Intake answers were included in the draft." : "Intake answers were not included in this draft.");
       lines.push(meta.reviewed ? "Marked reviewed by the contracting officer." : "AI draft, not yet reviewed.");
     } else if (f.bind) {
       lines.push(`Intake field: ${f.bind}`);

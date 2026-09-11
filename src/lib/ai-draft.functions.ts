@@ -26,6 +26,7 @@ export type DraftProvenance = {
   templateItem: string;
   templateText: string;
   draftText: string;
+  intakeAnswersUsed: boolean;
   recordFields: { field: string; value: string }[];
   reviewed: boolean;
 };
@@ -222,6 +223,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
         templateItem: item.item,
         templateText,
         draftText: text,
+        intakeAnswersUsed: usedAnswers,
         recordFields,
         reviewed: false,
       },
