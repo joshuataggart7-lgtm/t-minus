@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { navFor, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
