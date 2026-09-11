@@ -122,7 +122,17 @@ async function main() {
   );
 
   await load("missions", JSON.parse(read("missions.json")), "mission_id");
-  await load("acquisition_facts", JSON.parse(read("acquisitions.json")), "acquisition_id");
+
+  // Sanitize acquisition rows: convert empty strings to null for date/numeric
+  // fields so Postgres doesn't reject them.
+  const acqRows = (JSON.parse(read("acquisitions.json")) as Record<string, unknown>[]).map((row) => {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(row)) {
+      out[k] = v === "" ? null : v;
+    }
+    return out;
+  });
+  await load("acquisition_facts", acqRows, "acquisition_id");
 
   await load(
     "thresholds",
