@@ -10,7 +10,6 @@ import {
   diffDataset,
   diffSentence,
   readUpload,
-  cell,
   type Diff,
   type DiffRow,
 } from "@/lib/reg-intake";
@@ -76,17 +75,13 @@ function RegIntakePage() {
   const incoming = useMemo(() => {
     if (!text) return null;
     try {
-      const rows = readUpload(dataset, text);
-      if (dataset.effectiveColumn) {
-        for (const r of rows) {
-          if (cell(r[dataset.effectiveColumn]) === "") r[dataset.effectiveColumn] = effective;
-        }
-      }
-      return rows;
+      // The file is read exactly as written; the effective date is recorded
+      // with the change rather than written into rows that leave it blank.
+      return readUpload(dataset, text);
     } catch {
       return null;
     }
-  }, [text, dataset, effective]);
+  }, [text, dataset]);
 
   const diff: Diff | null = useMemo(() => {
     if (!incoming || !q.data) return null;
