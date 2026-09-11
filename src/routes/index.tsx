@@ -913,6 +913,8 @@ function EnterpriseTab({
     frame.current?.contentWindow?.postMessage({ type: "tminus:live", payload }, "*");
   }, [ready, payload]);
 
+  const sample = metrics.find((m) => m.acq.acquisition_id === "A-2027-0101");
+
   return (
     <div>
       <h2 className="text-[18px] leading-6 font-medium">Enterprise</h2>
@@ -920,6 +922,60 @@ function EnterpriseTab({
         The ORBIT prototype with fictional data. Its workforce tabs are unchanged. Executive summary,
         project status, and recurring actions read live from T-Minus.
       </p>
+
+      <section className="mt-6 rounded-lg border border-border bg-background p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-[15px] font-medium">Microsoft Teams bot</h3>
+            <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
+              A production Teams bot so mission leaders ask T-Minus in the flow of work.
+              Mention the bot with a PR number and it answers with the file&apos;s clock line,
+              status, owner, and a link to the file. It reads the same data as the Executive
+              Overview; nothing is stored in Teams.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-border px-3 py-1 text-[12px] font-medium text-muted-foreground">
+            Planned
+          </span>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-border bg-canvas p-4">
+          <p className="text-[12px] font-medium text-muted-foreground">Mock transcript</p>
+          <div className="mt-3 space-y-3 text-[13px] leading-5">
+            <p className="text-foreground">
+              <span className="font-medium">You</span>
+              <br />
+              @T-Minus where is PR 4200999101
+            </p>
+            <p className="text-foreground">
+              <span className="font-medium">T-Minus</span>
+              <br />
+              PR 4200999101 is A-2027-0101, Commercial Aviation Services: Arctic snow depth
+              flights, spring 2027 campaign. Center ARC, owner J. Rivera (fictional CO).
+              {sample ? (
+                <>
+                  {" "}
+                  Status: {sample.status}. Phase: {sample.currentPhase}.{" "}
+                  {sample.daysToAward !== null && sample.daysToAward >= 0
+                    ? `${sample.daysToAward} days to award.`
+                    : sample.daysToAward !== null && sample.daysToAward < 0
+                      ? `${Math.abs(sample.daysToAward)} days overdue to award.`
+                      : "Clock not started."}
+                  {sample.blocker ? ` Blocker: ${sample.blocker}.` : ""}
+                </>
+              ) : (
+                <> Status: On Track. Phase: Market Research.</>
+              )}{" "}
+              Open the file: /files/A-2027-0101.
+            </p>
+          </div>
+          <p className="mt-3 text-[12px] text-muted-foreground">
+            Sample uses fictional acquisition A-2027-0101. The production bot would answer
+            for any PR the caller can see under the same role-based access.
+          </p>
+        </div>
+      </section>
+
       <iframe
         ref={frame}
         title="ORBIT prototype"
