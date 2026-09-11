@@ -374,6 +374,28 @@ function DocumentPage() {
     );
   }
 
+  // The nonresponsibility memo exists only on that finding. On a finding of
+  // responsible, the signature on the SF 1449 is the determination.
+  if (def.key === "nonresponsibility" && q.data?.acq && q.data.acq["responsibility_finding"] !== "nonresponsibility") {
+    return (
+      <AppShell>
+        <PageHeader
+          title="No memorandum is written for this file"
+          lead={`${acquisitionId} · the responsibility finding is not nonresponsibility.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The contracting officer's signature on the SF 1449 is the affirmative responsibility determination
+          (FAR 9.105-2(a)(1)). A separate memorandum is written only on a finding of nonresponsibility.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
   const guidance = newerGuidance(def.badge.citation, def.badge.effective ?? null, q.data?.watchItems ?? []);
 
   const set = (key: string, v: string) => {
