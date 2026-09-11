@@ -144,7 +144,7 @@ function sampleEntities(naics: string, state: string | null) {
       physicalAddress: { stateOrProvinceCode: st },
       businessTypes: { businessTypeList: types.map((t) => ({ businessTypeDesc: t })) },
     },
-    assertions: { goodsAndServices: { naicsList: [{ naicsCode: naics, isSmallBusiness: small }] } },
+    assertions: { goodsAndServices: { naicsList: [{ naicsCode: naics, sbaSmallBusiness: small }] } },
   });
   return {
     sample: true,
