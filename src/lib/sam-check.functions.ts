@@ -30,6 +30,8 @@ export type SamCheckView = {
   checkedAt: string;
   source: "sample" | "live" | "cached";
   sourceLabel: string;
+  providerError?: string;
+
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -173,16 +175,23 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
           "includeSections",
           "entityRegistration,coreData,assertions,repsAndCerts,integrityInformation",
         );
-        const response = await fetch(url, {
-          headers: { Accept: "application/json", "X-Api-Key": apiKey },
-        });
-        if (!response.ok) throw new Error(`SAM.gov returned ${response.status}: ${await response.text()}`);
+        const redactedUrl = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
+        console.log(`[SAM.gov] GET ${redactedUrl}`);
+        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!response.ok) {
+          const body = (await response.text()).slice(0, 300);
+          console.error(`[SAM.gov] api.sam.gov responded ${response.status} for ${redactedUrl} — body: ${body || "(empty)"}`);
+          throw new Error(
+            `api.sam.gov responded ${response.status} for GET ${redactedUrl}. Response body (first 300 characters): ${body || "(empty)"}`,
+          );
+        }
         raw = await response.json();
         if (!array(object(raw)["entityData"]).length) throw new Error("SAM.gov returned no registration for this UEI.");
         source = "live";
       } catch (error) {
         providerError = error instanceof Error ? error.message : "SAM.gov lookup failed.";
         console.error(`[SAM.gov] ${providerError}`);
+
         const cached = await supabaseAdmin
           .from("sam_checks")
           .select("response_json,checked_at")
@@ -210,6 +219,8 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
     }
 
     const view = normalizedFromRaw(raw, uei, naicsCode, checkedAt, source, acquisitionId);
+    if (providerError) view.providerError = providerError;
+
     const { error: saveError } = await supabaseAdmin.from("sam_checks").insert({
       acquisition_id: acquisitionId,
       vendor_uei: uei,
