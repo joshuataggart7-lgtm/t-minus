@@ -594,6 +594,14 @@ function DocumentPage() {
         </p>
       </section>
 
+      <DefectReport
+        templateKey={templateKey}
+        templateName={def.name}
+        revision={def.badge.revision}
+        defaultCitation={def.badge.citation}
+        acquisitionId={acquisitionId}
+      />
+
       {q.isLoading ? <p className="text-muted-foreground">Loading the record.</p> : null}
 
       
