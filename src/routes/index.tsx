@@ -53,9 +53,6 @@ export const Route = createFileRoute("/")({
   component: ExecutiveOverview,
 });
 
-function num(n: number | null | undefined) {
-  return n === null || n === undefined ? "—" : String(n);
-}
 
 function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
   return (
@@ -410,6 +407,15 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           >
             {blockerLine}
           </button>
+          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted" data-numeric>
+            {driver.status === "Launched"
+              ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
+              : driver.scheduleImpactDays === null
+                ? "Schedule impact unknown"
+                : driver.scheduleImpactDays >= 0
+                  ? `${driver.scheduleImpactDays} days of margin to the mission date`
+                  : `${Math.abs(driver.scheduleImpactDays)} days past the mission date`}
+          </p>
         </div>
       </div>
     </li>
