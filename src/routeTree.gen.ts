@@ -14,6 +14,7 @@ import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChecksRouteImport } from './routes/checks'
 import { Route as DeviationsRouteImport } from './routes/deviations'
+import { Route as DigestRouteImport } from './routes/digest'
 import { Route as DirectivesRouteImport } from './routes/directives'
 import { Route as EscalationsRouteImport } from './routes/escalations'
 import { Route as EstimateRouteImport } from './routes/estimate'
@@ -56,6 +57,11 @@ const ChecksRoute = ChecksRouteImport.update({
 const DeviationsRoute = DeviationsRouteImport.update({
   id: '/deviations',
   path: '/deviations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DigestRoute = DigestRouteImport.update({
+  id: '/digest',
+  path: '/digest',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DirectivesRoute = DirectivesRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
+  '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
+  '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
@@ -210,6 +218,7 @@ export interface FileRoutesById {
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
+  '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/checks'
     | '/deviations'
+    | '/digest'
     | '/directives'
     | '/escalations'
     | '/estimate'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/checks'
     | '/deviations'
+    | '/digest'
     | '/directives'
     | '/escalations'
     | '/estimate'
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/checks'
     | '/deviations'
+    | '/digest'
     | '/directives'
     | '/escalations'
     | '/estimate'
@@ -313,6 +325,7 @@ export interface RootRouteChildren {
   AuditLogRoute: typeof AuditLogRoute
   ChecksRoute: typeof ChecksRoute
   DeviationsRoute: typeof DeviationsRoute
+  DigestRoute: typeof DigestRoute
   DirectivesRoute: typeof DirectivesRoute
   EscalationsRoute: typeof EscalationsRoute
   EstimateRoute: typeof EstimateRoute
@@ -368,6 +381,13 @@ declare module '@tanstack/react-router' {
       path: '/deviations'
       fullPath: '/deviations'
       preLoaderRoute: typeof DeviationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/digest': {
+      id: '/digest'
+      path: '/digest'
+      fullPath: '/digest'
+      preLoaderRoute: typeof DigestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/directives': {
@@ -505,6 +525,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuditLogRoute: AuditLogRoute,
   ChecksRoute: ChecksRoute,
   DeviationsRoute: DeviationsRoute,
+  DigestRoute: DigestRoute,
   DirectivesRoute: DirectivesRoute,
   EscalationsRoute: EscalationsRoute,
   EstimateRoute: EstimateRoute,
