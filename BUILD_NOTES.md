@@ -563,3 +563,11 @@ Verified: raising the legal review trigger to $1,000,000, above the simplified
 acquisition threshold, dropped legal review from A-2027-0106 (JSC, $380,000),
 113 planned days down to 108. Sole-source files keep legal review because the
 rule also triggers on a JOFOC, and files under the trigger never carried it.
+
+## E21. Acquisition Forecast as a byproduct
+
+- Every file above the simplified acquisition threshold (read from `thresholds`, not hard-coded) shows an NFS 1807.72 Acquisition Forecast entry built from the record: title, estimated value range, NAICS, PSC, anticipated award date, competition, set-aside, place of performance (standardized value when accepted).
+- The published value bands ($350K–$1M, $1M–$5M, $5M–$10M, $10M–$50M, $50M–$100M, over $100M) are a T-Minus display choice; no band table exists in the seeds.
+- "Export forecast entry to CSV" writes the forecast's column format and logs an audit entry.
+- When the entry exists, the NF 1707 forecast affirmation (`acquisition_forecast_verified`) is set true by a specialist or HQ viewing the file, with one audit entry.
+- Verified: A-2027-0101 shows the entry ($1 million to $5 million, NAICS 481219, award 2027-03-01); A-2027-0103 ($42,000) shows no entry.
