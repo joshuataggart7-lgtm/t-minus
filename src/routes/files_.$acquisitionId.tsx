@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -29,6 +29,14 @@ import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
 import { protestWindow } from "@/lib/protest-window";
+import {
+  FORECAST_CITATION,
+  FORECAST_FIELDS,
+  forecastCsv,
+  forecastEntry,
+  satValue,
+  type ForecastAcq,
+} from "@/lib/forecast";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
@@ -188,6 +196,76 @@ function FilePage() {
       return { coName, value, limit: null as number | null, exceeds: false, unknown: true };
     return { coName, value, limit, exceeds: value > limit, unknown: false };
   }, [acq, q.data?.people]);
+
+  // Acquisition Forecast entry, NFS 1807.72: a byproduct of the record for
+  // every intake above the simplified acquisition threshold.
+  const thresholdRows = useMemo(
+    () =>
+      (q.data?.thresholds ?? []).map((t) => ({
+        name: t.name,
+        value: t.value,
+        citation: t.citation,
+        superseded_date: t.superseded_date,
+      })),
+    [q.data?.thresholds],
+  );
+  const sat = useMemo(() => satValue(thresholdRows), [thresholdRows]);
+  const forecast = useMemo(
+    () => (acq ? forecastEntry(acq as unknown as ForecastAcq, thresholdRows) : null),
+    [acq, thresholdRows],
+  );
+
+  // The NF 1707 forecast affirmation is satisfied once the entry exists.
+  const affirmed = useRef(false);
+  useEffect(() => {
+    if (!acq || !forecast || !canWrite) return;
+    if (acq.acquisition_forecast_verified === true || affirmed.current) return;
+    affirmed.current = true;
+    void (async () => {
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ acquisition_forecast_verified: true })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) {
+        affirmed.current = false;
+        return;
+      }
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Acquisition Forecast entry generated",
+        field: "acquisition_forecast_verified",
+        old_value: String(acq.acquisition_forecast_verified ?? "not recorded"),
+        new_value: "true",
+        reason: `${FORECAST_CITATION}; entry exists, NF 1707 affirmation satisfied`,
+        phase: null,
+      } as never);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    })();
+  }, [acq, forecast, canWrite, user.name, qc, acquisitionId]);
+
+  function exportForecastCsv() {
+    if (!forecast || !acq) return;
+    const csv = forecastCsv([forecast]);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `acquisition-forecast-${acq.acquisition_id}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    void supabase.from("audit_log").insert({
+      acquisition_id: acq.acquisition_id,
+      actor: user.name,
+      action: "Acquisition Forecast entry exported to CSV",
+      field: "acquisition_forecast",
+      old_value: null,
+      new_value: forecast.value_range,
+      reason: FORECAST_CITATION,
+      phase: null,
+    } as never);
+    setBanner("The forecast entry downloaded as a CSV file in the forecast's format.");
+  }
+
 
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
@@ -814,6 +892,49 @@ function FilePage() {
       {phaseNames.length ? (
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
       ) : null}
+
+      <section aria-label="Acquisition Forecast" className="mb-10 max-w-[70ch]">
+        <h2 className="mb-1 text-[18px] font-medium leading-[24px]">Acquisition Forecast</h2>
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          {FORECAST_CITATION} · binding
+          {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
+        </p>
+        {forecast ? (
+          <>
+            <table className="w-full border border-border text-[13px] leading-[18px]">
+              <caption className="sr-only">Acquisition Forecast entry for this file</caption>
+              <tbody>
+                {FORECAST_FIELDS.map((f) => (
+                  <tr key={f.key} className="border-b border-border last:border-b-0">
+                    <th scope="row" className="w-[42%] px-3 py-2 text-left font-medium">
+                      {f.header}
+                    </th>
+                    <td className="px-3 py-2">{forecast[f.key]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 text-[15px] leading-[22px]">
+              {acq?.acquisition_forecast_verified
+                ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
+                : "The entry exists. The NF 1707 affirmation is marked satisfied by a specialist or HQ."}
+            </p>
+            <button
+              type="button"
+              onClick={exportForecastCsv}
+              className="mt-3 rounded-lg border border-border px-3 py-2 text-[13px]"
+            >
+              Export forecast entry to CSV
+            </button>
+          </>
+        ) : (
+          <p className="text-[15px] leading-[22px]">
+            This acquisition is at or below the simplified acquisition threshold, so it has no forecast
+            entry.
+          </p>
+        )}
+      </section>
+
 
       {intakeEstimate ? (
         <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
