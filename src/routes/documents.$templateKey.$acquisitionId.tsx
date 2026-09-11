@@ -89,9 +89,76 @@ function DocumentPage() {
   const [comment, setComment] = useState("");
   const [voteReason, setVoteReason] = useState("");
   const [comparables, setComparables] = useState<ComparablesView | null>(null);
+  const [checkout, setCheckout] = useState<Checkout | null>(null);
+  const [myCheckoutId, setMyCheckoutId] = useState<string | null>(null);
 
   const phase = phaseForTemplate(templateKey);
   const runComparablesFn = useServerFn(samContractAwards);
+
+  // Check-out: the first person to open the document holds it; everyone else
+  // sees who and since when, and reads it until that person saves or closes,
+  // or thirty minutes pass.
+  const heldByOther = !!checkout && checkout.checkout_id !== myCheckoutId;
+  const canEdit = canWrite && !heldByOther;
+
+  useEffect(() => {
+    if (authState !== "signed-in" || !def) return;
+    let cancelled = false;
+    let mine: string | null = null;
+    const args = {
+      acquisitionId,
+      templateKey,
+      documentName: def.name,
+      phase,
+      userName: user.name,
+    };
+    void (async () => {
+      try {
+        const held = canWrite ? await claimCheckout(args) : await loadCheckout(acquisitionId, templateKey);
+        if (cancelled) return;
+        setCheckout(held);
+        const { data } = await supabase.auth.getUser();
+        if (held && data.user?.id === held.user_id) {
+          mine = held.checkout_id;
+          if (!cancelled) setMyCheckoutId(held.checkout_id);
+        }
+      } catch {
+        // A check-out that cannot be recorded never blocks the document.
+      }
+    })();
+    const release = (reason: string) => {
+      if (!mine) return;
+      void releaseCheckout({
+        checkoutId: mine,
+        acquisitionId,
+        documentName: def.name,
+        phase,
+        userName: user.name,
+        reason,
+      });
+      mine = null;
+    };
+    const onUnload = () => release("Document closed");
+    window.addEventListener("beforeunload", onUnload);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("beforeunload", onUnload);
+      release("Document closed");
+    };
+  }, [authState, def, acquisitionId, templateKey, phase, user.name, canWrite]);
+
+  // Keep the label current for the people who are only reading.
+  useEffect(() => {
+    if (authState !== "signed-in" || !def || myCheckoutId) return;
+    const tick = () => {
+      void loadCheckout(acquisitionId, templateKey)
+        .then(setCheckout)
+        .catch(() => undefined);
+    };
+    const timer = window.setInterval(tick, 10_000);
+    return () => window.clearInterval(timer);
+  }, [authState, def, acquisitionId, templateKey, myCheckoutId]);
+
 
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
