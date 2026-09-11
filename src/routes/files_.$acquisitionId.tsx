@@ -178,7 +178,7 @@ function FilePage() {
 
       const { error } = await supabase
         .from("acquisition_facts")
-        .update(next)
+        .update(next as never)
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
 

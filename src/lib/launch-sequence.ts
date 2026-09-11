@@ -29,6 +29,18 @@ export type AcqRow = Record<string, unknown> & {
   nf1707_answers?: Record<string, unknown> | null;
   title?: string | null;
   description_of_requirement?: string | null;
+  center_code?: string | null;
+  mission_id?: string | null;
+  need_date?: string | null;
+  naics_code?: string | null;
+  psc_code?: string | null;
+  place_of_performance?: string | null;
+  period_of_performance_start?: string | null;
+  period_of_performance_end?: string | null;
+  hold_reason?: string | null;
+  hold_owner?: string | null;
+  status?: string | null;
+  vendor_legal_name?: string | null;
 };
 
 export type PhasePlanRow = {
