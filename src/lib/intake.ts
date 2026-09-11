@@ -113,38 +113,39 @@ export function formatMoney(n: number | null): string {
 
 export function fieldErrors(f: IntakeFacts): Record<string, string> {
   const e: Record<string, string> = {};
-  if (!f.title.trim()) e.title = "Enter a short title for this requirement.";
-  if (!f.mission_id) e.mission_id = "Choose the mission this supports.";
-  if (!f.center_code) e.center_code = "Choose the Center.";
-  if (!f.requester_name.trim()) e.requester_name = "Enter the requester's name.";
+  if (!f.title.trim()) e["title"] = "Enter a short title for this requirement.";
+  if (!f.mission_id) e["mission_id"] = "Choose the mission this supports.";
+  if (!f.center_code) e["center_code"] = "Choose the Center.";
+  if (!f.requester_name.trim()) e["requester_name"] = "Enter the requester's name.";
   if (!f.description_of_requirement.trim())
-    e.description_of_requirement = "Describe the requirement in a sentence or two.";
+    e["description_of_requirement"] = "Describe the requirement in a sentence or two.";
 
   const value = parseMoney(f.estimated_value);
-  if (f.estimated_value.trim() === "") e.estimated_value = "Enter the estimated value in dollars.";
-  else if (value === null || value <= 0) e.estimated_value = "Enter a dollar figure, for example 1,450,000.";
+  if (f.estimated_value.trim() === "") e["estimated_value"] = "Enter the estimated value in dollars.";
+  else if (value === null || value <= 0)
+    e["estimated_value"] = "Enter a dollar figure, for example 1,450,000.";
 
-  if (!f.need_date) e.need_date = "Enter the mission need date.";
+  if (!f.need_date) e["need_date"] = "Enter the mission need date.";
   if (f.naics_code && !/^\d{6}$/.test(f.naics_code.trim()))
-    e.naics_code = "NAICS is six digits, for example 481219.";
-  if (!f.naics_code.trim()) e.naics_code = "Enter the six-digit NAICS code.";
+    e["naics_code"] = "NAICS is six digits, for example 481219.";
+  if (!f.naics_code.trim()) e["naics_code"] = "Enter the six-digit NAICS code.";
   if (f.psc_code && !/^[A-Za-z0-9]{4}$/.test(f.psc_code.trim()))
-    e.psc_code = "PSC is four characters, for example V121.";
-  if (!f.psc_code.trim()) e.psc_code = "Enter the four-character PSC code.";
-  if (!f.contract_type) e.contract_type = "Choose a contract type.";
-  if (!f.acquisition_method) e.acquisition_method = "Choose an acquisition method.";
-  if (!f.competition) e.competition = "Choose the competition approach.";
+    e["psc_code"] = "PSC is four characters, for example V121.";
+  if (!f.psc_code.trim()) e["psc_code"] = "Enter the four-character PSC code.";
+  if (!f.contract_type) e["contract_type"] = "Choose a contract type.";
+  if (!f.acquisition_method) e["acquisition_method"] = "Choose an acquisition method.";
+  if (!f.competition) e["competition"] = "Choose the competition approach.";
 
   const start = f.period_of_performance_start;
   const end = f.period_of_performance_end;
   if (start && end && start > end)
-    e.period_of_performance_end = "The end date has to fall on or after the start date.";
+    e["period_of_performance_end"] = "The end date has to fall on or after the start date.";
   if (f.need_date && end && f.need_date > end)
-    e.need_date = "The need date falls after the period of performance ends. Check the dates.";
+    e["need_date"] = "The need date falls after the period of performance ends. Check the dates.";
 
   const lead = Number(f.lead_to_delivery_days);
   if (!Number.isFinite(lead) || lead < 0)
-    e.lead_to_delivery_days = "Enter the days from award until the mission has what it bought.";
+    e["lead_to_delivery_days"] = "Enter the days from award until the mission has what it bought.";
   return e;
 }
 
