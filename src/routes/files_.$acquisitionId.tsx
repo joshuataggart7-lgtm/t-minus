@@ -893,6 +893,49 @@ function FilePage() {
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
       ) : null}
 
+      <section aria-label="Acquisition Forecast" className="mb-10 max-w-[70ch]">
+        <h2 className="mb-1 text-[18px] font-medium leading-[24px]">Acquisition Forecast</h2>
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          {FORECAST_CITATION} · binding
+          {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
+        </p>
+        {forecast ? (
+          <>
+            <table className="w-full border border-border text-[13px] leading-[18px]">
+              <caption className="sr-only">Acquisition Forecast entry for this file</caption>
+              <tbody>
+                {FORECAST_FIELDS.map((f) => (
+                  <tr key={f.key} className="border-b border-border last:border-b-0">
+                    <th scope="row" className="w-[42%] px-3 py-2 text-left font-medium">
+                      {f.header}
+                    </th>
+                    <td className="px-3 py-2">{forecast[f.key]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 text-[15px] leading-[22px]">
+              {acq?.acquisition_forecast_verified
+                ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
+                : "The entry exists. The NF 1707 affirmation is marked satisfied by a specialist or HQ."}
+            </p>
+            <button
+              type="button"
+              onClick={exportForecastCsv}
+              className="mt-3 rounded-lg border border-border px-3 py-2 text-[13px]"
+            >
+              Export forecast entry to CSV
+            </button>
+          </>
+        ) : (
+          <p className="text-[15px] leading-[22px]">
+            This acquisition is at or below the simplified acquisition threshold, so it has no forecast
+            entry.
+          </p>
+        )}
+      </section>
+
+
       {intakeEstimate ? (
         <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
           <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
