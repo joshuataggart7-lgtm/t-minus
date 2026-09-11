@@ -345,13 +345,17 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
   const atRisk = driver.status === "At Risk";
 
   const holdDays = driver.blockerSince ? Math.max(0, daysBetween(driver.blockerSince, todayISO())) : null;
-  const blockerLine = [
-    driver.blocker,
-    driver.blockerOwner ?? null,
-    holdDays === null ? null : `${holdDays} days`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const onTrack = driver.status === "On Track";
+  const fullLine = onTrack
+    ? `Next: ${driver.nextDecision}`
+    : [driver.blocker, driver.blockerOwner ?? null, holdDays === null ? null : `${holdDays} days`]
+        .filter(Boolean)
+        .join(" · ");
+  const shortLine = onTrack
+    ? `Next: ${shortReason(driver.nextDecision)}`
+    : [shortReason(driver.blocker), driver.blockerOwner ?? null, holdDays === null ? null : `${holdDays}d`]
+        .filter(Boolean)
+        .join(" · ");
 
   const decision =
     driver.daysToNextDecision === null
