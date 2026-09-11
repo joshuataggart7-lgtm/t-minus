@@ -168,7 +168,7 @@ function WorkQueuePage() {
   // branch of the files the signed-in person owns.
   const myBranch = useMemo(() => {
     const owned = cards.find((c) => c.owner.startsWith(user.name.split(" ")[0] ?? "") || c.owner === user.name);
-    return owned ? String(owned.m.acq.branch_code ?? "") : "";
+    return owned ? String(owned.m.acq['branch_code'] ?? "") : "";
   }, [cards, user.name]);
 
   const filtered = useMemo(
@@ -176,8 +176,8 @@ function WorkQueuePage() {
       cards.filter((c) => {
         if (missionId !== "all" && c.m.acq.mission_id !== missionId) return false;
         if (scope === "mine")
-          return c.owner === user.name || String(c.m.acq.requester_name ?? "") === user.name;
-        if (scope === "branch") return Boolean(myBranch) && String(c.m.acq.branch_code ?? "") === myBranch;
+          return c.owner === user.name || String(c.m.acq['requester_name'] ?? "") === user.name;
+        if (scope === "branch") return Boolean(myBranch) && String(c.m.acq['branch_code'] ?? "") === myBranch;
         if (scope === "center") return String(c.m.acq.center_code ?? "") === user.center_code;
         return true;
       }),
