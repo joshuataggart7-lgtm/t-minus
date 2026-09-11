@@ -125,6 +125,9 @@ function FilePage() {
       const { data: centers } = await supabase
         .from("centers")
         .select("center_code,aging_threshold_days");
+      const { data: people } = await supabase
+        .from("users")
+        .select("name,role,warrant_limit");
       const { data: successors } = await supabase
         .from("acquisition_facts")
         .select("acquisition_id")
@@ -148,6 +151,7 @@ function FilePage() {
       return {
         acq: acq.data as AcqRow | null,
         centers: centers ?? [],
+        people: people ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
@@ -167,6 +171,20 @@ function FilePage() {
 
   const acq = q.data?.acq ?? null;
   const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
+
+  // Warrant check: the assigned contracting officer's warrant limit, read from
+  // the users table, against the estimated value of this acquisition.
+  const warrant = useMemo(() => {
+    const value = acq?.estimated_value == null ? null : Number(acq.estimated_value);
+    const coName = acq?.co_name ?? null;
+    if (!coName || value === null || !Number.isFinite(value)) return null;
+    const co = (q.data?.people ?? []).find((p) => p.name === coName);
+    if (!co) return { coName, value, limit: null as number | null, exceeds: false, unknown: true };
+    const limit = co.warrant_limit == null ? null : Number(co.warrant_limit);
+    if (limit === null || !Number.isFinite(limit))
+      return { coName, value, limit: null as number | null, exceeds: false, unknown: true };
+    return { coName, value, limit, exceeds: value > limit, unknown: false };
+  }, [acq, q.data?.people]);
 
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
@@ -702,6 +720,36 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {warrant ? (
+        <section aria-label="Warrant check" className="mb-10 max-w-[70ch]">
+          <h2 className="mb-1 text-[18px] leading-6 font-medium">Warrant check</h2>
+          {warrant.exceeds ? (
+            <p
+              className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
+              style={{ borderColor: "var(--at-risk)" }}
+            >
+              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the estimated value{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> exceeds the warrant of{" "}
+              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
+              contracting officer with a warrant at or above the value has to sign the award.
+            </p>
+          ) : warrant.unknown ? (
+            <p className="text-[15px] leading-[22px] text-muted-foreground">
+              No warrant limit is recorded for {warrant.coName}, so the estimated value of{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> cannot be checked against a
+              warrant.
+            </p>
+          ) : (
+            <p className="text-[15px] leading-[22px] text-muted-foreground">
+              Within warrant: the estimated value{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> is at or below the warrant of{" "}
+              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
+            </p>
+          )}
+        </section>
+      ) : null}
+
 
       {!successor && effectiveState === "launched" ? (
         <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">

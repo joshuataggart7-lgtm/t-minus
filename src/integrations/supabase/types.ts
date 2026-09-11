@@ -1251,6 +1251,7 @@ export type Database = {
           supervisor_name: string | null
           title: string | null
           user_id: string
+          warrant_limit: number | null
         }
         Insert: {
           branch_code?: string | null
@@ -1263,6 +1264,7 @@ export type Database = {
           supervisor_name?: string | null
           title?: string | null
           user_id: string
+          warrant_limit?: number | null
         }
         Update: {
           branch_code?: string | null
@@ -1275,6 +1277,7 @@ export type Database = {
           supervisor_name?: string | null
           title?: string | null
           user_id?: string
+          warrant_limit?: number | null
         }
         Relationships: []
       }
