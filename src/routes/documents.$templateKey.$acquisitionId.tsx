@@ -276,6 +276,13 @@ function DocumentPage() {
     const acq = q.data?.acq;
     const envelope = (q.data?.samCheck?.response_json ?? null) as Record<string, unknown> | null;
     const n = (envelope?.["normalized"] ?? null) as Record<string, unknown> | null;
+    // The PNM reads the IGCE and quote from the intake answers where the
+    // requester recorded them.
+    const answers = (acq?.["nf1707_answers"] ?? null) as Record<string, unknown> | null;
+    const answerValue = (match: RegExp) => {
+      const hit = Object.entries(answers ?? {}).find(([k, v]) => match.test(k) && v !== null && v !== "");
+      return hit ? String(hit[1]) : "";
+    };
     return {
       sam_legal_name: n?.["legalName"] ?? acq?.["vendor_legal_name"] ?? "",
       sam_uei: n?.["uei"] ?? acq?.["vendor_uei"] ?? "",
@@ -286,6 +293,8 @@ function DocumentPage() {
       sam_integrity_count:
         n?.["integrityRecordsCount"] === undefined ? "—" : String(n["integrityRecordsCount"]),
       sam_checked_at: q.data?.samCheck?.checked_at ?? "No entity check recorded",
+      igce_amount: answerValue(/igce|cost_estimate/i) || (acq?.["estimated_value"] ?? ""),
+      quoted_price: answerValue(/quote|proposed_price/i),
     } as Record<string, unknown>;
   }, [q.data]);
 
