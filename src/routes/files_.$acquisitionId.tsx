@@ -121,6 +121,9 @@ function FilePage() {
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
       ]);
+      const { data: centers } = await supabase
+        .from("centers")
+        .select("center_code,aging_threshold_days");
       const { data: successors } = await supabase
         .from("acquisition_facts")
         .select("acquisition_id")
@@ -136,6 +139,7 @@ function FilePage() {
       }
       return {
         acq: acq.data as AcqRow | null,
+        centers: centers ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
