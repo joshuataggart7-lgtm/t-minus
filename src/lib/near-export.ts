@@ -237,9 +237,51 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     ),
   );
 
+  // -------------------------------------------------------- NF 1098 file index
+  const planRes = await supabase
+    .from("phase_plan")
+    .select("acquisition_type,phase,planned_days,order,note");
+  const phases = buildSequence(
+    acq as never,
+    planRes.data ?? [],
+    new Date().toISOString().slice(0, 10),
+    (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000),
+  ).map((p) => p.phase);
+  const fileIndex = buildFileIndex(
+    documents.map((d) => ({
+      template_id: d.template_id ?? null,
+      version: d.version ?? 1,
+      saved_by: d.saved_by ?? null,
+      saved_at: d.saved_at ?? null,
+    })),
+    templates.map((t) => ({ template_id: t.template_id, name: t.name, nf_1098_tab: t.nf_1098_tab })),
+    phases,
+  );
+  const indexBodyTabs =
+    `<h2>NF 1098 contract file index</h2>` +
+    `<p class="cite">FAR 4.801. Tabs present in this file and tabs this acquisition type requires.</p>` +
+    rows(
+      ["NF 1098 tab", "Document", "Phase", "State"],
+      [
+        ...fileIndex.present.map((t) => [
+          t.tab,
+          t.templateName,
+          t.phase,
+          `Present, ${t.documents.length} version${t.documents.length === 1 ? "" : "s"}`,
+        ]),
+        ...fileIndex.missing.map((t) => [
+          t.tab,
+          t.templateName,
+          t.phase,
+          "Required for this acquisition type, no document",
+        ]),
+      ],
+    );
+
   // -------------------------------------------------------------------- index
   const indexBody =
     `<p>${esc(String(acq["title"] ?? ""))}</p>` +
+    indexBodyTabs +
     `<h2>Document versions, in NF 1098 tab order</h2>` +
     rows(["NF 1098 tab", "Document", "Version", "Saved by", "Saved at", "File"], indexRows) +
     `<h2>Record contents</h2>` +
