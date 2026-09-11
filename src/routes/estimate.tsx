@@ -16,7 +16,7 @@ export const Route = createFileRoute("/estimate")({
   component: () => (
     <AppShell>
       <PageHeader title="Estimate" lead="Level of effort and timeline estimate." />
-      <Placeholder note="Reserved for B12. Nothing to do here yet." />
+      <Placeholder note="Nothing to do here yet." />
     </AppShell>
   ),
 });

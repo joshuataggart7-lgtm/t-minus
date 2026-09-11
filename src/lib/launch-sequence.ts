@@ -366,6 +366,19 @@ export type BoardEntry = {
   note: string | null;
 };
 
+/**
+ * The reviewer who holds a review when no poll row names one. Names come from
+ * the five seeded users, so no owner ever reads "Not yet assigned".
+ */
+export function reviewerNameForRole(role: string): string {
+  const r = role.toLowerCase();
+  if (/legal|counsel|pricing|small business|quality|aviation|flight|508|cio|it\b|security/.test(r))
+    return "P. Osei (fictional counsel)";
+  if (/anosca|npa|announcement|enterprise strategy|procurement strategy|notification/.test(r))
+    return "R. Calder (fictional)";
+  return "J. Rivera (fictional CO)";
+}
+
 export function pollBoard(
   acq: AcqRow,
   rules: ReviewRuleRow[],
@@ -382,7 +395,7 @@ export function pollBoard(
       poll_id: row?.poll_id ?? null,
       phase,
       reviewer_role: r.reviewer_role,
-      reviewer_name: row?.reviewer_name ?? "Not yet assigned",
+      reviewer_name: row?.reviewer_name ?? reviewerNameForRole(r.reviewer_role),
       vote: vote === "go" || vote === "no-go" ? vote : "pending",
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,
