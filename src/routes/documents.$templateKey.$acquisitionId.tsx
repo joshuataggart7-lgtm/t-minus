@@ -124,10 +124,20 @@ function DocumentPage() {
             .eq("document_id", latestId)
             .order("created_at", { ascending: true })
         : { data: [] };
+      // The nonresponsibility memo reads the vendor facts from the entity
+      // check stored on this acquisition, never from typing.
+      const samCheck = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return {
         acq: acq.data as Record<string, unknown> | null,
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
+        samCheck: samCheck.data ?? null,
         hqRevision: tpl.data?.hq_revision_date ?? null,
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
