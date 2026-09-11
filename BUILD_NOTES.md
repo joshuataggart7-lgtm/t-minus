@@ -394,3 +394,25 @@ fields filled and the badge showing the HQ effective date.
 - Every create, clock start, vote, decision and delete writes an audit entry with phase "Deviation request".
 - `templates.csv` row for tab 33 is now `live` and the catalog links it to `/deviations`.
 - Reviewer days are constants in `deviations.ts` rather than table rows; `review_rules.csv` carries no deviation rows to read from.
+
+## E9. Ask T-Minus
+
+- `src/lib/ask.functions.ts` — authenticated server function `askTMinus`. It
+  loads the regulatory references (FAR, NFS, PCDs, the NFS Companion Guide,
+  PICs and PNs), the current thresholds, the review rules and the templates
+  list from the tables, turns each row into a labelled reference line, and asks
+  the gateway model `openai/gpt-6-astra` to answer strictly from those lines,
+  returning JSON with an answer and citations.
+- No answer without a citation: returned citations are matched back against the
+  rows actually loaded. If nothing matches, or the model returns no citations,
+  the box says so instead of showing an answer. Citations the model invents
+  cannot appear, because only matched rows are rendered.
+- `src/components/ask-tminus.tsx` — the question box, mounted in the header of
+  `src/components/app-shell.tsx`, so it is on every page. The answer carries the
+  "AI draft, not yet reviewed" label, the model name and time, and each source
+  with its tier (binding or guidance), kind, origin and effective date, linked
+  where the row has a URL.
+- Thresholds render day counts as days and dollar figures as dollars.
+- Check: "when must a JOFOC be posted after award" returns the 14-day posting
+  answer citing RFO FAR 6.301 (formerly 6.305), tier binding, effective
+  2026-03-01, with the 30-day urgency and minimum posting period noted.
