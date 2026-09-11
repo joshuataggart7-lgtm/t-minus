@@ -124,7 +124,7 @@ function FilePage() {
   });
 
   const acq = q.data?.acq ?? null;
-  const intakeEstimate = (acq?.intake_estimate ?? null) as StoredEstimate | null;
+  const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
 
   const ref: RefData = useMemo(
     () => ({
