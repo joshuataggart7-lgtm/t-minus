@@ -307,6 +307,115 @@ function ExecutiveOverview() {
   );
 }
 
+/** Colour of the rule and word on the navy panel, paired with the status word. */
+function panelStatusColor(status: AcqMetrics["status"]) {
+  if (status === "Launched") return "var(--panel-muted)";
+  return statusColor(status);
+}
+
+/** One priority project on the Mission Clock. Kept under 96px tall. */
+function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
+  const [expanded, setExpanded] = useState(false);
+  const color = panelStatusColor(driver.status);
+  const atRisk = driver.status === "At Risk";
+
+  const holdDays = driver.blockerSince ? Math.max(0, daysBetween(driver.blockerSince, todayISO())) : null;
+  const blockerLine = [
+    driver.blocker,
+    driver.blockerOwner ?? null,
+    holdDays === null ? null : `${holdDays} days`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const decision =
+    driver.daysToNextDecision === null
+      ? null
+      : driver.daysToNextDecision < 0
+        ? { text: `${Math.abs(driver.daysToNextDecision)} days overdue`, overdue: true }
+        : { text: String(driver.daysToNextDecision), overdue: false };
+
+  return (
+    <li className="border-l-4 py-3 pl-4" style={{ borderLeftColor: color }}>
+      <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_auto_auto_minmax(0,1.4fr)]">
+        <div className="min-w-0">
+          <Link
+            to="/files/$acquisitionId"
+            params={{ acquisitionId: driver.acq.acquisition_id }}
+            className="block truncate rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
+          >
+            {mission.name}
+          </Link>
+          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
+            {mission.milestone ?? "Milestone"}
+          </p>
+          <p className="truncate text-[13px] leading-[18px] text-panel-muted">
+            Mission date {formatDate(mission.milestone_date)}
+          </p>
+        </div>
+
+        <div className="min-w-0">
+          <p className="truncate text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
+          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
+            Next decision: {driver.nextDecision}
+          </p>
+        </div>
+
+        <div>
+          {decision === null ? (
+            <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
+          ) : (
+            <p
+              className={decision.overdue ? "text-[18px] leading-6 font-semibold" : "clock-figure"}
+              style={decision.overdue ? { color: "var(--atrisk)" } : undefined}
+              data-numeric
+            >
+              {decision.text}
+            </p>
+          )}
+          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">Days to decision</p>
+        </div>
+
+        <div>
+          {driver.daysToAward === null ? (
+            <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
+          ) : driver.daysToAward < 0 ? (
+            <p className="text-[18px] leading-6 font-semibold" style={{ color: "var(--atrisk)" }} data-numeric>
+              {Math.abs(driver.daysToAward)} days overdue
+            </p>
+          ) : (
+            <p className="clock-figure" data-numeric>
+              {driver.daysToAward}
+            </p>
+          )}
+          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">Days to award</p>
+        </div>
+
+        <div className="min-w-0">
+          <p
+            className="text-[18px] leading-6 font-semibold"
+            style={atRisk ? { color: "var(--atrisk)" } : undefined}
+          >
+            {driver.status}
+          </p>
+          <button
+            type="button"
+            onClick={() => setExpanded((e) => !e)}
+            aria-expanded={expanded}
+            className={
+              expanded
+                ? "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
+                : "mt-0.5 block w-full truncate text-left text-[13px] leading-[18px] text-panel-muted"
+            }
+          >
+            {blockerLine}
+          </button>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
   const recent = items.filter((i) => withinDays(i, 14));
   return (
