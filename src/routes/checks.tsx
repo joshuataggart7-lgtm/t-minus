@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -28,6 +29,7 @@ function ChecksPage() {
   const [acquisitionId, setAcquisitionId] = useState("A-2027-0102");
   const [uei, setUei] = useState("");
   const [result, setResult] = useState<SamCheckView | null>(null);
+  const runCheck = useServerFn(runSamEntityCheck);
 
   const acquisitions = useQuery({
     queryKey: ["check-acquisitions"],
@@ -45,7 +47,7 @@ function ChecksPage() {
 
   const check = useMutation({
     mutationFn: () =>
-      runSamEntityCheck({
+      runCheck({
         data: mode === "record" ? { mode, acquisitionId } : { mode, uei: uei.trim().toUpperCase() },
       }),
     onSuccess: setResult,
