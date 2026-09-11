@@ -25,6 +25,7 @@ import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as RegIntakeRouteImport } from './routes/reg-intake'
 import { Route as ReportingRouteImport } from './routes/reporting'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
+import { Route as SimulateRouteImport } from './routes/simulate'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
@@ -118,6 +119,11 @@ const SeedStatusRoute = SeedStatusRouteImport.update({
   path: '/seed-status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimulateRoute = SimulateRouteImport.update({
+  id: '/simulate',
+  path: '/simulate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
+  '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
@@ -231,6 +238,7 @@ export interface FileRoutesByTo {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
+  '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
@@ -262,6 +270,7 @@ export interface FileRoutesById {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
+  '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
@@ -294,6 +303,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/seed-status'
+    | '/simulate'
     | '/templates'
     | '/watch'
     | '/work-queue'
@@ -324,6 +334,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/seed-status'
+    | '/simulate'
     | '/templates'
     | '/watch'
     | '/work-queue'
@@ -354,6 +365,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/seed-status'
+    | '/simulate'
     | '/templates'
     | '/watch'
     | '/work-queue'
@@ -385,6 +397,7 @@ export interface RootRouteChildren {
   RegIntakeRoute: typeof RegIntakeRoute
   ReportingRoute: typeof ReportingRoute
   SeedStatusRoute: typeof SeedStatusRoute
+  SimulateRoute: typeof SimulateRoute
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
@@ -513,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeedStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/simulate': {
+      id: '/simulate'
+      path: '/simulate'
+      fullPath: '/simulate'
+      preLoaderRoute: typeof SimulateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/templates': {
       id: '/templates'
       path: '/templates'
@@ -617,6 +637,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegIntakeRoute: RegIntakeRoute,
   ReportingRoute: ReportingRoute,
   SeedStatusRoute: SeedStatusRoute,
+  SimulateRoute: SimulateRoute,
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,

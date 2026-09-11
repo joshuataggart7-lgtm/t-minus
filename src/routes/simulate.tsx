@@ -114,7 +114,7 @@ function SimulatePage() {
       <AppShell>
         <PageHeader
           title="Policy impact simulator"
-          intro="Change a threshold or a review trigger and see how many days move across the files in flight."
+          lead="Change a threshold or a review trigger and see how many days move across the files in flight."
         />
         <p className="text-muted">
           The simulator is open to executives and HQ. Nothing here changes a record.
@@ -127,10 +127,10 @@ function SimulatePage() {
     <AppShell>
       <PageHeader
         title="Policy impact simulator"
-        intro="Change a threshold value or a review trigger and see, across every active file, how many days move and where. Nothing is written."
+        lead="Change a threshold value or a review trigger and see, across every active file, how many days move and where. Nothing is written."
       />
 
-      {q.isLoading ? <LoadingNote label="Reading the rules and the files" /> : null}
+      {q.isLoading ? <LoadingNote what="the rules and the files" /> : null}
       {q.error ? <ErrorNote message="The rules and files could not be read. Reload the page to try again." /> : null}
 
       {q.data ? (
@@ -226,10 +226,7 @@ function SimulatePage() {
               </p>
 
               {result.filesAffected.length === 0 ? (
-                <EmptyState
-                  title="No file changes"
-                  body="Every active file keeps the same review steps and the same planned days under this value."
-                />
+                <EmptyState sentence="Every active file keeps the same review steps and the same planned days under this value." />
               ) : (
                 <table className="data-table">
                   <caption className="sr-only">Files whose planned days change under the proposed value</caption>
