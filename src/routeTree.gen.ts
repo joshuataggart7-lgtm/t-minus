@@ -15,6 +15,7 @@ import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChecksRouteImport } from './routes/checks'
 import { Route as DeviationsRouteImport } from './routes/deviations'
 import { Route as DirectivesRouteImport } from './routes/directives'
+import { Route as EscalationsRouteImport } from './routes/escalations'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IntakeRouteImport } from './routes/intake'
@@ -60,6 +61,11 @@ const DeviationsRoute = DeviationsRouteImport.update({
 const DirectivesRoute = DirectivesRouteImport.update({
   id: '/directives',
   path: '/directives',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscalationsRoute = EscalationsRouteImport.update({
+  id: '/escalations',
+  path: '/escalations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EstimateRoute = EstimateRouteImport.update({
@@ -154,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
+  '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
@@ -178,6 +185,7 @@ export interface FileRoutesByTo {
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
+  '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
+  '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/deviations'
     | '/directives'
+    | '/escalations'
     | '/estimate'
     | '/files'
     | '/intake'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/deviations'
     | '/directives'
+    | '/escalations'
     | '/estimate'
     | '/files'
     | '/intake'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/deviations'
     | '/directives'
+    | '/escalations'
     | '/estimate'
     | '/files'
     | '/intake'
@@ -302,6 +314,7 @@ export interface RootRouteChildren {
   ChecksRoute: typeof ChecksRoute
   DeviationsRoute: typeof DeviationsRoute
   DirectivesRoute: typeof DirectivesRoute
+  EscalationsRoute: typeof EscalationsRoute
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
   IntakeRoute: typeof IntakeRoute
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       path: '/directives'
       fullPath: '/directives'
       preLoaderRoute: typeof DirectivesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escalations': {
+      id: '/escalations'
+      path: '/escalations'
+      fullPath: '/escalations'
+      preLoaderRoute: typeof EscalationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/estimate': {
@@ -486,6 +506,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChecksRoute: ChecksRoute,
   DeviationsRoute: DeviationsRoute,
   DirectivesRoute: DirectivesRoute,
+  EscalationsRoute: EscalationsRoute,
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
   IntakeRoute: IntakeRoute,
