@@ -288,9 +288,19 @@ function IntakePage() {
           new_value: target,
           reason: `Need date ${facts.need_date} minus ${lead} days to delivery`,
         },
+        {
+          acquisition_id: next,
+          actor: user.name,
+          action: "Intake estimate recorded",
+          field: "intake_estimate",
+          old_value: null,
+          new_value: `${est.monthsToAward} months to award; ${est.phases.length} phases; ${est.hours.total} contracting hours`,
+          reason:
+            "LOE Estimator model run against the intake answers (value, competition, pricing, instrument, requirement type)",
+        },
       ]);
 
-      navigate({ to: "/files/$acquisitionId", params: { acquisitionId: next } });
+      navigate({ to: "/intake/$acquisitionId", params: { acquisitionId: next } });
     } catch (e) {
       setSaveError(
         e instanceof Error
