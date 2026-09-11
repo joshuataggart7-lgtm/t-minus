@@ -187,6 +187,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
           `[Claude] empty text; stop_reason=${payload.stop_reason ?? "none"}; blocks=${(payload.content ?? []).map((c) => c.type).join(",")}`,
         );
       }
+      console.log(`[Claude] model=${model}; prompt chars=${content.length}; text chars=${value.length}`);
       return value;
     };
 
