@@ -333,7 +333,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         : { text: String(driver.daysToNextDecision), overdue: false };
 
   return (
-    <li className="border-l-4 py-3 pl-4" style={{ borderLeftColor: color }}>
+    <li className="border-l-4 py-2 pl-4" style={{ borderLeftColor: color }}>
       <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_auto_auto_minmax(0,1.4fr)]">
         <div className="min-w-0">
           <Link
