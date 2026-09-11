@@ -113,6 +113,9 @@ export const TRISTATE_LABELS: { value: string; label: string }[] = [
 export function fieldLabel(f: Nf1707Field) {
   const caption = (f.caption_full ?? "").replace(/\s+/g, " ").trim();
   const nearby = (f.nearest_form_text_full ?? "").replace(/\s+/g, " ").trim();
+  if (f.section === "Section1" && f.field_name === "NotAvailable") {
+    return "The requestor has reviewed the information on the Office of Procurement NASA Strategic Sourcing website and the requirement IS NOT AVAILABLE";
+  }
   if (caption && !/^(yes|no|or|and)$/i.test(caption)) return caption;
   if (nearby.length >= 4 && !/^(yes|no|or|and)$/i.test(nearby)) return nearby;
   if (caption) return caption;
@@ -134,6 +137,18 @@ export function fieldLabel(f: Nf1707Field) {
     .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
     .trim();
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+}
+
+/** Rows whose source text is a heading or connector are display text, not questions. */
+export function isStructuralField(f: Nf1707Field) {
+  const caption = (f.caption_full ?? "").replace(/\s+/g, " ").trim();
+  const nearby = (f.nearest_form_text_full ?? "").replace(/\s+/g, " ").trim();
+  const source = caption || nearby;
+  if (f.section === "Section1" && f.field_name === "Available") return true;
+  if (/^(and|or)$/i.test(source)) return true;
+  if (/^section\s+\d+\b/i.test(source)) return true;
+  if (/^[IVX]+\.\s+[A-Z][A-Z\s&/()-]+(?:\s*\(.*\))?$/u.test(source)) return true;
+  return false;
 }
 
 export function visibleForCenter(f: Nf1707Field, center: string) {
