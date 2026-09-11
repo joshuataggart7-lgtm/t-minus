@@ -201,7 +201,7 @@ export function computeMetrics(
     clockState,
     currentPhase: current?.phase ?? (acq.current_phase ? String(acq.current_phase) : null),
     nextDecision,
-    nextDecisionDate,
+    nextDecisionDate: nextDecisionDate ?? null,
     daysToNextDecision,
     daysToAward,
     forecastAwardDate,
