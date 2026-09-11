@@ -128,6 +128,13 @@ function FilePage() {
         .from("acquisition_facts")
         .select("acquisition_id")
         .eq("successor_of", acquisitionId);
+      const [fileDocs, fileTemplates] = await Promise.all([
+        supabase
+          .from("documents")
+          .select("template_id,version,saved_by,saved_at")
+          .eq("acquisition_id", acquisitionId),
+        supabase.from("templates").select("template_id,name,nf_1098_tab"),
+      ]);
       let mission = null as { name: string | null; milestone_date: string | null } | null;
       if (acq.data?.mission_id) {
         const m = await supabase
