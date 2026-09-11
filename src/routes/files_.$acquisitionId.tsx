@@ -24,6 +24,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 import type { StoredEstimate } from "@/lib/estimator";
+import { exportNearBundle } from "@/lib/near-export";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -376,6 +377,19 @@ function FilePage() {
     },
   });
 
+  const nearExport = useMutation({
+    mutationFn: async () => exportNearBundle(acquisitionId, user.name),
+    onSuccess: (r) => {
+      setBanner(`Export ready: ${r.fileName}.`);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The export could not be built: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
+
+
   function downloadPacket() {
     if (!acq) return;
     const packet = buildPacket(acq, q.data?.clauses ?? [], phases, board);
@@ -498,6 +512,14 @@ function FilePage() {
             </button>
           </>
         ) : null}
+        <button
+          type="button"
+          onClick={() => nearExport.mutate()}
+          disabled={nearExport.isPending}
+          className="rounded-lg border border-border px-3 py-2 text-[13px] disabled:opacity-40"
+        >
+          {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
+        </button>
       </div>
 
       <section aria-label="Launch sequence" className="mb-12">

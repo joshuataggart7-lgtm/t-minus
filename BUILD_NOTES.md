@@ -265,3 +265,18 @@ Polish
 - Verified: JOFOC shows PCD 25-10 (FAR Part 6 / NFS 1806, binding) and the
   NFS Companion Guide (guidance); the Award phase shows FAR 6.301 posting and
   both CICA stay rows.
+
+## D5. NEAR export bundle
+
+- `src/lib/near-export.ts` builds a zip in the browser (jszip) for one acquisition:
+  `index.html`, one page per saved document version under `documents/`, the SAM.gov
+  check responses, the comments and poll votes, the audit log, and the NF 1707 as filed.
+- Document pages are ordered by NF 1098 tab (numeric rank; untabbed last), then template
+  name, then version, and each file name carries the tab. Values render through the
+  template engine when the template is live, otherwise as field/value rows.
+- Every page carries the acquisition ID and the export timestamp in the header and the
+  prototype footer.
+- The action sits on the acquisition file page ("Export file for NEAR") and writes one
+  audit entry with the file name and the counts included.
+- Verified on A-2027-0102: index lists the JOFOC versions, the TER, the SAM.gov checks
+  and the audit log in tab order. Temporary test documents and audit rows were removed.
