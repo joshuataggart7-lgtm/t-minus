@@ -450,3 +450,17 @@ fields filled and the badge showing the HQ effective date.
   aging counts by Center, and the file's clock line shows the hold's age.
 - Checked by setting every Center's window to 0 days: both on-hold files read
   Aging and appeared in the digest; the window was set back to 5.
+
+## E13. Leadership digest
+
+- `src/lib/digest.ts` builds the weekly digest from the same computed metrics
+  and aging items the Executive Overview reads: launched this week (Monday to
+  today), at risk, aging holds, holds by reason within each Center, days
+  returned to missions this quarter, and the running/on hold/launched/scrubbed
+  counts. No text in the digest is editable.
+- `/digest` renders it, exports it to PDF through the print dialog on white,
+  and lets HQ post it as an announcement (body generated from the same lines);
+  the send is audited.
+- Checked against the Acquisitions tab: running 5, on hold 5, launched this
+  quarter 1, scrubbed 0, days returned 0 (ARC), and the same holds-by-reason
+  counts.
