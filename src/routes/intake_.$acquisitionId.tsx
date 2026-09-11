@@ -60,9 +60,11 @@ function ConfirmationPage() {
       {q.data && !est ? (
         <EmptyState
           sentence="No estimate was recorded for this request."
-          actionLabel="Open the file"
-          to="/files/$acquisitionId"
-          params={{ acquisitionId }}
+          action={
+            <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="underline">
+              Open the file
+            </Link>
+          }
         />
       ) : null}
 
