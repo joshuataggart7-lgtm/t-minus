@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
 
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  const { role, user, setRole } = useRole();
+  const { role, user, setRole, authMessage } = useRole();
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = navFor(role);
@@ -84,10 +84,27 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               );
             })}
           </ul>
+          <div className="border-t border-border px-4 py-3">
+            <Link
+              to="/seed-status"
+              title="Seed status"
+              className="block truncate text-[13px] text-muted-foreground hover:text-foreground"
+            >
+              {collapsed ? "S" : "Seed status"}
+            </Link>
+          </div>
         </nav>
 
         <div className="min-w-0 flex-1">
           <main className={cn("px-8 py-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}>
+            {authMessage ? (
+              <p
+                className="mb-6 border-l-2 py-1 pl-3 text-[13px]"
+                style={{ borderColor: "var(--attention)", color: "var(--attention)" }}
+              >
+                Needs attention: {authMessage}
+              </p>
+            ) : null}
             {children}
           </main>
           <footer className="px-8 pb-8 text-[13px] text-muted-foreground">
