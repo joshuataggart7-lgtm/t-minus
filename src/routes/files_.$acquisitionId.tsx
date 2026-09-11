@@ -592,6 +592,21 @@ function FilePage() {
                 })}
               </ul>
 
+              {p.phase === "Price Reasonableness" ? (
+                <p className="mt-3 max-w-[80ch] text-[13px]">
+                  <Link
+                    to="/documents/$templateKey/$acquisitionId"
+                    params={{ templateKey: "pnm", acquisitionId }}
+                    className="text-primary"
+                  >
+                    Open the price negotiation memorandum
+                  </Link>
+                  <span className="ml-2 text-muted-foreground">
+                    FAR 12.204(b)(1) · the determination of record for price reasonableness
+                  </span>
+                </p>
+              ) : null}
+
               {p.phase === "Responsibility Check" ? (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
                   <p className="text-[15px] font-medium">Finding</p>

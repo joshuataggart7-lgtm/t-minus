@@ -646,6 +646,70 @@ function DocumentPage() {
         ) : null}
       </form>
 
+      {def.key === "pnm" ? (
+        <section aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
+          <h2 className="mb-1 text-[18px] leading-6 font-medium">Comparable prior awards</h2>
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            SAM.gov contract awards for this NAICS and PSC, half to double the estimated value.
+          </p>
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-2 text-[15px]"
+            disabled={!canWrite || runComparables.isPending}
+            onClick={() => runComparables.mutate()}
+          >
+            {runComparables.isPending ? "Running comparables" : "Run comparables"}
+          </button>
+          {comparables ? (
+            <>
+              <p className="mt-3 text-[13px]">
+                <StatusMark color={comparables.source === "live" ? "var(--ontrack)" : "var(--attention)"}>
+                  {comparables.sourceLabel}
+                </StatusMark>
+                <span className="ml-2 text-muted-foreground" data-numeric>
+                  NAICS {comparables.naicsCode} · PSC {comparables.pscCode} · {money(comparables.minValue)} to{" "}
+                  {money(comparables.maxValue)}
+                </span>
+              </p>
+              {comparables.awards.length ? (
+                <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
+                  <thead>
+                    <tr className="border-b border-border text-left">
+                      <th scope="col" className="px-3 py-2 font-medium">Agency</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Award date</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Pricing type</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Extent competed</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Obligated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparables.awards.map((a, i) => (
+                      <tr key={`${a.agency}-${a.awardDate}-${i}`} className="border-b border-border last:border-0 align-top">
+                        <td className="px-3 py-2">{a.agency}</td>
+                        <td className="px-3 py-2" data-numeric>{a.awardDate}</td>
+                        <td className="px-3 py-2">{a.pricingType}</td>
+                        <td className="px-3 py-2">{a.extentCompeted}</td>
+                        <td className="px-3 py-2" data-numeric>{money(a.obligatedAmount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="mt-3 text-muted-foreground">No prior awards came back for this NAICS and PSC.</p>
+              )}
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                The summary above the table is written into the memorandum. Edit it to state what the comparison shows.
+              </p>
+            </>
+          ) : (
+            <p className="mt-3 text-muted-foreground">
+              No comparables run yet. Run comparables to pull prior awards for this requirement.
+            </p>
+          )}
+        </section>
+      ) : null}
+
+
       <section aria-label="Provenance" className="mb-10 max-w-[80ch] border border-border bg-background p-4">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Provenance</h2>
         {latest ? (
