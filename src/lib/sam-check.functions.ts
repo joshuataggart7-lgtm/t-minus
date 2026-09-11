@@ -168,7 +168,7 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
         if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
         const url = new URL("https://api.sam.gov/entity-information/v3/entities");
         url.searchParams.set("api_key", apiKey);
-        url.searchParams.set("samUEI", uei);
+        url.searchParams.set("ueiSAM", uei);
         url.searchParams.set(
           "includeSections",
           "entityRegistration,coreData,assertions,repsAndCerts,integrityInformation",
