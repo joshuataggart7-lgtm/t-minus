@@ -145,6 +145,7 @@ export function isStructuralField(f: Nf1707Field) {
   const nearby = (f.nearest_form_text_full ?? "").replace(/\s+/g, " ").trim();
   const source = caption || nearby;
   if (f.section === "Section1" && f.field_name === "Available") return true;
+  if (f.section === "Section1" && f.field_name === "NotAvailable") return false;
   if (/^(and|or)$/i.test(source)) return true;
   if (/^section\s+\d+\b/i.test(source)) return true;
   if (/^[IVX]+\.\s+[A-Z][A-Z\s&/()-]+(?:\s*\(.*\))?$/u.test(source)) return true;
