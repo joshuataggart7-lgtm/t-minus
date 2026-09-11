@@ -593,17 +593,7 @@ function DocumentPage() {
 
       {q.isLoading ? <p className="text-muted-foreground">Loading the record.</p> : null}
 
-      <form
-        className="max-w-[80ch]"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setTouched(true);
-          if (errorCount) {
-            setMessage(`${errorCount} required field${errorCount === 1 ? "" : "s"} still to complete.`);
-            return;
-          }
-          save.mutate();
-        }}
+      
       {heldByOther && checkout ? (
         <p
           role="status"
