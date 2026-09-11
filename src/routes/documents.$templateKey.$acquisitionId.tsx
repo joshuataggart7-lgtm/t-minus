@@ -5,6 +5,13 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  itemsFromRefs,
+  itemsFromWatchRows,
+  loadRegRefs,
+  loadWatchRows,
+  newerGuidance,
+} from "@/lib/watch";
 import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import {
   phaseForTemplate,
@@ -88,12 +95,14 @@ function DocumentPage() {
     // Votes and comments from other reviewers appear without a reload.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, thr, tpl, polls, rules] = await Promise.all([
+      const [acq, thr, tpl, polls, rules, watchRows, refs] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
         supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
         supabase.from("review_rules").select("*"),
+        loadWatchRows(),
+        loadRegRefs(),
       ]);
       if (acq.error) throw new Error(acq.error.message);
       const templateId = tpl.data?.template_id ?? null;
@@ -120,6 +129,7 @@ function DocumentPage() {
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
         hqRevision: tpl.data?.hq_revision_date ?? null,
+        watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
         rules: (rules.data ?? []) as ReviewRuleRow[],
         comments: (comments.data ?? []) as {
@@ -383,6 +393,19 @@ function DocumentPage() {
               </TooltipProvider>
             ) : null}
           </div>
+        ) : null}
+        {guidance ? (
+          <p className="mt-2 text-[13px]">
+            <StatusMark color="var(--attention)">Newer guidance published; review</StatusMark>{" "}
+            {guidance.url ? (
+              <a href={guidance.url} target="_blank" rel="noreferrer" className="text-primary underline">
+                {guidance.title}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">{guidance.title}</span>
+            )}
+            <span className="text-muted-foreground"> · {guidance.date ?? "date not published"}</span>
+          </p>
         ) : null}
         <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
           {headerLine}
