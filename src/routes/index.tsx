@@ -231,8 +231,9 @@ function ExecutiveOverview() {
           <>
             <ul
               aria-label="Status summary"
-              className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
+              className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
             >
+              <li className="text-[13px] text-panel-muted">Across {metrics.length} acquisitions</li>
               {summary.map((s) => (
                 <li key={s.label} className="flex items-baseline gap-2">
                   <span
@@ -337,20 +338,62 @@ function panelStatusColor(status: AcqMetrics["status"]) {
   return statusColor(status);
 }
 
-/** One priority project on the Mission Clock. Kept under 96px tall. */
+/** Short, always-fitting wording for a blocker or next decision. */
+function shortReason(text: string) {
+  // Drop parentheticals and section prefixes; they never fit on one line.
+  const t = String(text ?? "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/^[A-Za-z ]+:\s*/, "")
+    .trim();
+
+  const vote = /^(.+?)\s+has not voted$/i.exec(t);
+  if (vote) return `Awaiting ${vote[1]!.trim().split(/\s+/)[0]!.toLowerCase()} review`;
+
+  const missing = /^(.+?)\s+is missing$/i.exec(t);
+  if (missing) return `${abbreviate(missing[1]!)} missing`;
+
+  const exit = /^Exit\s+(.+)$/i.exec(t);
+  if (exit) return `Exit ${exit[1]}`;
+
+  return t.length > 24 ? `${abbreviate(t)}` : t;
+}
+
+/** Three or more words become initials, the way COs write them. */
+function abbreviate(label: string) {
+  const words = label.trim().split(/\s+/);
+  if (label.length <= 22) return label;
+  const useful = words.filter((w) => !/^(of|the|and|for|a|an|to)$/i.test(w));
+  if (useful.length >= 3) return useful.map((w) => w[0]!.toUpperCase()).join("");
+  return `${label.slice(0, 21)}…`;
+}
+
+/** One priority project on the Mission Clock. Kept under 110px tall. */
 function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
   const [expanded, setExpanded] = useState(false);
   const color = panelStatusColor(driver.status);
   const atRisk = driver.status === "At Risk";
 
   const holdDays = driver.blockerSince ? Math.max(0, daysBetween(driver.blockerSince, todayISO())) : null;
-  const blockerLine = [
-    driver.blocker,
-    driver.blockerOwner ?? null,
-    holdDays === null ? null : `${holdDays} days`,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const onTrack = driver.status === "On Track";
+  const fullLine = onTrack
+    ? `Next: ${driver.nextDecision}`
+    : [driver.blocker, driver.blockerOwner ?? null, holdDays === null ? null : `${holdDays} days`]
+        .filter(Boolean)
+        .join(" · ");
+  const shortLine = onTrack
+    ? `Next: ${shortReason(driver.nextDecision)}`
+    : [
+        shortReason(driver.blocker),
+        driver.blockerOwner
+          ? String(driver.blockerOwner)
+              .replace(/\s*\([^)]*\)/g, "")
+              .replace(/^[A-Za-z /]+:\s*/, "")
+              .trim()
+          : null,
+        holdDays === null ? null : `${holdDays}d`,
+      ]
+        .filter(Boolean)
+        .join(" · ");
 
   const decision =
     driver.daysToNextDecision === null
@@ -371,17 +414,14 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             {mission.name}
           </Link>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
-            {mission.milestone ?? "Milestone"}
-          </p>
-          <p className="truncate text-[13px] leading-[18px] text-panel-muted">
-            Mission date {formatDate(mission.milestone_date)}
+            {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
           </p>
         </div>
 
         <div className="min-w-0">
           <p className="truncate text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
-            Next decision: {driver.nextDecision}
+            {driver.nextDecision}
           </p>
         </div>
 
@@ -391,7 +431,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           ) : (
             <p
               className={decision.overdue ? "text-[18px] leading-6 font-semibold" : "clock-figure"}
-              style={decision.overdue ? { color: "var(--atrisk)" } : undefined}
+              style={decision.overdue ? { color } : undefined}
               data-numeric
             >
               {decision.text}
@@ -404,7 +444,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           {driver.daysToAward === null ? (
             <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
           ) : driver.daysToAward < 0 ? (
-            <p className="text-[18px] leading-6 font-semibold" style={{ color: "var(--atrisk)" }} data-numeric>
+            <p className="text-[18px] leading-6 font-semibold" style={{ color }} data-numeric>
               {Math.abs(driver.daysToAward)} days overdue
             </p>
           ) : (
@@ -426,13 +466,14 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             type="button"
             onClick={() => setExpanded((e) => !e)}
             aria-expanded={expanded}
+            title={fullLine}
             className={
               expanded
                 ? "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
                 : "mt-0.5 block w-full truncate text-left text-[13px] leading-[18px] text-panel-muted"
             }
           >
-            {blockerLine}
+            {expanded ? fullLine : shortLine}
           </button>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {driver.status === "Launched"
