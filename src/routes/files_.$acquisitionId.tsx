@@ -37,6 +37,14 @@ import {
   satValue,
   type ForecastAcq,
 } from "@/lib/forecast";
+import { ExplainThis } from "@/components/explain-this";
+import {
+  explainHold,
+  explainMissingDoc,
+  explainReview,
+  explainStatus,
+  explainWarrant,
+} from "@/lib/explain";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
