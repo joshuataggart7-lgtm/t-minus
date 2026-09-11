@@ -736,7 +736,7 @@ function FilePage() {
         )}
       </section>
 
-      <Link to="/files" className="text-primary">
+      <Link to="/files" className="text-primary underline underline-offset-2">
         Back to Files
       </Link>
     </AppShell>
