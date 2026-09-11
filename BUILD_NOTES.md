@@ -231,3 +231,18 @@ Polish
 - Verified on A-2027-0102: record and vendor fields pre-filled, comparables
   ran and wrote the summary into the memorandum, and Export .docx produced
   `pnm-A-2027-0102.docx`.
+
+## D3. Check-out label and NF 1707 question text
+
+- New table `document_checkouts` (acquisition, template, user, checked out at,
+  released at) with one active check-out per document. Any signed-in user may
+  clear a check-out older than thirty minutes; before that only its owner can.
+- Opening a document as a writer claims the check-out. Everyone else sees
+  "Checked out by [name] since [time]" and reads the fields read-only until the
+  holder saves or closes the document, or thirty minutes pass. No stronger
+  locking: the label refreshes every ten seconds and on page reload.
+- Audit entries on check-out, on release (saved, closed) and on a lapse.
+- NF 1707 labels: the export leaves `items=['1','0','2']` in the caption of every
+  check button, so `fieldLabel` now falls back to the nearest form text (the real
+  question) and only then to a humanized field name, so raw names such as
+  `S3s3n1` no longer appear on the intake page.
