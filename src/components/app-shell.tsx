@@ -173,7 +173,10 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             {children}
           </main>
           <footer className="px-4 pb-8 text-[13px] text-muted-foreground sm:px-8">
-            Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.
+            Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
+            <Link to="/about" className="text-primary">
+              About T-Minus
+            </Link>
           </footer>
         </div>
 
