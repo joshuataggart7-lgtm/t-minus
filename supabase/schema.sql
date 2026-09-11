@@ -176,7 +176,8 @@ create table if not exists public.templates (
 );
 
 create table if not exists public.clauses (
-  clause_number text primary key,
+  row_id uuid primary key default gen_random_uuid(),
+  clause_number text,
   title text,
   ucf_section text,
   source text,
