@@ -265,6 +265,7 @@ export type Database = {
           logged_at: string
           new_value: string | null
           old_value: string | null
+          phase: string | null
           reason: string | null
         }
         Insert: {
@@ -276,6 +277,7 @@ export type Database = {
           logged_at?: string
           new_value?: string | null
           old_value?: string | null
+          phase?: string | null
           reason?: string | null
         }
         Update: {
@@ -287,6 +289,7 @@ export type Database = {
           logged_at?: string
           new_value?: string | null
           old_value?: string | null
+          phase?: string | null
           reason?: string | null
         }
         Relationships: []
