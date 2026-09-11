@@ -295,6 +295,10 @@ function DocumentPage() {
         version: nextVersion,
         saved_by: user.name,
         saved_at: savedAt,
+        // Fields are drawn from the record by the template engine, so the
+        // provenance names the engine, and review is recorded separately.
+        ai_model: "T-Minus template engine (record pre-fill, no model)",
+        ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
       const { error: logError } = await supabase.from("audit_log").insert({
