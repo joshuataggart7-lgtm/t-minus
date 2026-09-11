@@ -562,11 +562,11 @@ function FilePage() {
                     </caption>
                     <thead>
                       <tr className="border-y border-border text-left">
-                        <th className="p-2">Reviewer</th>
-                        <th className="p-2">Name</th>
-                        <th className="p-2">Vote</th>
-                        <th className="p-2">Due</th>
-                        <th className="p-2">Citation</th>
+                        <th scope="col" className="p-2">Reviewer</th>
+                        <th scope="col" className="p-2">Name</th>
+                        <th scope="col" className="p-2">Vote</th>
+                        <th scope="col" className="p-2">Due</th>
+                        <th scope="col" className="p-2">Citation</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -631,12 +631,12 @@ function FilePage() {
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Threshold</th>
-              <th className="p-2">Value</th>
-              <th className="p-2">This acquisition</th>
-              <th className="p-2">Tier</th>
-              <th className="p-2">Effective</th>
-              <th className="p-2">Citation and note</th>
+              <th scope="col" className="p-2">Threshold</th>
+              <th scope="col" className="p-2">Value</th>
+              <th scope="col" className="p-2">This acquisition</th>
+              <th scope="col" className="p-2">Tier</th>
+              <th scope="col" className="p-2">Effective</th>
+              <th scope="col" className="p-2">Citation and note</th>
             </tr>
           </thead>
           <tbody>
@@ -708,12 +708,12 @@ function FilePage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="p-2">Logged</th>
-                <th className="p-2">Actor</th>
-                <th className="p-2">Action</th>
-                <th className="p-2">Field</th>
-                <th className="p-2">New value</th>
-                <th className="p-2">Reason</th>
+                <th scope="col" className="p-2">Logged</th>
+                <th scope="col" className="p-2">Actor</th>
+                <th scope="col" className="p-2">Action</th>
+                <th scope="col" className="p-2">Field</th>
+                <th scope="col" className="p-2">New value</th>
+                <th scope="col" className="p-2">Reason</th>
               </tr>
             </thead>
             <tbody>

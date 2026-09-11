@@ -389,10 +389,10 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Reason</th>
-              <th className="p-2">Responsible role</th>
-              <th className="p-2">Days on hold</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Reason</th>
+              <th scope="col" className="p-2">Responsible role</th>
+              <th scope="col" className="p-2">Days on hold</th>
             </tr>
           </thead>
           <tbody>
@@ -425,11 +425,11 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Phase</th>
-              <th className="p-2">Files measured</th>
-              <th className="p-2">Planned days</th>
-              <th className="p-2">Actual days</th>
-              <th className="p-2">Against plan</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Files measured</th>
+              <th scope="col" className="p-2">Planned days</th>
+              <th scope="col" className="p-2">Actual days</th>
+              <th scope="col" className="p-2">Against plan</th>
             </tr>
           </thead>
           <tbody>

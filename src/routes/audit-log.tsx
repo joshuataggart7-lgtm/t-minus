@@ -158,14 +158,14 @@ function AuditLogPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">When</th>
-                <th className="px-3 py-2 font-medium">Actor</th>
-                <th className="px-3 py-2 font-medium">Action</th>
-                <th className="px-3 py-2 font-medium">Phase</th>
-                <th className="px-3 py-2 font-medium">Field</th>
-                <th className="px-3 py-2 font-medium">Old</th>
-                <th className="px-3 py-2 font-medium">New</th>
-                <th className="px-3 py-2 font-medium">Reason</th>
+                <th scope="col" className="px-3 py-2 font-medium">When</th>
+                <th scope="col" className="px-3 py-2 font-medium">Actor</th>
+                <th scope="col" className="px-3 py-2 font-medium">Action</th>
+                <th scope="col" className="px-3 py-2 font-medium">Phase</th>
+                <th scope="col" className="px-3 py-2 font-medium">Field</th>
+                <th scope="col" className="px-3 py-2 font-medium">Old</th>
+                <th scope="col" className="px-3 py-2 font-medium">New</th>
+                <th scope="col" className="px-3 py-2 font-medium">Reason</th>
               </tr>
             </thead>
             <tbody>

@@ -290,16 +290,16 @@ function WorkQueuePage() {
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Mission</th>
-              <th className="p-2">Owner</th>
-              <th className="p-2">Column</th>
-              <th className="p-2">Phase</th>
-              <th className="p-2">Next task</th>
-              <th className="p-2">Dependency</th>
-              <th className="p-2">Days in phase</th>
-              <th className="p-2">Days to award</th>
-              <th className="p-2">Status</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Mission</th>
+              <th scope="col" className="p-2">Owner</th>
+              <th scope="col" className="p-2">Column</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Next task</th>
+              <th scope="col" className="p-2">Dependency</th>
+              <th scope="col" className="p-2">Days in phase</th>
+              <th scope="col" className="p-2">Days to award</th>
+              <th scope="col" className="p-2">Status</th>
             </tr>
           </thead>
           <tbody>

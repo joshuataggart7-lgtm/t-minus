@@ -58,13 +58,13 @@ function FilesPage() {
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Title</th>
-              <th className="p-2">Center</th>
-              <th className="p-2">Estimated value</th>
-              <th className="p-2">Phase</th>
-              <th className="p-2">Clock</th>
-              <th className="p-2">Days to award</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Title</th>
+              <th scope="col" className="p-2">Center</th>
+              <th scope="col" className="p-2">Estimated value</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Clock</th>
+              <th scope="col" className="p-2">Days to award</th>
             </tr>
           </thead>
           <tbody>

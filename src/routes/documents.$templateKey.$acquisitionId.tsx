@@ -570,10 +570,10 @@ function DocumentPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">Reviewer</th>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Vote</th>
-                <th className="px-3 py-2 font-medium">Due</th>
+                <th scope="col" className="px-3 py-2 font-medium">Reviewer</th>
+                <th scope="col" className="px-3 py-2 font-medium">Name</th>
+                <th scope="col" className="px-3 py-2 font-medium">Vote</th>
+                <th scope="col" className="px-3 py-2 font-medium">Due</th>
               </tr>
             </thead>
             <tbody>
@@ -699,9 +699,9 @@ function DocumentPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">Version</th>
-                <th className="px-3 py-2 font-medium">Saved by</th>
-                <th className="px-3 py-2 font-medium">Saved</th>
+                <th scope="col" className="px-3 py-2 font-medium">Version</th>
+                <th scope="col" className="px-3 py-2 font-medium">Saved by</th>
+                <th scope="col" className="px-3 py-2 font-medium">Saved</th>
               </tr>
             </thead>
             <tbody>

@@ -95,11 +95,11 @@ function TemplatesPage() {
               <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
                 <thead>
                   <tr className="border-b border-border text-left">
-                    <th className="px-3 py-2 font-medium">Template</th>
-                    <th className="px-3 py-2 font-medium">HQ effective date</th>
-                    <th className="px-3 py-2 font-medium">Citation</th>
-                    <th className="px-3 py-2 font-medium">Tier</th>
-                    <th className="px-3 py-2 font-medium">State</th>
+                    <th scope="col" className="px-3 py-2 font-medium">Template</th>
+                    <th scope="col" className="px-3 py-2 font-medium">HQ effective date</th>
+                    <th scope="col" className="px-3 py-2 font-medium">Citation</th>
+                    <th scope="col" className="px-3 py-2 font-medium">Tier</th>
+                    <th scope="col" className="px-3 py-2 font-medium">State</th>
                   </tr>
                 </thead>
                 <tbody>
