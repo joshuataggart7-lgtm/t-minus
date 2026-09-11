@@ -206,7 +206,7 @@ function ExecutiveOverview() {
 
       <section
         aria-label="Mission clock"
-        className="mb-10 w-full rounded-lg bg-panel px-5 py-5 text-panel-foreground sm:px-8 sm:py-6"
+        className="mb-8 w-full rounded-lg bg-panel px-5 py-4 text-panel-foreground sm:px-8 sm:py-5"
       >
         <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
         {q.isLoading ? (
@@ -219,7 +219,7 @@ function ExecutiveOverview() {
           <>
             <ul
               aria-label="Status summary"
-              className="mt-4 flex flex-wrap gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-4"
+              className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
             >
               {summary.map((s) => (
                 <li key={s.label} className="flex items-baseline gap-2">
@@ -333,7 +333,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         : { text: String(driver.daysToNextDecision), overdue: false };
 
   return (
-    <li className="border-l-4 py-2 pl-4" style={{ borderLeftColor: color }}>
+    <li className="border-l-4 py-1.5 pl-4" style={{ borderLeftColor: color }}>
       <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_auto_auto_minmax(0,1.4fr)]">
         <div className="min-w-0">
           <Link
