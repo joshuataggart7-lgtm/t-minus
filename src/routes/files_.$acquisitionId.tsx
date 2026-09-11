@@ -1334,6 +1334,74 @@ function FilePage() {
         </ol>
       </section>
 
+      <section className="mb-12 max-w-[80ch]">
+        <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
+        <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
+        <label className="mb-3 flex items-center gap-2 text-[15px]">
+          <input
+            type="checkbox"
+            checked={!!acq?.hardware_deliverable}
+            onChange={(e) =>
+              setDirective.mutate({
+                patch: { hardware_deliverable: e.target.checked },
+                field: "hardware_deliverable",
+                action: "Hardware deliverable recorded",
+                newValue: e.target.checked ? "true" : "false",
+              })
+            }
+          />
+          This acquisition has a hardware deliverable
+        </label>
+        {acq?.hardware_deliverable ? (
+          <div className="border-t border-border pt-3">
+            <label className="mb-3 flex items-center gap-2 text-[15px]">
+              <input
+                type="checkbox"
+                checked={!!acq?.["right_to_repair_statement"]}
+                onChange={(e) =>
+                  setDirective.mutate({
+                    patch: { right_to_repair_statement: e.target.checked },
+                    field: "right_to_repair_statement",
+                    action: "Right to Repair requirements statement recorded",
+                    newValue: e.target.checked ? "attached" : "not attached",
+                  })
+                }
+              />
+              Right to Repair requirements statement attached
+            </label>
+            <label htmlFor="clause-review" className="block text-[13px] text-muted-foreground">
+              Restrictive-clause review
+            </label>
+            <select
+              id="clause-review"
+              className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              value={reviewStatus(acq?.["restrictive_clause_review"])}
+              onChange={(e) =>
+                setDirective.mutate({
+                  patch: { restrictive_clause_review: e.target.value },
+                  field: "restrictive_clause_review",
+                  action: "Restrictive-clause review status recorded",
+                  newValue: e.target.value,
+                })
+              }
+            >
+              {REVIEW_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              This file appears on{" "}
+              <Link to="/directives" className="text-primary underline">
+                Directive compliance
+              </Link>{" "}
+              with these two answers.
+            </p>
+          </div>
+        ) : null}
+      </section>
+
       <section className="mb-12">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
         <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
