@@ -270,7 +270,7 @@ function ExecutiveOverview() {
       <WatchCard items={q.data?.watch ?? []} />
 
       <div role="tablist" aria-label="Overview detail" className="mb-6 flex gap-6 border-b border-border">
-        {(["acquisitions", "enterprise"] as const).map((t) => (
+        {(["acquisitions", "centers", "enterprise"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -283,7 +283,7 @@ function ExecutiveOverview() {
                 : "-mb-px border-b-2 border-transparent px-1 pb-2 text-[15px] text-muted-foreground hover:text-foreground"
             }
           >
-            {t === "acquisitions" ? "Acquisitions" : "Enterprise"}
+            {t === "acquisitions" ? "Acquisitions" : t === "centers" ? "Centers" : "Enterprise"}
           </button>
         ))}
       </div>
@@ -296,6 +296,15 @@ function ExecutiveOverview() {
           polls={q.data?.polls ?? []}
           centers={q.data?.centers ?? []}
           users={q.data?.users ?? []}
+        />
+      ) : tab === "centers" ? (
+        <CentersTab
+          metrics={metrics}
+          polls={q.data?.polls ?? []}
+          centers={q.data?.centers ?? []}
+          users={q.data?.users ?? []}
+          documents={q.data?.documents ?? []}
+          templates={q.data?.templates ?? []}
         />
       ) : (
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
