@@ -596,7 +596,129 @@ const ter: TemplateDef = {
   ],
 };
 
-export const TEMPLATES: TemplateDef[] = [nf1707, jofoc, ter];
+// ------------------------------------------- Nonresponsibility determination
+// Generated only when the Responsibility Check finding is nonresponsibility.
+// When the finding is responsible, the contracting officer's signature on the
+// SF 1449 is the affirmative determination and no memorandum exists.
+const nonresponsibility: TemplateDef = {
+  key: "nonresponsibility",
+  name: "Determination of Responsibility Nonresponsibility",
+  tab: "0045",
+  badge: {
+    citation: "FAR 9.104-1; FAR 9.105-2(a)",
+    tier: "binding",
+    revision: "HQ 05/2026 revision",
+    effective: "2026-05-18",
+    note: "Written only on a finding of nonresponsibility. An affirmative determination is made by the contracting officer's signature on the SF 1449.",
+  },
+  lead: "Determination of nonresponsibility, pre-filled from the record and the SAM.gov entity check.",
+  sections: [
+    {
+      id: "header",
+      title: "Acquisition and vendor",
+      citation: "FAR 9.105-2(a)",
+      tier: "binding",
+      fields: [
+        { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
+        { key: "title", label: "Requirement", kind: "text", bind: "title", required: true },
+        { key: "center_code", label: "Center", kind: "text", bind: "center_code" },
+        { key: "estimated_value", label: "Estimated value", kind: "money", bind: "estimated_value" },
+        { key: "vendor_legal_name", label: "Vendor legal name", kind: "text", bind: "sam_legal_name", required: true },
+        { key: "vendor_uei", label: "Unique Entity Identifier (UEI)", kind: "text", bind: "sam_uei", required: true },
+        { key: "vendor_cage", label: "CAGE code", kind: "text", bind: "sam_cage" },
+      ],
+    },
+    {
+      id: "sam",
+      title: "SAM.gov entity check of record",
+      citation: "FAR 52.204-7; FAR 9.104-6",
+      tier: "binding",
+      standingText:
+        "These values are read from the entity check stored on this acquisition. Re-run the check on the Checks page if they are out of date.",
+      fields: [
+        { key: "sam_registration", label: "Registration status", kind: "readonly", bind: "sam_registration_status" },
+        { key: "sam_expiration", label: "Registration expires", kind: "readonly", bind: "sam_registration_expiration" },
+        { key: "sam_exclusions", label: "Exclusion result", kind: "readonly", bind: "sam_exclusion_flag" },
+        { key: "sam_integrity", label: "Integrity records count (FAPIIS)", kind: "readonly", bind: "sam_integrity_count" },
+        { key: "sam_checked_at", label: "Check taken", kind: "readonly", bind: "sam_checked_at" },
+      ],
+    },
+    {
+      id: "factors",
+      title: "Standards of responsibility (FAR 9.104-1)",
+      citation: "FAR 9.104-1(a) through (g)",
+      tier: "binding",
+      standingText: "Address every factor. Mark a factor N/A only where it cannot apply to this requirement.",
+      fields: [
+        {
+          key: "f_financial",
+          label: "a. Adequate financial resources, or the ability to obtain them",
+          kind: "textarea",
+          required: true,
+        },
+        {
+          key: "f_schedule",
+          label: "b. Ability to meet the delivery or performance schedule",
+          kind: "textarea",
+          required: true,
+        },
+        { key: "f_performance", label: "c. Satisfactory performance record", kind: "textarea", required: true },
+        { key: "f_integrity", label: "d. Satisfactory record of integrity and business ethics", kind: "textarea", required: true },
+        {
+          key: "f_organization",
+          label: "e. Necessary organization, experience, accounting and operational controls, and skills",
+          kind: "textarea",
+          required: true,
+        },
+        {
+          key: "f_equipment",
+          label: "f. Necessary production, construction, and technical equipment and facilities",
+          kind: "textarea",
+          required: true,
+        },
+        { key: "f_eligibility", label: "g. Otherwise qualified and eligible to receive an award", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "determination",
+      title: "Determination",
+      citation: "FAR 9.105-2(a)(1)",
+      tier: "binding",
+      fields: [
+        {
+          key: "basis",
+          label: "Basis for the determination, with the information relied on",
+          kind: "textarea",
+          required: true,
+          help: "FAR 9.105-2(a)(1): the determination states the basis and is signed by the contracting officer.",
+        },
+        {
+          key: "sba_referral",
+          label: "Small business: referred to the Small Business Administration for a Certificate of Competency",
+          kind: "select",
+          options: ["Yes, referred under FAR 19.602-1", "No, the vendor is not a small business", "No, the finding is not one of the referable factors"],
+          required: true,
+        },
+        {
+          key: "statement",
+          label: "Determination statement",
+          kind: "textarea",
+          required: true,
+          help: "Plain statement that the prospective contractor is nonresponsible for this acquisition.",
+        },
+        { key: "determined_on", label: "Date of determination", kind: "date", required: true },
+      ],
+    },
+  ],
+  signature: () => ({
+    tierLabel: "Contracting officer",
+    citation: "FAR 9.105-2(a)(1)",
+    blocks: ["Contracting officer", "Date"],
+    note: "Signed by the contracting officer and placed in the contract file (FAR 9.105-2(b); FAR 4.801).",
+  }),
+};
+
+export const TEMPLATES: TemplateDef[] = [nf1707, jofoc, ter, nonresponsibility];
 
 export function templateByKey(key: string): TemplateDef | undefined {
   return TEMPLATES.find((t) => t.key === key);
