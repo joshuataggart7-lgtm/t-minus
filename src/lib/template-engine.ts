@@ -680,7 +680,29 @@ export async function exportDocx(doc: RenderedDoc, fileName: string) {
     for (const line of b.lines) children.push(new Paragraph({ children: [new TextRun(line)] }));
   }
   const document = new Document({
-    styles: { default: { document: { run: { font: "IBM Plex Sans", size: 22 } } } },
+    styles: {
+      default: { document: { run: { font: "IBM Plex Sans", size: 22, color: "000000" } } },
+      paragraphStyles: [
+        {
+          id: "Heading1",
+          name: "Heading 1",
+          basedOn: "Normal",
+          next: "Normal",
+          quickFormat: true,
+          run: { size: 30, bold: true, color: "000000", font: "IBM Plex Sans" },
+          paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 0 },
+        },
+        {
+          id: "Heading2",
+          name: "Heading 2",
+          basedOn: "Normal",
+          next: "Normal",
+          quickFormat: true,
+          run: { size: 24, bold: true, color: "000000", font: "IBM Plex Sans" },
+          paragraph: { spacing: { before: 200, after: 120 }, outlineLevel: 1 },
+        },
+      ],
+    },
     sections: [
       {
         properties: {
