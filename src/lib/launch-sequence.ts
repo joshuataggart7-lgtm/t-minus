@@ -306,6 +306,18 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "tech-eval") return "Technical Evaluation";
   if (templateKey === "nonresponsibility") return "Responsibility Check";
   if (templateKey === "pnm") return "Price Reasonableness";
+  if (
+    templateKey === "commerciality" ||
+    templateKey === "fair-opportunity-brand-name" ||
+    templateKey === "consolidation-determination" ||
+    templateKey === "bundling-determination" ||
+    templateKey === "economy-act-determination" ||
+    templateKey === "commercial-tm-lh-determination"
+  )
+    return "Market Research";
+  if (templateKey === "option-justification") return "Solicitation/Quote";
+  if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
+    return "Administration";
   return "Go/No-go Poll";
 }
 
