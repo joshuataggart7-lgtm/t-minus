@@ -460,6 +460,38 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
 
+  // ------------------------------------- directive compliance (hardware buys)
+  const setDirective = useMutation({
+    mutationFn: async (input: {
+      patch: Record<string, boolean | string>;
+      field: string;
+      action: string;
+      newValue: string;
+    }) => {
+      if (!acq) return;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ ...input.patch, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: input.action,
+        field: input.field,
+        old_value: String((acq as Record<string, unknown>)[input.field] ?? ""),
+        new_value: input.newValue,
+        reason: "OP memo, March 17, 2026",
+        phase: acq.current_phase ?? null,
+      } as never);
+    },
+    onSuccess: () => {
+      setBanner("Recorded. Directive compliance is updated.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
+  });
+
   // ------------------------------------------------------ post-award modules
   const pa = postAward(acq);
   const options = useMemo(() => optionSchedule(acq, awardDate), [acq, awardDate]);
