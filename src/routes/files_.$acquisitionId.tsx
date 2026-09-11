@@ -7,6 +7,7 @@ import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import { DIRECTIVE_CITATION, REVIEW_STATUSES, reviewStatus } from "@/lib/directives";
 import {
   acquisitionType,
   buildPacket,
@@ -457,6 +458,41 @@ function FilePage() {
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
+  });
+
+  // ------------------------------------- directive compliance (hardware buys)
+  const setDirective = useMutation({
+    mutationFn: async (input: {
+      patch: Record<string, boolean | string>;
+      field: string;
+      action: string;
+      newValue: string;
+    }) => {
+      if (!acq) return;
+      const { data, error } = await supabase
+        .from("acquisition_facts")
+        .update({ ...input.patch, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id)
+        .select("acquisition_id");
+      if (error) throw error;
+      if (!data || data.length === 0)
+        throw new Error("Your role cannot change this file. Switch to the contracting specialist role");
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: input.action,
+        field: input.field,
+        old_value: String((acq as Record<string, unknown>)[input.field] ?? ""),
+        new_value: input.newValue,
+        reason: "OP memo, March 17, 2026",
+        phase: acq.current_phase ?? null,
+      } as never);
+    },
+    onSuccess: () => {
+      setBanner("Recorded. Directive compliance is updated.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
   });
 
   // ------------------------------------------------------ post-award modules
@@ -1332,6 +1368,74 @@ function FilePage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="mb-12 max-w-[80ch]">
+        <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
+        <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
+        <label className="mb-3 flex items-center gap-2 text-[15px]">
+          <input
+            type="checkbox"
+            checked={!!acq?.hardware_deliverable}
+            onChange={(e) =>
+              setDirective.mutate({
+                patch: { hardware_deliverable: e.target.checked },
+                field: "hardware_deliverable",
+                action: "Hardware deliverable recorded",
+                newValue: e.target.checked ? "true" : "false",
+              })
+            }
+          />
+          This acquisition has a hardware deliverable
+        </label>
+        {acq?.hardware_deliverable ? (
+          <div className="border-t border-border pt-3">
+            <label className="mb-3 flex items-center gap-2 text-[15px]">
+              <input
+                type="checkbox"
+                checked={!!acq?.["right_to_repair_statement"]}
+                onChange={(e) =>
+                  setDirective.mutate({
+                    patch: { right_to_repair_statement: e.target.checked },
+                    field: "right_to_repair_statement",
+                    action: "Right to Repair requirements statement recorded",
+                    newValue: e.target.checked ? "attached" : "not attached",
+                  })
+                }
+              />
+              Right to Repair requirements statement attached
+            </label>
+            <label htmlFor="clause-review" className="block text-[13px] text-muted-foreground">
+              Restrictive-clause review
+            </label>
+            <select
+              id="clause-review"
+              className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              value={reviewStatus(acq?.["restrictive_clause_review"])}
+              onChange={(e) =>
+                setDirective.mutate({
+                  patch: { restrictive_clause_review: e.target.value },
+                  field: "restrictive_clause_review",
+                  action: "Restrictive-clause review status recorded",
+                  newValue: e.target.value,
+                })
+              }
+            >
+              {REVIEW_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              This file appears on{" "}
+              <Link to="/directives" className="text-primary underline">
+                Directive compliance
+              </Link>{" "}
+              with these two answers.
+            </p>
+          </div>
+        ) : null}
       </section>
 
       <section className="mb-12">

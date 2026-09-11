@@ -62,6 +62,8 @@ export type Database = {
           requester_name: string | null
           requester_org_code: string | null
           responsibility_finding: string | null
+          restrictive_clause_review: string | null
+          right_to_repair_statement: boolean | null
           set_aside: string | null
           sow_attached: boolean | null
           status: string | null
@@ -119,6 +121,8 @@ export type Database = {
           requester_name?: string | null
           requester_org_code?: string | null
           responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
           set_aside?: string | null
           sow_attached?: boolean | null
           status?: string | null
@@ -176,6 +180,8 @@ export type Database = {
           requester_name?: string | null
           requester_org_code?: string | null
           responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
           set_aside?: string | null
           sow_attached?: boolean | null
           status?: string | null
