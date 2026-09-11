@@ -376,6 +376,19 @@ function FilePage() {
     },
   });
 
+  const nearExport = useMutation({
+    mutationFn: async () => exportNearBundle(acquisitionId, user.name),
+    onSuccess: (r) => {
+      setBanner(`Export ready: ${r.fileName}.`);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The export could not be built: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
+
+
   function downloadPacket() {
     if (!acq) return;
     const packet = buildPacket(acq, q.data?.clauses ?? [], phases, board);
