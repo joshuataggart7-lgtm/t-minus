@@ -642,3 +642,13 @@ The About page reads this list at build time. Keep the format
 - not built | Solicitation and contract authoring | NCMS remains the document of record (NFS CG 1804.11).
 - not built | Payments, invoicing, and property | Handled by the systems of record.
 <!-- feature-status:end -->
+
+## E28. About page, sources, build stamp, feedback
+
+- `/about`, linked from the footer on every page, so any role can reach it. Sections: what T-Minus is and is not; what is built; data sources and their dates; live feeds; the build stamp; send feedback.
+- "What is built" is generated: the four status groups come from the feature list kept above in this file between the `feature-status` markers (read at build time from BUILD_NOTES.md), and the live forms list comes from the templates table with each form's NF 1098 tab, HQ revision date, and governing citation. Forms carried in the list but not yet built are counted, not invented.
+- Data sources show the seed dates (NFS interim July 23, 2026; Companion Guide August 5, 2026; PCD 26-03B clause matrix June 25, 2026; NFS applicability matrix July 23, 2026; OP template list September 10, 2026; thresholds verified September 11, 2026) followed by the regulatory_refs rows with tier, source, and effective date, newest first.
+- Build stamp: `__BUILD_STAMP__` is defined in `vite.config.ts` at build time, so it is the date and time of the current deploy, not page load.
+- "Send feedback" writes a `template_defects` row with template key `feedback`, the reporter's name and role, and the build stamp as the revision, plus the same audit entry a defect report writes. It lands on the HQ PGPD queue unchanged.
+- Executive Overview shows "Computed at [time]" under the Mission Clock panel, set in an effect on load so server and browser render the same first pass.
+- Check: opened About from the footer as the requester, all sections present; test feedback appeared on the HQ queue as "T-Minus feedback"; the test row and its audit entry were removed; the Overview shows the computed-at time.
