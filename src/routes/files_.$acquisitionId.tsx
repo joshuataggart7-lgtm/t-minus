@@ -172,6 +172,20 @@ function FilePage() {
   const acq = q.data?.acq ?? null;
   const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
 
+  // Warrant check: the assigned contracting officer's warrant limit, read from
+  // the users table, against the estimated value of this acquisition.
+  const warrant = useMemo(() => {
+    const value = acq?.estimated_value == null ? null : Number(acq.estimated_value);
+    const coName = acq?.co_name ?? null;
+    if (!coName || value === null || !Number.isFinite(value)) return null;
+    const co = (q.data?.people ?? []).find((p) => p.name === coName);
+    if (!co) return { coName, value, limit: null as number | null, exceeds: false, unknown: true };
+    const limit = co.warrant_limit == null ? null : Number(co.warrant_limit);
+    if (limit === null || !Number.isFinite(limit))
+      return { coName, value, limit: null as number | null, exceeds: false, unknown: true };
+    return { coName, value, limit, exceeds: value > limit, unknown: false };
+  }, [acq, q.data?.people]);
+
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
     if (!acq) return null;
