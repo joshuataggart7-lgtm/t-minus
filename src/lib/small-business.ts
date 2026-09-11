@@ -11,7 +11,7 @@ import type { AcqRow } from "@/lib/launch-sequence";
  */
 
 export type ThresholdRow = {
-  name: string;
+  name: string | null;
   value: number | null;
   citation: string | null;
   note: string | null;
@@ -27,8 +27,8 @@ export function isSmallBusinessSetAside(setAside: unknown): boolean {
 /** The subcontracting plan threshold row, read from thresholds rather than hard-coded. */
 export function subcontractingPlanThreshold(thresholds: ThresholdRow[]) {
   return (
-    thresholds.find((t) => t.name.trim().toLowerCase() === "subcontracting plan") ??
-    thresholds.find((t) => t.name.toLowerCase().includes("subcontracting plan")) ??
+    thresholds.find((t) => (t.name ?? "").trim().toLowerCase() === "subcontracting plan") ??
+    thresholds.find((t) => (t.name ?? "").toLowerCase().includes("subcontracting plan")) ??
     null
   );
 }
