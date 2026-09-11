@@ -475,6 +475,42 @@ export type Database = {
           },
         ]
       }
+      document_checkouts: {
+        Row: {
+          acquisition_id: string
+          checked_out_at: string
+          checkout_id: string
+          created_at: string
+          released_at: string | null
+          template_key: string
+          updated_at: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          acquisition_id: string
+          checked_out_at?: string
+          checkout_id?: string
+          created_at?: string
+          released_at?: string | null
+          template_key: string
+          updated_at?: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          acquisition_id?: string
+          checked_out_at?: string
+          checkout_id?: string
+          created_at?: string
+          released_at?: string | null
+          template_key?: string
+          updated_at?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           acquisition_id: string | null
