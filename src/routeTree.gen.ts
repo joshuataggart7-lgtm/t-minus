@@ -15,10 +15,12 @@ import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChecksRouteImport } from './routes/checks'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
+import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
+import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -50,6 +52,11 @@ const FilesRoute = FilesRouteImport.update({
   path: '/files',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntakeRoute = IntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SeedStatusRoute = SeedStatusRouteImport.update({
   id: '/seed-status',
   path: '/seed-status',
@@ -70,6 +77,11 @@ const WorkQueueRoute = WorkQueueRouteImport.update({
   path: '/work-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FilesAcquisitionIdRoute = FilesAcquisitionIdRouteImport.update({
+  id: '/files_/$acquisitionId',
+  path: '/files/$acquisitionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -78,10 +90,12 @@ export interface FileRoutesByFullPath {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,10 +104,12 @@ export interface FileRoutesByTo {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,10 +119,12 @@ export interface FileRoutesById {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -117,10 +135,12 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files/$acquisitionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -129,10 +149,12 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files/$acquisitionId'
   id:
     | '__root__'
     | '/'
@@ -141,10 +163,12 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files_/$acquisitionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -154,10 +178,12 @@ export interface RootRouteChildren {
   ChecksRoute: typeof ChecksRoute
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
+  IntakeRoute: typeof IntakeRoute
   SeedStatusRoute: typeof SeedStatusRoute
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
+  FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -204,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/intake': {
+      id: '/intake'
+      path: '/intake'
+      fullPath: '/intake'
+      preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seed-status': {
       id: '/seed-status'
       path: '/seed-status'
@@ -232,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/files_/$acquisitionId': {
+      id: '/files_/$acquisitionId'
+      path: '/files/$acquisitionId'
+      fullPath: '/files/$acquisitionId'
+      preLoaderRoute: typeof FilesAcquisitionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -242,10 +282,12 @@ const rootRouteChildren: RootRouteChildren = {
   ChecksRoute: ChecksRoute,
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
+  IntakeRoute: IntakeRoute,
   SeedStatusRoute: SeedStatusRoute,
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,
+  FilesAcquisitionIdRoute: FilesAcquisitionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
