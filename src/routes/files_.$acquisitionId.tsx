@@ -472,8 +472,11 @@ function FilePage() {
       const { error } = await supabase
         .from("acquisition_facts")
         .update({ ...input.patch, updated_at: new Date().toISOString() } as never)
-        .eq("acquisition_id", acq.acquisition_id);
+        .eq("acquisition_id", acq.acquisition_id)
+        .select("acquisition_id");
       if (error) throw error;
+      if (!data || data.length === 0)
+        throw new Error("Your role cannot change this file. Switch to the contracting specialist role");
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
         actor: user.name,
