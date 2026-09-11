@@ -308,3 +308,38 @@ Polish
 - The panel appears on the Award phase only once the file is Launched, shows the
   citations and notes from the threshold rows, and links to the Watch items
   filtered to the "Bid protest" tag (`/watch?tag=Bid protest`).
+
+## E2. Determinations library
+
+Eight new live templates in `src/lib/template-engine.ts`, each pre-filled from
+the acquisition record, with conditional sections, a version badge carrying the
+HQ effective date from templates.csv, DOCX/PDF export, versioned saves, and an
+audit entry (all handled by the existing document page):
+
+- Commerciality Determination and Findings (FAR 2.101, 10.002(e), 12.102).
+  Not in templates.csv and no HQ template exists in the NF 1098 list, so the row
+  was added with tab N/A and the badge states "T-Minus form; no HQ template
+  issued". Conditional sections on COTS, catalog pricing, and a noncommercial
+  conclusion.
+- Fair Opportunity Exception - Brand Name Justification, tab 072, 4/10/2026.
+  Brand name section shows only when the order specifies a brand name; urgency
+  and logical follow-on fields show on those exceptions.
+- Option Justification, tab 024, 7/21/2026 (FAR 17.202, 17.205(a)).
+- Option Exercise Determination, tab 24, 7/21/2026 (FAR 17.207(c),(d),(f)),
+  with the preliminary-notification block.
+- Option Exercise Contractor Preliminary Notification, tab 072, 7/21/2026.
+- Determination and Findings for Consolidation of Requirements, tab 002,
+  4/21/2026, and for Bundled Requirements, tab 002, 4/21/2026. Shared section
+  builder; bundling adds the FAR 7.107-4 substantial-bundling field.
+- Determination and Findings Interagency Acquisitions Economy Act, tab 003,
+  4/21/2026; the interagency agreement field shows on assisted acquisitions.
+- Determination and Findings Commercial Time and Materials or Labor Hour
+  Contract / Order, tab 003, 4/20/2026 (FAR 12.207(b), 16.601(d)).
+
+`phaseForTemplate` maps the commerciality, fair opportunity, consolidation,
+bundling, Economy Act, and commercial T&M/LH forms to Market Research, the
+option justification to Solicitation/Quote, and both option-exercise documents
+to Administration, so the regulation sidebar and poll board follow the phase.
+templates.csv and the templates table now mark these rows live with their
+governing citations. Verified: all nine open on A-2027-0101 with the record
+fields filled and the badge showing the HQ effective date.
