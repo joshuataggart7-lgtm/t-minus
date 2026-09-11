@@ -108,11 +108,33 @@ export const TRISTATE_LABELS: { value: string; label: string }[] = [
   { value: "2", label: "Not applicable" },
 ];
 
-/** Human label for a field: the caption when it is real text, otherwise the field name. */
+/**
+ * Human label for a field. The export leaves the caption carrying the XFA
+ * item list on every check button, so the readable question is the nearest
+ * form text. Only when neither is usable do we fall back to the raw field
+ * name, and code-like names ("S3s3n1") become a numbered question.
+ */
 export function fieldLabel(f: Nf1707Field) {
   const c = (f.caption ?? "").trim();
   if (c && !c.startsWith("items=")) return c;
-  return f.field_name ?? "Field";
+
+  const near = (f.nearest_form_text ?? "").replace(/\s+/g, " ").trim().replace(/[,;]$/, "");
+  if (near.length >= 4) return near;
+
+  const name = (f.field_name ?? "").trim();
+  if (!name) return "Question";
+
+  // S3s3n1 → Question 3.3.1; JSC1s1cb2 → Question 1.1.2
+  const numbers = name.match(/\d+/g);
+  if (/^[A-Za-z]+\d/.test(name) && numbers && numbers.length > 1) {
+    return `Question ${numbers.join(".")}`;
+  }
+  // UnderLimitNoIT → Under limit no IT
+  const spaced = name
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .trim();
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
 export function visibleForCenter(f: Nf1707Field, center: string) {
