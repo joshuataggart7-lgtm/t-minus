@@ -209,8 +209,8 @@ async function main() {
     })),
   );
 
-  // Deduplicate clauses by clause_number (CSV has 253 duplicate entries with
-  // different dates/sources; keep the first occurrence for the prototype).
+  // All clause rows load exactly as written; clause_number repeats across
+  // prescription variants and is a non-unique indexed column.
   const clauseRows = parseCsv(read("clauses.csv")).map((r) => ({
     clause_number: r["clause_number"],
     title: nul(r["title"]),
