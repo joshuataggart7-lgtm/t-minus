@@ -201,3 +201,33 @@ Polish
 - Opening the memorandum on a file whose finding is not `nonresponsibility`
   shows the SF 1449 statement instead of the form.
 - `t-minus-seed/templates.csv` marks the row live so a demo reset keeps it.
+
+## D2. Price Negotiation Memorandum with comparables
+
+- The PNM (NF 1098 tab 065, HQ effective 4/7/2026) is a live template keyed
+  `pnm`, governed by FAR 12.204(b)(1) and FAR 15.406-3, binding tier. It is
+  the determination of record for price reasonableness under simplified
+  commercial procedures; no separate price reasonableness determination is
+  generated. `phaseForTemplate` maps it to Price Reasonableness and the file
+  page links to it from that phase.
+- Pre-fill comes from the record (title, Center, requisition, NAICS, PSC,
+  contract type, competition, estimated value) and from the stored SAM.gov
+  entity check (legal name, UEI, CAGE). The IGCE and quote are read from the
+  intake answers in `nf1707_answers`; the estimated value backs the IGCE when
+  the requester recorded no separate figure. Nothing is invented.
+- `src/lib/sam-contract-awards.functions.ts` is the `sam_contract_awards`
+  handler: authenticated, restricted to contracting, reviewer, and HQ roles,
+  reads `SAM_GOV_API_KEY` from the server secret store (presence and length
+  are logged, never the value), and searches by the record's NAICS, PSC, and
+  a dollar range from half to double the estimated value, up to ten awards.
+  Each run stores the raw response and the normalized view in `sam_checks`
+  under check type `Contract awards comparables` and writes an audit entry.
+- Deviation, recorded per the stack rules: SAM.gov answers the contract
+  awards paths with HTTP 404 for a public API key (the same key returns 200
+  on entity management and opportunities), so the demo path shows the
+  clearly labeled `Sample data, fictional prior awards` rows. A cached live
+  response is preferred over the sample whenever one exists, and the source
+  label on the table always says which of the three was used.
+- Verified on A-2027-0102: record and vendor fields pre-filled, comparables
+  ran and wrote the summary into the memorandum, and Export .docx produced
+  `pnm-A-2027-0102.docx`.
