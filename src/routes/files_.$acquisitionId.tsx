@@ -197,6 +197,76 @@ function FilePage() {
     return { coName, value, limit, exceeds: value > limit, unknown: false };
   }, [acq, q.data?.people]);
 
+  // Acquisition Forecast entry, NFS 1807.72: a byproduct of the record for
+  // every intake above the simplified acquisition threshold.
+  const thresholdRows = useMemo(
+    () =>
+      (q.data?.thresholds ?? []).map((t) => ({
+        name: t.name,
+        value: t.value,
+        citation: t.citation,
+        superseded_date: t.superseded_date,
+      })),
+    [q.data?.thresholds],
+  );
+  const sat = useMemo(() => satValue(thresholdRows), [thresholdRows]);
+  const forecast = useMemo(
+    () => (acq ? forecastEntry(acq as unknown as ForecastAcq, thresholdRows) : null),
+    [acq, thresholdRows],
+  );
+
+  // The NF 1707 forecast affirmation is satisfied once the entry exists.
+  const affirmed = useRef(false);
+  useEffect(() => {
+    if (!acq || !forecast || !canWrite) return;
+    if (acq.acquisition_forecast_verified === true || affirmed.current) return;
+    affirmed.current = true;
+    void (async () => {
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ acquisition_forecast_verified: true })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) {
+        affirmed.current = false;
+        return;
+      }
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Acquisition Forecast entry generated",
+        field: "acquisition_forecast_verified",
+        old_value: String(acq.acquisition_forecast_verified ?? "not recorded"),
+        new_value: "true",
+        reason: `${FORECAST_CITATION}; entry exists, NF 1707 affirmation satisfied`,
+        phase: null,
+      } as never);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    })();
+  }, [acq, forecast, canWrite, user.name, qc, acquisitionId]);
+
+  function exportForecastCsv() {
+    if (!forecast || !acq) return;
+    const csv = forecastCsv([forecast]);
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `acquisition-forecast-${acq.acquisition_id}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    void supabase.from("audit_log").insert({
+      acquisition_id: acq.acquisition_id,
+      actor: user.name,
+      action: "Acquisition Forecast entry exported to CSV",
+      field: "acquisition_forecast",
+      old_value: null,
+      new_value: forecast.value_range,
+      reason: FORECAST_CITATION,
+      phase: null,
+    } as never);
+    setBanner("The forecast entry downloaded as a CSV file in the forecast's format.");
+  }
+
+
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
     if (!acq) return null;
