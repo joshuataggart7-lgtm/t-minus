@@ -136,13 +136,30 @@ function AuditLogPage() {
         </div>
       </div>
 
-      {q.isLoading ? <p className="text-muted-foreground">Loading the log.</p> : null}
+      {q.isLoading ? <LoadingNote what="the log" /> : null}
 
-      {!q.isLoading && !groups.length ? (
-        <p className="text-muted-foreground">
-          Nothing recorded yet for this filter. Clear the filters, or start work on a file.
-        </p>
+      {q.isError ? (
+        <ErrorNote message="The log did not load. Refresh the page; if it fails again, switch roles in the header to sign in as a seeded user." />
       ) : null}
+
+      {!q.isLoading && !q.isError && !groups.length ? (
+        <EmptyState
+          sentence="Nothing is recorded yet for this filter."
+          action={
+            <button
+              type="button"
+              onClick={() => {
+                setActor("");
+                setPhase("");
+              }}
+              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            >
+              Clear the filters
+            </button>
+          }
+        />
+      ) : null}
+
 
       {groups.map(([acqId, list]) => (
         <section key={acqId} className="mb-10">

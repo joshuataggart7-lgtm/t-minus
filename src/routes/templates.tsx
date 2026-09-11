@@ -78,10 +78,13 @@ function TemplatesPage() {
       />
 
       {authState !== "signed-in" ? (
-        <p className="text-muted-foreground">Waiting for sign-in.</p>
+        <LoadingNote what="your sign-in" />
+      ) : q.isError ? (
+        <ErrorNote message="The template list did not load. Refresh the page; if it stays empty, open Seed status to confirm the templates loaded." />
       ) : q.isLoading ? (
-        <p className="text-muted-foreground">Loading the template list.</p>
+        <LoadingNote what="the template list" />
       ) : (
+
         <>
           <p className="mb-8 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground" data-numeric>
             {live} live, {next} to build next, {rows.length - live - next} planned. Grouped by NF 1098 tab.
@@ -123,9 +126,10 @@ function TemplatesPage() {
                           </td>
                           <td className="px-3 py-2">{r.governing_citation ?? "—"}</td>
                           <td className="px-3 py-2">{r.citation_tier ?? "—"}</td>
-                          <td className="px-3 py-2" style={{ color: statusColor(r.status) }}>
-                            {statusLabel(r.status)}
+                          <td className="px-3 py-2">
+                            <StatusMark color={statusColor(r.status)}>{statusLabel(r.status)}</StatusMark>
                           </td>
+
                         </tr>
                       );
                     })}

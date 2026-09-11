@@ -54,7 +54,13 @@ function FilesPage() {
         </Link>
       ) : null}
 
+      {q.isLoading ? <LoadingNote what="the files" /> : null}
+      {q.isError ? (
+        <ErrorNote message="The file list did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+      ) : null}
+
       {q.data?.length ? (
+
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
