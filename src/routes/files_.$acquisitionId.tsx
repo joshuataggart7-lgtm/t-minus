@@ -125,6 +125,9 @@ function FilePage() {
       const { data: centers } = await supabase
         .from("centers")
         .select("center_code,aging_threshold_days");
+      const { data: people } = await supabase
+        .from("users")
+        .select("name,role,warrant_limit");
       const { data: successors } = await supabase
         .from("acquisition_facts")
         .select("acquisition_id")
