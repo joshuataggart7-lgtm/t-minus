@@ -274,6 +274,30 @@ function DocumentPage() {
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
+  // Prior awards for this NAICS and PSC, half to double the estimated value.
+  const runComparables = useMutation({
+    mutationFn: async () => runComparablesFn({ data: { acquisitionId } }),
+    onSuccess: (view) => {
+      setComparables(view);
+      setTouched(true);
+      const lines = view.awards.map(
+        (a) =>
+          `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
+      );
+      setValues((prev) => ({
+        ...prev,
+        comparables_summary: [
+          `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
+          ...lines,
+        ].join("\n"),
+      }));
+      setMessage(`Comparables loaded. ${view.sourceLabel}.`);
+    },
+    onError: (e: Error) => setMessage(`Comparables did not load: ${e.message}`),
+  });
+
+
+
   // Vendor facts from the stored SAM.gov entity check, offered to the
   // nonresponsibility memo as pre-fill values.
   const samFacts = useMemo(() => {
