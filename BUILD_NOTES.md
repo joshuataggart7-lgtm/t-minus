@@ -181,3 +181,23 @@ Polish
 - Verified end to end with the Commercial Aviation Services sample: about six months,
   nine phases, 89 contracting hours; confirmation page, file page, and audit entry all
   present. The test record was removed afterwards.
+
+## Nonresponsibility memorandum (NF 1098 tab 0045)
+
+- `acquisition_facts.responsibility_finding` records the contracting officer's
+  finding: empty, `responsible`, or `nonresponsibility`.
+- The Responsibility Check phase on the acquisition file carries a Finding
+  control (specialist and HQ only). On `responsible` the file states that the
+  CO's signature on the SF 1449 is the affirmative determination
+  (FAR 9.105-2(a)(1)) and no memorandum is offered. On `nonresponsibility` the
+  phase links to the memorandum. Every change writes an audit entry.
+- The template `nonresponsibility` (tab 0045, HQ 05/2026, FAR 9.104-1 /
+  9.105-2(a), binding) pre-fills legal name, UEI, CAGE, registration status and
+  expiration, exclusion result, integrity records count, and the check
+  timestamp from the newest `sam_checks` row for the acquisition, and carries
+  the FAR 9.104-1(a)-(g) factors as sections the CO completes. Version badge,
+  DOCX/PDF export, versioned saves, and audit entries work as on the other
+  live templates.
+- Opening the memorandum on a file whose finding is not `nonresponsibility`
+  shows the SF 1449 statement instead of the form.
+- `t-minus-seed/templates.csv` marks the row live so a demo reset keeps it.

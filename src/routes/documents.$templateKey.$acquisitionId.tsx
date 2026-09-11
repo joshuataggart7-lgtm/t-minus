@@ -124,10 +124,20 @@ function DocumentPage() {
             .eq("document_id", latestId)
             .order("created_at", { ascending: true })
         : { data: [] };
+      // The nonresponsibility memo reads the vendor facts from the entity
+      // check stored on this acquisition, never from typing.
+      const samCheck = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return {
         acq: acq.data as Record<string, unknown> | null,
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
+        samCheck: samCheck.data ?? null,
         hqRevision: tpl.data?.hq_revision_date ?? null,
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
@@ -260,6 +270,25 @@ function DocumentPage() {
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
+  // Vendor facts from the stored SAM.gov entity check, offered to the
+  // nonresponsibility memo as pre-fill values.
+  const samFacts = useMemo(() => {
+    const acq = q.data?.acq;
+    const envelope = (q.data?.samCheck?.response_json ?? null) as Record<string, unknown> | null;
+    const n = (envelope?.["normalized"] ?? null) as Record<string, unknown> | null;
+    return {
+      sam_legal_name: n?.["legalName"] ?? acq?.["vendor_legal_name"] ?? "",
+      sam_uei: n?.["uei"] ?? acq?.["vendor_uei"] ?? "",
+      sam_cage: n?.["cage"] ?? acq?.["vendor_cage"] ?? "",
+      sam_registration_status: n?.["registrationStatus"] ?? "No entity check recorded",
+      sam_registration_expiration: n?.["registrationExpiration"] ?? "—",
+      sam_exclusion_flag: n?.["exclusionFlag"] ?? "No entity check recorded",
+      sam_integrity_count:
+        n?.["integrityRecordsCount"] === undefined ? "—" : String(n["integrityRecordsCount"]),
+      sam_checked_at: q.data?.samCheck?.checked_at ?? "No entity check recorded",
+    } as Record<string, unknown>;
+  }, [q.data]);
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
@@ -268,7 +297,7 @@ function DocumentPage() {
       setValues(latest as Values);
       return;
     }
-    const filled = prefill(def, { ...q.data.acq, acquisition_id: acquisitionId });
+    const filled = prefill(def, { ...q.data.acq, ...samFacts, acquisition_id: acquisitionId });
     if (def.key === "nf-1707" && !filled["approvals_summary"]) {
       filled["approvals_summary"] = answersSummary(q.data.acq["nf1707_answers"]);
     }
@@ -277,7 +306,7 @@ function DocumentPage() {
         "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.";
     }
     setValues(filled);
-  }, [def, q.data, touched, acquisitionId]);
+  }, [def, q.data, touched, acquisitionId, samFacts]);
 
   const estimatedValue = q.data?.acq?.["estimated_value"] ? Number(q.data.acq["estimated_value"]) : null;
   const signature = useMemo(
@@ -341,6 +370,28 @@ function DocumentPage() {
         <Link to="/templates" className="text-primary">
           Back to Templates
         </Link>
+      </AppShell>
+    );
+  }
+
+  // The nonresponsibility memo exists only on that finding. On a finding of
+  // responsible, the signature on the SF 1449 is the determination.
+  if (def.key === "nonresponsibility" && q.data?.acq && q.data.acq["responsibility_finding"] !== "nonresponsibility") {
+    return (
+      <AppShell>
+        <PageHeader
+          title="No memorandum is written for this file"
+          lead={`${acquisitionId} · the responsibility finding is not nonresponsibility.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The contracting officer's signature on the SF 1449 is the affirmative responsibility determination
+          (FAR 9.105-2(a)(1)). A separate memorandum is written only on a finding of nonresponsibility.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
       </AppShell>
     );
   }
