@@ -45,6 +45,7 @@ export type FeedItem = {
   summary: string;
   url: string | null;
   tags: string[];
+  sample: boolean;
 };
 
 const MONTHS = [
@@ -112,6 +113,7 @@ export function itemsFromWatchRows(rows: WatchItemRow[]): FeedItem[] {
     summary: r.summary ?? "",
     url: r.url,
     tags: r.tags ?? [],
+    sample: /^SAMPLE-/i.test(r.external_id ?? "") || (r.tags ?? []).some((tag) => /^sample(?: data)?$/i.test(tag)),
   }));
 }
 
@@ -129,6 +131,7 @@ export function itemsFromRefs(refs: RegRefRow[]): FeedItem[] {
       summary: r.title ?? "",
       url: r.url,
       tags: refTags(r),
+      sample: false,
     }));
 }
 

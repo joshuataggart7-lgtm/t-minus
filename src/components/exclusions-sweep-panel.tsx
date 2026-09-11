@@ -60,7 +60,7 @@ export function ExclusionsSweepPanel() {
           ? "Loading the last sweep time."
           : stamp
             ? `Last sweep ${stamp} · ${last.data?.new_value ?? ""}${last.data?.reason ? ` · ${last.data.reason}` : ""}`
-            : "The sweep has not run yet."}
+            : "Exclusions sweep: never run"}
       </p>
 
       {role === "hq" ? (

@@ -49,14 +49,13 @@ import {
 } from "@/lib/explain";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
-import { formatDate } from "@/lib/metrics";
+import { awardDateFor, computeMetrics, formatDate, holdSince } from "@/lib/metrics";
 import {
   buildModificationPacket,
   clauseDelta,
   CLOSEOUT_CHECKLIST,
   cparsView,
   optionSchedule,
-  OPTION_NOTICE_LEAD_DAYS,
   postAward,
   retentionView,
   SF30_CHECKLIST,
@@ -380,15 +379,29 @@ function FilePage() {
 
   const board = useMemo(() => Object.values(boards).flat(), [boards]);
 
+  const lifecycle = useMemo(() => {
+    if (!acq) return null;
+    return computeMetrics(acq, {
+      plan: q.data?.plan ?? [],
+      rules: q.data?.rules ?? [],
+      polls: q.data?.polls ?? [],
+      ref,
+      mission: q.data?.mission
+        ? { mission_id: String(acq.mission_id ?? ""), name: q.data.mission.name ?? "Mission", program: null, center_code: acq.center_code ?? null, milestone: null, milestone_date: q.data.mission.milestone_date, priority: null, program_owner: null, leadership_note: null }
+        : null,
+      holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
+      awardDate: awardDateFor(acq.acquisition_id, q.data?.log ?? [], acq.target_award_date ?? null),
+    });
+  }, [acq, q.data, ref]);
+
   const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
   const sidebarPhase =
     regPhase && phaseNames.includes(regPhase)
       ? regPhase
       : (phases.find((p) => p.status === "current")?.phase ?? phaseNames[0] ?? "Intake");
 
-  const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
-  const effectiveState =
-    acq?.clock_state === "launched" ? "launched" : hold ? "hold" : (acq?.clock_state ?? null);
+  const hold = lifecycle?.hold ?? null;
+  const effectiveState = lifecycle?.clockState ?? null;
 
   // "Explain this" for the status and the hold, built from the same rules.
   const statusExplanation = useMemo(() => {
@@ -465,7 +478,7 @@ function FilePage() {
     (q.data?.centers ?? []) as { center_code: string; aging_threshold_days?: number | null }[],
   );
 
-  const days = acq?.target_award_date ? daysBetween(todayISO(), acq.target_award_date) : null;
+  const days = lifecycle?.daysToAward ?? null;
 
   const currentIndex = Math.max(
     0,
@@ -602,6 +615,16 @@ function FilePage() {
   const launch = useMutation({
     mutationFn: async () => {
       if (!acq) return;
+      const currentIndex = phases.findIndex((phase) => phase.phase === acq.current_phase);
+      const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
+      const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
+      const preAwardComplete = currentIndex >= 0 && (
+        (fpdsIndex >= 0 && currentIndex >= fpdsIndex) ||
+        (fpdsIndex < 0 && administrationIndex >= 0 && currentIndex >= administrationIndex)
+      );
+      if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
+        throw new Error("Complete the current pre-award phase and its required reviews before launch");
+      }
       const { error } = await supabase
         .from("acquisition_facts")
         .update({
@@ -610,6 +633,7 @@ function FilePage() {
           hold_owner: null,
           hold_started_at: null,
           status: "awarded",
+          current_phase: "Administration",
         })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
@@ -627,6 +651,7 @@ function FilePage() {
       setBanner("Launched.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
+    onError: (e: Error) => setBanner(`${e.message}.`),
   });
 
   const nearExport = useMutation({
@@ -658,10 +683,7 @@ function FilePage() {
 
   // Protest window: the award date is the day the file was marked Launched,
   // and the target award date when no such entry exists.
-  const launchedEntry = (q.data?.log ?? []).find((l) => l.action === "Launched");
-  const awardDate = launchedEntry?.logged_at
-    ? String(launchedEntry.logged_at).slice(0, 10)
-    : (acq?.target_award_date ?? null);
+  const awardDate = lifecycle?.awardDate ?? null;
   const debriefingDate = (acq?.['debriefing_date'] as string | null | undefined) ?? null;
   const protestDeadlines = useMemo(
     () =>
@@ -826,25 +848,29 @@ function FilePage() {
         lead={acq ? `${acquisitionId} · ${acq.center_code ?? ""} · ${acquisitionType(acq).replace(/_/g, " ")}` : "Loading the file."}
       />
 
+      {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
+
       {banner ? (
         <p className="mb-6 border-l-2 py-1 pl-3 text-[13px]" style={{ borderColor: "var(--attention)" }}>
           {banner}
         </p>
       ) : null}
 
-      <section aria-label="Clock line" className="mb-10 rounded-lg bg-panel px-8 py-8 text-panel-foreground">
+      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-lg bg-panel px-8 py-8 text-panel-foreground">
         <div className="grid gap-8 sm:grid-cols-4">
           <div>
             <p className="clock-figure" data-numeric>
-              {days === null ? "—" : days}
+              {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">Days to award</p>
+            <p className="mt-1 text-[13px] text-panel-muted">
+              {effectiveState === "launched" ? "Days since award" : effectiveState === "scrubbed" ? "Countdown" : "Days to award"}
+            </p>
           </div>
           <div>
             <p className="text-[18px] leading-6 font-medium" data-numeric>
-              {acq?.target_award_date ?? "—"}
+              {effectiveState === "launched" ? (lifecycle?.awardDate ?? "Not recorded") : (acq?.target_award_date ?? "Not recorded")}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">Target award date</p>
+            <p className="mt-1 text-[13px] text-panel-muted">{effectiveState === "launched" ? "Award date" : "Target award date"}</p>
           </div>
           <div>
             <p className="text-[18px] leading-6 font-medium">
@@ -859,9 +885,9 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-panel-muted">Clock state</p>
           </div>
           <div>
-            <p className="text-[18px] leading-6 font-medium">{hold?.reason ?? acq?.hold_reason ?? "No hold"}</p>
+            <p className="text-[18px] leading-6 font-medium">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
             <p className="mt-1 text-[13px] text-panel-muted">
-              {hold?.owner ?? acq?.hold_owner ?? "Nothing is blocking this file"}
+              {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
             {effectiveState === "hold" && holdAge !== null ? (
               <p className="mt-1 text-[13px] text-panel-muted">
@@ -872,7 +898,7 @@ function FilePage() {
             ) : null}
           </div>
         </div>
-      </section>
+      </section> : null}
 
       <div className="mb-10 flex flex-wrap items-start gap-6">
         <ExplainThis explanation={statusExplanation} label="Explain this status" />
@@ -949,7 +975,7 @@ function FilePage() {
           <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
           <p className="mt-1 text-[13px] text-muted-foreground">
             Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
-            {successor.plannedDays} planned days in the phase plan for this acquisition type.
+            {successor.plannedDays} planned pre-award days plus a 30-day transition allowance.
           </p>
           <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
             {formatDate(successor.startBy)}
@@ -989,7 +1015,9 @@ function FilePage() {
           {FORECAST_CITATION} · binding
           {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
         </p>
-        {forecast ? (
+        {q.isLoading ? (
+          <LoadingNote what="the forecast facts" />
+        ) : forecast ? (
           <>
             <table className="w-full border border-border text-[13px] leading-[18px]">
               <caption className="sr-only">Acquisition Forecast entry for this file</caption>
@@ -1091,6 +1119,17 @@ function FilePage() {
           {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
         </button>
       </div>
+
+      {lifecycle && lifecycle.upcomingReviews.length > 0 ? (
+        <section aria-labelledby="upcoming-reviews" className="mb-8 max-w-[80ch] border-t border-border pt-4">
+          <h2 id="upcoming-reviews" className="text-[18px] leading-6 font-medium">Upcoming reviews</h2>
+          <ul className="mt-2 space-y-1 text-[13px] text-muted-foreground">
+            {lifecycle.upcomingReviews.map((review) => (
+              <li key={`${review.phase}-${review.reviewer_role}`}>{review.phase} · {review.reviewer_role} · {review.reviewer_name}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <ClauseModTasks acquisitionId={acquisitionId} />
 
@@ -1344,9 +1383,8 @@ function FilePage() {
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">Option exercise</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                      Option-year dates run from the period of performance on the record
-                      {options.derivedBase ? ", derived from the award date because no period is recorded" : ""}. The
-                      preliminary notice is due {OPTION_NOTICE_LEAD_DAYS} days before the option period begins (FAR
+                      Option dates come only from the contract schedule on the record. The
+                      preliminary notice is due {options.noticeLeadDays} days before the option period begins (FAR
                       52.217-9 fill-in).
                     </p>
                     <table className="mt-3 w-full text-[13px] leading-[18px]">
@@ -1374,6 +1412,9 @@ function FilePage() {
                             <td className="p-2" data-numeric>{o.noticeDue ?? "not recorded"}</td>
                           </tr>
                         ))}
+                        {options.periods.length === 0 ? (
+                          <tr className="border-b border-border"><td colSpan={4} className="p-2 text-muted-foreground">Option dates are not recorded in the contract schedule.</td></tr>
+                        ) : null}
                       </tbody>
                     </table>
 
@@ -1783,7 +1824,7 @@ function FilePage() {
               ) : null}
 
 
-              {(REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
+              {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div className="mt-3 max-w-[80ch] border border-border">
                   <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">

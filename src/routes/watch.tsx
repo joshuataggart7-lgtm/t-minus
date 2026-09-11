@@ -45,8 +45,13 @@ function useFeed() {
     queryKey: ["watch-feed"],
     enabled: authState === "signed-in",
     queryFn: async () => {
-      const [rows, refs] = await Promise.all([loadWatchRows(), loadRegRefs()]);
-      return sortNewestFirst([...itemsFromWatchRows(rows), ...itemsFromRefs(refs)]);
+      const [rows, refs, audits] = await Promise.all([
+        loadWatchRows(),
+        loadRegRefs(),
+        supabase.from("audit_log").select("action,reason").in("action", ["GAO fetch", "Federal Register fetch"]),
+      ]);
+      const live = new Set((audits.data ?? []).filter((row) => !/provider error|could not be reached|queries failed/i.test(row.reason ?? "")).map((row) => row.action?.replace(" fetch", "")));
+      return { items: sortNewestFirst([...itemsFromWatchRows(rows), ...itemsFromRefs(refs)]), live };
     },
   });
 }
@@ -63,7 +68,7 @@ function WatchPage() {
   const canPost = role === "hq";
   const canFetch = role === "hq" || role === "specialist";
 
-  const items = q.data ?? [];
+  const items = q.data?.items ?? [];
   const tags = useMemo(
     () => [...new Set(items.flatMap((i) => i.tags))].sort((a, b) => a.localeCompare(b)),
     [items],
@@ -179,6 +184,14 @@ function WatchPage() {
         <ErrorNote message="The feeds did not load. Reload the page, and run a fetch if the list stays empty." />
       ) : null}
 
+      {!q.isLoading ? (
+        <div className="mb-5 flex flex-wrap gap-4 text-[13px] text-muted-foreground">
+          {(["GAO", "Federal Register"] as const).map((feed) => (
+            <span key={feed}>{feed}: {q.data?.live.has(feed) ? "Live feed available" : "Live feed not yet run"}</span>
+          ))}
+        </div>
+      ) : null}
+
       {!q.isLoading && !q.error && shown.length === 0 ? (
         <EmptyState
           sentence="No items match these filters yet."
@@ -213,7 +226,7 @@ function FeedRow({ item }: { item: FeedItem }) {
   return (
     <li className="py-4">
       <p className="text-[13px] text-muted-foreground" data-numeric>
-        {item.source} · {item.date ?? "Date not published"} · {item.outcomeOrType}
+        {item.source} · {item.sample ? "Sample · " : ""}{item.date ?? "Date not published"} · {item.outcomeOrType}
       </p>
       <p className="mt-1 text-[15px] leading-[22px] text-foreground">{item.title}</p>
       {item.summary ? (

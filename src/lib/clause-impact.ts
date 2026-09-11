@@ -25,6 +25,8 @@ export type ClauseChange = {
   source: string;
   effective_date: string | null;
   url: string | null;
+  modification_required: boolean;
+  change_deadline: string | null;
 };
 
 export type ImpactRow = {
@@ -41,6 +43,7 @@ export type ImpactRow = {
   /** Why this contract is on the list. */
   reason: string;
   task: ModTaskRow | null;
+  label: "Potentially affected" | "Applicability unverified" | "Modification required";
 };
 
 export type ModTaskRow = {
@@ -100,6 +103,8 @@ export type ClauseTableRow = {
   ucf_section: string | null;
   prescription_citation: string | null;
   fill_ins: unknown;
+  modification_required: boolean;
+  change_deadline: string | null;
 };
 
 export type WatchClauseItem = {
@@ -110,6 +115,8 @@ export type WatchClauseItem = {
   url: string | null;
   decided_or_published_date: string | null;
   tags: string[] | null;
+  modification_required: boolean;
+  change_deadline: string | null;
 };
 
 const CLAUSE_PATTERN = /\b(?:52|1852)\.\d{3}-\d{1,2}(?:\s*Alt\.?\s*[IVX]+)?/i;
@@ -130,6 +137,8 @@ export function changesFromWatch(items: WatchClauseItem[]): ClauseChange[] {
         source: i.source ?? "Watch",
         effective_date: i.decided_or_published_date,
         url: i.url,
+        modification_required: i.modification_required,
+        change_deadline: i.change_deadline,
       };
     })
     .filter((c): c is ClauseChange => c !== null);
@@ -149,6 +158,8 @@ export function changesFromClauses(rows: ClauseTableRow[]): ClauseChange[] {
       source: r.pcd_reference || r.rfo_number_or_pcd || r.source || "clauses table",
       effective_date: toISODate(r.effective_date) ?? toISODate(r.last_updated),
       url: null,
+      modification_required: r.modification_required,
+      change_deadline: r.change_deadline,
     });
   }
   return out.sort(
@@ -163,7 +174,7 @@ export function changesFromClauses(rows: ClauseTableRow[]): ClauseChange[] {
  * has already passed the modification is due now, and the date is still shown.
  */
 export function deadlineFor(change: ClauseChange): { date: string | null; overdue: boolean } {
-  const date = change.effective_date;
+  const date = change.change_deadline ?? change.effective_date;
   if (!date) return { date: null, overdue: false };
   return { date, overdue: date < todayISO() };
 }
@@ -234,6 +245,7 @@ export function impactedContracts(
       clauseListKnown: known,
       reason,
       task,
+      label: !known ? "Applicability unverified" : change.modification_required ? "Modification required" : "Potentially affected",
     });
   }
   // Sorted by months of performance remaining, least first; unknown end dates last.
@@ -253,12 +265,12 @@ export async function loadClauseChanges(): Promise<ClauseChange[]> {
     supabase
       .from("clauses")
       .select(
-        "row_id,clause_number,title,status,disposition,source,effective_date,last_updated,pcd_reference,rfo_number_or_pcd,ucf_section,prescription_citation,fill_ins",
+        "row_id,clause_number,title,status,disposition,source,effective_date,last_updated,pcd_reference,rfo_number_or_pcd,ucf_section,prescription_citation,fill_ins,modification_required,change_deadline",
       )
       .in("disposition", ["Removed", "Moved"]),
     supabase
       .from("watch_items")
-      .select("item_id,title,summary,source,url,decided_or_published_date,tags"),
+      .select("item_id,title,summary,source,url,decided_or_published_date,tags,modification_required,change_deadline"),
   ]);
   if (e1) throw e1;
   if (e2) throw e2;
@@ -291,7 +303,8 @@ export async function createModTasks(
   actor: string,
 ): Promise<number> {
   const { date } = deadlineFor(change);
-  const fresh = rows.filter((r) => r.task === null);
+  if (!change.modification_required) return 0;
+  const fresh = rows.filter((r) => r.clauseListKnown && r.task === null);
   if (fresh.length === 0) return 0;
   const payload = fresh.map((r) => ({
     acquisition_id: r.acquisition_id,

@@ -1,7 +1,6 @@
 // The successor clock. A launched file with a period of performance end has a
 // date by which the follow-on acquisition must start: the end date less the
-// summed planned days for that acquisition type, straight out of phase_plan.
-// Nothing here is hard-coded; the lead time is the plan's own arithmetic.
+// pre-award planned days for that acquisition type plus a transition allowance.
 
 import { addDays, daysBetween, todayISO } from "@/lib/intake";
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
@@ -20,10 +19,17 @@ export type SuccessorRow = {
   overdue: boolean;
 };
 
+export const SUCCESSOR_TRANSITION_DAYS = 30;
+const PRE_AWARD_LAST_PHASES = new Set(["Award", "FPDS-NG Report"]);
+
 /** Summed planned days for an acquisition type. */
 export function plannedDaysForType(type: string, plan: PhasePlanRow[]) {
-  return plan
+  const rows = plan
     .filter((p) => p.acquisition_type === type && p.phase)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const last = rows.reduce((index, row, i) => PRE_AWARD_LAST_PHASES.has(String(row.phase)) ? i : index, -1);
+  return rows
+    .filter((_, i) => last < 0 || i <= last)
     .reduce((sum, p) => sum + (p.planned_days ?? 0), 0);
 }
 
@@ -48,7 +54,7 @@ export function successorRows(
     .map((acq) => {
       const plannedDays = plannedDaysForType(acquisitionType(acq), plan);
       const end = String(acq.period_of_performance_end);
-      const startBy = addDays(end, -plannedDays);
+      const startBy = addDays(end, -(plannedDays + SUCCESSOR_TRANSITION_DAYS));
       const successorId = linked.get(acq.acquisition_id) ?? null;
       const daysUntilStart = daysBetween(today, startBy);
       return {

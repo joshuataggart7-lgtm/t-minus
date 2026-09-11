@@ -25,6 +25,7 @@ import type { ThresholdRow } from "@/lib/small-business";
 import {
   callout,
   computeMetrics,
+  awardDateFor,
   formatDate,
   holdSince,
   missionDriver,
@@ -158,6 +159,7 @@ function ExecutiveOverview() {
         ref,
         mission: q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null,
         holdSince: holdSince(acq.acquisition_id, q.data.log),
+        awardDate: awardDateFor(acq.acquisition_id, q.data.log, acq.target_award_date ?? null),
       }),
     );
   }, [q.data, ref]);
@@ -195,9 +197,9 @@ function ExecutiveOverview() {
     const launchedThisQuarter = metrics.filter(
       (m) =>
         m.clockState === "launched" &&
-        m.acq.target_award_date &&
-        String(m.acq.target_award_date) >= qStart &&
-        String(m.acq.target_award_date) <= today,
+        m.awardDate &&
+        m.awardDate >= qStart &&
+        m.awardDate <= today,
     ).length;
     return [
       { label: "At Risk", count: count("At Risk"), color: "var(--atrisk)" },
@@ -266,7 +268,9 @@ function ExecutiveOverview() {
 
       <section aria-label="What leadership needs to know now" className="mb-10">
         <h2 className="section-title text-[18px] leading-6 font-medium">What leadership needs to know now</h2>
-        {callouts.length === 0 ? (
+        {q.isLoading ? (
+          <LoadingNote what="the leadership callouts" />
+        ) : callouts.length === 0 ? (
           <p className="mt-3 text-muted-foreground">Every priority project is On Track.</p>
         ) : (
           <ul className="mt-3 space-y-3">
@@ -409,19 +413,19 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           <Link
             to="/files/$acquisitionId"
             params={{ acquisitionId: driver.acq.acquisition_id }}
-            className="block truncate rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
+             className="block rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
           >
             {mission.name}
           </Link>
-          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
+           <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
             {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
           </p>
         </div>
 
         <div className="min-w-0">
-          <p className="truncate text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
-          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
-            {driver.nextDecision}
+          <p className="text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
+          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
+            {driver.nextAction}
           </p>
         </div>
 
@@ -441,7 +445,11 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         </div>
 
         <div>
-          {driver.daysToAward === null ? (
+           {driver.clockState === "launched" ? (
+             <p className="clock-figure" data-numeric>{driver.daysSinceAward ?? 0}</p>
+           ) : driver.clockState === "scrubbed" ? (
+             <p className="text-[15px] leading-[22px] text-panel-muted">Clock stopped</p>
+           ) : driver.daysToAward === null ? (
             <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
           ) : driver.daysToAward < 0 ? (
             <p className="text-[18px] leading-6 font-semibold" style={{ color }} data-numeric>
@@ -452,7 +460,9 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
               {driver.daysToAward}
             </p>
           )}
-          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">Days to award</p>
+          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
+            {driver.clockState === "launched" ? `Days since award · ${formatDate(driver.awardDate)}` : "Days to award"}
+          </p>
         </div>
 
         <div className="min-w-0">
@@ -470,12 +480,12 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             className={
               expanded
                 ? "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
-                : "mt-0.5 block w-full truncate text-left text-[13px] leading-[18px] text-panel-muted"
+                 : "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
             }
           >
             {expanded ? fullLine : shortLine}
           </button>
-          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted" data-numeric>
+          <p className="mt-0.5 break-words text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {driver.status === "Launched"
               ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
               : driver.scheduleImpactDays === null
@@ -574,7 +584,7 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Successor clock</h3>
       <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
         Method: the period of performance end date less the summed planned days in the phase plan for
-        that acquisition type. A file is flagged once that date has passed with no successor file
+        that acquisition type, plus a 30-day transition allowance. A file is flagged once that date has passed with no successor file
         linked to it.
       </p>
       {rows.length === 0 ? (
@@ -612,7 +622,7 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
                   </td>
                   <td className="p-2">{formatDate(String(r.acq.period_of_performance_end))}</td>
                   <td className="p-2" data-numeric>
-                    {r.plannedDays}
+                    {r.plannedDays} + 30 transition
                   </td>
                   <td className="p-2">{formatDate(r.startBy)}</td>
                   <td className="p-2">

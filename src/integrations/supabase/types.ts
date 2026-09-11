@@ -579,12 +579,14 @@ export type Database = {
       clauses: {
         Row: {
           applies_when: Json | null
+          change_deadline: string | null
           clause_number: string
           disposition: string | null
           effective_date: string | null
           fill_ins: Json | null
           last_sync: string | null
           last_updated: string | null
+          modification_required: boolean
           pcd_reference: string | null
           post_rfo_date: string | null
           prescription_citation: string | null
@@ -597,12 +599,14 @@ export type Database = {
         }
         Insert: {
           applies_when?: Json | null
+          change_deadline?: string | null
           clause_number: string
           disposition?: string | null
           effective_date?: string | null
           fill_ins?: Json | null
           last_sync?: string | null
           last_updated?: string | null
+          modification_required?: boolean
           pcd_reference?: string | null
           post_rfo_date?: string | null
           prescription_citation?: string | null
@@ -615,12 +619,14 @@ export type Database = {
         }
         Update: {
           applies_when?: Json | null
+          change_deadline?: string | null
           clause_number?: string
           disposition?: string | null
           effective_date?: string | null
           fill_ins?: Json | null
           last_sync?: string | null
           last_updated?: string | null
+          modification_required?: boolean
           pcd_reference?: string | null
           post_rfo_date?: string | null
           prescription_citation?: string | null
@@ -1511,10 +1517,12 @@ export type Database = {
       watch_items: {
         Row: {
           agency: string | null
+          change_deadline: string | null
           decided_or_published_date: string | null
           external_id: string | null
           fetched_at: string | null
           item_id: string
+          modification_required: boolean
           outcome_or_type: string | null
           source: string | null
           summary: string | null
@@ -1524,10 +1532,12 @@ export type Database = {
         }
         Insert: {
           agency?: string | null
+          change_deadline?: string | null
           decided_or_published_date?: string | null
           external_id?: string | null
           fetched_at?: string | null
           item_id?: string
+          modification_required?: boolean
           outcome_or_type?: string | null
           source?: string | null
           summary?: string | null
@@ -1537,10 +1547,12 @@ export type Database = {
         }
         Update: {
           agency?: string | null
+          change_deadline?: string | null
           decided_or_published_date?: string | null
           external_id?: string | null
           fetched_at?: string | null
           item_id?: string
+          modification_required?: boolean
           outcome_or_type?: string | null
           source?: string | null
           summary?: string | null

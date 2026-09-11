@@ -11,6 +11,8 @@ import type { AcqRow } from "@/lib/launch-sequence";
 import type { ThresholdRow } from "@/lib/protest-window";
 
 export type PostAward = {
+  option_periods?: { label?: string; start?: string; end?: string }[];
+  clause_fill_ins?: Record<string, unknown>;
   option_notice_date?: string;
   option_notice_sent?: string;
   option_exercised_date?: string;
@@ -56,25 +58,27 @@ export type OptionPeriod = {
  * Option-year dates from the record. The base period is the recorded period of
  * performance; where none is recorded, it runs one year from the award date.
  */
-export function optionSchedule(acq: AcqRow | null | undefined, awardDate: string | null, count = 2) {
-  const start = (acq?.period_of_performance_start as string | null) ?? awardDate ?? null;
-  let end = (acq?.period_of_performance_end as string | null) ?? null;
-  const derivedBase = !acq?.period_of_performance_end;
-  if (!end && start) end = isoAdd(start, { years: 1, days: -1 });
-  const periods: OptionPeriod[] = [];
-  let cursor = end;
-  for (let i = 1; i <= count; i += 1) {
-    const s = cursor ? isoAdd(cursor, { days: 1 }) : null;
-    const e = s ? isoAdd(s, { years: 1, days: -1 }) : null;
-    periods.push({
-      label: `Option period ${i}`,
-      start: s,
-      end: e,
-      noticeDue: s ? isoAdd(s, { days: -OPTION_NOTICE_LEAD_DAYS }) : null,
-    });
-    cursor = e;
-  }
-  return { baseStart: start, baseEnd: end, derivedBase, periods };
+export function optionSchedule(acq: AcqRow | null | undefined, _awardDate: string | null) {
+  const data = postAward(acq);
+  const rawFillIn = data.clause_fill_ins?.["52.217-9"];
+  const parsed = typeof rawFillIn === "number" ? rawFillIn : Number(String(rawFillIn ?? "").match(/\d+/)?.[0]);
+  const noticeLeadDays = Number.isFinite(parsed) && parsed >= 0 ? parsed : OPTION_NOTICE_LEAD_DAYS;
+  const periods: OptionPeriod[] = (data.option_periods ?? []).map((period, index) => {
+    const start = period.start ?? null;
+    return {
+      label: period.label ?? `Option period ${index + 1}`,
+      start,
+      end: period.end ?? null,
+      noticeDue: start ? isoAdd(start, { days: -noticeLeadDays }) : null,
+    };
+  });
+  return {
+    baseStart: (acq?.period_of_performance_start as string | null) ?? null,
+    baseEnd: (acq?.period_of_performance_end as string | null) ?? null,
+    derivedBase: false,
+    noticeLeadDays,
+    periods,
+  };
 }
 
 // --------------------------------------------------------------------- CPARS

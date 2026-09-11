@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import {
@@ -79,6 +80,33 @@ function ClauseChangesPage() {
 
   const canWrite = role === "specialist" || role === "hq";
 
+  const setDirection = useMutation({
+    mutationFn: async (input: { required: boolean; deadline: string | null }) => {
+      if (!change || role !== "hq") return;
+      const id = change.id.replace(/^watch:/, "");
+      const query = change.id.startsWith("watch:")
+        ? supabase.from("watch_items").update({ modification_required: input.required, change_deadline: input.deadline }).eq("item_id", id)
+        : supabase.from("clauses").update({ modification_required: input.required, change_deadline: input.deadline }).eq("row_id", id);
+      const { error } = await query;
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: null,
+        actor: user.name,
+        action: "Clause change direction recorded",
+        field: change.clause_number,
+        old_value: change.modification_required ? "Modification required" : "Candidate review",
+        new_value: input.required ? "Modification required" : "Candidate review",
+        reason: input.deadline ? `Direction deadline ${input.deadline}` : "No deadline set by the direction",
+        phase: "Administration",
+      } as never);
+    },
+    onSuccess: async () => {
+      setMessage("The change direction is recorded.");
+      await qc.invalidateQueries({ queryKey: ["clause-changes"] });
+    },
+    onError: () => setMessage("The change direction did not save. Reload the page and try again."),
+  });
+
   const create = useMutation({
     mutationFn: async () => {
       if (!change) return 0;
@@ -126,7 +154,7 @@ function ClauseChangesPage() {
     <AppShell>
       <PageHeader
         title="Clause change impact"
-        lead="A clause changes status, and every launched or active contract that carries it needs a modification. This list is read from the clauses table and the Watch items marked clause change."
+        lead="Under RFO FAR 1.107(d), incorporating a changed clause into an existing contract is generally discretionary and needs consideration unless the change direction says otherwise. This list shows candidates; the direction decides."
       />
 
       {loading ? <LoadingNote what="the clause changes" /> : null}
@@ -154,7 +182,7 @@ function ClauseChangesPage() {
           </select>
 
           {change ? (
-            <dl className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+            <><dl className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
               <div>
                 <dt className="text-[13px] text-muted-foreground">Status recorded</dt>
                 <dd className="text-[15px]">{change.status}</dd>
@@ -173,10 +201,31 @@ function ClauseChangesPage() {
               <div>
                 <dt className="text-[13px] text-muted-foreground">Contracts affected</dt>
                 <dd className="text-[15px]" data-numeric>
-                  {rows.length}
+                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified
                 </dd>
               </div>
             </dl>
+            {role === "hq" ? (
+              <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-border pt-4">
+                <label className="flex items-center gap-2 text-[13px]">
+                  <input
+                    type="checkbox"
+                    checked={change.modification_required}
+                    onChange={(event) => setDirection.mutate({ required: event.target.checked, deadline: change.change_deadline })}
+                  />
+                  Direction requires existing contracts to be modified
+                </label>
+                <label className="text-[13px]">
+                  <span className="block text-muted-foreground">Direction deadline</span>
+                  <input
+                    type="date"
+                    value={change.change_deadline ?? ""}
+                    onChange={(event) => setDirection.mutate({ required: change.modification_required, deadline: event.target.value || null })}
+                    className="mt-1 rounded-lg border border-border bg-background px-3 py-2"
+                  />
+                </label>
+              </div>
+            ) : null}</>
           ) : null}
         </section>
       ) : null}
@@ -187,7 +236,7 @@ function ClauseChangesPage() {
         </p>
       ) : null}
 
-      {canWrite && rows.length > 0 ? (
+      {canWrite && change?.modification_required && rows.some((row) => row.clauseListKnown) ? (
         <button
           type="button"
           className="mb-6 rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
@@ -256,7 +305,7 @@ function ClauseChangesPage() {
                       ? `${Math.abs(r.monthsRemaining)} months past end`
                       : `${r.monthsRemaining} months`}
                 </td>
-                <td className="py-2 pr-3 max-w-[36ch]">{r.reason}</td>
+                 <td className="py-2 pr-3 max-w-[36ch]"><span className="font-medium">{r.label}</span><span className="block text-muted-foreground">{r.reason}</span></td>
                 <td className="py-2 pr-3">
                   {r.task ? (
                     <>
