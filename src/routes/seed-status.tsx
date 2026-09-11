@@ -128,7 +128,7 @@ function SeedStatus() {
               <p className="text-[15px]">This replaces all demo activity. Continue?</p>
               <button
                 type="button"
-                className="rounded-lg px-3 py-2 text-[15px] text-white"
+                className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
                 style={{ background: "var(--atrisk)" }}
                 disabled={reset.isPending}
                 onClick={() => reset.mutate()}
