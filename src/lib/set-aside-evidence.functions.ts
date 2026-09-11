@@ -89,12 +89,14 @@ function entitiesFromRaw(raw: unknown, naicsCode: string): SetAsideEntity[] {
   return rows.slice(0, 25).map((row) => {
     const registration = object(row["entityRegistration"]);
     const core = object(row["coreData"]);
-    const address = object(object(core["physicalAddress"])["stateOrProvinceCode"] ? core["physicalAddress"] : core["physicalAddress"]);
+    const address = object(core["physicalAddress"]);
     const assertions = object(row["assertions"]);
     const naicsList = array(object(assertions["goodsAndServices"])["naicsList"] ?? assertions["naicsList"]).map(object);
     const match = naicsList.find((n) => text(n["naicsCode"], n["naics"]) === naicsCode) ?? naicsList[0];
-    const flag = text(match?.["isSmallBusiness"], match?.["smallBusiness"]);
-    const small = flag === "Y" ? true : flag === "N" ? false : null;
+    // SAM.gov reports the SBA size status per NAICS as sbaSmallBusiness:
+    // "Y" small, "N" other than small, "E" small under a NAICS exception.
+    const flag = text(match?.["sbaSmallBusiness"], match?.["isSmallBusiness"], match?.["smallBusiness"]);
+    const small = flag === "Y" || flag === "E" ? true : flag === "N" ? false : null;
     const businessTypes = object(core["businessTypes"]);
     const codes = array(businessTypes["businessTypeList"])
       .map(object)
@@ -108,7 +110,13 @@ function entitiesFromRaw(raw: unknown, naicsCode: string): SetAsideEntity[] {
       registrationStatus: text(registration["registrationStatus"]),
       smallBusiness: small,
       smallBusinessLabel:
-        small === true ? "Small business" : small === false ? "Other than small business" : "Not reported",
+        small === true
+          ? flag === "E"
+            ? "Small business (NAICS exception)"
+            : "Small business"
+          : small === false
+            ? "Other than small business"
+            : "Not reported",
       socioeconomic: codes.length ? codes.join(", ") : "Not reported",
     };
   });
@@ -136,7 +144,7 @@ function sampleEntities(naics: string, state: string | null) {
       physicalAddress: { stateOrProvinceCode: st },
       businessTypes: { businessTypeList: types.map((t) => ({ businessTypeDesc: t })) },
     },
-    assertions: { goodsAndServices: { naicsList: [{ naicsCode: naics, isSmallBusiness: small }] } },
+    assertions: { goodsAndServices: { naicsList: [{ naicsCode: naics, sbaSmallBusiness: small }] } },
   });
   return {
     sample: true,

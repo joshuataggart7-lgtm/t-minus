@@ -17,6 +17,7 @@ import {
   withinDays,
 } from "@/lib/watch";
 import { SmallBusinessPanel } from "@/components/small-business-panel";
+import { CentersTab, type CenterDocumentRow, type CenterTemplateRow } from "@/components/centers-tab";
 import { successorRows } from "@/lib/successor";
 import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
@@ -66,7 +67,7 @@ function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
 function ExecutiveOverview() {
   const { role, authState } = useRole();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"acquisitions" | "enterprise">("acquisitions");
+  const [tab, setTab] = useState<"acquisitions" | "centers" | "enterprise">("acquisitions");
 
   useEffect(() => {
     if (role !== "executive" && role !== "hq") {
@@ -96,9 +97,11 @@ function ExecutiveOverview() {
         loadWatchRows(),
         loadRegRefs(),
       ]);
-      const [centers, users] = await Promise.all([
+      const [centers, users, documents, templateRows] = await Promise.all([
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
         supabase.from("users").select("name,role,center_code,supervisor_name,supervisor_email"),
+        supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
+        supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);
       return {
         missions: (missions.data ?? []) as MissionRow[],
@@ -111,6 +114,8 @@ function ExecutiveOverview() {
         polls: (polls.data ?? []) as PollRow[],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
+        documents: (documents.data ?? []) as unknown as CenterDocumentRow[],
+        templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
         log: log.data ?? [],
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
@@ -270,7 +275,7 @@ function ExecutiveOverview() {
       <WatchCard items={q.data?.watch ?? []} />
 
       <div role="tablist" aria-label="Overview detail" className="mb-6 flex gap-6 border-b border-border">
-        {(["acquisitions", "enterprise"] as const).map((t) => (
+        {(["acquisitions", "centers", "enterprise"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -283,7 +288,7 @@ function ExecutiveOverview() {
                 : "-mb-px border-b-2 border-transparent px-1 pb-2 text-[15px] text-muted-foreground hover:text-foreground"
             }
           >
-            {t === "acquisitions" ? "Acquisitions" : "Enterprise"}
+            {t === "acquisitions" ? "Acquisitions" : t === "centers" ? "Centers" : "Enterprise"}
           </button>
         ))}
       </div>
@@ -296,6 +301,15 @@ function ExecutiveOverview() {
           polls={q.data?.polls ?? []}
           centers={q.data?.centers ?? []}
           users={q.data?.users ?? []}
+        />
+      ) : tab === "centers" ? (
+        <CentersTab
+          metrics={metrics}
+          polls={q.data?.polls ?? []}
+          centers={q.data?.centers ?? []}
+          users={q.data?.users ?? []}
+          documents={q.data?.documents ?? []}
+          templates={q.data?.templates ?? []}
         />
       ) : (
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
