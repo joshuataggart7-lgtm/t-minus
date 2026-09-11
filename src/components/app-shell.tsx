@@ -90,6 +90,9 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         </div>
       </header>
 
+      <AnnouncementBanner />
+
+
       <div className="flex">
         <nav
           aria-label="Main"
