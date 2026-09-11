@@ -17,6 +17,7 @@ import { Route as DirectivesRouteImport } from './routes/directives'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IntakeRouteImport } from './routes/intake'
+import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
@@ -65,6 +66,11 @@ const FilesRoute = FilesRouteImport.update({
 const IntakeRoute = IntakeRouteImport.update({
   id: '/intake',
   path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PgpdQueueRoute = PgpdQueueRouteImport.update({
+  id: '/pgpd-queue',
+  path: '/pgpd-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SeedStatusRoute = SeedStatusRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/pgpd-queue': typeof PgpdQueueRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/pgpd-queue': typeof PgpdQueueRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/pgpd-queue': typeof PgpdQueueRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/pgpd-queue'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/pgpd-queue'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/pgpd-queue'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
   IntakeRoute: typeof IntakeRoute
+  PgpdQueueRoute: typeof PgpdQueueRoute
   SeedStatusRoute: typeof SeedStatusRoute
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/intake'
       fullPath: '/intake'
       preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pgpd-queue': {
+      id: '/pgpd-queue'
+      path: '/pgpd-queue'
+      fullPath: '/pgpd-queue'
+      preLoaderRoute: typeof PgpdQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seed-status': {
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
   IntakeRoute: IntakeRoute,
+  PgpdQueueRoute: PgpdQueueRoute,
   SeedStatusRoute: SeedStatusRoute,
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,

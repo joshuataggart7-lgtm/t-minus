@@ -38,6 +38,7 @@ export const resetDemo = createServerFn({ method: "POST" })
     await clear("sam_checks", "check_id");
     await clear("documents", "document_id");
     await clear("audit_log", "log_id");
+    await clear("template_defects", "defect_id");
 
     // Acquisitions that are not in acquisitions.json
     const ids = seededAcquisitionIds();
