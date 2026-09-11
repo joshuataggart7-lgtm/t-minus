@@ -149,41 +149,56 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       ...(answerLines.length ? answerLines : ["(none recorded)"]),
     ].join("\n");
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": rawKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 2000,
-        system:
-          "You are a federal contracting writing assistant inside a NASA acquisition prototype. All records are fictional demonstration data. You draft ordinary procurement documentation paragraphs for a contracting officer to review and edit.",
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-    if (!response.ok) {
-      const body = (await response.text()).slice(0, 300);
-      console.error(`[Claude] ${response.status} ${body}`);
-      throw new Error(`Claude responded ${response.status}. ${body || "No detail was returned."}`);
-    }
-    const payload = (await response.json()) as {
-      content?: { type?: string; text?: string }[];
-      stop_reason?: string;
+    const promptWithoutAnswers = prompt.split("\nINTAKE ANSWERS:")[0] ?? prompt;
+
+    const callClaude = async (content: string) => {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": rawKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4000,
+          system:
+            "You are a federal contracting writing assistant inside a NASA acquisition prototype. All records are fictional demonstration data. You draft ordinary procurement documentation paragraphs for a contracting officer to review and edit.",
+          messages: [{ role: "user", content }],
+        }),
+      });
+      if (!response.ok) {
+        const body = (await response.text()).slice(0, 300);
+        console.error(`[Claude] ${response.status} ${body}`);
+        throw new Error(`Claude responded ${response.status}. ${body || "No detail was returned."}`);
+      }
+      const payload = (await response.json()) as {
+        content?: { type?: string; text?: string }[];
+        stop_reason?: string;
+      };
+      const value = (payload.content ?? [])
+        .filter((c) => typeof c.text === "string" && c.type !== "thinking")
+        .map((c) => c.text ?? "")
+        .join("\n")
+        .trim();
+      if (!value) {
+        console.error(
+          `[Claude] empty text; stop_reason=${payload.stop_reason ?? "none"}; blocks=${(payload.content ?? []).map((c) => c.type).join(",")}`,
+        );
+      }
+      return value;
     };
-    const text = (payload.content ?? [])
-      .filter((c) => typeof c.text === "string" && c.type !== "thinking")
-      .map((c) => c.text ?? "")
-      .join("\n")
-      .trim();
+
+    // Some intake answers describe hazards; when the model declines that
+    // context, draft again from the record alone rather than failing.
+    let text = await callClaude(prompt);
+    let usedAnswers = true;
     if (!text) {
-      console.error(
-        `[Claude] empty text; stop_reason=${payload.stop_reason ?? "none"}; blocks=${(payload.content ?? []).map((c) => c.type).join(",")}`,
-      );
+      text = await callClaude(promptWithoutAnswers);
+      usedAnswers = false;
     }
     if (!text) throw new Error("Claude returned no text for this item. Try again.");
+
 
     const generatedAt = new Date().toISOString();
     const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
