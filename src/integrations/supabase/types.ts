@@ -68,6 +68,7 @@ export type Database = {
           set_aside: string | null
           sow_attached: boolean | null
           status: string | null
+          successor_of: string | null
           target_award_date: string | null
           title: string | null
           updated_at: string
@@ -128,6 +129,7 @@ export type Database = {
           set_aside?: string | null
           sow_attached?: boolean | null
           status?: string | null
+          successor_of?: string | null
           target_award_date?: string | null
           title?: string | null
           updated_at?: string
@@ -188,6 +190,7 @@ export type Database = {
           set_aside?: string | null
           sow_attached?: boolean | null
           status?: string | null
+          successor_of?: string | null
           target_award_date?: string | null
           title?: string | null
           updated_at?: string
@@ -202,6 +205,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "missions"
             referencedColumns: ["mission_id"]
+          },
+          {
+            foreignKeyName: "acquisition_facts_successor_of_fkey"
+            columns: ["successor_of"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
           },
         ]
       }
