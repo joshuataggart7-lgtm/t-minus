@@ -416,3 +416,19 @@ fields filled and the badge showing the HQ effective date.
 - Check: "when must a JOFOC be posted after award" returns the 14-day posting
   answer citing RFO FAR 6.301 (formerly 6.305), tier binding, effective
   2026-03-01, with the 30-day urgency and minimum posting period noted.
+
+## E10. Successor clock
+
+- `src/lib/successor.ts` computes, for every launched file with a period of
+  performance end, the date its successor must start: the end date less the
+  summed `phase_plan.planned_days` for that acquisition type (all phases of the
+  plan, as written in the prompt). Nothing is hard-coded.
+- `acquisition_facts.successor_of` links a new file to the one it replaces; the
+  intake has a "Successor of" field listing existing files.
+- The Executive Overview Acquisitions tab shows a Successor clock panel with the
+  count of launched files past their successor start date with nothing linked,
+  and a table of end date, planned days, start-by date, linked successor, and
+  standing. The acquisition file shows the same line.
+- The seeds record no period of performance end for the two launched files, so a
+  launched file without one shows a control for the CO to record it; the entry
+  is audited and the clock computes from it. Nothing was invented in the seed.

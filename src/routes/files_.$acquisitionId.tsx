@@ -27,6 +27,8 @@ import {
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { protestWindow } from "@/lib/protest-window";
+import { successorFor } from "@/lib/successor";
+import { formatDate } from "@/lib/metrics";
 import {
   buildModificationPacket,
   clauseDelta,
@@ -118,6 +120,10 @@ function FilePage() {
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
       ]);
+      const { data: successors } = await supabase
+        .from("acquisition_facts")
+        .select("acquisition_id")
+        .eq("successor_of", acquisitionId);
       let mission = null as { name: string | null; milestone_date: string | null } | null;
       if (acq.data?.mission_id) {
         const m = await supabase
@@ -139,12 +145,23 @@ function FilePage() {
           (c) => !/remov/i.test(`${c.status ?? ""} ${c.disposition ?? ""}`) && c.clause_number !== "52.212-5",
         ),
         mission,
+        successors: successors ?? [],
       };
     },
   });
 
   const acq = q.data?.acq ?? null;
   const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
+
+  // The successor clock reads the same phase plan the launch sequence reads.
+  const successor = useMemo(() => {
+    if (!acq) return null;
+    const linked = (q.data?.successors ?? []).map((s) => ({
+      acquisition_id: s.acquisition_id,
+      successor_of: acquisitionId,
+    })) as unknown as AcqRow[];
+    return successorFor(acquisitionId, [acq, ...linked], q.data?.plan ?? []);
+  }, [acq, q.data?.successors, q.data?.plan, acquisitionId]);
 
   const ref: RefData = useMemo(
     () => ({
@@ -460,6 +477,34 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
 
+  // The period of performance end drives the successor clock; a launched file
+  // that never recorded one can record it here.
+  const setPopEnd = useMutation({
+    mutationFn: async (next: string) => {
+      if (!acq) return;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ period_of_performance_end: next || null, updated_at: new Date().toISOString() })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Period of performance end recorded",
+        field: "period_of_performance_end",
+        old_value: (acq.period_of_performance_end as string | null) ?? "",
+        new_value: next || "",
+        reason: "Successor clock recomputed",
+        phase: String(acq.current_phase ?? "Administration"),
+      });
+    },
+    onSuccess: () => {
+      setBanner("The period of performance end is recorded and the successor clock is recomputed.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The end date did not save: ${e.message}. Try again.`),
+  });
+
   // ------------------------------------- directive compliance (hardware buys)
   const setDirective = useMutation({
     mutationFn: async (input: {
@@ -601,6 +646,62 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {!successor && effectiveState === "launched" ? (
+        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            This file has no period of performance end recorded, so the date its successor must start
+            cannot be computed. Record the end date to start the successor clock.
+          </p>
+          <label className="mt-3 block text-[13px]" htmlFor="pop-end">
+            Period of performance end
+          </label>
+          <input
+            id="pop-end"
+            type="date"
+            className="mt-1 h-9 rounded-lg border border-border bg-background px-2 text-[13px]"
+            defaultValue=""
+            disabled={!canWrite}
+            onChange={(e) => setPopEnd.mutate(e.target.value)}
+          />
+        </section>
+      ) : null}
+
+      {successor ? (
+        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
+            {successor.plannedDays} planned days in the phase plan for this acquisition type.
+          </p>
+          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
+            {formatDate(successor.startBy)}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">The successor acquisition must start by this date</p>
+          <p className="mt-3 text-[13px]">
+            {successor.successorId ? (
+              <>
+                Successor file{" "}
+                <Link
+                  to="/files/$acquisitionId"
+                  params={{ acquisitionId: successor.successorId }}
+                  className="text-primary underline"
+                >
+                  {successor.successorId}
+                </Link>{" "}
+                is linked to this one.
+              </>
+            ) : successor.overdue ? (
+              <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
+                {`Successor overdue by ${Math.abs(successor.daysUntilStart)} days; no successor file is linked`}
+              </StatusMark>
+            ) : (
+              `No successor file is linked yet; ${successor.daysUntilStart} days until it must start.`
+            )}
+          </p>
+        </section>
+      ) : null}
 
       {phaseNames.length ? (
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />

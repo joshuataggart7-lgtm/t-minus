@@ -3,6 +3,8 @@
 export type IntakeFacts = {
   title: string;
   mission_id: string;
+  /** the acquisition this one replaces, when it is a follow-on */
+  successor_of: string;
   center_code: string;
   branch_code: string;
   requester_name: string;
@@ -37,6 +39,7 @@ export type IntakeFacts = {
 export const EMPTY_FACTS: IntakeFacts = {
   title: "",
   mission_id: "",
+  successor_of: "",
   center_code: "ARC",
   branch_code: "",
   requester_name: "",
