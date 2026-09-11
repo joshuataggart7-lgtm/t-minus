@@ -274,6 +274,36 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
   return false;
 }
 
+/** Phases that require a recorded Go/No-go from reviewers. */
+export const REVIEW_PHASES = ["JOFOC", "Go/No-go Poll"] as const;
+
+/** Short plain word for a reviewer role, used in hold text: "legal", "pricing". */
+export function shortRole(role: string): string {
+  const head = role.split(/\(|,|\//)[0] ?? role;
+  return head.replace(/review|coordination|authorization|meeting/gi, "").trim().toLowerCase() || role.toLowerCase();
+}
+
+/** Which review rules apply to a given phase of this acquisition. */
+export function reviewRulesForPhase(
+  phase: string,
+  acq: AcqRow,
+  rules: ReviewRuleRow[],
+  ref: RefData,
+): ReviewRuleRow[] {
+  const applicable = rules.filter((r) => reviewApplies(r, acq, ref));
+  if (phase === "JOFOC") return applicable.filter((r) => /^legal review/i.test(r.reviewer_role));
+  if (phase === "Go/No-go Poll") return applicable;
+  return [];
+}
+
+/** Which phase a template's document belongs to. */
+export function phaseForTemplate(templateKey: string): string {
+  if (templateKey === "jofoc") return "JOFOC";
+  if (templateKey === "nf-1707") return "Intake";
+  if (templateKey === "tech-eval") return "Technical Evaluation";
+  return "Go/No-go Poll";
+}
+
 export type BoardEntry = {
   reviewer_role: string;
   reviewer_name: string;

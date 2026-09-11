@@ -282,8 +282,11 @@ create table if not exists public.audit_log (
   old_value text,
   new_value text,
   reason text,
+  phase text,
   logged_at timestamptz not null default now()
 );
+
+create index if not exists polls_acq_phase_idx on public.polls (acquisition_id, phase);
 
 create table if not exists public.comments (
   comment_id uuid primary key default gen_random_uuid(),
