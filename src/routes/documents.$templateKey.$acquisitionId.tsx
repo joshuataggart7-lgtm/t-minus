@@ -546,7 +546,7 @@ function DocumentPage() {
                       rows={4}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     />
                   ) : f.kind === "select" ? (
@@ -554,7 +554,7 @@ function DocumentPage() {
                       id={id}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     >
                       <option value="">Choose one</option>
@@ -571,7 +571,7 @@ function DocumentPage() {
                       inputMode={f.kind === "money" ? "decimal" : undefined}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     />
                   )}
@@ -610,7 +610,7 @@ function DocumentPage() {
             type="submit"
             className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
             style={{ background: "var(--primary, #0B3D91)" }}
-            disabled={!canWrite || save.isPending}
+            disabled={!canEdit || save.isPending}
           >
             {save.isPending ? "Saving" : "Save version"}
           </button>
@@ -655,7 +655,7 @@ function DocumentPage() {
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
-            disabled={!canWrite || runComparables.isPending}
+            disabled={!canEdit || runComparables.isPending}
             onClick={() => runComparables.mutate()}
           >
             {runComparables.isPending ? "Running comparables" : "Run comparables"}
