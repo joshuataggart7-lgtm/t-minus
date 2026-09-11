@@ -27,6 +27,8 @@ import {
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { protestWindow } from "@/lib/protest-window";
+import { successorFor } from "@/lib/successor";
+import { formatDate } from "@/lib/metrics";
 import {
   buildModificationPacket,
   clauseDelta,
@@ -150,6 +152,16 @@ function FilePage() {
 
   const acq = q.data?.acq ?? null;
   const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
+
+  // The successor clock reads the same phase plan the launch sequence reads.
+  const successor = useMemo(() => {
+    if (!acq) return null;
+    const linked = (q.data?.successors ?? []).map((s) => ({
+      acquisition_id: s.acquisition_id,
+      successor_of: acquisitionId,
+    })) as unknown as AcqRow[];
+    return successorFor(acquisitionId, [acq, ...linked], q.data?.plan ?? []);
+  }, [acq, q.data?.successors, q.data?.plan, acquisitionId]);
 
   const ref: RefData = useMemo(
     () => ({
