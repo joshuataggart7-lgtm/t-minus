@@ -22,6 +22,7 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import type { StoredEstimate } from "@/lib/estimator";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -123,6 +124,7 @@ function FilePage() {
   });
 
   const acq = q.data?.acq ?? null;
+  const intakeEstimate = (acq?.intake_estimate ?? null) as StoredEstimate | null;
 
   const ref: RefData = useMemo(
     () => ({
