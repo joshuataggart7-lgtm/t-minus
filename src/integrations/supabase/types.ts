@@ -40,6 +40,7 @@ export type Database = {
           hardware_deliverable: boolean | null
           hold_owner: string | null
           hold_reason: string | null
+          hold_started_at: string | null
           igce_attached: boolean | null
           includes_it: boolean | null
           intake_estimate: Json | null
@@ -101,6 +102,7 @@ export type Database = {
           hardware_deliverable?: boolean | null
           hold_owner?: string | null
           hold_reason?: string | null
+          hold_started_at?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
           intake_estimate?: Json | null
@@ -162,6 +164,7 @@ export type Database = {
           hardware_deliverable?: boolean | null
           hold_owner?: string | null
           hold_reason?: string | null
+          hold_started_at?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
           intake_estimate?: Json | null
@@ -353,14 +356,17 @@ export type Database = {
       }
       centers: {
         Row: {
+          aging_threshold_days: number
           center_code: string
           center_name: string
         }
         Insert: {
+          aging_threshold_days?: number
           center_code: string
           center_name: string
         }
         Update: {
+          aging_threshold_days?: number
           center_code?: string
           center_name?: string
         }
@@ -966,6 +972,7 @@ export type Database = {
         Row: {
           acquisition_id: string | null
           due_date: string | null
+          opened_at: string
           phase: string | null
           poll_id: string
           reason: string | null
@@ -977,6 +984,7 @@ export type Database = {
         Insert: {
           acquisition_id?: string | null
           due_date?: string | null
+          opened_at?: string
           phase?: string | null
           poll_id?: string
           reason?: string | null
@@ -988,6 +996,7 @@ export type Database = {
         Update: {
           acquisition_id?: string | null
           due_date?: string | null
+          opened_at?: string
           phase?: string | null
           poll_id?: string
           reason?: string | null
@@ -1238,6 +1247,8 @@ export type Database = {
           email: string | null
           name: string
           role: string
+          supervisor_email: string | null
+          supervisor_name: string | null
           title: string | null
           user_id: string
         }
@@ -1248,6 +1259,8 @@ export type Database = {
           email?: string | null
           name: string
           role: string
+          supervisor_email?: string | null
+          supervisor_name?: string | null
           title?: string | null
           user_id: string
         }
@@ -1258,6 +1271,8 @@ export type Database = {
           email?: string | null
           name?: string
           role?: string
+          supervisor_email?: string | null
+          supervisor_name?: string | null
           title?: string | null
           user_id?: string
         }
