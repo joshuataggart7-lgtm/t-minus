@@ -280,9 +280,60 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   );
 
   await put("announcements", SEED_ANNOUNCEMENTS, "announcement_id");
+  await put("template_defects", SEED_TEMPLATE_DEFECTS, "defect_id");
 
   return counts;
 }
+
+/**
+ * The three JOFOC citation defects T-Minus already corrected and reported to
+ * PGPD. Fixed identifiers so a demo reset restores them rather than duplicating
+ * them.
+ */
+export const SEED_TEMPLATE_DEFECTS = [
+  {
+    defect_id: "d1000000-0000-4000-8000-000000000001",
+    template_key: "jofoc",
+    template_name: "Justification for Other Than Full and Open Competition",
+    revision: "HQ 04/2026 revision",
+    citation: "FAR 6.103",
+    defect: "The template cited FAR 6.1030, which does not exist.",
+    correction: "Corrected to FAR 6.103.",
+    status: "reported to PGPD",
+    acquisition_id: null,
+    reporter_name: "T-Minus",
+    reporter_role: "hq",
+    reported_at: "2026-04-15T00:00:00Z",
+  },
+  {
+    defect_id: "d1000000-0000-4000-8000-000000000002",
+    template_key: "jofoc",
+    template_name: "Justification for Other Than Full and Open Competition",
+    revision: "HQ 04/2026 revision",
+    citation: "FAR 6.104-1(a)(1) through (a)(11)",
+    defect: "The template asked for six areas; the regulation lists eleven items.",
+    correction: "Corrected to eleven items at FAR 6.104-1(a)(1) through (a)(11).",
+    status: "reported to PGPD",
+    acquisition_id: null,
+    reporter_name: "T-Minus",
+    reporter_role: "hq",
+    reported_at: "2026-04-15T00:00:00Z",
+  },
+  {
+    defect_id: "d1000000-0000-4000-8000-000000000003",
+    template_key: "jofoc",
+    template_name: "Justification for Other Than Full and Open Competition",
+    revision: "HQ 04/2026 revision",
+    citation: "FAR Subpart 5.1",
+    defect: "The template cited Subpart 5.2 and used the word synopsized.",
+    correction: "Corrected to Subpart 5.1 and publicized.",
+    status: "reported to PGPD",
+    acquisition_id: null,
+    reporter_name: "T-Minus",
+    reporter_role: "hq",
+    reported_at: "2026-04-15T00:00:00Z",
+  },
+];
 
 /**
  * Three seeded HQ notices, mirroring the Procurement Dispatch. Fictional.
