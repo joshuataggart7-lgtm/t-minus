@@ -206,6 +206,17 @@ function FilePage() {
     [acq, q.data],
   );
 
+  // NF 1098 contract file index: tabs present, and required tabs with no document.
+  const fileIndex = useMemo(
+    () =>
+      buildFileIndex(
+        q.data?.documents ?? [],
+        q.data?.templates ?? [],
+        phases.map((p) => p.phase),
+      ),
+    [q.data?.documents, q.data?.templates, phases],
+  );
+
   const boards = useMemo(() => {
     const out: Record<string, BoardEntry[]> = {};
     if (!acq) return out;
