@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AppShell, PageHeader, ErrorNote, Loading } from "@/components/app-shell";
+import { AppShell, PageHeader, ErrorNote, LoadingNote } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { reportDefect } from "@/lib/template-defects";
 import {
@@ -91,7 +91,7 @@ function AboutPage() {
       {q.isError ? (
         <ErrorNote message="The template list did not load. Refresh the page; if it fails again, open Seed status." />
       ) : null}
-      {q.isLoading ? <Loading what="the build detail" /> : null}
+      {q.isLoading ? <LoadingNote what="the build detail" /> : null}
 
       <section aria-label="What is built" className="mb-10">
         <h2 className="section-title text-[18px] leading-6 font-medium">What is built</h2>
