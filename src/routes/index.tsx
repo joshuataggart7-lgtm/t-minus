@@ -338,7 +338,19 @@ function panelStatusColor(status: AcqMetrics["status"]) {
   return statusColor(status);
 }
 
-/** One priority project on the Mission Clock. Kept under 96px tall. */
+/** Short, always-fitting wording for a blocker or next decision. */
+function shortReason(text: string) {
+  const t = String(text ?? "").trim();
+  const vote = /^(.+?)\s+has not voted$/i.exec(t);
+  if (vote) return `Awaiting ${vote[1]!.toLowerCase()} review`;
+  const missing = /^(.+?)\s+is missing$/i.exec(t);
+  if (missing) return `${missing[1]} missing`;
+  const exit = /^Exit\s+(.+)$/i.exec(t);
+  if (exit) return `Exit ${exit[1]}`;
+  return t.length > 30 ? `${t.slice(0, 29)}…` : t;
+}
+
+/** One priority project on the Mission Clock. Kept under 110px tall. */
 function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
   const [expanded, setExpanded] = useState(false);
   const color = panelStatusColor(driver.status);
