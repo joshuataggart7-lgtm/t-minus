@@ -1,0 +1,28 @@
+name,value,citation,effective_date,note,tier
+Micro-purchase threshold,15000,"RFO FAR 2.101 (FAR Case 2024-001, 90 FR 41872)",2025-10-01,verified 2026-09-11 against RFO text,binding
+Simplified acquisition threshold,350000,RFO FAR 2.101 (FAR Case 2024-001),2025-10-01,verified 2026-09-11,binding
+Commercial simplified procedures ceiling,9000000,"RFO FAR 12.001, 12.102, 12.201-1 Table 12-1 (formerly 13.500)",2025-10-01,verified 2026-09-11,binding
+"Commercial simplified procedures higher ceiling (contingency, cyber, nuclear, biological, chemical, radiological)",15000000,RFO FAR 12.001 (formerly 13.500); not inflation-adjusted,2025-10-01,verified 2026-09-11,binding
+JOFOC approval tier: contracting officer certification,900000,RFO FAR 6.104-2 Table 6-1 (formerly 6.304),2025-10-01,"verified 2026-09-11; June 23, 2026 RFO proposed rule would realign tiers to FY2026 NDAA sec. 1804; re-verify Table 6-1 before each release",binding
+JOFOC approval tier: competition advocate,20000000,RFO FAR 6.104-2 Table 6-1,2025-10-01,verified 2026-09-11; NASA competition advocate is the Deputy AA for Procurement (NFS CG 1806.01(a)),binding
+JOFOC approval tier: head of contracting activity (NASA),150000000,"RFO FAR 6.104-2 Table 6-1 (DoD, NASA, Coast Guard); above this the senior procurement executive",2025-10-01,verified 2026-09-11,binding
+Justification posting after award (days),14,RFO FAR 6.301 (formerly 6.305); 30 days for 6.103-2 urgency; brand name posted with the solicitation; minimum 30-day posting,2026-03-01,verified 2026-09-11,binding
+Certified cost or pricing data (FAR text),2500000,RFO FAR 15.403-4,2025-10-01,"CONFLICT: FY2026 NDAA (Pub. L. 119-60) sec. 1804(c) raised 10 U.S.C. 3702(a) to $10,000,000 for contracts entered into after June 30, 2026; FAR text not yet updated; the statute controls. Show both.",binding
+"Certified cost or pricing data (statute, contracts after June 30, 2026)",10000000,10 U.S.C. 3702(a) as amended by FY2026 NDAA sec. 1804(c),2026-07-01,see conflict note above,binding
+Subcontracting plan,900000,"RFO FAR 19.702 (formerly 19.702); $2,000,000 for construction",2025-10-01,verified 2026-09-11,binding
+Subcontracting plan (construction),2000000,RFO FAR 19.702,2025-10-01,verified 2026-09-11,binding
+CPARS past performance evaluation,350000,RFO FAR Part 42 (formerly 42.1502): required for each contract that exceeds the simplified acquisition threshold,2025-10-01,verified 2026-09-11; same threshold for construction and A&E; retention six years for construction and A&E,binding
+NASA Notification of Procurement Action (NPA) lower bound,7000000,NFS CG 1805.31: NPA for actions valued at or above $7M and below $30M; 8(a) public announcement at $7M or greater,2026-08-05,verified 2026-09-11; NFS 1805 marked Reserved by PCD 25-16A,guidance (mandatory per CG)
+ANOSCA (Administrator notification of significant contract action),30000000,"NFS CG 1805.32: required at or above $30M, or deemed of significant interest at any value",2026-08-05,verified 2026-09-11,guidance (mandatory per CG)
+Written acquisition plan generally not required at or below,10000000,NFS CG 1807.11 (Center procedures apply below); exceptions listed at CG 1807.11(g),2026-08-05,verified 2026-09-11; confirm the exact wording of 1807.11 before relying on it,guidance
+PSM Executive Presentation approval: HCA,1000000000,"NFS CG 1807.11 / 1807.13: HCA approves below $1B (delegable no lower than one level above the CO for acquisitions at or below $50M); SPE at $1B or more; CAO with SPE concurrence at $2B or more, human spaceflight end items, or significant radioactive materials",2026-08-05,verified 2026-09-11,guidance
+NF 1787 small business coordination,15000,"NFS 1819.202-70; NFS CG 1819.11: required above the micro-purchase threshold (exceptions such as within-scope modifications, SBIR/STTR); NF 1787A market research documentation at $2M and above (CG 1810.12(c))",2026-08-05,verified 2026-09-11,binding (NFS) + guidance (CG)
+NF 1787A market research documentation,2000000,NFS CG 1810.12(c),2026-08-05,verified 2026-09-11,guidance
+Acquisition Forecast affirmation,350000,NFS 1807.7201: contract opportunity means planned new contract awards exceeding the simplified acquisition threshold,2025-10-01,"verified 2026-09-11; the NF 1707 text still reads $250,000 (stale form text)",binding
+IT acquisition CIO authorization,any value,"FITARA; NFS 1839 / NFS CG 1839; PCD 25-06A: CIO authorization for all IT hardware, software, and services regardless of vehicle or dollar value",2026-03-13,"verified 2026-09-11; the NF 1707 Section 2 ""$7.5M"" figure could not be verified and is treated as stale",binding
+Sources sought notice (NASA) minimum posting (business days),10,NFS CG 1805.11: for proposed actions of $50M or more,2026-08-05,verified 2026-09-11,guidance
+Presolicitation notice before solicitation (days),15,RFO FAR 5.203: at least 15 days; commercial may be shorter or combined synopsis/solicitation (12.603),2026-03-01,verified 2026-09-11,binding
+Response time above the SAT (days),30,"RFO FAR 5.203: at least 30 days, except commercial (reasonable time set by the CO); R&D 45; A&E 30; trade-agreement covered 40",2026-03-01,verified 2026-09-11,binding
+"GAO protest filing (days after basis known, or after a required debriefing)",10,4 CFR 21.2(a)(2),,verified 2026-09-11,binding
+CICA stay: protest notice within days after award,10,31 U.S.C. 3553(d)(4); RFO FAR 33.104,,verified 2026-09-11,binding
+"CICA stay: protest notice within days after a required, requested debriefing",5,31 U.S.C. 3553(d)(4),,verified 2026-09-11; file a day early so GAO can notify the agency,binding

@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ORBIT prototype (fictional data)</title>
+<style>
+  :root{
+    --ink:#0B1437;
+    --panel:#111C44;
+    --panel-2:#1B2559;
+    --line:#27325E;
+    --bg:#F4F6FB;
+    --card:#FFFFFF;
+    --text:#1B2559;
+    --muted:#707EAE;
+    --muted-2:#A3AED0;
+    --accent:#2B5CFF;
+    --accent-soft:#E7EDFF;
+    --green:#05CD99;
+    --green-soft:#E6FAF5;
+    --amber:#FFB547;
+    --amber-soft:#FFF6E5;
+    --red:#EE5D50;
+    --red-soft:#FDECEA;
+    --shadow:0 18px 40px rgba(112,144,176,.12);
+    --shadow-sm:0 6px 16px rgba(112,144,176,.10);
+    --radius:16px;
+    --radius-sm:11px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+
+  /* App shell */
+  .app{display:flex;min-height:100vh;}
+  .sidebar{
+    width:248px;flex:0 0 248px;background:var(--ink);color:#fff;
+    display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+  }
+  .brand{padding:22px 20px 18px;border-bottom:1px solid var(--line);}
+  .brand .mark{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:9px;background:var(--accent);
+    font-weight:800;font-size:15px;letter-spacing:.5px;color:#fff;
+  }
+  .brand .name{margin-top:11px;font-weight:800;font-size:15px;letter-spacing:.2px;}
+  .brand .sub{margin-top:2px;font-size:11px;color:var(--muted-2);line-height:1.4;}
+  .nav{padding:12px 12px;overflow-y:auto;flex:1;}
+  .nav .group-label{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted-2);padding:14px 12px 6px;}
+  .nav button{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    padding:10px 12px;border-radius:10px;color:#C9D2F2;font-size:13.5px;font-weight:600;
+    margin-bottom:2px;transition:background .14s,color .14s;
+  }
+  .nav button .ic{width:18px;text-align:center;font-size:15px;opacity:.92;}
+  .nav button:hover{background:var(--panel-2);color:#fff;}
+  .nav button.active{background:var(--accent);color:#fff;}
+  .nav button .pill{margin-left:auto;font-size:10.5px;font-weight:800;background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;}
+  .nav button.active .pill{background:rgba(255,255,255,.25);}
+  .side-foot{padding:14px 18px;border-top:1px solid var(--line);font-size:11px;color:var(--muted-2);line-height:1.5;}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    position:sticky;top:0;z-index:30;background:rgba(244,246,251,.86);backdrop-filter:blur(8px);
+    display:flex;align-items:center;gap:16px;padding:16px 28px;border-bottom:1px solid #E3E8F4;
+  }
+  .crumb{font-size:12px;color:var(--muted);font-weight:600;}
+  .crumb b{color:var(--text);}
+  .topbar .spacer{flex:1;}
+  .qtag{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:6px 12px;border-radius:20px;}
+  .center-select{font-family:inherit;font-size:12.5px;font-weight:700;color:var(--text);background:#fff;border:1px solid #E3E8F4;border-radius:11px;padding:8px 12px;box-shadow:var(--shadow-sm);cursor:pointer;max-width:230px;}
+  .center-select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
+  .ctr-hq{color:var(--accent);font-weight:800;}
+  .iconbtn{
+    position:relative;width:38px;height:38px;border-radius:11px;background:#fff;box-shadow:var(--shadow-sm);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+  }
+  .iconbtn .dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid #fff;}
+  .who{display:flex;align-items:center;gap:9px;}
+  .who .av{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#2B5CFF,#7C4DFF);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;}
+  .who .meta{font-size:12px;line-height:1.3;}
+  .who .meta b{display:block;font-size:13px;}
+  .who .meta span{color:var(--muted);}
+
+  .content{padding:26px 28px 60px;}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:20px;flex-wrap:wrap;}
+  .page-head h1{margin:0;font-size:25px;font-weight:800;letter-spacing:-.3px;}
+  .page-head p{margin:5px 0 0;color:var(--muted);font-size:13.5px;max-width:640px;line-height:1.5;}
+  .view-toggle{display:flex;background:#fff;border-radius:11px;padding:4px;box-shadow:var(--shadow-sm);}
+  .view-toggle button{padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:700;color:var(--muted);}
+  .view-toggle button.on{background:var(--accent);color:#fff;}
+
+  /* KPI strip */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+  .kpi{background:var(--card);border-radius:var(--radius);padding:18px 18px 16px;box-shadow:var(--shadow);}
+  .kpi .lab{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .kpi .val{font-size:30px;font-weight:800;margin-top:6px;letter-spacing:-.5px;}
+  .kpi .note{font-size:12px;margin-top:3px;color:var(--muted);}
+  .kpi .note.up{color:var(--green);}
+  .kpi .note.dn{color:var(--red);}
+
+  /* Dashboard tiles */
+  .tile-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .tile{
+    background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:left;
+    border-top:none;transition:transform .14s,box-shadow .14s;display:flex;flex-direction:column;gap:8px;min-height:128px;
+  }
+  .tile:hover{transform:translateY(-3px);box-shadow:0 22px 48px rgba(43,92,255,.16);}
+  .tile .tile-top{display:flex;align-items:center;justify-content:space-between;}
+  .tile .t-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .tile .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;}
+  .tile h3{margin:2px 0 0;font-size:14px;font-weight:700;}
+  .tile .big{font-size:26px;font-weight:800;letter-spacing:-.5px;}
+  .tile .desc{font-size:12px;color:var(--muted);line-height:1.4;margin-top:auto;}
+  .tile .go{font-size:12px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:5px;}
+
+  .b-green{background:var(--green-soft);color:#03936D;}
+  .b-amber{background:var(--amber-soft);color:#B9791F;}
+  .b-red{background:var(--red-soft);color:#C73A2F;}
+  .b-blue{background:var(--accent-soft);color:var(--accent);}
+  .ic-green{background:var(--green-soft);color:#03936D;}
+  .ic-amber{background:var(--amber-soft);color:#B9791F;}
+  .ic-red{background:var(--red-soft);color:#C73A2F;}
+  .ic-blue{background:var(--accent-soft);color:var(--accent);}
+
+  /* Panels / tables */
+  .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #EDF0F8;}
+  .panel-head h2{margin:0;font-size:15.5px;font-weight:800;}
+  .panel-head .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+    font-weight:700;padding:11px 20px;background:#FBFCFE;border-bottom:1px solid #EDF0F8;white-space:nowrap;
+  }
+  tbody td{padding:14px 20px;font-size:13px;border-bottom:1px solid #F2F4FA;vertical-align:middle;}
+  tbody tr{cursor:pointer;transition:background .12s;}
+  tbody tr:hover{background:#F7F9FE;}
+  tbody tr:last-child td{border-bottom:none;}
+  td .item-name{font-weight:700;color:var(--text);}
+  td .item-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .stat{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:12px;}
+  .stat .dot{width:9px;height:9px;border-radius:50%;}
+  .s-green .dot{background:var(--green);} .s-green{color:#03936D;}
+  .s-amber .dot{background:var(--amber);} .s-amber{color:#B9791F;}
+  .s-red .dot{background:var(--red);} .s-red{color:#C73A2F;}
+  .s-blue .dot{background:var(--accent);} .s-blue{color:var(--accent);}
+  .s-grey .dot{background:#A3AED0;} .s-grey{color:#707EAE;}
+  .owner{display:flex;align-items:center;gap:8px;}
+  .owner .oav{width:28px;height:28px;border-radius:8px;background:#EAEEF8;color:#5B6794;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;}
+  .due-soon{color:var(--red);font-weight:700;}
+  .progress{height:8px;border-radius:20px;background:#EDF0F8;overflow:hidden;width:120px;}
+  .progress > span{display:block;height:100%;border-radius:20px;}
+
+  /* Two-column tab layouts */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .minilist{padding:6px 0;}
+  .minirow{display:flex;align-items:center;gap:12px;padding:11px 20px;border-bottom:1px solid #F2F4FA;cursor:pointer;}
+  .minirow:hover{background:#F7F9FE;}
+  .minirow:last-child{border-bottom:none;}
+  .minirow .mt{flex:1;min-width:0;}
+  .minirow .mt b{font-size:13px;font-weight:700;display:block;}
+  .minirow .mt span{font-size:11.5px;color:var(--muted);}
+
+  /* Calendar */
+  .cal{padding:18px 20px;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;}
+  .cal-head{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:center;padding-bottom:4px;}
+  .cal-cell{min-height:78px;border:1px solid #EDF0F8;border-radius:10px;padding:7px 8px;background:#fff;}
+  .cal-cell .dnum{font-size:11px;font-weight:700;color:var(--muted-2);}
+  .cal-cell.today{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft) inset;}
+  .cal-cell.today .dnum{color:var(--accent);}
+  .ev{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:6px;margin-top:4px;line-height:1.3;}
+  .ev.g{background:var(--green-soft);color:#03936D;}
+  .ev.a{background:var(--amber-soft);color:#B9791F;}
+  .ev.r{background:var(--red-soft);color:#C73A2F;}
+  .ev.b{background:var(--accent-soft);color:var(--accent);}
+
+  /* Stat cards inside tabs */
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+
+  /* Leadership answer cards */
+  .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+  .ans{background:var(--card);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+  .ans .q{font-size:13px;font-weight:800;color:var(--text);}
+  .ans .a{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45;}
+  .ans:before{content:"";position:absolute;top:14px;right:16px;width:10px;height:10px;border-radius:50%;}
+  .ans.green:before{background:var(--green);} .ans.amber:before{background:var(--amber);} .ans.red:before{background:var(--red);}
+
+  /* Budget charts */
+  .budget-top{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center;padding:20px 22px;}
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+  .donut-cap b{font-size:12.5px;display:block;} .donut-cap span{font-size:11px;color:var(--muted);}
+  .bars-head{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+  .legend{font-size:10.5px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:10px;}
+  .legend i{display:inline-block;width:14px;height:8px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+  .legend .lg-fill{background:var(--accent);} .legend .lg-track{background:#EDF0F8;}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px;}
+  .bar-lab{width:160px;flex:0 0 160px;font-size:12px;font-weight:600;color:var(--text);}
+  .bar-track-wrap{flex:1;position:relative;height:14px;}
+  .bar-track{position:absolute;top:0;left:0;height:14px;background:#EDF0F8;border-radius:7px;}
+  .bar-fill{position:absolute;top:0;left:0;height:14px;border-radius:7px;}
+  .bar-val{width:120px;flex:0 0 120px;text-align:right;font-size:12px;font-weight:700;color:var(--text);}
+  .bar-val span{color:var(--muted-2);font-weight:600;}
+  @media(max-width:880px){.answers{grid-template-columns:1fr;}.budget-top{grid-template-columns:1fr;}.bar-lab{width:110px;flex-basis:110px;}.bar-val{width:96px;flex-basis:96px;}.hr-row{grid-template-columns:1fr !important;}}
+  .scard{background:var(--card);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow-sm);}
+  .scard .l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+  .scard .v{font-size:24px;font-weight:800;margin-top:5px;}
+  .scard .s{font-size:11.5px;margin-top:2px;}
+
+  /* Drawer */
+  .scrim{position:fixed;inset:0;background:rgba(11,20,55,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:80;}
+  .scrim.open{opacity:1;pointer-events:auto;}
+  .drawer{
+    position:fixed;top:0;right:0;height:100vh;width:480px;max-width:94vw;background:#fff;z-index:90;
+    box-shadow:-18px 0 50px rgba(11,20,55,.22);transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;
+  }
+  .drawer.open{transform:translateX(0);}
+  .dr-head{padding:22px 24px 18px;border-bottom:1px solid #EDF0F8;}
+  .dr-head .cat{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);}
+  .dr-head h2{margin:7px 0 0;font-size:19px;font-weight:800;line-height:1.25;}
+  .dr-head .closex{position:absolute;top:18px;right:20px;font-size:20px;color:var(--muted);width:34px;height:34px;border-radius:9px;}
+  .dr-head .closex:hover{background:#F2F4FA;color:var(--text);}
+  .dr-body{padding:20px 24px 40px;overflow-y:auto;flex:1;}
+  .dr-meta{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;}
+  .dr-meta .m .k{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);}
+  .dr-meta .m .v{font-size:14px;font-weight:700;margin-top:3px;}
+  .dr-sec{margin-bottom:22px;}
+  .dr-sec h4{margin:0 0 10px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+  .wf{display:flex;flex-direction:column;gap:0;}
+  .wf .step{display:flex;gap:12px;}
+  .wf .step .rail{display:flex;flex-direction:column;align-items:center;}
+  .wf .step .node{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:0 0 24px;}
+  .wf .step .line{flex:1;width:2px;background:#E3E8F4;margin:2px 0;}
+  .wf .step:last-child .line{display:none;}
+  .wf .node.done{background:var(--green);color:#fff;}
+  .wf .node.now{background:var(--accent);color:#fff;box-shadow:0 0 0 4px var(--accent-soft);}
+  .wf .node.next{background:#EAEEF8;color:#A3AED0;}
+  .wf .step .body{padding-bottom:16px;}
+  .wf .step .body b{font-size:13px;display:block;}
+  .wf .step .body span{font-size:11.5px;color:var(--muted);}
+  .res{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid #EDF0F8;border-radius:11px;margin-bottom:9px;text-decoration:none;color:var(--text);transition:border-color .12s,background .12s;}
+  .res:hover{border-color:var(--accent);background:#F7F9FE;}
+  .res .ri{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 32px;}
+  .res .rt{flex:1;min-width:0;}
+  .res .rt b{font-size:13px;display:block;}
+  .res .rt span{font-size:11px;color:var(--muted);}
+  .res .chev{color:var(--muted-2);font-size:13px;}
+  .ms-tile{background:#F7F9FE;}
+  .reminder-box{background:var(--amber-soft);border-radius:12px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start;}
+  .appr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .appr-step{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;background:#F4F6FB;border:1px solid #E3E8F4;border-radius:9px;padding:7px 11px;}
+  .appr-step .appr-n{width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 18px;}
+  .appr-step .appr-arrow{color:var(--muted-2);margin-left:4px;font-weight:800;}
+  .reminder-box .ri{font-size:16px;}
+  .reminder-box b{font-size:12.5px;color:#B9791F;}
+  .reminder-box p{margin:3px 0 0;font-size:12px;color:#8A6418;line-height:1.45;}
+
+  /* Reminders popover */
+  .pop{position:fixed;top:64px;right:24px;width:360px;max-width:92vw;background:#fff;border-radius:var(--radius);box-shadow:0 24px 60px rgba(11,20,55,.24);z-index:70;overflow:hidden;display:none;}
+  .pop.open{display:block;}
+  .pop-head{padding:15px 18px;border-bottom:1px solid #EDF0F8;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:space-between;}
+  .pop-head span{font-size:11px;font-weight:700;color:#fff;background:var(--red);border-radius:20px;padding:2px 9px;}
+  .pop-item{padding:13px 18px;border-bottom:1px solid #F2F4FA;display:flex;gap:11px;cursor:pointer;}
+  .pop-item:hover{background:#F7F9FE;}
+  .pop-item .pi{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 32px;}
+  .pop-item b{font-size:12.5px;display:block;}
+  .pop-item span{font-size:11.5px;color:var(--muted);}
+
+  .note-banner{background:linear-gradient(100deg,#111C44,#1B2559);color:#fff;border-radius:var(--radius);padding:16px 20px;margin-bottom:22px;display:flex;gap:13px;align-items:center;font-size:12.5px;line-height:1.5;}
+  .note-banner .nb-ic{font-size:18px;}
+  .note-banner b{color:#fff;}
+  .note-banner span{color:var(--muted-2);}
+
+  .ai-chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#7C4DFF;background:#F1ECFF;padding:3px 9px;border-radius:20px;}
+  .src-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#03936D;background:var(--green-soft);padding:3px 9px;border-radius:20px;}
+  .hflow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:18px 20px;}
+  .hstep{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:84px;}
+  .hstep .hnode{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .hstep .hlab{font-size:11px;font-weight:600;color:var(--text);text-align:center;line-height:1.25;}
+  .harrow{color:var(--muted-2);font-weight:800;font-size:15px;padding-bottom:18px;}
+  .pi.ic-grey{background:#EAEEF8;color:#707EAE;}
+  @media(max-width:980px){.hflow{justify-content:flex-start;}.harrow{display:none;}.hstep{min-width:46%;flex-direction:row;justify-content:flex-start;}}
+
+  @media(max-width:1160px){
+    .tile-grid{grid-template-columns:repeat(2,1fr);}
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .stat-cards{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:880px){
+    .sidebar{position:fixed;left:0;z-index:100;transform:translateX(-100%);transition:transform .22s;}
+    .sidebar.open{transform:translateX(0);}
+    .menu-btn{display:flex !important;}
+    .cols,.cols-3{grid-template-columns:1fr;}
+  }
+  @media(max-width:620px){
+    .tile-grid,.kpi-row,.stat-cards{grid-template-columns:1fr;}
+    .content{padding:18px 14px 50px;}
+    .topbar{padding:14px 14px;}
+    .who .meta{display:none;}
+  }
+  .menu-btn{display:none;width:38px;height:38px;border-radius:11px;background:#fff;box-shadow:var(--shadow-sm);align-items:center;justify-content:center;font-size:18px;}
+  table.resp{display:table;}
+  @media(max-width:760px){
+    thead{display:none;}
+    table.resp,table.resp tbody,table.resp tr,table.resp td{display:block;width:100%;}
+    table.resp tr{padding:8px 0;border-bottom:1px solid #EDF0F8;}
+    table.resp td{padding:5px 18px;border:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="mark">OP</div>
+      <div class="name">HQ OP Operations Dashboard</div>
+      <div class="sub">NASA Headquarters<br>Office of Procurement</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot">
+      <b style="color:#C9D2F2;">Prototype v0.1</b><br>
+      Recurring Actions + Project Status: live exports (7/31) · Training stats: real ACM aggregates · rest notional. Production target: SharePoint Online + Power Platform + Copilot.
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <div class="crumb">NASA HQ Office of Procurement &nbsp;›&nbsp; <b id="crumb">Executive Dashboard</b></div>
+      <div class="spacer"></div>
+      <select class="center-select" id="centerSelect" onchange="setCenter(this.value)"></select>
+      <div class="qtag">FY26 · Q4</div>
+      <button class="iconbtn" id="bellBtn" title="Automated reminders">🔔<span class="dot"></span></button>
+      <div class="who">
+        <div class="av">JT</div>
+        <div class="meta"><b>Data lead</b><span>HQ OP</span></div>
+      </div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<!-- Reminders popover -->
+<div class="pop" id="pop">
+  <div class="pop-head">Automated reminders <span>5 due soon</span></div>
+  <div id="popItems"></div>
+</div>
+
+<!-- Drawer -->
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="dr-head" style="position:relative;">
+    <button class="closex" onclick="closeDrawer()">✕</button>
+    <div class="cat" id="drCat">Recurring Action</div>
+    <h2 id="drTitle">—</h2>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+<script>
+/* ----------------------------------------------------------------
+   HQ OP Operations Dashboard prototype — data + render. Single file, in-memory only.
+   ---------------------------------------------------------------- */
+
+const TABS = [
+  {id:"dashboard", label:"Executive Dashboard", ic:"▦", group:"Leadership"},
+  {id:"project", label:"Project Status", ic:"◧", group:"Leadership"},
+  {id:"recurring", label:"Recurring Actions", ic:"↻", group:"Operations", pill:5},
+  {id:"adhoc", label:"Ad Hoc Actions", ic:"⚡", group:"Operations", pill:2},
+  {id:"awards", label:"Employee Awards & Performance", ic:"★", group:"People"},
+  {id:"budget", label:"Budget · HR · Staffing", ic:"$", group:"People"},
+  {id:"hiring", label:"Hiring & Workforce", ic:"◍", group:"People"},
+  {id:"training", label:"Training & Development", ic:"◎", group:"People"},
+  {id:"comms", label:"Communications", ic:"✦", group:"Engagement"},
+];
+
+function av(name){return name.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();}
+
+// ---- NASA procurement enterprise: Headquarters + field centers + shared services ----
+const CENTERS=[
+  {abbr:"HQ", name:"Headquarters — Office of Procurement", loc:"Washington, DC", open:12, budget:70, staff:"amber", risk:2, hq:true},
+  {abbr:"ARC", name:"Ames Research Center", loc:"Moffett Field, CA", open:8, budget:74, staff:"amber", risk:1},
+  {abbr:"AFRC", name:"Armstrong Flight Research Center", loc:"Edwards, CA", open:4, budget:68, staff:"green", risk:0},
+  {abbr:"GRC", name:"Glenn Research Center", loc:"Cleveland, OH", open:6, budget:72, staff:"green", risk:1},
+  {abbr:"GSFC", name:"Goddard Space Flight Center", loc:"Greenbelt, MD", open:15, budget:66, staff:"red", risk:3},
+  {abbr:"JPL", name:"Jet Propulsion Laboratory", loc:"Pasadena, CA", open:9, budget:80, staff:"green", risk:0},
+  {abbr:"JSC", name:"Johnson Space Center", loc:"Houston, TX", open:13, budget:71, staff:"amber", risk:2},
+  {abbr:"KSC", name:"Kennedy Space Center", loc:"Cape Canaveral, FL", open:11, budget:69, staff:"green", risk:1},
+  {abbr:"LaRC", name:"Langley Research Center", loc:"Hampton, VA", open:7, budget:73, staff:"green", risk:0},
+  {abbr:"MSFC", name:"Marshall Space Flight Center", loc:"Huntsville, AL", open:12, budget:67, staff:"amber", risk:2},
+  {abbr:"SSC", name:"Stennis Space Center", loc:"Bay St. Louis, MS", open:3, budget:75, staff:"green", risk:0},
+  {abbr:"NSSC", name:"NASA Shared Services Center", loc:"Stennis, MS", open:10, budget:78, staff:"green", risk:1},
+];
+let currentCenter="ALL";
+
+function renderCentersPanel(){
+  const rows=CENTERS.map(c=>{
+    const sel = currentCenter===c.abbr ? ' style="background:var(--accent-soft);"' : '';
+    const budgetCol={green:"var(--green)",amber:"var(--amber)",red:"var(--red)"}[c.budget>=72?"green":(c.budget>=68?"amber":"red")];
+    return `<tr onclick="setCenter('${c.abbr}')"${sel}>
+      <td><div class="owner"><div class="oav ${c.hq?'ctr-hq':''}" style="${c.hq?'background:var(--accent-soft);color:var(--accent);':''}">${c.abbr}</div><div><div class="item-name">${c.name}</div><div class="item-sub">${c.loc}</div></div></div></td>
+      <td>${c.open}</td>
+      <td><div class="progress" style="width:90px;"><span style="width:${c.budget}%;background:${budgetCol};"></span></div><div style="font-size:11px;color:var(--muted);margin-top:3px;">${c.budget}%</div></td>
+      <td>${statusStat(c.staff, c.staff==="green"?"Healthy":(c.staff==="amber"?"Watch":"Short"))}</td>
+      <td>${c.risk>0?`<span class="stat s-red"><span class="dot"></span>${c.risk}</span>`:`<span class="stat s-green"><span class="dot"></span>0</span>`}</td></tr>`;
+  }).join("");
+  return `<div class="panel"><div class="panel-head"><div><h2>Procurement enterprise by center</h2><div class="sub">Oversight across NASA Headquarters, the ten field centers, and the NASA Shared Services Center. Click a center to focus.</div></div></div>
+    <table class="resp"><thead><tr><th>Center</th><th>Open actions</th><th>Budget execution</th><th>Staffing</th><th>Risk items</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function setCenter(v){
+  currentCenter=v;
+  const sel=document.getElementById("centerSelect"); if(sel) sel.value=v;
+  const label=v==="ALL"?"All Centers":(CENTERS.find(c=>c.abbr===v)||{}).name||v;
+  document.getElementById("crumb").textContent = (currentTab==="dashboard"?"Executive Dashboard":TABS.find(t=>t.id===currentTab).label)+" · "+label;
+  if(currentTab==="dashboard") document.getElementById("view").innerHTML=RENDERERS.dashboard();
+}
+function buildCenterSelect(){
+  const sel=document.getElementById("centerSelect");
+  sel.innerHTML='<option value="ALL">All Centers ('+CENTERS.length+')</option>'+CENTERS.map(c=>`<option value="${c.abbr}">${c.abbr} — ${c.name.replace(/ —.*/,'')}</option>`).join("");
+  sel.value=currentCenter;
+}
+
+// ---- helpers below ----
+// ---- Sample data (notional) ----
+const RECURRING=[
+{name:"Budget planning cycles",owner:"Budget lead",cat:"Budget, HR, & Staffing",months:["Jul"],next:"2027-07-01",due:"2027-07-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"Safety Inspection",owner:"BOT analyst A",cat:"Budget, HR, & Staffing",months:["May"],next:"2027-05-01",due:"2027-05-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"HQ NEST Demand September Consolidated Invoice",owner:"BOT analyst A",cat:"Budget, HR, & Staffing",months:["Sep"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Annual",notes:""},
+{name:"Pathway Interns in OP",owner:"",cat:"Budget, HR, & Staffing",months:["Jan Jul"],next:"2026-01-01",due:"2026-01-31",st:"Scheduled",cad:"Irregular recurrence",notes:""},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2027-02-01",due:"2027-03-03",st:"Scheduled",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"Procurement Technical Training Workshop",owner:"BOT",cat:"Organizational Training & Development",months:["May"],next:"2027-05-01",due:"2027-05-31",st:"Scheduled",cad:"Annual",notes:"Planning begins January"},
+{name:"Leadership for an Efficient and Accountable Government (LEAG)",owner:"",cat:"Organizational Training & Development",months:["Jul"],next:"2027-07-01",due:"2027-07-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"Accelerating Supervisor Capabilities, Effectiveness, and Development (ASCEND)",owner:"",cat:"Organizational Training & Development",months:[],next:null,due:"1900-01-29",st:"",cad:"",notes:""},
+{name:"NASA FIRST",owner:"",cat:"Organizational Training & Development",months:["Jul"],next:"2027-07-01",due:"2027-07-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"OP Webinars",owner:"",cat:"Organizational Training & Development",months:[],next:null,due:"1900-01-29",st:"",cad:"",notes:"quarterly"},
+{name:"CORB",owner:"",cat:"Organizational Training & Development",months:[],next:null,due:"1900-01-29",st:"",cad:"",notes:"quarterly"},
+{name:"State of NASA Procurement Report",owner:"BOT - BOT analyst D / BOT analyst E",cat:"",months:["Jan"],next:"2027-01-01",due:"2027-01-31",st:"Scheduled",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Enterprise Town Halls",owner:"BOT",cat:"",months:["Jun Dec"],next:"2027-12-01",due:"2027-12-31",st:"Scheduled",cad:"Irregular recurrence",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Center Town Halls",owner:"BOT",cat:"",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"HQ Town Halls",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Industry Engagement Days",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Acquisition Summit",owner:"BOT",cat:"",months:["Aug"],next:"2026-08-01",due:"2026-08-31",st:"Overdue",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Ask Me Anything Meeting",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Senior Leadership Learning Series Meeting",owner:"BOT",cat:"",months:["Mar Jun Sep"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Irregular recurrence",notes:"Call for content begins at the end of the fiscal year"},
+{name:"AO & Awards Presentation & Meeting Notes",owner:"BOT - BOT analyst B / BOT analyst A / BOT analyst C / BOT analyst D / BOT analyst E",cat:"",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Enterprise Newsletter",owner:"BOT analyst D / BOT analyst E",cat:"",months:["Mar Jun Sep Dec"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Irregular recurrence",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Change of Practice (COP) Meeting Notes",owner:"BOT analyst D",cat:"",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Monthly Engagements Meeting / Schedule",owner:"BOT analyst D / BOT analyst C / BOT analyst F",cat:"",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Strategic Planning Meeting Notes",owner:"BOT analyst D",cat:"",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"NCMA World Congress Speaker Submissions",owner:"BOT analyst B",cat:"",months:["Mar"],next:"2027-03-01",due:"2027-03-31",st:"Scheduled",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"NCMA NEXUS Speaker Call",owner:"",cat:"",months:["Feb"],next:"2027-02-01",due:"2027-03-03",st:"Scheduled",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Space Symposium",owner:"",cat:"",months:["Apr"],next:"2027-04-01",due:"2027-05-01",st:"Scheduled",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"World Procurement Congress Award Submission",owner:"",cat:"",months:["Dec"],next:"2026-12-01",due:"2026-12-31",st:"On Track",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"ASCEND",owner:"",cat:"",months:["May"],next:"2027-05-01",due:"2027-05-31",st:"Scheduled",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Annual Aviation Forum",owner:"",cat:"",months:["Dec"],next:"2026-12-01",due:"2026-12-31",st:"On Track",cad:"Annual",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Administrator Flight Experience Award",owner:"BOT analyst A",cat:"Awards & Performance Management",months:["Jun"],next:"2027-06-01",due:"2027-07-01",st:"Scheduled",cad:"Annual",notes:""},
+{name:"OP Enterprise Awards",owner:"BOT analyst A",cat:"Awards & Performance Management",months:["Apr"],next:"2027-04-01",due:"2027-05-01",st:"Scheduled",cad:"Annual",notes:""},
+{name:"Acquisition Improvement Awards",owner:"BOT analyst A",cat:"Awards & Performance Management",months:["Aug"],next:"2026-08-01",due:"2026-08-31",st:"Overdue",cad:"Annual",notes:""},
+{name:"On the Spot Awards",owner:"BOT",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Agency Honor Awards",owner:"BOT analyst A",cat:"Awards & Performance Management",months:["Aug"],next:"2026-08-01",due:"2026-08-31",st:"Overdue",cad:"Annual",notes:""},
+{name:"Honor Awards Appreciation Program",owner:"BOT analyst A",cat:"Awards & Performance Management",months:["Sep"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Annual",notes:""},
+{name:"Length of Service Awards",owner:"BOT / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Elmer B. Staats Awards",owner:"BOT / BOT analyst A",cat:"Awards & Performance Management",months:["Feb"],next:"2027-02-01",due:"2027-03-03",st:"Scheduled",cad:"Annual",notes:""},
+{name:"World Procurement Awards",owner:"BOT",cat:"Awards & Performance Management",months:["Oct"],next:"2026-10-01",due:"2026-10-31",st:"On Track",cad:"Annual",notes:""},
+{name:"Performance Management Actions",owner:"BOT analyst B / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"MSPMC Reviews",owner:"AA (Acting) / BOT analyst B",cat:"Awards & Performance Management",months:["Apr Oct"],next:"2027-04-01",due:"2027-05-01",st:"Scheduled",cad:"Bi-annual",notes:""},
+{name:"FAIR Act",owner:"PGPD / BOT",cat:"Interagency Liaision & Correspondence Management",months:["Jun"],next:"2027-06-01",due:"2027-07-01",st:"Scheduled",cad:"Annual",notes:""},
+{name:"PO Meeting Notes",owner:"BOT analyst C",cat:"Governance",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:""},
+{name:"PLC Meeting Agenda & Notes",owner:"BOT analyst C",cat:"Governance",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:""},
+{name:"OP Sync Meeting / Action Tracker Review",owner:"BOT analyst B / BOT analyst G / BOT analyst C",cat:"Governance",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:""},
+{name:"Audit Report",owner:"BOT analyst B / BOT analyst C",cat:"Governance",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:""},
+{name:"Mission Support Customer Satisfaction Survey",owner:"BOT analyst B / BOT analyst C",cat:"Governance",months:["Jan"],next:"2027-01-01",due:"2027-01-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"Good/Bad/Ugly (GBU) Reports",owner:"BOT analyst B / BOT analyst C / BOT analyst D",cat:"Governance",months:["Monthly"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Monthly",notes:""},
+{name:"Acquisition Forecast",owner:"ESAD / BOT",cat:"Governance",months:["Jan Apr Jul Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Quarterly",notes:"Comes out in September"},
+{name:"Annual IG Challenges Letter",owner:"BOT analyst B / BOT analyst C",cat:"Governance",months:["Nov"],next:"2026-11-01",due:"2026-12-01",st:"On Track",cad:"Annual",notes:""},
+{name:"Good Accounting Obligation In Government (GAO-IG) Act Report",owner:"BOT analyst B / BOT analyst C",cat:"Governance",months:["Jan"],next:"2027-01-01",due:"2027-01-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"External Auditors Procurement Overview Report",owner:"ESAD lead / BOT analyst C / ESAD / ESBO / ESAD analyst",cat:"Financial Audit Inquiries & Reports",months:["Mar"],next:"2027-03-01",due:"2027-03-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"NASA's Procurement and Reimbursable Activities Questionnaire",owner:"BOT analyst C / ESAD / ESAD lead / ESAD analyst",cat:"Financial Audit Inquiries & Reports",months:["Nov"],next:"2026-11-01",due:"2026-12-01",st:"On Track",cad:"Annual",notes:""},
+{name:"Population of New Contracts and Grants Report",owner:"ESAD lead / BOT analyst C",cat:"Financial Audit Inquiries & Reports",months:["Mar Jun Sep Dec"],next:"2026-09-01",due:"2026-10-01",st:"In progress",cad:"Irregular recurrence",notes:""},
+{name:"Financial Statement Audit",owner:"ESAD lead / BOT analyst C",cat:"Financial Audit Inquiries & Reports",months:["Jan"],next:"2027-01-01",due:"2027-01-31",st:"Scheduled",cad:"Annual",notes:""},
+{name:"MSPMC Reviews",owner:"AA (Acting) / BOT analyst B",cat:"Awards & Performance Management",months:["Apr Oct"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Bi-annual",notes:""},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2027-04-01",due:"2027-05-01",st:"Scheduled",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2026-06-01",due:"2026-07-01",st:"Overdue",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2026-08-01",due:"2026-08-31",st:"Overdue",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2026-10-01",due:"2026-10-31",st:"In progress",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"HQ Board of Advisors Meeting & Notes",owner:"BOT analyst B",cat:"Board of Advisors",months:["Feb Apr Jun Aug Oct Dec"],next:"2026-12-01",due:"2026-12-31",st:"In progress",cad:"Irregular recurrence",notes:"Occurs the 3rd Tuesday of every two months"},
+{name:"HQ Town Halls",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"HQ Town Halls",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-04-01",due:"2027-05-01",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"HQ Town Halls",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-07-01",due:"2027-07-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Industry Engagement Days",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Ask Me Anything Meeting",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"On the Spot Awards",owner:"BOT",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Length of Service Awards",owner:"BOT / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Performance Management Actions",owner:"BOT analyst B / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Acquisition Forecast",owner:"ESAD / BOT",cat:"Governance",months:["Jan Apr Jul Oct"],next:"2027-01-01",due:"2027-01-31",st:"In progress",cad:"Quarterly",notes:"Comes out in September"},
+{name:"Industry Engagement Days",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-04-01",due:"2027-05-01",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Ask Me Anything Meeting",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2026-04-01",due:"2026-05-01",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"On the Spot Awards",owner:"BOT",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-04-01",due:"2027-05-01",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Length of Service Awards",owner:"BOT / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-04-01",due:"2027-05-01",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Performance Management Actions",owner:"BOT analyst B / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-04-01",due:"2027-05-01",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Acquisition Forecast",owner:"ESAD / BOT",cat:"Governance",months:["Jan Apr Jul Oct"],next:"2026-04-01",due:"2026-05-01",st:"In progress",cad:"Quarterly",notes:"Comes out in September"},
+{name:"Industry Engagement Days",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2027-07-01",due:"2027-07-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"Ask Me Anything Meeting",owner:"BOT",cat:"",months:["Jan Apr Jul Oct"],next:"2026-07-01",due:"2026-07-31",st:"In progress",cad:"Quarterly",notes:"Call for content begins at the end of the fiscal year"},
+{name:"On the Spot Awards",owner:"BOT",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-07-01",due:"2027-07-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Length of Service Awards",owner:"BOT / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-07-01",due:"2027-07-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Performance Management Actions",owner:"BOT analyst B / BOT analyst A",cat:"Awards & Performance Management",months:["Jan Apr Jul Oct"],next:"2027-07-01",due:"2027-07-31",st:"In progress",cad:"Quarterly",notes:""},
+{name:"Acquisition Forecast",owner:"ESAD / BOT",cat:"Governance",months:["Jan Apr Jul Oct"],next:"2026-07-01",due:"2026-07-31",st:"In progress",cad:"Quarterly",notes:"Comes out in September"}
+];
+
+function recCadence(r){ return r.cad || (r.months.length===12?"Monthly":r.months.length===4?"Quarterly":r.months.length===1?(r.months[0]+" · Annual"):"—"); }
+function recStatus(r){
+  if(r.st==="Overdue") return {s:"red", lab:"Overdue"};
+  if(!r.next) return {s:"red", lab:"No date — not on calendar"};
+  if(!r.owner) return {s:"amber", lab:"Needs owner"};
+  if(!r.cat) return {s:"amber", lab:"Needs category"};
+  if(r.st==="On Track") return {s:"green", lab:"On track"};
+  if(r.st==="In progress") return {s:"blue", lab:"In progress"};
+  if(r.st==="Scheduled") return {s:"grey", lab:"Scheduled"};
+  return {s:"green", lab:"Inventoried"};
+}
+function recComplete(r){ return Math.round(((r.next?1:0)+(r.owner?1:0)+(r.cat?1:0))/3*100); }
+function fmtNext(iso){
+  if(!iso) return '<span class="due-soon">No date</span>';
+  const [y,m,d]=iso.split("-");
+  const mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(m)-1];
+  return mn+" "+parseInt(d)+", "+y;
+}
+let calMonth=null;
+function recMonths(){
+  const set=new Set(RECURRING.filter(r=>r.next).map(r=>r.next.slice(0,7)));
+  return [...set].sort();
+}
+function calNav(dir){
+  const ms=recMonths(); let i=ms.indexOf(calMonth);
+  i=Math.min(ms.length-1, Math.max(0, i+dir));
+  calMonth=ms[i];
+  document.getElementById("view").innerHTML=RENDERERS.recurring();
+}
+
+const ADHOC = [
+  {name:"RFO Public Comment Analysis", sub:"FAR Cases 2026-005 & 2026-007 · comment close Jul 23", due:"Jul 23, 2026", soon:true, owner:"Data lead", status:"amber", statusLab:"Harvesting", source:"HQ / PGPD", priority:"High", prog:40},
+  {name:"Congressional Inquiry — Small Business", sub:"Response routed through Legislative Affairs", due:"Jul 2, 2026", soon:true, owner:"Branch chief", status:"red", statusLab:"Draft due", source:"Legislative Affairs", priority:"Urgent", prog:55},
+  {name:"Administrator Request — Awards Data", sub:"Monetary recognition rollup", due:"Jul 18, 2026", owner:"Awards Board", status:"green", statusLab:"In progress", source:"Administrator", priority:"Medium", prog:60},
+  {name:"White House Tasker — Supply Chain", sub:"Cross-division input consolidation", due:"Aug 1, 2026", owner:"Team lead", status:"green", statusLab:"Assigned", source:"OMB / OFPP", priority:"Medium", prog:20},
+];
+
+const AWARDS=[
+{name:"Administrator Flight Experience Award",route:"Internal",month:"Jun",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"Agency Honor Awards",route:"Internal",month:"May",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"Center Honor Awards",route:"Internal",month:"Jan",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"Honor Awards Appreciation Program",route:"Internal",month:"Jun",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"OP Enterprise Awards",route:"Internal",month:"Jun",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"OP Acquisition Improvement Awards",route:"Internal",month:"Oct",owner:"BOT analyst B / BOT analyst A",docs:4},
+{name:"On the Spot Awards",route:"Internal",month:"All year",owner:"HQ-OP-BOT",docs:2},
+{name:"Length of Service Awards",route:"Internal",month:"All year",owner:"HQ-OP-BOT",docs:2},
+{name:"Elmer B. Staats Awards",route:"External",month:"Mar",owner:"BOT analyst A / HQ-OP-BOT",docs:4},
+{name:"World Procurement Awards",route:"External",month:"May",owner:"BOT analyst A / HQ-OP-BOT",docs:4},
+{name:"Chief Acquisition Officers Council (CAOC)",route:"External",month:"Jul",owner:"BOT analyst A / HQ-OP-BOT",docs:3}
+];
+const AWARD_STAGES=["Nominate","Panel review (HQ)","Submit","Result"];
+const PERF = [
+  {name:"Q4 Performance Check-ins", due:"Jul 31, 2026", soon:true, owner:"Supervisors", status:"amber", statusLab:"In progress", prog:40},
+  {name:"Annual Appraisals (EPAP)", sub:"Employee Performance Appraisal Plan close-out", due:"Sep 30, 2026", owner:"All supervisors", status:"green", statusLab:"Calendar set", prog:10},
+  {name:"Bonus & Performance Award Planning", due:"Aug 29, 2026", owner:"Branch chief", status:"green", statusLab:"Planning", prog:25},
+];
+
+const BUDGET = [
+  {name:"OP Operating Budget", fy:"FY26", source:"OP enterprise allocation", planned:48.2, allocated:48.2, obligated:33.6, burn:"$4.2M / mo", pct:70, status:"green", note:"On pace to obligate by year-end at current burn rate.", monthly:[58,62,64,66,68,70]},
+  {name:"Division Allocations", fy:"FY26", source:"OP operating budget", planned:31.0, allocated:31.0, obligated:24.5, burn:"$3.0M / mo", pct:79, status:"green", note:"Highest execution. Major Systems slightly behind on travel sub-line.", monthly:[55,61,66,71,75,79]},
+  {name:"Training Funds", fy:"FY26", source:"OP training allocation", planned:0.64, allocated:0.64, obligated:0.402, burn:"$55K / mo", pct:63, status:"amber", note:"Watch: 5 staff still need Continuous Learning Points; courses not yet registered.", monthly:[20,33,42,50,57,63]},
+  {name:"Awards Funding", fy:"FY26", source:"OP awards pool", planned:0.31, allocated:0.31, obligated:0.096, burn:"$16K / mo", pct:31, status:"red", note:"Under-executed. Spot award funds expire at year-end; obligate or lose.", monthly:[8,14,19,24,28,31]},
+  {name:"Travel Funding", fy:"FY26", source:"OP travel ceiling", planned:0.52, allocated:0.52, obligated:0.380, burn:"$48K / mo", pct:73, status:"green", note:"Tracking to plan; conference season in Q4 accounted for.", monthly:[40,49,57,63,68,73]},
+];
+const STAFFING = [
+  {name:"Program Operations", auth:14, onboard:12, target:"Fill 2 by Q1 FY27", panel:"2 in panel", pool:"5 referred", promo:"1 GS-13→14 pending", status:"amber"},
+  {name:"Policy & Compliance", auth:9, onboard:9, target:"Fully staffed", panel:"—", pool:"—", promo:"None", status:"green"},
+  {name:"Major Systems", auth:11, onboard:8, target:"Priority fill", panel:"1 panel scheduled Jul", pool:"Thin — re-advertise", promo:"1 GS-13→14 pending", status:"red"},
+  {name:"Services & Construction", auth:10, onboard:9, target:"Selectee onboarding", panel:"Complete", pool:"1 selectee (EOD Aug)", promo:"None", status:"green"},
+];
+const HR = [
+  {name:"Vacancy Announcement — 1102 Major Systems", type:"Vacancy", due:"Jul 7, 2026", soon:true, owner:"Team lead", status:"red", statusLab:"Awaiting post", sub:"Priority fill; announcement drafted, needs Procurement Officer release", decision:true},
+  {name:"Promotion Actions (pending)", type:"Promotion", sub:"2 GS-13 to GS-14 packages (Program Ops, Major Systems)", due:"Aug 15, 2026", owner:"Branch chief", status:"amber", statusLab:"In routing", decision:true},
+  {name:"Position Descriptions — refresh", type:"Classification", due:"Aug 8, 2026", owner:"HR Liaison", status:"amber", statusLab:"3 pending classification", sub:"Reclassification for updated 1102 duties"},
+  {name:"Time-in-Grade Eligibility", type:"Eligibility", sub:"4 employees eligible Q4 FY26 – Q1 FY27", due:"Rolling", owner:"Supervisors", status:"green", statusLab:"Tracked"},
+  {name:"Onboarding — Services selectee", type:"Onboarding", sub:"Entry-on-duty (EOD) targeted August", due:"Aug 2026", owner:"HR Liaison", status:"green", statusLab:"In process"},
+  {name:"Detail — HQ Policy (PGPD)", type:"Detail/Rotation", sub:"Subject-matter expert detail supporting the Revolutionary Federal Acquisition Regulation Overhaul (RFO)", due:"Ongoing", owner:"Data lead", status:"green", statusLab:"Active"},
+];
+const TIG = [
+  {name:"Employee A · GS-12", eligible:"Eligible Sep 2026", div:"Program Operations"},
+  {name:"Employee B · GS-13", eligible:"Eligible Oct 2026", div:"Policy & Compliance"},
+  {name:"Employee C · GS-12", eligible:"Eligible Nov 2026", div:"Services & Construction"},
+  {name:"Employee D · GS-13", eligible:"Eligible Jan 2027", div:"Major Systems"},
+];
+
+const TRAINING = [
+  {name:"FAC-C (Professional) currency", sub:"Federal Acquisition Certification in Contracting", due:"Sep 30, 2026", owner:"Training Lead", status:"amber", statusLab:"5 need CLPs", prog:65},
+  {name:"CLP Tracking (Continuous Learning Points)", sub:"80-hr / 2-yr cycle", due:"Rolling", owner:"AI-assisted", status:"green", statusLab:"Auto-tracked", prog:78, ai:true},
+  {name:"Leadership Development cohort", due:"Aug 2026", owner:"Branch chief", status:"green", statusLab:"Nominations in", prog:40},
+  {name:"FY27 Annual Training Plan", due:"Sep 15, 2026", owner:"Training Lead", status:"grey", statusLab:"Drafting", prog:10},
+];
+
+const COMMS = [
+  {name:"Procurement Newsletter (Q4)", due:"Aug 5, 2026", owner:"Comms Lead", status:"amber", statusLab:"Content gathering", prog:35},
+  {name:"Industry Day — Speaking Slot", sub:"Division speaker selection", due:"Jul 28, 2026", soon:true, owner:"Team lead", status:"green", statusLab:"Speaker assigned", prog:70},
+  {name:"Enterprise Messaging Calendar", sub:"Q4 leadership messages", due:"Rolling", owner:"Comms Lead", status:"green", statusLab:"Maintained", prog:60},
+  {name:"Conference Participation (NCMA)", sub:"National Contract Management Association", due:"Sep 9, 2026", owner:"Branch chief", status:"grey", statusLab:"Under review", prog:5},
+];
+
+const REMINDERS = [
+  {t:"Congressional Inquiry draft due", s:"Tomorrow · Legislative Affairs", ic:"⚡", cl:"ic-red", tab:"adhoc", key:"Congressional Inquiry — Small Business"},
+  {t:"FAIR Act Reporting closes", s:"Jun 30 · 4 days", ic:"↻", cl:"ic-amber", tab:"recurring", key:"FAIR Act Reporting"},
+  {t:"Spot Award funds expiring", s:"Sep 30 · obligate soon", ic:"★", cl:"ic-red", tab:"awards", key:"On-the-Spot Awards (Q4)"},
+  {t:"HQ Data Call — Acquisition Directive", s:"Jul 11 · action needed", ic:"↻", cl:"ic-amber", tab:"recurring", key:"HQ Data Call — Acquisition Directive"},
+  {t:"Vacancy announcement awaiting post", s:"Jul 7 · Major Systems", ic:"$", cl:"ic-blue", tab:"budget", key:"Vacancy Announcement — 1102 Major Systems"},
+];
+
+// ---- Dashboard tiles ----
+const TILES = [
+  {key:"Recurring deliverables (live)", ic:"↻", icc:"ic-blue", big:"82", desc:"79 dated · 5 overdue", badge:"5 overdue", bcl:"b-red", tab:"recurring"},
+  {key:"Open ad hoc actions", ic:"⚡", icc:"ic-blue", big:"4", desc:"1 urgent · Congressional", badge:"1 urgent", bcl:"b-red", tab:"adhoc"},
+  {key:"Awards requiring action", ic:"★", icc:"ic-amber", big:"3", desc:"Spot award funds expiring", badge:"$ at risk", bcl:"b-red", tab:"awards"},
+  {key:"Budget execution", ic:"$", icc:"ic-green", big:"70%", desc:"OP operating budget obligated", badge:"On track", bcl:"b-green", tab:"budget"},
+  {key:"Staffing / FTE status", ic:"◍", icc:"ic-amber", big:"38/44", desc:"6 vacancies · 3 in Major Systems", badge:"Watch", bcl:"b-amber", tab:"budget"},
+  {key:"HR actions requiring attention", ic:"⛬", icc:"ic-red", big:"4", desc:"Vacancy post + 2 promotions", badge:"Action", bcl:"b-red", tab:"budget"},
+  {key:"Training status", ic:"◎", icc:"ic-amber", big:"65%", desc:"5 staff need Continuous Learning Points", badge:"Watch", bcl:"b-amber", tab:"training"},
+  {key:"Upcoming communications", ic:"✦", icc:"ic-green", big:"4", desc:"Newsletter + Industry Day", badge:"On track", bcl:"b-green", tab:"comms"},
+  {key:"Upcoming milestones", ic:"◆", icc:"ic-blue", big:"9", desc:"Across all operational areas", badge:"Q4", bcl:"b-blue", tab:"recurring"},
+  {key:"Items requiring leadership decisions", ic:"⚖", icc:"ic-amber", big:"3", desc:"Awards funding · Major Systems hiring", badge:"Review", bcl:"b-amber", tab:"adhoc"},
+  {key:"Risks or overdue items", ic:"⚠", icc:"ic-red", big:"2", desc:"Congressional draft · vacancy post", badge:"Overdue risk", bcl:"b-red", tab:"adhoc"},
+  {key:"Performance management rhythm", ic:"◷", icc:"ic-green", big:"Q4", desc:"Check-ins underway · appraisals set", badge:"On track", bcl:"b-green", tab:"awards"},
+];
+
+// ---- Generic helpers ----
+function statusStat(s, lab){
+  const map={green:"s-green",amber:"s-amber",red:"s-red",blue:"s-blue",grey:"s-grey"};
+  const dflt={green:"On track",amber:"In progress",red:"Action needed",grey:"Scheduled",blue:"Active"};
+  return `<span class="stat ${map[s]||'s-grey'}"><span class="dot"></span>${lab||dflt[s]||"—"}</span>`;
+}
+function ownerCell(o){return `<div class="owner"><div class="oav">${av(o)}</div>${o}</div>`;}
+function progBar(p,s){
+  const c={green:"var(--green)",amber:"var(--amber)",red:"var(--red)",grey:"#A3AED0",blue:"var(--accent)"}[s]||"var(--accent)";
+  return `<div class="progress"><span style="width:${p}%;background:${c};"></span></div>`;
+}
+function dueCell(d,soon){return soon?`<span class="due-soon">${d}</span>`:d;}
+
+// ---- Drawer ----
+const WORKFLOWS = {
+  recurring:[["Data call received","Owner notified, suspense logged","done"],["Inputs gathered","Division submissions collected","done"],["Draft assembled","Consolidated for review","now"],["Leadership review","Branch chief / Competition Advocate","next"],["Submit to HQ","Final transmission + archive","next"]],
+  adhoc:[["Tasker received","Source logged, priority set","done"],["Lead assigned","Division ownership confirmed","done"],["Draft product","Response under development","now"],["Approval routing","Through leadership chain","next"],["Final delivery","Transmit + record comms history","next"]],
+  awards:[["Cycle opens","Nomination window logged","done"],["Identify nominees","Proactive candidate review","now"],["Package prepared","Templates + justification","next"],["Review board","Assigned reviewers","next"],["Submit / announce","Recognition delivered","next"]],
+  budget:[["Allocation set","Division marks established","done"],["Obligation tracking","Execution monitored","now"],["Mid-cycle review","Burn rate assessed","next"],["Reprogram if needed","Leadership decision","next"]],
+  training:[["Requirement identified","Certification / CLP gap","done"],["Plan & register","Courses scheduled","now"],["Track completion","Attendance + points","next"],["Currency confirmed","Records updated","next"]],
+  comms:[["Opportunity identified","Speaking / messaging logged","done"],["Content drafted","Templates + branding","now"],["Review & approve","Routing for clearance","next"],["Publish / present","Delivered + archived","next"]],
+};
+const CATLABEL={recurring:"Recurring Action",adhoc:"Ad Hoc Action",awards:"Award / Performance",budget:"Budget · HR · Staffing",training:"Training & Development",comms:"Communications"};
+
+function openDrawer(tab, item){
+  document.getElementById("drCat").textContent = CATLABEL[tab]||"Item";
+  document.getElementById("drTitle").textContent = item.name;
+  const wf = (WORKFLOWS[tab]||WORKFLOWS.recurring).map((s,i,arr)=>{
+    const cls=s[2];
+    return `<div class="step"><div class="rail"><div class="node ${cls}">${cls==="done"?"✓":(i+1)}</div><div class="line"></div></div>
+      <div class="body"><b>${s[0]}</b><span>${s[1]}</span></div></div>`;
+  }).join("");
+
+  const meta = [
+    ["Due date", item.due||"Rolling"],
+    ["Status", (item.statusLab||"—")],
+    ["Assigned owner", item.owner||"—"],
+    ["Supporting orgs", item.support||item.source||"Division leads"],
+  ];
+  if(item.priority) meta.push(["Priority", item.priority]);
+  if(item.source) meta.push(["Request source", item.source]);
+
+  const reminderHTML = item.soon ? `<div class="dr-sec"><div class="reminder-box"><div class="ri">🔔</div><div><b>Automated reminder active</b><p>Owner and supporting organizations notified. Reminder cadence: 14 / 7 / 2 days before suspense, then daily until closed.</p></div></div></div>` : "";
+
+  document.getElementById("drBody").innerHTML = `
+    <div class="dr-meta">
+      ${meta.map(m=>`<div class="m"><div class="k">${m[0]}</div><div class="v">${m[1]}</div></div>`).join("")}
+    </div>
+    ${item.prog!==undefined?`<div class="dr-sec"><h4>Progress</h4>${progBar(item.prog,item.status)}<div style="font-size:12px;color:var(--muted);margin-top:6px;">${item.prog}% complete · internal milestone schedule on track</div></div>`:""}
+    ${reminderHTML}
+    <div class="dr-sec">
+      <h4>Workflow</h4>
+      <div class="wf">${wf}</div>
+    </div>
+    <div class="dr-sec">
+      <h4>Knowledge & resources</h4>
+      <a class="res" href="#" onclick="return false;"><div class="ri ic-blue">📄</div><div class="rt"><b>Standard Operating Procedure</b><span>SOP — how this deliverable is produced</span></div><div class="chev">›</div></a>
+      <a class="res" href="#" onclick="return false;"><div class="ri ic-green">🗂</div><div class="rt"><b>Templates</b><span>Current-cycle templates + required approvals</span></div><div class="chev">›</div></a>
+      <a class="res" href="#" onclick="return false;"><div class="ri ic-amber">📁</div><div class="rt"><b>Prior-year submissions</b><span>Archive of past packages</span></div><div class="chev">›</div></a>
+    </div>
+    <div class="dr-sec">
+      <h4>Linked Microsoft tools</h4>
+      <a class="res ms-tile" href="#" onclick="return false;"><div class="ri ic-blue">🟣</div><div class="rt"><b>Teams channel</b><span>Discussion + coordination</span></div><div class="chev">›</div></a>
+      <a class="res ms-tile" href="#" onclick="return false;"><div class="ri ic-green">🟢</div><div class="rt"><b>SharePoint document library</b><span>Supporting documentation</span></div><div class="chev">›</div></a>
+      <a class="res ms-tile" href="#" onclick="return false;"><div class="ri ic-blue">🔵</div><div class="rt"><b>OneDrive working files</b><span>Drafts in progress</span></div><div class="chev">›</div></a>
+    </div>
+    <div class="dr-sec">
+      <span class="ai-chip">✦ AI assist</span>
+      <p style="font-size:12.5px;color:var(--muted);margin-top:9px;line-height:1.5;">Suggested next step: ${tab==="adhoc"?"draft response shell from prior similar taskers and route to assigned lead.":tab==="awards"?"scan personnel records for eligible nominees before the window closes.":"pre-fill the package from last cycle's submission and flag changed requirements."}</p>
+    </div>
+  `;
+  document.getElementById("scrim").classList.add("open");
+  document.getElementById("drawer").classList.add("open");
+}
+function closeDrawer(){
+  document.getElementById("scrim").classList.remove("open");
+  document.getElementById("drawer").classList.remove("open");
+}
+
+// ---- Page renderers ----
+let currentTab="dashboard", currentView="list";
+
+function renderDashboard(){
+  const tiles = TILES.map(t=>`
+    <button class="tile" onclick="go('${t.tab}')">
+      <div class="tile-top">
+        <div class="t-ic ${t.icc}">${t.ic}</div>
+        <span class="badge ${t.bcl}">${t.badge}</span>
+      </div>
+      <div class="big">${t.big}</div>
+      <h3>${t.key}</h3>
+      <div class="go">Open ${TABS.find(x=>x.id===t.tab).label.split(" ")[0]} →</div>
+    </button>`).join("");
+
+  return `
+    <div class="page-head">
+      <div>
+        <h1>Executive Dashboard</h1>
+        <p>High-level view of the health of the procurement enterprise. Each tile drills into its area. Brad's quarterly business review starts here.</p>
+      </div>
+    </div>
+    <div class="note-banner">
+      <div class="nb-ic">▦</div>
+      <div><b>Business rhythm at a glance.</b> <span>Twelve recurring categories, one landing page. Click any tile to drill into status, calendar, workflow, SOPs, templates, and reminders for that area.</span></div>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="lab">Deliverables on track</div><div class="val">83%</div><div class="note up">▲ 6 of recurring set green</div></div>
+      <div class="kpi"><div class="lab">Items needing decision</div><div class="val">3</div><div class="note dn">Awards $, Major Systems hiring</div></div>
+      <div class="kpi"><div class="lab">Budget executed</div><div class="val">70%</div><div class="note">OP operating budget</div></div>
+      <div class="kpi"><div class="lab">Overdue risk</div><div class="val">2</div><div class="note dn">▼ Congressional, vacancy post</div></div>
+    </div>
+    <div class="tile-grid">${tiles}</div>
+    ${renderCentersPanel()}`;
+}
+
+function tableTab(opts){
+  const {title, desc, rows, tab, cols, calendar} = opts;
+  const head = cols.map(c=>`<th>${c}</th>`).join("");
+  const body = rows.map((r,i)=>`<tr onclick='openRow("${tab}",${i})'>${opts.row(r)}</tr>`).join("");
+  const toggle = `<div class="view-toggle">
+      <button class="${currentView==='list'?'on':''}" onclick="setView('list')">List</button>
+      <button class="${currentView==='calendar'?'on':''}" onclick="setView('calendar')">Calendar</button></div>`;
+  const stats = opts.stats ? `<div class="stat-cards">${opts.stats}</div>` : "";
+  const main = currentView==="calendar" && calendar ? renderCalendar(rows) : `
+    <div class="panel">
+      <div class="panel-head"><div><h2>${opts.panelTitle||title}</h2><div class="sub">${opts.panelSub||'Click any row to open the full record'}</div></div></div>
+      <table class="resp"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+    </div>`;
+  return `
+    <div class="page-head">
+      <div><h1>${title}</h1><p>${desc}</p></div>
+      ${calendar?toggle:""}
+    </div>
+    ${stats}
+    ${opts.extra||""}
+    ${main}`;
+}
+
+function renderCalendar(rows){
+  // Simple July 2026 grid; map a few due items onto days
+  const evMap={};
+  rows.forEach(r=>{
+    if(r.due && r.due.includes("Jul")){
+      const d=parseInt(r.due.replace(/[^0-9]/g," ").trim().split(/\s+/)[0]);
+      if(!isNaN(d)){(evMap[d]=evMap[d]||[]).push({n:r.name, s:r.status});}
+    }
+  });
+  const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  let cells="";
+  // July 2026 starts on a Wednesday (offset 3)
+  for(let i=0;i<3;i++) cells+=`<div class="cal-cell" style="background:#FBFCFE;border-style:dashed;"></div>`;
+  for(let d=1;d<=31;d++){
+    const evs=(evMap[d]||[]).map(e=>{
+      const cl={green:"g",amber:"a",red:"r",grey:"b",blue:"b"}[e.s]||"b";
+      return `<div class="ev ${cl}">${e.n.length>22?e.n.slice(0,20)+"…":e.n}</div>`;
+    }).join("");
+    cells+=`<div class="cal-cell ${d===11?'today':''}"><div class="dnum">${d}</div>${evs}</div>`;
+  }
+  return `<div class="panel"><div class="panel-head"><div><h2>July 2026</h2><div class="sub">Recurring suspenses and milestones</div></div></div>
+    <div class="cal"><div class="cal-grid">${days.map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells}</div></div></div>`;
+}
+
+function openRow(tab,i){
+  const src={recurring:RECURRING,adhoc:ADHOC,awards:AWARDS,perf:PERF,training:TRAINING,comms:COMMS,hr:HR}[tab];
+  if(tab==="recurring"){ openRecurringDrawer(src[i]); return; }
+  openDrawer(tab, src[i]);
+}
+
+function cadenceBadge(c){
+  const map={"Annual":"b-blue","Quarterly":"b-green","Semiannual":"b-amber"};
+  let cls="b-blue"; Object.keys(map).forEach(k=>{ if(c.indexOf(k)===0) cls=map[k]; });
+  return `<span class="badge ${cls}">${c}</span>`;
+}
+
+function openRecurringDrawer(item){
+  const st=recStatus(item);
+  document.getElementById("drCat").textContent = "Recurring Deliverable · " + recCadence(item);
+  document.getElementById("drTitle").textContent = item.name;
+  const monthChips = item.months.length ? item.months.map(m=>`<span class="badge b-blue" style="margin:0 4px 4px 0;display:inline-block;">${m}</span>`).join("") : '<span style="font-size:12px;color:var(--muted);">No recurrence months marked</span>';
+  document.getElementById("drBody").innerHTML = `
+    <div class="dr-meta">
+      <div class="m"><div class="k">Status</div><div class="v">${statusStat(st.s, st.lab)}</div></div>
+      <div class="m"><div class="k">Next date</div><div class="v">${fmtNext(item.next)}</div></div>
+      <div class="m"><div class="k">Due date</div><div class="v">${fmtNext(item.due)}</div></div>
+      <div class="m"><div class="k">Owner</div><div class="v">${item.owner||'<span style="color:var(--red);">Unassigned</span>'}</div></div>
+      <div class="m"><div class="k">Category</div><div class="v">${item.cat||'<span style="color:var(--amber);">Uncategorized</span>'}</div></div>
+    </div>
+    <div class="dr-sec"><h4>Recurrence months (from BOT matrix)</h4><div>${monthChips}</div></div>
+    ${item.notes?`<div class="dr-sec"><h4>Notes</h4><p style="font-size:12.5px;color:var(--muted);margin:0;line-height:1.5;">${item.notes}</p></div>`:""}
+    <div class="dr-sec"><h4>Inventory completeness</h4>${progBar(recComplete(item), st.s)}<div style="font-size:12px;color:var(--muted);margin-top:6px;">${recComplete(item)}% — date, owner, and category are the three required fields</div></div>
+    <div class="dr-sec"><h4>Full record — Phase 2</h4>
+      <p style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 9px;">Milestone schedule, approvals, SOP, templates, and prior-year submissions attach here as requirements are gathered.</p>
+      <a class="res" href="#" onclick="return false;"><div class="ri ic-blue">📄</div><div class="rt"><b>Standard Operating Procedure</b><span>To be collected</span></div><div class="chev">›</div></a>
+      <a class="res" href="#" onclick="return false;"><div class="ri ic-green">🗂</div><div class="rt"><b>Templates & prior-year files</b><span>Requirements task — unassigned</span></div><div class="chev">›</div></a>
+    </div>
+  `;
+  document.getElementById("scrim").classList.add("open");
+  document.getElementById("drawer").classList.add("open");
+}
+function renderRecurring(){
+  const total=RECURRING.length;
+  const dated=RECURRING.filter(r=>r.next).length;
+  const noDate=total-dated;
+  const noOwner=RECURRING.filter(r=>!r.owner).length;
+  const noCat=RECURRING.filter(r=>!r.cat).length;
+  const overdue=RECURRING.filter(r=>r.st==="Overdue").length;
+  const toggle = `<div class="view-toggle">
+      <button class="${currentView==='list'?'on':''}" onclick="setView('list')">List</button>
+      <button class="${currentView==='calendar'?'on':''}" onclick="setView('calendar')">Calendar</button></div>`;
+  let main="";
+  if(currentView==="calendar"){
+    const ms=recMonths();
+    if(!calMonth||ms.indexOf(calMonth)<0) calMonth=ms[0];
+    const [yy,mm]=calMonth.split("-").map(Number);
+    const monthName=["January","February","March","April","May","June","July","August","September","October","November","December"][mm-1];
+    const first=new Date(yy,mm-1,1).getDay();
+    const dim=new Date(yy,mm,0).getDate();
+    const ev={};
+    RECURRING.filter(r=>r.next&&r.next.slice(0,7)===calMonth).forEach(r=>{
+      const d=parseInt(r.next.slice(8,10));
+      (ev[d]=ev[d]||[]).push(r);
+    });
+    let cells="";
+    for(let i=0;i<first;i++) cells+=`<div class="cal-cell" style="background:#FBFCFE;border-style:dashed;"></div>`;
+    for(let d=1;d<=dim;d++){
+      const evs=(ev[d]||[]).map(r=>{
+        const cl=r.st==="Overdue"?"r":(r.owner?"b":"a");
+        const n=r.name.length>22?r.name.slice(0,20)+"…":r.name;
+        return `<div class="ev ${cl}" title="${r.name}${r.owner?' · '+r.owner:' · needs owner'}">${n}</div>`;
+      }).join("");
+      cells+=`<div class="cal-cell"><div class="dnum">${d}</div>${evs}</div>`;
+    }
+    const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    const mi=ms.indexOf(calMonth);
+    main=`<div class="panel"><div class="panel-head"><div><h2>${monthName} ${yy}</h2><div class="sub">${(RECURRING.filter(r=>r.next&&r.next.slice(0,7)===calMonth)).length} deliverables this month · amber items need an owner</div></div>
+      <div class="view-toggle"><button ${mi<=0?'disabled style="opacity:.4;"':''} onclick="calNav(-1)">‹ Prev</button><button ${mi>=ms.length-1?'disabled style="opacity:.4;"':''} onclick="calNav(1)">Next ›</button></div></div>
+      <div class="cal"><div class="cal-grid">${days.map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells}</div></div></div>`;
+  } else {
+    const rows=RECURRING.map((r,i)=>{
+      const st=recStatus(r);
+      return `<tr onclick='openRow("recurring",${i})'>
+        <td><div class="item-name">${r.name}</div>${r.notes?`<div class="item-sub">${r.notes.slice(0,60)}${r.notes.length>60?"…":""}</div>`:""}</td>
+        <td>${r.cat||'<span style="color:var(--amber);font-weight:700;">—</span>'}</td>
+        <td>${recCadence(r)}</td>
+        <td>${fmtNext(r.next)}</td>
+        <td>${r.owner?ownerCell(r.owner):'<span class="stat s-red"><span class="dot"></span>Unassigned</span>'}</td>
+        <td style="white-space:nowrap;">${statusStat(st.s,st.lab)}</td>
+        <td>${progBar(recComplete(r),st.s)}</td></tr>`;
+    }).join("");
+    main=`<div class="panel"><div class="panel-head"><div><h2>Recurring deliverable inventory — live list</h2><div class="sub">Click any deliverable for its record · red and amber rows are the open requirements gaps</div></div></div>
+      <table class="resp"><thead><tr><th>Deliverable</th><th>Category</th><th>Cadence</th><th>Next date</th><th>Owner</th><th>Status</th><th>Complete</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  return `
+    <div class="page-head">
+      <div><h1>Recurring Actions</h1>
+      <p>The live inventory from the ORBIT Recurring Actions SharePoint list — real deliverables, owners, and dates. Gaps shown are the current requirements findings.</p></div>
+      ${toggle}
+    </div>
+    <div class="note-banner"><div class="nb-ic">↻</div><div><b>Live list as of 7/31 — findings are closing.</b> <span>Missing dates dropped from 18 to ${noDate} since the 7/21 export, and the list now carries its own Status, Cadence, and Due Date columns. ${overdue} items show Overdue and need attention.</span></div></div>
+    <div class="stat-cards">
+      <div class="scard"><div class="l">Inventoried</div><div class="v">${total}</div><div class="s s-grey" style="color:var(--muted)">from the live list</div></div>
+      <div class="scard"><div class="l">On calendar</div><div class="v" style="color:var(--green)">${dated}</div><div class="s">have a real date</div></div>
+      <div class="scard"><div class="l">Need dates</div><div class="v" style="color:var(--red)">${noDate}</div><div class="s">was 18 on 7/21</div></div>
+      <div class="scard"><div class="l">Need owner · category</div><div class="v" style="color:var(--amber)">${noOwner} · ${noCat}</div><div class="s">routing + tab mapping</div></div>
+    </div>
+    ${main}`;
+}
+function renderAdhoc(){
+  return tableTab({
+    title:"Ad Hoc Actions", tab:"adhoc", calendar:true,
+    desc:"Non-recurring work pushed across the divisions, with full visibility on source, priority, routing, and communication history.",
+    cols:["Action","Source","Priority","Due","Owner","Status"],
+    rows:ADHOC,
+    stats:`
+      <div class="scard"><div class="l">Open actions</div><div class="v">4</div><div class="s s-grey" style="color:var(--muted)">across divisions</div></div>
+      <div class="scard"><div class="l">Urgent</div><div class="v" style="color:var(--red)">1</div><div class="s">Congressional inquiry</div></div>
+      <div class="scard"><div class="l">Need decision</div><div class="v" style="color:var(--amber)">2</div><div class="s">leadership input</div></div>
+      <div class="scard"><div class="l">Avg. days open</div><div class="v">7</div><div class="s">within target</div></div>`,
+    row:r=>`
+      <td><div class="item-name">${r.name}</div>${r.sub?`<div class="item-sub">${r.sub}</div>`:""}</td>
+      <td>${r.source}</td>
+      <td><span class="badge ${r.priority==='Urgent'?'b-red':r.priority==='High'?'b-amber':'b-blue'}">${r.priority}</span></td>
+      <td>${dueCell(r.due,r.soon)}</td>
+      <td>${ownerCell(r.owner)}</td>
+      <td>${statusStat(r.status,r.statusLab)}</td>`
+  });
+}
+
+function renderAwards(){
+  const internal=AWARDS.filter(a=>a.route==="Internal").length;
+  const external=AWARDS.length-internal;
+  const rolling=AWARDS.filter(a=>a.month==="All year").length;
+  const rows=AWARDS.map((r,i)=>`<tr onclick='openRow("awards",${i})'>
+      <td><div class="item-name">${r.name}</div></td>
+      <td>${r.route==="Internal"?'<span class="badge b-blue">Internal → OCHCO</span>':'<span class="badge b-amber">External</span>'}</td>
+      <td>${r.month}</td>
+      <td>${ownerCell(r.owner)}</td>
+      <td><span class="stat s-green"><span class="dot"></span>${r.docs} linked</span></td></tr>`).join("");
+  const stages=AWARD_STAGES.map((s,i)=>`<div class="hstep"><div class="hnode">${i+1}</div><div class="hlab">${s}</div></div>${i<AWARD_STAGES.length-1?'<div class="harrow">→</div>':''}`).join("");
+  const perfRows = PERF.map((r,i)=>`<tr onclick='openRow("perf",${i})'>
+      <td><div class="item-name">${r.name}</div>${r.sub?`<div class="item-sub">${r.sub}</div>`:""}</td>
+      <td>${dueCell(r.due,r.soon)}</td>
+      <td>${ownerCell(r.owner)}</td>
+      <td>${statusStat(r.status,r.statusLab)}</td>
+      <td>${progBar(r.prog,r.status)}</td></tr>`).join("");
+  return `
+    <div class="page-head"><div>
+      <h1>Employee Awards &amp; Performance</h1>
+      <p>Employee recognition and performance management. Awards data below is live from the ORBIT Award Details list; performance items are notional pending the data path.</p>
+    </div></div>
+    <div class="note-banner"><div class="nb-ic">★</div><div><b>Employee awards, not contract awards.</b> <span>Contract action lifecycle lives in NEAR and is linked, not rebuilt here. OP is allocated a limited number of nominations per internal cycle, so the leadership question is whether we use the slots we are given.</span></div></div>
+    <div class="stat-cards">
+      <div class="scard"><div class="l">Awards tracked</div><div class="v">${AWARDS.length}</div><div class="s">${srcChip("Award Details list")}</div></div>
+      <div class="scard"><div class="l">Internal → OCHCO</div><div class="v" style="color:var(--accent)">${internal}</div><div class="s">panel reviews at HQ first</div></div>
+      <div class="scard"><div class="l">External submissions</div><div class="v" style="color:var(--amber)">${external}</div><div class="s">submitted outside NASA</div></div>
+      <div class="scard"><div class="l">Rolling (all year)</div><div class="v">${rolling}</div><div class="s">spot &amp; length of service</div></div>
+    </div>
+    <div class="panel"><div class="panel-head"><div><h2>Nomination workflow</h2><div class="sub">From the Award Details process notes · internal awards end at OCHCO, external awards are submitted outside NASA</div></div></div>
+      <div class="hflow">${stages}</div>
+    </div>
+    <div class="panel"><div class="panel-head"><div><h2>Award inventory</h2><div class="sub">${srcChip("ORBIT Award Details list")} &nbsp; SOP, templates, guidance, and prior submissions already linked per award</div></div></div>
+      <table class="resp"><thead><tr><th>Award</th><th>Route</th><th>Typical month</th><th>Owner</th><th>Documents</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    <div class="panel"><div class="panel-head"><div><h2>Performance management &nbsp;<span style="font-size:11px;color:var(--red);font-weight:700;">⚠ leadership-only</span></h2><div class="sub">Notional — completion data path pending confirmation (see metrics spec A6)</div></div></div>
+      <table class="resp"><thead><tr><th>Activity</th><th>Due</th><th>Owner</th><th>Status</th><th>Progress</th></tr></thead><tbody>${perfRows}</tbody></table>
+    </div>`;
+}
+function fmtM(v){ return v>=1 ? "$"+v.toFixed(1)+"M" : "$"+Math.round(v*1000)+"K"; }
+function donut(pct, color){
+  const r=52, c=2*Math.PI*r, dash=c*pct/100;
+  return `<svg width="140" height="140" viewBox="0 0 140 140">
+    <circle cx="70" cy="70" r="${r}" fill="none" stroke="#EDF0F8" stroke-width="16"/>
+    <circle cx="70" cy="70" r="${r}" fill="none" stroke="${color}" stroke-width="16" stroke-linecap="round"
+      stroke-dasharray="${dash} ${c-dash}" stroke-dashoffset="${c*0.25}" transform="rotate(-90 70 70)"/>
+    <text x="70" y="66" text-anchor="middle" font-size="26" font-weight="800" fill="#1B2559">${pct}%</text>
+    <text x="70" y="86" text-anchor="middle" font-size="11" font-weight="700" fill="#707EAE">obligated</text>
+  </svg>`;
+}
+function execBars(){
+  const max=Math.max(...BUDGET.map(b=>b.planned));
+  return BUDGET.map(b=>{
+    const oblW=(b.obligated/max)*100, planW=(b.planned/max)*100;
+    const col={green:"var(--green)",amber:"var(--amber)",red:"var(--red)"}[b.status];
+    return `<div class="bar-row">
+      <div class="bar-lab">${b.name}</div>
+      <div class="bar-track-wrap">
+        <div class="bar-track" style="width:${planW}%;"></div>
+        <div class="bar-fill" style="width:${oblW}%;background:${col};"></div>
+      </div>
+      <div class="bar-val">${fmtM(b.obligated)} <span>/ ${fmtM(b.planned)}</span></div>
+    </div>`;
+  }).join("");
+}
+function staffBars(){
+  const max=Math.max(...STAFFING.map(s=>s.auth));
+  return STAFFING.map(s=>{
+    const onW=(s.onboard/max)*100, authW=(s.auth/max)*100;
+    const col={green:"var(--green)",amber:"var(--amber)",red:"var(--red)"}[s.status];
+    return `<div class="bar-row">
+      <div class="bar-lab">${s.name}</div>
+      <div class="bar-track-wrap">
+        <div class="bar-track" style="width:${authW}%;"></div>
+        <div class="bar-fill" style="width:${onW}%;background:${col};"></div>
+      </div>
+      <div class="bar-val">${s.onboard} <span>/ ${s.auth}</span></div>
+    </div>`;
+  }).join("");
+}
+
+function openBudgetDrawer(b){
+  document.getElementById("drCat").textContent = "Budget Line · " + b.fy;
+  document.getElementById("drTitle").textContent = b.name;
+  const col={green:"var(--green)",amber:"var(--amber)",red:"var(--red)"}[b.status];
+  const remaining = b.planned - b.obligated;
+  const spark = b.monthly.map((v,i)=>{
+    const x=8+i*30, y=70-(v*0.55);
+    return `${i===0?'M':'L'}${x} ${y}`;
+  }).join(" ");
+  document.getElementById("drBody").innerHTML = `
+    <div class="dr-meta">
+      <div class="m"><div class="k">Fiscal year</div><div class="v">${b.fy}</div></div>
+      <div class="m"><div class="k">Source</div><div class="v">${b.source}</div></div>
+      <div class="m"><div class="k">Planned</div><div class="v">${fmtM(b.planned)}</div></div>
+      <div class="m"><div class="k">Allocated</div><div class="v">${fmtM(b.allocated)}</div></div>
+      <div class="m"><div class="k">Obligated</div><div class="v">${fmtM(b.obligated)}</div></div>
+      <div class="m"><div class="k">Remaining</div><div class="v" style="color:${remaining/b.planned<0.15?'var(--red)':'var(--text)'}">${fmtM(remaining)}</div></div>
+    </div>
+    <div class="dr-sec"><h4>Execution</h4>${progBar(b.pct,b.status)}
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:7px;">
+        <span><b style="color:var(--text)">${b.pct}%</b> executed</span><span>Burn rate: <b style="color:var(--text)">${b.burn}</b></span></div></div>
+    <div class="dr-sec"><h4>Obligation trend (FY26, % obligated by month)</h4>
+      <svg width="100%" height="80" viewBox="0 0 188 80" preserveAspectRatio="none" style="background:#FBFCFE;border-radius:10px;">
+        <path d="${spark}" fill="none" stroke="${col}" stroke-width="2.5"/>
+        ${b.monthly.map((v,i)=>`<circle cx="${8+i*30}" cy="${70-(v*0.55)}" r="2.5" fill="${col}"/>`).join("")}
+      </svg></div>
+    <div class="dr-sec"><h4>Status note</h4><p style="font-size:12.5px;color:var(--muted);margin:0;line-height:1.5;">${b.note}</p></div>
+    <div class="dr-sec"><h4>Linked Microsoft tools</h4>
+      <a class="res ms-tile" href="#" onclick="return false;"><div class="ri ic-green">🟢</div><div class="rt"><b>SharePoint — budget workbook</b><span>Monthly execution detail</span></div><div class="chev">›</div></a>
+      <a class="res ms-tile" href="#" onclick="return false;"><div class="ri ic-blue">📊</div><div class="rt"><b>Power BI — execution dashboard</b><span>Live obligation data (production)</span></div><div class="chev">›</div></a></div>
+  `;
+  document.getElementById("scrim").classList.add("open");
+  document.getElementById("drawer").classList.add("open");
+}
+window.openBudgetLine = function(i){ openBudgetDrawer(BUDGET[i]); };
+
+function renderBudget(){
+  const totalOblPct = BUDGET[0].pct;
+  const remaining = BUDGET[0].planned - BUDGET[0].obligated;
+  const budgetRows = BUDGET.map((r,i)=>`<tr onclick='openBudgetLine(${i})'>
+      <td><div class="item-name">${r.name}</div><div class="item-sub">${r.fy} · ${r.source}</div></td>
+      <td>${fmtM(r.planned)}</td>
+      <td>${fmtM(r.obligated)}</td>
+      <td>${fmtM(r.planned-r.obligated)}</td>
+      <td style="min-width:150px;">${progBar(r.pct,r.status)}<div style="font-size:11px;color:var(--muted);margin-top:4px;">${r.pct}% · ${r.burn}</div></td>
+      <td>${statusStat(r.status)}</td></tr>`).join("");
+  const staffRows = STAFFING.map(r=>`<tr style="cursor:default;">
+      <td><div class="item-name">${r.name}</div></td>
+      <td><b>${r.onboard}</b> / ${r.auth}</td>
+      <td>${r.auth-r.onboard>0?`<span style="color:${r.auth-r.onboard>=3?'var(--red)':'var(--amber)'};font-weight:700;">${r.auth-r.onboard} open</span>`:'Full'}</td>
+      <td>${r.target}</td>
+      <td>${r.panel}</td>
+      <td>${r.pool}</td>
+      <td>${r.promo}</td>
+      <td>${statusStat(r.status)}</td></tr>`).join("");
+  const hrRows = HR.map((r,i)=>`<tr onclick='openRow("hr",${i})'>
+      <td><div class="item-name">${r.name} ${r.decision?'<span class="badge b-red" style="margin-left:6px;">Decision</span>':''}</div><div class="item-sub"><span class="badge b-blue" style="margin-right:6px;">${r.type}</span>${r.sub||""}</div></td>
+      <td>${dueCell(r.due,r.soon)}</td>
+      <td>${ownerCell(r.owner)}</td>
+      <td style="white-space:nowrap;">${statusStat(r.status,r.statusLab)}</td></tr>`).join("");
+  const tigRows = TIG.map(t=>`<div class="minirow" style="cursor:default;"><div class="oav" style="width:30px;height:30px;border-radius:8px;background:#EAEEF8;color:#5B6794;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex:0 0 30px;">TIG</div><div class="mt"><b>${t.name}</b><span>${t.div}</span></div><span class="stat s-green" style="font-size:11.5px;"><span class="dot"></span>${t.eligible}</span></div>`).join("");
+
+  return `
+    <div class="page-head"><div>
+      <h1>Budget · Human Resources · Staffing</h1>
+      <p>Three connected sections answering the questions leadership asks first: do we have enough people, enough budget, and what needs a decision now?</p>
+    </div></div>
+
+    <div class="answers">
+      <div class="ans amber"><div class="q">Do we have enough people?</div><div class="a">Mostly. 38 of 44 onboard. Major Systems is 3 short and the pool is thin.</div></div>
+      <div class="ans green"><div class="q">Do we have enough budget?</div><div class="a">Yes through Q4. 70% obligated, ${fmtM(remaining)} remaining on the operating budget.</div></div>
+      <div class="ans red"><div class="q">What needs a decision now?</div><div class="a">3 items: release the Major Systems vacancy, obligate expiring award funds, clear 2 promotions.</div></div>
+    </div>
+
+    <div class="panel"><div class="panel-head"><div><h2>Budget</h2><div class="sub">Click any line for source, remaining balance, burn rate, and trend</div></div></div>
+      <div class="budget-top">
+        <div class="donut-wrap">${donut(totalOblPct,"var(--green)")}<div class="donut-cap"><b>OP Operating Budget</b><span>${fmtM(BUDGET[0].obligated)} of ${fmtM(BUDGET[0].planned)} obligated · ${fmtM(remaining)} left</span></div></div>
+        <div class="bars">
+          <div class="bars-head">Execution by line <span class="legend"><i class="lg-fill"></i>Obligated <i class="lg-track"></i>Planned</span></div>
+          ${execBars()}
+        </div>
+      </div>
+      <table class="resp" style="border-top:1px solid #EDF0F8;"><thead><tr><th>Line</th><th>Planned</th><th>Obligated</th><th>Remaining</th><th>Execution · burn</th><th>Health</th></tr></thead><tbody>${budgetRows}</tbody></table>
+    </div>
+
+    <div class="panel"><div class="panel-head"><div><h2>Staffing</h2><div class="sub">Authorized vs onboard, hiring panel status, candidate pool, promotion planning</div></div></div>
+      <div style="padding:18px 22px 8px;"><div class="bars-head">Onboard vs authorized by division <span class="legend"><i class="lg-fill"></i>Onboard <i class="lg-track"></i>Authorized</span></div>${staffBars()}</div>
+      <table class="resp" style="border-top:1px solid #EDF0F8;"><thead><tr><th>Division</th><th>Onboard/Auth</th><th>Vacancies</th><th>Hiring target</th><th>Panel status</th><th>Candidate pool</th><th>Promotion</th><th>Status</th></tr></thead><tbody>${staffRows}</tbody></table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px;" class="hr-row">
+      <div class="panel"><div class="panel-head"><div><h2>HR actions</h2><div class="sub">Requiring attention · decisions flagged</div></div></div>
+        <table class="resp"><thead><tr><th>Action</th><th>Due</th><th>Owner</th><th>Status</th></tr></thead><tbody>${hrRows}</tbody></table></div>
+      <div class="panel"><div class="panel-head"><div><h2>Time-in-grade eligibility</h2><div class="sub">Upcoming promotion eligibility</div></div></div>
+        <div class="minilist">${tigRows}</div></div>
+    </div>`;
+}
+
+// ---- Hiring & Workforce (built from HQ BOT requirements doc) ----
+const HIRE_METRICS=[
+  {l:"Time to hire", v:"52 days", s:"approved action → onboarding", st:"amber", note:"target under 45"},
+  {l:"Early-career hiring", v:"27%", s:"vs ~30% target", st:"amber", note:"below target"},
+  {l:"FTE gains / losses (FY26)", v:"+18 / −11", s:"net +7", st:"green", note:"attrition tracked"},
+  {l:"Vacancies announced (FY26)", v:"23", s:"enterprise + division", st:"blue", note:"trend up"},
+  {l:"Supervisor ratio", v:"1 : 8", s:"enterprise average", st:"green", note:"within range"},
+];
+const HQ_MANAGES=[
+  "Complement & approval process (all SSMS actions approved at PLC)",
+  "Vacancy bundling into enterprise-wide announcements",
+  "Enterprise certs (recurring announcements)",
+  "Senior selections (D/AA selects GS-15) & incentive thresholds",
+  "Grade distribution, series, supervisor ratios",
+  "Workforce roster, gains/losses, retirement eligibility",
+];
+const DIV_OWNS=[
+  "Identifying staffing needs + submitting complement requests",
+  "Executing the action: panel composition, interviews, selection",
+  "Contractor workforce (direct SSMS vs program-funded)",
+  "Personnel Action Tracker (PARs) via HRSD",
+  "Employees on details + term employee expirations",
+  "Career-ladder promotions & within-grade increases (WGIs)",
+];
+const HIRE_PROCESS=["Approvals","Vacancy established","Hand-off to staffing","Vacancy prepared","Certs issued","Selection made","Onboarding","Welcome kit"];
+const VACANCIES=[
+  {ann:"AN-26-0133", pos:"GS-15 1102 Division Director", div:"Division 2", stage:"Selection made", sel:"Selectee identified", st:"green"},
+  {ann:"AN-26-0142", pos:"GS-13 1102 Contract Specialist", div:"Division 3", stage:"Certs issued", sel:"—", st:"blue"},
+  {ann:"AN-26-0151", pos:"GS-14 1102 Supervisory CS", div:"Division 1", stage:"Panel formation", sel:"—", st:"amber"},
+  {ann:"AN-26-0160", pos:"GS-12 0343 Program Analyst", div:"Division 5", stage:"Announcement open", sel:"—", st:"amber"},
+  {ann:"AN-26-0166", pos:"GS-13 0511 Auditor", div:"Division 4", stage:"Hand-off to staffing", sel:"—", st:"grey"},
+];
+const ROSTER=[
+  {div:"Division 1", grade:"GS-14", series:"1102", pos:"Supervisory Contract Specialist", step:"2", sup:"Yes", cert:"Level III"},
+  {div:"Division 2", grade:"GS-15", series:"1102", pos:"Division Director", step:"1", sup:"Yes", cert:"Level III"},
+  {div:"Division 3", grade:"GS-13", series:"1102", pos:"Contract Specialist", step:"4", sup:"No", cert:"Level III"},
+  {div:"Division 4", grade:"GS-13", series:"0511", pos:"Auditor", step:"3", sup:"No", cert:"N/A"},
+  {div:"Division 5", grade:"GS-12", series:"0343", pos:"Program Analyst", step:"5", sup:"No", cert:"N/A"},
+];
+const HIRE_REMINDERS=[
+  {t:"Vacancy closing in 1 week", s:"AN-26-0160 · GS-12 0343", cl:"ic-red"},
+  {t:"Cert expiring", s:"AN-26-0142 cert lapses in 12 days", cl:"ic-amber"},
+  {t:"Panel formation due", s:"GS-14 needs cross-Center member", cl:"ic-amber"},
+  {t:"Term appointment expiring", s:"2 term employees · 60-day notice", cl:"ic-amber"},
+  {t:"WGI eligibility (OBIEE)", s:"4 within-grade increases next quarter", cl:"ic-blue"},
+  {t:"Retirement eligibility", s:"3 eligible · succession planning", cl:"ic-blue"},
+  {t:"Records retention (EEOC)", s:"2-year clock on 1 panel's notes", cl:"ic-grey"},
+];
+
+function srcChip(label){return `<span class="src-chip">◆ Source: ${label}</span>`;}
+
+function renderHiring(){
+  const metricTiles=HIRE_METRICS.map(m=>{
+    const c={green:"var(--green)",amber:"var(--amber)",blue:"var(--accent)",red:"var(--red)"}[m.st];
+    return `<div class="scard"><div class="l">${m.l}</div><div class="v" style="color:${c}">${m.v}</div><div class="s">${m.s} · ${m.note}</div></div>`;
+  }).join("");
+  const steps=HIRE_PROCESS.map((s,i)=>`<div class="hstep"><div class="hnode">${i+1}</div><div class="hlab">${s}</div></div>${i<HIRE_PROCESS.length-1?'<div class="harrow">→</div>':''}`).join("");
+  const vacRows=VACANCIES.map((v,i)=>`<tr onclick='openVac(${i})'>
+    <td><div class="item-name">${v.ann}</div></td>
+    <td>${v.pos}</td><td>${v.div}</td>
+    <td>${statusStat(v.st, v.stage)}</td>
+    <td>${v.sel}</td></tr>`).join("");
+  const rosterRows=ROSTER.map(e=>`<tr style="cursor:default;">
+    <td><b>${e.div}</b></td><td>${e.grade}</td><td>${e.series}</td><td>${e.pos}</td>
+    <td>${e.step}</td><td>${e.sup}</td><td>${e.cert}</td></tr>`).join("");
+  const remind=HIRE_REMINDERS.map(r=>`<div class="minirow" style="cursor:default;"><div class="pi ${r.cl}" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 32px;">🔔</div><div class="mt"><b>${r.t}</b><span>${r.s}</span></div></div>`).join("");
+
+  return `
+    <div class="page-head"><div>
+      <h1>Hiring &amp; Workforce</h1>
+      <p>The detailed hiring view built from the HQ Business Operations Team (BOT) requirements. Centralized coordination at HQ BOT, distributed execution across Divisions 1-5. Sources labeled to match the systems of record.</p>
+    </div></div>
+
+    <div class="note-banner"><div class="nb-ic">◍</div><div><b>Enterprise hiring at a glance.</b> <span>Metrics, roster, pipeline, and reminders. Access constraints confirmed 7/31: OBIEE clean (backbone source) · USA Staffing — AOs cert-only · HRSD — AOs enter, cannot approve · NOPS view-only, superseded by OBIEE. Candidate metrics proposed in spec v0.2: approval-stage cycle time (H6) · warrant posture (H7).</span></div></div>
+
+    <div class="stat-cards" style="grid-template-columns:repeat(5,1fr);">${metricTiles}</div>
+
+    <div class="panel"><div class="panel-head"><div><h2>HQ hiring process</h2><div class="sub">Identifying a staffing need through onboarding</div></div></div>
+      <div class="hflow">${steps}</div>
+    </div>
+
+    <div class="cols">
+      <div class="panel"><div class="panel-head"><div><h2>Managed centrally — HQ BOT</h2><div class="sub">Enterprise view</div></div></div>
+        <div class="minilist">${HQ_MANAGES.map(x=>`<div class="minirow" style="cursor:default;"><div class="oav" style="width:26px;height:26px;border-radius:7px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:10px;display:flex;align-items:center;justify-content:center;flex:0 0 26px;">HQ</div><div class="mt"><b style="font-weight:600;font-size:12.5px;">${x}</b></div></div>`).join("")}</div></div>
+      <div class="panel"><div class="panel-head"><div><h2>Owned by Divisions 1-5</h2><div class="sub">Rotational Business Ops Leads &amp; Action Officers (AOs)</div></div></div>
+        <div class="minilist">${DIV_OWNS.map(x=>`<div class="minirow" style="cursor:default;"><div class="oav" style="width:26px;height:26px;border-radius:7px;background:var(--green-soft);color:#03936D;font-weight:800;font-size:10px;display:flex;align-items:center;justify-content:center;flex:0 0 26px;">D</div><div class="mt"><b style="font-weight:600;font-size:12.5px;">${x}</b></div></div>`).join("")}</div></div>
+    </div>
+
+    <div class="panel"><div class="panel-head"><div><h2>Vacancy pipeline</h2><div class="sub">${srcChip("USA Staffing / USAJOBS")}</div></div></div>
+      <table class="resp"><thead><tr><th>Announcement</th><th>Position</th><th>Division</th><th>Stage</th><th>Selectee</th></tr></thead><tbody>${vacRows}</tbody></table>
+    </div>
+
+    <div class="panel"><div class="panel-head"><div><h2>Workforce roster &nbsp;<span style="font-size:11px;color:var(--red);font-weight:700;">⚠ leadership-only</span></h2><div class="sub">${srcChip("OBIEE")} &nbsp; Required fields: Division · Grade · Series · Position · Step · Supervisor · 1102 cert</div></div></div>
+      <table class="resp"><thead><tr><th>Division</th><th>Grade</th><th>Series</th><th>Position</th><th>Step</th><th>Supervisor</th><th>1102 cert</th></tr></thead><tbody>${rosterRows}</tbody></table>
+    </div>
+
+    <div class="panel"><div class="panel-head"><div><h2>Hiring reminders</h2><div class="sub">${srcChip("Power Automate")} &nbsp; Automated nudges per the BOT Hiring-tab list</div></div></div>
+      <div class="minilist">${remind}</div>
+    </div>`;
+}
+function openVac(i){
+  const v=VACANCIES[i];
+  openDrawer("adhoc", {name:v.ann+" — "+v.pos, due:"In process", statusLab:v.stage, owner:v.div, source:"USA Staffing", priority:"Hiring action", prog: ["Announcement open","Hand-off to staffing"].includes(v.stage)?25:(v.stage==="Certs issued"?60:(v.stage==="Selection made"?85:45))});
+}
+
+function renderTraining(){
+  return `
+    <div class="page-head"><div>
+      <h1>Training &amp; Development</h1>
+      <p>Certification currency, Continuous Learning Points (CLPs), and the annual training plan. Stats below are real aggregates from the 3/16 ACM reporting snapshot; sources confirmed 7/31 via ACM input.</p>
+    </div></div>
+    <div class="note-banner"><div class="nb-ic">◎</div><div><b>Sources confirmed.</b> <span>FAC-C / FAC-COR / FAC-P/PM CLPs come from FAI CSOD (ACM reports) — not SATERN, which covers only OCHCO federal mandatory training. An existing TC Dashboard (Power BI on FAI CSOD / FAI Insight) is prior art: request access and align. Two funding streams: ACM-central (certification, enterprise programs) and center-allocated (non-cert).</span></div></div>
+    <div class="stat-cards">
+      <div class="scard"><div class="l">FAC-C CLP requirement met</div><div class="v" style="color:var(--green)">530/596</div><div class="s">${srcChip("FAI CSOD · ACM 3/16 report")}</div></div>
+      <div class="scard"><div class="l">Active warrants (enterprise)</div><div class="v">431</div><div class="s">${srcChip("Center Warrants workbook")}</div></div>
+      <div class="scard"><div class="l">Quarterly OFPP webinars</div><div class="v" style="color:var(--accent)">Q4</div><div class="s">attendance reported to OFPP</div></div>
+      <div class="scard"><div class="l">FY26 training plans</div><div class="v">Per center</div><div class="s">now track Completed (Y/N)</div></div>
+    </div>
+    <div class="cols">
+      <div class="panel"><div class="panel-head"><div><h2>Active warrants by center</h2><div class="sub">${srcChip("Center Warrants workbook")} &nbsp; real counts · candidate metric H7 (warrant posture)</div></div></div>
+        <table class="resp"><thead><tr><th>Center</th><th>Active warrants</th></tr></thead><tbody><tr style="cursor:default;"><td><b>HQ</b></td><td>0</td></tr><tr style="cursor:default;"><td><b>AFRC</b></td><td>9</td></tr><tr style="cursor:default;"><td><b>ARC</b></td><td>31</td></tr><tr style="cursor:default;"><td><b>GRC</b></td><td>26</td></tr><tr style="cursor:default;"><td><b>GSFC</b></td><td>69</td></tr><tr style="cursor:default;"><td><b>ITPO</b></td><td>23</td></tr><tr style="cursor:default;"><td><b>JSC</b></td><td>77</td></tr><tr style="cursor:default;"><td><b>KSC</b></td><td>57</td></tr><tr style="cursor:default;"><td><b>LaRC</b></td><td>20</td></tr><tr style="cursor:default;"><td><b>MSFC</b></td><td>60</td></tr><tr style="cursor:default;"><td><b>NOJMO</b></td><td>10</td></tr><tr style="cursor:default;"><td><b>NSSC</b></td><td>49</td></tr><tr style="cursor:default;"><td><b>SSC</b></td><td>0</td></tr></tbody></table></div>
+      <div class="panel"><div class="panel-head"><div><h2>Training program elements</h2><div class="sub">Confirmed structure</div></div></div>
+        <div class="minilist">
+          <div class="minirow" style="cursor:default;"><div class="pi ic-blue" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 32px;">◎</div><div class="mt"><b>FAC-C / COR / P-PM CLP tracking</b><span>FAI CSOD reports via ACM · individual-level data is leadership-only</span></div></div>
+          <div class="minirow" style="cursor:default;"><div class="pi ic-green" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 32px;">🗂</div><div class="mt"><b>Center training plans (FY25/FY26)</b><span>Per-center course · vendor · audience · FY26 adds Completed Y/N</span></div></div>
+          <div class="minirow" style="cursor:default;"><div class="pi ic-amber" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 32px;">⚡</div><div class="mt"><b>Express classes</b><span>ACM workbook · events, CLPs, attendees, CSOD upload status</span></div></div>
+          <div class="minirow" style="cursor:default;"><div class="pi ic-blue" style="width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 32px;">▤</div><div class="mt"><b>FY27 enterprise training strategy</b><span>Centralized offerings &amp; registration — planned per ACM</span></div></div>
+        </div></div>
+    </div>`;
+}
+function renderComms(){
+  return tableTab({
+    title:"Communications", tab:"comms", calendar:false,
+    desc:"Internal and external messaging across the enterprise. Keep messaging consistent while expanding speaking opportunities across divisions.",
+    cols:["Item","Due","Owner","Status","Progress"],
+    rows:COMMS,
+    stats:`
+      <div class="scard"><div class="l">Active items</div><div class="v">4</div><div class="s">newsletter + events</div></div>
+      <div class="scard"><div class="l">Speaking slots</div><div class="v" style="color:var(--green)">3</div><div class="s">filled across divisions</div></div>
+      <div class="scard"><div class="l">Messages queued</div><div class="v">7</div><div class="s">Q4 calendar</div></div>
+      <div class="scard"><div class="l">Templates ready</div><div class="v" style="color:var(--green)">Yes</div><div class="s">branding library</div></div>`,
+    row:r=>`
+      <td><div class="item-name">${r.name}</div>${r.sub?`<div class="item-sub">${r.sub}</div>`:""}</td>
+      <td>${dueCell(r.due,r.soon)}</td>
+      <td>${ownerCell(r.owner)}</td>
+      <td>${statusStat(r.status,r.statusLab)}</td>
+      <td>${progBar(r.prog,r.status)}</td>`
+  });
+}
+
+const TRACKER=[
+{name:"Define Power BI metrics and visuals",phase:"Requirements",prog:"Not Started",tab:"Exec Dashboard",due:"2026-08-07",who:"Taggart · #15",notes:"Need access to existing OP Gov Power BI dashboard to align metrics."},
+{name:"Finalize manual SPO vs. Dataverse architecture",phase:"Requirements",prog:"In progress",tab:"General/Env",due:"2026-08-07",who:"Miller · #7 · #Pettus · #16",notes:"Verify Dataverse licensing/capacity in the GCC environment."},
+{name:"Set up M365 Environment & Dataverse env",phase:"Dev: Core Setup",prog:"In progress",tab:"General/Env",due:"2026-08-05",who:"Miller · #7 · #Pettus · #16",notes:"Coordinate with Josh Koger for any required API/environment configuration."},
+{name:"Build Power Apps UI Skeleton & Navigation",phase:"Dev: Core Setup",prog:"In progress",tab:"General/Env",due:"2026-08-07",who:"Miller · #7 · #Pettus · #16",notes:"Ensure the app is responsive (PC/Mac/Mobile compatible)."},
+{name:"Build Budget, HR & Staffing SPO Lists",phase:"Dev: Tab Build",prog:"Not Started",tab:"Budget/HR/Staffing",due:"2026-08-07",who:"Miller · #7 · #Taggart · #15",notes:"Stated priority tab; must handle sensitive salary/personnel data."},
+{name:"Configure Power Apps Item-Level Security",phase:"Dev: Tab Build",prog:"Not Started",tab:"Budget/HR/Staffing",due:"2026-08-11",who:"Miller · #7 · #Pettus · #16",notes:"Critical step before any real data is entered to ensure leadership-only views."},
+{name:"Develop Power Apps Data Entry Screens",phase:"Dev: Tab Build",prog:"Not Started",tab:"Budget/HR/Staffing",due:"2026-08-14",who:"Unassigned",notes:"Keep UI simple to encourage adoption; avoid overly complex forms."},
+{name:"Gather templates & prior-year files",phase:"Requirements",prog:"Not Started",tab:"Recurring Actions",due:"2026-08-07",who:"Unassigned",notes:"Dependent on stakeholders providing FY24/FY25 files in a timely manner."},
+{name:"Set up SPO Libraries & Power App Deep Links",phase:"Dev: Tab Build",prog:"Not Started",tab:"Recurring Actions",due:"2026-08-19",who:"Miller · #7",notes:"Ensure deep links launch smoothly from the app to SharePoint."},
+{name:"Build Dataverse Tables for Ad Hoc Actions",phase:"Dev: Tab Build",prog:"Not Started",tab:"Ad Hoc Actions",due:"2026-08-19",who:"Pettus · #16",notes:"Map exactly to the data source spreadsheet requirements for Ad Hoc intake."},
+{name:"Build Power Automate Reminder Flows",phase:"Dev: Tab Build",prog:"Not Started",tab:"Recurring Actions",due:"2026-08-21",who:"Unassigned",notes:"Variable logic (weekly then daily) may require complex conditions."},
+{name:"Build Power Apps Progress Indicators",phase:"Dev: Tab Build",prog:"Not Started",tab:"Awards & Perf",due:"2026-08-21",who:"Miller · #7",notes:"Replicate the visual workflow node concept from the initial mockup."},
+{name:"Finalize Comms branding files",phase:"Requirements",prog:"Not Started",tab:"Comms",due:"2026-08-07",who:"Unassigned",notes:"Dependent on Comms Lead providing materials."},
+{name:"Finish Awards & Perf UI in Power Apps",phase:"Dev: Tab Build",prog:"Not Started",tab:"Awards & Perf",due:"2026-08-25",who:"Unassigned",notes:"Ensure routing flow aligns with actual OP procedures."},
+{name:"Build Training & Comms Screens",phase:"Dev: Tab Build",prog:"Not Started",tab:"Training/Comms",due:"2026-08-26",who:"Unassigned",notes:"Tie into the branding and messaging SPO document libraries."},
+{name:"Build Power BI Executive Dashboard",phase:"Dev: Tab Build",prog:"Not Started",tab:"Exec Dashboard",due:"2026-08-31",who:"Taggart · #15",notes:"Must function as the primary \"clickable summary\" for leadership."},
+{name:"Final Review & Code Freeze",phase:"Dev: Core Setup",prog:"Not Started",tab:"General/Env",due:"2026-08-31",who:"Miller · #7 · #Taggart · #15 · #Pettus · #16",notes:"All development must stop to lock in the QA version."},
+{name:"System Test: Power Platform Integrations",phase:"Testing: System",prog:"Not Started",tab:"General/Env",due:"2026-09-04",who:"Miller · #7 · #Taggart · #15",notes:"Watch for caching or load-time issues with embedded Power BI visuals."},
+{name:"Trigger Test: Power Automate Logic",phase:"Testing: System",prog:"Not Started",tab:"Recurring Actions",due:"2026-09-11",who:"Unassigned",notes:"Monitor run history in Power Automate for failures/timeouts."},
+{name:"UAT: Leadership Dashboard Review",phase:"Testing: UAT",prog:"Not Started",tab:"Exec Dashboard",due:"2026-09-18",who:"Miller · #7 · #Taggart · #15",notes:"Brad/BOT analyst B to confirm it answers core questions (e.g., \"Enough budget/people?\")."},
+{name:"Refinement: Power Apps UI adjustments",phase:"Testing: UAT",prog:"Not Started",tab:"General/Env",due:"2026-09-18",who:"Miller · #7 · #Taggart · #15 · #Pettus · #16",notes:"Keep the focus on a \"dashboard\" feel, not a complicated system."},
+{name:"Final UAT Sign-offs & Document Upload",phase:"Testing: UAT",prog:"Not Started",tab:"General/Env",due:"2026-09-25",who:"Miller · #7 · #Taggart · #15 · #Pettus · #16",notes:"Verify all manual lists have been populated with baseline data."},
+{name:"Final Bug Fixes & Walkthrough",phase:"Testing: UAT",prog:"Not Started",tab:"General/Env",due:"2026-09-30",who:"Miller · #7 · #Taggart · #15 · #Pettus · #16",notes:"Final check of permissions before wider enterprise rollout."},
+{name:"Go-Live Communications & Rollout",phase:"Rollout",prog:"Not Started",tab:"General/Env",due:"2026-10-01",who:"Miller · #7 · #Taggart · #15 · #Pettus · #16",notes:"Ready for October 1 launch target!"}
+];
+
+function renderProject(){
+  const phases=["Requirements","Dev: Core Setup","Dev: Tab Build","Testing: System","Testing: UAT","Rollout"];
+  const inprog=TRACKER.filter(t=>t.prog==="In progress").length;
+  const notyet=TRACKER.filter(t=>t.prog==="Not Started").length;
+  const soon=TRACKER.filter(t=>t.due && t.due<="2026-08-07" && t.prog!=="Complete").length;
+  const sections=phases.map(ph=>{
+    const ts=TRACKER.filter(t=>t.phase===ph);
+    if(!ts.length) return "";
+    const rows=ts.map(t=>{
+      const stc = t.prog==="In progress" ? statusStat("blue","In progress") : (t.due && t.due<="2026-08-07" ? statusStat("amber","Not started · due soon") : statusStat("grey","Not started"));
+      return `<tr style="cursor:default;">
+        <td><div class="item-name">${t.name}</div>${t.notes?`<div class="item-sub">${t.notes}</div>`:""}</td>
+        <td>${t.tab}</td>
+        <td>${fmtNext(t.due)}</td>
+        <td>${t.who}</td>
+        <td style="white-space:nowrap;">${stc}</td></tr>`;
+    }).join("");
+    return `<div class="panel"><div class="panel-head"><div><h2>${ph}</h2><div class="sub">${ts.length} task${ts.length>1?"s":""}</div></div></div>
+      <table class="resp"><thead><tr><th>Task</th><th>Component</th><th>Due</th><th>Assigned</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join("");
+  return `
+    <div class="page-head"><div>
+      <h1>Project Status</h1>
+      <p>Live view of the ORBIT development tracker — phases, tasks, assignments, and the road to go-live.</p>
+    </div></div>
+    <div class="note-banner"><div class="nb-ic">◧</div><div><b>Key dates.</b> <span>Requirements close Aug 7 · Code freeze Aug 31 · Testing through September · Go-live October 1.</span></div></div>
+    <div class="stat-cards">
+      <div class="scard"><div class="l">Total tasks</div><div class="v">${TRACKER.length}</div><div class="s s-grey" style="color:var(--muted)">across 6 phases</div></div>
+      <div class="scard"><div class="l">In progress</div><div class="v" style="color:var(--accent)">${inprog}</div><div class="s">core setup + architecture</div></div>
+      <div class="scard"><div class="l">Due by Aug 7</div><div class="v" style="color:var(--amber)">${soon}</div><div class="s">requirements deadline</div></div>
+      <div class="scard"><div class="l">Go-live</div><div class="v" style="color:var(--green)">Oct 1</div><div class="s">rollout target</div></div>
+    </div>
+    ${sections}`;
+}
+
+const RENDERERS={dashboard:renderDashboard,project:renderProject,recurring:renderRecurring,adhoc:renderAdhoc,awards:renderAwards,budget:renderBudget,hiring:renderHiring,training:renderTraining,comms:renderComms};
+
+function go(tab){
+  currentTab=tab;
+  if(tab!=="recurring" && tab!=="adhoc") currentView="list";
+  closeDrawer();
+  document.getElementById("pop").classList.remove("open");
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("view").innerHTML = RENDERERS[tab]();
+  document.getElementById("crumb").textContent = TABS.find(t=>t.id===tab).label;
+  buildNav();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function setView(v){currentView=v;document.getElementById("view").innerHTML=RENDERERS[currentTab]();}
+
+function buildNav(){
+  const groups=[...new Set(TABS.map(t=>t.group))];
+  let html="";
+  groups.forEach(g=>{
+    html+=`<div class="group-label">${g}</div>`;
+    TABS.filter(t=>t.group===g).forEach(t=>{
+      html+=`<button class="${t.id===currentTab?'active':''}" onclick="go('${t.id}')">
+        <span class="ic">${t.ic}</span>${t.label}${t.pill?`<span class="pill">${t.pill}</span>`:""}</button>`;
+    });
+  });
+  document.getElementById("nav").innerHTML=html;
+}
+
+// reminders popover
+function buildReminders(){
+  document.getElementById("popItems").innerHTML = REMINDERS.map(r=>`
+    <div class="pop-item" onclick="reminderJump('${r.tab}','${r.key.replace(/'/g,"\\'")}')">
+      <div class="pi ${r.cl}">${r.ic}</div>
+      <div><b>${r.t}</b><span>${r.s}</span></div></div>`).join("");
+}
+function reminderJump(tab,key){
+  document.getElementById("pop").classList.remove("open");
+  go(tab);
+  const src={recurring:RECURRING,adhoc:ADHOC,awards:AWARDS,budget:HR}[tab];
+  const item=(src||[]).find(x=>x.name===key);
+  if(item) setTimeout(()=>openDrawer(tab,item),120);
+}
+document.getElementById("bellBtn").addEventListener("click",e=>{
+  e.stopPropagation();
+  document.getElementById("pop").classList.toggle("open");
+});
+document.addEventListener("click",e=>{
+  const pop=document.getElementById("pop");
+  if(pop.classList.contains("open") && !pop.contains(e.target) && e.target.id!=="bellBtn") pop.classList.remove("open");
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeDrawer();document.getElementById("pop").classList.remove("open");}});
+
+// init
+buildNav();
+buildReminders();
+buildCenterSelect();
+go("dashboard");
+</script>
+</body>
+</html>

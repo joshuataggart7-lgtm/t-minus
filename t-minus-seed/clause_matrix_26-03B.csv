@@ -1,0 +1,822 @@
+codified_number,name,effective_date,prescribed_in,p_or_c,rfo_rx,rfo_number,rfo_title,nasa_date_post_rfo,disposition,notes
+52.222-26 Alt. I,52.222-26_Alternate I,1999-02-01,22.81,C,N/A,-,-,-,Removed,
+52.230-1 Alt. I,52.230-1_Alternate I,1996-04-01,30.201-3,P,N/A,-,-,-,Removed,
+52.204-30 Alt. I,52.204-30_Alternate I,2023-12-01,4.2306(c),C,N/A,-,-,-,Removed,
+52.204-30 Alt. II,52.204-30_Alternate II,2023-12-01,4.2306(c)(2)(ii),C,N/A,-,-,-,Removed,
+52.204-8 Alt. I,52.204-8_Alternate I,2023-03-01,4.1202(a),P,N/A,-,-,-,Removed,
+52.211-10 Alt. I,52.211-10_Alternate I,1984-04-01,11.404(b),C,N/A,-,-,-,Removed,
+52.211-8 Alt. I,52.211-8_Alternate I,1984-04-01,11.404(a)(2),C,N/A,-,-,-,Removed,
+52.211-8 Alt. II,52.211-8_Alternate II,1984-04-01,11.404(a)(2),C,N/A,-,-,-,Removed,
+52.211-8 Alt. III,52.211-8_Alternate III,1984-04-01,11.404(a)(2),C,N/A,-,-,-,Removed,
+52.211-9 Alt. I,52.211-9_Alternate I,1984-04-01,11.404(a)(3),C,N/A,-,-,-,Removed,
+52.211-9 Alt. II,52.211-9_Alternate II,1984-04-01,11.404(a)(3),C,N/A,-,-,-,Removed,
+52.211-9 Alt. III,52.211-9_Alternate III,1984-04-01,11.404(a)(3),C,N/A,-,-,-,Removed,
+52.212-3 Alt. I,52.212-3_Alternate I,2024-02-01,12.301,P,N/A,-,-,-,Removed,
+52.212-5 Alt. I,52.212-5_Alternate I,2000-02-01,12.301,C,N/A,-,-,-,Removed,
+52.212-5 Alt. II,52.212-5_Alternate II,2025-10-01,12.301,C,N/A,-,-,-,Removed,
+52.214-26 Alt. I,52.214-26_Alternate I,2009-03-01,14.201-7,C,N/A,-,-,-,Removed,
+52.225-22 Alt. I,52.225-22_Alternate I,2014-05-01,25.1102,P,N/A,-,-,-,Removed,
+52.225-23 Alt. I,52.225-23_Alternate I,2023-11-01,25.1102,C,N/A,-,-,-,Removed,
+52.225-24 Alt. I,52.225-24_Alternate I,2014-05-01,25.1102,P,N/A,-,-,-,Removed,
+52.225-24 Alt. II,52.225-24_Alternate II,2023-11-01,25.1102,P,N/A,-,-,-,Removed,
+52.236-27 Alt. I,52.236-27_Alternate I,1995-02-01,36.523,P,N/A,-,-,-,Removed,
+52.247-3 3 Alt. I,52.247-3_Alternate I,1984-04-01,47.207-1(b),C,N/A,-,-,-,Removed,
+52.247-51 Alt. I,52.247-51_Alternate I,2006-02-01,47.305-6(e),P,N/A,-,-,-,Removed,
+52.247-51 Alt. II,52.247-51_Alternate II,1984-04-01,47.305-6(e),P,N/A,-,-,-,Removed,
+52.247-51 Alt. III,52.247-51_Alternate III,1984-04-01,47.305-6(e),P,N/A,-,-,-,Removed,
+52.201-1,52.201-1 Acquisition 360: Voluntary Survey.,2023-09-01,1.102-3(b),P,N/A,52.201-1,[Reserved],-,Removed,
+52.202-1,52.202-1 Definitions.,2020-06-01,2.201,C,2.201,52.202-1,Definitions.,2020-06-01,No Change,
+52.203-10,52.203-10 Price or Fee Adjustment for Illegal or Improper Activity.,2014-05-01,3.104-9(b),C,3.104-9(b),52.203-10,Price or Fee Adjustment for Illegal or Improper Activity.,2014-05-01,No Change,
+52.203-11,52.203-11 Certification and Disclosure Regarding Payments to Influence Certain Federal Transactions.,2024-09-01,3.808(a),P,3.808(a),52.203-11,Certification and Disclosure Regarding Payments to Influence Certain Federal Transactions.,2024-09-01,No Change,
+52.203-12,52.203-12 Limitation on Payments to Influence Certain Federal Transactions.,2020-06-01,3.808(b),C,3.808(b),52.203-12,Limitation on Payments to Influence Certain Federal Transactions.,2020-06-01,No Change,
+52.203-13,52.203-13 Contractor Code of Business Ethics and Conduct.,2021-11-01,3.1004(a),C,3.1004(a),52.203-13,Contractor Code of Business Ethics and Conduct.,2021-11-01,No Change,
+52.203-14,52.203-14 Display of Hotline Poster(s).,2021-11-01,3.1004(b),C,3.1004(b),52.203-14,Display of Hotline Poster(s).,2021-11-01,No Change,
+52.203-15,52.203-15 Whistleblower Protections Under the American Recovery and Reinvestment Act of 2009.,2010-06-01,3.907-7,C,N/A,52.203-15,[Reserved],-,Removed,
+52.203-16,52.203-16 Preventing Personal Conflicts of Interest.,2020-06-01,3.1106,C,3.1106,52.203-16,Preventing Personal Conflicts of Interest.,2020-06-01,No Change,
+52.203-17,52.203-17 Contractor Employee Whistleblower Rights.,2023-11-01,3.906,C,3.906,52.203-17,Contractor Employee Whistleblower Rights.,2023-11-01,No Change,
+52.203-18,52.203-18 Prohibition on Contracting with Entities that Require Certain Internal Confidentiality Agreements or Statements-Representation.,2017-01-01,3.909-3(a),P,3.909-3(a),52.203-18,Prohibition on Contracting with Entities that Require Certain Internal Confidentiality Agreements or Statements-Representation.,2017-01-01,No Change,
+52.203-19,52.203-19 Prohibition on Requiring Certain Internal Confidentiality Agreements or Statements.,2017-01-01,3.909-3(b),C,3.909-3(b),52.203-19,Prohibition on Requiring Certain Internal Confidentiality Agreements or Statements.,2017-01-01,No Change,
+52.203-2,52.203-2 Certificate of Independent Price Determination.,1985-04-01,3.103-1,P,3.103-1,52.203-2,Certificate of Independent Price Determination.,1985-04-01,No Change,
+52.203-3,52.203-3 Gratuities.,1984-04-01,3.202,C,3.202,52.203-3,Gratuities.,1984-04-01,No Change,
+52.203-5,52.203-5 Covenant Against Contingent Fees.,2014-05-01,3.404,C,3.404,52.203-5,Covenant Against Contingent Fees.,2014-05-01,No Change,
+52.203-6,52.203-6 Restrictions on Subcontractor Sales to the Government.,2020-06-01,3.503-2,C,3.503-2,52.203-6,Restrictions on Subcontractor Sales to the Government.,2020-06-01,No Change,
+52.203-6 Alt. I,52.203-6_Alternate I,2021-11-01,3.503-2,C,5.503-2,52.203-6 Alt. I,Alternate I.,2021-11-01,No Change,
+52.203-7,52.203-7 Anti-Kickback Procedures.,2020-06-01,3.502-3,C,5.502-3,52.203-7,Anti-Kickback Procedures.,2020-06-01,No Change,
+52.203-8,"52.203-8 Cancellation, Rescission, and Recovery of Funds for Illegal or Improper Activity.",2014-05-01,3.104-9(a),C,3.104-9(a),52.203-8,"Cancellation, Rescission, and Recovery of Funds for Illegal or Improper Activity.",2014-05-01,No Change,
+52.204-1,52.204-1 Approval of Contract.,1989-12-01,4.103,C,N/A,52.204-1,[Reserved],-,Removed,
+52.204-10,52.204-10 Reporting Executive Compensation and First-Tier Subcontract Awards.,2020-06-01,4.1403(a),C,4.208(e),52.204-10,Reporting Executive Compensation and First-Tier Subcontract Awards.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.204-12,52.204-12 Unique Entity Identifier Maintenance.,2016-10-01,4.607(c),C,N/A,52.204-12,[Reserved],-,Removed,
+52.204-13,52.204-13 System for Award Management Maintenance.,2018-10-01,4.1105(b),C,4.208(b)(2),52.204-13,System for Award Management -  Maintenance.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial.  Added alternate I in lieu of ""if the solicitation contained provision 52.204-7 Alt. I"" paragraph."
+N/A,N/A,N/A,N/A,C,4.208(b)(2),52.204-13 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),New,"Substantive but not substantial.  Added alternate I in lieu of ""if the solicitation contained provision 52.204-7 Alt. I"" paragraph."
+52.204-14,52.204-14 Service Contract Reporting Requirements.,2016-10-01,4.1705(a),C,4.208(f)(2),52.204-14,Service Contract Reporting Requirements.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.204-15,52.204-15 Service Contract Reporting Requirements for Indefinite-Delivery Contracts.,2016-10-01,4.1705(b),C,4.208(f)(3),52.204-15,Service Contract Reporting Requirements for Indefinite-Delivery Contracts.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.204-16,52.204-16 Commercial and Government Entity Code Reporting.,2020-08-01,4.1804(a),P,N/A,52.204-16,[Reserved],-,Removed,
+52.204-17,52.204-17  Ownership or Control of Offeror.,2020-08-01,4.1804(b),P,N/A,52.204-17,[Reserved],-,Removed,
+52.204-18,52.204-18 Commercial and Government Entity Code Maintenance.,2020-08-01,4.1804(c),C,N/A,52.204-18,[Reserved],-,Removed,
+52.204-19,52.204-19 Incorporation by Reference of Representations and Certifications.,2014-12-01,4.1202(b),C,4.208(g),52.204-19,Incorporation by Reference of Representations and Certifications.,2014-12-01,No Change,
+52.204-20,52.204-20 Predecessor of Offeror.,2020-08-01,4.1804(d),P,N/A,52.204-20,[Reserved],-,Removed,
+52.204-22,52.204-22 Alternative Line Item Proposal.,2017-01-01,4.1008,P,N/A,52.204-22,[Reserved],-,Removed,
+52.204-23,"52.204-23 Prohibition on Contracting for Hardware, Software, and Services Developed or Provided by Kaspersky Lab Covered Entities.",2023-12-01,4.2004,C,N/A,52.204-23,[Reserved],-,Removed,Subject moved to 52.240-91
+52.204-24,52.204-24 Representation Regarding Certain Telecommunications and Video Surveillance Services or Equipment.,2021-11-01,4.2105(a),P,N/A,52.204-24,[Reserved],-,Removed,
+52.204-25,52.204-25 Prohibition on Contracting for Certain Telecommunications and Video Surveillance Services or Equipment.,2021-11-01,4.2105(b),C,N/A,52.204-25,[Reserved],-,Removed,"Subject moved to 52.240-90, -91"
+52.204-26,52.204-26 Covered Telecommunications Equipment or Services-Representation.,2020-10-01,4.2105(c),P,N/A,52.204-26,[Reserved],-,Removed,
+52.204-27,52.204-27 Prohibition on a ByteDance Covered Application.,2023-06-01,4.2203,C,N/A,52.204-27,[Reserved],-,Removed,Subject moved to 52.240-91
+52.204-28,52.204-28 Governmentwide Acquisition Contracts,2023-12-01,4.2306(a),C,N/A,52.204-28,[Reserved],-,Removed,
+52.204-29,52.204-29 Federal Acquisition Supply Chain Security Act Orders-Representation and Disclosures.,2023-12-01,4.2306(b),P,N/A,52.204-29,[Reserved],-,Removed,
+52.204-3,52.204-3 Taxpayer Identification.,1998-10-01,4.905,P,N/A,52.204-3,[Reserved],-,Removed,
+52.204-30,52.204-30 Federal Acquisition Supply Chain Security Act Orders-Prohibition.,2023-12-01,4.2306(c),C,N/A,52.204-30,[Reserved],-,Removed,"Subject moved to 52.240-90, -91"
+52.204-5,52.204-5 Women-Owned Business (Other Than Small Business).,2014-10-01,4.607(a),P,4.208(a),52.204-5,Women-Owned Business (Other Than Small Business).,2014-10-01,No Change,
+52.204-6,52.204-6 Unique Entity Identifier.,2016-10-01,4.607(b),P,N/A,52.204-6,[Reserved],-,Removed,
+52.204-7,52.204-7 System for Award Management.,2024-11-01,4.1105(a)(1),P,4.208(b)(1),52.204-7,System for Award Management - Registration.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.204-7 Alt. I,52.204-7_Alternate I,2018-10-01,4.1105(a)(2),P,4.208(b)(1),52.204-7 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Only updates the clause name to include dash
+52.204-8,52.204-8 Annual Representations and Certifications.,2026-03-01,4.1202(a),P,N/A,52.204-8,[Reserved],-,Removed,
+52.204-9,52.204-9 Personal Identity Verification of Contractor Personnel.,2011-01-01,4.1303,C,4.208(d),52.204-9,Personal Identity Verification of Contractor Personnel.,2011-01-01,No Change,
+N/A,N/A,N/A,,P,4.208(c)(1),52.204-90,Offeror Identification.,JAN 2026 (PCD 26-03),New,"New, include as prescribed"
+N/A,N/A,N/A,,,4.208(c)(2),52.204-91,Contractor Identification.,JAN 2026 (PCD 26-03),New,"New, include as prescribed"
+52.207-1,52.207-1 Notice of Standard Competition.,2006-05-01,7.305(a),P,N/A,52.207-1,[Reserved],-,Removed,
+52.207-2,52.207-2 Notice of Streamlined Competition.,2006-05-01,7.305(b),P,N/A,52.207-2,[Reserved],-,Removed,
+52.207-3,52.207-3 Right of First Refusal of Employment.,2006-05-01,7.305(c),C,N/A,52.207-3,[Reserved],-,Removed,
+52.207-4,52.207-4 Economic Purchase Quantity-Supplies.,1987-08-01,7.203,P,7.203,52.207-4,Economic Purchase Quantity-Supplies.,1987-08-01,No Change,
+52.207-5,52.207-5 Option to Purchase Equipment.,1995-02-01,7.404,C,7.104,52.207-5,Option to Purchase Equipment.,1995-02-01,No Change,
+52.207-6,52.207-6 Solicitation of Offers from Small Business Concerns and Small Business Teaming Arrangements or Joint Ventures (Multiple-Award Contracts).,2024-08-01,7.107-6,P,7.107-4,52.207-6,Solicitation of Offers from Small Business Concerns and Small Business Teaming Arrangements or Joint Ventures (Multiple-Award Contracts).,2024-08-01,No Change,
+52.208-4,52.208-4 Vehicle Lease Payments.,1984-04-01,8.1104(a),C,N/A,52.208-4,[Reserved],-,Removed,
+52.208-5,52.208-5 Condition of Leased Vehicles.,1984-04-01,8.1104(b),C,N/A,52.208-5,[Reserved],-,Removed,
+52.208-6,52.208-6 Marking of Leased Vehicles.,1984-04-01,8.1104(c),C,N/A,52.208-6,[Reserved],-,Removed,
+52.208-7,52.208-7 Tagging of Leased Vehicles.,1986-05-01,8.1104(d),C,N/A,52.208-7,[Reserved],-,Removed,
+52.208-9,52.208-9 Contractor Use of Mandatory Sources of Supply or Services.,2014-05-01,8.005,C,8.105-1(b),52.208-9,Contractor Use of Mandatory Sources of Supply or Services.,JAN 2026 (PCD 26-03),Updated,Added websites for NIB and NISH/Source America
+52.251-1,52.251-1 Government Supply Sources.,2012-04-01,51.107,C,8.105-2(c),52.208-90,Government Supply Sources.,MAR 2026 (PCD 25-18A),Moved,"Moved to 52.208-90. No changes to clause itself.
+Significant change in prescription.  Now available for FP contracts."
+52.251-2,52.251-2 Interagency Fleet Management System Vehicles and Related Services.,1991-01-01,51.205,C,8.105-3(c),52.208-91,GSA Fleet Vehicles and Related Services.,MAR 2026 (PCD 25-18A),Moved,Moved to 52.208-91.  Non-substantive changes.
+52.209-1,52.209-1 Qualification Requirements.,1995-02-01,9.206-2,C,9.206-2,52.209-1,Qualification Requirements.,JAN 2026 (PCD 26-03),Updated,Substantive and substantial. Changed from provision to clause.
+52.209-10,52.209-10 Prohibition on Contracting with Inverted Domestic Corporations.,2015-11-01,9.108-5(b),C,9.108-6(b),52.209-10,Prohibition on Contracting with Inverted Domestic Corporations.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.209-11,52.209-11 Representation by Corporations Regarding Delinquent Tax Liability or a Felony Conviction under any Federal Law.,2016-02-01,9.104-7(d),P,9.104-7(d),52.209-11,Representation by Corporations Regarding Delinquent Tax Liability or a Felony Conviction under any Federal Law.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Removed in-provision prescription.
+52.209-12,52.209-12 Certification Regarding Tax Matters.,2025-10-01,9.104-7(e),P,9.104-7(e),52.209-12,Certification Regarding Tax Matters.,2025-10-01,No Change,
+52.209-13,52.209-13 Violation of Arms Control Treaties or Agreements-Certification.,2021-11-01,9.109-5,P,9.109-5,52.209-13,Violation of Arms Control Treaties or Agreements-Certification.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.209-14,52.209-14 Reserve Officer Training Corps and Military Recruiting on Campus.,2021-11-01,9.110-5,C,9.110-5,52.209-14,Reserve Officer Training Corps and Military Recruiting on Campus.,2021-11-01,No Change,
+52.209-2,52.209-2 Prohibition on Contracting with Inverted Domestic Corporations-Representation.,2015-11-01,9.108-5(a),P,9.108-6(a),52.209-2,Prohibition on Contracting with Inverted Domestic Corporations-Representation.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes
+52.209-3,52.209-3 First Article Approval-Contractor Testing.,1989-09-01,9.308-1(a),C,9.308-1(a) and (b),52.209-3,First Article Approval-Contractor Testing.,JAN 2026 (PCD 26-03),Updated,"Non-substantive changes.  Updated government actions from ""shall"" to ""will""."
+52.209-3 Alt. I,52.209-3_Alternate I,1997-01-01,9.308-1(a)(2),C,9.308-1(a)(2) and (b)(2),52.209-3 Alt. I,Alternate I.,1997-01-01,No Change,
+52.209-3 Alt. II,52.209-3_Alternate II,1989-09-01,9.308-1(a)(3),C,9.308-1(a)(3) and (b)(3),52.209-3 Alt. II,Alternate II.,1989-09-01,No Change,
+52.209-4,52.209-4 First Article Approval-Government Testing.,1989-09-01,9.308-2,C,9.308-2(a) and (b),52.209-4,First Article Approval-Government Testing.,JAN 2026 (PCD 26-03),Updated,"Non-substantive changes.  Slight changes in wording and updated government actions from ""shall"" to ""will""."
+52.209-4 Alt. I,52.209-4_Alternate I,1997-01-01,9.308-2,C,9.308-2(a)(2) and (b)(2),52.209-4 Alt. I,Alternate I.,1997-01-01,No Change,
+52.209-4 Alt. II,52.209-4_Alternate II,1989-09-01,9.308-2,C,9.308-2(a)(3) and (b)(3),52.209-4 Alt. II,Alternate II.,1989-09-01,No Change,
+52.209-5,52.209-5 Certification Regarding Responsibility Matters.,2020-08-01,9.104-7(a),P,9.104-7(a),52.209-5,Certification Regarding Responsibility Matters.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial. Examples of delinquent taxes, statement that false certification is prosecutable removed."
+52.209-6,"52.209-6 Protecting the Government's Interest When Subcontracting With Contractors Debarred, Suspended, Proposed for Debarment, or Voluntarily Excluded.",2025-01-01,9.409,C,9.409,52.209-6,"Protecting the Government's Interest When Subcontracting With Contractors Debarred, Suspended, Proposed for Debarment, or Voluntarily Excluded.",JAN 2026 (PCD 26-03),Updated,Non-substantive changes.
+52.209-7,52.209-7 Information Regarding Responsibility Matters.,2018-10-01,9.104-7(b),P,9.104-7(b),52.209-7,Information Regarding Responsibility Matters.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DATE) instead of (OCT 2018).
+52.209-9,52.209-9 Updates of Publicly Available Information Regarding Responsibility Matters.,2018-10-01,9.104-7(c),C,9.104-7(c),52.209-9,Updates of Publicly Available Information Regarding Responsibility Matters.,JAN 2026 (PCD 26-03),Updated,Non-substantive changes.
+52.210-1,52.210-1 Market Research.,2021-11-01,10.003,C,10.002,52.210-1,Market Research.,JAN 2026 (PCD 26-03),Updated,"Substantive change.  Restructures (b)(1)-(4), includes non-developmental items in item (1) of priority list."
+52.211-1,"52.211-1 Availability of Specifications Listed in the GSA Index of Federal Specifications, Standards and Commercial Item Descriptions, FPMR Part 101-29.",2023-09-01,11.204(a),P,N/A,52.211-1,[Reserved],-,Removed,
+52.211-10,"52.211-10 Commencement, Prosecution, and Completion of Work.",1984-04-01,11.404(b),C,N/A,52.211-10,[Reserved],-,Removed,
+52.211-11,"52.211-11 Liquidated Damages-Supplies, Services, or Research and Development.",2000-09-01,11.503(a),C,11.403(a),52.211-11,"Liquidated Damages— Supplies, …",2000-09-01,No Change,
+52.211-12,52.211-12 Liquidated Damages-Construction.,2000-09-01,11.503(b),C,11.403(b),52.211-12,Liquidated Damages— Construction.,2000-09-01,No Change,
+52.211-13,52.211-13 Time Extensions.,2000-09-01,11.503(c),C,11.403(c),52.211-13,Time Extensions.,2000-09-01,No Change,
+52.211-14,"52.211-14 Notice of Priority Rating for National Defense, Emergency Preparedness, and Energy Program Use.",2008-04-01,11.604(a),P,11.504(a),52.211-14,Notice of Priority Rating for National …,2008-04-01,No Change,
+52.211-15,52.211-15 Defense Priority and Allocation Requirements.,2008-04-01,11.604(b),C,11.504(b),52.211-15,Defense Priority and Allocation …,2008-04-01,No Change,
+52.211-16,52.211-16 Variation in Quantity.,1984-04-01,11.703(a),C,N/A,52.211-16,[Reserved],-,Removed,
+52.211-17,52.211-17 Delivery of Excess Quantities.,1989-09-01,11.703(b),C,N/A,52.211-17,[Reserved],-,Removed,
+52.211-18,52.211-18 Variation in Estimated Quantity.,1984-04-01,11.703(c),C,N/A,52.211-18,[Reserved],-,Removed,
+52.211-2,"52.211-2 Availability of Defense Specifications, Standards, and Data Item Descriptions in the Acquisition Streamlining and Standardization Information System (ASSIST) website.",2023-09-01,11.204(b),P,N/A,52.211-2,[Reserved],-,Removed,
+52.211-3,"52.211-3 Availability of Specifications Not Listed in the GSA Index of Federal Specifications, Standards and Commercial Item Descriptions.",1988-06-01,11.204(c),P,N/A,52.211-3,[Reserved],-,Removed,
+52.211-4,"52.211-4 Availability for Examination of Specifications Not Listed in the GSA Index of Federal Specifications, Standards and Commercial Item Descriptions.",1988-06-01,11.204(d),P,N/A,52.211-4,[Reserved],-,Removed,
+52.211-5,52.211-5 Material Requirements.,2000-08-01,11.302,C,11.302,52.211-5,Material Requirements.,JAN 2026 (PCD 26-03),Updated,"Significant change.  Removes requirement to provide new, reconditioned, or remanufactured supplies, deletes paragraph (b) and associated definitions."
+52.211-6,52.211-6 Brand Name or Equal.,1999-08-01,11.107(a),P,N/A,52.211-6,[Reserved],-,Removed,
+52.211-7,52.211-7 Alternatives to Government-Unique Standards.,1999-11-01,11.107(b),P,N/A,52.211-7,[Reserved],-,Removed,
+52.211-8,52.211-8 Time of Delivery.,1997-06-01,11.404(a)(2),C,N/A,52.211-8,[Reserved],-,Removed,
+52.211-9,52.211-9 Desired and Required Time of Delivery.,1997-06-01,11.404(a)(3),C,N/A,52.211-9,[Reserved],-,Removed,
+52.212-1,52.212-1           Instructions to Offerorsâ€”Commercial Products and Commercial Services.,2023-09-01,12.301(b)(1),P,12.205(a)(1),52.212-1,Instructions to Offerors—Commercial Products and Commercial Services.,JAN 2026 (PCD 26-03),Updated,"Significant change.  Simplifies instructions and provides CO more outright ability to accept late quotes, allow modification of quotes that makes terms more favorable to Government after quote due date."
+52.212-2,52.212-2           Evaluationâ€”Commercial Products and Commercial Services.,2021-11-01,12.301(c),P,12.205(a)(2),52.212-2,Evaluation—Commercial Products and Commercial Services.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial. Updates instructions to COs, removes mention of mailed written notice of award."
+52.212-3,52.212-3 Offeror Representations and Certificationsâ€”Commercial Products and Commercial Services.,2025-10-01,12.301(b)(2),P,N/A,52.212-3,[Reserved],-,Removed,
+52.212-4,52.212-4 Contract Terms and Conditions - Commercial Products and Commercial Services.,2023-11-01,12.301(b)(3),C,12.205(b)(3),52.212-4,Terms and Conditions - Commercial Products and Commercial Services.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Reorders, simplifies.  Updates excusable delay duties of contractor, requires CO to send cure notice unless termination is for late delivery, adds Comptroller General examination of record."
+52.212-4 Alt. I,52.212-4_Alternate I,2021-11-01,12.301(b)(3),C,12.205(b)(3),52.212-4 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. For T&M and LH, includes substantive changes that are necessary to reflect changes to basic clause."
+52.212-5,52.212-5 Contract Terms and Conditions Required To Implement Statutes or Executive Orders - Commercial Products and Commercial Services.,2026-03-01,12.301(b)(4),C,N/A,52.212-5,[Reserved],-,Removed,
+52.213-2,52.213-2 Invoices.,1984-04-01,13.302-5(b),C,N/A,52.213-2,[Reserved],-,Removed,
+52.213-3,52.213-3 Notice to Supplier.,1984-04-01,13.302-5(c),C,N/A,52.213-3,[Reserved],-,Removed,
+52.213-4,52.213-4 Terms and Conditions - Simplified Acquisitions (Other Than Commercial Products and Commercial Services).,2026-03-01,13.302-5(d),C,13.204(b),52.213-4,Terms and Conditions—Simplified Acquisitions (Noncommercial).,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial.  Removes clauses by EO or law by reference (most of these clauses no longer apply to SAT or were deleted in their entirety), simplifies language elsewhere, requires Government to send cure notice before terminating for cause."
+52.214-10,52.214-10 Contract Award-Sealed Bidding.,1990-07-01,14.201-6(e),P,14.207(c),52.214-10,Contract Award-Sealed Bidding.,1990-07-01,No Change,
+52.214-12,52.214-12 Preparation of Bids.,1984-04-01,14.201-6(f),P,14.207(d),52.214-12,Preparation of Bids.,1984-04-01,No Change,
+52.214-14,52.214-14 Place of Performance-Sealed Bidding.,1985-04-01,14.201-6(h),P,14.207(e),52.214-14,Place of Performance-Sealed Bidding.,1985-04-01,No Change,
+52.214-15,52.214-15 Period for Acceptance of Bids.,1984-04-01,14.201-6(i),P,14.207(f),52.214-15,Period for Acceptance of Bids.,1984-04-01,No Change,
+52.214-16,52.214-16 Minimum Bid Acceptance Period.,1984-04-01,14.201-6(j),P,14.207(g),52.214-16,Minimum Bid Acceptance Period.,1984-04-01,No Change,
+52.214-18,52.214-18 Preparation of Bids-Construction.,1984-04-01,14.201-6(l),P,14.207(h),52.214-18,Preparation of Bids— Construction.,1984-04-01,No Change,
+52.214-19,52.214-19 Contract Award - Sealed Bidding - Construction.,1996-08-01,14.201-6(m),P,14.207(i),52.214-19,Contract Award - Sealed Bidding - Construction.,1996-08-01,No Change,
+52.214-20,52.214-20 Bid Samples.,2002-04-01,14.201-6(o)(1),P,14.207(j)(1),52.214-20,Bid Samples.,2002-04-01,No Change,
+52.214-20 Alt. I,52.214-20_Alternate I,2002-05-01,14.201-6,P,14.207(j)(2)(i),52.214-20 Alt. I,Alternate I.,2002-05-01,No Change,
+52.214-20 Alt. II,52.214-20_Alternate II,2002-05-01,14.201-6,P,14.207(j)(2)(ii),52.214-20 Alt. II,Alternate II.,2002-05-01,No Change,
+52.214-21,52.214-21 Descriptive Literature.,2002-04-01,14.201-6(p)(1),P,14.207(k)(1),52.214-21,Descriptive Literature.,2002-04-01,No Change,
+52.214-21 Alt. I,52.214-21_Alternate I,2017-01-01,14.201-6,P,14.207(k)(2),52.214-21 Alt. I,Alternate I.,2017-01-01,No Change,
+52.214-22,52.214-22 Evaluation of Bids for Multiple Awards.,1990-03-01,14.201-6(q),P,14.207(l),52.214-22,Evaluation of Bids for Multiple Awards.,1990-03-01,No Change,
+52.214-23,"52.214-23 Late Submissions, Modifications, Revisions, and Withdrawals of Technical Proposals under Two-Step Sealed Bidding.",1999-11-01,14.201-6(r),P,14.207(m),52.214-23,"Late Submissions, Modifications, Revisions, and Withdrawals of Technical Proposals under Two-Step Sealed Bidding.",JAN 2026 (PCD 26-03),Updated,Substantive but not substantial.  Removed instructions for fax bids.
+52.214-24,52.214-24 Multiple Technical Proposals.,1984-04-01,14.201-6(s),P,14.207(n),52.214-24,Multiple Technical Proposals.,1984-04-01,No Change,
+52.214-25,52.214-25 Step Two of Two-Step Sealed Bidding.,1985-04-01,14.201-6(t),P,14.207(o),52.214-25,Step Two of Two-Step Sealed Bidding.,JAN 2026 (PCD 26-03),Updated,Non-substantive.  Changed FAR reference in (a).
+52.214-26,52.214-26 Audit and Records-Sealed Bidding.,2020-06-01,14.201-7(a)(1),C,14.208(a),52.214-26,Audit and Records-Sealed Bidding.,JAN 2026 (PCD 26-03),Updated,"Non-substantive.  Only change was a capitalization error and an apparently accidental change from ""date"" to ""data"" in paragraph (d).  Note that Alternate I was deleted."
+52.214-27,52.214-27 Price Reduction for Defective Certified Cost or Pricing Data - Modifications - Sealed Bidding.,2020-06-01,14.201-7(b),C,14.208(b)(1),52.214-27,Price Reduction for Defective Certified Cost or Pricing Data - Modifications - Sealed Bidding.,2020-06-01,No Change,
+52.214-28,52.214-28 Subcontractor Certified Cost or Pricing Data - Modifications - Sealed Bidding.,2020-06-01,14.201-7(c)(1)(i),C,14.208(c),52.214-28,Subcontractor Certified Cost or Pricing Data - Modifications - Sealed Bidding.,JAN 2026 (PCD 26-03),Updated,"Non-substantive.  FAR reference change, change from ""of this clause"" to ""above""."
+52.214-28 Alt. I,52.214-28_Alternate I,2025-10-01,14.201-7(c)(1)(ii),C,14.208(c)(1),52.214-28 Alt. I,Alternate I.,2025-10-01,No Change,
+52.214-29,52.214-29 Order of Precedence - Sealed Bidding.,1986-01-01,14.201-7(d),C,14.208(d),52.214-29,Order of Precedence - Sealed Bidding.,1986-01-01,No Change,
+52.214-3,52.214-3 Amendments to Invitations for Bids.,2016-12-01,14.201-6(b)(1),P,14.207(b)(1),52.214-3,Amendments to Invitations for Bids.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial.  Removed instructions for fax bids. Change in drafting conventions (""must"" to ""shall"")."
+52.214-31,52.214-31 Facsimile Bids.,1989-12-01,14.201-6(v),P,N/A,52.214-31,[Reserved],-,Removed,
+52.214-34,52.214-34 Submission of Offers in the English Language.,1991-04-01,14.201-6(w),P,14.207(p),52.214-34,Submission of Offers in the English Language.,1991-04-01,No Change,
+52.214-35,52.214-35 Submission of Offers in U.S. Currency.,1991-04-01,14.201-6(x),P,14.207(q),52.214-35,Submission of Offers in U.S. Currency.,1991-04-01,No Change,
+52.214-4,52.214-4 False Statements in Bids.,1984-04-01,14.201-6(b)(2),P,14.207(b)(2),52.214-4,False Statements in Bids.,1984-04-01,No Change,
+52.214-5,52.214-5 Submission of Bids.,2016-12-01,14.201-6(c)(1),P,14.207(b)(3),52.214-5,Submission of Bids.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial.  Removed instructions for fax bids.
+52.214-6,52.214-6 Explanation to Prospective Bidders.,1984-04-01,14.201-6(c)(2),P,14.207(b)(4),52.214-6,Explanation to Prospective Bidders.,1984-04-01,No Change,
+52.214-7,"52.214-7 Late Submissions, Modifications, and Withdrawals of Bids.",1999-11-01,14.201-6(c)(3),P,14.207(b)(5),52.214-7,"Late Submissions, Modifications, and Withdrawals of Bids.",JAN 2026 (PCD 26-03),Updated,Substantive but not substantial.  Removed instructions for fax bids.
+52.215-1,52.215-1 Instructions to Offerors - Competitive Acquisition.,2021-11-01,15.209(a),P,15.110(a),52.215-1,Instructions to Offerors - Competitive Acquisition.,JAN 2026 (PCD 26-03),Updated,"Significant. Conforms to new norms on post-proposal receipt negotiations (removes discussions/exchanges, etc.).  Adds specific instructions for DOD contracts >$10M.  Also removes fax instructions and paper proposal requirement, deferring instead to the RFP for submission instructions."
+52.215-1 Alt. I,52.215-1_Alternate I,1997-10-01,15.209,P,15.110(a)(1),52.215-1 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Significant. Conforms to new norms on post-proposal receipt negotiations (removes discussions/exchanges, etc.)."
+52.215-1 Alt. II,52.215-1_Alternate II,1997-10-01,15.209,P,15.110(a)(2),52.215-1 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP""."
+52.215-10,52.215-10 Price Reduction for Defective Certified Cost or Pricing Data.,2011-08-01,15.408(b),C,15.110(j),52.215-10,Price Reduction for Defective Certified Cost or Pricing Data.,2011-08-01,No Change,
+52.215-11,52.215-11 Price Reduction for Defective Certified Cost or Pricing Data - Modifications.,2020-06-01,15.408(c),C,15.110(k),52.215-11,Price Reduction for Defective Certified Cost or Pricing Data - Modifications.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-12,52.215-12 Subcontractor Certified Cost or Pricing Data.,2020-06-01,15.408(d)(1),C,15.110(l)(1),52.215-12,Subcontractor Certified Cost or Pricing Data.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-12 Alt. I,52.215-12_Alternate I,2025-10-01,15.408,C,15.110(l)(2),52.215-12 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Significant. Change in threshold, removes instructions for prime contracts awarded prior to 7/1/18. Also updates FAR references."
+52.215-13,52.215-13 Subcontractor Certified Cost or Pricing Data - Modifications.,2020-06-01,15.408(e)(1),C,15.110(m)(1),52.215-13,Subcontractor Certified Cost or Pricing Data - Modifications.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-13 Alt. I,52.215-13_Alternate I,2025-10-01,15.408,C,15.110(m)(2),52.215-13 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Significant. Change in threshold, removes instructions for subcontracts awarded prior to 7/1/18. Also updates FAR references."
+52.215-14,52.215-14 Integrity of Unit Prices.,2021-11-01,15.408(f)(1),C,15.110(n)(1),52.215-14,Integrity of Unit Prices.,2021-11-01,No Change,
+52.215-14 Alt. I,52.215-14_Alternate I,1997-10-01,15.408,C,15.110(n)(2),52.215-14 Alt. I,Alternate I.,1997-10-01,No Change,
+52.215-15,52.215-15 Pension Adjustments and Asset Reversions.,2010-10-01,15.408(g),C,15.110(o),52.215-15,Pension Adjustments and Asset Reversions.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-16,52.215-16 Facilities Capital Cost of Money.,2003-06-01,15.408(h),P,15.110(p),52.215-16,Facilities Capital Cost of Money.,2003-06-01,No Change,
+52.215-17,52.215-17 Waiver of Facilities Capital Cost of Money.,1997-10-01,15.408(i),C,15.110(q),52.215-17,Waiver of Facilities Capital Cost of Money.,1997-10-01,No Change,
+52.215-18,52.215-18 Reversion or Adjustment of Plans for Postretirement Benefits (PRB) Other Than Pensions.,2005-07-01,15.408(j),C,15.110(r),52.215-18,Reversion or Adjustment of Plans for Postretirement Benefits (PRB) Other Than Pensions.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-19,52.215-19 Notification of Ownership Changes.,1997-10-01,15.408(k),C,15.110(s),52.215-19,Notification of Ownership Changes.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-2,52.215-2 Audit and Records - Negotiation.,2020-06-01,15.209(b),C,15.110(b),52.215-2,Audit and Records - Negotiation.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-2 Alt. I,52.215-2_Alternate I,2009-03-01,15.209,C,N/A,52.215-2 Alt. I,[Reserved],-,Removed,
+52.215-2 Alt. II,52.215-2_Alternate II,2016-08-01,15.209,C,15.110(b)(3),52.215-2 Alt. II,Alternate II.,2016-08-01,No Change,
+52.215-2 Alt. III,52.215-2_Alternate III,1999-06-01,15.209,C,15.110(b)(4),52.215-2 Alt. III,Alternate III.,1999-06-01,No Change,
+52.215-20,52.215-20 Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data.,2021-11-01,15.408(l),P,15.110(t),52.215-20,Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data.,JAN 2026 (PCD 26-03),Updated,Substantive but not significant. Removes MAS specification for FSS contracts. Updates far references and drafting convention.
+52.215-20 Alt. I,52.215-20_Alternate I,2010-10-01,15.408,P,15.110(t)(1),52.215-20 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP"".  Updates FAR references."
+52.215-20 Alt. II,52.215-20_Alternate II,1997-10-01,15.408,P,15.110(t)(2),52.215-20 Alt. II,Alternate II.,1997-10-01,No Change,
+52.215-20 Alt. III,52.215-20_Alternate III,1997-10-01,15.408,P,15.110(t)(3),52.215-20 Alt. III,Alternate III.,1997-10-01,No Change,
+52.215-20 Alt. IV,52.215-20_Alternate IV,2010-10-01,15.408,P,15.110(t)(4),52.215-20 Alt. IV,Alternate IV.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-21,52.215-21 Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data-Modifications.,2021-11-01,15.408(m),C,15.110(u),52.215-21,Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data-Modifications.,JAN 2026 (PCD 26-03),Updated,Substantive but not significant. Removes MAS specification for FSS contracts. Updates far references and drafting convention.
+52.215-21 Alt. I,52.215-21_Alternate I,2010-10-01,15.408,C,15.110(u)(1),52.215-21 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP"".  Updates FAR references."
+52.215-21 Alt. II,52.215-21_Alternate II,1997-10-01,15.408,C,15.110(u)(2),52.215-21 Alt. II,Alternate II.,1997-10-01,No Change,
+52.215-21 Alt. III,52.215-21_Alternate III,1997-10-01,15.408,C,15.110(u)(3),52.215-21 Alt. III,Alternate III.,1997-10-01,No Change,
+52.215-21 Alt. IV,52.215-21_Alternate IV,2010-10-01,15.408,C,15.110(u)(4),52.215-21 Alt. IV,Alternate IV.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-22,52.215-22 Limitations on Pass-Through Charges-Identification of Subcontract Effort.,2009-10-01,15.408(n)(1),P,15.110(v)(1),52.215-22,Limitations on Pass-Through Charges-Identification of Subcontract Effort.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP"".  Updates FAR references."
+52.215-23,52.215-23 Limitations on Pass-Through Charges.,2020-06-01,15.408(n)(2),C,15.110(v)(2),52.215-23,Limitations on Pass-Through Charges.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-23 Alt. I,52.215-23_Alternate I,2009-10-01,15.408,C,15.110(v)(2)(iii),52.215-23 Alt. I,Alternate I.,2009-10-01,No Change,
+52.215-3,52.215-3 Request for Information or Solicitation for Planning Purposes.,1997-10-01,15.209(c),P,N/A,52.215-3,[Reserved],-,Removed,
+52.215-5,52.215-5 Facsimile Proposals.,1997-10-01,15.209(e),P,N/A,52.215-5,[Reserved],-,Removed,
+52.215-6,52.215-6 Place of Performance.,1997-10-01,15.209(f),P,15.110(f),52.215-6,Place of Performance.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP""."
+52.215-8,52.215-8 Order of Precedence - Uniform Contract Format.,1997-10-01,15.209(h),C,15.110(h),52.215-8,Order of Precedence - Uniform Contract Format.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Changes ""solicitation"" to ""RFP""."
+52.215-9,52.215-9 Changes or Additions to Make-or-Buy Program.,1997-10-01,15.408(a),C,15.110(i),52.215-9,Changes or Additions to Make-or-Buy Program.,1997-10-01,No Change,
+52.215-9 Alt. I,52.215-9_Alternate I,2010-10-01,15.408,C,15.110(i)(1),52.215-9 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.215-9 Alt. II,52.215-9_Alternate II,2010-10-01,15.408,C,15.110(i)(2),52.215-9 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial.  FAR references and added a repetitive paragraph (d)(2).
+52.216-1,52.216-1 Type of Contract.,1984-04-01,16.105,P,16.104,52.216-1,Type of Contract.,JAN 2026 (PCD 26-03),Updated,"No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (APR 1984).  However, significant change in prescription with inclusion of new alternate."
+N/A,N/A,N/A,,P,16.104,52.216-1 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),New,"New, include as prescribed"
+52.216-10,52.216-10 Incentive Fee.,2011-06-01,16.307(d),C,16.305(d),52.216-10,Incentive Fee.,2011-06-01,No Change,
+52.216-11,52.216-11 Cost Contract-No Fee.,1984-04-01,16.307(e),C,16.305(e),52.216-11,Cost Contract - No Fee.,1984-04-01,No Change,
+52.216-11 Alt. I,52.216-11_Alternate I,1984-04-01,16.307(e),C,16.305(e)(2),52.216-11 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Rx moved from within 52 to 16.305(e).  No changes to Rx.
+52.216-12,52.216-12 Cost-Sharing Contract - No Fee.,1984-04-01,16.307(f),C,16.307(f),52.216-12,Cost-Sharing Contract - No Fee.,1984-04-01,No Change,
+52.216-12 Alt. I,52.216-12_Alternate I,1984-04-01,16.307(f),C,16.305(f)(2),52.216-12 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Rx moved from within 52 to 16.305(f).  No changes to Rx.
+52.216-15,52.216-15 Predetermined Indirect Cost Rates.,1998-04-01,16.307(g),C,16.305(g),52.216-15,Predetermined Indirect Cost Rates.,1998-04-01,No Change,
+52.216-16,52.216-16 Incentive Price Revision - Firm Target.,2022-01-01,16.406(a),C,16.406(a),52.216-16,Incentive Price Revision - Firm Target.,JAN 2026 (PCD 26-03),Updated,Non-substantial update. FAR reference for table.
+52.216-16 Alt. I,52.216-16_Alternate I,1984-04-01,16.406,C,16.406(a),52.216-16 Alt. I,Alternate I.,1984-04-01,No Change,
+52.216-17,52.216-17 Incentive Price Revision-Successive Targets.,2022-01-01,16.406(b),C,16.406(b),52.216-17,Incentive Price Revision-Successive Targets.,JAN 2026 (PCD 26-03),Updated,Non-substantial update. FAR reference for table.
+52.216-17 Alt. I,52.216-17_Alternate I,1984-04-01,16.406,C,16.406(b),52.216-17 Alt. I,Alternate I.,1984-04-01,No Change,
+52.216-18,52.216-18 Ordering.,2020-08-01,16.506(a),C,16.505(a),52.216-18,Ordering.,2020-08-01,No Change,
+52.216-19,52.216-19 Order Limitations.,1995-10-01,16.506(b),C,16.505(b),52.216-19,Order Limitations.,1995-10-01,No Change,
+52.216-2,52.216-2 Economic Price Adjustment-Standard Supplies.,2021-11-01,16.203-4(a),C,16.203-4(a),52.216-2,Economic Price Adjustment-Standard Supplies.,2021-11-01,No Change,
+52.216-20,52.216-20 Definite Quantity.,1995-10-01,16.506(c),C,16.505(c),52.216-20,Definite Quantity.,1995-10-01,No Change,
+52.216-21,52.216-21 Requirements.,1995-10-01,16.506(d),C,16.505(d),52.216-21,Requirements.,JAN 2026 (PCD 26-03),Updated,"Substantive. Clarification - use of ""effective period"" versus ""ordering period"" in paragraph (f)."
+52.216-21 Alt. I,52.216-21_Alternate I,1984-04-01,16.506(d),C,16.505(d)(2),52.216-21 Alt. I,Alternate I.,1984-04-01,No Change,
+52.216-21 Alt. II,52.216-21_Alternate II,1984-04-01,16.506(d),C,16.505(d)(3),52.216-21 Alt. II,Alternate II.,1984-04-01,No Change,
+52.216-21 Alt. III,52.216-21_Alternate III,1995-10-01,16.506(d),C,16.505(d)(4),52.216-21 Alt. III,Alternate II.,1995-10-01,No Change,
+52.216-21 Alt. IV,52.216-21_Alternate IV,1995-10-01,16.506(d),C,16.505(d)(5),52.216-21 Alt. IV,Alternate II.,1995-10-01,No Change,
+52.216-22,52.216-22 Indefinite Quantity.,1995-10-01,16.506(e),C,16.505(e),52.216-22,Indefinite Quantity.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Clarifies ""ordering period"" versus ""effective period"", and includes order options to be exercised after the ordering period of the contract but before the end of the POP of the order."
+N/A,N/A,N/A,,C,16.505(e)(1),52.216-22 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),New,"New, include as prescribed.  Offramp clause."
+N/A,N/A,N/A,,C,16.505(e)(2),52.216-22 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),New,"New, include as prescribed.  Offramp clause."
+52.216-23,52.216-23 Execution and Commencement of Work.,1984-04-01,16.603-4(b)(1),C,16.603-4(b)(1),52.216-23,Execution and Commencement of Work.,1984-04-01,No Change,
+52.216-24,52.216-24 Limitation of Government Liability.,1984-04-01,16.603-4(b)(2),C,16.603-4(b)(2),52.216-24,Limitation of Government Liability.,1984-04-01,No Change,
+52.216-25,52.216-25 Contract Definitization.,2010-10-01,16.603-4(b)(3),C,16.603-4(b)(3),52.216-25,Contract Definitization.,JAN 2026 (PCD 26-03),Updated,Non-substantial update. FAR reference for table.
+52.216-25 Alt. I,52.216-25_Alternate I,1984-04-01,16.603-4(b)(3),C,16.603-4(b)(3),52.216-25 Alt. I,Alternate I.,1984-04-01,No Change,
+52.216-26,52.216-26 Payments of Allowable Costs Before Definitization.,2002-12-01,16.603-4(c),C,16.603-4(c),52.216-26,Payments of Allowable Costs Before Definitization.,2002-12-01,No Change,
+52.216-27,52.216-27 Single or Multiple Awards.,1995-10-01,16.506(f),P,16.505(f),52.216-27,Single or Multiple Awards.,1995-10-01,No Change,
+52.216-28,52.216-28 Multiple Awards for Advisory and Assistance Services.,1995-10-01,16.506(g),P,16.505(g),52.216-28,Multiple Awards for Advisory and Assistance Services.,1995-10-01,No Change,
+52.216-29,52.216-29  Time-and-Materials/Labor-Hour Proposal Requirements - Other Than Commercial Acquisition With Adequate Price Competition.,2021-11-01,16.601(f)(1),P,16.601-4(a),52.216-29,Time-and-Materials/Labor-Hour Proposal Requirements - Other Than Commercial Acquisition With Adequate Price Competition.,2021-11-01,No Change,
+52.216-3,52.216-3 Economic Price Adjustment-Semistandard Supplies.,2021-11-01,16.203-4(b),C,16.203-4(b),52.216-3,Economic Price Adjustment-Semistandard Supplies.,2021-11-01,No Change,
+52.216-30,52.216-30 Time-and-Materials/Labor-Hour Proposal Requirements - Other Than Commercial Acquisition Without Adequate Price Competition.,2021-11-01,16.601(f)(2),P,16.601-4(b),52.216-30,Time-and-Materials/Labor-Hour Proposal Requirements - Other Than Commercial Acquisition Without Adequate Price Competition.,2021-11-01,No Change,
+52.216-31,52.216-31 Time-and-Materials/Labor-Hour Proposal Requirements - Commercial Acquisition.,2021-11-01,16.601(f)(3),P,16.601-4(c),52.216-31,Time-and-Materials/Labor-Hour Proposal Requirements - Commercial Acquisition.,2021-11-01,No Change,
+52.216-32,52.216-32 Task-Order and Delivery-Order Ombudsman.,2019-09-01,16.506(j),C,16.505(j),52.216-32,Task-Order and Delivery-Order Ombudsman.,2019-09-01,No Change,
+52.216-32 Alt. I,52.216-32_Alternate I,2019-09-01,16.506,C,16.505(j),52.216-32 Alt. I,Alternate I.,2019-09-01,No Change,
+52.216-4,52.216-4 Economic Price Adjustment-Labor and Material.,2017-01-01,16.203-4(c),C,16.203-4(c),52.216-4,Economic Price Adjustment-Labor and Material.,2017-01-01,No Change,
+52.216-5,52.216-5 Price Redetermination-Prospective.,2022-01-01,16.205-4,C,16.204-4,52.216-5,Price Redetermination-Prospective.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references, change from ""affect"" to ""effect""."
+52.216-6,52.216-6 Price Redetermination-Retroactive.,2022-01-01,16.206-4,C,16.205-4,52.216-6,Price Redetermination-Retroactive.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (JAN 2022).
+52.216-7,52.216-7 Allowable Cost and Payment.,2018-08-01,16.307(a),C,16.305(a),52.216-7,Allowable Cost and Payment.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Removed website reference in (d)(2)(iv)(B).
+52.216-7 Alt. I,52.216-7_Alternate I,1997-02-01,16.307,C,16.305(a)(2),52.216-7 Alt. I,Alternate I.,1997-02-01,No Change,
+52.216-7 Alt. II,52.216-7_Alternate II,2012-08-01,16.307,C,16.305(a)(3),52.216-7 Alt. II,Alternate II.,2012-08-01,No Change,
+52.216-7 Alt. III,52.216-7_Alternate III,2012-08-01,16.307,C,16.305(a)(4),52.216-7 Alt. III,Alternate III.,2012-08-01,No Change,
+52.216-7 Alt. IV,52.216-7_Alternate IV,2012-08-01,16.307,C,16.305(a)(5),52.216-7 Alt. IV,Alternate IV.,2012-08-01,No Change,
+52.216-8,52.216-8 Fixed Fee.,2011-06-01,16.307(b),C,16.305(b),52.216-8,Fixed Fee.,2011-06-01,No Change,
+52.216-9,52.216-9 Fixed Fee-Construction.,2011-06-01,16.307(c),C,16.305(c),52.216-9,Fixed Fee - Construction.,2011-06-01,No Change,
+52.217-10,52.217-10 Reverse Auction,2024-08-01,17.805(a),P,17.804(a),52.217-10,Reverse Auction.,2024-08-01,No Change,
+52.217-11,52.217-11 Reverse Auction - Orders.,2024-08-01,17.805(b),C,17.804(b),52.217-11,Reverse Auction - Orders.,2024-08-01,No Change,
+52.217-12,52.217-12 Reverse Auction Services.,2024-08-01,17.805(c),C,17.804(c),52.217-12,Reverse Auction Services.,2024-08-01,No Change,
+52.217-2,52.217-2 Cancellation Under Multiyear Contracts.,1997-10-01,17.109(a),C,17.106(a),52.217-2,Cancellation Under Multiyear Contracts.,1997-10-01,No Change,
+52.217-3,52.217-3 Evaluation Exclusive of Options.,1984-04-01,17.208(a),P,17.203(a),52.217-3,Evaluation Exclusive of Options.,1984-04-01,No Change,
+52.217-4,52.217-4 Evaluation of Options Exercised at Time of Contract Award.,1988-06-01,17.208(b),P,17.203(b),52.217-4,Evaluation of Options Exercised at Time of Contract Award.,JAN 2026 (PCD 26-03),Updated,Non-substantial. FAR reference.
+52.217-5,52.217-5 Evaluation of Options.,1990-07-01,17.208(c),P,17.203(c),52.217-5,Evaluation of Options.,JAN 2026 (PCD 26-03),Updated,Non-substantial. FAR reference.
+52.217-6,52.217-6 Option for Increased Quantity.,1989-03-01,17.208(d),C,17.203(d),52.217-6,Option for Increased Quantity.,1989-03-01,No Change,
+52.217-7,52.217-7 Option for Increased Quantity-Separately Priced Line Item.,1989-03-01,17.208(e),C,17.203(e),52.217-7,Option for Increased Quantity-Separately Priced Line Item.,1989-03-01,No Change,
+52.217-8,52.217-8 Option to Extend Services.,1999-11-01,17.208(f),C,17.203(f),52.217-8,Option to Extend Services.,1999-11-01,No Change,
+52.217-9,52.217-9 Option to Extend the Term of the Contract.,2000-03-01,17.208(g),C,17.203(g),52.217-9,Option to Extend the Term of the Contract.,2000-03-01,No Change,
+52.219-1,52.219-1 Small Business Program Representations.,2024-02-01,19.309(a)(1),P,19.101(a)(2)(ii)(A),52.219-1,Small Business Program Representations.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial.  Multiple definitions updated, removed general SDB and VOSB representation, drafting conventions.  Alt. I deleted."
+52.219-1 Alt. I,52.219-1_Alternate I,2024-02-01,19.309,P,N/A,52.219-1 Alt. I,[Reserved],-,Removed,
+52.219-1 Alt. II,52.219-1_Alternate II,2023-03-01,19.309,P,19.101(a)(2)(ii)(B),52.219-1 Alt. II,Alternate II.,2023-03-01,No Change,
+52.219-10,52.219-10 Incentive Subcontracting Program.,2014-10-01,19.708(c)(1),C,19.109(f)(1),52.219-10,Incentive Subcontracting Program.,JAN 2026 (PCD 26-03),Updated,Non-substantial. FAR reference.
+52.219-11,52.219-11 Special 8(a) Contract Conditions.,2017-01-01,19.811-3(a),C,19.108-10(a),52.219-11,Special 8(a) Contract Conditions.,2017-01-01,No Change,
+52.219-12,52.219-12 Special 8(a) Subcontract Conditions.,2019-10-01,19.811-3(b),C,19.108-10(b),52.219-12,Special 8(a) Subcontract Conditions.,2019-10-01,No Change,
+52.219-13,52.219-13 Notice of Set-Aside of Orders.,2020-03-01,19.507(f)(1),C,19.104-3(d),52.219-13,Notice of Set-Aside of Orders.,2020-03-01,No Change,
+52.219-13 Alt. I,52.219-13_Alternate I,2020-03-01,19.507(f)(2),C,N/A,52.219-13 Alt. I,[Reserved],-,Removed,
+52.219-14,52.219-14 Limitations on Subcontracting.,2022-10-01,19.507(e),C,19.104-3(c),52.219-14,Limitations on Subcontracting.,JAN 2026 (PCD 26-03),Updated,Substantive changes in (c). FAR references and descriptions.
+52.219-16,52.219-16 Liquidated Damages-Subcontracting Plan.,2021-09-01,19.708(b)(2),C,19.109(e)(2)(ii) and 19.302-1(b)(2),52.219-16,Liquidated Damages-Subcontracting Plan.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Removes definition of ""failure to make a good faith effort…"" in paragraph (a).  Slightly reworded according to drafting convention otherwise."
+52.219-17,52.219-17 Section 8(a) Award.,2019-10-01,19.811-3(c),C,19.108-10(c),52.219-17,Section 8(a) Award.,2019-10-01,No Change,
+52.219-18,52.219-18 Notification of Competition Limited to Eligible 8(a) Participants.,2022-10-01,19.811-3(d),C,19.108-10(d),52.219-18,Notification of Competition Limited to Eligible 8(a) Participants.,2022-10-01,No Change,
+52.219-18 Alt. I,52.219-18_Alternate I,2023-03-01,19.811-3(d),C,19.108-10(d),52.219-18 Alt. I,Alternate I.,2023-03-01,No Change,If the competition is to be limited to 8(a) participants within one or more specific SBA regions or districts
+52.219-2,52.219-2 Equal Low Bids.,1995-10-01,19.309(b),P,19.203(b),52.219-2,Equal Low Bids.,JAN 2026 (PCD 26-03),Updated,Non-substantive.  Changed the number of lines available for contractor to fill in in (b).
+52.219-27,"52.219-27 Notice of Set-Aside for, or Sole-Source Award to, Service-Disabled Veteran-Owned Small Business (SDVOSB) Concerns Eligible Under the SDVOSB Program.",2024-02-01,19.1408,C,19.106-4(a),52.219-27,"Notice of Set-Aside for, or Sole-Source Award to, Service-Disabled Veteran-Owned Small Business (SDVOSB) Concerns Eligible Under the SDVOSB Program.",JAN 2026 (PCD 26-03),Updated,Substantive and substantial. Updates definition of SDVOSB and joint venture information; includes sole-source SDVOSB contracts/orders.
+52.219-28,52.219-28 Postaward Small Business Program Rerepresentation.,2025-01-01,19.309(c)(1),C,19.101(a)(2)(iii)(A),52.219-28,Postaward Small Business Program Rerepresentation.,JAN 2026 (PCD 26-03),Updated,Substantive and substantial. Significant changes throughout.
+52.219-28 Alt. I,52.219-28_Alternate I,2020-03-01,19.309,C,19.101(a)(2)(iii)(B),52.219-28 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. changing (h) to (g).
+52.219-29,"52.219-29 Notice of Set-Aside for, or Sole-Source Award to, Economically Disadvantaged Women-Owned Small Business Concerns.",2022-10-01,19.1508,C,19.107-4(a),52.219-29,"Notice of Set-Aside for, or Sole-Source Award to, Economically Disadvantaged Women-Owned Small Business Concerns.",JAN 2026 (PCD 26-03),Updated,Non-substantial. FAR references.
+52.219-3,52.219-3 Notice of HUBZone Set-Aside or Sole-Source Award.,2022-10-01,19.1309(a),C,19.105-4(a),52.219-3,Notice of HUBZone Set-Aside or Sole-Source Award.,JAN 2026 (PCD 26-03),Updated,Substantive and substantial. Removes HUBZone direct-award orders (these procedures were substantially changed in Part 19).  FAR reference updates.
+52.219-30,"52.219-30 Notice of Set-Aside for, or Sole-Source Award to, Women-Owned Small Business Concerns Eligible Under the Women-Owned Small Business Program.",2022-10-01,19.1508,C,19.107-4(b),52.219-30,"Notice of Set-Aside for, or Sole-Source Award to, Women-Owned Small Business Concerns Eligible Under the Women-Owned Small Business Program.",JAN 2026 (PCD 26-03),Updated,Non-substantial. FAR references.
+52.219-31,52.219-31 Notice of Small Business Reserve.,2020-03-01,19.507(g)(1),P,19.112(e),52.219-31,Notice of Small Business Reserve.,2020-03-01,No Change,
+52.219-32,52.219-32 Orders Issued Directly Under Small Business Reserves,2020-03-01,19.507(g)(2),C,N/A,52.219-32,[Reserved],-,Removed,
+52.219-33,52.219-33           Nonmanufacturer Rule.,2021-09-01,19.507(h),C,19.104-3(e)(1),52.219-33,Nonmanufacturer Rule.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. FAR references and slight rewording according to drafting conventions in paragraph (b).
+52.219-4,52.219-4 Notice of Price Evaluation Preference for HUBZone Small Business Concerns.,2022-10-01,19.1309(b),C,19.110(b),52.219-4,Notice of Price Evaluation Preference for HUBZone Small Business Concerns.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Removes how factor of 10 must be applied.  Minor changes in word choice (""elects"" versus ""chooses"", for example)."
+52.219-6,52.219-6 Notice of Total Small Business Set-Aside.,2020-11-01,19.507(c),C,19.104-3(a),52.219-6,Notice of Total Small Business Set-Aside.,JAN 2026 (PCD 26-03),Updated,"Substantive. FAR reference updates, changes applicability from contracts that have been ""totally"" set aside to those that have been set aside."
+52.219-6 Alt. I,52.219-6_Alternate I,2020-03-01,19.507,C,19.104-3(a),52.219-6 Alt. I,Alternate I.,2020-03-01,No Change,
+52.219-7,52.219-7 Notice of Partial Small Business Set-Aside.,2020-11-01,19.507(d),C,19.104-3(b),52.219-7,Notice of Partial Small Business Set-Aside.,2020-11-01,No Change,
+52.219-7 Alt. I,52.219-7_Alternate I,2020-03-01,19.507,C,19.104-3(b),52.219-7 Alt. I,Alternate I.,2020-03-01,No Change,
+52.219-8,52.219-8 Utilization of Small Business Concerns.,2025-01-01,19.708(a),C,19.109(e),52.219-8,Utilization of Small Business Concerns.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial.  Definition, reference, and threshold updates. Removes ability for subcontractors to create written representations for VOSB, SDVOSB, and WOSB status."
+52.219-9,52.219-9 Small Business Subcontracting Plan.,2025-01-01,19.708(b),C,19.109(e)(2)(i),52.219-9,Small Business Subcontracting Plan.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial.  Definition, reference, and threshold updates. Removes eSRS references. Removes ability for subcontractors to create written representations for VOSB, SDVOSB, and WOSB status.  Specifies that, in order to be a VOSB, SDVOSB, HUBZone, or WOSB, small businesses must be certified by the SBA as that socioeconomic status.  Adds mentor-protege program information.  Clarifies that entitites that are treated as SB concerns by statuts for certain purposes (e.g., ANCs) are excepted from the subcontractor subcontracting plan requirement."
+52.219-9 Alt. I,52.219-9_Alternate I,2016-11-01,19.708,C,19.109(e)(2)(i)(A),52.219-9 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Slightly reworded.
+52.219-9 Alt. II,52.219-9_Alternate II,2016-11-01,19.708,C,19.109(e)(2)(i)(B),52.219-9 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Slightly reworded.
+52.219-9 Alt. III,52.219-9_Alternate III,2025-01-01,19.708,C,19.109(e)(2)(i)(C),52.219-9 Alt. III,Alternate III.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Deadline for report after contract completion changed from 30 days to 45 days, annual report changed from October 30 to November 14, changed from 30 to 45 days after end of GFY for commercial plan reports. Other changes commensurate with system changes."
+52.219-9 Alt. IV,52.219-9_Alternate IV,2025-01-01,19.708,C,19.302-1(b)(1),52.219-9 Alt. IV,Alternate IV.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Previously also replaced (c)(2), now just (c)(1).  Mentor-protégé program information included.  Specifies ANC and Indian tribes to count toward total dollars planned to be subcontracted to small businesses.  Other changes commensurate with system changes."
+52.222-1,52.222-1 Notice to the Government of Labor Disputes.,1997-02-01,22.103-5(a),C,22.102-2(a),52.222-1,Notice to the Government of Labor Disputes.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-10,52.222-10 Compliance with Copeland Act Requirements.,1988-02-01,22.407(a),C,22.402-4(a)(5),52.222-10,Compliance with Copeland Act Requirements.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-11,52.222-11 Subcontracts (Labor Standards).,2014-05-01,22.407(a),C,22.402-4(a)(6),52.222-11,Subcontracts (Labor Standards).,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-12,52.222-12 Contract Termination-Debarment.,2014-05-01,22.407(a),C,22.402-4(a)(7),52.222-12,Contract Termination - Debarment.,2014-05-01,No Change,
+52.222-13,52.222-13 Compliance with Construction Wage Rate Requirements and Related Regulations.,2014-05-01,22.407(a),C,22.402-4(a)(8),52.222-13,Compliance with Construction Wage Rate Requirements and Related Regulations.,2014-05-01,No Change,
+52.222-14,52.222-14 Disputes Concerning Labor Standards.,1988-02-01,22.407(a),C,22.402-4(a)(9),52.222-14,Disputes Concerning Labor Standards.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-15,52.222-15 Certification of Eligibility.,2014-05-01,22.407(a),C,22.402-4(a)(10),52.222-15,Certification of Eligibility.,2014-05-01,No Change,
+52.222-16,52.222-16 Approval of Wage Rates.,2014-05-01,22.407(b),C,22.402-4(b),52.222-16,Approval of Wage Rates.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (MAY 2014).
+52.222-18,52.222-18 Certification Regarding Knowledge of Child Labor for Listed End Products.,2021-02-01,22.1505(a),P,22.1502-2(a)(1),52.222-18,Certification Regarding Knowledge of Child Labor for Listed End Products.,2021-02-01,No Change,
+52.222-19,52.222-19 Child Labor-Cooperation with Authorities and Remedies.,2026-03-01,22.1505(b),C,22.1502-2(a)(2),52.222-19,Child Labor-Cooperation with Authorities and Remedies.,"MAR 2026 (PCD 26-03, FAC 2026-01)",Updated,"Substantive and substantial.   Canada moved from non-applicability under (a)(1) at $25k or more to (a)(3) at $174,000 or more.  Equivalent of 52.222-18 removed from (b).  Note - was updated Mar 16 to reflect new TAA thresholds published in FAC 2026-01 / FAR Case 2025-007."
+52.222-2,52.222-2 Payment for Overtime Premiums.,1990-07-01,22.103-5(b),C,22.102-2(b),52.222-2,Payment for Overtime Premiums.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-20,"52.222-20  Contracts for Materials, Supplies, Articles, and Equipment.",2020-06-01,22.61,C,22.601-5,52.222-20,"Contracts for Materials, Supplies, Articles, and Equipment.",JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-21,52.222-21 Prohibition of Segregated Facilities.,2015-04-01,22.810(a)(1),C,N/A,52.222-21,[Reserved],-,Removed,
+52.222-22,52.222-22 Previous Contracts and Compliance Reports.,1999-02-01,22.810(a)(2),P,N/A,52.222-22,[Reserved],-,Removed,
+52.222-23,52.222-23 Notice of Requirement for Affirmative Action to Ensure Equal Employment Opportunity for Construction.,1999-02-01,22.810(b),P,N/A,52.222-23,[Reserved],-,Removed,
+52.222-24,52.222-24 Preaward On-Site Equal Opportunity Compliance Evaluation.,1999-02-01,22.810(c),P,N/A,52.222-24,[Reserved],-,Removed,
+52.222-25,52.222-25 Affirmative Action Compliance.,1984-04-01,22.810(d),P,N/A,52.222-25,[Reserved],-,Removed,
+52.222-26,52.222-26 Equal Opportunity.,2016-09-01,22.810(e),C,N/A,52.222-26,[Reserved],-,Removed,
+52.222-27,52.222-27 Affirmative Action Compliance Requirements for Construction.,2015-04-01,22.810(f),C,N/A,52.222-27,[Reserved],-,Removed,
+52.222-29,52.222-29 Notification of Visa Denial.,2015-04-01,22.810(g),C,N/A,52.222-29,[Reserved],-,Removed,
+52.222-3,52.222-3 Convict Labor.,2003-06-01,22.202,C,22.201-2,52.222-3,Convict Labor,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-30,52.222-30 Construction Wage Rate Requirements-Price Adjustment (None or Separately Specified Method).,2018-08-01,22.407(e),C,22.402-4(d),52.222-30,Construction Wage Rate Requirements-Price Adjustment (None or Separately Specified Method).,2018-08-01,No Change,
+52.222-31,52.222-31 Construction Wage Rate Requirements-Price Adjustment (Percentage Method).,2018-08-01,22.407(f),C,22.402-4(e),52.222-31,Construction Wage Rate Requirements-Price Adjustment (Percentage Method).,2018-08-01,No Change,
+52.222-32,52.222-32 Construction Wage Rate Requirements-Price Adjustment (Actual Method).,2018-08-01,22.407(g),C,22.402-4(f),52.222-32,Construction Wage Rate Requirements-Price Adjustment (Actual Method).,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-33,52.222-33 Notice of Requirement for Project Labor Agreement.,2024-01-01,22.505(a)(1),P,22.502-3(a)(1),52.222-33,Notice of Requirement for Project Labor Agreement.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Reference for definitions and drafting conventions.
+52.222-33 Alt. I,52.222-33_Alternate I,2024-01-01,22.505,P,22.502-3(a)(2),52.222-33 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-33 Alt. II,52.222-33_Alternate II,2024-01-01,22.505,P,22.502-3(a)(3),52.222-33 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-33 Alt. III,52.222-33_Alternate III,2024-01-01,22.505,P,22.502-3(a)(4),52.222-33 Alt. III,Alternate III.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-34,52.222-34 Project Labor Agreement.,2024-01-01,22.505(b)(1),C,22.502-3(b)(1),52.222-34,Project Labor Agreement.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-34 Alt. I,52.222-34_Alternate I,2024-01-01,22.505,C,22.502-3(b)(2),52.222-34 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-34 Alt. II,52.222-34_Alternate II,2024-01-01,22.505,C,22.502-3(b)(3),52.222-34 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-35,52.222-35 Equal Opportunity for Veterans.,2020-06-01,22.1310(a)(1),C,22.1302-2(a)(1),52.222-35,Equal Opportunity for Veterans.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. References and drafting conventions.
+52.222-35 Alt. I,52.222-35_Alternate I,2014-07-01,22.131,C,22.1302-2(a)(2),52.222-35 Alt. I,Alternate I.,2014-07-01,No Change,
+52.222-36,52.222-36 Equal Opportunity for Workers with Disabilities.,2020-06-01,22.1408(a),C,22.1401-2(a)(1),52.222-36,Equal Opportunity for Workers with Disabilities.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-36 Alt. I,52.222-36_Alternate I,2014-07-01,22.1408,C,22.1401-2(a)(2),52.222-36 Alt. I,Alternate I.,2014-07-01,No Change,
+52.222-37,52.222-37 Employment Reports on Veterans.,2020-06-01,22.1310(b),C,22.1302-2(b),52.222-37,Employment Reports on Veterans.,JAN 2026 (PCD 26-03),Updated,Substantive and substantial. Removes (c)(1) and (2).  Drafting conventions.
+52.222-38,52.222-38 Compliance with Veteransâ€™ Employment Reporting Requirements.,2016-02-01,22.1310(c),P,N/A,52.222-38,[Reserved],-,Removed,
+52.222-4,52.222-4 Contract Work Hours and Safety Standards -Overtime Compensation.,2018-05-01,22.305,C,22.301-2,52.222-4,Contract Work Hours and Safety Standards -Overtime Compensation.,JAN 2026 (PCD 26-03),Updated,"Non-substantial.  FAR references and ""shall"" to ""must""."
+52.222-40,52.222-40 Notification of Employee Rights Under the National Labor Relations Act.,2010-12-01,22.1605,C,22.1602-2(a),52.222-40,Notification of Employee Rights Under the National Labor Relations Act.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-41,52.222-41 Service Contract Labor Standards.,2018-08-01,22.1006(a),C,22.1002-2(b)(1),52.222-41,Service Contract Labor Standards.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-42,52.222-42 Statement of Equivalent Rates for Federal Hires.,2014-05-01,22.1006(b),C,22.1002-2(c)(1),52.222-42,Statement of Equivalent Rates for Federal Hires.,2014-05-01,No Change,
+52.222-43,52.222-43 Fair Labor Standards Act and Service Contract Labor Standards-Price Adjustment (Multiple Year and Option Contracts).,2018-08-01,22.1006(c)(1),C,22.1002-2(d)(1),52.222-43,Fair Labor Standards Act and Service Contract Labor Standards-Price Adjustment (Multiple Year and Option Contracts).,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-44,52.222-44 Fair Labor Standards Act and Service Contract Labor Standards-Price Adjustment.,2014-05-01,22.1006(c)(2),C,22.1002-2(d)(2),52.222-44,Fair Labor Standards Act and Service Contract Labor Standards-Price Adjustment.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-46,52.222-46 Evaluation of Compensation for Professional Employees.,1993-02-01,22.1103,P,N/A,52.222-46,[Reserved],-,Removed,
+52.222-48,"52.222-48 Exemption from Application of the Service Contract Labor Standards to Contracts for Maintenance, Calibration, or Repair of Certain Equipment-Certification.",2014-05-01,22.1006(e)(1),P,22.1002-2(e)(1),52.222-48,"Exemption from Application of the Service Contract Labor Standards to Contracts for Maintenance, Calibration, or Repair of Certain Equipment-Certification.",JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-49,52.222-49 Service Contract Labor Standards-Place of Performance Unknown.,2014-05-01,22.1006(f),C,22.1002-2(f),52.222-49,Service Contract Labor Standards-Place of Performance Unknown.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-5,52.222-5 Construction Wage Rate Requirements-Secondary Site of the Work.,2014-05-01,22.407(h),P,22.402-4(g),52.222-5,Construction Wage Rate Requirements-Secondary Site of the Work.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-50,52.222-50 Combating Trafficking in Persons.,2025-10-01,22.1705(a)(1),C,22.1703-2(a)(1),52.222-50,Combating Trafficking in Persons.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Thresholds updated in both RFO and codified version.
+52.222-50 Alt. I,52.222-50_Alternate I,2015-03-01,22.1705,C,22.1703-2(a)(2),52.222-50 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-51,"52.222-51 Exemption from Application of the Service Contract Labor Standards to Contracts for Maintenance, Calibration, or Repair of Certain Equipment-Requirements.",2014-05-01,22.1006(e)(2),C,22.1002-2(e)(2),52.222-51,"Exemption from Application of the Service Contract Labor Standards to Contracts for Maintenance, Calibration, or Repair of Certain Equipment-Requirements.",JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-52,52.222-52 Exemption from Application of the Service Contract Labor Standards to Contracts for Certain Services-Certification.,2014-05-01,22.1006(e)(3),P,22.1002-2(e)(3),52.222-52,Exemption from Application of the Service Contract Labor Standards to Contracts for Certain Services-Certification.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-53,52.222-53 Exemption from Application of the Service Contract Labor Standards to Contracts for Certain Services-Requirements.,2014-05-01,22.1006(e)(4),C,22.1002-2(e)(4),52.222-53,Exemption from Application of the Service Contract Labor Standards to Contracts for Certain Services-Requirements.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.
+52.222-54,52.222-54 Employment Eligibility Verification.,2025-01-01,22.1803,C,22.1802-2,52.222-54,Employment Eligibility Verification.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.
+52.222-55,52.222-55           Minimum Wages for Contractor Workers Under Executive Order 14026.,2022-01-01,22.1906,C,22.1906,52.222-55,Minimum Wages for Contractor Workers Under Executive Order 14026.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.
+52.222-56,52.222-56 Certification Regarding Trafficking in Persons Compliance Plan.,2025-10-01,22.1705(b),P,22.1703-2(b),52.222-56,Certification Regarding Trafficking in Persons Compliance Plan.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.  Thresholds updated in both RFO and codified version.
+52.222-6,52.222-6 Construction Wage Rate Requirements.,2018-08-01,22.407(a),C,22.402-4(a)(1),52.222-6,Construction Wage Rate Requirements.,JAN 2026 (PCD 26-03),Updated,Substantive and substantial.  Significant rewrite of paragraph (c).  Also includes drafting convention changes elsewhere.
+52.222-62,52.222-62 Paid Sick Leave Under Executive Order 13706.,2022-01-01,22.211,C,22.2102-5,52.222-62,Paid Sick Leave Under Executive Order 13706.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.
+52.222-7,52.222-7 Withholding of Funds.,2014-05-01,22.407(a),C,22.402-4(a)(2),52.222-7,Withholding of Funds.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-8,52.222-8 Payrolls and Basic Records.,2021-07-01,22.407(a),C,22.402-4(a)(3),52.222-8,Payrolls and Basic Records.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+52.222-9,52.222-9 Apprentices and Trainees.,2005-07-01,22.407(a),C,22.402-4(a)(4),52.222-9,Apprentices and Trainees.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions.
+-,-,-,-,C,22.2203,52.222-90,Addressing DEI Discrimination by Federal Contractors.,"APR 2026 (PCD 26-03, PIC 26-04)",New,New required clause.
+52.223-1,52.223-1 Biobased Product Certification.,2024-05-01,23.109(c)(1),P,23.108(c)(1),52.223-1,Biobased Product Certification.,JAN 2026 (PCD 26-03),Updated,Non-substantial updates. Drafting conventions and FAR references.
+52.223-10,52.223-10 Waste Reduction Program.,2024-05-01,23.406(c),C,N/A,52.223-10,[Reserved],-,Removed,
+52.223-11,52.223-11 Ozone-Depleting Substances and High Global Warming Potential Hydrofluorocarbons.,2024-05-01,23.109(d)(1),C,23.108(d)(1),52.223-11,Ozone-Depleting Substances.,JAN 2026 (PCD 26-03),Updated,"Significant change. Removal of ""global warming potential"" and ""high global warming potential hydrofluorocarbons"" definitions and reporting requirements."
+52.223-12,"52.223-12 Maintenance, Service, Repair, or Disposal of Refrigeration Equipment and Air Conditioners.",2024-05-01,23.109(d)(2),C,23.108(d)(2),52.223-12,"Maintenance, Service, Repair, or Disposal of Refrigeration Equipment and Air Conditioners.",JAN 2026 (PCD 26-03),Updated,"Significant change. Removal of ""global warming potential"" and ""high global warming potential hydrofluorocarbons"" definitions and reporting requirements."
+52.223-19,52.223-19 Compliance with Environmental Management Systems.,2011-05-01,23.406(b),C,N/A,52.223-19,[Reserved],-,Removed,
+52.223-2,52.223-2 Reporting of Biobased Products Under Service and Construction Contracts.,2024-05-01,23.109(c)(2),C,23.108(c)(2),52.223-2,Reporting of Biobased Products Under Service and Construction Contracts.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial. Definition changes, change from affirmative procurement to reporting."
+52.223-20,52.223-20 Aerosols.,2024-05-01,23.109(d)(3),C,N/A,52.223-20,[Reserved],-,Removed,
+52.223-21,52.223-21 Foams.,2024-05-01,23.109(d)(4),C,N/A,52.223-21,[Reserved],-,Removed,
+52.223-22,52.223-22 Public Disclosure of Greenhouse Gas Emissions and Reduction Goals-Representation.,2016-12-01,23.502,P,N/A,52.223-22,[Reserved],-,Removed,
+52.223-23,52.223-23 Sustainable Products and Services.,2024-05-01,23.109(a),C,23.108(a),52.223-23,Sustainable Products.,JAN 2026 (PCD 26-03),Updated,Significant change. Combined multiple clauses and removed requirements.
+52.223-3,52.223-3 Hazardous Material Identification and Material Safety Data.,2021-02-01,23.304(a)(1),C,23.304(a)(1),52.223-3,Hazardous Material Identification and Safety Data.,JAN 2026 (PCD 26-03),Updated,"Non-substantial updates. Drafting conventions, change from ""material safety data"" to ""safety data"" term but not in substance."
+52.223-3 Alt. I,52.223-3_Alternate I,1995-07-01,23.304(a)(2),C,23.304(a)(2),52.223-3 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Non-substantial updates. Drafting conventions, change from ""material safety data"" to ""safety data"" term but does not change requirement."
+52.223-4,52.223-4 Recovered Material Certification.,2008-05-01,23.109(b)(1),P,23.108(b)(1),52.223-4,Recovered Material Certification.,2008-05-01,No Change,
+52.223-5,52.223-5 Pollution Prevention and Right-to-Know Information.,2024-05-01,23.406(a),C,23.403,52.223-5,Pollution Prevention and Right-to-Know Information.,2024-05-01,No Change,
+52.223-7,52.223-7 Notice of Radioactive Materials.,1997-01-01,23.304(b),C,23.304(b),52.223-7,Notice of Radioactive Materials.,JAN 2026 (PCD 26-03),Updated,Non-substantial. Movement of a note.
+52.223-9,52.223-9 Estimate of Percentage of Recovered Material Content for EPA-Designated Items.,2008-05-01,23.109(b)(2),C,23.108(b)(2),52.223-9,Estimate of Percentage of Recovered Material Content for EPA-Designated Items.,2008-05-01,No Change,
+52.223-9 Alt. I,52.223-9_Alternate I,2008-05-01,23.109(b)(2),C,23.108(b)(2),52.223-9 Alt. I,Alternate I.,2008-05-01,No Change,
+52.224-1,52.224-1 Privacy Act Notification.,1984-04-01,24.104,C,24.104,52.224-1,Privacy Act Notification.,1984-04-01,No Change,
+52.224-2,52.224-2 Privacy Act.,1984-04-01,24.104,C,24.104,52.224-2,Privacy Act.,1984-04-01,No Change,
+52.224-3,52.224-3 Privacy Training.,2017-01-01,24.302,C,24.302(a),52.224-3,Privacy Training.,2017-01-01,No Change,
+52.224-3 Alt. I,52.224-3_Alternate I,2017-01-01,24.302,C,24.302(b),52.224-3 Alt. I,Alternate I.,2017-01-01,No Change,
+52.225-1,52.225-1 Buy American-Supplies,2022-10-01,25.1101(a)(1),C,25.601(a)(1)(i),52.225-1,Buy American-Supplies.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Removed (see (a)(1)) in (b).
+52.225-1 Alt. I,52.225-1_Alternate I,2022-10-01,25.1101,C,25.601(a)(1)(ii),52.225-1 Alt. I,Alternate I.,2022-10-01,No Change,
+52.225-10,52.225-10 Notice of Buy American Requirement-Construction Materials.,2014-05-01,25.1102(b)(1),P,25.602(b)(1),52.225-10,Notice of Buy American Requirement-Construction Materials.,2014-05-01,No Change,
+52.225-10 Alt. I,52.225-10_Alternate I,2014-05-01,25.1102,P,25.602(b)(2),52.225-10 Alt. I,Alternate I.,2014-05-01,No Change,
+52.225-11,52.225-11 Buy American-Construction Materials under Trade Agreements.,2023-11-01,25.1102(c),C,25.602(c),52.225-11,Buy American-Construction Materials under Trade Agreements.,JAN 2026 (PCD 26-03),Updated,"Significant changes. Definitions, content of (b), change from NAFTA to USMCA."
+52.225-11 Alt. I,52.225-11_Alternate I,2023-11-01,25.1102,C,25.602(c)(3),52.225-11 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"Significant changes. Definitions, content of (b), change from NAFTA to USMCA."
+52.225-11 Alt. II,52.225-11_Alternate II,2022-10-01,25.1102,C,25.602(c)(4),52.225-11 Alt. II,Alternate II.,2022-10-01,No Change,
+52.225-12,52.225-12 Notice of Buy American Requirement-Construction Materials Under Trade Agreements.,2014-05-01,25.1102(d)(1),P,25.602(d)(1),52.225-12,Notice of Buy American Requirement-Construction Materials Under Trade Agreements.,2014-05-01,No Change,
+52.225-12 Alt. I,52.225-12_Alternate I,2014-05-01,25.1102,P,25.602(d)(2),52.225-12 Alt. I,Alternate I.,2014-05-01,No Change,
+52.225-12 Alt. II,52.225-12_Alternate II,2023-11-01,25.1102,P,25.602(d)(3),52.225-12 Alt. II,Alternate II.,2023-11-01,No Change,
+52.225-13,52.225-13 Restrictions on Certain Foreign Purchases.,2021-02-01,25.1103(a),C,N/A,52.225-13,[Reserved],-,Removed,
+52.225-14,52.225-14 Inconsistency between English Version and Translation of Contract.,2000-02-01,25.1103(b),C,25.603,52.225-14,Inconsistency between English Version and Translation of Contract.,2000-02-01,No Change,
+52.225-17,52.225-17 Evaluation of Foreign Currency Offers.,2000-02-01,25.1103,P,25.1002-2,52.225-17,Evaluation of Foreign Currency Offers.,2000-02-01,No Change,
+52.225-18,52.225-18 Place of Manufacture.,2018-08-01,25.1101,P,25.601(f),52.225-18,Place of Manufacture.,2018-08-01,No Change,
+52.225-19,52.225-19 Contractor Personnel in a Designated Operational Area or Supporting a Diplomatic or Consular Mission Outside the United States.,2020-05-01,25.301-4,C,25.701-4,52.225-19,Contractor Personnel in a Designated Operational Area or Supporting a Diplomatic or Consular Mission Outside the United States.,2020-05-01,No Change,
+52.225-2,52.225-2 Buy American Certificate.,2022-10-01,25.1101(a)(2),P,25.601(a)(2),52.225-2,Buy American Certificate.,2022-10-01,No Change,
+52.225-20,52.225-20 Prohibition on Conducting Restricted Business Operations in Sudan-Certification.,2009-08-01,25.1103(d),P,N/A,52.225-20,[Reserved],-,Removed,"Subject moved to 52.240-90, -91"
+52.225-21,"52.225-21 Required Use of American Iron, Steel, and Manufactured Goods-Buy American Statute-Construction Materials.",2021-01-01,25.1102(e),C,N/A,52.225-21,[Reserved],-,Removed,
+52.225-22,"52.225-22 Notice of Required Use of American Iron, Steel, and Manufactured Goods-Buy American Statute-Construction Materials.",2021-01-01,25.1102(e),P,N/A,52.225-22,[Reserved],-,Removed,
+52.225-23,"52.225-23 Required Use of American Iron, Steel, and Manufactured Goods-Buy American Statute-Construction Materials under Trade Agreements.",2023-11-01,25.1102(e),C,N/A,52.225-23,[Reserved],-,Removed,
+52.225-24,"52.225-24 Notice of Required Use of American Iron, Steel, and Manufactured Goods-Buy American Statute-Construction Materials Under Trade Agreements.",2021-01-01,25.1102(e),P,N/A,52.225-24,[Reserved],-,Removed,
+52.225-25,52.225-25 Prohibition on Contracting With Entities Engaging in Certain Activities or Transactions Relating to Iran - Representation and Certifications.,2020-06-01,25.1103(e),P,N/A,52.225-25,[Reserved],-,Removed,"Subject moved to 52.240-90, -91"
+52.225-26,52.225-26 Contractors Performing Private Security Functions Outside the United States.,2016-10-01,25.302-6,C,25.702-6,52.225-26,Contractors Performing Private Security Functions Outside the United States.,2016-10-01,No Change,
+52.225-3,52.225-3 Buy American-Free Trade Agreements-Israeli Trade Act.,2023-11-01,25.1101,C,25.601(b)(1)(i),52.225-3,Buy American-Free Trade Agreements-Israeli Trade Act.,JAN 2026 (PCD 26-03),Updated,"Substantive and substantial.  Adds this sentence to (c), ""In addition, the Contracting Officer has determined that FTAs (except Bahrain, Morocco, Oman, Panama, and Peru FTAs) and the Israeli Trade Act apply to this acquisition."""
+52.225-3 Alt. II,52.225-3_Alternate II,2025-01-01,25.1101,C,25.601(b)(1)(ii),52.225-3 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (JAN 2025).
+52.225-3 Alt. III,52.225-3_Alternate III,2024-02-01,25.1101,C,25.601(b)(1)(iii),52.225-3 Alt. III,Alternate III.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Deleted cross-referenced (see 12.505(a)(1)) in paragraph (c).
+52.225-3 Alt. IV,52.225-3_Alternate IV,2022-10-01,25.1101,C,25.601(b)(1)(iv),52.225-3 Alt. IV,Alternate IV.,2022-10-01,No Change,
+52.225-4,52.225-4 Buy American-Free Trade Agreements-Israeli Trade Act Certificate.,2023-11-01,25.1101,P,25.601(b)(2)(i),52.225-4,Buy American-Free Trade Agreements-Israeli Trade Act Certificate.,JAN 2026 (PCD 26-03),Updated,Significant change to paragraph (c).
+52.225-4 Alt. II,52.225-4_Alternate II,2025-01-01,25.1101,P,25.601(b)(2)(ii),52.225-4 Alt. II,Alternate II.,2025-01-01,No Change,
+52.225-4 Alt. III,52.225-4_Alternate III,2025-01-01,25.1101,P,25.601(b)(2)(iii),52.225-4 Alt. III,Alternate III.,2025-01-01,No Change,
+52.225-5,52.225-5 Trade Agreements.,2023-11-01,25.1101(c)(1),C,25.601(c)(1),52.225-5,Trade Agreements.,2023-11-01,No Change,
+52.225-6,52.225-6 Trade Agreements Certificate.,2021-02-01,25.1101(c)(2),P,25.601(c)(2),52.225-6,Trade Agreements Certificate.,2021-02-01,No Change,
+52.225-7,52.225-7 Waiver of Buy American Statute for Civil Aircraft and Related Articles.,2016-02-01,25.1101(d),P,25.601(d),52.225-7,Waiver of Buy American Statute for Civil Aircraft and Related Articles.,2016-02-01,No Change,
+52.225-8,52.225-8 Duty-Free Entry.,2025-10-01,25.1101(e),C,25.904(e),52.225-8,Duty-Free Entry.,2025-10-01,No Change,
+52.225-9,52.225-9 Buy American-Construction Materials.,2022-10-01,25.1102(a),C,25.602(a),52.225-9,Buy American-Construction Materials.,JAN 2026 (PCD 26-03),Updated,Substantive change - adds Balance of Payments Program to (c)(3).
+52.225-9 Alt. I,52.225-9_Alternate I,2022-10-01,25.1102,C,25.602(a)(3),52.225-9 Alt. I,Alternate I.,2022-10-01,No Change,
+52.226-1,52.226-1 Utilization of Indian Organizations and Indian-Owned Economic Enterprises.,2000-06-01,26.104,C,26.102-2,52.226-1,Utilization of Indian Organizations and Indian-Owned Economic Enterprises.,JAN 2026 (PCD 26-03),Updated,"Substantive.  Drafting conventions, plain language.  Removal of the following sentence from (c), ""The Contracting Officer will seek funding in accordance with agency procedures."""
+52.226-2,52.226-2 Historically Black College or University and Minority Institution Representation.,2014-10-01,26.304,P,26.301-2,52.226-2,Historically Black College or University and Minority Institution Representation.,2014-10-01,No Change,
+52.226-3,52.226-3 Disaster or Emergency Area Representation.,2007-11-01,26.206(a),P,26.202-3(a),52.226-3,Disaster or Emergency Area Representation.,2007-11-01,No Change,
+52.226-4,52.226-4 Notice of Disaster or Emergency Area Set-Aside.,2007-11-01,26.206(b),C,26.202-3(b),52.226-4,Notice of Disaster or Emergency Area Set-Aside.,2007-11-01,No Change,
+52.226-5,52.226-5 Restrictions on Subcontracting Outside Disaster or Emergency Area.,2007-11-01,26.206(c),C,26.202-3(c),52.226-5,Restrictions on Subcontracting Outside Disaster or Emergency Area.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (NOV 2007).
+52.226-6,52.226-6 Promoting Excess Food Donation to Nonprofit Organizations.,2020-06-01,26.404,C,26.402-2,52.226-6,Promoting Excess Food Donation to Nonprofit Organizations.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Plain language and drafting conventions.
+52.226-7,52.226-7 Drug-Free Workplace.,2024-05-01,26.506,C,26.503-1,52.226-7,Drug-Free Workplace.,2024-05-01,No Change,
+52.226-8,52.226-8 Encouraging Contractor Policies to Ban Text Messaging While Driving.,2024-05-01,26.605,C,26.601-2,52.226-8,Encouraging Contractor Policies to Ban Text Messaging While Driving.,2024-05-01,No Change,
+52.227-1,52.227-1 Authorization and Consent.,2020-06-01,27.201-2(a)(1),C,27.201-2(a)(1),52.227-1,Authorization and Consent.,2020-06-01,No Change,
+52.227-1 Alt. I,52.227-1_Alternate I,1984-04-01,27.201-2,C,27.201-2(a)(2),52.227-1 Alt. I,Alternate I.,1984-04-01,No Change,
+52.227-1 Alt. II,52.227-1_Alternate II,1984-04-01,27.201-2,C,27.201-2(a)(3),52.227-1 Alt. II,Alternate II.,1984-04-01,No Change,
+52.227-10,52.227-10 Filing of Patent Applications-Classified Subject Matter.,2007-12-01,27.203-2,C,27.203-2,52.227-10,Filing of Patent Applications-Classified Subject Matter.,2007-12-01,No Change,
+52.227-11,52.227-11 Patent Rights-Ownership by the Contractor.,2014-05-01,27.303(b)(1),C,27.303(b)(1),52.227-11,Patent Rights - Ownership by the Contractor,2014-05-01,No Change,
+52.227-11 Alt. I,52.227-11_Alternate I,1989-06-01,27.303,C,27.303 (b)(3),52.227-11 Alt. I,Alternate I.,1989-06-01,No Change,
+52.227-11 Alt. II,52.227-11_Alternate II,2007-12-01,27.303,C,27.303 (b)(4),52.227-11 Alt. II,Alternate II.,2007-12-01,No Change,
+52.227-11 Alt. III,52.227-11_Alternate III,1989-06-01,27.303,C,27.303 (b)(5),52.227-11 Alt. III,Alternate III.,1989-06-01,No Change,
+52.227-11 Alt. IV,52.227-11_Alternate IV,1989-06-01,27.303,C,27.303 (b)(6),52.227-11 Alt. IV,Alternate IV.,1989-06-01,No Change,
+52.227-11 Alt. V,52.227-11_Alternate V,2007-12-01,27.303,C,27.303 (b)(7),52.227-11 Alt. V,Alternate V.,2007-12-01,No Change,
+52.227-13,52.227-13 Patent Rights-Ownership by the Government.,2007-12-01,27.303(e),C,27.303(e),52.227-13,Patent Rights - Ownership by the Contractor,2007-12-01,No Change,
+52.227-13 Alt. I,52.227-13_Alternate I,1989-06-01,27.303,C,27.303 (e) (4),52.227-13 Alt. I,Alternate I.,1989-06-01,No Change,
+52.227-13 Alt. II,52.227-13_Alternate II,2007-12-01,27.303,C,27.303 (e) (5),52.227-13 Alt. II,Alternate II.,2007-12-01,No Change,
+52.227-14,52.227-14 Rights in Data-General.,2014-05-01,27.409(b)(1),C,27.409(b)(1),52.227-14,Rights in Data - General,2014-05-01,No Change,
+52.227-14 Alt. I,52.227-14_Alternate I,2007-12-01,27.409,C,27.409(b)(2),52.227-14 Alt. I,Alternate I.,2007-12-01,No Change,
+52.227-14 Alt. II,52.227-14_Alternate II,2007-12-01,27.409,C,27.409(b)(3),52.227-14 Alt. II,Alternate II.,2007-12-01,No Change,
+52.227-14 Alt. III,52.227-14_Alternate III,2007-12-01,27.409,C,27.409(b)(4),52.227-14 Alt. III,Alternate III.,2007-12-01,No Change,
+52.227-14 Alt. IV,52.227-14_Alternate IV,2007-12-01,27.409,C,27.409(b)(5),52.227-14 Alt. IV,Alternate IV.,2007-12-01,No Change,
+52.227-14 Alt. V,52.227-14_Alternate V,2007-12-01,27.409,C,27.409(b)(6),52.227-14 Alt. V,Alternate V.,2007-12-01,No Change,
+52.227-15,52.227-15 Representation of Limited Rights Data and Restricted Computer Software.,2007-12-01,27.409(c),P,27.409(c),52.227-15,Representation of Limited Rights Data and Restricted Computer Software.,2007-12-01,No Change,
+52.227-16,52.227-16 Additional Data Requirements.,1987-06-01,27.409(d),C,27.409(d),52.227-16,Additional Data Requirements.,1987-06-01,No Change,
+52.227-17,52.227-17 Rights in Data-Special Works.,2007-12-01,27.409(e),C,27.409(e),52.227-17,Rights in Data-Special Works.,2007-12-01,No Change,
+52.227-18,52.227-18 Rights in Data-Existing Works.,2007-12-01,27.409(f),C,N/A,52.227-18,[Reserved],-,Removed,
+52.227-19,52.227-19 Commercial Computer Software License.,2007-12-01,27.409(g),C,N/A,52.227-19,[Reserved],-,Removed,
+52.227-2,52.227-2 Notice and Assistance Regarding Patent and Copyright Infringement.,2020-06-01,27.201-2(b),C,27.201-2(b),52.227-2,Notice and Assistance Regarding Patent and Copyright Infringement.,2020-06-01,No Change,
+52.227-20,52.227-20 Rights in Data-SBIR Program.,2014-05-01,27.409(h),C,27.409(h),52.227-20,Rights in Data-SBIR Program.,2014-05-01,No Change,
+52.227-21,"52.227-21 Technical Data Declaration, Revision, and Withholding of Payment-Major Systems.",2014-05-01,27.409(j),C,27.409(j),52.227-21,"Technical Data Declaration, Revision, and Withholding of Payment-Major Systems.",2014-05-01,No Change,
+52.227-22,52.227-22 Major System-Minimum Rights.,1987-06-01,27.409(k),C,27.409(k),52.227-22,Major System-Minimum Rights.,1987-06-01,No Change,
+52.227-23,52.227-23 Rights to Proposal Data (Technical).,1987-06-01,27.409(l),C,N/A,52.227-23,[Reserved],-,Removed,
+52.227-3,52.227-3 Patent Indemnity.,1984-04-01,27.201-2(c)(1),C,27.201-2(c)(1),52.227-3,Patent Indemnity.,1984-04-01,No Change,
+52.227-3 Alt. I,52.227-3_Alternate I,1984-04-01,27.201-2,C,27.201-2 (c)(2),52.227-3 Alt. I,Alternate I.,1984-04-01,No Change,
+52.227-3 Alt. II,52.227-3_Alternate II,1984-04-01,27.201-2,C,27.201-2 (c)(2),52.227-3 Alt. II,Alternate II.,1984-04-01,No Change,
+52.227-3 Alt. III,52.227-3_Alternate III,2020-06-01,27.201-2,C,27.201-2 (c)(3),52.227-3 Alt. III,Alternate III.,2020-06-01,No Change,
+52.227-4,52.227-4 Patent Indemnity-Construction Contracts.,2007-12-01,27.201-2(d)(1),C,27.201-2(d)(1),52.227-4,Patent Indemnity-Construction Contracts.,2007-12-01,No Change,
+52.227-4 Alt. I,52.227-4_Alternate I,2007-12-01,27.201-2,C,27.201-2(d)(2),52.227-4 Alt. I,Alternate I.,2007-12-01,No Change,
+52.227-5,52.227-5 Waiver of Indemnity.,1984-04-01,27.201-2(e),C,27.201-2(e),52.227-5,Waiver of Indemnity.,1984-04-01,No Change,
+52.227-6,52.227-6 Royalty Information.,1984-04-01,27.202-5(a)(1),P,27.202-5(a)(1),52.227-6,Royalty Information.,1984-04-01,No Change,
+52.227-6 Alt. I,52.227-6_Alternate I,1984-04-01,27.202-5,P,27.202-5(a)(2),52.227-6 Alt. I,Alternate I.,1984-04-01,No Change,
+52.227-7,52.227-7 Patents-Notice of Government Licensee.,1984-04-01,27.202-5(b),P,N/A,52.227-7,[Reserved],-,Removed,
+52.227-9,52.227-9 Refund of Royalties.,1984-04-01,27.202-5(c),C,27.202-5(c),52.227-9,Refund of Royalties.,1984-04-01,No Change,
+52.228-1,52.228-1 Bid Guarantee.,1996-09-01,28.101-2,P,28.101-2,52.228-1,Bid Guarantee.,1996-09-01,No Change,
+52.228-10,52.228-10 Vehicular and General Public Liability Insurance.,1984-04-01,28.313(b),C,28.313(b),52.228-10,Vehicular and General Public Liability Insurance.,1984-04-01,No Change,
+52.228-11,52.228-11 Individual Surety - Pledge of Assets.,2021-02-01,28.203-4,C,28.203-4(b),52.228-11,Individual Surety - Pledge of Assets.,2021-02-01,No Change,
+52.228-12,52.228-12 Prospective Subcontractor Requests for Bonds.,2022-12-01,28.106-4(b),C,28.106-4(b),52.228-12,Prospective Subcontractor Requests for Bonds.,2022-12-01,No Change,
+52.228-13,52.228-13 Alternative Payment Protections.,2000-07-01,28.102-3(b),C,28.102-3(b),52.228-13,Alternative Payment Protections.,2000-07-01,No Change,
+52.228-14,52.228-14 Irrevocable Letter of Credit.,2014-11-01,28.204-4,C,28.204-4,52.228-14,Irrevocable Letter of Credit.,2014-11-01,No Change,
+52.228-15,52.228-15 Performance and Payment Bonds-Construction.,2020-06-01,28.102-3(a),C,28.102-3(a),52.228-15,Performance and Payment Bonds-Construction.,2020-06-01,No Change,
+52.228-16,52.228-16 Performance and Payment Bonds-Other Than Construction.,2006-11-01,28.103-4,C,28.103-4,52.228-16,Performance and Payment Bonds-Other Than Construction.,2006-11-01,No Change,
+52.228-16 Alt. I,52.228-16_Alternate I,2000-07-01,28.103-4,C,28.103-4,52.228-16 Alt. I,Alternate I.,2000-07-01,No Change,
+52.228-17,Individual Surety - Pledge of Assets (Bid Guarantee).,2021-02-01,28.203-4,P,28.203-4 (a),52.228-17,Individual Surety - Pledge of Assets (Bid Guarantee).,2021-02-01,No Change,
+52.228-2,52.228-2 Additional Bond Security.,1997-10-01,28.106-4(a),C,28.106-4(a),52.228-2,Additional Bond Security.,1997-10-01,No Change,
+52.228-3,52.228-3 Workers' Compensation Insurance (Defense Base Act).,2014-07-01,28.309(a),C,28.309(a),52.228-3,Workers' Compensation Insurance (Defense Base Act).,2014-07-01,No Change,
+52.228-4,52.228-4 Workers' Compensation and War-Hazard Insurance Overseas.,1984-04-01,28.309(b),C,28.309(b),52.228-4,Workers' Compensation and War-Hazard Insurance Overseas.,1984-04-01,No Change,
+52.228-5,52.228-5 Insurance-Work on a Government Installation.,1997-01-01,28.31,C,28.31,52.228-5,Insurance-Work on a Government Installation.,1997-01-01,No Change,
+52.228-7,52.228-7 Insurance-Liability to Third Persons.,1996-03-01,28.311-1,C,28.311-1,52.228-7,Insurance-Liability to Third Persons.,1996-03-01,No Change,
+52.228-8,52.228-8 Liability and Insurance-Leased Motor Vehicles.,1999-05-01,28.312,C,28.312,52.228-8,Liability and Insurance-Leased Motor Vehicles.,1999-05-01,No Change,
+52.228-9,52.228-9 Cargo Insurance.,1999-05-01,28.313(a),C,28.313(a),52.228-9,Cargo Insurance.,1999-05-01,No Change,
+52.229-1,52.229-1 State and Local Taxes.,1984-04-01,29.401-1,C,29.401-1,52.229-1,State and Local Taxes.,1984-04-01,No Change,
+52.229-10,52.229-10 State of New Mexico Gross Receipts and Compensating Tax.,2003-04-01,29.401-4(b),C,29.401-4(b),52.229-10,State of New Mexico Gross Receipts and Compensating Tax.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Plain language and drafting conventions.
+52.229-11,52.229-11 Tax on Certain Foreign Procurements - Notice and Representation.,2020-06-01,29.402-3(a),P,29.402-3(a),52.229-11,Tax on Certain Foreign Procurements - Notice and Representation.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-12,52.229-12 Tax on Certain Foreign Procurements.,2021-02-01,29.402-3(b),C,29.402-3(b),52.229-12,Tax on Certain Foreign Procurements.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-13,52.229-13 Taxesâ€”Foreign Contracts in Afghanistan.,2021-11-01,29.402-4(a),C,N/A,52.229-13,[Reserved],-,Removed,
+52.229-14,52.229-14 Taxesâ€”Foreign Contracts in Afghanistan (North Atlantic Treaty Organization Status of Forces Agreement).,2021-11-01,29.402-4(b),C,N/A,52.229-14,[Reserved],-,Removed,
+52.229-2,52.229-2 North Carolina State and Local Sales and Use Tax.,1984-04-01,29.401-2,C,29.401-2,52.229-2,North Carolina State and Local Sales and Use Tax.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-2 Alt. I,52.229-2_Alternate I,1984-04-01,29.401-2,C,29.401-2,52.229-2 Alt. I,Alternate I.,1984-04-01,No Change,vessel repair to be performed in North Carolina
+52.229-3,"52.229-3 Federal, State, and Local Taxes.",2013-02-01,29.401-3,C,29.401-3,52.229-3,"Federal, State, and Local Taxes.",JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-4,"52.229-4 Federal, State, and Local Taxes (State and Local Adjustments).",2013-02-01,29.401-3,C,29.401-3,52.229-4,"Federal, State, and Local Taxes (State and Local Adjustments).",JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-6,52.229-6 Taxes-Foreign Fixed-Price Contracts.,2013-02-01,29.402-1(a),C,29.402-1(a),52.229-6,Taxes-Foreign Fixed-Price Contracts.,JAN 2026 (PCD 26-03),Updated,Substantive but not substantial. Drafting conventions.
+52.229-7,52.229-7 Taxes-Fixed-Price Contracts with Foreign Governments.,2013-02-01,29.402-1(b),C,29.402-1(b),52.229-7,Taxes-Fixed-Price Contracts with Foreign Governments.,JAN 2026 (PCD 26-03),Updated,Substantive. Clarifies in (c) and (d) that the price adjustment will be performed by the US Government.
+52.229-8,52.229-8 Taxes-Foreign Cost-Reimbursement Contracts.,1990-03-01,29.402-2(a),C,29.402-2(a),52.229-8,Taxes-Foreign Cost-Reimbursement Contracts.,JAN 2026 (PCD 26-03),Updated,Substantive. Clarifies in (b) that the Contractor shall pay or credit the reduction to offfset the Government.  Removes possibility of other direction by CO.
+52.229-9,52.229-9 Taxes-Cost-Reimbursement Contracts with Foreign Governments.,1990-03-01,29.402-2(b),C,29.402-2(b),52.229-9,Taxes-Cost-Reimbursement Contracts with Foreign Governments.,JAN 2026 (PCD 26-03),Updated,Substantive. Clarifies in (b) that the subcontractor is the party required to pay Treasury.
+52.230-1,52.230-1 Cost Accounting Standards Notices and Certification.,2020-06-01,30.201-3,P,30.204(a),52.230-1,Cost Accounting Standards Notices and Certification.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references.  Note, however, that the alternate was removed."
+52.230-2,52.230-2 Cost Accounting Standards.,2020-06-01,30.201-4(a)(1),C,30.205(a)(1),52.230-2,Cost Accounting Standards.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.230-3,52.230-3 Disclosure and Consistency of Cost Accounting Practices.,2020-06-01,30.201-4(b)(1),C,30.205(b)(1),52.230-3,Disclosure and Consistency of Cost Accounting Practices.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references, addition of ""parts"" in (b) ""48 CFR parts 9903 and 9904""."
+52.230-4,52.230-4 Disclosure and Consistency of Cost Accounting Practices-Foreign Concerns.,2020-06-01,30.201-4(c)(1),C,30.205(c)(1),52.230-4,Disclosure and Consistency of Cost Accounting Practices-Foreign Concerns.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references, addition of ""parts"" in (b) ""48 CFR parts 9903 and 9904""."
+52.230-5,52.230-5 Cost Accounting Standards-Educational Institution.,2020-06-01,30.201-4(e)(1),C,30.205(e)(1),52.230-5,Cost Accounting Standards-Educational Institution.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references, addition of ""part"" in (a)(3) and (b) ""48 CFR part…""."
+52.230-6,52.230-6 Administration of Cost Accounting Standards.,2010-06-01,30.201-4(d)(1),C,30.205(d)(1),52.230-6,Administration of Cost Accounting Standards.,JAN 2026 (PCD 26-03),Updated,Significant. Updated definitions for clarity; FAR references and drafting conventions.
+52.230-7,52.230-7 Proposal Disclosure-Cost Accounting Practice Changes.,2005-04-01,30.201-3(c),P,30.204(c),52.230-7,Proposal Disclosure-Cost Accounting Practice Changes.,2005-04-01,No Change,
+52.232-1,52.232-1 Payments.,1984-04-01,32.111(a)(1),C,32.111(a)(1),52.232-1,Payments.,1984-04-01,No Change,
+52.232-10,52.232-10 Payments under Fixed-Price Architect-Engineer Contracts.,2010-04-01,32.111(c)(1),C,32.111(c)(1),52.232-10,Payments under Fixed-Price Architect-Engineer Contracts.,2010-04-01,No Change,
+52.232-11,52.232-11 Extras.,1984-04-01,32.111(c)(2),C,32.111(c)(2),52.232-11,Extras.,1984-04-01,No Change,
+52.232-12,52.232-12 Advance Payments.,2001-05-01,32.412(a),C,32.412(a),52.232-12,Advance Payments.,JAN 2026 (PCD 26-03),Updated,"Substantive but non-substantial. USC reference, drafting conventions."
+52.232-12 Alt. I,52.232-12_Alternate I,1984-04-01,32.412(a),C,32.412(b),52.232-12 Alt. I,Alternate I.,1984-04-01,No Change,
+52.232-12 Alt. II,52.232-12_Alternate II,2001-05-01,32.412(a),C,32.412(c),52.232-12 Alt. II,Alternate II.,2001-05-01,No Change,
+52.232-12 Alt. III,52.232-12_Alternate III,1984-04-01,32.412(a),C,32.412(d),52.232-12 Alt. III,Alternate III.,1984-04-01,No Change,
+52.232-12 Alt. IV,52.232-12_Alternate IV,1984-04-01,32.412(a),C,32.412(e),52.232-12 Alt. IV,Alternate IV.,1984-04-01,No Change,
+52.232-12 Alt. V,52.232-12_Alternate V,2001-05-01,32.412(a),C,32.412(f),52.232-12 Alt. V,Alternate V.,2001-05-01,No Change,
+52.232-13,52.232-13 Notice of Progress Payments.,1984-04-01,32.502-3(a),P,32.502-3(a),52.232-13,Notice of Progress Payments.,1984-04-01,No Change,
+52.232-14,52.232-14 Notice of Availability of Progress Payments Exclusively for Small Business Concerns.,1984-04-01,32.502-3(b)(2),P,32.502-3(b)(2),52.232-14,Notice of Availability of Progress Payments Exclusively for Small Business Concerns.,1984-04-01,No Change,
+52.232-15,52.232-15 Progress Payments Not Included.,1984-04-01,32.502-3(c),P,32.502-3(c),52.232-15,Progress Payments Not Included.,1984-04-01,No Change,
+52.232-16,52.232-16 Progress Payments.,2021-11-01,32.502-4(a),C,32.502-4(a),52.232-16,Progress Payments.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. FAR references, drafting conventions."
+52.232-16 Alt. I,52.232-16_Alternate I,2000-03-01,32.502-4(a),C,32.502-4(b),52.232-16 Alt. I,Alternate I.,2000-03-01,No Change,
+52.232-16 Alt. II,52.232-16_Alternate II,2003-04-01,32.502-4(a),C,32.502-4(c),52.232-16 Alt. II,Alternate II.,2003-04-01,No Change,
+52.232-16 Alt. III,52.232-16_Alternate III,2020-06-01,32.502-4,C,32.502-4 (d),52.232-16 Alt. III,Alternate III.,2020-06-01,No Change,
+52.232-17,52.232-17 Interest.,2014-05-01,32.611,C,32.611 (a) and (b),52.232-17,Interest.,2014-05-01,No Change,
+52.232-18,52.232-18 Availability of Funds.,1984-04-01,32.706-1(a),C,32.706-1(a),52.232-18,Availability of Funds.,1984-04-01,No Change,
+52.232-19,52.232-19 Availability of Funds for the Next Fiscal Year.,1984-04-01,32.706-1(b),C,32.706-1(b),52.232-19,Availability of Funds for the Next Fiscal Year.,1984-04-01,No Change,
+52.232-2,52.232-2 Payments under Fixed-Price Research and Development Contracts.,1984-04-01,32.111(a)(2),C,32.111(a)(2),52.232-2,Payments under Fixed-Price Research and Development Contracts.,1984-04-01,No Change,
+52.232-20,52.232-20 Limitation of Cost.,1984-04-01,32.706-2(a),C,32.706-2(a),52.232-20,Limitation of Cost.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Drafting conventions.
+52.232-22,52.232-22 Limitation of Funds.,1984-04-01,32.706-2(b),C,32.706-2(b),52.232-22,Limitation of Funds.,JAN 2026 (PCD 26-03),Updated,"Non-substantive. Drafting conventions, change from ""full estimated cost"" to ""fully estimated cost""."
+52.232-23,52.232-23 Assignment of Claims.,2014-05-01,32.806(a)(1),C,32.806(a)(1),52.232-23,Assignment of Claims.,2014-05-01,No Change,
+52.232-23 Alt. I,52.232-23_Alternate I,1984-04-01,32.806(a)(1),C,32.806(a)(2),52.232-23 Alt. I,Alternate I.,1984-04-01,No Change,
+52.232-24,52.232-24 Prohibition of Assignment of Claims.,2014-05-01,32.806(b),C,32.806(b),52.232-24,Prohibition of Assignment of Claims.,2014-05-01,No Change,
+52.232-25,52.232-25 Prompt Payment.,2017-01-01,32.908(c),C,32.908(c),52.232-25,Prompt Payment.,2017-01-01,No Change,
+52.232-25 Alt. I,52.232-25_Alternate I,2002-02-01,32.908,C,32.908 (c)(3),52.232-25 Alt. I,Alternate I.,2002-02-01,No Change,
+52.232-26,52.232-26 Prompt Payment for Fixed-Price Architect-Engineer Contracts.,2017-01-01,32.908(a),C,32.908(a),52.232-26,Prompt Payment for Fixed-Price Architect-Engineer Contracts.,2017-01-01,No Change,
+52.232-27,52.232-27 Prompt Payment for Construction Contracts.,2017-01-01,32.908(b),C,32.908(b),52.232-27,Prompt Payment for Construction Contracts.,2017-01-01,No Change,
+52.232-28,52.232-28 Invitation to Propose Performance-Based Payments.,2000-03-01,32.1005(b)(1),P,32.1005(b)(1),52.232-28,Invitation to Propose Performance-Based Payments.,2000-03-01,No Change,
+52.232-28 Alt. I,52.232-28_Alternate I,2000-03-01,32.1005,P,32.1005 (b)(2),52.232-28 Alt. I,Alternate I.,2000-03-01,No Change,
+52.232-29,52.232-29           Terms for Financing of Purchases of Commercial Products and Commercial Services.,2021-11-01,32.206(b)(2),C,32.206(b)(2),52.232-29,Terms for Financing of Purchases of Commercial Products and Commercial Services.,2021-11-01,No Change,
+52.232-3,52.232-3 Payments under Personal Services Contracts.,1984-04-01,32.111(a)(3),C,32.111(a)(3),52.232-3,Payments under Personal Services Contracts.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Updated reference for Federal Travel Regulations from 41 CFR 101-7 to 41 CFR Subtitle F.
+52.232-30,52.232-30           Installment Payments for Commercial Products and Commercial Services.,2021-11-01,32.206(g),C,32.206(g),52.232-30,Installment Payments for Commercial Products and Commercial Services.,2021-11-01,No Change,
+52.232-31,52.232-31 Invitation to Propose Financing Terms.,2022-12-01,32.205,P,32.205 (b) and 32.206,52.232-31,Invitation to Propose Financing Terms.,2022-12-01,No Change,
+52.232-32,52.232-32 Performance-Based Payments.,2012-04-01,32.1005,C,32.1005,52.232-32,Performance-Based Payments.,2012-04-01,No Change,
+52.232-33,52.232-33 Payment by Electronic Funds Transfer-System for Award Management.,2018-10-01,32.1110(a)(1),C,32.1110(a)(1),52.232-33,Payment by Electronic Funds Transfer-System for Award Management.,2018-10-01,No Change,
+52.232-34,52.232-34 Payment by Electronic Funds Transfer-Other than System for Award Management.,2013-07-01,32.1110(a)(2),C,32.1110(a)(2),52.232-34,Payment by Electronic Funds Transfer-Other than System for Award Management.,2013-07-01,No Change,
+52.232-35,52.232-35 Designation of Office for Government Receipt of Electronic Funds Transfer Information.,2013-07-01,32.1110(c),C,32.1110(c),52.232-35,Designation of Office for Government Receipt of Electronic Funds Transfer Information.,2013-07-01,No Change,
+52.232-36,52.232-36 Payment by Third Party.,2014-05-01,32.1110(d),C,32.1110(d),52.232-36,Payment by Third Party.,JAN 2026 (PCD 26-03),Updated,Substantive. Updated website in (a)(2).
+52.232-37,52.232-37 Multiple Payment Arrangements.,1999-05-01,32.1110(e),C,32.1110(e),52.232-37,Multiple Payment Arrangements.,1999-05-01,No Change,
+52.232-38,52.232-38 Submission of Electronic Funds Transfer Information with Offer.,2013-07-01,32.1110(g),P,32.1110(g),52.232-38,Submission of Electronic Funds Transfer Information with Offer.,2013-07-01,No Change,
+52.232-39,52.232-39 Unenforceability of Unauthorized Obligations.,2013-06-01,32.706-3,C,32.706-3,52.232-39,Unenforceability of Unauthorized Obligations.,2013-06-01,No Change,
+52.232-4,52.232-4 Payments under Transportation Contracts and Transportation-Related Services Contracts.,1984-04-01,32.111(a)(4),C,32.111(a)(4),52.232-4,Payments under Transportation Contracts and Transportation-Related Services Contracts.,1984-04-01,No Change,
+52.232-40,52.232-40 Providing Accelerated Payments to Small Business Subcontractors.,2023-03-01,32.009-2,C,32.009-2,52.232-40,Providing Accelerated Payments to Small Business Subcontractors.,2023-03-01,No Change,
+52.232-5,52.232-5 Payments under Fixed-Price Construction Contracts.,2014-05-01,32.111(a)(5),C,32.111(a)(5),52.232-5,Payments under Fixed-Price Construction Contracts.,2014-05-01,No Change,
+52.232-6,52.232-6 Payment under Communication Service Contracts with Common Carriers.,1984-04-01,32.111(a)(6),C,32.111(a)(6),52.232-6,Payment under Communication Service Contracts with Common Carriers.,1984-04-01,No Change,
+52.232-7,52.232-7 Payments under Time-and-Materials and Labor-Hour Contracts.,2021-11-01,32.111(a)(7),C,32.111(a)(7),52.232-7,Payments under Time-and-Materials and Labor-Hour Contracts.,2021-11-01,No Change,
+52.232-8,52.232-8 Discounts for Prompt Payment.,2002-02-01,32.111(b)(1),C,32.111(b)(1),52.232-8,Discounts for Prompt Payment.,2002-02-01,No Change,
+52.232-9,52.232-9 Limitation on Withholding of Payments.,1984-04-01,32.111(b)(2),C,32.111(b)(2),52.232-9,Limitation on Withholding of Payments.,1984-04-01,No Change,
+52.213-1,52.213-1 Fast Payment Procedure.,2006-05-01,13.404,C,32.1204,52.232-90,Fast Payment Procedure.,JAN 2026 (PCD 26-03),Moved,Moved from 52.213-1 to 52.232-90.  Same clause otherwise.
+52.233-1,52.233-1 Disputes.,2014-05-01,33.215,C,33.205-9(a),52.233-1,Disputes.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial. Paragraphs (a), (b), and (c) rearranged for drafting conventions with Definitions first - text the same.  Otherwise, drafting conventions and plain language with no changes to meaning."
+52.233-1 Alt. I,52.233-1_Alternate I,1991-12-01,33.215,C,33.205-9(a),52.233-1 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Drafting conventions.
+52.233-2,52.233-2 Service of Protest.,2006-09-01,33.106,P,33.107(a),52.233-2,Service of Protest.,JAN 2026 (PCD 26-03),Updated,Significant updates - requires CO to be addressed in solicitation versus inline in clause. Receipt from CO identified in the solicitation versus a different official or location where a protest may be served on the CO.  Drafting conventions.
+52.233-3,52.233-3 Protest after Award.,1996-08-01,33.106(b),C,33.107(b),52.233-3,Protest after Award.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial plain language updates in (a). Drafting conventions throughout, otherwise."
+52.233-3 Alt. I,52.233-3_Alternate I,1985-06-01,33.106,C,33.107(b),52.233-3 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,"No change in substance, only in prescription and date."
+52.233-4,52.233-4 Applicable Law for Breach of Contract Claim.,2004-10-01,33.215(b),C,33.205-9(b),52.233-4,Applicable Law for Breach of Contract Claim.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (OCT 2004).
+52.234-1,"52.234-1 Industrial Resources Developed Under Title III, Defense Production Act.",2016-09-01,34.104,C,34.105,52.234-1,Industrial Resources Developed Under Title III of the Defense Production Act.,JAN 2026 (PCD 26-03),Updated,"Significant plain language rewrite of (c) - (e).  USC references, drafting conventions throughout."
+52.234-2,52.234-2 Notice of Earned Value Management System-Preaward Integrated Baseline Review.,2016-11-01,34.203,P,N/A,52.234-2,[Reserved],-,Removed,
+52.234-3,52.234-3 Notice of Earned Value Management System-Post Award Postaward Integrated Baseline Review.,2016-11-01,34.203,P,N/A,52.234-3,[Reserved],-,Removed,
+52.234-4,52.234-4 Earned Value Management System.,2016-11-01,34.203(c),C,34.203,52.234-4,Earned Value Management System.,JAN 2026 (PCD 26-03),Updated,Significant plain language rewrite. Removes Government duties with respect to post-award IBR versus pre-award IBR.
+52.236-1,52.236-1 Performance of Work by the Contractor.,1984-04-01,36.501(b),C,N/A,52.236-1,[Reserved],-,Removed,
+52.236-10,52.236-10 Operations and Storage Areas.,1984-04-01,36.51,C,36.101-7(a),52.236-10,Operations and Storage Areas.,JAN 2026 (PCD 26-03),Updated,Substantive changes. Removed protection of curbs or sidewalks in (c). Plain language and drafting convention updates.
+52.236-11,52.236-11 Use and Possession Prior to Completion.,1984-04-01,36.511,C,36.101-7(d),52.236-11,Use and Possession Prior to Completion.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Drafting conventions only.
+52.236-12,52.236-12 Cleaning Up.,1984-04-01,36.512,C,36.101-7(a),52.236-12,Cleaning Up.,JAN 2026 (PCD 26-03),Updated,"Substantive changes. Changed ""clean, neat, and orderly"" requirement from completion of work to at all times."
+52.236-13,52.236-13 Accident Prevention.,1991-11-01,36.513,C,36.101-7(e),52.236-13,Accident Prevention.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Drafting conventions only.
+52.236-13 Alt. I,52.236-13_Alternate I,1991-11-01,36.513,C,36.101-7(e)(1),52.236-13 Alt. I,Alternate I.,1991-11-01,No Change,
+52.236-14,52.236-14 Availability and Use of Utility Services.,1984-04-01,36.514,C,36.101-7(f),52.236-14,Availability and Use of Utility Services.,JAN 2026 (PCD 26-03),Updated,Significant plain language rewrite.
+52.236-15,52.236-15 Schedules for Construction Contracts.,1984-04-01,36.515,C,36.101-7(g),52.236-15,Schedules for Construction Contracts.,JAN 2026 (PCD 26-03),Updated,Substantive and significant changes. Requires continual update of schedule/actual progress.  Significant plain language rewrite.
+52.236-16,52.236-16 Quantity Surveys.,1984-04-01,36.516,C,36.101-7(h),52.236-16,Quantity Surveys.,JAN 2026 (PCD 26-03),Updated,Non-substantive. Drafting conventions only.
+52.236-16 Alt. I,52.236-16_Alternate I,1984-04-01,36.516,C,36.101-7(h),52.236-16 Alt. I,Alternate I.,1984-04-01,No Change,
+52.236-17,52.236-17 Layout of Work.,1984-04-01,36.517,C,36.101-7(i),52.236-17,Layout of Work.,JAN 2026 (PCD 26-03),Updated,Substantive change to (e)(2). Plain language and drafting convention changes throughout.
+52.236-18,52.236-18 Work Oversight in Cost-Reimbursement Construction Contracts.,1984-04-01,36.518,C,36.101-7(j),52.236-18,Work Oversight in Cost-Reimbursement Construction Contracts.,1984-04-01,No Change,
+52.236-19,52.236-19 Organization and Direction of the Work.,1984-04-01,36.519,C,N/A,52.236-19,[Reserved],-,Removed,
+52.236-2,52.236-2 Differing Site Conditions.,1984-04-01,36.502,C,36.101-7(a),52.236-2,Differing Site Conditions.,JAN 2026 (PCD 26-03),Updated,Significant plain language rewrite.  Removed CO ability to extend notice.
+52.236-21,52.236-21 Specifications and Drawings for Construction.,1997-02-01,36.521,C,36.101-7(k),52.236-21,Specifications and Drawings for Construction.,JAN 2026 (PCD 26-03),Updated,Significant plain language rewrite.
+52.236-21 Alt. I,52.236-21_Alternate I,1984-04-01,36.521,C,36.101-7(k)(3)(i),52.236-21 Alt. I,Alternate I.,1984-04-01,No Change,
+52.236-21 Alt. II,52.236-21_Alternate II,1984-04-01,36.521,C,36.101-7(k)(3)(ii),52.236-21 Alt. II,Alternate II.,1984-04-01,No Change,
+52.236-22,52.236-22 Design Within Funding Limitations.,1984-04-01,36.609-1(c),C,36.102-4(a),52.236-22,Design Within Funding Limitations.,JAN 2026 (PCD 26-03),Updated,"Non-substantive, drafting conventions and minor plain language."
+52.236-23,52.236-23 Responsibility of the Architect-Engineer Contractor.,1984-04-01,36.609-2(b),C,36.102-4(b),52.236-23,Responsibility of the Architect-Engineer Contractor.,JAN 2026 (PCD 26-03),Updated,"Non-substantive, minor plain language."
+52.236-24,52.236-24 Work Oversight in Architect-Engineer Contracts.,1984-04-01,36.609-3,C,36.102-4(c),52.236-24,Work Oversight in Architect-Engineer Contracts.,1984-04-01,No Change,
+52.236-25,52.236-25 Requirements for Registration of Designers.,2003-06-01,36.609-4,C,36.102-4(d),52.236-25,Requirements for Registration of Designers.,2003-06-01,No Change,
+52.236-26,52.236-26 Preconstruction Conference.,1995-02-01,36.522,C,N/A,52.236-26,[Reserved],-,Removed,
+52.236-27,52.236-27 Site Visit (Construction).,1995-02-01,36.523,P,N/A,52.236-27,[Reserved],-,Removed,
+52.236-28,52.236-28 Preparation of Proposals-Construction.,1997-10-01,36.52,P,N/A,52.236-28,[Reserved],-,Removed,
+52.236-3,52.236-3 Site Investigation and Conditions Affecting the Work.,1984-04-01,36.503,C,36.101-7(a),52.236-3,Site Investigation and Conditions Affecting the Work.,JAN 2026 (PCD 26-03),Updated,Not substantive. Drafting conventions only.
+52.236-4,52.236-4 Physical Data.,1984-04-01,36.504,C,N/A,52.236-4,[Reserved],-,Removed,
+52.236-5,52.236-5 Material and Workmanship.,1984-04-01,36.505,C,36.101-7(b),52.236-5,Material and Workmanship.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial.  Drafting conventions, change from ""full information"" to ""appropriate and required information""."
+52.236-6,52.236-6 Superintendence by the Contractor.,1984-04-01,36.506,C,36.101-7(a),52.236-6,Superintendence by the Contractor.,JAN 2026 (PCD 26-03),Updated,Non-substantial plain language updates
+52.236-7,52.236-7 Permits and Responsibilities.,1991-11-01,36.507,C,36.101-7(c),52.236-7,Permits and Responsibilities.,JAN 2026 (PCD 26-03),Updated,Drafting conventions only (multiple paragraphs instead of one)
+52.236-8,52.236-8 Other Contracts.,1984-04-01,36.508,C,36.101-7(a),52.236-8,Other Contracts.,JAN 2026 (PCD 26-03),Updated,Significant plain language updates.
+52.236-9,"52.236-9 Protection of Existing Vegetation, Structures, Equipment, Utilities, and Improvements.",1984-04-01,36.509,C,36.101-7(a),52.236-9,"Protection of Existing Vegetation, Structures, Equipment, Utilities, and Improvements.",JAN 2026 (PCD 26-03),Updated,Significant changes to (b).
+52.237-1,52.237-1 Site Visit.,1984-04-01,37.110(a),P,37.802-5(a),52.237-1,Site Visit.,1984-04-01,No Change,
+52.237-10,52.237-10 Identification of Uncompensated Overtime.,2015-03-01,37.115-3,P,37.802-5(f),52.237-10,Identification of Uncompensated Overtime.,2015-03-01,No Change,
+52.237-2,"52.237-2 Protection of Government Buildings, Equipment, and Vegetation.",1984-04-01,37.110(b),C,37.802-5(b),52.237-2,"Protection of Government Buildings, Equipment, and Vegetation.",1984-04-01,No Change,
+52.237-3,52.237-3 Continuity of Services.,1991-01-01,37.110(c),C,37.802-5(c),52.237-3,Continuity of Services.,1991-01-01,No Change,
+52.237-4,52.237-4 Payment by Government to Contractor.,1984-04-01,37.304(a),C,37.701-4(a),52.237-4,Payment by Government to Contractor.,1984-04-01,No Change,
+52.237-4 Alt. I,52.237-4_Alternate I,1984-04-01,37.304(a),C,37.701-4(a),52.237-4 Alt. I,Alternate I.,1984-04-01,No Change,
+52.237-5,52.237-5 Payment by Contractor to Government.,1984-04-01,37.304(b),C,37.701-4(b),52.237-5,Payment by Contractor to Government.,1984-04-01,No Change,
+52.237-6,52.237-6 Incremental Payment by Contractor to Government.,1984-04-01,37.304(c),C,37.701-4(c),52.237-6,Incremental Payment by Contractor to Government.,1984-04-01,No Change,
+52.237-7,52.237-7 Indemnification and Medical Liability Insurance.,1997-01-01,37.403,C,37.601-3,52.237-7,Indemnification and Medical Liability Insurance.,JAN 2026 (PCD 26-03),Updated,"Non-substantive.  Deleted ""as defined in the FAR"" for nonpersonal services, and deleted CO instructions for fill-in."
+52.237-8,52.237-8 Restriction on Severance Payments to Foreign Nationals.,2003-08-01,37.113-2(a),P,37.802-5(d),52.237-8,Restriction on Severance Payments to Foreign Nationals.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.237-9,52.237-9 Waiver of Limitation on Severance Payments to Foreign Nationals.,2022-12-01,37.113-2(b),C,37.802-5(e),52.237-9,Waiver of Limitation on Severance Payments to Foreign Nationals.,JAN 2026 (PCD 26-03),Updated,Non-substantive. FAR references.
+52.239-1,52.239-1 Privacy or Security Safeguards.,1996-08-01,39.106,C,N/A,52.239-1,[Reserved],-,Removed,
+52.240-1,52.240-1 Prohibition on Unmanned Aircraft Systems Manufactured or Assembled by American Security Drone Act-Covered Foreign Entities.,2024-11-01,40.202-8,C,N/A,52.240-1,[Reserved],-,Removed,Subject moved to 52.240-91
+N/A,N/A,N/A,,P,40.205(a),52.240-90,Security Prohibitions and Exclusions Representations and Certifications.,"MAR 2026 (PCD 26-03, FAC 2026-01)",New,"New. Include as prescribed.
+Note - was updated Mar 16 to reflect new TAA thresholds published in FAC 2026-01 / FAR Case 2025-007"
+N/A,N/A,N/A,,C,40.205(b),52.240-91,Security Prohibitions and Exclusions.,JAN 2026 (PCD 26-03),New,New. Include as prescribed.
+N/A,N/A,N/A,,C,40.205(b),52.240-91 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),New,New. Include as prescribed.
+52.204-2,52.204-2 Security Requirements.,2021-03-01,4.404(a),C,40.302-3(a),52.240-92,Security Requirements.,JAN 2026 (PCD 26-03),Moved,Moved to 52.240-92.  Significant change - new paragraph (e) that requires subs requiring access to classified information to be identified with a CAGE code.
+52.204-2 Alt. I,52.204-2_Alternate I,1984-04-01,4.404(a),C,40.302-3(b),52.240-92 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Moved,Substantive change to reflect new paragraph (e) in basic clause.
+52.204-2 Alt. II,52.204-2_Alternate II,1984-04-01,4.404(a),C,40.302-3(c),52.240-92 Alt. II,Alternate I.,JAN 2026 (PCD 26-03),Moved,Substantive change to reflect new paragraph (e) in basic clause.
+52.204-21,52.204-21 Basic Safeguarding of Covered Contractor Information Systems.,2021-11-01,4.1903,C,40.303-2,52.240-93,Basic Safeguarding of Covered Contractor Information Systems,JAN 2026 (PCD 26-03),Moved,"Moved to 52.240-93. Minor plain language and drafting convention changes, no change in obligation or duties."
+52.241-1,52.241-1 Electric Service Territory Compliance Representation.,1999-05-01,41.501(b),P,41.501(b),52.241-1,Electric Service Territory Compliance Representation.,1999-05-01,No Change,
+52.241-10,52.241-10 Termination Liability.,1995-02-01,41.501(d)(4),C,41.501(d)(4),52.241-10,Termination Liability.,1995-02-01,No Change,
+52.241-11,52.241-11 Multiple Service Locations.,1995-02-01,41.501(d)(5),C,41.501(d)(5),52.241-11,Multiple Service Locations.,1995-02-01,No Change,
+52.241-12,"52.241-12 Nonrefundable, Nonrecurring Service Charge.",1995-02-01,41.501(d)(6),C,41.501(d)(6),52.241-12,"Nonrefundable, Nonrecurring Service Charge.",1995-02-01,No Change,
+52.241-13,52.241-13 Capital Credits.,1995-02-01,41.501(d)(7),C,41.501(d)(7),52.241-13,Capital Credits.,1995-02-01,No Change,
+52.241-2,52.241-2 Order of Precedence-Utilities.,1995-02-01,41.501(c)(1),C,41.501(c)(1),52.241-2,Order of Precedence-Utilities.,1995-02-01,No Change,
+52.241-3,52.241-3 Scope and Duration of Contract.,1995-02-01,41.501(c)(2),C,41.501(c)(2),52.241-3,Scope and Duration of Contract.,1995-02-01,No Change,
+52.241-4,52.241-4 Change in Class of Service.,1995-02-01,41.501(c)(3),C,41.501(c)(3),52.241-4,Change in Class of Service.,1995-02-01,No Change,
+52.241-5,52.241-5 Contractorâ€™s Facilities.,1995-02-01,41.501(c)(4),C,41.501(c)(4),52.241-5,Contractor's Facilities.,1995-02-01,No Change,
+52.241-6,52.241-6 Service Provisions.,1995-02-01,41.501(c)(5),C,41.501(c)(5),52.241-6,Service Provisions.,1995-02-01,No Change,
+52.241-7,52.241-7 Change in Rates or Terms and Conditions of Service for Regulated Services.,1995-02-01,41.501(d)(1),C,41.501(d)(1),52.241-7,Change in Rates or Terms and Conditions of Service for Regulated Services.,1995-02-01,No Change,
+52.241-8,52.241-8 Change in Rates or Terms and Conditions of Service for Unregulated Services.,1995-02-01,41.501(d)(2),C,41.501(d)(2),52.241-8,Change in Rates or Terms and Conditions of Service for Unregulated Services.,1995-02-01,No Change,
+52.241-9,52.241-9 Connection Charge.,1995-02-01,41.501(d)(3),C,41.501(d)(3),52.241-9,Connection Charge.,1995-02-01,No Change,
+52.241-9 Alt. I,52.241-9_Alternate I,1995-02-01,41.501(d)(3),C,41.501(d)(3),52.241-9 Alt. I,Alternate I.,1995-02-01,No Change,
+52.242-1,52.242-1 Notice of Intent to Disallow Costs.,1984-04-01,42.802,C,42.602,52.242-1,Notice of Intent to Disallow Costs.,1984-04-01,No Change,
+52.242-13,52.242-13 Bankruptcy.,1995-07-01,42.903,C,42.703,52.242-13,Bankruptcy.,1995-07-01,No Change,
+52.242-14,52.242-14 Suspension of Work.,1984-04-01,42.1305(a),C,42.1005(a),52.242-14,Suspension of Work.,1984-04-01,No Change,
+52.242-15,52.242-15 Stop-Work Order.,1989-08-01,42.1305(b),C,42.1005(b),52.242-15,Stop-Work Order.,1989-08-01,No Change,
+52.242-15 Alt. I,52.242-15_Alternate I,1984-04-01,42.1305(b),C,42.1005(b),52.242-15 Alt. I,Alternate I.,1984-04-01,No Change,
+52.242-17,52.242-17 Government Delay of Work.,1984-04-01,42.1305(c),C,42.1005(c),52.242-17,Government Delay of Work.,1984-04-01,No Change,
+52.242-2,52.242-2 Production Progress Reports.,1991-04-01,42.1107(a),C,42.805(a),52.242-2,Production Progress Reports.,1991-04-01,No Change,
+52.242-3,52.242-3 Penalties for Unallowable Costs.,2022-12-01,"42.709-7,",C,42.508-7,52.242-3,Penalties for Unallowable Costs.,JAN 2026 (PCD 26-03),Updated,"Substantive but not substantial. USC and FAR reference updates, drafting conventions."
+52.242-4,52.242-4 Certification of Final Indirect Costs.,1997-01-01,42.703-2(f),C,42.503-2(f),52.242-4,Certification of Final Indirect Costs.,1997-01-01,No Change,
+52.242-5,52.242-5 Payments to Small Business Subcontractors.,2017-01-01,42.1504,C,42.1104,52.242-5,Payments to Small Business Subcontractors.,2017-01-01,No Change,
+52.243-1,52.243-1 Changes-Fixed-Price.,1987-08-01,43.205(a)(1),C,43.305(a)(1),52.243-1,Changes-Fixed-Price.,JAN 2026 (PCD 26-03),Updated,"Significant rewording to plain language standards, no change in duties or obligations."
+52.243-1 Alt. I,52.243-1_Alternate I,1984-04-01,43.205(a)(1),C,43.305(a)(2),52.243-1 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Significant change to clause language and to prescription.
+52.243-1 Alt. II,52.243-1_Alternate II,1984-04-01,43.205(a)(1),C,43.305(a)(3),52.243-1 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-1 Alt. III,52.243-1_Alternate III,1984-04-01,43.205(a)(1),C,43.305(a)(4),52.243-1 Alt. III,Alternate III.,JAN 2026 (PCD 26-03),Updated,Minor plain language updates in (a).
+52.243-1 Alt. IV,52.243-1_Alternate IV,1984-04-01,43.205(a)(1),C,43.305(a)(5),52.243-1 Alt. IV,Alternate IV.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-1 Alt. V,52.243-1_Alternate V,1984-04-01,43.205(a)(1),C,43.305(a)(6),52.243-1 Alt. V,Alternate V.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-2,52.243-2 Changes-Cost-Reimbursement.,1987-08-01,43.205(b)(1),C,43.305(b)(1),52.243-2,Changes-Cost-Reimbursement.,JAN 2026 (PCD 26-03),Updated,Plain language and drafting convention updates. No change to obligations or duties.
+52.243-2 Alt. I,52.243-2_Alternate I,1984-04-01,43.205(b)(1),C,43.305(b)(2),52.243-2 Alt. I,Alternate I.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-2 Alt. II,52.243-2_Alternate II,1984-04-01,43.205(b)(1),C,43.305(b)(3),52.243-2 Alt. II,Alternate II.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-2 Alt. III,52.243-2_Alternate III,1984-04-01,43.205(b)(1),C,43.305(b)(4),52.243-2 Alt. III,Alternate III.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-2 Alt. V,52.243-2_Alternate V,1984-04-01,43.205(b)(1),C,43.305(b)(6),52.243-2 Alt. V,Alternate V.,JAN 2026 (PCD 26-03),Updated,Conforming drafting convention/outlining changes to match basic clause.
+52.243-3,52.243-3 Changes-Time-and-Materials or Labor-Hours.,2000-09-01,43.205(c),C,43.305(c),52.243-3,Changes-Time-and-Materials or Labor-Hours.,JAN 2026 (PCD 26-03),Updated,Plain language updates. No changes to obligations or duties.
+52.243-4,52.243-4 Changes.,2007-06-01,43.205(d),C,43.305(d),52.243-4,Changes.,JAN 2026 (PCD 26-03),Updated,Plain language updates. No changes to obligations or duties.
+52.243-5,52.243-5 Changes and Changed Conditions.,1984-04-01,43.205(e),C,43.305(e),52.243-5,Changes and Changed Conditions.,JAN 2026 (PCD 26-03),Updated,Plain language updates. No changes to obligations or duties.
+52.243-6,52.243-6 Change Order Accounting.,1984-04-01,43.205(f),C,43.305(f),52.243-6,Change Order Accounting.,JAN 2026 (PCD 26-03),Updated,Plain language updates. No changes to obligations or duties.
+52.243-7,52.243-7 Notification of Changes.,2017-01-01,43.107,C,43.206,52.243-7,Notification of Changes.,JAN 2026 (PCD 26-03),Updated,Minor plain language and drafting convention updates.
+52.244-2,52.244-2 Subcontracts.,2020-06-01,44.204(a)(1),C,44.201-5(a)(1),52.244-2,Subcontracts.,2020-06-01,No Change,
+52.244-2 Alt. I,52.244-2_Alternate I,2020-06-01,44.204,C,44.201-5(a)(2),52.244-2 Alt. I,Alternate I.,2020-06-01,No Change,
+52.244-4,52.244-4 Subcontractors and Outside Associates and Consultants (Architect-Engineer Services).,1998-08-01,44.204(b),C,44.201-5(b),52.244-4,Subcontractors and Outside Associates and Consultants (Architect-Engineer Services).,1998-08-01,No Change,
+52.244-5,52.244-5 Competition in Subcontracting.,2024-08-01,44.204(c),C,44.201-5(c),52.244-5,Competition in Subcontracting.,2024-08-01,No Change,
+52.244-6,52.244-6 Subcontracts for Commercial Products and Commercial Services.,2025-10-01,44.403,C,44.403,52.244-6,Subcontracts for Commercial Products and Commercial Services.,JAN 2026 (PCD 26-03),Updated,"Substantive and significant. Updates to definitions, clause structure."
+52.245-1,52.245-1 Government Property.,2021-09-01,45.107(a),C,45.107(a),52.245-1,Government Property.,2021-09-01,No Change,
+52.245-1 Alt. I,52.245-1_Alternate I,2012-04-01,45.107,C,45.107(a)(2),52.245-1 Alt. I,Alternate I.,2012-04-01,No Change,
+52.245-1 Alt. II,52.245-1_Alternate II,2012-04-01,45.107,C,45.107(a)(3),52.245-1 Alt. II,Alternate II.,2012-04-01,No Change,
+52.245-2,52.245-2 Government Property Installation Operation Services.,2012-04-01,45.107(b),C,45.107(b),52.245-2,Government Property Installation Operation Services.,2012-04-01,No Change,
+52.245-9,52.245-9 Use and Charges.,2012-04-01,45.107(c),C,45.107(c),52.245-9,Use and Charges.,2012-04-01,No Change,
+52.246-1,52.246-1 Contractor Inspection Requirements.,1984-04-01,46.301,C,46.301,52.246-1,Contractor Inspection Requirements.,1984-04-01,No Change,
+52.246-11,52.246-11 Higher-Level Contract Quality Requirement.,2014-12-01,46.311,C,46.311,52.246-11,Higher-Level Contract Quality Requirement.,2014-12-01,No Change,
+52.246-12,52.246-12 Inspection of Construction.,1996-08-01,46.312,C,46.312,52.246-12,Inspection of Construction.,1996-08-01,No Change,
+52.246-13,"52.246-13 Inspection-Dismantling, Demolition, or Removal of Improvements.",1996-08-01,46.313,C,46.313,52.246-13,"Inspection-Dismantling, Demolition, or Removal of Improvements.",1996-08-01,No Change,
+52.246-14,52.246-14 Inspection of Transportation.,1984-04-01,46.314,C,46.314,52.246-14,Inspection of Transportation.,1984-04-01,No Change,
+52.246-15,52.246-15 Certificate of Conformance.,1984-04-01,46.315,C,46.315,52.246-15,Certificate of Conformance.,1984-04-01,No Change,
+52.246-16,52.246-16 Responsibility for Supplies.,1984-04-01,46.316,C,46.316,52.246-16,Responsibility for Supplies.,1984-04-01,No Change,
+52.246-17,52.246-17 Warranty of Supplies of a Noncomplex Nature.,2003-06-01,46.710(a)(1),C,46.710(a)(1),52.246-17,Warranty of Supplies of a Noncomplex Nature.,2003-06-01,No Change,
+52.246-17 Alt. II,52.246-17_Alternate II,1984-04-01,46.710(a)(1),C,46.710(a)(2),52.246-17 Alt. II,Alternate II.,1984-04-01,No Change,
+52.246-17 Alt. III,52.246-17_Alternate III,1984-04-01,46.710(a)(1),C,46.710(a)(3),52.246-17 Alt. III,Alternate III.,1984-04-01,No Change,
+52.246-17 Alt. IV,52.246-17_Alternate IV,1984-04-01,46.710(a)(1),C,46.710(a)(4),52.246-17 Alt. IV,Alternate IV.,1984-04-01,No Change,
+52.246-17 Alt. V,52.246-17_Alternate V,1984-04-01,46.710(a)(1),C,46.710(a)(5),52.246-17 Alt. V,Alternate V.,1984-04-01,No Change,
+52.246-18,52.246-18 Warranty of Supplies of a Complex Nature.,2001-05-01,46.710(b)(1),C,46.710(b)(1),52.246-18,Warranty of Supplies of a Complex Nature.,2001-05-01,No Change,
+52.246-18 Alt. II,52.246-18_Alternate II,1984-04-01,46.710(b)(1),C,46.710(b)(2),52.246-18 Alt. II,Alternate II.,1984-04-01,No Change,
+52.246-18 Alt. III,52.246-18_Alternate III,1984-04-01,46.710(b)(1),C,46.710(b)(3),52.246-18 Alt. III,Alternate III.,1984-04-01,No Change,
+52.246-18 Alt. IV,52.246-18_Alternate IV,1984-04-01,46.710(b)(1),C,46.710(b)(4),52.246-18 Alt. IV,Alternate IV.,1984-04-01,No Change,
+52.246-19,52.246-19 Warranty of Systems and Equipment under Performance Specifications or Design Criteria.,2001-05-01,46.710(c)(1),C,46.710(c)(1),52.246-19,Warranty of Systems and Equipment under Performance Specifications or Design Criteria.,2001-05-01,No Change,
+52.246-19 Alt. I,52.246-19_Alternate I,1984-04-01,46.710(c)(1),C,46.710(c)(2),52.246-19 Alt. I,Alternate I.,1984-04-01,No Change,
+52.246-19 Alt. II,52.246-19_Alternate II,1984-04-01,46.710(c)(1),C,46.710(c)(3),52.246-19 Alt. II,Alternate II.,1984-04-01,No Change,
+52.246-19 Alt. III,52.246-19_Alternate III,1984-04-01,46.710(c)(1),C,46.710(c)(4),52.246-19 Alt. III,Alternate III.,1984-04-01,No Change,
+52.246-2,52.246-2 Inspection of Supplies-Fixed-Price.,1996-08-01,46.302,C,46.302,52.246-2,Inspection of Supplies-Fixed-Price.,1996-08-01,No Change,
+52.246-2 Alt. I,52.246-2_Alternate I,1985-07-01,46.302,C,46.302,52.246-2 Alt. I,Alternate I.,1985-07-01,No Change,
+52.246-2 Alt. II,52.246-2_Alternate II,1985-07-01,46.302,C,46.302,52.246-2 Alt. II,Alternate II.,1985-07-01,No Change,
+52.246-20,52.246-20 Warranty of Services.,2001-05-01,46.710(d),C,46.710(d),52.246-20,Warranty of Services.,2001-05-01,No Change,
+52.246-21,52.246-21 Warranty of Construction.,1994-03-01,46.710(e)(1),C,46.710(e)(1),52.246-21,Warranty of Construction.,1994-03-01,No Change,
+52.246-21 Alt. I,52.246-21_Alternate I,1984-04-01,46.710(e)(1),C,46.710(e)(2),52.246-21 Alt. I,Alternate I.,1984-04-01,No Change,
+52.246-23,52.246-23 Limitation of Liability.,1997-02-01,46.805,C,46.805(a)(1),52.246-23,Limitation of Liability.,1997-02-01,No Change,
+52.246-24,52.246-24 Limitation of Liability-High-Value Items.,1997-02-01,46.805,C,46.805(a)(2),52.246-24,Limitation of Liability-High-Value Items.,1997-02-01,No Change,
+52.246-24 Alt. I,52.246-24_Alternate I,1984-04-01,46.805,C,46.805(a)(3),52.246-24 Alt. I,Alternate I.,1984-04-01,No Change,
+52.246-25,52.246-25 Limitation of Liability-Services.,1997-02-01,46.805,C,46.805(a)(4)-(5),52.246-25,Limitation of Liability-Services.,1997-02-01,No Change,
+52.246-26,52.246-26 Reporting Nonconforming Items.,2024-08-01,46.317,C,46.317,52.246-26,Reporting Nonconforming Items.,2024-08-01,No Change,
+52.246-3,52.246-3 Inspection of Supplies-Cost-Reimbursement.,2001-05-01,46.303,C,46.303,52.246-3,Inspection of Supplies-Cost-Reimbursement.,2001-05-01,No Change,
+52.246-4,52.246-4 Inspection of Services-Fixed-Price.,1996-08-01,46.304,C,46.304,52.246-4,Inspection of Services-Fixed-Price.,1996-08-01,No Change,
+52.246-5,52.246-5 Inspection of Services-Cost-Reimbursement.,1984-04-01,46.305,C,46.305,52.246-5,Inspection of Services-Cost-Reimbursement.,1984-04-01,No Change,
+52.246-6,52.246-6 Inspection-Time-and-Material and Labor-Hour.,2001-05-01,46.306,C,46.306,52.246-6,Inspection-Time-and-Material and Labor-Hour.,2001-05-01,No Change,
+52.246-6 Alt. I,52.246-6_Alternate I,1984-04-01,46.306,C,46.306,52.246-6 Alt. I,Alternate I.,1984-04-01,No Change,
+52.246-7,52.246-7 Inspection of Research and Development-Fixed-Price.,1996-08-01,46.307(a),C,46.307(a),52.246-7,Inspection of Research and Development-Fixed-Price.,1996-08-01,No Change,
+52.246-8,52.246-8 Inspection of Research and Development-Cost-Reimbursement.,2001-05-01,46.308,C,46.308,52.246-8,Inspection of Research and Development-Cost-Reimbursement.,2001-05-01,No Change,
+52.246-8 Alt. I,52.246-8_Alternate I,1984-04-01,46.308,C,46.308,52.246-8 Alt. I,Alternate I.,1984-04-01,No Change,
+52.246-9,52.246-9 Inspection of Research and Development (Short Form).,1984-04-01,46.309,C,46.309,52.246-9,Inspection of Research and Development (Short Form).,1984-04-01,No Change,
+52.247-1,52.247-1 Commercial Bill of Lading Notations.,2006-02-01,47.104-4,C,47.104-4,52.247-1,Commercial Bill of Lading Notations.,2006-02-01,No Change,
+52.247-10,52.247-10 Net Weight-General Freight.,1984-04-01,47.207-4(a)(2),C,47.207-4(a)(2),52.247-10,Net Weight-General Freight.,1984-04-01,No Change,
+52.247-11,52.247-11 Net Weight-Household Goods or Office Furniture.,1984-04-01,47.207-4(b),C,47.207-4(b),52.247-11,Net Weight-Household Goods or Office Furniture.,1984-04-01,No Change,
+52.247-12,"52.247-12 Supervision, Labor, or Materials.",1984-04-01,47.207-5(b),C,N/A,52.247-12,[Reserved],-,Removed,
+52.247-13,52.247-13 Accessorial Services-Moving Contracts.,1984-04-01,47.207-5(c),C,47.207-5(c),52.247-13,Accessorial Services-Moving Contracts.,1984-04-01,No Change,
+52.247-14,52.247-14 Contractor Responsibility for Receipt of Shipment.,1984-04-01,47.207-5(d),C,N/A,52.247-14,[Reserved],-,Removed,
+52.247-15,52.247-15 Contractor Responsibility for Loading and Unloading.,1984-04-01,47.207-5(e),C,47.207-5(e),52.247-15,Contractor Responsibility for Loading and Unloading.,1984-04-01,No Change,
+52.247-16,52.247-16 Contractor Responsibility for Returning Undelivered Freight.,1984-04-01,47.207-5(f),C,N/A,52.247-16,[Reserved],-,Removed,
+52.247-17,52.247-17 Charges.,1984-04-01,47.207-6(a)(2),C,47.207-6(a)(2),52.247-17,Charges.,1984-04-01,No Change,
+52.247-18,52.247-18 Multiple Shipments.,1984-04-01,47.207-6,C,47.207-6(c)(5)(i),52.247-18,Multiple Shipments.,1984-04-01,No Change,
+52.247-19,52.247-19 Stopping in Transit for Partial Unloading.,1984-04-01,47.207-6,C,47.207-6(c)(5)(ii),52.247-19,Stopping in Transit for Partial Unloading.,1984-04-01,No Change,
+52.247-2,"52.247-2 Permits, Authorities, or Franchises.",1997-01-01,47.207-1(a),C,47.207-1(a),52.247-2,"Permits, Authorities, or Franchises.",1997-01-01,No Change,
+52.247-20,52.247-20 Estimated Quantities or Weights for Evaluation of Offers.,1984-04-01,47.207-6(c)(6),P,N/A,52.247-20,[Reserved],-,Removed,
+52.247-21,52.247-21 Contractor Liability for Personal Injury and/or Property Damage.,1984-04-01,47.207-7(c),C,47.207-7(c),52.247-21,Contractor Liability for Personal Injury and/or Property Damage.,1984-04-01,No Change,
+52.247-22,52.247-22 Contractor Liability for Loss of and/or Damage to Freight other than Household Goods.,1984-04-01,47.207-7(d),C,47.207-7(d),52.247-22,Contractor Liability for Loss of and/or Damage to Freight other than Household Goods.,1984-04-01,No Change,
+52.247-23,52.247-23 Contractor Liability for Loss of and/or Damage to Household Goods.,1991-01-01,47.207-7(e),C,47.207-7(e),52.247-23,Contractor Liability for Loss of and/or Damage to Household Goods.,1991-01-01,No Change,
+52.247-24,52.247-24 Advance Notification by the Government.,1984-04-01,47.207-8(a)(1),C,N/A,52.247-24,[Reserved],-,Removed,
+52.247-25,52.247-25 Government-Furnished Equipment With or Without Operators.,1984-04-01,47.207-8,C,N/A,52.247-25,[Reserved],-,Removed,
+52.247-26,52.247-26 Government Direction and Marking.,1984-04-01,47.207-8(a)(3),C,N/A,52.247-26,[Reserved],-,Removed,
+52.247-27,52.247-27 Contract Not Affected by Oral Agreement.,1984-04-01,47.207-8(b),C,N/A,52.247-27,[Reserved],-,Removed,
+52.247-28,52.247-28 Contractorâ€™s Invoices.,1984-04-01,47.207-9(c),C,N/A,52.247-28,[Reserved],-,Removed,
+52.247-29,52.247-29 F.o.b. Origin.,2006-02-01,47.303-1(c),C,47.303-1(c),52.247-29,F.o.b. Origin.,2006-02-01,No Change,
+52.247-3,52.247-3 Capability to Perform a Contract for the Relocation of a Federal Office.,2006-02-01,47.207-1(b),C,N/A,52.247-3,[Reserved],-,Removed,
+52.247-30,"52.247-30 F.o.b. Origin, Contractorâ€™s Facility.",2006-02-01,47.303-2(c),C,47.303-2(c),52.247-30,"F.o.b. Origin, Contractorâ€™s Facility.",2006-02-01,No Change,
+52.247-31,"52.247-31 F.o.b. Origin, Freight Allowed.",2006-02-01,47.303-3(c),C,47.303-3(c),52.247-31,"F.o.b. Origin, Freight Allowed.",2006-02-01,No Change,
+52.247-32,"52.247-32 F.o.b. Origin, Freight Prepaid.",2006-02-01,47.303-4(c),C,47.303-4(c),52.247-32,"F.o.b. Origin, Freight Prepaid.",2006-02-01,No Change,
+52.247-33,"52.247-33 F.o.b. Origin, with Differentials.",2006-02-01,47.303-5(c),C,47.303-5(c),52.247-33,"F.o.b. Origin, with Differentials.",2006-02-01,No Change,
+52.247-34,52.247-34 F.o.b. Destination.,1991-01-01,47.303-6(c),C,47.303-6(c),52.247-34,F.o.b. Destination.,1991-01-01,No Change,
+52.247-35,"52.247-35 F.o.b. Destination, Within Consignee's Premises.",1984-04-01,47.303-7(c),C,47.303-7(c),52.247-35,"F.o.b. Destination, Within Consignee's Premises.",1984-04-01,No Change,
+52.247-36,"52.247-36 F.a.s. Vessel, Port of Shipment.",1984-04-01,47.303-8(c),C,47.303-8(c),52.247-36,"F.a.s. Vessel, Port of Shipment.",1984-04-01,No Change,
+52.247-37,"52.247-37 F.o.b. Vessel, Port of Shipment.",1984-04-01,47.303-9(c),C,47.303-9(c),52.247-37,"F.o.b. Vessel, Port of Shipment.",1984-04-01,No Change,
+52.247-38,"52.247-38 F.o.b. Inland Carrier, Point of Exportation.",2006-02-01,47.303-10(c),C,47.303-10(c),52.247-38,"F.o.b. Inland Carrier, Point of Exportation.",2006-02-01,No Change,
+52.247-39,"52.247-39 F.o.b. Inland Point, Country of Importation.",1984-04-01,47.303-11(c),C,47.303-11(c),52.247-39,"F.o.b. Inland Point, Country of Importation.",1984-04-01,No Change,
+52.247-4,52.247-4 Inspection of Shipping and Receiving Facilities.,1984-04-01,47.207-1(c),P,N/A,52.247-4,[Reserved],-,Removed,
+52.247-40,"52.247-40 Ex Dock, Pier, or Warehouse, Port of Importation.",1984-04-01,47.303-12(c),C,N/A,52.247-40,[Reserved],-,Removed,
+52.247-41,52.247-41 C.& f. Destination.,1984-04-01,47.303-13(c),C,N/A,52.247-41,[Reserved],-,Removed,
+52.247-42,52.247-42 C.i.f. Destination.,1984-04-01,47.303-14(c),C,N/A,52.247-42,[Reserved],-,Removed,
+52.247-43,"52.247-43 F.o.b. Designated Air Carrierâ€™s Terminal, Point of Exportation.",2006-02-01,47.303-15(c),C,N/A,52.247-43,[Reserved],-,Removed,
+52.247-44,"52.247-44 F.o.b. Designated Air Carrierâ€™s Terminal, Point of Importation.",1984-04-01,47.303-16(c),C,N/A,52.247-44,[Reserved],-,Removed,
+52.247-45,52.247-45 F.o.b. Origin and/or F.o.b. Destination Evaluation.,1984-04-01,47.305-2(b),P,N/A,52.247-45,[Reserved],-,Removed,
+52.247-46,52.247-46 Shipping Point(s) Used in Evaluation of F.o.b. Origin Offers.,1984-04-01,47.305-3,P,N/A,52.247-46,[Reserved],-,Removed,
+52.247-47,52.247-47 Evaluation-F.o.b. Origin.,2003-06-01,47.305-3(f)(2),P,N/A,52.247-47,[Reserved],-,Removed,
+52.247-48,52.247-48 F.o.b. Destination-Evidence of Shipment.,1999-02-01,47.305-4(c),C,47.305-4(c),52.247-48,F.o.b. Destination-Evidence of Shipment.,1999-02-01,No Change,
+52.247-49,52.247-49 Destination Unknown.,1984-04-01,47.305-5(b)(2),P,N/A,52.247-49,[Reserved],-,Removed,
+52.247-5,52.247-5 Familiarization with Conditions.,1984-04-01,47.207-1(d),C,47.207-1(d),52.247-5,Familiarization with Conditions.,1984-04-01,No Change,
+52.247-50,52.247-50 No Evaluation of Transportation Costs.,1984-04-01,47.305-5(c)(1),P,N/A,52.247-50,[Reserved],-,Removed,
+52.247-51,52.247-51 Evaluation of Export Offers.,2001-01-01,47.305-6(e),P,N/A,52.247-51,[Reserved],-,Removed,
+52.247-52,52.247-52 Clearance and Documentation Requirements-Shipments to DoD Air or Water Terminal Transshipment Points.,2006-02-01,47.305-6(f)(2),C,47.305-6(f)(2),52.247-52,Clearance and Documentation Requirements-Shipments to DoD Air or Water Terminal Transshipment Points.,JAN 2026 (PCD 26-03),Updated,Substantive. CFR references.  Drafting conventions.
+52.247-53,52.247-53 Freight Classification Description.,1984-04-01,47.305-9(b)(1),P,47.305-9(b)(1),52.247-53,Freight Classification Description.,1984-04-01,No Change,
+52.247-55,52.247-55 F.o.b. Point for Delivery of Government-Furnished Property.,2003-06-01,47.305-12(a)(2),C,N/A,52.247-55,[Reserved],-,Removed,
+52.247-56,52.247-56 Transit Arrangements.,1984-04-01,47.305-13,P,47.305-13(a)(3)(ii),52.247-56,Transit Arrangements.,1984-04-01,No Change,
+52.247-57,52.247-57 Transportation Transit Privilege Credits.,1984-04-01,47.305-13(b)(4),C,N/A,52.247-57,[Reserved],-,Removed,
+52.247-58,"52.247-58 Loading, Blocking, and Bracing of Freight Car Shipments.",1984-04-01,47.305-15(a)(2),C,47.305-15(a)(2),52.247-58,"Loading, Blocking, and Bracing of Freight Car Shipments.",1984-04-01,No Change,
+52.247-59,52.247-59 F.o.b. Origin-Carload and Truckload Shipments.,1984-04-01,47.305-16(a),C,N/A,52.247-59,[Reserved],-,Removed,
+52.247-6,52.247-6 Financial Statement.,1984-04-01,47.207-1(e),P,N/A,52.247-6,[Reserved],-,Removed,
+52.247-60,52.247-60 Guaranteed Shipping Characteristics.,2025-08-01,47.305-16(b)(1),C,N/A,52.247-60,[Reserved],-,Removed,
+52.247-61,52.247-61 F.o.b. Origin-Minimum Size of Shipments.,1984-04-01,47.305-16(c),C,N/A,52.247-61,[Reserved],-,Removed,
+52.247-62,52.247-62 Specific Quantities Unknown.,1984-04-01,47.305-16(d)(2),C,N/A,52.247-62,[Reserved],-,Removed,
+52.247-63,52.247-63 Preference for U.S.-Flag Air Carriers.,2025-01-01,",",C,47.405(a),52.247-63,Preference for U.S.-Flag Air Carriers.,2025-01-01,No Change,
+52.247-64,52.247-64 Preference for Privately Owned U.S.-Flag Commercial Vessels.,2021-11-01,47.507(a),C,47.507(a),52.247-64,Preference for Privately Owned U.S.-Flag Commercial Vessels.,JAN 2026 (PCD 26-03),Updated,Substantive. USC references. Drafting conventions.
+52.247-64 Alt. I,52.247-64_Alternate I,2003-04-01,47.507,C,47.507(a)(2),52.247-64 Alt. I,Alternate I.,2003-04-01,No Change,
+52.247-64 Alt. II,52.247-64_Alternate II,2021-11-01,47.507,C,47.507(a)(3),52.247-64 Alt. II,Alternate II.,2021-11-01,No Change,
+52.247-65,"52.247-65 F.o.b. Origin, Prepaid Freight-Small Package Shipments.",1991-01-01,47.303-17(f),C,N/A,52.247-65,[Reserved],-,Removed,
+52.247-66,52.247-66 Returnable Cylinders.,1994-05-01,47.305-17,C,N/A,52.247-66,[Reserved],-,Removed,
+52.247-67,52.247-67 Submission of Transportation Documents for Audit.,2006-02-01,47.103-2,C,47.103-2,52.247-67,Submission of Transportation Documents for Audit.,2006-02-01,No Change,
+52.247-68,52.247-68 Report of Shipment (REPSHIP).,2006-02-01,47.208-2,C,47.208-2,52.247-68,Report of Shipment (REPSHIP).,2006-02-01,No Change,
+52.247-69,52.247-69 Reporting Requirement for U.S.-Flag Air Carriers Regarding Training to Prevent Human Trafficking.,2025-01-01,47.405(b),C,47.405(b),52.247-69,Reporting Requirement for U.S.-Flag Air Carriers Regarding Training to Prevent Human Trafficking.,2025-01-01,No Change,
+52.247-7,52.247-7 Freight Excluded.,1984-04-01,47.207-3(d)(2),C,N/A,52.247-7,[Reserved],-,Removed,
+52.247-8,52.247-8 Estimated Weights or Quantities Not Guaranteed.,1984-04-01,47.207-3(e)(2),C,47.207-3(e)(2),52.247-8,Estimated Weights or Quantities Not Guaranteed.,1984-04-01,No Change,
+52.247-9,52.247-9 Agreed Weight-General Freight.,1984-04-01,47.207-4(a)(1),C,N/A,52.247-9,[Reserved],-,Removed,
+52.248-1,52.248-1 Value Engineering.,2020-06-01,48.201,C,48.201,52.248-1,Value Engineering.,JAN 2026 (PCD 26-03),Updated,"Substantive. ""Collateral costs"" definition.  FAR references."
+52.248-1 Alt. I,52.248-1_Alternate I,1984-04-01,48.201,C,48.201,52.248-1 Alt. I,Alternate I.,1984-04-01,No Change,
+52.248-1 Alt. II,52.248-1_Alternate II,2015-01-01,48.201,C,48.201,52.248-1 Alt. II,Alternate II.,2015-01-01,No Change,
+52.248-1 Alt. III,52.248-1_Alternate III,1984-04-01,48.201,C,48.201,52.248-1 Alt. III,Alternate III.,1984-04-01,No Change,
+52.248-2,52.248-2 Value Engineering-Architect-Engineer.,1990-03-01,48.201(f),C,48.201(f),52.248-2,Value Engineering-Architect-Engineer.,1990-03-01,No Change,
+52.248-3,52.248-3 Value Engineering-Construction.,2025-10-01,48.202,C,48.202,52.248-3,Value Engineering-Construction.,2025-10-01,No Change,
+52.248-3 Alt. I,52.248-3_Alternate I,1984-04-01,48.202,C,48.202,52.248-3 Alt. I,Alternate I.,1984-04-01,No Change,
+52.249-1,52.249-1 Termination for Convenience of the Government (Fixed-Price) (Short Form).,1984-04-01,49.502(a)(1),C,49.502(a)(1),52.249-1,Termination for Convenience of the Government (Fixed-Price) (Short Form).,1984-04-01,No Change,
+52.249-1 Alt. I,52.249-1_Alternate I,1984-04-01,49.502(a)(1),C,49.502(a)(2),52.249-1 Alt. I,Alternate I.,1984-04-01,No Change,
+52.249-10,52.249-10 Default (Fixed-Price Construction).,1984-04-01,49.504(c)(1),C,49.504(c)(1),52.249-10,Default (Fixed-Price Construction).,1984-04-01,No Change,
+52.249-10 Alt. I,52.249-10_Alternate I,1984-04-01,49.504(c)(1),C,49.504(c)(2),52.249-10 Alt. I,Alternate I.,1984-04-01,No Change,
+52.249-10 Alt. II,52.249-10_Alternate II,1984-04-01,49.504(c)(1),C,49.504(c)(3)(i),52.249-10 Alt. II,Alternate II.,1984-04-01,No Change,
+52.249-10 Alt. III,52.249-10_Alternate III,1984-04-01,49.504(c)(1),C,49.504(c)(3)(ii),52.249-10 Alt. III,Alternate III.,1984-04-01,No Change,
+52.249-12,52.249-12 Termination (Personal Services).,1984-04-01,49.505(a),C,49.505(a),52.249-12,Termination (Personal Services).,1984-04-01,No Change,
+52.249-14,52.249-14 Excusable Delays.,1984-04-01,49.505(b),C,49.505(b),52.249-14,Excusable Delays.,1984-04-01,No Change,
+52.249-2,52.249-2 Termination for Convenience of the Government (Fixed-Price).,2012-04-01,49.502,C,49.502(b)(1)(i),52.249-2,Termination for Convenience of the Government (Fixed-Price).,2012-04-01,No Change,
+52.249-2 Alt. I,52.249-2_Alternate I,1996-09-01,49.502,C,49.502(b)(2),52.249-2 Alt. I,Alternate I.,1996-09-01,No Change,
+52.249-2 Alt. II,52.249-2_Alternate II,1996-09-01,49.502,C,49.502(b)(2)(i),52.249-2 Alt. II,Alternate II.,1996-09-01,No Change,
+52.249-2 Alt. III,52.249-2_Alternate III,1996-09-01,49.502,C,49.502(b)(2)(i),52.249-2 Alt. III,Alternate III.,1996-09-01,No Change,
+52.249-3,"52.249-3 Termination for Convenience of the Government (Dismantling, Demolition, or Removal of Improvements).",2012-04-01,49.502(b)(2),C,49.502(b)(2)(ii),52.249-3,"Termination for Convenience of the Government (Dismantling, Demolition, or Removal of Improvements).",2012-04-01,No Change,
+52.249-3 Alt. I,52.249-3_Alternate I,1996-09-01,49.502(b)(2),C,49.502(b)(2)(ii),52.249-3 Alt. I,Alternate I.,1996-09-01,No Change,
+52.249-4,52.249-4 Termination for Convenience of the Government (Services) (Short Form).,1984-04-01,49.502(c),C,49.502(c),52.249-4,Termination for Convenience of the Government (Services) (Short Form).,1984-04-01,No Change,
+52.249-5,52.249-5 Termination for Convenience of the Government (Educational and Other Nonprofit Institutions).,2016-08-01,49.502(d),C,49.502(d),52.249-5,Termination for Convenience of the Government (Educational and Other Nonprofit Institutions).,2016-08-01,No Change,
+52.249-6,52.249-6 Termination (Cost-Reimbursement).,2004-05-01,49.503(a)(1),C,49.503(a)(1),52.249-6,Termination (Cost-Reimbursement).,2004-05-01,No Change,
+52.249-6 Alt. I,52.249-6_Alternate I,1996-09-01,49.503(a)(1),C,49.503(a)(2),52.249-6 Alt. I,Alternate I.,1996-09-01,No Change,
+52.249-6 Alt. II,52.249-6_Alternate II,1996-09-01,49.503(a)(1),C,49.503(a)(3),52.249-6 Alt. II,Alternate II.,1996-09-01,No Change,
+52.249-6 Alt. III,52.249-6_Alternate III,1996-09-01,49.503(a)(1),C,49.503(a)(3),52.249-6 Alt. III,Alternate III.,1996-09-01,No Change,
+52.249-6 Alt. IV,52.249-6_Alternate IV,1996-09-01,49.503(a)(1),C,49.503(a)(4),52.249-6 Alt. IV,Alternate IV.,1996-09-01,No Change,
+52.249-6 Alt. V,52.249-6_Alternate V,1996-09-01,49.503(a)(1),C,49.503(a)(4),52.249-6 Alt. V,Alternate V.,1996-09-01,No Change,
+52.249-7,52.249-7 Termination (Fixed-Price Architect-Engineer).,1984-04-01,49.503(b),C,49.503(b),52.249-7,Termination (Fixed-Price Architect-Engineer).,1984-04-01,No Change,
+52.249-8,52.249-8 Default (Fixed-Price Supply and Service).,1984-04-01,49.504(a)(1),C,49.504(a)(1),52.249-8,Default (Fixed-Price Supply and Service).,1984-04-01,No Change,
+52.249-8 8 Alt. I,52.249-8_Alternate I,1984-04-01,49.504(a)(1),C,49.504(a)(2),52.249-8 8 Alt. I,Alternate I.,1984-04-01,No Change,
+52.249-9,52.249-9 Default (Fixed-Price Research and Development).,1984-04-01,49.504(b),C,49.504(b),52.249-9,Default (Fixed-Price Research and Development).,1984-04-01,No Change,
+52.250-1,52.250-1 Indemnification Under Public Law 85-804.,1984-04-01,50.104-4,C,50.104-4,52.250-1,Indemnification Under Public Law 85-804.,1984-04-01,No Change,
+52.250-1 Alt. I,52.250-1_Alternate I,1984-04-01,50.104-4,C,50.104-4,52.250-1 Alt. I,Alternate I.,1984-04-01,No Change,
+52.250-2,52.250-2 SAFETY Act Coverage Not Applicable.,2009-02-01,50.206(a),P,50.206(a),52.250-2,SAFETY Act Coverage Not Applicable.,2009-02-01,No Change,
+52.250-3,52.250-3 SAFETY Act Block Designation/Certification.,2009-02-01,50.206(b)(1),P,50.206(b)(1),52.250-3,SAFETY Act Block Designation/Certification.,2009-02-01,No Change,
+52.250-3 Alt. I,52.250-3_Alternate I,2009-02-01,50.206,P,50.206(b)(2),52.250-3 Alt. I,Alternate I.,2009-02-01,No Change,
+52.250-3 Alt. II,52.250-3_Alternate II,2009-02-01,50.206,P,50.206(b)(3),52.250-3 Alt. II,Alternate II.,2009-02-01,No Change,
+52.250-4,52.250-4 SAFETY Act Pre-qualification Designation Notice.,2009-02-01,50.206(c)(1),P,50.206(c)(1),52.250-4,SAFETY Act Pre-qualification Designation Notice.,2009-02-01,No Change,
+52.250-4 Alt. I,52.250-4_Alternate I,2009-02-01,50.206,P,50.206(c)(2),52.250-4 Alt. I,Alternate I,2009-02-01,No Change,
+52.250-4 Alt. II,52.250-4_Alternate II,2009-02-01,50.206,P,50.206(c)(3),52.250-4 Alt. II,Alternate II.,2009-02-01,No Change,
+52.250-5,52.250-5 SAFETY Act - Equitable Adjustment.,2009-02-01,50.206(d),C,50.206(d),52.250-5,SAFETY Act - Equitable Adjustment.,JAN 2026 (PCD 26-03),Updated,Drafting convention only.
+52.252-1,52.252-1 Solicitation Provisions Incorporated by Reference.,1998-02-01,52.107(a),P,52.107(a),52.252-1,Solicitation Provisions Incorporated by Reference.,1998-02-01,No Change,
+52.252-2,52.252-2 Clauses Incorporated by Reference.,1998-02-01,52.107(b),C,52.107(b),52.252-2,Clauses Incorporated by Reference.,1998-02-01,No Change,
+52.252-3,52.252-3 Alterations in Solicitation.,1984-04-01,52.107(c),P,52.107(c),52.252-3,Alterations in Solicitation.,1984-04-01,No Change,
+52.252-4,52.252-4 Alterations in Contract.,1984-04-01,52.107(d),C,52.107(d),52.252-4,Alterations in Contract.,1984-04-01,No Change,
+52.252-5,52.252-5 Authorized Deviations in Provisions.,2020-11-01,52.107(e),P,52.107(e),52.252-5,Authorized Deviations in Provisions.,2020-11-01,No Change,
+52.252-6,52.252-6 Authorized Deviations in Clauses.,2020-11-01,52.107(f),C,52.107(f),52.252-6,Authorized Deviations in Clauses.,2020-11-01,No Change,
+52.253-1,52.253-1 Computer Generated Forms.,1991-01-01,53.111,C,53.111,52.253-1,Computer Generated Forms.,JAN 2026 (PCD 26-03),Updated,No changes from acquisition.gov version apart from the inclusion of (DEVIATION DATE) instead of (JAN 1991).

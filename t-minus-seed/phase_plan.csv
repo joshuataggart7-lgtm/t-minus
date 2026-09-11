@@ -1,0 +1,26 @@
+acquisition_type,order,phase,planned_days,note
+commercial_ffp_13_5_competed,1,Intake,5,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,2,Market Research,20,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,3,Synopsis,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,4,Solicitation/Quote,20,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,5,Technical Evaluation,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,6,Price Reasonableness,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,7,Responsibility Check,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,8,Go/No-go Poll,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,9,Award,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,10,FPDS-NG Report,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,11,Administration,365,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,12,Closeout,90,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,1,Intake,5,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,2,Market Research,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,3,JOFOC,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,4,Synopsis,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,5,Solicitation/Quote,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,6,Technical Evaluation,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,7,Price Reasonableness,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,8,Responsibility Check,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,9,Go/No-go Poll,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,10,Award,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,11,FPDS-NG Report,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,12,Administration,365,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,13,Closeout,90,derived from LOE Estimator SAP timeline (about 4 months to award); confirm

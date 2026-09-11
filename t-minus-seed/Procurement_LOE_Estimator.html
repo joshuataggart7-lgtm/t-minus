@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>[hidden]{display:none!important}</style>
+<title>Procurement LOE Estimator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+  :root {
+    --bg: #F3F5F8; --surface: #FFFFFF; --surface-2: #EAEEF4; --surface-3: #DFE5EE;
+    --ink: #172033; --ink-2: #55607A; --ink-3: #8690A6;
+    --line: #D5DBE6; --line-strong: #B9C2D2;
+    --accent: #1D4F9C; --accent-ink: #FFFFFF; --accent-soft: #E4ECF9; --accent-line: #9DB7E3;
+    --co: #1D4F9C; --cs: #6A8FCB;
+    --good: #1F7A4D; --good-soft: #DFF1E6; --warn: #9A6B0F; --warn-soft: #FBF0D3; --crit: #B0281F; --crit-soft: #FADFDC;
+    --paper: #FFFFFF; --paper-ink: #121212; --paper-muted: #5A5A5A;
+    --shadow: 0 1px 2px rgba(23,32,51,.06);
+    --focus: #1D4F9C;
+    --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+    --serif: 'Tinos', 'Times New Roman', Times, Georgia, serif;
+    --radius: 6px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E131B; --surface: #151C27; --surface-2: #1C2432; --surface-3: #242E3E;
+      --ink: #E4E9F1; --ink-2: #A6B0C2; --ink-3: #737E93;
+      --line: #2A3444; --line-strong: #3B475B;
+      --accent: #86ADEE; --accent-ink: #0E131B; --accent-soft: #1B2B46; --accent-line: #35507E;
+      --co: #86ADEE; --cs: #4F6E9E;
+      --good: #5FC28C; --good-soft: #143222; --warn: #E2B45C; --warn-soft: #3A2D11; --crit: #F1918A; --crit-soft: #401B18;
+      --shadow: 0 1px 2px rgba(0,0,0,.3);
+      --focus: #86ADEE;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E131B; --surface: #151C27; --surface-2: #1C2432; --surface-3: #242E3E;
+    --ink: #E4E9F1; --ink-2: #A6B0C2; --ink-3: #737E93;
+    --line: #2A3444; --line-strong: #3B475B;
+    --accent: #86ADEE; --accent-ink: #0E131B; --accent-soft: #1B2B46; --accent-line: #35507E;
+    --co: #86ADEE; --cs: #4F6E9E;
+    --good: #5FC28C; --good-soft: #143222; --warn: #E2B45C; --warn-soft: #3A2D11; --crit: #F1918A; --crit-soft: #401B18;
+    --shadow: 0 1px 2px rgba(0,0,0,.3);
+    --focus: #86ADEE;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: var(--accent); }
+
+  .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 10px 20px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .brand { display: flex; flex-direction: column; gap: 1px; min-width: 220px; }
+  .eyebrow { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+  .brand h1 { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+  .audience { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px; background: var(--surface-2); }
+  .audience label { padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 500; cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+  .audience input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .audience label.on { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); }
+  .topbar .spacer { flex: 1; }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-weight: 500; font-size: 13px; cursor: pointer; line-height: 1.2; white-space: nowrap; }
+  .btn:hover { background: var(--surface-2); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .btn.quiet { border-color: transparent; background: transparent; color: var(--ink-2); }
+  .btn.quiet:hover { background: var(--surface-2); color: var(--ink); }
+  .btn.small { padding: 4px 9px; font-size: 12px; }
+  details.menu { position: relative; }
+  details.menu > summary { list-style: none; }
+  details.menu > summary::-webkit-details-marker { display: none; }
+  .menu-list { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 230px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); display: flex; flex-direction: column; }
+  .menu-list button { text-align: left; padding: 8px 10px; border: 0; background: transparent; border-radius: 4px; cursor: pointer; font-size: 13px; color: var(--ink); }
+  .menu-list button:hover { background: var(--surface-2); }
+  .menu-list hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+
+  .app { display: grid; grid-template-columns: 430px minmax(0, 1fr); gap: 0; min-height: calc(100vh - 60px); }
+  .inputs { position: sticky; top: 61px; align-self: start; max-height: calc(100vh - 61px); overflow-y: auto; padding: 18px 18px 60px; border-right: 1px solid var(--line); background: var(--surface); }
+  .results { padding: 20px 26px 80px; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+
+  .group { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 14px; background: var(--surface); }
+  .group > summary { cursor: pointer; padding: 10px 14px; font-size: 13px; font-weight: 600; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .group > summary::-webkit-details-marker { display: none; }
+  .group > summary .pill { font-family: var(--mono); font-size: 11px; color: var(--ink-3); font-weight: 400; }
+  .group > summary::after { content: ''; width: 6px; height: 6px; border-right: 1.5px solid var(--ink-3); border-bottom: 1.5px solid var(--ink-3); transform: rotate(45deg); transition: transform .15s; margin-left: auto; }
+  .group[open] > summary::after { transform: rotate(-135deg); }
+  .group-body { padding: 4px 14px 14px; display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--line); }
+  .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+  .field .hint { font-size: 11.5px; color: var(--ink-3); line-height: 1.4; }
+  .row { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+  .row.three { grid-template-columns: 1fr 1fr 1fr; }
+  input[type="text"], input[type="date"], input[type="number"], select, textarea { width: 100%; padding: 7px 9px; border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font-size: 13px; line-height: 1.4; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: 2px solid var(--accent-soft); outline-offset: 0; }
+  input.money, input.num { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  textarea { min-height: 60px; resize: vertical; }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+  .check { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; cursor: pointer; line-height: 1.35; }
+  .check input { margin: 2px 0 0; accent-color: var(--accent); flex: none; }
+  .inline-note { padding: 8px 11px; border-radius: 6px; font-size: 12px; line-height: 1.45; background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+  .inline-note.warn { background: var(--warn-soft); border-left-color: var(--warn); }
+  .inline-note.good { background: var(--good-soft); border-left-color: var(--good); }
+  .rate-line { font-family: var(--mono); font-size: 12px; color: var(--ink-2); background: var(--surface-2); border-radius: 6px; padding: 8px 10px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .rate-line b { color: var(--ink); font-weight: 500; }
+
+  /* results */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; box-shadow: var(--shadow); min-width: 0; }
+  .tile .k { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+  .tile .v { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--ink); margin-top: 4px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .tile .v.accent { color: var(--accent); }
+  .tile .s { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .card-head h2 { font-size: 14px; font-weight: 600; }
+  .card-head .sub { font-size: 12px; color: var(--ink-3); }
+  .card-body { padding: 14px 16px; }
+  .card-body.flush { padding: 0; }
+  .tbl-wrap { overflow-x: auto; }
+  table.wbs { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.wbs th { text-align: left; padding: 8px 10px; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.wbs td { padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  table.wbs td.n, table.wbs th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.wbs tr.phase td { background: var(--surface-2); font-weight: 600; padding: 8px 10px; }
+  table.wbs tr.phase td.n { color: var(--accent); }
+  table.wbs td.wbsno { font-family: var(--mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  table.wbs td.basis { font-size: 11.5px; color: var(--ink-3); max-width: 240px; }
+  table.wbs tr.total td { font-weight: 700; background: var(--accent-soft); }
+  table.wbs input.hrs { width: 72px; padding: 4px 6px; font-family: var(--mono); text-align: right; font-size: 12.5px; }
+  table.wbs input.hrs.edited { border-color: var(--warn); background: var(--warn-soft); }
+  table.wbs .ghost { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); display: block; text-align: right; }
+  table.wbs .split { height: 6px; border-radius: 3px; background: var(--cs); overflow: hidden; min-width: 60px; }
+  table.wbs .split i { display: block; height: 100%; background: var(--co); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-2); align-items: center; }
+  .legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .bars { display: flex; flex-direction: column; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 170px 1fr 120px; gap: 10px; align-items: center; font-size: 12.5px; }
+  .bar-row .track { height: 12px; background: var(--surface-3); border-radius: 6px; overflow: hidden; display: flex; }
+  .bar-row .co { height: 100%; background: var(--co); }
+  .bar-row .cs { height: 100%; background: var(--cs); }
+  .bar-row .val { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .timeline { display: flex; height: 30px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .timeline div { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap; }
+  .tl-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--ink-2); }
+  .tl-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .triggers { display: flex; flex-direction: column; gap: 6px; }
+  .trigger { display: grid; grid-template-columns: 8px auto 1fr; gap: 10px; align-items: start; padding: 8px 10px; border-radius: 6px; background: var(--surface-2); font-size: 12.5px; line-height: 1.45; }
+  .trigger .bar { width: 8px; min-height: 18px; height: 100%; border-radius: 4px; background: var(--accent); }
+  .trigger.warn .bar { background: var(--warn); }
+  .trigger.high .bar { background: var(--crit); }
+  .trigger .tag { font-family: var(--mono); font-size: 11px; color: var(--ink-3); padding-top: 2px; white-space: nowrap; }
+  .msg { font-family: var(--serif); font-size: 15px; line-height: 1.55; color: var(--ink); }
+  .fy { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .fy th { text-align: left; padding: 8px 10px; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; border-bottom: 1px solid var(--line); }
+  .fy td { padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  .fy td.n, .fy th.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .fy tr.total td { font-weight: 700; background: var(--accent-soft); }
+  .about p { max-width: 72ch; line-height: 1.55; }
+  .about p + p { margin-top: 8px; }
+  .about ul { margin: 6px 0 0; padding-left: 18px; line-height: 1.5; }
+  .about h3 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin: 14px 0 6px; }
+  dialog { border: 1px solid var(--line); border-radius: 10px; padding: 0; background: var(--surface); color: var(--ink); max-width: min(760px, calc(100vw - 32px)); width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+  dialog::backdrop { background: rgba(10,14,20,.5); }
+  .dlg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .dlg-head h2 { font-size: 16px; font-weight: 600; }
+  .dlg-body { padding: 18px 20px 22px; max-height: 70vh; overflow: auto; }
+  .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.25); z-index: 50; max-width: min(520px, calc(100vw - 32px)); }
+  .paper { display: none; }
+
+  @media (max-width: 1000px) {
+    .app { grid-template-columns: 1fr; }
+    .inputs { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+    .results { padding: 16px 14px 60px; }
+    .bar-row { grid-template-columns: 120px 1fr 90px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .group > summary::after { transition: none; } }
+  @media print {
+    @page { margin: .75in; }
+    body { background: #fff; color: #000; }
+    .topbar, .inputs, dialog, .toast, .no-print { display: none !important; }
+    .app { display: block; }
+    .results { padding: 0; }
+    .card, .tile { box-shadow: none; break-inside: avoid; }
+    table.wbs input.hrs { border: 0; background: transparent; padding: 0; }
+    table.wbs .ghost { display: none; }
+  }
+</style>
+</head>
+<body>
+
+
+<header class="topbar">
+  <div class="brand">
+    <div class="eyebrow">NASA Ames · Office of Procurement · cradle-to-grave workload model</div>
+    <h1>Procurement LOE Estimator</h1>
+  </div>
+  <div class="audience" id="audience" role="radiogroup" aria-label="Who the estimate is for">
+    <label class="on"><input type="radio" name="audience" value="agency" checked>Reimbursable customer</label>
+    <label><input type="radio" name="audience" value="nasa">NASA requestor (WBS)</label>
+  </div>
+  <span class="spacer"></span>
+  <div class="topbar-actions">
+    <button class="btn" id="btnReset" type="button">Reset hours to model</button>
+    <button class="btn primary" id="btnDocx" type="button">Export memo (Word)</button>
+    <button class="btn" id="btnPrint" type="button">Print / PDF</button>
+    <details class="menu" id="moreMenu">
+      <summary class="btn" role="button" aria-haspopup="true">More</summary>
+      <div class="menu-list">
+        <button type="button" id="btnCsv">Export WBS (.csv)</button>
+        <button type="button" id="btnSave">Save estimate (.json)</button>
+        <button type="button" id="btnLoad">Load estimate (.json)</button>
+        <hr>
+        <button type="button" id="btnAbout">Method and sources</button>
+        <button type="button" id="btnClear">Start over</button>
+      </div>
+    </details>
+  </div>
+</header>
+
+<main class="app">
+  <aside class="inputs" id="inputs"></aside>
+  <section class="results" id="results"></section>
+</main>
+
+<dialog id="aboutDialog" aria-labelledby="aboutTitle">
+  <div class="dlg-head"><h2 id="aboutTitle">Method and sources</h2><button class="btn quiet" type="button" data-close>Close</button></div>
+  <div class="dlg-body about" id="aboutBody"></div>
+</dialog>
+<input type="file" id="fileLoad" accept="application/json,.json" hidden>
+
+<script>
+/* =========================================================
+   Procurement LOE Estimator — cradle-to-grave CO/CS workload
+   and cost model. Single file, no external code.
+   Successor to the April 2026 "NASA CO Level of Effort
+   Estimator" (hours only); adds the CO/CS split, 2026 GS
+   rates with burden, an editable WBS, by-year spread, and
+   memo, CSV, and JSON exports.
+   ========================================================= */
+const BUILD_STAMP = '2026-09-09';
+const STORAGE_KEY = 'procurement-loe-estimator-v2';
+
+/* ---------- thresholds (RFO FAR, Oct 1, 2025 inflation adjustment) ---------- */
+const TH = { MPT: 15000, SAT: 350000, COMM_SIMP: 9000000, COMM_SIMP_HI: 15000000, CCPD: 2500000, SUBK: 900000, JOFOC_T2: 900000, JOFOC_T3: 20000000, JOFOC_T4: 150000000, PUBLIC_ANNOUNCE: 5500000, HQ_ANNOUNCE: 7000000, ANOSCA: 30000000 };
+
+/* ---------- 2026 GS hourly basic rates (OPM Salary Tables 2026, steps 1/5/10) ---------- */
+const GS_CAP_HOURLY = 94.49; // Executive Schedule Level IV cap as shown on the 2026 tables
+const LOCALITIES = {
+  SF:  { name: 'San Jose–San Francisco–Oakland (Ames)', pct: 46.34, rates: { 9: [36.97, 41.90, 48.07], 11: [44.73, 50.70, 58.16], 12: [53.62, 60.77, 69.70], 13: [63.76, 72.26, 82.88], 14: [75.34, 85.39, 94.49], 15: [88.62, 94.49, 94.49] } },
+  RUS: { name: 'Rest of U.S. (Stennis and others)', pct: 17.06, rates: { 9: [29.57, 33.52, 38.45], 11: [35.78, 40.55, 46.52], 12: [42.89, 48.61, 55.76], 13: [51.00, 57.80, 66.30], 14: [60.27, 68.30, 78.35], 15: [70.89, 80.34, 92.16] } },
+  DCB: { name: 'Washington–Baltimore (HQ)', pct: 33.94, rates: { 9: [33.84, 38.35, 43.99], 11: [40.94, 46.40, 53.23], 12: [49.07, 55.62, 63.80], 13: [58.35, 66.14, 75.86], 14: [68.96, 78.15, 89.65], 15: [81.11, 91.93, 94.49] } },
+  HOU: { name: 'Houston (JSC)', pct: 35.00, rates: { 9: [34.11, 38.66, 44.34], 11: [41.27, 46.77, 53.65], 12: [49.46, 56.06, 64.30], 13: [58.82, 66.66, 76.46], 14: [69.50, 78.77, 90.36], 15: [81.75, 92.65, 94.49] } },
+};
+function gsHourly(locality, grade, step) {
+  const t = LOCALITIES[locality] || LOCALITIES.SF;
+  const r = t.rates[grade] || t.rates[13];
+  const s = Math.max(1, Math.min(10, Number(step) || 1));
+  let rate;
+  if (s === 1) rate = r[0]; else if (s === 5) rate = r[1]; else if (s === 10) rate = r[2];
+  else { const inc = (r[1] - r[0]) / 4; rate = r[0] + inc * (s - 1); }
+  return Math.min(Math.round(rate * 100) / 100, GS_CAP_HOURLY);
+}
+
+/* ---------- utilities ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = (n, dec = 0) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const num = (n, dec = 0) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const parseMoney = (s) => { const d = String(s ?? '').replace(/[^0-9.]/g, ''); return d === '' ? '' : String(Math.round(Number(d))); };
+const shortMoney = (n) => n >= 1e9 ? '$' + (n / 1e9).toFixed(1) + 'B' : n >= 1e6 ? '$' + (n / 1e6).toFixed(n >= 10e6 ? 0 : 1) + 'M' : n >= 1e3 ? '$' + Math.round(n / 1e3) + 'K' : '$' + n;
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const isBlank = (s) => !String(s ?? '').trim();
+function fmtDate(iso) { if (!iso) return ''; const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); }
+let toastTimer;
+function toast(msg) {
+  let el = $('#toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3400);
+}
+
+/* ---------- state ---------- */
+function defaults() {
+  return {
+    audience: 'nasa',
+    title: 'Arc Jet Complex Optical Diagnostics Sustainment (PR 4200951177)',
+    customer: 'Thermophysics Facilities Branch, Code TSF (Attn: Dr. Renata Oyelaran)',
+    coName: 'Joshua Taggart', csName: 'Contract Specialist (TBD)', orgCode: 'JAZ', memoDate: '2026-09-09',
+    V: '2450000', instrument: 'STANDALONE', pricing: 'FFP', competition: 'SOLE_SOURCE', reqType: 'SERVICES', commercial: 'NO', procedures: 'NEG_SS',
+    baseYears: '1', optionYears: '1', proposals: '1', propSize: 'MEDIUM', modsPerYear: '3', invoicesPerYear: '12', ordersPerYear: '0', orderComplexity: 'TYPICAL',
+    flags: { seb: false, drfp: false, oral: false, evm: false, itar: false, classified: false, cyber: false, s508: false, govprop: true, hazmat: false, sma: false, protest: false, cba: false, subk: false, gfp: false, multiCenter: false, igf: false, firstTime: false, foreign: false, ocio: false },
+    coGrade: '13', coStep: '5', csGrade: '12', csStep: '5', locality: 'SF', coCustom: '', csCustom: '', fringe: '36.25', overhead: '0', rangeLow: '15', rangeHigh: '30',
+    overrides: {},
+  };
+}
+let S = defaults();
+
+/* ---------- task model ---------- */
+const PHASES = [
+  { key: 'PLAN', wbs: '1.0', name: 'Acquisition planning' },
+  { key: 'SOL', wbs: '2.0', name: 'Solicitation' },
+  { key: 'EVAL', wbs: '3.0', name: 'Evaluation, negotiation, and award' },
+  { key: 'ADMIN', wbs: '4.0', name: 'Contract administration' },
+  { key: 'CLOSE', wbs: '5.0', name: 'Closeout' },
+];
+function ctxOf(s) {
+  const V = Number(s.V || 0);
+  const f = s.flags;
+  const isNonComp = ['SOLE_SOURCE', 'SOLE_8A', 'URGENCY', 'INTL', 'STATUTE', 'PUBLIC_INTEREST'].includes(s.competition);
+  const is8a = ['SET_ASIDE_8A', 'SOLE_8A'].includes(s.competition);
+  const isSB = ['SET_ASIDE_SB', 'SET_ASIDE_8A', 'SET_ASIDE_WOSB', 'SET_ASIDE_SDVOSB', 'SET_ASIDE_HUBZONE', 'SOLE_8A'].includes(s.competition);
+  const isCostType = ['CPFF', 'CPAF', 'CPIF'].includes(s.pricing);
+  const isTM = s.pricing === 'TM';
+  const isIDIQ = s.instrument === 'IDIQ';
+  const isTO = s.instrument === 'TO' || s.instrument === 'BPA';
+  const baseYears = Number(s.baseYears || 1), optionYears = Number(s.optionYears || 0);
+  const years = baseYears + optionYears;
+  const proposals = Math.max(1, Number(s.proposals || 1));
+  const isSAP = s.procedures === 'SAP' || V <= TH.SAT;
+  const scale = isSAP ? 0.4 : (isTO || s.procedures === 'FAIR_OPP') ? 0.55 : (s.procedures === 'COMM_SIMP' ? 0.75 : 1);
+  return { V, f, isNonComp, is8a, isSB, isCostType, isTM, isIDIQ, isTO, baseYears, optionYears, years, proposals, isSAP, scale, s };
+}
+function buildModel(s) {
+  const c = ctxOf(s); const { V, f } = c;
+  const tasks = []; const triggers = [];
+  const T = (wbs, phase, name, hours, cs, basis, opts = {}) => tasks.push(Object.assign({ wbs, phase, name, model: Math.max(0, Math.round(hours)), cs, basis }, opts));
+  const trig = (type, tag, text) => triggers.push({ type, tag, text });
+  const sc = (h) => h * c.scale;
+
+  /* 1.0 Planning */
+  let h = 6; if (V > 1e6) h = 10; if (V > 10e6) h = 16; if (V > 50e6) h = 24; if (f.firstTime) h += 8;
+  T('1.1', 'PLAN', 'Purchase request review and intake', sc(h), .6, 'NFS CG 1807.71 (PR review)');
+  h = 4; if (V > TH.SAT) h = 8; if (V > 5e6) h = 12; if (c.isNonComp) h += 6;
+  T('1.2', 'PLAN', 'Market research review and documentation', sc(h), .6, 'FAR Part 10');
+  h = 0; let psm = '';
+  if (!c.isTO) {
+    if (V > 10e6) { h = 24; psm = 'HCA (NFS CG 1807.11(a)(3))'; if (V >= 1e9) { h = 60; psm = 'SPE (NFS CG 1807.11(a)(2))'; } if (V >= 2e9) { h = 80; psm = 'CAO (NFS CG 1807.11(a)(1))'; } trig('info', 'NFS', `Procurement Strategy Meeting required; approval by ${psm}. PSM minutes are approved before a draft or final RFP is released.`); }
+    else if (V > TH.SAT) h = 8;
+    if (V >= 50e6) { h += 12; trig('info', 'NFS', 'Acquisition at or above $50M: obtain HQ procurement analyst input on key strategy concepts (NFS CG 1807.12(b)).'); }
+  }
+  T('1.3', 'PLAN', c.isTO ? 'Order planning under the base contract' : 'Acquisition planning / Procurement Strategy Meeting', c.isTO ? sc(4) : sc(h), .5, psm || (c.isTO ? 'FAR Part 16, ordering procedures' : 'FAR Part 7; Center procedures'), { cond: true });
+  h = 0; if (s.reqType === 'SERVICES' || f.igf) { h = 4; if (V > 5e6) h = 6; trig('info', 'FAR', 'Services acquisition: inherently governmental function review and service contract determination (FAR Part 7; NFS CG 1807.51).'); }
+  T('1.4', 'PLAN', 'Inherently governmental function review', sc(h), .5, 'FAR Part 7 / NFS CG 1807.51', { cond: true });
+  h = 0; let jApproval = '';
+  if (c.isNonComp && V > TH.SAT && !c.isTO) {
+    h = 16; if (V > 5e6) h = 24; if (V > 20e6) h = 32; if (V > 150e6) h = 48;
+    jApproval = V <= TH.JOFOC_T2 ? 'contracting officer certification' : V <= TH.JOFOC_T3 ? 'Competition Advocate (not delegable)' : V <= TH.JOFOC_T4 ? 'Head of the Contracting Activity' : 'Senior Procurement Executive';
+    trig('warn', 'FAR', `JOFOC required: content per RFO FAR 6.104-1, approval by ${jApproval} per 6.104-2, posted to the GPE within 14 days after award (6.301; 30 days for 6.103-2).`);
+    if (s.competition === 'PUBLIC_INTEREST') { h += 40; trig('high', 'FAR', 'Public interest (6.103-7): agency head determination, not delegable, with written notice to Congress at least 30 days before award.'); }
+    if (s.competition === 'INTL') { h = Math.round(h * 0.4); trig('info', 'FAR', 'International agreement (6.103-4): NASA awards under this authority do not require the written justification and approval in 6.104; a procurement officer memorandum describing the agreement terms is filed instead.'); }
+  } else if (c.isNonComp && c.isTO) { h = 8; if (V > 5e6) h = 12; trig('info', 'FAR', 'Order under a multiple-award contract without fair opportunity: document the exception to fair opportunity (FAR Part 16).'); }
+  T('1.5', 'PLAN', c.isTO ? 'Exception to fair opportunity' : 'Justification for other than full and open competition', h, .5, jApproval ? `RFO FAR 6.104-1, 6.104-2; approval: ${jApproval}` : (c.isTO ? 'FAR Part 16' : 'Not required (competitive)'), { cond: true });
+  h = 0;
+  if (c.isTM) { h += 6; trig('info', 'NFS', 'Time-and-materials or labor-hour: determination and findings required (NFS CG 1816.62), agency template.'); }
+  if (c.years > 5) { h += 6; trig('warn', 'NFS', 'Period of performance over five years: determination and findings required (NFS CG 1817.24).'); }
+  if (s.pricing === 'LETTER') { h += 8; trig('warn', 'NFS', 'Letter contract: HCA approval required (NFS CG 1816.66), undefinitized contract action template.'); }
+  if (f.foreign) { h += 10; trig('warn', 'NFS', 'Foreign contractor: Buy American nonavailability determination routed through HQ (NFS CG 1825.12).'); }
+  T('1.6', 'PLAN', 'Determinations and findings', h, .5, 'Various authorities', { cond: true });
+  h = 0;
+  if (c.isNonComp && V >= TH.HQ_ANNOUNCE) { h = 4; trig('info', 'PCD', 'Noncompetitive action at or above $7M: HQ announcement (PCD 25-16 / PIC 26-01; NFS CG 1805.3).'); }
+  if (c.isNonComp && V >= TH.ANOSCA) { h = 8; trig('warn', 'PCD', 'Noncompetitive action at or above $30M: NASA Notification of Contract Action (ANOSCA) per PCD 25-16.'); }
+  T('1.7', 'PLAN', 'HQ notification of contract action', h, .6, 'PCD 25-16 / PIC 26-01', { cond: true });
+  h = 3; if (V >= TH.SAT) { h = 5; trig('info', 'PCD', 'NEAR milestone entry and file element structure required for awards at or above the SAT (NFS CG 1804.111 / PCD 25-21).'); }
+  T('1.8', 'PLAN', 'NEAR file setup and milestones', h, .9, 'NFS CG 1804.111 / PCD 25-21');
+  h = 0; if (s.reqType === 'IT' || f.ocio) { h = 12; trig('warn', 'NFS', 'OCIO information technology authorization required before solicitation release (PN 24-09 / PCD 25-09).'); }
+  T('1.9', 'PLAN', 'OCIO IT authorization', h, .5, 'PN 24-09 / PCD 25-09', { cond: true });
+  h = 4; if (c.is8a) h = 10; if (V > TH.SUBK && !c.isSB) h += 6; if (c.isSB) h += 4; if (c.isSAP) h = 2;
+  T('1.10', 'PLAN', 'Small business office coordination', h, .7, 'FAR Part 19 / NFS CG 1819');
+  h = 0; if (V > TH.SUBK && !c.isSB) { h = 8; if (V > 10e6) h = 14; if (f.subk) h += 4; trig('info', 'FAR', `Subcontracting plan required above ${money(TH.SUBK)} for other-than-small awards (FAR Part 19); the contracting officer reviews the plan and goals.`); }
+  T('1.11', 'PLAN', 'Subcontracting plan review', h, .6, 'FAR Part 19', { cond: true });
+  h = 4;
+  if (f.sma) h += 8;
+  if (f.itar) { h += 10; trig('warn', 'NFS', 'Export control coordination with the Center export administrator (NFS CG 1807.12(a)(5)).'); }
+  if (f.classified) { h += 12; trig('high', 'NFS', 'Classified work: security coordination, DD Form 254, facility clearances (NFS CG 1807.12(a)(8)).'); }
+  if (f.evm) { h += 6; trig('info', 'NFS', 'Earned value management applies at $50M and above (NFS CG 1807.12(a)(6)).'); }
+  if (f.hazmat) h += 4;
+  if (f.s508) { h += 6; trig('info', 'FAR', 'Section 508 accessibility requirements for information and communication technology (FAR Part 39).'); }
+  if (f.cyber) { h += 8; trig('info', 'NFS', 'Controlled unclassified information: cybersecurity coordination with OCIO (NFS CG 1807.12(a)(4)).'); }
+  T('1.12', 'PLAN', 'Technical, safety, security, and export coordination', sc(h), .4, 'NFS CG 1807.12(a)');
+  h = 0; if (s.audience === 'agency') { h = 8; if (V > 5e6) h += 4; trig('info', 'NPR', 'Reimbursable work is priced at full cost; civil service labor is an input to the Estimated Price Report / Estimated Cost Report for the agreement (NPR 9090.1C; 31 U.S.C. 1535).'); }
+  T('1.13', 'PLAN', 'Reimbursable agreement coordination (EPR/ECR input, funding documents)', h, .4, 'NPR 9090.1C; 31 U.S.C. 1535', { cond: true });
+
+  /* 2.0 Solicitation */
+  h = 16; if (s.commercial === 'YES') h = 12; if (s.commercial === 'COTS') h = 8; if (V > 5e6) h += 8; if (V > 50e6) h += 12; if (c.isIDIQ) h += 10;
+  if (s.procedures === 'TRADEOFF') h += 8; if (s.procedures === 'LPTA') h += 4;
+  if (f.drfp) { h += 16; trig('info', 'NFS', 'Draft RFP planned: PSM minutes approved before release (NFS CG 1807.13(d)).'); }
+  if (f.multiCenter) h += 12;
+  T('2.1', 'SOL', c.isTO ? 'Order request / fair opportunity notice' : 'Solicitation drafting', sc(h), .7, s.commercial === 'NO' ? 'FAR 15.102; FAR Part 12 where commercial' : 'FAR Part 12');
+  h = 4; if (s.commercial === 'NO') h = 10; if (V > 10e6) h += 4; if (c.isCostType) h += 6;
+  T('2.2', 'SOL', 'Clause and provision assembly (NCMS)', sc(h), .8, 'NFS CG 1812; PCD 25-23');
+  h = 4; if (V > 5e6) h = 8; if (V > 50e6) h = 12; if (c.isIDIQ) h += 4;
+  T('2.3', 'SOL', 'Independent Government cost estimate review', sc(h), .5, 'Agency practice');
+  h = 3; if (c.isNonComp) h = 2;
+  T('2.4', 'SOL', 'SAM.gov presolicitation and solicitation notices', sc(h), .9, 'FAR 5.101, 5.201');
+  h = 0; if (V > 10e6 && !c.isNonComp) { h = 2; trig('info', 'NFS', 'Blackout notice for competitive acquisitions over $10M (NFS CG 1815.1).'); }
+  T('2.5', 'SOL', 'Blackout notice', h, .5, 'NFS CG 1815.1', { cond: true });
+  h = 4; if (!c.isNonComp && V > 5e6) h = 10; if (c.proposals > 3) h += 6; if (f.drfp) h += 8;
+  T('2.6', 'SOL', 'Questions, answers, and amendments', sc(h), .6, 'FAR 15.106');
+
+  /* 3.0 Evaluation and award */
+  h = 0; if (f.seb) { h = 20; if (V > 50e6) h = 40; trig('warn', 'NFS', 'Source Evaluation Board: SSA appointment letter and SEB membership memorandum (NFS CG 1815.2); NEAR milestone entries for SEB dates.'); }
+  T('3.1', 'EVAL', 'SEB / evaluation team setup and training', h, .4, 'NFS CG 1815.2', { cond: true });
+  const sizeMult = { SMALL: 1, MEDIUM: 1.5, LARGE: 2.5, MASSIVE: 4 }[s.propSize] || 1.5;
+  h = Math.round(6 * Math.min(c.proposals, 20) * sizeMult); if (h < 8) h = 8; if (s.procedures === 'TRADEOFF') h = Math.round(h * 1.3); if (f.oral) h += c.proposals * 4;
+  T('3.2', 'EVAL', 'Proposal evaluation (contracting officer participation)', sc(h), .4, s.procedures === 'TRADEOFF' ? 'FAR 15.103-1, 15.202' : s.procedures === 'LPTA' ? 'FAR 15.103-2, 15.202' : 'FAR 15.202');
+  h = 0; if (!c.isSAP) { h = 6; if (V > 5e6) h = 10; if (V > 50e6) h = 16; }
+  T('3.3', 'EVAL', 'Technical evaluation coordination and fact-finding', sc(h), .5, 'FAR 15.404-4; NFS CG 1815.45(b)', { cond: true });
+  h = 8;
+  if (V > TH.CCPD) { h = 16; trig('info', 'FAR', `Certified cost or pricing data threshold (${money(TH.CCPD)}) exceeded; obtain data or document the exception (FAR 15.403).`); }
+  if (V > 10e6) h = 24; if (V > 50e6) h = 40; if (c.isCostType) h = Math.round(h * 1.5); if (s.commercial === 'YES' && V <= TH.CCPD) h = Math.max(6, Math.round(h * 0.5));
+  T('3.4', 'EVAL', 'Cost or price analysis', sc(h), .6, c.isCostType ? 'FAR 15.404-2, 15.404-3' : 'FAR 15.404-1');
+  h = 0; if (c.isNonComp && V > TH.SAT) { h = 12; if (V > 10e6) h = 20; if (V > 50e6) h = 32; trig('info', 'NFS', 'Prenegotiation position memorandum for noncompetitive actions (NFS CG 1815.48); award within 120 days of proposal receipt is the agency goal.'); }
+  T('3.5', 'EVAL', 'Prenegotiation objectives (PPM)', h, .5, 'FAR 15.408-1; NFS CG 1815.48', { cond: true });
+  h = 4; if (c.isNonComp) h = 8; if (V > 5e6) h += 8; if (V > 50e6) h += 16; if (c.isCostType) h += 8;
+  T('3.6', 'EVAL', 'Negotiations', sc(h), .3, 'FAR 15.407');
+  h = 3; if (V > TH.SAT) h = 5;
+  T('3.7', 'EVAL', 'Responsibility determination', h, .8, 'FAR Part 9');
+  h = 6; if (V > 5e6) h = 10; if (V > 50e6) h = 16;
+  T('3.8', 'EVAL', 'Price negotiation memorandum and award documentation', sc(h), .5, 'FAR 15.408-2; NFS CG 1815.49');
+  h = 0; if (V > TH.SUBK && !c.isSB) { h = 6; if (V > 10e6) h = 10; }
+  T('3.9', 'EVAL', 'Subcontracting plan negotiation', h, .5, 'FAR Part 19', { cond: true });
+  h = 8; if (!c.isNonComp && c.proposals > 1) h += (c.proposals - 1) * 3;
+  if (f.protest) { h += 40; trig('high', 'FAR', 'High protest risk flagged: budget about 40 additional hours for a GAO or Court of Federal Claims response; a stay of performance may apply.'); }
+  T('3.10', 'EVAL', 'Award execution, notices, and debriefings', sc(h), .6, 'FAR 15.207, 15.206-2, 15.301');
+  T('3.11', 'EVAL', 'FPDS contract action report', 2, 1, 'FAR Part 4');
+  h = 2; if (V >= TH.PUBLIC_ANNOUNCE) { h = 4; trig('info', 'FAR', 'Award at or above $5.5M: public announcement information by 5 p.m. Eastern on the day of award (FAR 5.302).'); } if (c.isNonComp && V > TH.SAT) h += 2;
+  T('3.12', 'EVAL', 'Award announcement and justification posting', h, .8, 'FAR 5.302; 6.301');
+
+  /* 4.0 Administration */
+  h = 4; if (V > 10e6) h = 8; if (V > 50e6) h = 12;
+  T('4.1', 'ADMIN', 'Post-award orientation', h, .5, 'FAR Part 42');
+  T('4.2', 'ADMIN', `COR appointment and oversight (${c.years} yr)`, 4 * c.years, .5, 'NFS CG 1801.6');
+  const inv = Number(s.invoicesPerYear || 0); const perInv = c.isCostType ? 1.5 : (c.isTM ? 1.25 : 0.75);
+  T('4.3', 'ADMIN', `Invoice review and payment (${inv}/yr × ${c.years} yr)`, inv * c.years * perInv, .7, 'FAR Part 32');
+  const mods = Number(s.modsPerYear || 0); let perMod = 6; if (c.isCostType) perMod = 10; if (V > 50e6) perMod += 4;
+  T('4.4', 'ADMIN', `Modifications (${mods}/yr × ${c.years} yr)`, mods * c.years * perMod, .6, 'FAR Part 43');
+  h = 0; if (c.optionYears > 0) h = c.optionYears * (V > 10e6 ? 12 : 8);
+  T('4.5', 'ADMIN', `Option exercises (${c.optionYears})`, h, .6, 'FAR Part 17', { cond: true });
+  const orders = c.isIDIQ ? Number(s.ordersPerYear || 0) : 0; const perOrder = { SIMPLE: 12, TYPICAL: 28, COMPLEX: 60 }[s.orderComplexity] || 28;
+  T('4.6', 'ADMIN', `Task or delivery orders (${orders}/yr × ${c.years} yr)`, orders * c.years * perOrder, .6, 'FAR Part 16', { cond: true });
+  h = 0; if (f.govprop || f.gfp) { h = 4 * c.years; trig('info', 'FAR', 'Government property clause applies; annual property reporting and oversight (FAR Part 45).'); }
+  T('4.7', 'ADMIN', 'Government property administration', h, .7, 'FAR Part 45', { cond: true });
+  h = 0; if (V > TH.SUBK && !c.isSB) h = 3 * c.years;
+  T('4.8', 'ADMIN', 'Subcontracting report review (ISR/SSR)', h, .8, 'FAR Part 19', { cond: true });
+  h = 0; if (f.evm) h = 8 * c.years;
+  T('4.9', 'ADMIN', 'Earned value monitoring and IBR', h, .5, 'NFS CG 1834', { cond: true });
+  h = 0; if (V > TH.SAT) h = 3 * c.years + 4;
+  T('4.10', 'ADMIN', 'CPARS evaluations (annual and final)', h, .4, 'FAR Part 42', { cond: true });
+  h = 0; if (s.audience === 'agency') h = (4 + (V > 5e6 ? 2 : 0)) * c.years;
+  T('4.11', 'ADMIN', 'Reimbursable customer reporting and funding actions', h, .5, 'NPR 9090.1C', { cond: true });
+
+  /* 5.0 Closeout */
+  h = 12; if (c.isCostType) h = 24; if (V > 50e6) h += 12;
+  T('5.1', 'CLOSE', 'Contract closeout', h, .7, 'FAR Part 4; FAR Part 42');
+  h = 2; if (s.reqType === 'RD') h = 6;
+  T('5.2', 'CLOSE', 'Final patent, data rights, and property actions', h, .5, 'FAR Part 27; FAR Part 45');
+
+  /* timeline (calendar months) */
+  let preMonths = 2; if (V > 10e6) preMonths = 4; if (V > 50e6) preMonths = 6; if (c.isNonComp) preMonths = Math.max(preMonths - 1, 1); if (c.isSAP || c.isTO) preMonths = 1;
+  let solMonths = c.isNonComp ? 1 : 2; if (f.drfp) solMonths += 2; if (c.isSAP) solMonths = 1;
+  let evalMonths = 1; if (!c.isNonComp && c.proposals > 3) evalMonths = 2; if (f.seb) evalMonths += 2; if (f.oral) evalMonths += 1;
+  let awardMonths = 1; if (f.protest) awardMonths += 3;
+  const closeMonths = c.isCostType ? 6 : 3;
+  return { tasks, triggers, ctx: c, timeline: { preMonths, solMonths, evalMonths, awardMonths, adminMonths: c.years * 12, closeMonths } };
+}
+
+/* ---------- rates and computation ---------- */
+function rates(s) {
+  const fringe = Number(s.fringe || 0) / 100, overhead = Number(s.overhead || 0) / 100;
+  const burden = (1 + fringe) * (1 + overhead);
+  const coBase = s.coCustom !== '' && !isNaN(Number(s.coCustom)) ? Number(s.coCustom) : gsHourly(s.locality, Number(s.coGrade), Number(s.coStep));
+  const csBase = s.csCustom !== '' && !isNaN(Number(s.csCustom)) ? Number(s.csCustom) : gsHourly(s.locality, Number(s.csGrade), Number(s.csStep));
+  return { fringe, overhead, burden, coBase, csBase, co: coBase * burden, cs: csBase * burden, coCustom: s.coCustom !== '' && !isNaN(Number(s.coCustom)), csCustom: s.csCustom !== '' && !isNaN(Number(s.csCustom)) };
+}
+function compute(s) {
+  const m = buildModel(s); const r = rates(s);
+  const rows = m.tasks.map(t => {
+    const ov = s.overrides[t.wbs];
+    const applicable = !(t.cond && t.model === 0); // a task the profile switches off ignores any earlier override
+    const hours = (applicable && ov !== undefined && ov !== '' && !isNaN(Number(ov))) ? Math.max(0, Number(ov)) : t.model;
+    const csH = Math.round(hours * t.cs * 10) / 10, coH = Math.round((hours - csH) * 10) / 10;
+    const cost = coH * r.co + csH * r.cs;
+    return Object.assign({}, t, { hours, coH, csH, cost, edited: hours !== t.model });
+  });
+  const phases = PHASES.map(p => { const list = rows.filter(x => x.phase === p.key); const sum = (k) => list.reduce((n, x) => n + x[k], 0); return Object.assign({}, p, { rows: list, hours: sum('hours'), coH: sum('coH'), csH: sum('csH'), cost: sum('cost') }); });
+  const tot = (k) => rows.reduce((n, x) => n + x[k], 0);
+  const total = { hours: tot('hours'), coH: tot('coH'), csH: tot('csH'), cost: tot('cost') };
+  const preAward = phases.slice(0, 3).reduce((n, p) => n + p.hours, 0);
+  const preAwardCost = phases.slice(0, 3).reduce((n, p) => n + p.cost, 0);
+  const lo = 1 - Number(s.rangeLow || 0) / 100, hi = 1 + Number(s.rangeHigh || 0) / 100;
+  /* by year: year 0 = pre-award; years 1..N = administration spread evenly; closeout in the final year + 1 (or same year if short) */
+  const years = m.ctx.years;
+  const admin = phases[3], close = phases[4];
+  const byYear = [{ label: 'Year 0 (pre-award)', hours: preAward, cost: preAwardCost }];
+  for (let y = 1; y <= years; y++) byYear.push({ label: `Year ${y} (performance)`, hours: admin.hours / years, cost: admin.cost / years });
+  byYear.push({ label: `Year ${years + 1} (closeout)`, hours: close.hours, cost: close.cost });
+  const monthsToAward = m.timeline.preMonths + m.timeline.solMonths + m.timeline.evalMonths + m.timeline.awardMonths;
+  return { model: m, rates: r, rows, phases, total, preAward, preAwardCost, lo, hi, byYear, monthsToAward, ctx: m.ctx };
+}
+
+/* ---------- inputs ---------- */
+const FLAG_LABELS = { seb: 'Source Evaluation Board (SEB)', drfp: 'Draft RFP', oral: 'Oral presentations', evm: 'Earned value management ($50M+)', itar: 'Export control (ITAR/EAR)', classified: 'Classified work', cyber: 'CUI / NIST SP 800-171', s508: 'Section 508 / ICT', govprop: 'Government property', hazmat: 'Hazardous materials', sma: 'Safety and mission assurance', protest: 'High protest risk', cba: 'CBA / Service Contract Act wage determination', subk: 'Subcontracting plan complexity', gfp: 'GFE/GFP furnished', multiCenter: 'Multi-Center contract', igf: 'Inherently governmental function review', firstTime: 'New requirement (no predecessor)', foreign: 'Foreign contractor / Buy American waiver', ocio: 'OCIO IT authorization' };
+function field(label, inputHtml, hint) { return `<div class="field"><label>${label}</label>${inputHtml}${hint ? `<div class="hint">${hint}</div>` : ''}</div>`; }
+const sel = (key, opts) => `<select data-key="${key}">${opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join('')}</select>`;
+const inp = (key, attrs = '') => `<input type="text" data-key="${key}" ${attrs}>`;
+function renderInputs() {
+  const steps = Array.from({ length: 10 }, (_, i) => [String(i + 1), 'Step ' + (i + 1)]);
+  const grades = [['9', 'GS-9'], ['11', 'GS-11'], ['12', 'GS-12'], ['13', 'GS-13'], ['14', 'GS-14'], ['15', 'GS-15']];
+  $('#inputs').innerHTML = `
+    <details class="group" open><summary>Requirement and memo <span class="pill">who, what</span></summary><div class="group-body">
+      ${field('Requirement title', inp('title'))}
+      ${field('<span id="customerLabel">Requiring organization</span>', inp('customer'), 'Appears on the TO line of the memo.')}
+      <div class="row">${field('Contracting officer', inp('coName'))}${field('Contract specialist', inp('csName'))}</div>
+      <div class="row">${field('Org code', inp('orgCode'))}${field('Memo date', `<input type="date" data-key="memoDate">`)}</div>
+    </div></details>
+    <details class="group" open><summary>Acquisition profile <span class="pill">drivers</span></summary><div class="group-body">
+      ${field('Total estimated value, including options', inp('V', 'class="money" inputmode="numeric"'), 'Sets thresholds: SAT $350K, subcontracting plan $900K, certified cost or pricing data $2.5M, JOFOC tiers $900K / $20M / $150M, public announcement $5.5M.')}
+      <div class="row">
+        ${field('Instrument', sel('instrument', [['STANDALONE', 'Standalone contract'], ['IDIQ', 'IDIQ base contract'], ['TO', 'Order under an existing IDIQ'], ['BPA', 'BPA call']]))}
+        ${field('Pricing arrangement', sel('pricing', [['FFP', 'Firm-fixed-price'], ['FPI', 'Fixed-price incentive'], ['CPFF', 'Cost-plus-fixed-fee'], ['CPAF', 'Cost-plus-award-fee'], ['CPIF', 'Cost-plus-incentive-fee'], ['TM', 'Time-and-materials / labor-hour'], ['LETTER', 'Letter contract (UCA)']]))}
+      </div>
+      <div class="row">
+        ${field('Competition', sel('competition', [['FULL_OPEN', 'Full and open'], ['SET_ASIDE_SB', 'Small business set-aside'], ['SET_ASIDE_8A', '8(a) competitive'], ['SET_ASIDE_WOSB', 'WOSB / EDWOSB set-aside'], ['SET_ASIDE_SDVOSB', 'SDVOSB set-aside'], ['SET_ASIDE_HUBZONE', 'HUBZone set-aside'], ['SOLE_SOURCE', 'Sole source (6.103-1)'], ['SOLE_8A', 'Sole source 8(a)'], ['URGENCY', 'Unusual and compelling urgency (6.103-2)'], ['INTL', 'International agreement (6.103-4)'], ['STATUTE', 'Authorized by statute (6.103-5)'], ['PUBLIC_INTEREST', 'Public interest (6.103-7)']]))}
+        ${field('Requirement type', sel('reqType', [['SERVICES', 'Services'], ['SUPPLIES', 'Supplies'], ['RD', 'Research and development'], ['AE', 'Architect-engineer'], ['CONSTRUCTION', 'Construction'], ['IT', 'Information technology']]))}
+      </div>
+      <div class="row">
+        ${field('Commercial', sel('commercial', [['YES', 'Commercial (FAR Part 12)'], ['NO', 'Noncommercial'], ['COTS', 'COTS, no tailoring']]))}
+        ${field('Procedures', sel('procedures', [['SAP', 'Simplified (at or below SAT)'], ['COMM_SIMP', 'Commercial simplified (12.201-1)'], ['NEG_SS', 'Negotiated, sole source'], ['LPTA', 'Negotiated, lowest price technically acceptable'], ['TRADEOFF', 'Negotiated, tradeoff'], ['SEALED', 'Sealed bidding (Part 14)'], ['FAIR_OPP', 'Fair opportunity order (Part 16)']]))}
+      </div>
+      <div id="profileNote"></div>
+    </div></details>
+    <details class="group" open><summary>Period and activity <span class="pill">years, mods, invoices</span></summary><div class="group-body">
+      <div class="row">${field('Base period (years)', sel('baseYears', [['1', '1 year'], ['2', '2 years'], ['3', '3 years'], ['4', '4 years'], ['5', '5 years']]))}${field('Option years', sel('optionYears', [['0', 'None'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']]))}</div>
+      <div class="row">${field('Expected proposals', `<input type="number" min="1" max="50" data-key="proposals">`)}${field('Proposal size', sel('propSize', [['SMALL', 'Under 50 pages'], ['MEDIUM', '50–200 pages'], ['LARGE', '200–500 pages'], ['MASSIVE', '500+ pages']]))}</div>
+      <div class="row">${field('Modifications per year', `<input type="number" min="0" max="60" data-key="modsPerYear">`)}${field('Invoices per year', `<input type="number" min="0" max="120" data-key="invoicesPerYear">`)}</div>
+      <div class="row" id="ordersRow">${field('Orders per year (IDIQ base)', `<input type="number" min="0" max="100" data-key="ordersPerYear">`)}${field('Typical order complexity', sel('orderComplexity', [['SIMPLE', 'Simple (about 12 h each)'], ['TYPICAL', 'Typical (about 28 h each)'], ['COMPLEX', 'Complex (about 60 h each)']]))}</div>
+    </div></details>
+    <details class="group"><summary>Complexity drivers <span class="pill" id="flagCount"></span></summary><div class="group-body">
+      <div class="checks">${Object.entries(FLAG_LABELS).map(([k, l]) => `<label class="check"><input type="checkbox" data-flag="${k}"><span>${l}</span></label>`).join('')}</div>
+    </div></details>
+    <details class="group" open><summary>Rates and burden <span class="pill">2026 GS tables</span></summary><div class="group-body">
+      ${field('Locality', sel('locality', Object.entries(LOCALITIES).map(([k, v]) => [k, `${v.name} · ${v.pct}%`])))}
+      <div class="row three">${field('CO grade', sel('coGrade', grades))}${field('CO step', sel('coStep', steps))}${field('CO custom $/h', inp('coCustom', 'class="num" placeholder="table"'), '')}</div>
+      <div class="row three">${field('CS grade', sel('csGrade', grades))}${field('CS step', sel('csStep', steps))}${field('CS custom $/h', inp('csCustom', 'class="num" placeholder="table"'), '')}</div>
+      <div class="row">${field('Fringe benefits (% of basic pay)', inp('fringe', 'class="num" inputmode="decimal"'), 'Default 36.25%: OMB Circular A-76 civilian full fringe benefit cost factor (OMB M-08-13).')}${field('Overhead / G&A (%)', inp('overhead', 'class="num" inputmode="decimal"'), 'Center full-cost rate if the estimate feeds an EPR/ECR; leave 0 for a labor-only figure.')}</div>
+      <div class="rate-line" id="rateLine"></div>
+      <div class="row">${field('Range, low (−%)', inp('rangeLow', 'class="num" inputmode="decimal"'))}${field('Range, high (+%)', inp('rangeHigh', 'class="num" inputmode="decimal"'))}</div>
+    </div></details>`;
+  $$('#inputs [data-key]').forEach(el => {
+    const key = el.dataset.key;
+    const h = () => { S[key] = el.classList.contains('money') ? parseMoney(el.value) : el.value; update(); };
+    el.addEventListener('input', h); el.addEventListener('change', h);
+    if (el.classList.contains('money')) el.addEventListener('blur', () => { el.value = money(S[key]); });
+  });
+  $$('#inputs [data-flag]').forEach(el => el.addEventListener('change', () => { S.flags[el.dataset.flag] = el.checked; update(); }));
+}
+function syncInputs() {
+  $$('#inputs [data-key]').forEach(el => { const k = el.dataset.key; el.value = el.classList.contains('money') ? money(S[k]) : (S[k] ?? ''); });
+  $$('#inputs [data-flag]').forEach(el => { el.checked = !!S.flags[el.dataset.flag]; });
+  $$('#audience input').forEach(r => { r.checked = (r.value === S.audience); r.closest('label').classList.toggle('on', r.checked); });
+}
+
+/* ---------- results ---------- */
+const PHASE_COLORS = { PLAN: '#1D4F9C', SOL: '#3E73C4', EVAL: '#6A5ACD', AWARDING: '#1F7A4D', ADMIN: '#9A6B0F', CLOSE: '#7A8494' };
+function renderResults(R) {
+  const s = S; const c = R.ctx; const r = R.rates; const tl = R.model.timeline;
+  const audienceAgency = s.audience === 'agency';
+  const compLabel = c.isNonComp ? (s.competition === 'SOLE_SOURCE' ? 'sole-source' : s.competition.toLowerCase().replace('_', ' ')) : (c.isSB ? 'set-aside' : 'competitive');
+  const instr = { STANDALONE: 'contract', IDIQ: 'IDIQ contract', TO: 'order', BPA: 'BPA call' }[s.instrument];
+  const fteWeeks = R.total.hours / 40;
+  let html = '';
+  html += `<div class="tiles">
+    <div class="tile"><div class="k">Total hours</div><div class="v accent">${num(R.total.hours)}</div><div class="s">${num(fteWeeks, 1)} FTE weeks · CO ${num(R.total.coH)} / CS ${num(R.total.csH)}</div></div>
+    <div class="tile"><div class="k">Labor cost</div><div class="v">${money(R.total.cost)}</div><div class="s">range ${money(R.total.cost * R.lo)} – ${money(R.total.cost * R.hi)}</div></div>
+    <div class="tile"><div class="k">Pre-award</div><div class="v">${num(R.preAward)} h</div><div class="s">${money(R.preAwardCost)} · about ${R.monthsToAward} months to award</div></div>
+    <div class="tile"><div class="k">Administration and closeout</div><div class="v">${num(R.total.hours - R.preAward)} h</div><div class="s">${c.years} performance year${c.years === 1 ? '' : 's'} · ${money(R.total.cost - R.preAwardCost)}</div></div>
+    <div class="tile"><div class="k">Burdened rates</div><div class="v">${money(r.co, 0)}<span style="font-size:14px;color:var(--ink-3)"> / </span>${money(r.cs, 0)}</div><div class="s">CO / CS per hour, fringe ${num(r.fringe * 100, 2)}%${r.overhead ? `, overhead ${num(r.overhead * 100, 1)}%` : ''}</div></div>
+  </div>`;
+  // WBS table
+  html += `<div class="card"><div class="card-head"><div><h2>Cradle-to-grave work breakdown</h2><div class="sub">Hours are editable; edited rows show the model value beneath. Cost uses the burdened CO and CS rates.</div></div><div class="legend"><span><span class="sw" style="background:var(--co)"></span>CO share</span><span><span class="sw" style="background:var(--cs)"></span>CS share</span></div></div>
+    <div class="card-body flush tbl-wrap"><table class="wbs"><thead><tr><th>WBS</th><th>Task</th><th>Basis</th><th class="n">Hours</th><th style="min-width:70px">Split</th><th class="n">CO h</th><th class="n">CS h</th><th class="n">Cost</th></tr></thead><tbody>`;
+  for (const p of R.phases) {
+    html += `<tr class="phase"><td class="wbsno">${p.wbs}</td><td colspan="2">${esc(p.name)}</td><td class="n">${num(p.hours)}</td><td></td><td class="n">${num(p.coH)}</td><td class="n">${num(p.csH)}</td><td class="n">${money(p.cost)}</td></tr>`;
+    for (const t of p.rows) {
+      if (t.cond && t.model === 0 && !t.edited) continue;
+      const pctCo = t.hours ? Math.round((t.coH / t.hours) * 100) : 0;
+      html += `<tr><td class="wbsno">${t.wbs}</td><td>${esc(t.name)}</td><td class="basis">${esc(t.basis)}</td>
+        <td class="n"><input class="hrs${t.edited ? ' edited' : ''}" type="text" inputmode="decimal" data-ov="${t.wbs}" value="${num(t.hours, t.hours % 1 ? 1 : 0)}" aria-label="Hours for ${esc(t.name)}">${t.edited ? `<span class="ghost">model ${num(t.model)}</span>` : ''}</td>
+        <td><div class="split" title="CO ${pctCo}% / CS ${100 - pctCo}%"><i style="width:${pctCo}%"></i></div></td>
+        <td class="n">${num(t.coH, t.coH % 1 ? 1 : 0)}</td><td class="n">${num(t.csH, t.csH % 1 ? 1 : 0)}</td><td class="n">${money(t.cost)}</td></tr>`;
+    }
+  }
+  html += `<tr class="total"><td></td><td colspan="2">Total, intake through closeout</td><td class="n">${num(R.total.hours)}</td><td></td><td class="n">${num(R.total.coH)}</td><td class="n">${num(R.total.csH)}</td><td class="n">${money(R.total.cost)}</td></tr></tbody></table></div></div>`;
+  // phase bars + by year
+  const maxH = Math.max(...R.phases.map(p => p.hours), 1);
+  html += `<div class="card"><div class="card-head"><h2>Where the hours go</h2><div class="sub">CO and CS hours by phase</div></div><div class="card-body"><div class="bars">${R.phases.map(p => `<div class="bar-row"><span>${esc(p.name)}</span><div class="track"><div class="co" style="width:${(p.coH / maxH) * 100}%"></div><div class="cs" style="width:${(p.csH / maxH) * 100}%"></div></div><span class="val">${num(p.hours)} h · ${money(p.cost)}</span></div>`).join('')}</div></div></div>`;
+  html += `<div class="card"><div class="card-head"><div><h2>By year</h2><div class="sub">${audienceAgency ? 'Pre-award effort falls in the year the agreement is funded; administration is spread evenly across performance years for annual funding.' : 'Administration is spread evenly across performance years for WBS planning by fiscal year.'}</div></div></div>
+    <div class="card-body flush tbl-wrap"><table class="fy"><thead><tr><th>Period</th><th class="n">Hours</th><th class="n">Cost</th><th class="n">Low</th><th class="n">High</th></tr></thead><tbody>${R.byYear.map(y => `<tr><td>${esc(y.label)}</td><td class="n">${num(y.hours)}</td><td class="n">${money(y.cost)}</td><td class="n">${money(y.cost * R.lo)}</td><td class="n">${money(y.cost * R.hi)}</td></tr>`).join('')}<tr class="total"><td>Total</td><td class="n">${num(R.total.hours)}</td><td class="n">${money(R.total.cost)}</td><td class="n">${money(R.total.cost * R.lo)}</td><td class="n">${money(R.total.cost * R.hi)}</td></tr></tbody></table></div></div>`;
+  // timeline
+  const segs = [['Planning', tl.preMonths, PHASE_COLORS.PLAN], ['Solicitation', tl.solMonths, PHASE_COLORS.SOL], ['Evaluation', tl.evalMonths, PHASE_COLORS.EVAL], ['Award', tl.awardMonths, PHASE_COLORS.AWARDING], ['Performance', tl.adminMonths, PHASE_COLORS.ADMIN], ['Closeout', tl.closeMonths, PHASE_COLORS.CLOSE]];
+  const tlTotal = segs.reduce((n, x) => n + x[1], 0);
+  html += `<div class="card"><div class="card-head"><div><h2>Calendar</h2><div class="sub">About ${R.monthsToAward} months from intake to award, then ${c.years} year${c.years === 1 ? '' : 's'} of performance and ${tl.closeMonths} months of closeout.</div></div></div><div class="card-body">
+    <div class="timeline">${segs.map(([l, m, col]) => `<div style="flex:${Math.max(m / tlTotal * 100, 4)};background:${col}" title="${l}: ${m} months">${m}${l === 'Performance' ? 'mo' : ''}</div>`).join('')}</div>
+    <div class="tl-legend">${segs.map(([l, m, col]) => `<span><span class="sw" style="background:${col}"></span>${l} (${m} mo)</span>`).join('')}</div></div></div>`;
+  // triggers
+  if (R.model.triggers.length) html += `<div class="card"><div class="card-head"><h2>Regulatory drivers behind the estimate</h2><div class="sub">${R.model.triggers.length} item${R.model.triggers.length === 1 ? '' : 's'}</div></div><div class="card-body"><div class="triggers">${R.model.triggers.map(t => `<div class="trigger ${t.type}"><span class="bar"></span><span class="tag">${esc(t.tag)}</span><span>${esc(t.text)}</span></div>`).join('')}</div></div></div>`;
+  // message
+  html += `<div class="card"><div class="card-head"><div><h2>${audienceAgency ? 'Message to the customer agency' : 'Message to the requiring organization'}</h2><div class="sub">Paste into email or the agreement package</div></div><button class="btn small no-print" type="button" id="btnCopy">Copy</button></div><div class="card-body"><p class="msg" id="custMsg">${esc(customerMessage(R))}</p></div></div>`;
+  html += `<div class="card no-print"><div class="card-body" style="font-size:12.5px;color:var(--ink-2);line-height:1.5">Method: regulatory requirements (RFO FAR, NFS, NFS Companion Guide, PCDs, and PICs) mapped to discrete contracting officer and contract specialist tasks, with hours calibrated to the parameters and complexity drivers selected and priced at 2026 General Schedule rates plus burden. Not a commitment; effort varies with requirement maturity, customer responsiveness, technical complexity, protests, audits, and inquiries. Sources and carried citations are listed under Method and sources.</div></div>`;
+  $('#results').innerHTML = html;
+  $$('#results input[data-ov]').forEach(el => {
+    el.addEventListener('change', () => { const v = String(el.value).replace(/[^0-9.]/g, ''); if (v === '') delete S.overrides[el.dataset.ov]; else S.overrides[el.dataset.ov] = Number(v); update(); });
+    el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') el.blur(); });
+  });
+  const cp = $('#btnCopy'); if (cp) cp.addEventListener('click', () => { navigator.clipboard.writeText($('#custMsg').innerText).then(() => toast('Copied.')).catch(() => toast('Copy failed; select the text instead.')); });
+}
+function customerMessage(R) {
+  const s = S, c = R.ctx;
+  const compLabel = c.isNonComp ? 'sole-source' : (c.isSB ? 'set-aside' : 'competitive');
+  const instr = { STANDALONE: 'contract', IDIQ: 'IDIQ contract', TO: 'order', BPA: 'BPA call' }[s.instrument];
+  const pricing = { FFP: 'firm-fixed-price', FPI: 'fixed-price incentive', CPFF: 'cost-plus-fixed-fee', CPAF: 'cost-plus-award-fee', CPIF: 'cost-plus-incentive-fee', TM: 'time-and-materials', LETTER: 'letter' }[s.pricing];
+  const head = `For ${isBlank(s.title) ? 'this requirement' : s.title}, a ${shortMoney(c.V)} ${compLabel} ${pricing} ${instr} for ${s.reqType.toLowerCase() === 'rd' ? 'research and development' : s.reqType.toLowerCase()}, the estimated contracting officer and contract specialist level of effort is ${num(R.total.hours)} hours (${num(R.total.hours / 40, 1)} FTE weeks) from intake through closeout, or ${money(R.total.cost)} at 2026 rates with burden (range ${money(R.total.cost * R.lo)} to ${money(R.total.cost * R.hi)}). About ${num(R.preAward)} hours (${money(R.preAwardCost)}) is pre-award effort through contract execution, with roughly ${R.monthsToAward} months to award; the remaining ${num(R.total.hours - R.preAward)} hours covers ${c.years} year${c.years === 1 ? '' : 's'} of contract administration and closeout.`;
+  const tail = s.audience === 'agency'
+    ? ' The figure is the civil service procurement labor input to the Estimated Price Report/Estimated Cost Report for the reimbursable agreement, which NASA prices at full cost under NPR 9090.1C and 31 U.S.C. 1535. It is based on current FAR and NFS requirements and typical Center experience; actual effort will vary with requirement maturity, customer responsiveness, and whether a protest is filed.'
+    : ' The figure is the procurement labor to plan against the project’s work breakdown structure by fiscal year. It is based on current FAR and NFS requirements and typical Center experience; actual effort will vary with requirement maturity, technical complexity, and whether a protest is filed.';
+  return head + tail;
+}
+
+/* ---------- update cycle ---------- */
+let saveTimer;
+function update() {
+  const R = compute(S);
+  const c = R.ctx; const r = R.rates;
+  $('#ordersRow').hidden = S.instrument !== 'IDIQ';
+  $('#flagCount').textContent = `${Object.values(S.flags).filter(Boolean).length} selected`;
+  $('#customerLabel').textContent = S.audience === 'agency' ? 'Customer agency and point of contact' : 'Requiring organization';
+  let note = '';
+  if (c.isSAP && S.procedures !== 'SAP') note = `<div class="inline-note">Value is at or below the SAT (${money(TH.SAT)}); simplified procedures are assumed and planning, solicitation, and evaluation hours are scaled to 40 percent.</div>`;
+  else if (S.procedures === 'COMM_SIMP' && c.V > TH.COMM_SIMP_HI) note = `<div class="inline-note warn">Commercial simplified procedures are limited to $9M ($15M for acquisitions described at FAR 12.001(c)); choose negotiated procedures above that.</div>`;
+  else if (S.procedures === 'COMM_SIMP' && c.V > TH.COMM_SIMP) note = `<div class="inline-note warn">Above $9M, commercial simplified procedures apply only to acquisitions described at FAR 12.001(c) (41 U.S.C. 1901 and 1903).</div>`;
+  else if (c.isTO) note = `<div class="inline-note">Order under an existing vehicle: planning, solicitation, and evaluation hours are scaled to 55 percent; the JOFOC becomes an exception to fair opportunity where the order is not competed.</div>`;
+  else if (c.isNonComp && c.V > TH.SAT) note = `<div class="inline-note">Sole source above the SAT: JOFOC, prenegotiation position, and technical evaluation coordination are included.</div>`;
+  $('#profileNote').innerHTML = note;
+  $('#rateLine').innerHTML = `<span>CO ${r.coCustom ? 'custom' : `GS-${S.coGrade}/${S.coStep}`}: <b>${money(r.coBase, 2)}</b> → <b>${money(r.co, 2)}</b> burdened</span><span>CS ${r.csCustom ? 'custom' : `GS-${S.csGrade}/${S.csStep}`}: <b>${money(r.csBase, 2)}</b> → <b>${money(r.cs, 2)}</b> burdened</span>`;
+  renderResults(R);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } }, 400);
+  return R;
+}
+
+/* ---------- exports: ZIP + docx ---------- */
+const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++) { let c = i; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[i] = c >>> 0; } return t; })();
+function crc32(bytes) { let c = 0xFFFFFFFF; for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipStore(files) {
+  const enc = new TextEncoder(); const local = [], central = []; let offset = 0; const dosDate = ((2026 - 1980) << 9) | (9 << 5) | 9;
+  for (const f of files) {
+    const name = enc.encode(f.name); const data = typeof f.data === 'string' ? enc.encode(f.data) : f.data; const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, 0, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+    local.push(new Uint8Array(lh.buffer), name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, 0, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true); ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true); ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name); offset += 30 + name.length + data.length;
+  }
+  const centralSize = central.reduce((n, p) => n + p.length, 0); const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 0x06054b50, true); eocd.setUint16(4, 0, true); eocd.setUint16(6, 0, true); eocd.setUint16(8, files.length, true); eocd.setUint16(10, files.length, true); eocd.setUint32(12, centralSize, true); eocd.setUint32(16, offset, true); eocd.setUint16(20, 0, true);
+  return new Blob([...local, ...central, new Uint8Array(eocd.buffer)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+}
+const xml = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+function wRun(r) { if (!r) return ''; if (r.tab) return '<w:r><w:tab/></w:r>'; if (r.text == null || r.text === '') return ''; const p = []; if (r.bold) p.push('<w:b/>'); if (r.italic) p.push('<w:i/>'); if (r.size) p.push(`<w:sz w:val="${r.size}"/>`); return `<w:r>${p.length ? `<w:rPr>${p.join('')}</w:rPr>` : ''}<w:t xml:space="preserve">${xml(r.text)}</w:t></w:r>`; }
+function wPara(runs, o = {}) { const pPr = []; if (o.keepNext) pPr.push('<w:keepNext/>'); if (o.tabs) pPr.push(`<w:tabs>${o.tabs.map(p => `<w:tab w:val="left" w:pos="${p}"/>`).join('')}</w:tabs>`); if (o.spacingBefore || o.compact) pPr.push(`<w:spacing${o.spacingBefore ? ` w:before="${o.spacingBefore}"` : ''}${o.compact ? ' w:after="40"' : ''}/>`); if (o.indent) pPr.push(`<w:ind w:left="${o.indent}" w:hanging="${o.hanging || 0}"/>`); if (o.center) pPr.push('<w:jc w:val="center"/>'); else if (o.right) pPr.push('<w:jc w:val="right"/>'); return `<w:p>${pPr.length ? `<w:pPr>${pPr.join('')}</w:pPr>` : ''}${(runs || []).map(wRun).join('')}</w:p>`; }
+function wTable(cols, rows, foot) {
+  const widths = cols.map(c => c.w); const border = (n) => `<w:${n} w:val="single" w:sz="4" w:space="0" w:color="808080"/>`;
+  const cell = (content, i, opts = {}) => `<w:tc><w:tcPr><w:tcW w:w="${widths[i]}" w:type="dxa"/>${opts.shade ? '<w:shd w:val="clear" w:color="auto" w:fill="E7E6E6"/>' : ''}</w:tcPr>${wPara([{ text: String(content ?? ''), bold: !!opts.bold, size: 20 }], { right: cols[i].align === 'right', compact: true })}</w:tc>`;
+  let x = `<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/><w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(border).join('')}</w:tblBorders><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${widths.map(w => `<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>`;
+  x += `<w:tr><w:trPr><w:tblHeader/></w:trPr>${cols.map((c, i) => cell(c.label, i, { bold: true, shade: true })).join('')}</w:tr>`;
+  for (const r of rows) x += `<w:tr>${r.map((cv, i) => cell(cv, i, { bold: !!r.bold })).join('')}</w:tr>`;
+  if (foot) x += `<w:tr>${foot.map((cv, i) => cell(cv, i, { bold: true })).join('')}</w:tr>`;
+  return x + `</w:tbl>${wPara([], { compact: true })}`;
+}
+function buildMemoDocx(R) {
+  const s = S, c = R.ctx, r = R.rates;
+  const P = (t, o) => wPara([{ text: t }], o);
+  const body = [];
+  body.push(wPara([{ text: 'National Aeronautics and Space Administration', bold: true }]));
+  body.push(P('Ames Research Center'));
+  body.push(P('Moffett Field, CA 94035-1000'));
+  body.push(wPara([]));
+  const memoRow = (k, v) => wPara([{ text: k }, { tab: true }, { text: v }], { tabs: [2160], indent: 2160, hanging: 2160 });
+  body.push(memoRow('Reply to Attn of:', s.orgCode || 'JAZ'));
+  body.push(memoRow('TO:', s.customer || '(requiring organization)'));
+  body.push(memoRow('FROM:', `${s.orgCode || 'JAZ'}/${s.coName || 'Contracting Officer'}`));
+  body.push(memoRow('SUBJECT:', `${s.audience === 'agency' ? 'Procurement Support Level of Effort and Cost Estimate for Reimbursable Agreement' : 'Procurement Support Level of Effort and Cost Estimate'}: ${s.title || '(requirement)'}`));
+  body.push(wPara([]));
+  body.push(P(customerMessage(R)));
+  body.push(P(`Acquisition profile: ${shortMoney(c.V)} total estimated value including options; ${s.instrument === 'STANDALONE' ? 'standalone contract' : s.instrument === 'IDIQ' ? 'IDIQ base contract' : s.instrument === 'TO' ? 'order under an existing IDIQ' : 'BPA call'}; ${s.pricing}; ${s.competition.replace(/_/g, ' ').toLowerCase()}; ${s.commercial === 'YES' ? 'commercial' : s.commercial === 'COTS' ? 'COTS' : 'noncommercial'} ${s.reqType.toLowerCase()}; ${c.baseYears}-year base with ${c.optionYears} option year${c.optionYears === 1 ? '' : 's'}; ${s.modsPerYear} modifications and ${s.invoicesPerYear} invoices per year${c.isIDIQ ? `; ${s.ordersPerYear} orders per year` : ''}. Complexity drivers: ${Object.entries(s.flags).filter(([k, v]) => v).map(([k]) => FLAG_LABELS[k]).join('; ') || 'none'}.`));
+  body.push(wPara([{ text: 'Summary by phase', bold: true }], { keepNext: true, spacingBefore: 200 }));
+  body.push(wTable([{ label: 'Phase', w: 3960 }, { label: 'CO hours', w: 1350, align: 'right' }, { label: 'CS hours', w: 1350, align: 'right' }, { label: 'Total hours', w: 1350, align: 'right' }, { label: 'Cost', w: 1350, align: 'right' }],
+    R.phases.map(p => [`${p.wbs} ${p.name}`, num(p.coH), num(p.csH), num(p.hours), money(p.cost)]),
+    ['Total', num(R.total.coH), num(R.total.csH), num(R.total.hours), money(R.total.cost)]));
+  body.push(wPara([{ text: 'Work breakdown structure', bold: true }], { keepNext: true, spacingBefore: 200 }));
+  const rows = [];
+  for (const p of R.phases) { rows.push(Object.assign([`${p.wbs} ${p.name}`, '', '', '', ''], { bold: true })); for (const t of p.rows) { if (t.cond && t.model === 0 && !t.edited) continue; rows.push([`${t.wbs} ${t.name}`, t.basis, num(t.hours, t.hours % 1 ? 1 : 0), `${num(t.coH, t.coH % 1 ? 1 : 0)} / ${num(t.csH, t.csH % 1 ? 1 : 0)}`, money(t.cost)]); } }
+  body.push(wTable([{ label: 'Task', w: 3600 }, { label: 'Basis', w: 2160 }, { label: 'Hours', w: 1000, align: 'right' }, { label: 'CO / CS', w: 1300, align: 'right' }, { label: 'Cost', w: 1300, align: 'right' }], rows));
+  body.push(wPara([{ text: 'By year', bold: true }], { keepNext: true, spacingBefore: 200 }));
+  body.push(wTable([{ label: 'Period', w: 3960 }, { label: 'Hours', w: 1350, align: 'right' }, { label: 'Cost', w: 1350, align: 'right' }, { label: 'Low', w: 1350, align: 'right' }, { label: 'High', w: 1350, align: 'right' }],
+    R.byYear.map(y => [y.label, num(y.hours), money(y.cost), money(y.cost * R.lo), money(y.cost * R.hi)]),
+    ['Total', num(R.total.hours), money(R.total.cost), money(R.total.cost * R.lo), money(R.total.cost * R.hi)]));
+  body.push(wPara([{ text: 'Rates and assumptions', bold: true }], { keepNext: true, spacingBefore: 200 }));
+  body.push(P(`Contracting officer: ${r.coCustom ? 'custom rate' : `GS-${s.coGrade}, step ${s.coStep}`}, ${money(r.coBase, 2)} per hour basic; contract specialist: ${r.csCustom ? 'custom rate' : `GS-${s.csGrade}, step ${s.csStep}`}, ${money(r.csBase, 2)} per hour basic (2026 General Schedule, ${LOCALITIES[s.locality].name} locality, ${LOCALITIES[s.locality].pct} percent). Fringe benefits ${num(r.fringe * 100, 2)} percent of basic pay (OMB Circular A-76 civilian full fringe benefit cost factor, OMB M-08-13)${r.overhead ? ` and overhead ${num(r.overhead * 100, 1)} percent` : ''}, giving burdened rates of ${money(r.co, 2)} (CO) and ${money(r.cs, 2)} (CS) per hour. Estimating range ${num(Number(s.rangeLow))} percent below to ${num(Number(s.rangeHigh))} percent above the point estimate.`));
+  if (R.model.triggers.length) { body.push(wPara([{ text: 'Regulatory drivers', bold: true }], { keepNext: true, spacingBefore: 200 })); R.model.triggers.forEach(t => body.push(wPara([{ text: '–  ' }, { text: t.text }], { indent: 720, hanging: 360 }))); }
+  body.push(wPara([{ text: 'Basis of estimate', bold: true }], { keepNext: true, spacingBefore: 200 }));
+  body.push(P('Hours are derived from regulatory requirements (RFO FAR, NFS, NFS Companion Guide, PCDs, and PICs) mapped to discrete contracting officer and contract specialist tasks and calibrated to the parameters above. This estimate is not a commitment. The contracting officer remains the final authority on acquisition strategy and resource allocation; effort varies with requirement maturity, customer responsiveness, technical complexity, and external events such as protests, audits, and congressional inquiries.'));
+  body.push(wPara([], { spacingBefore: 480 }));
+  body.push(wPara([{ text: (s.coName || 'CONTRACTING OFFICER').toUpperCase() }], { keepNext: true }));
+  body.push(P('Contracting Officer'));
+  body.push(P(`Code ${s.orgCode || 'JAZ'}`));
+  const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  const footer = `Procurement LOE Estimator · build ${BUILD_STAMP}`;
+  const fld = (instr) => `<w:r><w:fldChar w:fldCharType="begin"/></w:r><w:r><w:instrText xml:space="preserve"> ${instr} </w:instrText></w:r><w:r><w:fldChar w:fldCharType="separate"/></w:r><w:r><w:t>1</w:t></w:r><w:r><w:fldChar w:fldCharType="end"/></w:r>`;
+  const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${NS}><w:body>${body.join('')}<w:sectPr><w:footerReference w:type="default" r:id="rIdFooter"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const footerXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr ${NS}><w:p><w:pPr><w:tabs><w:tab w:val="right" w:pos="9360"/></w:tabs></w:pPr><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">${xml(footer)}</w:t></w:r><w:r><w:tab/></w:r><w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">Page </w:t></w:r>${fld('PAGE')}<w:r><w:rPr><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve"> of </w:t></w:r>${fld('NUMPAGES')}</w:p></w:ftr>`;
+  const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" w:eastAsia="Times New Roman"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="en-US"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="200" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>`;
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rIdFooter" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/></Relationships>`;
+  const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const core = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${xml('LOE estimate – ' + (s.title || 'Untitled'))}</dc:title><dc:creator>Procurement LOE Estimator</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`;
+  const app = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Procurement LOE Estimator</Application></Properties>`;
+  return zipStore([{ name: '[Content_Types].xml', data: contentTypes }, { name: '_rels/.rels', data: rels }, { name: 'word/document.xml', data: documentXml }, { name: 'word/styles.xml', data: stylesXml }, { name: 'word/footer1.xml', data: footerXml }, { name: 'word/_rels/document.xml.rels', data: docRels }, { name: 'docProps/core.xml', data: core }, { name: 'docProps/app.xml', data: app }]);
+}
+function safeName(s, fallback) { const t = String(s || '').replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60); return t || fallback; }
+async function deliverFile(filename, blob) {
+  let dl = null;
+  try { if (window.claude && typeof window.claude.use === 'function') dl = await window.claude.use('downloads'); } catch (e) { dl = null; }
+  if (dl) { try { await dl.save({ filename, data: blob }); toast(`Saved ${filename}`); return; } catch (e) { if (e && e.code === 'declined') { toast('Download cancelled.'); return; } if (e && e.code === 'rate_limited') { toast('A download prompt is already open.'); return; } } }
+  try { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000); toast(`Preparing ${filename}`); }
+  catch (e) { toast('This viewer does not allow downloads. Open the page in a browser tab to export.'); }
+}
+function csvOf(R) {
+  const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const lines = [['WBS', 'Phase', 'Task', 'Basis', 'Model hours', 'Hours', 'CO hours', 'CS hours', 'Cost'].map(q).join(',')];
+  for (const p of R.phases) for (const t of p.rows) { if (t.cond && t.model === 0 && !t.edited) continue; lines.push([t.wbs, p.name, t.name, t.basis, t.model, t.hours, t.coH, t.csH, Math.round(t.cost)].map(q).join(',')); }
+  lines.push(['', '', 'Total', '', '', R.total.hours, R.total.coH, R.total.csH, Math.round(R.total.cost)].map(q).join(','));
+  return lines.join('\r\n');
+}
+
+/* ---------- about ---------- */
+function showAbout() {
+  $('#aboutBody').innerHTML = `
+    <p>The estimator maps regulatory requirements to the discrete tasks a contracting officer and contract specialist perform from purchase request intake through contract closeout, sizes each task from the acquisition profile and complexity drivers selected, splits the hours between the two roles, and prices them at General Schedule rates with burden. Every hour in the work breakdown structure can be overridden; the model value stays visible beneath an edited figure.</p>
+    <h3>Verified against current text (checked ${BUILD_STAMP})</h3>
+    <ul>
+      <li>Thresholds: simplified acquisition threshold $350,000 (RFO FAR 2.101); commercial simplified procedures $9M / $15M (FAR 12.102, Table 12-1); JOFOC approval tiers $900K / $20M / $150M (FAR 6.104-2); public announcement $5.5M (FAR 5.302); justification posting 14 days, 30 days for urgency (FAR 6.301).</li>
+      <li>Section numbers in RFO Parts 5, 6, 12, and 15 (5.101, 5.201, 5.302, 6.103, 6.104, 6.301, 12.102, 12.201-1, 15.102, 15.103, 15.106, 15.202, 15.206, 15.207, 15.301, 15.403, 15.404, 15.407, 15.408).</li>
+      <li>Rates: OPM 2026 General Schedule hourly basic rates for the San Jose–San Francisco–Oakland, Rest of U.S., Washington–Baltimore, and Houston localities (1.0 percent general increase, locality percentages unchanged from 2025; steps other than 1, 5, and 10 are interpolated and capped at Executive Schedule Level IV). Fringe 36.25 percent from OMB M-08-13 (Circular A-76). Full-cost pricing of reimbursable work from NPR 9090.1C (Appendix C EPR/ECR).</li>
+    </ul>
+    <h3>Carried from the April 2026 build (Companion Guide and internal references not publicly verifiable)</h3>
+    <ul>
+      <li>NFS CG 1807.71, 1807.11, 1807.12, 1807.13(d), 1807.51, 1804.111, 1801.6, 1812, 1815.1, 1815.2, 1815.45(b), 1815.48, 1815.49, 1816.62, 1816.66, 1817.24, 1819, 1825.12, 1834; PCD 25-09, 25-16, 25-21, 25-23; PIC 26-01; PN 24-09; subcontracting plan threshold $900,000; certified cost or pricing data threshold $2.5M; HQ announcement $7M and ANOSCA $30M.</li>
+      <li>FAR Parts whose RFO section numbering was not checked are cited by Part only (Parts 4, 7, 9, 10, 16, 17, 19, 27, 32, 39, 42, 43, 45).</li>
+    </ul>
+    <h3>What changed from the April 2026 estimator</h3>
+    <ul>
+      <li>Hours are split between the contracting officer and the contract specialist and priced, with a range; the April build reported hours only.</li>
+      <li>Instrument and pricing arrangement are separate inputs; orders under an existing IDIQ scale the pre-award phases and swap the JOFOC for an exception to fair opportunity; simplified acquisitions scale to 40 percent.</li>
+      <li>Added tasks: technical evaluation coordination (FAR 15.404-4), CPARS evaluations, task and delivery orders under an IDIQ base, and, for reimbursable customers, agreement coordination and customer reporting.</li>
+      <li>Added a by-year spread for annual funding or WBS planning, editable hours, a memorandum export in NF 1858 layout, and CSV and JSON exports.</li>
+    </ul>`;
+  $('#aboutDialog').showModal();
+}
+
+/* ---------- init ---------- */
+function init() {
+  renderInputs();
+  try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) { const p = JSON.parse(raw); S = Object.assign(defaults(), p); S.flags = Object.assign(defaults().flags, p.flags || {}); S.overrides = p.overrides || {}; } } catch (e) { S = defaults(); }
+  syncInputs(); update();
+  $$('#audience input').forEach(r => r.addEventListener('change', () => { S.audience = r.value; syncInputs(); update(); }));
+  $('#btnReset').addEventListener('click', () => { S.overrides = {}; update(); toast('Hours reset to the model.'); });
+  $('#btnDocx').addEventListener('click', async () => { const R = compute(S); await deliverFile(`LOE_${safeName(S.title, 'estimate')}.docx`, buildMemoDocx(R)); });
+  $('#btnPrint').addEventListener('click', () => { try { window.print(); } catch (e) { toast('Use your browser’s Print command.'); } });
+  $('#btnCsv').addEventListener('click', async () => { $('#moreMenu').open = false; const R = compute(S); await deliverFile(`LOE_${safeName(S.title, 'estimate')}.csv`, new Blob([csvOf(R)], { type: 'text/csv' })); });
+  $('#btnSave').addEventListener('click', async () => { $('#moreMenu').open = false; await deliverFile(`LOE_${safeName(S.title, 'estimate')}.json`, new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' })); });
+  $('#btnLoad').addEventListener('click', () => { $('#moreMenu').open = false; $('#fileLoad').click(); });
+  $('#fileLoad').addEventListener('change', (ev) => {
+    const file = ev.target.files && ev.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { try { const p = JSON.parse(reader.result); if (!p || typeof p !== 'object' || !('V' in p)) throw new Error('bad'); S = Object.assign(defaults(), p); S.flags = Object.assign(defaults().flags, p.flags || {}); S.overrides = p.overrides || {}; syncInputs(); update(); toast('Estimate loaded.'); } catch (e) { toast('That file is not an LOE estimate.'); } };
+    reader.readAsText(file); ev.target.value = '';
+  });
+  $('#btnAbout').addEventListener('click', () => { $('#moreMenu').open = false; showAbout(); });
+  $('#btnClear').addEventListener('click', () => { $('#moreMenu').open = false; S = defaults(); syncInputs(); update(); toast('Reset to the sample estimate.'); });
+  $$('dialog [data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+  $$('dialog').forEach(d => d.addEventListener('click', (ev) => { if (ev.target === d) d.close(); }));
+  document.addEventListener('click', (ev) => { const m = $('#moreMenu'); if (m.open && !m.contains(ev.target)) m.open = false; });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
+—,NASA Form 1707 (intake),"current XFA form (Adobe Experience Manager), field map in nf1707_fields.csv",live,"NF 1707, Special Approvals and Affirmations of Requisitions",binding
+002,Addendum Outlining Significant Changes to Approved PSMs / Written Acquisition Plans Template,4/6/2026,planned,[fill from template header],guidance
+002,Determination and Findings for Consolidation of Requirements,4/21/2026,planned,[fill from template header],binding
+002,Determination and Findings for Bundled Requirements,4/21/2026,planned,[fill from template header],binding
+002,Determination ASM Not Conducted Memorandum,4/6/2026,planned,[fill from template header],binding
+002,Procurement Strategy Meeting Signature Page Template for Contracts,4/6/2026,planned,[fill from template header],guidance
+002,Written Acquisition Plan Template for Contracts,2/26/2026,planned,[fill from template header],guidance
+002,Requirements Development Team Request & Appointment Letters,5/1/2026,planned,[fill from template header],guidance
+002,Procurement Strategy Meeting Executive Presentation,5/19/2026,planned,[fill from template header],guidance
+003,Determination and Findings Authority to Execute a CPIF Contract,5/1/2026,planned,[fill from template header],binding
+003,Determination and Findings Authority to Execute a FPAF Contract,5/1/2026,planned,[fill from template header],binding
+003,Determination and Findings Authority to Execute a FPI Contract,5/1/2026,planned,[fill from template header],binding
+003,Determination and Findings Commercial Time and Materials or Labor Hour Contract / Order,4/20/2026,planned,[fill from template header],binding
+003,Determination and Findings Authority to Execute a CPAF Contract,5/1/2026,planned,[fill from template header],binding
+003,Determination and Findings Noncommercial Time and Materials or Labor Hour Contract / Order,4/13/2026,planned,[fill from template header],binding
+003,Determination and Findings POP or Ordering Period Over 5 years,3/18/2026,planned,[fill from template header],binding
+003,Determination and Findings Interagency Acquisitions Economy Act,4/21/2026,planned,[fill from template header],binding
+004,AbilityOne Coordination,5/20/2026,planned,[fill from template header],guidance
+004,Governmentwide Point of Entry (GPE) Templates,5/14/2026,planned,[fill from template header],guidance
+004,Request to Solicit a Non-Commercial Product or Service Template,5/19/2026,planned,[fill from template header],guidance
+0045,Determination of Responsibility Nonresponsibility,5/18/2026,build next (Section D),[fill from template header],binding
+011,Determination and Findings Single Award IDIQ Contract Over $150M,4/13/2026,planned,[fill from template header],binding
+015,JOFOC Sole Source 8(a) Award or Modification Greater than $30M,5/18/2026,planned,[fill from template header],binding
+015,Justification for Other than Full and Open Competition (JOFOC),4/27/2026,live,[fill from template header],binding
+015,JOFOC Unusual and Compelling Urgency Template,9/3/2026,planned,[fill from template header],binding
+016,Limited Sources Justification (LSJ) GSA Federal Supply Schedule (FSS),4/16/2026,planned,[fill from template header],guidance
+018,OCI Determination Memorandum and Checklist Template,5/1/2026,planned,[fill from template header],binding
+021,Determination and Findings Authority to Exclude a Source,4/27/2026,planned,[fill from template header],binding
+024,Option Justification,7/21/2026,planned,[fill from template header],guidance
+025,Buy American Act Nonavailability Determination - Supplies,4/20/2026,planned,[fill from template header],binding
+028/72,UCA-Letter Contract Justification,5/14/2026,planned,[fill from template header],guidance
+030,Notification to Interested Parties under CBAs,4/30/2026,planned,[fill from template header],guidance
+032,Request to Award A Foreign Contract,4/9/2026,planned,[fill from template header],guidance
+033,FAR Period of Performance-Ordering Period Deviation,6/30/2026,planned,[fill from template header],guidance
+036,Source Evaluation Board (SEB) Membership Appointment Memorandum,7/1/2026,planned,[fill from template header],guidance
+036,Source Evaluation Team (non-SEB Procedures) Membership Appointment Memorandum,4/8/2026,planned,[fill from template header],guidance
+036,Source Selection Authority Appointment Letter,4/8/2026,planned,[fill from template header],guidance
+037,Draft Request For Proposal (DRFP) Cover Letter,6/22/2026,planned,[fill from template header],guidance
+039,Blackout Notice,5/8/2026,planned,[fill from template header],guidance
+040,Final Request for Proposal (RFP) Cover Letter,6/22/2026,planned,[fill from template header],guidance
+040,Request for Proposal (RFP) for Existing Contracts,4/27/2026,planned,[fill from template header],guidance
+040,Request For Proposal (RFP) for Non-Competitive New Awards,6/22/2026,planned,[fill from template header],guidance
+054,NASA Technical Evaluation Report,7/30/2026,live,[fill from template header],guidance
+063,Prenegotiation Position Memorandum (PPM),4/13/2026,planned,[fill from template header],guidance
+065,Price Negotiation Memorandum (PNM),4/7/2026,build next (Section D),[fill from template header],guidance
+066,Precontract Costs Approval Memo and Authorization Letter,4/24/2026,planned,[fill from template header],guidance
+067,Determination to Waive the Requirement for a Subcontracting Plan When No Subcontracting Possibilities Exist,5/1/2026,planned,[fill from template header],binding
+069,Postaward Notification Letter Successful Offeror,4/15/2026,planned,[fill from template header],guidance
+069,Postaward Notification Letter Unsuccessful Offeror,3/18/2026,planned,[fill from template header],guidance
+069,Set-Aside Preaward Apparent Successful Offeror Notification,4/21/2026,planned,[fill from template header],guidance
+072,Fair Opportunity Exception - Brand Name Justification,4/10/2026,planned,[fill from template header],guidance
+072,Option Exercise Contractor Preliminary Notification,7/21/2026,planned,[fill from template header],guidance
+074,Recommendation for Appointment of COR or Alternate COR,5/22/2026,planned,[fill from template header],guidance
+074,Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum,5/22/2026,planned,[fill from template header],guidance
+076,Award Term Determination,4/14/2026,planned,[fill from template header],binding
+076,Fee Determining Official (FDO) Appointment,4/14/2026,planned,[fill from template header],guidance
+076,Performance Evaluation Board (PEB) Appointment,4/8/2026,planned,[fill from template header],guidance
+077,Postaward Conference Report,4/26/2026,planned,[fill from template header],guidance
+079,Subcontract Consent Review,5/1/2026,planned,[fill from template header],guidance
+083,NASA Voucher Review Checklist (Cost-Type Contract),4/21/2026,planned,[fill from template header],guidance
+095,Duty Free Certificate,4/7/2026,planned,[fill from template header],guidance
+18,Organizational Conflicts of Interest – Limitation of Future Contracting Memo,5/1/2026,planned,[fill from template header],guidance
+24,Option Exercise Determination,7/21/2026,planned,[fill from template header],binding
+30,Contracting Officer Determination to Provide Government Property,4/23/2026,planned,[fill from template header],binding
+33,FAR & NFS Deviation Request,4/27/2026,planned,[fill from template header],guidance
+38,Electronic Document Posting Checklist,4/27/2026,planned,[fill from template header],guidance
+54,Total Compensation Plan Fringe Benefits Calculation Tool,6/22/2026,planned,[fill from template header],guidance
+54,Enterprise Instructions Evaluation of Total Compensation Plans (TCPs),6/23/2026,planned,[fill from template header],guidance
+70,NASA Notification of Procurement Action,8/14/2026,planned,[fill from template header],guidance
+77,Preconstruction Orientation Checklist,4/30/2026,planned,[fill from template header],guidance
+80,NASA Form (NF) 533 Monthly Analysis,4/21/2026,planned,[fill from template header],guidance
+88,Construction Bond Checklist,4/28/2026,planned,[fill from template header],guidance
+99,Blanket Purchase Agreement (BPA) Annual Review,4/27/2026,planned,[fill from template header],guidance
+Archived,Contractor Work Shutdown Letter template,1/15/2021,planned,[fill from template header],guidance
+Archived,Government Shutdown Claims Analysis Memorandum Template,1/15/2021,planned,[fill from template header],guidance
+N/A,Enterprise Contracting Officer Warrant Nomination-,5/31/2026,planned,[fill from template header],guidance
+N/A,Digital Signature Instructions,4/21/2026,planned,[fill from template header],guidance
+N/A,QASP Template for Performance-Based Services Contracts,4/6/2026,planned,[fill from template header],guidance
+N/A,Interim Guidance Exceeding 5 years,3/30/2026,planned,[fill from template header],guidance
+N/A,SBIR-STTR Phase III CO Checklist,3/5/2026,planned,[fill from template header],guidance
+N/A,Notification to SBA of Follow-on Consolidated or Bundled Requirements,4/2/2026,planned,[fill from template header],guidance
+N/A,Letter Notification to SB of NASA's Intent to Consolidate or Bundle,4/2/2026,planned,[fill from template header],guidance
+N/A,Request for Issuance of a Clause or Provision,4/6/2026,planned,[fill from template header],guidance
+N/A,Self-Clearance Template,6/22/2026,planned,[fill from template header],guidance
+NA,Contracting Officer Warrant Nomination Other Than 1102-1105,5/31/2026,planned,[fill from template header],guidance
+NA,Authorization to Use Government Supply Sources,4/14/2026,planned,[fill from template header],guidance
+NA,Contracting Officer Appointment Termination Letter,5/22/2026,planned,[fill from template header],guidance
+NA,NASA Enterprise Contracting Officer Appointment Letter,5/22/2026,planned,[fill from template header],guidance
+NA,Ratification of Unauthorized Commitments,4/27/2026,planned,[fill from template header],guidance
+NA,Request for Provisional Increase in the Estimated Cost,4/23/2026,planned,[fill from template header],guidance
+NA,Location of Contract Files prior to NEAR Transition Memo,4/27/2026,planned,[fill from template header],guidance
+NA,Closeout Transfer Checklist,6/10/2026,planned,[fill from template header],guidance
+099,Contractor Performance Assessment Reporting System (CPARS) Input,4/21/2026,planned,[fill from template header],guidance
+DRD,Contract Data Requirements List (AW-DRD),5/1/2026,planned,NFS 1852 / DRD program,guidance
+DRD,Data Requirements Description (DRD) Template,5/1/2026,planned,NFS 1852 / DRD program,guidance
+DRD,UMRDI DRD,6/15/2026,planned,NFS 1852 / DRD program,guidance
+DRD,OCI Plan DRD,5/1/2026,planned,NFS 1852 / DRD program,guidance
+DRD,Supply Chain Visibility (SCV) Reporting DRD,7/1/2024,planned,NFS 1852 / DRD program,guidance

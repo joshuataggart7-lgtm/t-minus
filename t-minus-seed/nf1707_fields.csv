@@ -1,0 +1,272 @@
+section,subform,field_name,field_kind,caption,nearest_form_text,center_specific
+HeaderWrapper,HeaderWrapper,Center,choiceList,Center,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,ReqNumber,textEdit,,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,ReqOrg,textEdit,Requesting Organization,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,RequirementDescription,textEdit,Brief Description of this Requirement,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,PurchaseType,choiceList,"items=['Requisition Number', 'P-Card Log Number']",Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,Reviewer,textEdit,Reviewer,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,ApprovedDate,dateTimeEdit,Date,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,HeaderWrapper,OtherCentersCheck,choiceList,Other Centers Impacted,Special Approvals and Affirmations of Requisitions,
+HeaderWrapper,OtherCentersSection,OtherCentersDropDown,choiceList,Other Impacted Centers,,
+HeaderWrapper,OtherCentersSection,OtherCentersText,textEdit,,,
+HeaderWrapper,ApproverApproval,ApproverConcurrence,textEdit,Approver Approval,,
+HeaderWrapper,ApproverApproval,ApproverConcurrenceSig,signature,Approver Approval,,
+HeaderWrapper,GRC1Approval,GRC1Concurrence,textEdit,Requisitioner Approval,,GRC
+HeaderWrapper,GRC1Approval,GRC1ConcurrenceSig,signature,Requisitioner Approval,,GRC
+HeaderWrapper,GRC1Approval,TaskOrder,checkButton,"items=['1', '0', '2']","(This statement may be checked for task order or delivery order requirements to be issued under GRC Indefinite Delivery, Indefinite Quantity (IDIQ) contracts. Insert the signature date and PR No. from",GRC
+HeaderWrapper,GRC1Approval,TaskOrderInput1,textEdit,,"The specific statements and affirmations included on NF 1707 signed on for PR No. apply to this requirement as well, and represent all statements and affirmations required by the Agency and GRC as of",GRC
+HeaderWrapper,GRC1Approval,TaskOrderInput2,textEdit,,"The specific statements and affirmations included on NF 1707 signed on for PR No. apply to this requirement as well, and represent all statements and affirmations required by the Agency and GRC as of",GRC
+HeaderWrapper,GRC1Approval,VerifyAcquisition,checkButton,"items=['1', '0', '2']",Acquisition Forecast Utilization,GRC
+Section1,Section1,Available,checkButton,"items=['1', '0', '2']",SECTION 1 - NASA STRATEGIC SOURCING INITIATIVE (Ref. NFS 1808.003-72 and Office of Procurement Strategic Sourcing website),
+Section1,Section1,MandatoryContractNum,textEdit,,The requestor has reviewed the information on the Office of Procurement NASA Strategic Sourcing website and the requirementIS AVAILABLE through Contract Number,
+Section1,Section1,NotAvailable,checkButton,"items=['1', '0', '2']",The requestor has reviewed the information on the Office of Procurement NASA Strategic Sourcing website and the requirementIS AVAILABLE through Contract Number,
+Section2,Section2,CITRAuth,textEdit,I. CITR Authorization #:,Please complete ONLY ONE of the following subsections,
+Section2,Section2,ORCAAuth,textEdit,II. ORCA Authorization #:,Please complete ONLY ONE of the following subsections,
+Section2,Section2,UnderLimitNoIT,checkButton,"items=['1', '0', '2']",III.,
+Section2,Section2,NoITAuth,textEdit,No IT Authorization #:,"This procurement is valued less than $7.5M and does not contain information technology, based on the definition found in the INSTRUCTIONS BELOW",
+Section2,Section2,NotReviewed,checkButton,"items=['1', '0', '2']","This procurement is valued less than $7.5M and does not contain information technology, based on the definition found in the INSTRUCTIONS BELOW",
+Section3,Section3,S3n1,checkButton,"items=['1', '0', '2']",The Green Procurement Compilation (GPC) identifies applicable federal green/sustainability requirements for products and services. The requestor has searched the GPC to identify applicable federal gre,
+Section3,Section3,S3n2,checkButton,"items=['1', '0', '2']","A. This procurement does not acquire any products or services listed in the GPC. (if checked, skip to subsection III below)",
+Section3,Section3,S3n2s1,checkButton,"items=['1', '0', '2']","Bio-based/Bio-preferred, USDA-designated Items:",
+Section3,Section3,S3n2s2,checkButton,"items=['1', '0', '2']",Energy Efficient:,
+Section3,Section3,S3n2s3,checkButton,"items=['1', '0', '2']",SmartWay Transportation Services (helping freight transportation companies improve transportation efficiency),
+Section3,Section3,S3n2s4,checkButton,"items=['1', '0', '2']",Environmentally Preferable: This procurement does acquire EPA-Designated Products or Services listed in the GPC in the following programs (check all that apply):,
+Section3,Section3,S3n2s5Yes,checkButton,Yes,Are there sufficient EPEAT Silver- or Gold-registered products available to meet NASA needs?,
+Section3,Section3,S3n2s5No,checkButton,No,Are there sufficient EPEAT Silver- or Gold-registered products available to meet NASA needs?,
+Section3,Section3,S3n2s6,checkButton,"items=['1', '0', '2']",Are there sufficient EPEAT Silver- or Gold-registered products available to meet NASA needs?,
+Section3,Section3,S3n2s7Yes,checkButton,Yes,Will NASA be able to independently verify the accuracy of contractor estimates of the amount and (if applicable) percentages of recovered material used in actual contract performance?,
+Section3,Section3,S3n2s7No,checkButton,No,Will NASA be able to independently verify the accuracy of contractor estimates of the amount and (if applicable) percentages of recovered material used in actual contract performance?,
+Section3,Section3,S3n2s8,checkButton,"items=['1', '0', '2']",Will NASA be able to independently verify the accuracy of contractor estimates of the amount and (if applicable) percentages of recovered material used in actual contract performance?,
+Section3,Section3,S3n2s9,checkButton,"items=['1', '0', '2']",Non-Ozone Depleting Substances (a.k.a. the Significant New Alternatives Policy (SNAP) program); and/or,
+Section3s2,Section3s2,S3s2n1,checkButton,"items=['1', '0', '2']",II. Memo Regarding / Waiver of Specified Sustainability Standards,
+Section3s2,Section3s2,S3s2n1s1,checkButton,"items=['1', '0', '2']","This procurement does acquire products or services listed in the GPC; however, for reasons explained in the attached memo / waiver (include any necessary documentation (also attached) fully supporting",
+Section3s2,Section3s2,S3s2n1s2,checkButton,"items=['1', '0', '2']",The attached memo/waiver is fully approved.,
+Section3s3,Section3s3,S3s3n1,checkButton,"items=['1', '0', '2']",This form is the NASA Environmental Review Form (NERF) and can be accessed via this link: NERF MAIN (nasa.gov),
+Section3s3,Section3s3,S3n3n1Info,textEdit,CatEx number,Fits within the following Categorical Exclusion (CatEx) with no Extraordinary Circumstances identified:,
+Section3s3,Section3s3,S3s3n2,checkButton,"items=['1', '0', '2']",Fits within the following Categorical Exclusion (CatEx) with no Extraordinary Circumstances identified:,
+Section3s3,Section3s3,S3s3n3,checkButton,"items=['1', '0', '2']","Fits within the list of excluded activities that do not require completion of a checklist,",
+Section3Old,Section3Old,S3n1,checkButton,"items=['1', '0', '2']",Ref. FAR subpart 23.1 and NPR 8530.1. The request originator has searched the Green Procurement Compilation (GPC) to identify applicable federal green/sustainable acquisition requirements for products,
+Section3Old,Section3Old,S3n2n1,checkButton,"items=['1', '0', '2']",This procurement does not acquire any products or services listed in the GPC.,
+Section3Old,Section3Old,S3n1s1,checkButton,"items=['1', '0', '2']",This procurement does acquire products or services listed in the GPC in the following programs (check all that apply):,
+Section3Old,Section3Old,S3n1s2,checkButton,"items=['1', '0', '2']",EPA's Comprehensive Procurement Guidelines,
+Section3Old,Section3Old,S3n1s3,checkButton,"items=['1', '0', '2']",Electronic Product Environmental Assessment Tool (EPEAT),
+Section3Old,Section3Old,S3n1s4,checkButton,"items=['1', '0', '2']",EPA's Significant New Alternatives Policy (SNAP) Program,
+Section3Old,Section3Old,S3n1s5,checkButton,"items=['1', '0', '2']",EPA's Watersense Program,
+Section3Old,Section3Old,S3n1s6,checkButton,"items=['1', '0', '2']",Energy Star,
+Section3Old,Section3Old,S3n1s7,checkButton,"items=['1', '0', '2']",FEMP (Federal Energy Management Program) Energy Efficient Products,
+Section3Old,Section3Old,S3n2,checkButton,"items=['1', '0', '2']",USDA's Biopreferred Designated Products,
+Section3Old,Section3Old,S3n3,checkButton,"items=['1', '0', '2']",The specifications or statement of work include applicable sustainable acquisition program requirements.,
+Section3Old,KSC2,ProductsDD,choiceList,GPC Products to be procured or,,KSC
+Section3Old,KSC2,ServicesDD,choiceList,GPC Services to be procured,,KSC
+Section3Old,KSC2,InputStandard,textEdit,Non-GPC Products or Services,,KSC
+Section3Old,KSC2,Waiver,checkButton,"items=['1', '0', '2']",KSC Waiver for Sustainable Acquisition,KSC
+Section3Old,KSC2,Waiver1,checkButton,Inadequate competition,This procurement requires the purchase of products or services listed in the GPC; however the originator request a waiver from this requirement due to once of the following reasons (check all that app,KSC
+Section3Old,KSC2,Waiver2,checkButton,Unreasonable price,This procurement requires the purchase of products or services listed in the GPC; however the originator request a waiver from this requirement due to once of the following reasons (check all that app,KSC
+Section3Old,KSC2,Waiver3,checkButton,Lack of quality / performance specification or standard,This procurement requires the purchase of products or services listed in the GPC; however the originator request a waiver from this requirement due to once of the following reasons (check all that app,KSC
+Section3Old,KSC2,Waiver4,checkButton,Unavailable within reasonable time frame,This procurement requires the purchase of products or services listed in the GPC; however the originator request a waiver from this requirement due to once of the following reasons (check all that app,KSC
+Section3Old,KSC2Approval,KSC2Concurrence,textEdit,KSC Environmental Management Branch Approval,,KSC
+Section3Old,KSC2Approval,KSC2ConcurrenceSig,signature,KSC Environmental Management Branch Approval,,KSC
+Section3Old,ARC1,ProductsDD,choiceList,GPC Products to be procured or,,ARC
+Section3Old,ARC1,ServicesDD,choiceList,GPC Services to be procured,,ARC
+Section3Old,ARC1,InputStandard,textEdit,Non-GPC Products or Services,,ARC
+Section3Old,ARC1,Waiver,checkButton,"items=['1', '0', '2']",Waiver for Sustainable Acquisition,ARC
+Section3Old,ARC1,Waiver1,checkButton,Inadequate competition,This procurement requires the purchase of products or services listed in the GPC; however the originator requests a waiver from this requirement due to one or more of the following reasons (check all,ARC
+Section3Old,ARC1,Waiver2,checkButton,Unreasonable price,This procurement requires the purchase of products or services listed in the GPC; however the originator requests a waiver from this requirement due to one or more of the following reasons (check all,ARC
+Section3Old,ARC1,Waiver3,checkButton,Lack of quality / performance specification or standard,This procurement requires the purchase of products or services listed in the GPC; however the originator requests a waiver from this requirement due to one or more of the following reasons (check all,ARC
+Section3Old,ARC1,Waiver4,checkButton,Unavailable within reasonable time frame,This procurement requires the purchase of products or services listed in the GPC; however the originator requests a waiver from this requirement due to one or more of the following reasons (check all,ARC
+Section3Old,ARC1Approval,ARC1Concurrence,textEdit,Environmental Management Branch Approval,,ARC
+Section3Old,ARC1Approval,ARC1ConcurrenceSig,signature,Environmental Management Branch Approval,,ARC
+Section3Old,LaRC1,LaRCc1,checkButton,"items=['1', '0', '2']",Ref. NPR 8580.1 and LPR 8500.1. The Requestor has confirmed that National Environmental Policy Act (NEPA) environmental review has been completed.,LaRC
+Section3Old,LaRC1,LaRCc2,checkButton,"items=['1', '0', '2']",Action meets requirements of the Langley Research Center Excluded Activities List and no further NEPA environmental review is required.,LaRC
+Section3Old,LaRC1,LaRCInput1,textEdit,Number,NEPA environmental review for this action is completed under LF461,LaRC
+Section3Old,JSC1s1,ProductsDD,choiceList,GPC Products to be procured or,,JSC
+Section3Old,JSC1s1,ServicesDD,choiceList,GPC Services to be procured,,JSC
+Section3Old,JSC1s1,InputStandard,textEdit,Non-GPC Products or Services,,JSC
+Section3Old,JSC1s1,JSC1s1cb1,checkButton,"items=['1', '0', '2']",JSC Excess Property Reutilization and Waiver for Sustainable Acquisition,JSC
+Section3Old,JSC1s1,JSC1s1cb2,checkButton,"items=['1', '0', '2']","This procurement requires products/equipment not currently found in an acceptable condition at the JSC Excess Property Redistribution and Re-utilization (*R&U) warehouse, or at any other NASA Center o",JSC
+Section3Old,JSC1s1,JSC1s1cb3,checkButton,"items=['1', '0', '2']","The products/equipment covered by this procurement were available from other NASA Center or federal facilities via **GSA, but the price of shipping far exceeds the total cost of procuring a new produc",JSC
+Section3Old,JSC1s1,Waiver,checkButton,"items=['1', '0', '2']",This procurement requires the purchase of products or services listed in the GPC and the applicable GPC requirements are fully met (no waiver required);,JSC
+Section3Old,JSC1s1,Waiver1,checkButton,Inadequate competition,"This procurement requires the purchase of products or services listed in the GPC; however, the originator requested a waiver*** and obtained approval from this requirement, from the JSC PIE Office, du",JSC
+Section3Old,JSC1s1,Waiver2,checkButton,Unreasonable price,"This procurement requires the purchase of products or services listed in the GPC; however, the originator requested a waiver*** and obtained approval from this requirement, from the JSC PIE Office, du",JSC
+Section3Old,JSC1s1,Waiver3,checkButton,Lack of quality / performance specification or standard,"This procurement requires the purchase of products or services listed in the GPC; however, the originator requested a waiver*** and obtained approval from this requirement, from the JSC PIE Office, du",JSC
+Section3Old,JSC1s1,Waiver4,checkButton,Unavailable within reasonable time frame,"This procurement requires the purchase of products or services listed in the GPC; however, the originator requested a waiver*** and obtained approval from this requirement, from the JSC PIE Office, du",JSC
+Section3Old,JSCWaiverRequired,JSCWaiverNum,textEdit,JSC Planning Integration and Environmental (PIE) Office Waiver Number:,"*** Fill out and submit to the JSC-Environmental-Office@nasa.gov for approval, a Request for Sustainable Acquisitions Waiver (Form JF1121)",JSC
+Section3Old,JSCWaiverRequired,JSCWaiverDate,dateTimeEdit,"JSC Planning, Integration and Environmental (PIE) Office Approval Date:",Use the Attachments tab above to attach approved waiver. This attachment is REQUIRED.,JSC
+Section3Old,JSC2,JSC2cb1,checkButton,"items=['1', '0', '2']",JSC NEPA Requirements,JSC
+Section3Old,JSC2,JSC2cb2,checkButton,No environmental issues were identified,"This procurement completed and submitted the environmental planning checklist (JF1138) to the JSC Planning, Integration Environmental Office (JP) at JSC-Environmental-Office@nasa.gov",JSC
+Section3Old,JSC2,JSC2cb3,checkButton,All the environmental issues and NEPA requirements identified were properly addressed.,"This procurement completed and submitted the environmental planning checklist (JF1138) to the JSC Planning, Integration Environmental Office (JP) at JSC-Environmental-Office@nasa.gov",JSC
+Section4,Section4,S4n1,checkButton,"items=['1', '0', '2']",SECTION 4 - SERVICE CONTRACTING,
+Section4,Section4,S4n2,checkButton,"items=['1', '0', '2']",This is a requirement for supplies and no services are being procured.,
+Section4,Section4,S4n2s1,checkButton,"items=['1', '0', '2']","This requirement is for, or includes, services. The services to be performed (check all that apply):",
+Section4,Section4,S4n2s2,checkButton,"items=['1', '0', '2']",1. Will not be used for the performance of personal services. (Ref. FAR 37.104 and NFS 1837.104),
+Section4,Section4,S4n2s3,checkButton,"items=['1', '0', '2']",2. Will not be used for the performance of inherently governmental functions. (Ref. FAR 7.503),
+Section4,Section4,S4n2s4,checkButton,"items=['1', '0', '2']","3. Are not presently being performed, nor recently performed, by government employees. (Contracting out for services performed by civil servants requires a public-private competition) (Ref. OMB Circul",
+Section4,LaRC2,LaRC2c1,checkButton,"items=['1', '0', '2']",FAR 52.204-9 Personal Identity Verification of Contractor Personnel (Check when contract performance required contractors to have routine physical access to a Federally-controlled facility and/or rout,LaRC
+Section4,LaRC2,LaRC2c2,checkButton,"items=['1', '0', '2']","NFS 1852.204-76 Security Requirements for Unclassified Information Technology Resources (Check when the Contractor will have 1) physical or electronic access to NASA's computer systems, networks, or I",LaRC
+Section5s1,Section5s1,S5In1,checkButton,"items=['1', '0', '2']",I. SPACE FLIGHT AND GROUND SUPPORT PROGRAMS,
+Section5s1,Section5s1,S5In2,checkButton,"items=['1', '0', '2']","This procurement is not for space flight hardware and/or software, nor for any ground systems or components that are in direct support of space flight operations.",
+Section5s1,Section5s1,S5In2s1,checkButton,"items=['1', '0', '2']","This procurement is for space flight hardware and/or software and ground systems or components. Additionally, technical standards and specifications cited in the solicitation/resultant award are:",
+Section5s1,Section5s1,S5In2s2,checkButton,"items=['1', '0', '2']","1) The most recent version, 2) tailored to the needs of the project and its elements, and 3) registered in a watch list at https://standards.nasa.gov to receive notification when standards or specific",
+Section5s1,YesNo,GRCNo,checkButton,"items=['1', '0', '2']",,GRC
+Section5s1,YesNo,GRCYes,checkButton,"items=['1', '0', '2']","This procurement is not subject to systems engineering requirements as specified in NPR 7123.1, See NPR 7123.1.",GRC
+Section5s1,YesNo,GRC3Calculate,textEdit,,This procurement is subject to systems engineering requirements as specified in NPR 7123.1.,GRC
+Section5s1,EngineerRep,TaskOrderInput1,textEdit,(Insert Engineering Rep.'s name),"GRC Engineering Representative has been made aware of this procurement, and the program/project/activity for which it will be utilized.",
+Section5s2,Section5s2,S5IIn1,checkButton,"items=['1', '0', '2']",II. COMMUNICATION AND NAVIGATION CAPABILITIES,
+Section5s2,Section5s2,S5IIn2,checkButton,"items=['1', '0', '2']","This procurement has no requirements related to Space Communication and Navigation (SCaN) capabilities of NASA, of other US Government agencies, or of other nations.",
+Section5s2,Section5s2,S5IIn3,checkButton,"items=['1', '0', '2']",RADIOFREQUENCY SPECTRUM MANAGEMENT,
+Section5s2,Section5s2,S5IIn4,checkButton,"items=['1', '0', '2']","This procurement does NOT contain RF equipment such as transmitters, receivers, antennas, or anything that modifies or amplifies RF signals.",
+Section5s2,LaRC3,LaRC31,checkButton,"items=['1', '0', '2']",,LaRC
+Section5s2,LaRC3,LaRC32,checkButton,"items=['1', '0', '2']",This procurement has no requirement for intentional Radio Frequency (RF) emitting devices.,LaRC
+Section5s3,Section5s3,S5IIIn1,checkButton,"items=['1', '0', '2']",III. EARNED VALUE MANAGEMENT SYSTEM (Ref. NASA FAR Supplement (NFS) 1834.201 and NASA Procedural Requirements (NPR) 7120.5),
+Section5s3,Section5s3,S5IIIn2,checkButton,"items=['1', '0', '2']",This procurement does not require an Earned Value Management System (EVMS) to be utilized.,
+Section5s3,Section5s3,S5IIIn3,checkButton,"items=['1', '0', '2']",This procurement requires an EVMS to be utilized. Data Requirements Descriptions (DRDs) to be included in the solicitation and resultant contract are attached. (See NASA's EVM Contract Requirements Ch,
+Section5s3,Section5s3,S5IIIn4,checkButton,"items=['1', '0', '2']",No exception(s) to the EVMS requirements apply to this procurement.,
+Section5s4,Section5s4,S5IVn1,checkButton,"items=['1', '0', '2']",IV. COMMUNICATIONS (Ref. NASA Policy Directive (NPD) 2521.1),
+Section5s4,Section5s4,S5IVn2,checkButton,"items=['1', '0', '2']","This procurement does not involve the design, preparation or creation of communications material.",
+Section5s5,Section5s5,S5Vn1,checkButton,"items=['1', '0', '2']",V. MANNED COMMERCIAL AVIATION SERVICES & UNMANNED AIRCRAFT SYSTEMS (Ref. NASA Procedural Requirements (NPR) 7900.3),
+Section5s5,Section5s5,S5Vn2,checkButton,"items=['1', '0', '2']","This procurement (1) involves neither the acquisition nor the use of manned or unmanned aircraft systems (UAS), including charter, lease, and acquisition of related aircraft services for manned and un",
+Section5s6,Section5s6,S5VIn1,checkButton,"items=['1', '0', '2']",VI. SOFTWARE ENGINEERING PER NPR 7150.2 CLASSES A-E,
+Section5s6,Section5s6,S5VIn2,checkButton,"items=['1', '0', '2']",This procurement is not subject to software engineering requirements as specified in NPR 7150.2See http://nodis3.gsfc.nasa.gov/displayDir.cfm?t=NPR&c=7150&s=2ANPR 7150.2 is applicable to: 1) ALL R&D r,
+Section5s6,Section5s6,S5VIn2s1,checkButton,"items=['1', '0', '2']",Software Class (Check appropriate class),
+Section5s6,Section5s6,S5VIn2s2,checkButton,"items=['1', '0', '2']",Class A: Human rated space software systems,
+Section5s6,Section5s6,S5VIn2s3,checkButton,"items=['1', '0', '2']",Class B: Non-Human rated space software systems or large-scale aeronautics vehicles,
+Section5s6,Section5s6,S5VIn2s4,checkButton,"items=['1', '0', '2']","Class C: Mission support software or aeronautic vehicles, or major engineering/research facility software",
+Section5s6,Section5s6,S5VIn2s5,checkButton,"items=['1', '0', '2']",Class D: Basic science/engineering design and research and technology software,
+Section5s7,Section5s7,SCVIn1,checkButton,"items=['1', '0', '2']",The incorporation of the agency approved DRD for SCV Reporting into the procurement solicitation and resultant contract is required.,
+Section5s7,Section5s7,SCVIn2,checkButton,"items=['1', '0', '2']",The SCV Reporting Data Requirements Description (DRD) is applicable to solicitations and awards for new NASA procurements of products and services for programs/projects on the approved Agency Mission,
+Section5s7,Section5s7,SCVIn2s1,checkButton,"items=['1', '0', '2']",The incorporation of the agency approved DRD for SCV Reporting into the procurement solicitation and resultant contract is not required(check appropriate rationale below):,
+Section5s7,Section5s7,SCVIn2s2,checkButton,"items=['1', '0', '2']","Procurement value, including options, is below the $20M threshold",
+Section5s7,Section5s7,SCVIn2s3,checkButton,"items=['1', '0', '2']",Procurement not for a program/project on the approved AMPL,
+Section5s7,Section5s7,SCVIn2s4,checkButton,"items=['1', '0', '2']","Modification of an existing contract (i.e., not a new procurement)",
+Section6s1,Section6s1,S6In1,checkButton,"items=['1', '0', '2']","This procurement pertains to one of the following types of acquisitions. If any of these blocks are checked, NPR 8735.2C are not applicable, skip to Section 6-IV, GIDEP Screening.",
+Section6s1,Section6s1,S6In2,checkButton,"items=['1', '0', '2']",Information technology or institutional infrastructure projects.,
+Section6s1,Section6s1,S6In3,checkButton,"items=['1', '0', '2']",Information Technology (IT) services.,
+Section6s1,Section6s1,S6In4,checkButton,"items=['1', '0', '2']",Software assurance functions defined by NASA-STD-8739.8 and NPR 7150.2.,
+Section6s1,Section6s1,S6In5,checkButton,"items=['1', '0', '2']",Contractor support services where such services do not directly affect product configuration.,
+Section6s1,Section6s1,S6In6,checkButton,"items=['1', '0', '2']",Acquisition of NASA institutional facilities or for facility maintenance.,
+Section6s1,Section6s1,S6In9,checkButton,"items=['1', '0', '2']",Grants and cooperative agreements covered by 31 U.S.C. 6301 et seq. or Space Act agreements covered by 51 USC 20113.,
+Section6s1,Section6s1,S6In7,checkButton,"items=['1', '0', '2']",Other acquisition - NPR 8735.2C is not applicable to this procurement.,
+Section6s1,Section6s1,S6In8,checkButton,"items=['1', '0', '2']",This procurement is for commercial or Commercial Off the-Shelf (COTS) item(s) to be acquired under FAR Part 12 procedures and NPR 8735.2C paragraph 5.1 is applicable.,
+Section6s2,Section6s2,S6IIn1,checkButton,"items=['1', '0', '2']",,
+Section6s2,Section6s2,S6IIn2,checkButton,"items=['1', '0', '2']",The acquisition items are NEITHER Critical NOR Complex. Higher-Level Quality is not required by the acquiring organization.,
+Section6s2,Section6s2,S6IIn3,checkButton,"items=['1', '0', '2']","This procurement is for Critical items defined by NPR 8735.2C, Appendix A or Critical Work.",
+Section6s2,Section6s2,HigherControls,textEdit,,"This procurement is for Complex acquisition items defined by NPR 8735.2C, Appendix A or Complex Work.",
+Section6s3,Section6s3,S6IIIn1,checkButton,"items=['1', '0', '2']",II. HIGHER LEVEL QUALITY ASSURANCE REQUIREMENTS,
+Section6s3n2,Section6s3n2,S6IIIn2,checkButton,"items=['1', '0', '2']","Select the applicable higher-level quality standards: ISO 17025, AS9100, AS9003 or ISO 9001.",
+Section6s3n2,Section6s3n2,Button2,button,,"Select the applicable higher-level quality standards: ISO 17025, AS9100, AS9003 or ISO 9001.",
+Section6s3n2,Section6s3n2,S6IIIn3,checkButton,"items=['1', '0', '2']",SAE AS9100 (If hardware is any combination of Critical/Complex),
+Section6s3n2,Section6s3n2,Button3,button,,SAE AS9100 (If hardware is any combination of Critical/Complex),
+Section6s3n2,Section6s3n2,S6IIIn4,checkButton,"items=['1', '0', '2']",ISO 9001 (If hardware is NOT BOTH Critical AND Complex),
+Section6s3n2,Section6s3n2,Button4,button,,ISO 9001 (If hardware is NOT BOTH Critical AND Complex),
+Section6s3n2,Section6s3n2,S6IIIn5,checkButton,"items=['1', '0', '2']",SAE AS9003 (If hardware is NOT Complex),
+Section6s3n2,Section6s3n2,Button5,button,,SAE AS9003 (If hardware is NOT Complex),
+Section6s3n2,Section6s3n2,S6IIIn6,checkButton,"items=['1', '0', '2']",ISO 17025 (Critical Calibration or Testing Services),
+Section6s3n2,Section6s3n2,Button6,button,,ISO 17025 (Critical Calibration or Testing Services),
+Section6s4,Section6s4,S6IVn1,checkButton,"items=['1', '0', '2']",Select the following that are applicable to this procurement:,
+Section6s4,Section6s4,S6IVn1Input,textEdit,,Select the following that are applicable to this procurement:,
+Section6s4,Section6s4,S6IVn2,checkButton,"items=['1', '0', '2']",This acquiring organization requires completion of acceptance testing by the government within days (typically 14 to 30 days) of delivery to the Center to ensure suitability under FAR 52.212-4 or FAR,
+Section6s4,Section6s4,S6IVn3,checkButton,"items=['1', '0', '2']",This acquiring organization requires Certificate(s) of Conformance per FAR 52.246-15.,
+Section6s4,Section6s4,CertificateInput,textEdit,,This acquiring organization requires a Certificate of Chemical Analysis certifying the requirements were met as specified in,
+Section6s4,Section6s4,S6IVn4,checkButton,"items=['1', '0', '2']",This acquiring organization requires a Certificate of Chemical Analysis certifying the requirements were met as specified in,
+Section6s4,Section6s4,S6IVn5,checkButton,"items=['1', '0', '2']","This acquiring organization requires Government Source Inspections (GSI) under FAR 52.246-2, -3, -4, -5, or -6.",
+Section6s4,Section6s4,S6IVn6,checkButton,"items=['1', '0', '2']",This acquiring organization requires First Article Approval under FAR 52.209-3.,
+Section6s5,Section6s5,QualityPOCSig,signature,Quality Point of Contact Signature,,
+Section6s5,Section6s5,QualityPOCTxt,textEdit,Quality Point of Contact Signature,,
+Section6s6,Section6s6,S6VIn1,checkButton,"items=['1', '0', '2']",IV. GOVERNMENT-INDUSTRY DATA EXCHANGE PROGRAM (GIDEP) SCREENING,
+Section6s6,Section6s6,S6VIn2,checkButton,"items=['1', '0', '2']",This procurement is not for safety critical items as defined in NPR 8735.1,
+Section6s7,Section6s7,CenterGIDEPSig,signature,Center GIDEP Coordinator Signature,,
+Section6s7,Section6s7,CenterGIDEPTxt,textEdit,Center GIDEP Coordinator Signature,,
+Section6s7,KSC4s1,KSC4c1,checkButton,"items=['1', '0', '2']",This procurement does not procure new Pressure Vessels/Systems (PV/S) or result in modification(s) to existing PV/S. KSC Pressure Systems Manager (PSM) signature is not required.,KSC
+Section6s7,KSC4s1,KSC4c2,checkButton,"items=['1', '0', '2']",This procurement procures new PV/S or results in modifications to existing PV/S and has been reviewed and evaluated by the KSC PSM or designee per NPD 8710.5 paragraphs 5.d(3) and 5.f(1). KSC PSM sign,KSC
+PSMSigS5,PSMSigS5,PSMApproval,textEdit,KSC PSM Approval,,
+PSMSigS5,PSMSigS5,PSMApprovalSig,signature,KSC PSM Approval,,
+PSMSigS5,LaRC4,LaRC4c1,checkButton,"items=['1', '0', '2']",V. LaRC PROCUREMENT TYPE,LaRC
+PSMSigS5,LaRC4,LaRC4c2,checkButton,"items=['1', '0', '2']","This procurement pertains to a grant or cooperative agreement covered by 31 USC 6301 ET SEQ or Space Act agreements covered by 51 USC 20113 (NPR 8735.2 is not applicable- Skip to section 6, Health and",LaRC
+PSMSigS5,LaRC4,LaRC4c3,checkButton,"items=['1', '0', '2']","This procurement pertains to supplies and services as defined in NPR 8735.2, Management of government quality assurance functions for NASA contracts, including research and development activities. Sup",LaRC
+PSMSigS5,LaRC5,LaRC5c1,checkButton,Work is critical and complex (the following applies).,"Using the classifications established in Part II, select applicable Quality Management System (QMS) requirements for the supplier or contractor (note, supplier or contractor does not need to be regist",LaRC
+PSMSigS5,LaRC5,LaRC5c2,checkButton,Work is critical but not complex (the following applies).,○ Work shall be performed in accordance with the quality system requirements of AS9100.○ Contact the Safety and Mission Assurance Office (SMAO) Mission Assurance Branch (C202) to ensure review of appl,LaRC
+PSMSigS5,LaRC5,LaRC5Txt2,textEdit,,"○ Work shall be performed in accordance with the quality system requirements of AS9100, ISO9001 or SAE AS9003.○ Contact the SMAO Mission Assurance Branch (C202) to assist with completion of Part IV.○",LaRC
+PSMSigS5,LaRC5,LaRC5c3,checkButton,Work is complex but not critical (the following applies).,"○ Work shall be performed in accordance with the quality system requirements of AS9100, ISO9001 or SAE AS9003.○ Contact the SMAO Mission Assurance Branch (C202) to assist with completion of Part IV.○",LaRC
+PSMSigS5,LaRC5,LaRC5Txt3,textEdit,,○ Work shall be performed in accordance with the quality system requirements of AS9100 or ISO9001.○ Contact the SMAO Mission Assurance Branch (C202) to assist with completion of Part IV.○ Enter QMS Re,LaRC
+PSMSigS5,LaRC5,LaRC5c4,checkButton,"items=['1', '0', '2']","○ Work shall be performed in accordance with higher-level quality management system (e.g., ISO9001) OR product/process specific quality standards○ Enter QMS Requirement○ Specific quality standard(s)",LaRC
+PSMSigS5,LaRC5,LaRC5Txt4,textEdit,OR,"Work is for a research and development acquisition that requires control of such things as (1) design, work operations, in-process controls, testing and inspection; or (2) attention to such factors as",LaRC
+PSMSigS5,LaRC5,LaRC5Txt5,textEdit,to be included in contract/PR.,"Work is for a research and development acquisition that requires control of such things as (1) design, work operations, in-process controls, testing and inspection; or (2) attention to such factors as",LaRC
+PSMSigS5,LaRC6,LaRC6c1,checkButton,This procurement is for critical and/or complex procurements.,"Using the classifications established in Part II, select the Procurement Quality Classification for the procurement (only select one). The listed quality assurance requirements are required for the pr",LaRC
+PSMSigS5,LaRC6,LaRC6c2,checkButton,This procurement is for a Noncritical or Noncomplex Acquisition item that is not considered a COTS item.,"○ Plans for verification of purchased product are in place.○ Government contract quality assurance functions in 2.6 of NPR 8735.2, as applicable.",LaRC
+PSMSigS5,LaRC6,LaRC6c3,checkButton,This procurement is for a Commercial Item procured under FAR Part 12.,"○ Quality requirements as applicable (e.g., certification, material testing data, testing, inspection, dimensional verification), including requesting records of any required tests and inspections hav",LaRC
+PSMSigS5,LaRC6,LaRC6c4,checkButton,This procurement is for a COTS item.,○ Contract has provisions for conducting quality system evaluation of the provider post-award in accordance with 2.3 and 2.6 of NPR 8735.2○ Acceptance inspection requirements have been included in the,LaRC
+PSMSigS5,LaRC6,LaRC6c5,checkButton,This procurement is for a Research and Development (R & D) Acquisition.,"○ For R & D contracts that meet the definition of ""critical item"", the procurement has provisions to allow quality system evaluation of the provider in accordance with 2.5.2 and 2.6.3 of NPR 8735.2 po",LaRC
+PSMSigS5,GRC4,G1n1,checkButton,"items=['1', '0', '2']",V. GRC HIGHER LEVEL QUALITY ASSURANCE REQUIREMENTS (CRITICAL AND/OR COMPLEX REQUIREMENTS),GRC
+PSMSigS5,GRC4,G1n2,checkButton,"items=['1', '0', '2']","Critical work is work that if done incorrectly could cause serious injury, loss of life, or loss of a payload, mission, or mission resource > $2M. Complex work involves either: a) the design, manufact",GRC
+PSMSigS5,GRC4,G1n3,checkButton,"items=['1', '0', '2']","This procurement is for Commercial-Off-The-Shelf (COTS) items, other commercial items, commercial services, construction services, or contractor support services where such services do not directly af",GRC
+PSMSigS5,GRC4,G1n4,checkButton,"items=['1', '0', '2']","This procurement is for items such as raw materials (e.g., metal plate, bar stock) supplies (e.g., fasteners or electrical, electronic, and electromechanical (EEE) parts), and/or fabricated items (e.g",GRC
+PSMSigS5,GRC4,PQARep,textEdit,(Insert PQA Representative's Name),"This procurement includes work that is critical* and/or complex*, or it includes aeronautics or space-flight hardware manufacturing, development, or testing activities. Therefore, this procurement is",GRC
+Section7,Section7,S7In1,checkButton,"items=['1', '0', '2']",I. SAFETY AND HEALTH REQUIREMENTS,
+Section7,HnS,HnSTxt,textEdit,Health & Safety Signature,,
+Section7,HnS,HnSSig,signature,Health & Safety Signature,,
+Section7,HnS,S7In2,checkButton,"items=['1', '0', '2']",OR Select what applies:,
+Section7,HnS,S7In2s1,checkButton,"items=['1', '0', '2']","This procurement will result in the acquisition, production, or use of any hazardous or potentially hazardous substances or articles, examples of which are listed in NPR 1800.1, or items that requires",
+Section7,HnS,S7In2s2,checkButton,"items=['1', '0', '2']","Ionizing Radiation Sources and Devices,",
+Section7,HnS,S7In2s3,checkButton,"items=['1', '0', '2']","Lasers and Sources of Hazardous Non-Laser Optical Radiation,",
+Section7,HnS,S7In2s4,checkButton,"items=['1', '0', '2']","High Intensity, Ultraviolet, and Infrared Lights,",
+Section7,HnS,S7In2s5,checkButton,"items=['1', '0', '2']","Radio Frequency (RF) and Microwave Emitters,",
+Section7,HnS,S7In2s6,checkButton,"items=['1', '0', '2']","Devices That Produce Hazardous Noise (Equal to or Above 80 DBA at 1 Meter or Less),",
+Section7,HnS,S7In2s7,checkButton,"items=['1', '0', '2']","Pyrotechnic Devices and Explosives,",
+Section7,HnS,S7In2s8,checkButton,"items=['1', '0', '2']","Pressurized Vessels,",
+Section7,HnS,S7In2s9,checkButton,"items=['1', '0', '2']","Toxic or Hazardous Substances, Materials or Chemicals,",
+Section7,HnS,S7In2s10,checkButton,"items=['1', '0', '2']","Nano and Ultrafine Particles,",
+Section7,HnS,S7In2s11,checkButton,"items=['1', '0', '2']","Any Infectious or Biological Agents,",
+Section7,HnS,S7In3,checkButton,"items=['1', '0', '2']",Or other articles or substances listed in the Appendix D,
+Section7,HnS,S7In4,checkButton,"items=['1', '0', '2']","This procurement will result in the acquisition (purchase, lease, or rent) of equipment or services that requires the Center Safety and Mission Assurance (SMA) Organization review and approval per Cen",
+Section7,KSCException1,InputNone,textEdit,,,KSC
+Section7,Toxic,Org1,checkButton,NE/UB,,
+Section7,Toxic,Org2,checkButton,SI-C3,,
+Section7,Toxic,Org3,checkButton,All Other Organizations,,
+Section7,Nano,Org1,checkButton,NE/UB,,
+Section7,Nano,Org3,checkButton,All Other Organizations,,
+Section7,Infectious,Org1,checkButton,NE/UB,,
+Section7,HealthApprove,HealthApproval,textEdit,KSC-DL-1707-Radiation@mail.nasa.gov Approval,,
+Section7,HealthApprove,HealthApprovalSig,signature,KSC-DL-1707-Radiation@mail.nasa.gov Approval,,
+Section7,SafetyApprove,SafetyApproval,textEdit,KSC-DL-1707-ESO@mail.nasa.gov Approval,,
+Section7,SafetyApprove,SafetyApprovalSig,signature,KSC-DL-1707-ESO@mail.nasa.gov Approval,,
+Section7,BSOApprove,BSOApproval,textEdit,KSC-DL-1707-BSO@mail.nasa.gov Approval,,
+Section7,BSOApprove,BSOApprovalSig,signature,KSC-DL-1707-BSO@mail.nasa.gov Approval,,
+Section7,Safety2Approve,Safety2Approval,textEdit,KSC-DL-1707-Safety@mail.nasa.gov Approval,,
+Section7,Safety2Approve,Safety2ApprovalSig,signature,KSC-DL-1707-Safety@mail.nasa.gov Approval,,
+Section7,SHRBApprove,SHRBApproval,textEdit,KSC-DL-1707-SHRB@mail.nasa.gov Approval,,
+Section7,SHRBApprove,SHRBApprovalSig,signature,KSC-DL-1707-SHRB@mail.nasa.gov Approval,,
+Section7,GRC5,GRC5c1,checkButton,"items=['1', '0', '2']",Guidance at the PSO SharePoint has been reviewed,GRC
+Section7,GRC5,GRC5c2,checkButton,"items=['1', '0', '2']",For ground-based systems:,GRC
+Section7,GRC5,GRC5c3,checkButton,"items=['1', '0', '2']","PV, PVS and/or PVS components are in compliance with the NPR 8715.1 and NASA STD 8719.17",GRC
+Section7,GRC5,GRC5c4,checkButton,"items=['1', '0', '2']",For flight systems:,GRC
+Section8,Section8,S8IIn1,checkButton,"items=['1', '0', '2']",SECTION 8 - PROPERTY MANAGEMENT,
+Section8,Section8,S8IIn2,checkButton,"items=['1', '0', '2']","This procurement will not involve the purchase or fabrication of property with unit value $1,000,000 or greater, to which the government will take title.",
+Section8,Section8,S8In1,checkButton,"items=['1', '0', '2']",II. CAPITAL EQUIPMENT,
+Section8,Section8,S8In2,checkButton,"items=['1', '0', '2']",Primary source of supply/acquisition/reutilization efforts have been exhausted in accordance with NPR 4200.1 and NPR 4300.1.,
+Section9,GRC6,S8n2,checkButton,"items=['1', '0', '2']",,GRC
+Section9s1,Section9s1,S9n1,checkButton,"items=['1', '0', '2']",,
+Section9s1,Section9s1,S9n2,checkButton,"items=['1', '0', '2']",There are no items requiring special approval.,
+Section9s1,Section9s1,S9n3,checkButton,"items=['1', '0', '2']",Approvals for special items have been obtained through the established SAP release strategy.,
+Section10,Section10,S10n1,checkButton,"items=['1', '0', '2']","Ref. NPR 1660.1, NASA Counterintelligence and Counterterrorism",
+Section10,Section10,S10n2,checkButton,"items=['1', '0', '2']","This procurement does not require NASA contractor employees to go on official travel to Designated Countries, Russia and other high-threat locations. (For additional information see the NASA Counterin",
+Section11,Section11,S11n1,checkButton,"items=['1', '0', '2']","Ref. MSC-2011-12-001, Eliminating Extraneous Promotional & Personal Use Items",
+Section12,Section12,S12n1,checkButton,"items=['1', '0', '2']",SECTION 12 - OTHER CURRENT NASA DIRECTIVES,
+Section12,Section12,S12n2,checkButton,"items=['1', '0', '2']","A review of the NASA Online Directives Information System (NODIS) of current NASA Directives (NPR, NPD, and NID) not already indicated in the above Sections of this form has been performed. There are",
+Section12,LaRC8,LaRC8c1,checkButton,"items=['1', '0', '2']",LaRC SECTION 13 - NASA AVIATION SAFETY PROGRAM,LaRC
+Section12,LaRC8,LaRC8c2,checkButton,"items=['1', '0', '2']","This procurement includes the acquisition of aircraft, UAS (Unmanned Aircraft Systems), or commercial aviation services defined in NPR 7900.3 AND coordination with the Center Chief of the Fight Operat",LaRC
+Section12,LaRC8,LaRC8c3,checkButton,"items=['1', '0', '2']","This procurement does not include aircraft maintenance services performed external to NASA facilities, OR aircraft inspection services, OR acquisition of aircraft/UAS, OR commercial aviation services.",LaRC
+Section12,LaRC9,LaRC9c1,checkButton,"items=['1', '0', '2']",LaRC SECTION 14 - PRECIOUS METALS,LaRC
+Section12,LaRC10,LaRC10c1,checkButton,"items=['1', '0', '2']",LaRC SECTION 15 - FACILITY WORK PERMIT,LaRC
+Section12,LaRC10,LaRC10c2,checkButton,"items=['1', '0', '2']",This procurement is for services that meets the requirement for a facility work permit as defined in LMS-CP-8835 through the LaRC Facilities Work Notification Request System. Attached is the completed,LaRC
+Section12,GRC7,GRC7c1,checkButton,"items=['1', '0', '2']",GRC SECTION 13 - SOFTWARE ENGINEERING,GRC
+Section12,GRC7,GRC7c2,checkButton,"items=['1', '0', '2']","This procurement is not subject to software engineering requirements as specified in NPR 7150.2. See NPR 7150.2, NASA Software Engineering Requirements, Section P.2 for applicability of this NPR to th",GRC
+Section12,GRC7,TaskOrderInput1,textEdit,(Insert PQA Rep.'s name),This procurement is subject to software engineering requirements as specified in NPR 7150.2.GRC SMAD Representative has been made aware of this procurement and the program/project/activity forwhich it,GRC
+Section12,GRC8,GRC8c1,checkButton,"items=['1', '0', '2']",,GRC
+Section12,GRC8,GRC8c2,checkButton,"items=['1', '0', '2']",This procurement will not involve the provision of Government property to the contractor and/or the acquisition of Government property by the contractor.,GRC
+Section12,GRC9,GRC9c1,checkButton,"items=['1', '0', '2']",,GRC
+Section12,GRC9,GRC9c2,checkButton,"items=['1', '0', '2']",This procurement will not require the contractor to have routine access to GRC (Lewis Field and/or Plum Brook Station).,GRC
+Section12,GRC9,ApproverResponse,choiceList,Approver Response,GRC SECTION 15 - PHYSICAL SECURITY,GRC
+Section12,GRC9,Approvals,textEdit,Approval Log,GRC SECTION 15 - PHYSICAL SECURITY,GRC
+Section12,GRC9,Comments,textEdit,Approver Comment,GRC SECTION 15 - PHYSICAL SECURITY,GRC
+Section12,ServerValues,ServerName,textEdit,Server Name,,
+Section12,ServerValues,ServerURL,textEdit,Server URL,,

@@ -1,0 +1,57 @@
+[
+ {
+  "mission_id": "M1",
+  "name": "Arctic Snow Depth Campaign 2027",
+  "program": "Airborne Science (fictional project)",
+  "center_code": "ARC",
+  "milestone": "First science flight of the Fairbanks deployment",
+  "milestone_date": "2027-04-06",
+  "priority": 1,
+  "program_owner": "Dr. Elena Marsh (fictional)",
+  "leadership_note": ""
+ },
+ {
+  "mission_id": "M2",
+  "name": "Coastal Aerosol Validation",
+  "program": "Earth Science instrument validation (fictional project)",
+  "center_code": "ARC",
+  "milestone": "Airborne validation flights complete before the satellite launch window",
+  "milestone_date": "2027-01-20",
+  "priority": 2,
+  "program_owner": "Dr. Rafael Ortiz (fictional)",
+  "leadership_note": ""
+ },
+ {
+  "mission_id": "M3",
+  "name": "Lunar Surface Power Test Article",
+  "program": "Technology demonstration (fictional project)",
+  "center_code": "JSC",
+  "milestone": "Thermal vacuum test start",
+  "milestone_date": "2027-02-15",
+  "priority": 3,
+  "program_owner": "Ms. Dana Whitfield (fictional)",
+  "leadership_note": ""
+ },
+ {
+  "mission_id": "M4",
+  "name": "Hurricane Season Observations 2027",
+  "program": "Airborne Science (fictional project)",
+  "center_code": "GSFC",
+  "milestone": "Deployment readiness review",
+  "milestone_date": "2027-06-01",
+  "priority": 4,
+  "program_owner": "Dr. Priya Natarajan (fictional)",
+  "leadership_note": ""
+ },
+ {
+  "mission_id": "M5",
+  "name": "Unitary Wind Tunnel Modernization",
+  "program": "Aeronautics test capability (fictional project)",
+  "center_code": "ARC",
+  "milestone": "Tunnel return to service",
+  "milestone_date": "2027-05-10",
+  "priority": 5,
+  "program_owner": "Mr. Tom Alvarez (fictional)",
+  "leadership_note": ""
+ }
+]
