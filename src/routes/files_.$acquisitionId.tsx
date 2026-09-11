@@ -75,6 +75,9 @@ function FilePage() {
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
   const [banner, setBanner] = useState<string | null>(null);
+  // Which phase the regulation sidebar is showing. Empty until the file loads,
+  // then it follows the current phase unless the reader picks another.
+  const [regPhase, setRegPhase] = useState<string | null>(null);
 
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
@@ -173,6 +176,12 @@ function FilePage() {
   }, [acq, q.data, ref]);
 
   const board = useMemo(() => Object.values(boards).flat(), [boards]);
+
+  const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
+  const sidebarPhase =
+    regPhase && phaseNames.includes(regPhase)
+      ? regPhase
+      : (phases.find((p) => p.status === "current")?.phase ?? phaseNames[0] ?? "Intake");
 
   const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
   const effectiveState =
