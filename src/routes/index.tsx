@@ -14,6 +14,8 @@ import {
   sortNewestFirst,
   withinDays,
 } from "@/lib/watch";
+import { SmallBusinessPanel } from "@/components/small-business-panel";
+import type { ThresholdRow } from "@/lib/small-business";
 import {
   callout,
   computeMetrics,
@@ -288,7 +290,7 @@ function ExecutiveOverview() {
       </div>
 
       {tab === "acquisitions" ? (
-        <ClockBoard metrics={metrics} plan={q.data?.plan ?? []} />
+        <ClockBoard metrics={metrics} plan={q.data?.plan ?? []} thresholds={ref.thresholds} />
       ) : (
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
       )}
@@ -317,7 +319,15 @@ function quarterStart(iso: string) {
   return new Date(Date.UTC(d.getUTCFullYear(), q, 1)).toISOString().slice(0, 10);
 }
 
-function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanRow[] }) {
+function ClockBoard({
+  metrics,
+  plan,
+  thresholds,
+}: {
+  metrics: AcqMetrics[];
+  plan: PhasePlanRow[];
+  thresholds: ThresholdRow[];
+}) {
   const today = todayISO();
   const qStart = quarterStart(today);
 
@@ -528,6 +538,8 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
           </tbody>
         </table>
       )}
+
+      <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} />
     </div>
   );
 }
