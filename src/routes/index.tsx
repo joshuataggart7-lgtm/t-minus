@@ -323,13 +323,25 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
 
   const running = metrics.filter((m) => m.clockState === "running").length;
   const onHold = metrics.filter((m) => m.clockState === "hold");
-  const launchedThisQuarter = metrics.filter(
+  const launchedThisQuarterRows = metrics.filter(
     (m) =>
       m.clockState === "launched" &&
       m.acq.target_award_date &&
       String(m.acq.target_award_date) >= qStart &&
       String(m.acq.target_award_date) <= today,
-  ).length;
+  );
+  const launchedThisQuarter = launchedThisQuarterRows.length;
+
+  const daysReturned = useMemo(() => {
+    const map = new Map<string, number>();
+    let total = 0;
+    for (const m of launchedThisQuarterRows) {
+      const center = String(m.acq.center_code ?? "Unassigned");
+      map.set(center, (map.get(center) ?? 0) + m.timeSavedDays);
+      total += m.timeSavedDays;
+    }
+    return { byCenter: [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])), total };
+  }, [launchedThisQuarterRows]);
   const scrubbed = metrics.filter((m) => m.clockState === "scrubbed").length;
 
   const byReason = useMemo(() => {
