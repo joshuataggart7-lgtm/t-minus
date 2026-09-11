@@ -6,7 +6,11 @@ import { Orby } from "@/components/orby";
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
 
+// Survives route remounts so the click run isn't reset by navigation.
+const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null } };
+
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
+
   const { role, user, setRole, authMessage } = useRole();
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
