@@ -3,6 +3,8 @@ import { useCallback, useState, type ReactNode } from "react";
 import { navFor, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
+import { AnnouncementBanner } from "@/components/announcement-banner";
+
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
 
