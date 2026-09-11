@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as AuditLogRouteImport } from './routes/audit-log'
+import { Route as ChecksRouteImport } from './routes/checks'
+import { Route as EstimateRouteImport } from './routes/estimate'
+import { Route as FilesRouteImport } from './routes/files'
+import { Route as SeedStatusRouteImport } from './routes/seed-status'
+import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as WatchRouteImport } from './routes/watch'
+import { Route as WorkQueueRouteImport } from './routes/work-queue'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnnouncementsRoute = AnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditLogRoute = AuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChecksRoute = ChecksRouteImport.update({
+  id: '/checks',
+  path: '/checks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstimateRoute = EstimateRouteImport.update({
+  id: '/estimate',
+  path: '/estimate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FilesRoute = FilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeedStatusRoute = SeedStatusRouteImport.update({
+  id: '/seed-status',
+  path: '/seed-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchRoute = WatchRouteImport.update({
+  id: '/watch',
+  path: '/watch',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WorkQueueRoute = WorkQueueRouteImport.update({
+  id: '/work-queue',
+  path: '/work-queue',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/checks': typeof ChecksRoute
+  '/estimate': typeof EstimateRoute
+  '/files': typeof FilesRoute
+  '/seed-status': typeof SeedStatusRoute
+  '/templates': typeof TemplatesRoute
+  '/watch': typeof WatchRoute
+  '/work-queue': typeof WorkQueueRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/checks': typeof ChecksRoute
+  '/estimate': typeof EstimateRoute
+  '/files': typeof FilesRoute
+  '/seed-status': typeof SeedStatusRoute
+  '/templates': typeof TemplatesRoute
+  '/watch': typeof WatchRoute
+  '/work-queue': typeof WorkQueueRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/announcements': typeof AnnouncementsRoute
+  '/audit-log': typeof AuditLogRoute
+  '/checks': typeof ChecksRoute
+  '/estimate': typeof EstimateRoute
+  '/files': typeof FilesRoute
+  '/seed-status': typeof SeedStatusRoute
+  '/templates': typeof TemplatesRoute
+  '/watch': typeof WatchRoute
+  '/work-queue': typeof WorkQueueRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/announcements'
+    | '/audit-log'
+    | '/checks'
+    | '/estimate'
+    | '/files'
+    | '/seed-status'
+    | '/templates'
+    | '/watch'
+    | '/work-queue'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/announcements'
+    | '/audit-log'
+    | '/checks'
+    | '/estimate'
+    | '/files'
+    | '/seed-status'
+    | '/templates'
+    | '/watch'
+    | '/work-queue'
+  id:
+    | '__root__'
+    | '/'
+    | '/announcements'
+    | '/audit-log'
+    | '/checks'
+    | '/estimate'
+    | '/files'
+    | '/seed-status'
+    | '/templates'
+    | '/watch'
+    | '/work-queue'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnnouncementsRoute: typeof AnnouncementsRoute
+  AuditLogRoute: typeof AuditLogRoute
+  ChecksRoute: typeof ChecksRoute
+  EstimateRoute: typeof EstimateRoute
+  FilesRoute: typeof FilesRoute
+  SeedStatusRoute: typeof SeedStatusRoute
+  TemplatesRoute: typeof TemplatesRoute
+  WatchRoute: typeof WatchRoute
+  WorkQueueRoute: typeof WorkQueueRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +169,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/announcements': {
+      id: '/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audit-log': {
+      id: '/audit-log'
+      path: '/audit-log'
+      fullPath: '/audit-log'
+      preLoaderRoute: typeof AuditLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checks': {
+      id: '/checks'
+      path: '/checks'
+      fullPath: '/checks'
+      preLoaderRoute: typeof ChecksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estimate': {
+      id: '/estimate'
+      path: '/estimate'
+      fullPath: '/estimate'
+      preLoaderRoute: typeof EstimateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/files': {
+      id: '/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof FilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seed-status': {
+      id: '/seed-status'
+      path: '/seed-status'
+      fullPath: '/seed-status'
+      preLoaderRoute: typeof SeedStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watch': {
+      id: '/watch'
+      path: '/watch'
+      fullPath: '/watch'
+      preLoaderRoute: typeof WatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/work-queue': {
+      id: '/work-queue'
+      path: '/work-queue'
+      fullPath: '/work-queue'
+      preLoaderRoute: typeof WorkQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnnouncementsRoute: AnnouncementsRoute,
+  AuditLogRoute: AuditLogRoute,
+  ChecksRoute: ChecksRoute,
+  EstimateRoute: EstimateRoute,
+  FilesRoute: FilesRoute,
+  SeedStatusRoute: SeedStatusRoute,
+  TemplatesRoute: TemplatesRoute,
+  WatchRoute: WatchRoute,
+  WorkQueueRoute: WorkQueueRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
