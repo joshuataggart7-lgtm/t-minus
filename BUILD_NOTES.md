@@ -58,13 +58,9 @@ that preserves the demo path.
 
 ### Known deviations
 
-- **Clauses deduplication.** The `clauses` CSV has 1,359 rows but only 932
-  unique `clause_number` values (253 duplicates with different dates/sources).
-  The `clauses` table uses `clause_number` as its primary key, so duplicates
-  cannot coexist. The seed script keeps the first occurrence per clause
-  number. To load all 1,359 rows exactly, the schema would need a surrogate
-  row ID and a non-unique `clause_number` column. Deferred to a later
-  milestone unless required sooner.
+- **Clauses (resolved).** The `clauses` table now uses a surrogate `row_id`
+  primary key with `clause_number` as an indexed, non-unique column, so all
+  1,359 rows load exactly as written and every prescription variant is kept.
 - **Backend replacement.** The original spec called for the existing Supabase
   project `wczndteslofhtxbazhnj`. Lovable Cloud provisioning created a new
   managed project (`zgrgfkpfkhocljoqhknv`) instead. All schema, RLS, seeds, and
