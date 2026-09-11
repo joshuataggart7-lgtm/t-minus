@@ -1,0 +1,1 @@
+DELETE FROM public.audit_log WHERE acquisition_id = 'A-2027-0112' AND action = 'Debriefing date recorded'; UPDATE public.acquisition_facts SET debriefing_date = NULL WHERE acquisition_id = 'A-2027-0112';
