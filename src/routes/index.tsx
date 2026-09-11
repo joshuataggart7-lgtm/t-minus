@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
@@ -646,6 +647,9 @@ function ClockBoard({
   }, [launchedThisQuarterRows]);
   const scrubbed = metrics.filter((m) => m.clockState === "scrubbed").length;
 
+  const modTasksQ = useQuery({ queryKey: ["clause-mod-tasks"], queryFn: loadModTasks });
+  const modCounts = modsByCenter(modTasksQ.data ?? []);
+
   const byReason = useMemo(() => {
     const map = new Map<string, number>();
     for (const m of onHold) {
@@ -730,6 +734,29 @@ function ClockBoard({
             ))}
           </ul>
         </div>
+      )}
+
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">Clause change mods, done against due</h3>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        Modifications required by a clause change, by Center.{" "}
+        <Link to="/clause-changes" className="text-primary">
+          Open the clause change impact list
+        </Link>
+        .
+      </p>
+      {modCounts.length === 0 ? (
+        <p className="mt-2 text-muted-foreground">No clause change mod task has been created.</p>
+      ) : (
+        <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
+          {modCounts.map((c) => (
+            <li key={c.center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
+              <span>{c.center}</span>
+              <span data-numeric>
+                {c.done} done of {c.due} due
+              </span>
+            </li>
+          ))}
+        </ul>
       )}
 
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Holds by reason</h3>
