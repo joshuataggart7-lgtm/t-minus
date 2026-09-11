@@ -540,6 +540,8 @@ function ClockBoard({
         </table>
       )}
 
+      <SuccessorPanel acqs={metrics.map((m) => m.acq)} plan={plan} />
+
       <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} />
 
       <ExclusionsSweepPanel />
