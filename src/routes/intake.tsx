@@ -1,9 +1,11 @@
+import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
 import {
   SECTION_GROUPS,
   answerKey,
@@ -198,6 +200,23 @@ function IntakePage() {
     setScan(null);
   }
 
+  const [place, setPlace] = useState<PlaceLookup | null>(null);
+  const [placeStandardized, setPlaceStandardized] = useState("");
+  const [placeChecking, setPlaceChecking] = useState(false);
+  const lookupPlace = useServerFn(lookupPlaceOfPerformance);
+
+  async function checkPlace() {
+    if (!facts.place_of_performance.trim()) return;
+    setPlaceChecking(true);
+    try {
+      setPlace(await lookupPlace({ data: { query: facts.place_of_performance.trim() } }));
+    } catch {
+      setPlace(null);
+    } finally {
+      setPlaceChecking(false);
+    }
+  }
+
   function runScan() {
     setTouched(true);
     if (errorCount > 0) {
@@ -241,6 +260,7 @@ function IntakePage() {
         period_of_performance_start: facts.period_of_performance_start || null,
         period_of_performance_end: facts.period_of_performance_end || null,
         place_of_performance: facts.place_of_performance || null,
+        place_of_performance_standardized: placeStandardized || null,
         naics_code: facts.naics_code,
         psc_code: facts.psc_code,
         contract_type: facts.contract_type,
@@ -517,8 +537,46 @@ function IntakePage() {
               id="place"
               className={inputClass}
               value={facts.place_of_performance}
-              onChange={(e) => set("place_of_performance", e.target.value)}
+              onChange={(e) => {
+                set("place_of_performance", e.target.value);
+                setPlace(null);
+                setPlaceStandardized("");
+              }}
             />
+            <button
+              type="button"
+              className="mt-2 rounded-lg border border-border px-3 py-2 text-[13px]"
+              disabled={placeChecking || !facts.place_of_performance.trim()}
+              onClick={() => void checkPlace()}
+            >
+              {placeChecking ? "Checking" : "Check place of performance"}
+            </button>
+            {placeStandardized ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                Standardized value stored with the free text: {placeStandardized}
+              </p>
+            ) : null}
+            {place ? (
+              <div className="mt-2">
+                <p className="text-[13px] text-muted-foreground">{place.sourceLabel}</p>
+                <ul className="mt-1 space-y-1">
+                  {place.matches.map((m) => (
+                    <li key={m.standardized} className="text-[13px]">
+                      <button
+                        type="button"
+                        className="rounded-lg border border-border px-2 py-1"
+                        onClick={() => {
+                          setPlaceStandardized(m.standardized);
+                          setPlace(null);
+                        }}
+                      >
+                        Accept {m.standardized}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </Field>
           <Field label="Funding fiscal year" htmlFor="ffy">
             <input
