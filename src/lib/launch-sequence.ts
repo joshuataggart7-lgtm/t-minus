@@ -211,9 +211,26 @@ export function requiredDocs(phase: string): RequiredDoc[] {
     case "FPDS-NG Report":
       return [{ label: "FPDS-NG contract action report", citation: "FAR 4.604" }];
     case "Administration":
-      return [{ label: "CPARS past performance evaluation", citation: "RFO FAR Part 42" }];
+      return [
+        { label: "CPARS past performance evaluation", citation: "RFO FAR Part 42", link: "templates" },
+        { label: "COR appointment letter", citation: "FAR 1.602-2(d)", link: "templates" },
+        {
+          label: "Option exercise: preliminary notice and determination",
+          citation: "FAR 17.207(a) and (c)",
+          link: "templates",
+        },
+        {
+          label: "SF 30 modification handoff packet",
+          citation: "FAR 43.301; NFS CG 1804.11",
+          link: "packet",
+          note: "The modification of record is written in NCMS. T-Minus hands over the facts and the clause delta.",
+        },
+      ];
     case "Closeout":
-      return [{ label: "Closeout checklist and contract file", citation: "FAR 4.804; FAR 4.801" }];
+      return [
+        { label: "Closeout Transfer Checklist", citation: "FAR 4.804-5", link: "templates" },
+        { label: "Contract file complete and retained", citation: "FAR 4.801; FAR 4.805", link: "templates" },
+      ];
     default:
       return [];
   }
@@ -318,6 +335,9 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
     return "Administration";
+  if (templateKey === "cor-appointment" || templateKey === "cor-cancellation" || templateKey === "cpars-input")
+    return "Administration";
+  if (templateKey === "closeout-checklist") return "Closeout";
   return "Go/No-go Poll";
 }
 

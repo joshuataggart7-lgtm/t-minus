@@ -26,6 +26,19 @@ import {
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { protestWindow } from "@/lib/protest-window";
+import {
+  buildModificationPacket,
+  clauseDelta,
+  CLOSEOUT_CHECKLIST,
+  cparsView,
+  optionSchedule,
+  OPTION_NOTICE_LEAD_DAYS,
+  postAward,
+  retentionView,
+  SF30_CHECKLIST,
+  type OptionPeriod,
+  type PostAward,
+} from "@/lib/post-award";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -446,6 +459,65 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
 
+  // ------------------------------------------------------ post-award modules
+  const pa = postAward(acq);
+  const options = useMemo(() => optionSchedule(acq, awardDate), [acq, awardDate]);
+  const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);
+  const retention = useMemo(
+    () => retentionView(q.data?.thresholds ?? [], pa.final_payment_date ?? null, awardDate),
+    [q.data?.thresholds, pa.final_payment_date, awardDate],
+  );
+  const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
+
+  const savePostAward = useMutation({
+    mutationFn: async (input: { patch: PostAward; action: string; field: string; reason: string; phase: string }) => {
+      if (!acq) return;
+      const next = { ...pa, ...input.patch };
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ post_award: next, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: input.action,
+        field: input.field,
+        old_value: String((pa as Record<string, string | undefined>)[input.field] ?? ""),
+        new_value: String((input.patch as Record<string, string | undefined>)[input.field] ?? ""),
+        reason: input.reason,
+        phase: input.phase,
+      });
+    },
+    onSuccess: () => {
+      setBanner("Recorded.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
+  });
+
+  function downloadModPacket(kind: "option exercise" | "administrative", authority: string, period: OptionPeriod | null) {
+    if (!acq) return;
+    const packet = buildModificationPacket(acq, kind, authority, delta, period);
+    const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sf30-handoff-${acq.acquisition_id}-${kind.replace(/\s+/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    void supabase.from("audit_log").insert({
+      acquisition_id: acq.acquisition_id,
+      actor: user.name,
+      action: "SF 30 modification handoff packet built",
+      field: "modification",
+      old_value: null,
+      new_value: kind,
+      reason: `${authority}; ${delta.updated.length} clauses updated, ${delta.removed.length} removed`,
+      phase: "Administration",
+    });
+  }
+
   return (
     <AppShell>
       <PageHeader
@@ -747,6 +819,358 @@ function FilePage() {
                   </button>
                 </div>
               )}
+
+              {p.phase === "Administration" ? (
+                <div className="mt-3 max-w-[80ch] space-y-4">
+                  <div className="border border-border p-4">
+                    <h4 className="text-[15px] font-medium">Option exercise</h4>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      Option-year dates run from the period of performance on the record
+                      {options.derivedBase ? ", derived from the award date because no period is recorded" : ""}. The
+                      preliminary notice is due {OPTION_NOTICE_LEAD_DAYS} days before the option period begins (FAR
+                      52.217-9 fill-in).
+                    </p>
+                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                      <caption className="sr-only">Option periods and notice dates</caption>
+                      <thead>
+                        <tr className="border-y border-border text-left">
+                          <th scope="col" className="p-2">Period</th>
+                          <th scope="col" className="p-2">Start</th>
+                          <th scope="col" className="p-2">End</th>
+                          <th scope="col" className="p-2">Preliminary notice due</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-border">
+                          <td className="p-2">Base period</td>
+                          <td className="p-2" data-numeric>{options.baseStart ?? "not recorded"}</td>
+                          <td className="p-2" data-numeric>{options.baseEnd ?? "not recorded"}</td>
+                          <td className="p-2">—</td>
+                        </tr>
+                        {options.periods.map((o) => (
+                          <tr key={o.label} className="border-b border-border">
+                            <td className="p-2">{o.label}</td>
+                            <td className="p-2" data-numeric>{o.start ?? "not recorded"}</td>
+                            <td className="p-2" data-numeric>{o.end ?? "not recorded"}</td>
+                            <td className="p-2" data-numeric>{o.noticeDue ?? "not recorded"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <label className="text-[13px]" htmlFor="option-notice-date">
+                        Preliminary notice sent on
+                      </label>
+                      <input
+                        id="option-notice-date"
+                        type="date"
+                        value={pa.option_notice_date ?? ""}
+                        disabled={!canWrite}
+                        onChange={(e) =>
+                          savePostAward.mutate({
+                            patch: { option_notice_date: e.target.value },
+                            action: "Option preliminary notice recorded",
+                            field: "option_notice_date",
+                            reason: "FAR 17.207(a) preliminary notification to the contractor",
+                            phase: "Administration",
+                          })
+                        }
+                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        data-numeric
+                      />
+                      <label className="text-[13px]" htmlFor="option-exercised-date">
+                        Option exercised on
+                      </label>
+                      <input
+                        id="option-exercised-date"
+                        type="date"
+                        value={pa.option_exercised_date ?? ""}
+                        disabled={!canWrite}
+                        onChange={(e) =>
+                          savePostAward.mutate({
+                            patch: { option_exercised_date: e.target.value },
+                            action: "Option exercised",
+                            field: "option_exercised_date",
+                            reason: "FAR 17.207(c) determination signed and the option exercised",
+                            phase: "Administration",
+                          })
+                        }
+                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        data-numeric
+                      />
+                    </div>
+
+                    <p className="mt-3 text-[13px]">
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "option-exercise-notification", acquisitionId }}
+                        className="text-primary"
+                      >
+                        Open the preliminary notice
+                      </Link>
+                      <span className="mx-2 text-muted-foreground">·</span>
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "option-exercise-determination", acquisitionId }}
+                        className="text-primary"
+                      >
+                        Open the option exercise determination
+                      </Link>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadModPacket("option exercise", "FAR 43.103(b)(1); FAR 52.217-9", options.periods[0] ?? null)
+                      }
+                      className="mt-3 text-[15px] text-primary"
+                    >
+                      Download the SF 30 handoff packet for the option modification
+                    </button>
+                  </div>
+
+                  <div className="border border-border p-4">
+                    <h4 className="text-[15px] font-medium">Contracting officer's representative</h4>
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <label className="text-[13px]" htmlFor="cor-appointed-date">
+                        Appointed on
+                      </label>
+                      <input
+                        id="cor-appointed-date"
+                        type="date"
+                        value={pa.cor_appointed_date ?? ""}
+                        disabled={!canWrite}
+                        onChange={(e) =>
+                          savePostAward.mutate({
+                            patch: { cor_appointed_date: e.target.value },
+                            action: "COR appointment recorded",
+                            field: "cor_appointed_date",
+                            reason: "FAR 1.602-2(d) written appointment",
+                            phase: "Administration",
+                          })
+                        }
+                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        data-numeric
+                      />
+                      <label className="text-[13px]" htmlFor="cor-cancelled-date">
+                        Cancelled on
+                      </label>
+                      <input
+                        id="cor-cancelled-date"
+                        type="date"
+                        value={pa.cor_cancelled_date ?? ""}
+                        disabled={!canWrite}
+                        onChange={(e) =>
+                          savePostAward.mutate({
+                            patch: { cor_cancelled_date: e.target.value },
+                            action: "COR appointment cancelled",
+                            field: "cor_cancelled_date",
+                            reason: "FAR 1.602-2(d) appointment cancelled",
+                            phase: "Administration",
+                          })
+                        }
+                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        data-numeric
+                      />
+                    </div>
+                    <p className="mt-3 text-[13px]">
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "cor-appointment", acquisitionId }}
+                        className="text-primary"
+                      >
+                        Open the appointment letter
+                      </Link>
+                      <span className="mx-2 text-muted-foreground">·</span>
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "cor-cancellation", acquisitionId }}
+                        className="text-primary"
+                      >
+                        Open the cancellation memorandum
+                      </Link>
+                      <span className="ml-2 text-muted-foreground">NF 1098 tab 074 · FAR 1.602-2(d)</span>
+                    </p>
+                  </div>
+
+                  <div className="border border-border p-4">
+                    <h4 className="text-[15px] font-medium">CPARS input</h4>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      {cpars.thresholdValue === null
+                        ? "No CPARS threshold row is loaded."
+                        : cpars.applies
+                          ? `Required: the value is above ${formatMoney(cpars.thresholdValue)}.`
+                          : `Not required: the value is at or below ${formatMoney(cpars.thresholdValue)}.`}{" "}
+                      {cpars.citation ?? ""}
+                    </p>
+                    {cpars.applies ? (
+                      <p className="mt-2 text-[13px]" data-numeric>
+                        Evaluation period {awardDate ?? "not recorded"} to {cpars.periodEnd ?? "not recorded"}; input due{" "}
+                        {cpars.dueDate ?? "not recorded"} (120 days after the period ends).
+                      </p>
+                    ) : null}
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <label className="text-[13px]" htmlFor="cpars-submitted">
+                        Entered in CPARS on
+                      </label>
+                      <input
+                        id="cpars-submitted"
+                        type="date"
+                        value={pa.cpars_submitted_date ?? ""}
+                        disabled={!canWrite}
+                        onChange={(e) =>
+                          savePostAward.mutate({
+                            patch: { cpars_submitted_date: e.target.value },
+                            action: "CPARS input entered",
+                            field: "cpars_submitted_date",
+                            reason: cpars.citation ?? "RFO FAR Part 42",
+                            phase: "Administration",
+                          })
+                        }
+                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        data-numeric
+                      />
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "cpars-input", acquisitionId }}
+                        className="text-[13px] text-primary"
+                      >
+                        Open the CPARS input form
+                      </Link>
+                    </div>
+                  </div>
+
+                  <div className="border border-border p-4">
+                    <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
+                    <p className="mt-1 text-[13px] text-muted-foreground">
+                      The modification of record is written in NCMS (NFS CG 1804.11). The clause delta below is read
+                      from the clause matrices; removed clauses are struck and never carried forward.
+                    </p>
+                    <p className="mt-2 text-[13px]" data-numeric>
+                      {delta.updated.length} updated · {delta.removed.length} removed · {delta.unchanged.length}{" "}
+                      unchanged
+                    </p>
+                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                      <caption className="sr-only">Clause delta for the modification</caption>
+                      <thead>
+                        <tr className="border-y border-border text-left">
+                          <th scope="col" className="p-2">Clause</th>
+                          <th scope="col" className="p-2">Change</th>
+                          <th scope="col" className="p-2">Recorded status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ...delta.removed.map((c) => ({ c, change: "Removed" })),
+                          ...delta.updated.map((c) => ({ c, change: "Updated" })),
+                        ].map(({ c, change }) => (
+                          <tr key={`${change}-${c.clause_number}`} className="border-b border-border">
+                            <td className="p-2" data-numeric>{c.clause_number}</td>
+                            <td className="p-2">
+                              <StatusMark
+                                color={change === "Removed" ? "var(--atrisk)" : "var(--attention)"}
+                                className="text-[13px]"
+                              >
+                                {change}
+                              </StatusMark>
+                            </td>
+                            <td className="p-2 text-muted-foreground">{c.status ?? "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <ul className="mt-3 list-disc pl-5 text-[13px] text-muted-foreground">
+                      {SF30_CHECKLIST.map((c) => (
+                        <li key={c}>{c}</li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={() => downloadModPacket("administrative", "FAR 43.103(b); FAR 43.301", null)}
+                      className="mt-3 text-[15px] text-primary"
+                    >
+                      Download the SF 30 handoff packet
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {p.phase === "Closeout" ? (
+                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                  <h4 className="text-[15px] font-medium">Closeout</h4>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <label className="text-[13px]" htmlFor="closeout-pr">
+                      NASA closeout requisition (PR) number
+                    </label>
+                    <input
+                      id="closeout-pr"
+                      type="text"
+                      defaultValue={pa.closeout_pr_number ?? ""}
+                      disabled={!canWrite}
+                      onBlur={(e) =>
+                        e.target.value !== (pa.closeout_pr_number ?? "") &&
+                        savePostAward.mutate({
+                          patch: { closeout_pr_number: e.target.value },
+                          action: "Closeout requisition recorded",
+                          field: "closeout_pr_number",
+                          reason: "NASA closeout PR recorded for the contract file",
+                          phase: "Closeout",
+                        })
+                      }
+                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      data-numeric
+                    />
+                    <label className="text-[13px]" htmlFor="final-payment">
+                      Final payment made on
+                    </label>
+                    <input
+                      id="final-payment"
+                      type="date"
+                      value={pa.final_payment_date ?? ""}
+                      disabled={!canWrite}
+                      onChange={(e) =>
+                        savePostAward.mutate({
+                          patch: { final_payment_date: e.target.value },
+                          action: "Final payment recorded",
+                          field: "final_payment_date",
+                          reason: "Records retention runs from final payment (FAR 4.805)",
+                          phase: "Closeout",
+                        })
+                      }
+                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      data-numeric
+                    />
+                  </div>
+
+                  <p className="mt-3 text-[13px]">
+                    Records retention date{" "}
+                    <span data-numeric>{retention.date ?? "not computed"}</span>
+                    <span className="ml-2 text-muted-foreground">
+                      {retention.years === null
+                        ? "No retention row is loaded in thresholds."
+                        : `${retention.years} years from the ${retention.fromLabel} (${retention.from ?? "no date"}). ${retention.citation ?? ""}`}
+                    </span>
+                  </p>
+
+                  <h5 className="mt-4 text-[15px]">Closeout Transfer Checklist</h5>
+                  <ul className="mt-2 list-disc pl-5 text-[13px] text-muted-foreground">
+                    {CLOSEOUT_CHECKLIST.map((c) => (
+                      <li key={c}>{c}</li>
+                    ))}
+                  </ul>
+                  <p className="mt-3 text-[13px]">
+                    <Link
+                      to="/documents/$templateKey/$acquisitionId"
+                      params={{ templateKey: "closeout-checklist", acquisitionId }}
+                      className="text-primary"
+                    >
+                      Open the Closeout Transfer Checklist
+                    </Link>
+                    <span className="ml-2 text-muted-foreground">HQ 06/2026 · FAR 4.804-5; FAR 4.805</span>
+                  </p>
+                </div>
+              ) : null}
+
 
               {p.phase === "Award" && protestDeadlines.length ? (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
