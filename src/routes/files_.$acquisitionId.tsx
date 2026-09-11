@@ -838,6 +838,14 @@ function FilePage() {
         </div>
       </section>
 
+      <div className="mb-10 flex flex-wrap items-start gap-6">
+        <ExplainThis explanation={statusExplanation} label="Explain this status" />
+        {hold ? (
+          <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" />
+        ) : null}
+      </div>
+
+
       {warrant ? (
         <section aria-label="Warrant check" className="mb-10 max-w-[70ch]">
           <h2 className="mb-1 text-[18px] leading-6 font-medium">Warrant check</h2>
