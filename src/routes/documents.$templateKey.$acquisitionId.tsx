@@ -342,7 +342,12 @@ function DocumentPage() {
 
   return (
     <AppShell>
-      <PageHeader title={def.name} lead={`${acquisitionId} · ${def.lead}`} />
+      <PageHeader
+        title={def.name}
+        lead={`${acquisitionId} · ${def.lead}${
+          latest && !latest.reviewed_by ? " · AI draft, not yet reviewed" : ""
+        }`}
+      />
 
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
