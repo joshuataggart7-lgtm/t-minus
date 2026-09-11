@@ -5,7 +5,7 @@
 Decisions taken where the specification left room, kept to the simplest option
 that preserves the demo path.
 
-- **Backend.** The existing Supabase project `aookxvqwvyezrkjunqdb` is used. No new
+- **Backend.** The existing Supabase project `wczndteslofhtxbazhnj` is used. No new
   project or managed backend was created. The browser holds only the publishable key
   (`src/lib/supabase.ts`).
 - **Schema.** `supabase/schema.sql` creates every table in the KNOWLEDGE.md data model
