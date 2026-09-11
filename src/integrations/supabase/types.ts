@@ -19,6 +19,7 @@ export type Database = {
           acquisition_forecast_verified: boolean | null
           acquisition_id: string
           acquisition_method: string | null
+          backfill_source: Json | null
           branch_code: string | null
           center_code: string | null
           clock_state: string | null
@@ -27,6 +28,7 @@ export type Database = {
           commercial_determination: string | null
           competition: string | null
           contract_format: string | null
+          contract_number: string | null
           contract_type: string | null
           cor_name: string | null
           created_at: string
@@ -67,6 +69,7 @@ export type Database = {
           restrictive_clause_review: string | null
           right_to_repair_statement: boolean | null
           set_aside: string | null
+          source_tag: string | null
           sow_attached: boolean | null
           status: string | null
           successor_of: string | null
@@ -81,6 +84,7 @@ export type Database = {
           acquisition_forecast_verified?: boolean | null
           acquisition_id: string
           acquisition_method?: string | null
+          backfill_source?: Json | null
           branch_code?: string | null
           center_code?: string | null
           clock_state?: string | null
@@ -89,6 +93,7 @@ export type Database = {
           commercial_determination?: string | null
           competition?: string | null
           contract_format?: string | null
+          contract_number?: string | null
           contract_type?: string | null
           cor_name?: string | null
           created_at?: string
@@ -129,6 +134,7 @@ export type Database = {
           restrictive_clause_review?: string | null
           right_to_repair_statement?: boolean | null
           set_aside?: string | null
+          source_tag?: string | null
           sow_attached?: boolean | null
           status?: string | null
           successor_of?: string | null
@@ -143,6 +149,7 @@ export type Database = {
           acquisition_forecast_verified?: boolean | null
           acquisition_id?: string
           acquisition_method?: string | null
+          backfill_source?: Json | null
           branch_code?: string | null
           center_code?: string | null
           clock_state?: string | null
@@ -151,6 +158,7 @@ export type Database = {
           commercial_determination?: string | null
           competition?: string | null
           contract_format?: string | null
+          contract_number?: string | null
           contract_type?: string | null
           cor_name?: string | null
           created_at?: string
@@ -191,6 +199,7 @@ export type Database = {
           restrictive_clause_review?: string | null
           right_to_repair_statement?: boolean | null
           set_aside?: string | null
+          source_tag?: string | null
           sow_attached?: boolean | null
           status?: string | null
           successor_of?: string | null
