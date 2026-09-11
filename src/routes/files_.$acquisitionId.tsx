@@ -26,6 +26,7 @@ import {
 } from "@/lib/launch-sequence";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
+import { buildFileIndex } from "@/lib/file-index";
 import { protestWindow } from "@/lib/protest-window";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
