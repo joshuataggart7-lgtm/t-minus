@@ -718,7 +718,141 @@ const nonresponsibility: TemplateDef = {
   }),
 };
 
-export const TEMPLATES: TemplateDef[] = [nf1707, jofoc, ter, nonresponsibility];
+// ------------------------------------------- Price Negotiation Memorandum
+// The PNM is the price reasonableness determination of record for simplified
+// commercial procedures (FAR 12.204(b)(1)); no separate determination is made.
+const pnm: TemplateDef = {
+  key: "pnm",
+  name: "Price Negotiation Memorandum (PNM)",
+  tab: "065",
+  badge: {
+    citation: "FAR 12.204(b)(1); FAR 15.406-3",
+    tier: "binding",
+    revision: "HQ 04/2026 revision",
+    effective: "2026-04-07",
+    note: "The PNM is the price reasonableness determination of record. No separate price reasonableness determination is generated.",
+  },
+  lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
+  sections: [
+    {
+      id: "header",
+      title: "Acquisition and vendor",
+      citation: "FAR 15.406-3(a)(1)",
+      tier: "binding",
+      fields: [
+        { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
+        { key: "title", label: "Requirement", kind: "text", bind: "title", required: true },
+        { key: "center_code", label: "Center", kind: "text", bind: "center_code" },
+        { key: "pr_number", label: "Requisition number", kind: "text", bind: "pr_number" },
+        { key: "naics_code", label: "NAICS", kind: "text", bind: "naics_code" },
+        { key: "psc_code", label: "PSC", kind: "text", bind: "psc_code" },
+        { key: "contract_type", label: "Contract type", kind: "text", bind: "contract_type", required: true },
+        { key: "competition", label: "Extent of competition", kind: "text", bind: "competition" },
+        { key: "vendor_legal_name", label: "Vendor legal name", kind: "text", bind: "sam_legal_name", required: true },
+        { key: "vendor_uei", label: "Unique Entity Identifier (UEI)", kind: "text", bind: "sam_uei" },
+        { key: "vendor_cage", label: "CAGE code", kind: "text", bind: "sam_cage" },
+      ],
+    },
+    {
+      id: "pricing",
+      title: "Government estimate and quoted price",
+      citation: "FAR 15.406-3(a)(7); FAR 13.106-3(a)",
+      tier: "binding",
+      standingText:
+        "The independent government cost estimate and the quote of record are the starting point for the analysis.",
+      fields: [
+        { key: "igce_amount", label: "Independent government cost estimate (IGCE)", kind: "money", bind: "igce_amount", required: true },
+        { key: "igce_attached", label: "IGCE attached to the file", kind: "readonly", bind: "igce_attached" },
+        { key: "igce_basis", label: "Basis of the IGCE", kind: "textarea", required: true },
+        { key: "quoted_price", label: "Quoted price", kind: "money", bind: "quoted_price", required: true },
+        { key: "estimated_value", label: "Estimated value of record", kind: "readonly", bind: "estimated_value" },
+        { key: "negotiated_price", label: "Negotiated price", kind: "money", required: true },
+        {
+          key: "price_variance",
+          label: "Difference from the IGCE, and why",
+          kind: "textarea",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "comparables",
+      title: "Comparable prior awards",
+      citation: "FAR 13.106-3(a)(2)(ii); FAR 15.404-1(b)(2)(ii)",
+      tier: "binding",
+      standingText:
+        "Run comparables to pull prior awards for this NAICS and PSC between half and double the estimated value. Prior awards support the comparison; they do not replace the contracting officer's judgment.",
+      fields: [
+        {
+          key: "comparables_summary",
+          label: "Comparable awards relied on",
+          kind: "textarea",
+          required: true,
+          help: "Filled by the comparables table below. Edit it to state what the comparison shows.",
+        },
+      ],
+    },
+    {
+      id: "analysis",
+      title: "Price analysis and negotiation",
+      citation: "FAR 15.406-3(a)(7) through (a)(11)",
+      tier: "binding",
+      fields: [
+        {
+          key: "technique",
+          label: "Price analysis technique used",
+          kind: "select",
+          required: true,
+          options: [
+            "Comparison of proposed prices received in response to the solicitation",
+            "Comparison with prior prices paid for the same or similar items",
+            "Comparison with the independent government cost estimate",
+            "Comparison with published price lists or market prices",
+            "Analysis of data other than certified cost or pricing data",
+          ],
+        },
+        { key: "negotiation_summary", label: "Summary of the negotiation, including concessions", kind: "textarea", required: true },
+        {
+          key: "cost_pricing_data",
+          label: "Certified cost or pricing data",
+          kind: "select",
+          required: true,
+          options: [
+            "Not required; commercial products or services (FAR 15.403-1(b)(3))",
+            "Not required; adequate price competition",
+            "Required and obtained",
+          ],
+        },
+      ],
+    },
+    {
+      id: "determination",
+      title: "Determination of price reasonableness",
+      citation: "FAR 12.204(b)(1)",
+      tier: "binding",
+      standingText:
+        "For simplified commercial procedures this memorandum is the determination of record. No separate price reasonableness determination is written.",
+      fields: [
+        {
+          key: "determination",
+          label: "Determination statement",
+          kind: "textarea",
+          required: true,
+          help: "Plain statement that the negotiated price is fair and reasonable, and the basis for it.",
+        },
+        { key: "determined_on", label: "Date of determination", kind: "date", required: true },
+      ],
+    },
+  ],
+  signature: () => ({
+    tierLabel: "Contracting officer",
+    citation: "FAR 15.406-3(b)",
+    blocks: ["Contracting officer", "Date"],
+    note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
+  }),
+};
+
+export const TEMPLATES: TemplateDef[] = [nf1707, jofoc, ter, nonresponsibility, pnm];
 
 export function templateByKey(key: string): TemplateDef | undefined {
   return TEMPLATES.find((t) => t.key === key);

@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
+import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import {
   itemsFromRefs,
   itemsFromWatchRows,
@@ -86,8 +88,10 @@ function DocumentPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [voteReason, setVoteReason] = useState("");
+  const [comparables, setComparables] = useState<ComparablesView | null>(null);
 
   const phase = phaseForTemplate(templateKey);
+  const runComparablesFn = useServerFn(samContractAwards);
 
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
@@ -270,12 +274,43 @@ function DocumentPage() {
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
+  // Prior awards for this NAICS and PSC, half to double the estimated value.
+  const runComparables = useMutation({
+    mutationFn: async () => runComparablesFn({ data: { acquisitionId } }),
+    onSuccess: (view) => {
+      setComparables(view);
+      setTouched(true);
+      const lines = view.awards.map(
+        (a) =>
+          `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
+      );
+      setValues((prev) => ({
+        ...prev,
+        comparables_summary: [
+          `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
+          ...lines,
+        ].join("\n"),
+      }));
+      setMessage(`Comparables loaded. ${view.sourceLabel}.`);
+    },
+    onError: (e: Error) => setMessage(`Comparables did not load: ${e.message}`),
+  });
+
+
+
   // Vendor facts from the stored SAM.gov entity check, offered to the
   // nonresponsibility memo as pre-fill values.
   const samFacts = useMemo(() => {
     const acq = q.data?.acq;
     const envelope = (q.data?.samCheck?.response_json ?? null) as Record<string, unknown> | null;
     const n = (envelope?.["normalized"] ?? null) as Record<string, unknown> | null;
+    // The PNM reads the IGCE and quote from the intake answers where the
+    // requester recorded them.
+    const answers = (acq?.["nf1707_answers"] ?? null) as Record<string, unknown> | null;
+    const answerValue = (match: RegExp) => {
+      const hit = Object.entries(answers ?? {}).find(([k, v]) => match.test(k) && v !== null && v !== "");
+      return hit ? String(hit[1]) : "";
+    };
     return {
       sam_legal_name: n?.["legalName"] ?? acq?.["vendor_legal_name"] ?? "",
       sam_uei: n?.["uei"] ?? acq?.["vendor_uei"] ?? "",
@@ -286,6 +321,8 @@ function DocumentPage() {
       sam_integrity_count:
         n?.["integrityRecordsCount"] === undefined ? "—" : String(n["integrityRecordsCount"]),
       sam_checked_at: q.data?.samCheck?.checked_at ?? "No entity check recorded",
+      igce_amount: answerValue(/igce|cost_estimate/i) || (acq?.["estimated_value"] ?? ""),
+      quoted_price: answerValue(/quote|proposed_price/i),
     } as Record<string, unknown>;
   }, [q.data]);
 
@@ -608,6 +645,70 @@ function DocumentPage() {
           </p>
         ) : null}
       </form>
+
+      {def.key === "pnm" ? (
+        <section aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
+          <h2 className="mb-1 text-[18px] leading-6 font-medium">Comparable prior awards</h2>
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            SAM.gov contract awards for this NAICS and PSC, half to double the estimated value.
+          </p>
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-2 text-[15px]"
+            disabled={!canWrite || runComparables.isPending}
+            onClick={() => runComparables.mutate()}
+          >
+            {runComparables.isPending ? "Running comparables" : "Run comparables"}
+          </button>
+          {comparables ? (
+            <>
+              <p className="mt-3 text-[13px]">
+                <StatusMark color={comparables.source === "live" ? "var(--ontrack)" : "var(--attention)"}>
+                  {comparables.sourceLabel}
+                </StatusMark>
+                <span className="ml-2 text-muted-foreground" data-numeric>
+                  NAICS {comparables.naicsCode} · PSC {comparables.pscCode} · {money(comparables.minValue)} to{" "}
+                  {money(comparables.maxValue)}
+                </span>
+              </p>
+              {comparables.awards.length ? (
+                <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
+                  <thead>
+                    <tr className="border-b border-border text-left">
+                      <th scope="col" className="px-3 py-2 font-medium">Agency</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Award date</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Pricing type</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Extent competed</th>
+                      <th scope="col" className="px-3 py-2 font-medium">Obligated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comparables.awards.map((a, i) => (
+                      <tr key={`${a.agency}-${a.awardDate}-${i}`} className="border-b border-border last:border-0 align-top">
+                        <td className="px-3 py-2">{a.agency}</td>
+                        <td className="px-3 py-2" data-numeric>{a.awardDate}</td>
+                        <td className="px-3 py-2">{a.pricingType}</td>
+                        <td className="px-3 py-2">{a.extentCompeted}</td>
+                        <td className="px-3 py-2" data-numeric>{money(a.obligatedAmount)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="mt-3 text-muted-foreground">No prior awards came back for this NAICS and PSC.</p>
+              )}
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                The summary above the table is written into the memorandum. Edit it to state what the comparison shows.
+              </p>
+            </>
+          ) : (
+            <p className="mt-3 text-muted-foreground">
+              No comparables run yet. Run comparables to pull prior awards for this requirement.
+            </p>
+          )}
+        </section>
+      ) : null}
+
 
       <section aria-label="Provenance" className="mb-10 max-w-[80ch] border border-border bg-background p-4">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Provenance</h2>
