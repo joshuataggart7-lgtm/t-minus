@@ -7,6 +7,8 @@
  * (governing citation, tier, HQ revision date).
  */
 
+import { CLOSEOUT_CHECKLIST } from "@/lib/post-award";
+
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
 export type Values = Record<string, string>;
