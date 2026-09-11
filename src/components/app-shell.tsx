@@ -74,6 +74,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
         <div className="flex items-center gap-3">
           <GlobalSearch />
+          <AskTMinus />
           <label htmlFor="role-toggle" className="text-[13px] text-muted-foreground">
             Signed in as
           </label>
