@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { userForRole, SEEDED_USERS, type RoleId, type SeededUser } from "@/lib/roles";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthState = "signed-out" | "signing-in" | "signed-in" | "unavailable";
 
