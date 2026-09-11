@@ -8,6 +8,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import {
+  checkoutTime,
+  claimCheckout,
+  loadCheckout,
+  releaseCheckout,
+  type Checkout,
+} from "@/lib/document-checkout";
+import {
   itemsFromRefs,
   itemsFromWatchRows,
   loadRegRefs,
@@ -89,9 +96,76 @@ function DocumentPage() {
   const [comment, setComment] = useState("");
   const [voteReason, setVoteReason] = useState("");
   const [comparables, setComparables] = useState<ComparablesView | null>(null);
+  const [checkout, setCheckout] = useState<Checkout | null>(null);
+  const [myCheckoutId, setMyCheckoutId] = useState<string | null>(null);
 
   const phase = phaseForTemplate(templateKey);
   const runComparablesFn = useServerFn(samContractAwards);
+
+  // Check-out: the first person to open the document holds it; everyone else
+  // sees who and since when, and reads it until that person saves or closes,
+  // or thirty minutes pass.
+  const heldByOther = !!checkout && checkout.checkout_id !== myCheckoutId;
+  const canEdit = canWrite && !heldByOther;
+
+  useEffect(() => {
+    if (authState !== "signed-in" || !def) return;
+    let cancelled = false;
+    let mine: string | null = null;
+    const args = {
+      acquisitionId,
+      templateKey,
+      documentName: def.name,
+      phase,
+      userName: user.name,
+    };
+    void (async () => {
+      try {
+        const held = canWrite ? await claimCheckout(args) : await loadCheckout(acquisitionId, templateKey);
+        if (cancelled) return;
+        setCheckout(held);
+        const { data } = await supabase.auth.getUser();
+        if (held && data.user?.id === held.user_id) {
+          mine = held.checkout_id;
+          if (!cancelled) setMyCheckoutId(held.checkout_id);
+        }
+      } catch {
+        // A check-out that cannot be recorded never blocks the document.
+      }
+    })();
+    const release = (reason: string) => {
+      if (!mine) return;
+      void releaseCheckout({
+        checkoutId: mine,
+        acquisitionId,
+        documentName: def.name,
+        phase,
+        userName: user.name,
+        reason,
+      });
+      mine = null;
+    };
+    const onUnload = () => release("Document closed");
+    window.addEventListener("beforeunload", onUnload);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("beforeunload", onUnload);
+      release("Document closed");
+    };
+  }, [authState, def, acquisitionId, templateKey, phase, user.name, canWrite]);
+
+  // Keep the label current for the people who are only reading.
+  useEffect(() => {
+    if (authState !== "signed-in" || !def || myCheckoutId) return;
+    const tick = () => {
+      void loadCheckout(acquisitionId, templateKey)
+        .then(setCheckout)
+        .catch(() => undefined);
+    };
+    const timer = window.setInterval(tick, 10_000);
+    return () => window.clearInterval(timer);
+  }, [authState, def, acquisitionId, templateKey, myCheckoutId]);
+
 
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
@@ -392,8 +466,22 @@ function DocumentPage() {
     },
     onSuccess: async (v) => {
       setMessage(`Saved as version ${v}.`);
+      // Saving releases the check-out, so the next person can edit.
+      if (myCheckoutId && def) {
+        await releaseCheckout({
+          checkoutId: myCheckoutId,
+          acquisitionId,
+          documentName: def.name,
+          phase,
+          userName: user.name,
+          reason: "Saved a version",
+        });
+        setMyCheckoutId(null);
+        setCheckout(null);
+      }
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
     },
+
     onError: (e: unknown) =>
       setMessage(
         e instanceof Error ? `The save did not finish: ${e.message}` : "The save did not finish. Try again.",
@@ -505,6 +593,19 @@ function DocumentPage() {
 
       {q.isLoading ? <p className="text-muted-foreground">Loading the record.</p> : null}
 
+      
+      {heldByOther && checkout ? (
+        <p
+          role="status"
+          className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
+        >
+          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")}{" "}
+          The fields are
+          read-only for you until that person saves or closes the document, or thirty minutes pass. Refresh
+          this page to pick it up.
+        </p>
+      ) : null}
+
       <form
         className="max-w-[80ch]"
         onSubmit={(e) => {
@@ -517,6 +618,7 @@ function DocumentPage() {
           save.mutate();
         }}
       >
+
         {visibleSections(def, values).map((s) => (
           <section key={s.id} className="mb-8">
             <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
@@ -546,7 +648,7 @@ function DocumentPage() {
                       rows={4}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     />
                   ) : f.kind === "select" ? (
@@ -554,7 +656,7 @@ function DocumentPage() {
                       id={id}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     >
                       <option value="">Choose one</option>
@@ -571,7 +673,7 @@ function DocumentPage() {
                       inputMode={f.kind === "money" ? "decimal" : undefined}
                       className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
                       value={values[f.key] ?? ""}
-                      disabled={!canWrite}
+                      disabled={!canEdit}
                       onChange={(e) => set(f.key, e.target.value)}
                     />
                   )}
@@ -610,7 +712,7 @@ function DocumentPage() {
             type="submit"
             className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
             style={{ background: "var(--primary, #0B3D91)" }}
-            disabled={!canWrite || save.isPending}
+            disabled={!canEdit || save.isPending}
           >
             {save.isPending ? "Saving" : "Save version"}
           </button>
@@ -655,7 +757,7 @@ function DocumentPage() {
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
-            disabled={!canWrite || runComparables.isPending}
+            disabled={!canEdit || runComparables.isPending}
             onClick={() => runComparables.mutate()}
           >
             {runComparables.isPending ? "Running comparables" : "Run comparables"}
