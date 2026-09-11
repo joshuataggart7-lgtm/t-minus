@@ -92,3 +92,27 @@ that preserves the demo path.
 - Verified in the browser: poll opened, No-go held the file with reason and
   owner, entry visible in the audit log, Go resumed it, comment thread saved,
   and the provenance block updated. Test rows were removed afterward.
+
+## B7 — Executive Overview (Mission Clock)
+
+- `src/lib/metrics.ts` computes days to award, days to the next decision,
+  forecast award date, schedule impact, time saved, status word, blocker, and
+  the callout sentence exactly as KNOWLEDGE.md defines them. Nothing is stored.
+- `src/routes/index.tsx`: Mission Clock panel (one row per mission in priority
+  order, driven by its critical-path acquisition), the "What leadership needs
+  to know now" block sorted most urgent first, and the Acquisitions and
+  Enterprise tabs. Every row and card links to the acquisition file.
+- Enterprise tab embeds `public/orbit-prototype.html` (a copy of
+  `t-minus-seed/orbit_prototype_fictional.html` with an appended overlay
+  script). The workforce tabs are untouched; Executive Dashboard, Project
+  Status, and Recurring Actions are re-rendered from live T-Minus data sent by
+  the parent page over postMessage.
+- `docSatisfied` now treats a null attachment field as "not recorded" instead
+  of "missing". Ten seeded acquisitions carry no attachment flags, and reading
+  null as missing put every mission At Risk. An explicit false still holds the
+  file, so the B3 remove-a-document check is unchanged.
+- Verified: mission rows, callouts, clock board counts, holds by reason, the
+  ten longest holds, lead time by phase, drill-down to the file, the live ORBIT
+  tabs, and an unchanged Hiring & Workforce tab. Attaching the IGCE on
+  A-2027-0101 flipped its mission row from At Risk to On Track and removed its
+  callout; the seed value was restored afterwards.
