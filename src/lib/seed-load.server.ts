@@ -279,5 +279,60 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
     })),
   );
 
+  await put("announcements", SEED_ANNOUNCEMENTS, "announcement_id");
+
   return counts;
 }
+
+/**
+ * Three seeded HQ notices, mirroring the Procurement Dispatch. Fictional.
+ * Fixed identifiers so a demo reset restores them rather than duplicating them.
+ */
+export const SEED_ANNOUNCEMENTS = [
+  {
+    announcement_id: "a1000000-0000-4000-8000-000000000001",
+    title: "PCD 26-03B issued",
+    body:
+      "Procurement Class Deviation 26-03B is in effect. The clause matrix in T-Minus reflects the deviation, including removed clauses. Check the clause list on any new handoff packet before you send it to NCMS.",
+    severity: "notice",
+    audience_roles: null,
+    audience_centers: null,
+    effective_from: "2026-08-03T00:00:00Z",
+    effective_until: null,
+    link: null,
+    requires_acknowledgment: false,
+    posted_by: "R. Calder (fictional)",
+    posted_at: "2026-08-03T13:00:00Z",
+  },
+  {
+    announcement_id: "a1000000-0000-4000-8000-000000000002",
+    title: "JOFOC template revised, HQ 04/2026",
+    body:
+      "The JOFOC (NF 1098 tab 015) HQ 04/2026 revision is effective 4/27/2026 and is now the live template in T-Minus. Three citation corrections are recorded on the version badge. Use the revised template for every new justification.",
+    severity: "action required",
+    audience_roles: ["specialist", "reviewer", "hq"],
+    audience_centers: null,
+    effective_from: "2026-08-10T00:00:00Z",
+    effective_until: null,
+    link: null,
+    requires_acknowledgment: true,
+    posted_by: "R. Calder (fictional)",
+    posted_at: "2026-08-10T15:30:00Z",
+  },
+  {
+    announcement_id: "a1000000-0000-4000-8000-000000000003",
+    title: "Data call: acquisitions on the mission critical path",
+    body:
+      "Confirm the mission link and need date on every acquisition you own by close of business Friday. Leadership is reporting schedule impact from these records.",
+    severity: "urgent",
+    audience_roles: null,
+    audience_centers: null,
+    effective_from: "2026-09-01T00:00:00Z",
+    effective_until: "2027-12-31T23:59:59Z",
+    link: null,
+    requires_acknowledgment: true,
+    posted_by: "R. Calder (fictional)",
+    posted_at: "2026-09-01T12:00:00Z",
+  },
+];
+
