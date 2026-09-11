@@ -607,3 +607,13 @@ shown. Test rows were removed after the check.
 - The card includes a description of the production behavior (mention bot with a PR number, answers with clock line/status/owner/file link, reads the same role-based data as the Overview, nothing stored in Teams) and a mock transcript using sample acquisition A-2027-0101 (PR 4200999101).
 - Marked with a "Planned" badge.
 - Verified: card renders, Planned badge present, mock transcript references PR 4200999101 and A-2027-0101.
+
+## E27. Clause change impact list
+
+- New page "Clause changes" (`/clause-changes`) and `src/lib/clause-impact.ts`. The change list is read, never authored: clause rows whose disposition is Removed or Moved (52.247-26 is the one Removed row in the seeded matrix, "removed by RFO (PCD 26-03B)"), plus Watch items tagged "clause change" that name a clause number, which cover a newly required clause. HQ regulatory data intake writes the clauses table, so a new PCD upload flows straight into this list.
+- The deadline shown is the date the change itself sets (its effective date, or the recorded update date when no effective date exists); a date already past is marked "already due". Nothing is hard-coded.
+- Affected contracts are launched or active files (running, hold, launched), sorted by months of performance remaining, files with no recorded end date last. New column `acquisition_facts.contract_clauses` (jsonb array of clause numbers) holds a stored clause list; the seeded files have none, so they read "clause list not in T-Minus; pull from NCMS" — the exact wording asked for — and still appear so the CO can check them against NCMS.
+- "Create mod tasks on every affected file" writes one `clause_mod_tasks` row per file with the CO as owner and the change's deadline, and one audit entry each. Marking a mod complete is audited too. Tasks also show on the acquisition file page.
+- "SF 30 handoff packet" builds the existing modification packet with the clause delta for that clause. NCMS remains the modification of record (NFS CG 1804.11).
+- Mods done against mods due, by Center, appears on the Executive Overview Acquisitions tab and at the foot of the clause change page.
+- Check: 52.247-26 (Removed) listed 14 launched or active contracts; creating tasks produced 14, and completing one moved ARC to "1 done of 7 due". Test tasks and their audit rows were removed afterward.
