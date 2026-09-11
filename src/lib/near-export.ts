@@ -10,6 +10,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
+import { buildFileIndex } from "@/lib/file-index";
+import { buildSequence } from "@/lib/launch-sequence";
 
 const esc = (s: unknown) =>
   String(s ?? "")
