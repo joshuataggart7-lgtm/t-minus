@@ -1777,7 +1777,12 @@ function FilePage() {
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
                             </td>
-                            <td className="p-2 text-muted-foreground">{b.citation}</td>
+                            <td className="p-2 text-muted-foreground">
+                              {b.citation}
+                              <span className="mt-1 block">
+                                <ExplainThis explanation={explainReview(b, acq as AcqRow)} />
+                              </span>
+                            </td>
                           </tr>
                         ))
                       ) : (
