@@ -390,6 +390,7 @@ export type Database = {
           post_rfo_date: string | null
           prescription_citation: string | null
           rfo_number_or_pcd: string | null
+          row_id: string
           source: string | null
           status: string | null
           title: string | null
@@ -407,6 +408,7 @@ export type Database = {
           post_rfo_date?: string | null
           prescription_citation?: string | null
           rfo_number_or_pcd?: string | null
+          row_id?: string
           source?: string | null
           status?: string | null
           title?: string | null
@@ -424,6 +426,7 @@ export type Database = {
           post_rfo_date?: string | null
           prescription_citation?: string | null
           rfo_number_or_pcd?: string | null
+          row_id?: string
           source?: string | null
           status?: string | null
           title?: string | null
