@@ -28,7 +28,9 @@ const TABLES = [
 async function countRows() {
   const results = await Promise.all(
     TABLES.map(async (table) => {
-      const { count, error } = await supabase
+      const { count, error } = await (supabase as never as {
+        from: (t: string) => { select: (s: string, o: { count: "exact"; head: boolean }) => Promise<{ count: number | null; error: { message: string } | null }> };
+      })
         .from(table)
         .select("*", { count: "exact", head: true });
       return { table, count: count ?? 0, error: error?.message ?? null };
