@@ -187,6 +187,64 @@ export function PageHeader({ title, lead }: { title: string; lead?: string }) {
   );
 }
 
+/**
+ * A status word paired with its colour as a marker, never colour alone.
+ * The word itself stays in the text colour so every label clears 4.5:1;
+ * the marker carries the palette colour and clears 3:1 as a graphic.
+ */
+export function StatusMark({
+  color,
+  children,
+  className,
+}: {
+  color: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={cn("inline-flex items-baseline gap-2 text-foreground", className)}>
+      <span
+        aria-hidden="true"
+        className="inline-block size-2 shrink-0 translate-y-[-1px] rounded-[2px]"
+        style={{ background: color }}
+      />
+      <span>{children}</span>
+    </span>
+  );
+}
+
+export function LoadingNote({ what }: { what: string }) {
+  return (
+    <p role="status" className="text-muted-foreground">
+      Loading {what}.
+    </p>
+  );
+}
+
+export function ErrorNote({ message }: { message: string }) {
+  return (
+    <p role="alert" className="max-w-[80ch] border-l-2 py-1 pl-3" style={{ borderColor: "var(--atrisk)" }}>
+      {message}
+    </p>
+  );
+}
+
+export function EmptyState({
+  sentence,
+  action,
+}: {
+  sentence: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="max-w-[70ch]">
+      <p className="text-muted-foreground">{sentence}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
+    </div>
+  );
+}
+
+
 export function Placeholder({ note }: { note: string }) {
   return (
     <div className="rounded-lg border border-border bg-background p-6">
