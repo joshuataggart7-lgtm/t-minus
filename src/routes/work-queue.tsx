@@ -9,6 +9,7 @@ import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import {
   computeMetrics,
+  awardDateFor,
   holdSince,
   statusColor,
   type AcqMetrics,
@@ -135,30 +136,13 @@ function WorkQueuePage() {
           ref,
           mission,
           holdSince: holdSince(acq.acquisition_id, q.data.log),
+          awardDate: awardDateFor(acq.acquisition_id, q.data.log, acq.target_award_date ?? null),
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;
-        const missingDoc = current?.docs.find((d) => d.field && !acq[d.field]);
-        const pending = m.board.find((b) => b.vote === "pending");
-        const nextTask =
-          m.clockState === "launched"
-            ? "Report to FPDS-NG and file the record"
-            : missingDoc
-              ? `Attach ${missingDoc.label}`
-              : pending
-                ? `Collect the ${pending.reviewer_role} vote`
-                : current
-                  ? `Complete ${current.phase}`
-                  : "Start the clock";
-        const recordHold = String(acq.hold_reason ?? "");
-        const dependency = m.hold
-          ? `${m.hold.reason} · owner ${m.hold.owner}`
-          : m.clockState === "hold" && recordHold
-            ? `${recordHold}${acq.hold_owner ? ` · owner ${String(acq.hold_owner)}` : ""}`
-          : pending
-            ? `${pending.reviewer_role} vote pending · ${pending.reviewer_name}`
-            : m.blocker === "None"
-              ? "None"
-              : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
+        const nextTask = m.nextAction;
+        const dependency = m.blocker === "None"
+          ? "None"
+          : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
         return {
           m,
           column: columnFor(m),
@@ -345,7 +329,11 @@ function WorkQueuePage() {
                   {c.daysInPhase ?? "—"}
                 </td>
                 <td className="p-2" data-numeric>
-                  {c.m.daysToAward ?? "—"}
+                  {c.m.clockState === "launched"
+                    ? `${c.m.daysSinceAward ?? 0} since award`
+                    : c.m.clockState === "scrubbed"
+                      ? "Clock stopped"
+                      : (c.m.daysToAward ?? "Clock not started")}
                 </td>
                 <td className="p-2">
                   <span
@@ -384,7 +372,11 @@ function CardView({ c }: { c: Card }) {
       <p className="mt-1 text-[13px]">Next: {c.nextTask}</p>
       <p className="mt-1 text-[13px]">Waiting on: {c.dependency}</p>
       <p className="mt-2 text-[13px]" data-numeric>
-        {c.daysInPhase ?? "—"} days in phase · {c.m.daysToAward ?? "—"} days to award
+        {c.daysInPhase ?? "Not recorded"} days in phase · {c.m.clockState === "launched"
+          ? `${c.m.daysSinceAward ?? 0} days since award`
+          : c.m.clockState === "scrubbed"
+            ? "Clock stopped"
+            : `${c.m.daysToAward ?? "Clock not started"} days to award`}
       </p>
       <p
         className="mt-2 inline-block border-l-2 pl-2 text-[13px]"

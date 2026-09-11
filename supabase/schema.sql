@@ -191,7 +191,9 @@ create table if not exists public.clauses (
   pcd_reference text,
   disposition text,
   rfo_number_or_pcd text,
-  post_rfo_date text
+  post_rfo_date text,
+  modification_required boolean not null default false,
+  change_deadline date
 );
 create index if not exists clauses_clause_number_idx on public.clauses (clause_number);
 
@@ -333,7 +335,9 @@ create table if not exists public.watch_items (
   url text,
   summary text,
   fetched_at timestamptz default now(),
-  tags text[]
+  tags text[],
+  modification_required boolean not null default false,
+  change_deadline date
 );
 
 -- ---------------------------------------------------------------- grants + RLS

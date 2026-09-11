@@ -1,0 +1,2 @@
+ALTER TABLE public.clauses ADD COLUMN IF NOT EXISTS modification_required boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS change_deadline date;
+ALTER TABLE public.watch_items ADD COLUMN IF NOT EXISTS modification_required boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS change_deadline date;

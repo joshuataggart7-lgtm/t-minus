@@ -146,7 +146,7 @@
     "acquisition_method": "FAR 13 simplified",
     "competition": "competitive",
     "current_phase": "Award",
-    "clock_state": "launched",
+    "clock_state": "running",
     "hold_reason": "",
     "hold_owner": "",
     "funding_fiscal_year": 2026,
