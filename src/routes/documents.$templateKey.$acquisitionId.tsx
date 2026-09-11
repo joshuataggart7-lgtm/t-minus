@@ -345,6 +345,8 @@ function DocumentPage() {
     );
   }
 
+  const guidance = newerGuidance(def.badge.citation, def.badge.effective ?? null, q.data?.watchItems ?? []);
+
   const set = (key: string, v: string) => {
     setTouched(true);
     setValues((prev) => ({ ...prev, [key]: v }));
