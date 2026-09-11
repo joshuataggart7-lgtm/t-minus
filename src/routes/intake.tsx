@@ -33,6 +33,8 @@ import {
   type RefData,
 } from "@/lib/intake";
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
+import { ExplainThis } from "@/components/explain-this";
+import { explainRedFlag } from "@/lib/explain";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
