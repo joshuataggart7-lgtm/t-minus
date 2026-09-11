@@ -512,6 +512,14 @@ function FilePage() {
             </button>
           </>
         ) : null}
+        <button
+          type="button"
+          onClick={() => nearExport.mutate()}
+          disabled={nearExport.isPending}
+          className="rounded-lg border border-border px-3 py-2 text-[13px] disabled:opacity-40"
+        >
+          {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
+        </button>
       </div>
 
       <section aria-label="Launch sequence" className="mb-12">
