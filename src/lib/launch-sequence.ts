@@ -318,6 +318,9 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
     return "Administration";
+  if (templateKey === "cor-appointment" || templateKey === "cor-cancellation" || templateKey === "cpars-input")
+    return "Administration";
+  if (templateKey === "closeout-checklist") return "Closeout";
   return "Go/No-go Poll";
 }
 

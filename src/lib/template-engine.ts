@@ -1920,6 +1920,10 @@ export const TEMPLATES: TemplateDef[] = [
   bundling,
   economyAct,
   commercialTmLh,
+  corAppointment,
+  corCancellation,
+  cparsInput,
+  closeoutChecklist,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
