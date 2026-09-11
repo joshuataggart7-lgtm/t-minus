@@ -246,3 +246,22 @@ Polish
   check button, so `fieldLabel` now falls back to the nearest form text (the real
   question) and only then to a humanized field name, so raw names such as
   `S3s3n1` no longer appear on the intake page.
+
+## D4. Regulation sidebar
+
+- `src/lib/regulation-sidebar.ts` selects rows, nothing is generated. A
+  `regulatory_refs` row applies to a phase when `applies_to_phase` names it,
+  when its `far_part`/`nfs_part` matches a part the phase citation cites
+  (parsed from `PHASE_CITATIONS`), or when it is scoped `all` (labelled
+  "Applies to every phase"). Sorted phase-specific first, then newest
+  effective date first.
+- Thresholds at the top: the core three (micro-purchase, simplified
+  acquisition threshold, commercial simplified ceiling) plus the rows the
+  phase bears on, matched on name and citation. Superseded rows are omitted;
+  conflict notes are shown as written.
+- `src/components/regulation-sidebar.tsx` renders a collapsible right-hand
+  aside. On a template it follows the template's phase; on the acquisition
+  file it starts at the current phase with a phase selector.
+- Verified: JOFOC shows PCD 25-10 (FAR Part 6 / NFS 1806, binding) and the
+  NFS Companion Guide (guidance); the Award phase shows FAR 6.301 posting and
+  both CICA stay rows.
