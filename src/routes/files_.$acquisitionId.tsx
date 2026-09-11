@@ -24,6 +24,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 import type { StoredEstimate } from "@/lib/estimator";
+import { exportNearBundle } from "@/lib/near-export";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
