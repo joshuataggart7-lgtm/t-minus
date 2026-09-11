@@ -118,6 +118,10 @@ function FilePage() {
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
       ]);
+      const { data: successors } = await supabase
+        .from("acquisition_facts")
+        .select("acquisition_id")
+        .eq("successor_of", acquisitionId);
       let mission = null as { name: string | null; milestone_date: string | null } | null;
       if (acq.data?.mission_id) {
         const m = await supabase
@@ -139,6 +143,7 @@ function FilePage() {
           (c) => !/remov/i.test(`${c.status ?? ""} ${c.disposition ?? ""}`) && c.clause_number !== "52.212-5",
         ),
         mission,
+        successors: successors ?? [],
       };
     },
   });
@@ -601,6 +606,41 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {successor ? (
+        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
+            {successor.plannedDays} planned days in the phase plan for this acquisition type.
+          </p>
+          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
+            {formatDate(successor.startBy)}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">The successor acquisition must start by this date</p>
+          <p className="mt-3 text-[13px]">
+            {successor.successorId ? (
+              <>
+                Successor file{" "}
+                <Link
+                  to="/files/$acquisitionId"
+                  params={{ acquisitionId: successor.successorId }}
+                  className="text-primary underline"
+                >
+                  {successor.successorId}
+                </Link>{" "}
+                is linked to this one.
+              </>
+            ) : successor.overdue ? (
+              <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
+                {`Successor overdue by ${Math.abs(successor.daysUntilStart)} days; no successor file is linked`}
+              </StatusMark>
+            ) : (
+              `No successor file is linked yet; ${successor.daysUntilStart} days until it must start.`
+            )}
+          </p>
+        </section>
+      ) : null}
 
       {phaseNames.length ? (
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
