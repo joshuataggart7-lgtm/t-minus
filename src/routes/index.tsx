@@ -7,6 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import {
+  itemsFromRefs,
+  itemsFromWatchRows,
+  loadRegRefs,
+  loadWatchRows,
+  sortNewestFirst,
+  withinDays,
+} from "@/lib/watch";
+import {
   callout,
   computeMetrics,
   formatDate,
@@ -68,7 +76,7 @@ function ExecutiveOverview() {
     enabled: authState === "signed-in",
     refetchInterval: 5000,
     queryFn: async () => {
-      const [missions, acqs, plan, rules, thresholds, strategies, polls, log] = await Promise.all([
+      const [missions, acqs, plan, rules, thresholds, strategies, polls, log, watchRows, refs] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
@@ -81,6 +89,8 @@ function ExecutiveOverview() {
           .select("acquisition_id,action,actor,logged_at,phase")
           .order("logged_at", { ascending: false })
           .limit(500),
+        loadWatchRows(),
+        loadRegRefs(),
       ]);
       return {
         missions: (missions.data ?? []) as MissionRow[],
@@ -91,6 +101,7 @@ function ExecutiveOverview() {
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
         log: log.data ?? [],
+        watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
     },
   });
@@ -255,6 +266,8 @@ function ExecutiveOverview() {
         )}
       </section>
 
+      <WatchCard items={q.data?.watch ?? []} />
+
       <div role="tablist" aria-label="Overview detail" className="mb-6 flex gap-6 border-b border-border">
         {(["acquisitions", "enterprise"] as const).map((t) => (
           <button
@@ -280,6 +293,21 @@ function ExecutiveOverview() {
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
       )}
     </AppShell>
+  );
+}
+
+function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
+  const recent = items.filter((i) => withinDays(i, 14));
+  return (
+    <section aria-label="Watch" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+      <h2 className="section-title text-[18px] leading-6 font-medium">Watch</h2>
+      <p className="mt-2 text-[15px] leading-[22px]" data-numeric>
+        {recent.length} new item{recent.length === 1 ? "" : "s"} in the last 14 days.{" "}
+        <Link to="/watch" className="text-primary underline">
+          Open Watch
+        </Link>
+      </p>
+    </section>
   );
 }
 
