@@ -28,9 +28,9 @@ export function features(): Feature[] {
   const block = /<!-- feature-status:start -->([\s\S]*?)<!-- feature-status:end -->/.exec(buildNotes);
   if (!block) return [];
   const out: Feature[] = [];
-  for (const line of block[1].split("\n")) {
+  for (const line of (block[1] ?? "").split("\n")) {
     const m = /^-\s*(live|next|planned|not built)\s*\|\s*([^|]+?)\s*\|\s*(.+?)\s*$/.exec(line.trim());
-    if (m) out.push({ status: m[1] as FeatureStatus, name: m[2], note: m[3] });
+    if (m) out.push({ status: m[1] as FeatureStatus, name: m[2] ?? "", note: m[3] ?? "" });
   }
   return out;
 }
@@ -99,7 +99,8 @@ export function templateGroups(rows: TemplateRow[]) {
 
 /** The build stamp is set at deploy time in vite.config.ts. */
 export function buildStamp(): string {
-  const raw = typeof __BUILD_STAMP__ === "string" ? __BUILD_STAMP__ : "";
+  const stamp = (globalThis as { __BUILD_STAMP__?: string }).__BUILD_STAMP__;
+  const raw = typeof stamp === "string" ? stamp : "";
   if (!raw) return "not recorded";
   const d = new Date(raw);
   return Number.isNaN(d.getTime()) ? raw : d.toUTCString().replace("GMT", "UTC");
