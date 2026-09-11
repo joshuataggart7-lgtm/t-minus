@@ -382,7 +382,16 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
   const shortLine = onTrack
     ? `Next: ${shortReason(driver.nextDecision)}`
-    : [shortReason(driver.blocker), driver.blockerOwner ?? null, holdDays === null ? null : `${holdDays}d`]
+    : [
+        shortReason(driver.blocker),
+        driver.blockerOwner
+          ? String(driver.blockerOwner)
+              .replace(/\s*\([^)]*\)/g, "")
+              .replace(/^[A-Za-z /]+:\s*/, "")
+              .trim()
+          : null,
+        holdDays === null ? null : `${holdDays}d`,
+      ]
         .filter(Boolean)
         .join(" · ");
 
