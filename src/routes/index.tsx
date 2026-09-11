@@ -405,7 +405,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           ) : (
             <p
               className={decision.overdue ? "text-[18px] leading-6 font-semibold" : "clock-figure"}
-              style={decision.overdue ? { color: "var(--atrisk)" } : undefined}
+              style={decision.overdue ? { color } : undefined}
               data-numeric
             >
               {decision.text}
