@@ -623,8 +623,8 @@ function DocumentPage() {
               <div className="mt-3 flex gap-3">
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
-                  style={{ background: "var(--ontrack)" }}
+                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
+                  style={{ borderColor: "var(--ontrack)" }}
                   disabled={vote.isPending}
                   onClick={() => vote.mutate({ choice: "go", reason: voteReason.trim() || null })}
                 >
@@ -632,8 +632,9 @@ function DocumentPage() {
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
-                  style={{ background: "var(--atrisk)" }}
+                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
+                  style={{ borderColor: "var(--atrisk)" }}
+
                   disabled={vote.isPending}
                   onClick={() => {
                     if (!voteReason.trim()) {
