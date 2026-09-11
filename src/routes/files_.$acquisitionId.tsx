@@ -25,6 +25,7 @@ import {
 } from "@/lib/launch-sequence";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
+import { protestWindow } from "@/lib/protest-window";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -404,6 +405,47 @@ function FilePage() {
 
   const value = acq?.estimated_value ? Number(acq.estimated_value) : null;
 
+  // Protest window: the award date is the day the file was marked Launched,
+  // and the target award date when no such entry exists.
+  const launchedEntry = (q.data?.log ?? []).find((l) => l.action === "Launched");
+  const awardDate = launchedEntry?.logged_at
+    ? String(launchedEntry.logged_at).slice(0, 10)
+    : (acq?.target_award_date ?? null);
+  const debriefingDate = (acq?.['debriefing_date'] as string | null | undefined) ?? null;
+  const protestDeadlines = useMemo(
+    () =>
+      acq?.clock_state === "launched"
+        ? protestWindow(awardDate, debriefingDate, q.data?.thresholds ?? [], todayISO())
+        : [],
+    [acq?.clock_state, awardDate, debriefingDate, q.data?.thresholds],
+  );
+
+  const setDebriefing = useMutation({
+    mutationFn: async (next: string) => {
+      if (!acq) return;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ debriefing_date: next || null, updated_at: new Date().toISOString() })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Debriefing date recorded",
+        field: "debriefing_date",
+        old_value: debriefingDate ?? "",
+        new_value: next || "",
+        reason: "Protest window recomputed",
+        phase: "Award",
+      });
+    },
+    onSuccess: () => {
+      setBanner("The debriefing date is recorded and the protest deadlines are recomputed.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
+  });
+
   return (
     <AppShell>
       <PageHeader
@@ -705,6 +747,98 @@ function FilePage() {
                   </button>
                 </div>
               )}
+
+              {p.phase === "Award" && protestDeadlines.length ? (
+                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                  <h4 className="text-[15px] font-medium">Protest window</h4>
+                  <p className="mt-1 text-[13px] text-muted-foreground">
+                    Counted from the award date{" "}
+                    <span data-numeric>{awardDate ?? "not recorded"}</span>
+                    {debriefingDate ? (
+                      <>
+                        {" "}
+                        and the debriefing held <span data-numeric>{debriefingDate}</span>
+                      </>
+                    ) : null}
+                    . The day counts come from the thresholds table.
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <label className="text-[13px]" htmlFor="debriefing-date">
+                      Debriefing date
+                    </label>
+                    <input
+                      id="debriefing-date"
+                      type="date"
+                      value={debriefingDate ?? ""}
+                      disabled={!canWrite}
+                      onChange={(e) => setDebriefing.mutate(e.target.value)}
+                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      data-numeric
+                    />
+                    {debriefingDate && canWrite ? (
+                      <button
+                        type="button"
+                        onClick={() => setDebriefing.mutate("")}
+                        className="text-[13px] text-primary"
+                      >
+                        Clear
+                      </button>
+                    ) : (
+                      <span className="text-[13px] text-muted-foreground">
+                        Leave blank if no debriefing was required.
+                      </span>
+                    )}
+                  </div>
+
+                  <table className="mt-3 w-full text-[13px] leading-[18px]">
+                    <caption className="sr-only">Protest deadlines for this award</caption>
+                    <thead>
+                      <tr className="border-y border-border text-left">
+                        <th scope="col" className="p-2">Deadline</th>
+                        <th scope="col" className="p-2">Date</th>
+                        <th scope="col" className="p-2">Days</th>
+                        <th scope="col" className="p-2">Measured from</th>
+                        <th scope="col" className="p-2">Citation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {protestDeadlines.map((d) => (
+                        <tr key={d.key} className="border-b border-border align-top">
+                          <td className="p-2">{d.label}</td>
+                          <td className="p-2" data-numeric>
+                            {d.date ?? "—"}
+                          </td>
+                          <td className="p-2" data-numeric>
+                            {d.days === null ? "—" : `${d.days} days`}
+                            {d.daysRemaining === null ? (
+                              ""
+                            ) : (
+                              <span className="block text-muted-foreground">
+                                {d.daysRemaining >= 0
+                                  ? `${d.daysRemaining} days remaining`
+                                  : `closed ${Math.abs(d.daysRemaining)} days ago`}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-2 text-muted-foreground">{d.measuredFrom}</td>
+                          <td className="p-2 text-muted-foreground">
+                            {d.citation ?? "—"}
+                            {d.note ? <span className="block">{d.note}</span> : null}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  <p className="mt-3 text-[13px]">
+                    <Link to="/watch" search={{ tag: "Bid protest" }} className="text-primary">
+                      Open the Watch items for protests
+                    </Link>
+                  </p>
+                </div>
+              ) : null}
+
 
               {(REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div className="mt-3 max-w-[80ch] border border-border">

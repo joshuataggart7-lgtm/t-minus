@@ -31,6 +31,7 @@ export type Database = {
           cor_name: string | null
           created_at: string
           current_phase: string | null
+          debriefing_date: string | null
           description_of_requirement: string | null
           enterprise_psl_check: string | null
           estimated_value: number | null
@@ -86,6 +87,7 @@ export type Database = {
           cor_name?: string | null
           created_at?: string
           current_phase?: string | null
+          debriefing_date?: string | null
           description_of_requirement?: string | null
           enterprise_psl_check?: string | null
           estimated_value?: number | null
@@ -141,6 +143,7 @@ export type Database = {
           cor_name?: string | null
           created_at?: string
           current_phase?: string | null
+          debriefing_date?: string | null
           description_of_requirement?: string | null
           enterprise_psl_check?: string | null
           estimated_value?: number | null

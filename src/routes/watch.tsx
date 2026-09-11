@@ -34,6 +34,8 @@ export const Route = createFileRoute("/watch")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>): { tag?: string } =>
+    typeof search['tag'] === "string" ? { tag: search['tag'] as string } : {},
   component: WatchPage,
 });
 
@@ -54,7 +56,8 @@ function WatchPage() {
   const queryClient = useQueryClient();
   const q = useFeed();
   const [source, setSource] = useState<"all" | WatchSource>("all");
-  const [tag, setTag] = useState("all");
+  const initialTag = Route.useSearch().tag;
+  const [tag, setTag] = useState(initialTag ?? "all");
   const [runNote, setRunNote] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
   const canPost = role === "hq";
