@@ -62,6 +62,7 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
   { to: "/audit-log", label: "Audit Log", roles: "all" },
   { to: "/watch", label: "Watch", roles: "all" },
   { to: "/directives", label: "Directive compliance", roles: "all" },
+  { to: "/clause-changes", label: "Clause changes", roles: "all" },
   { to: "/escalations", label: "Escalations", roles: "all" },
   { to: "/digest", label: "Leadership digest", roles: "all" },
   { to: "/deviations", label: "Deviations", roles: "all" },

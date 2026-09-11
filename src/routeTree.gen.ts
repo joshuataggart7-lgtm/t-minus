@@ -14,6 +14,7 @@ import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as CenterConfigRouteImport } from './routes/center-config'
 import { Route as ChecksRouteImport } from './routes/checks'
+import { Route as ClauseChangesRouteImport } from './routes/clause-changes'
 import { Route as DeviationsRouteImport } from './routes/deviations'
 import { Route as DigestRouteImport } from './routes/digest'
 import { Route as DirectivesRouteImport } from './routes/directives'
@@ -63,6 +64,11 @@ const CenterConfigRoute = CenterConfigRouteImport.update({
 const ChecksRoute = ChecksRouteImport.update({
   id: '/checks',
   path: '/checks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClauseChangesRoute = ClauseChangesRouteImport.update({
+  id: '/clause-changes',
+  path: '/clause-changes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeviationsRoute = DeviationsRouteImport.update({
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
+  '/clause-changes': typeof ClauseChangesRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
@@ -234,6 +241,7 @@ export interface FileRoutesByTo {
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
+  '/clause-changes': typeof ClauseChangesRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
+  '/clause-changes': typeof ClauseChangesRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
   '/directives': typeof DirectivesRoute
@@ -301,6 +310,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/center-config'
     | '/checks'
+    | '/clause-changes'
     | '/deviations'
     | '/digest'
     | '/directives'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/center-config'
     | '/checks'
+    | '/clause-changes'
     | '/deviations'
     | '/digest'
     | '/directives'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/audit-log'
     | '/center-config'
     | '/checks'
+    | '/clause-changes'
     | '/deviations'
     | '/digest'
     | '/directives'
@@ -398,6 +410,7 @@ export interface RootRouteChildren {
   AuditLogRoute: typeof AuditLogRoute
   CenterConfigRoute: typeof CenterConfigRoute
   ChecksRoute: typeof ChecksRoute
+  ClauseChangesRoute: typeof ClauseChangesRoute
   DeviationsRoute: typeof DeviationsRoute
   DigestRoute: typeof DigestRoute
   DirectivesRoute: typeof DirectivesRoute
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       path: '/checks'
       fullPath: '/checks'
       preLoaderRoute: typeof ChecksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clause-changes': {
+      id: '/clause-changes'
+      path: '/clause-changes'
+      fullPath: '/clause-changes'
+      preLoaderRoute: typeof ClauseChangesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deviations': {
@@ -646,6 +666,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuditLogRoute: AuditLogRoute,
   CenterConfigRoute: CenterConfigRoute,
   ChecksRoute: ChecksRoute,
+  ClauseChangesRoute: ClauseChangesRoute,
   DeviationsRoute: DeviationsRoute,
   DigestRoute: DigestRoute,
   DirectivesRoute: DirectivesRoute,

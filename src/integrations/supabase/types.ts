@@ -27,6 +27,7 @@ export type Database = {
           co_name: string | null
           commercial_determination: string | null
           competition: string | null
+          contract_clauses: Json | null
           contract_format: string | null
           contract_number: string | null
           contract_type: string | null
@@ -92,6 +93,7 @@ export type Database = {
           co_name?: string | null
           commercial_determination?: string | null
           competition?: string | null
+          contract_clauses?: Json | null
           contract_format?: string | null
           contract_number?: string | null
           contract_type?: string | null
@@ -157,6 +159,7 @@ export type Database = {
           co_name?: string | null
           commercial_determination?: string | null
           competition?: string | null
+          contract_clauses?: Json | null
           contract_format?: string | null
           contract_number?: string | null
           contract_type?: string | null
@@ -499,6 +502,79 @@ export type Database = {
           row_id?: string
         }
         Relationships: []
+      }
+      clause_mod_tasks: {
+        Row: {
+          acquisition_id: string
+          center_code: string | null
+          change_kind: string
+          change_source: string | null
+          clause_number: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          created_by: string | null
+          deadline_date: string | null
+          note: string | null
+          owner_name: string | null
+          status: string
+          task_id: string
+        }
+        Insert: {
+          acquisition_id: string
+          center_code?: string | null
+          change_kind: string
+          change_source?: string | null
+          clause_number: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline_date?: string | null
+          note?: string | null
+          owner_name?: string | null
+          status?: string
+          task_id?: string
+        }
+        Update: {
+          acquisition_id?: string
+          center_code?: string | null
+          change_kind?: string
+          change_source?: string | null
+          clause_number?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline_date?: string | null
+          note?: string | null
+          owner_name?: string | null
+          status?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clause_mod_tasks_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "clause_mod_tasks_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "clause_mod_tasks_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
       }
       clauses: {
         Row: {
