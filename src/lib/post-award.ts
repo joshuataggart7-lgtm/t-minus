@@ -8,7 +8,7 @@
  */
 
 import type { AcqRow } from "@/lib/launch-sequence";
-import type { ThresholdRow } from "@/lib/template-engine";
+import type { ThresholdRow } from "@/lib/protest-window";
 
 export type PostAward = {
   option_notice_date?: string;
