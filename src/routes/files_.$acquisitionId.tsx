@@ -282,6 +282,10 @@ function FilePage() {
         next["clock_state"] = cause ? "hold" : "running";
         next["hold_reason"] = cause?.reason ?? null;
         next["hold_owner"] = cause?.owner ?? null;
+        // the hold's age runs from the moment it went on
+        next["hold_started_at"] = cause
+          ? ((acq['hold_started_at'] as string | null) ?? new Date().toISOString())
+          : null;
       }
 
       const { error } = await supabase
@@ -366,7 +370,13 @@ function FilePage() {
       if (!acq) return;
       const { error } = await supabase
         .from("acquisition_facts")
-        .update({ clock_state: "hold", hold_reason: reason, hold_owner: user.name, status: "scrubbed" })
+        .update({
+          clock_state: "hold",
+          hold_reason: reason,
+          hold_owner: user.name,
+          status: "scrubbed",
+          hold_started_at: new Date().toISOString(),
+        })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
       await supabase.from("audit_log").insert({
@@ -390,7 +400,13 @@ function FilePage() {
       if (!acq) return;
       const { error } = await supabase
         .from("acquisition_facts")
-        .update({ clock_state: "launched", hold_reason: null, hold_owner: null, status: "awarded" })
+        .update({
+          clock_state: "launched",
+          hold_reason: null,
+          hold_owner: null,
+          hold_started_at: null,
+          status: "awarded",
+        })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
       await supabase.from("audit_log").insert({

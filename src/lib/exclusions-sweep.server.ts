@@ -175,7 +175,12 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       const owner = file.co_name ? `Contracting officer: ${file.co_name}` : "Contracting officer";
       const { error: holdError } = await supabaseAdmin
         .from("acquisition_facts")
-        .update({ clock_state: "hold", hold_reason: EXCLUSION_HOLD_REASON, hold_owner: owner })
+        .update({
+          clock_state: "hold",
+          hold_reason: EXCLUSION_HOLD_REASON,
+          hold_owner: owner,
+          hold_started_at: new Date().toISOString(),
+        })
         .eq("acquisition_id", file.acquisition_id);
       if (holdError) throw new Error(holdError.message);
       await supabaseAdmin.from("audit_log").insert({
