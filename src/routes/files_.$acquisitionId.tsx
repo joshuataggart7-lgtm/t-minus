@@ -158,6 +158,8 @@ function FilePage() {
         ),
         mission,
         successors: successors ?? [],
+        documents: fileDocs.data ?? [],
+        templates: fileTemplates.data ?? [],
       };
     },
   });
