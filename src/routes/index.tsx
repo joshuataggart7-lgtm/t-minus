@@ -187,7 +187,10 @@ function ExecutiveOverview() {
         <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
       ) : null}
 
-      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-5 py-6 text-panel-foreground sm:px-8 sm:py-7">
+      <section
+        aria-label="Mission clock"
+        className="mb-10 w-full rounded-lg bg-panel px-5 py-5 text-panel-foreground sm:px-8 sm:py-6"
+      >
         <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
         {q.isLoading ? (
           <p role="status" className="mt-4 text-panel-muted">
@@ -196,66 +199,32 @@ function ExecutiveOverview() {
         ) : missionRows.length === 0 ? (
           <p className="mt-4 text-panel-muted">No priority projects are loaded yet.</p>
         ) : (
+          <>
+            <ul
+              aria-label="Status summary"
+              className="mt-4 flex flex-wrap gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-4"
+            >
+              {summary.map((s) => (
+                <li key={s.label} className="flex items-baseline gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="inline-block size-2 shrink-0 translate-y-[-1px] rounded-[2px]"
+                    style={{ background: s.color }}
+                  />
+                  <span className="text-[18px] leading-6 font-semibold" data-numeric>
+                    {s.count}
+                  </span>
+                  <span className="text-[13px] text-panel-muted">{s.label}</span>
+                </li>
+              ))}
+            </ul>
 
-          <ul className="mt-5 divide-y divide-panel-muted/30">
-            {missionRows.map(({ mission, driver }) => (
-              <li key={mission.mission_id} className="py-5">
-                <Link
-                  to="/files/$acquisitionId"
-                  params={{ acquisitionId: driver.acq.acquisition_id }}
-                  className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
-                >
-                  <div className="grid gap-4 sm:grid-cols-2 lg:gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
-                    <div>
-                      <p className="text-[18px] leading-6 font-medium">{mission.name}</p>
-                      <p className="mt-1 text-[13px] text-panel-muted">
-                        {mission.milestone ?? "Milestone"} · {formatDate(mission.milestone_date)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[15px]">{driver.currentPhase ?? "Not started"}</p>
-                      <p className="mt-1 text-[13px] text-panel-muted">
-                        Next decision: {driver.nextDecision}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="clock-figure" data-numeric>
-                        {num(driver.daysToNextDecision)}
-                      </p>
-                      <p className="mt-1 text-[13px] text-panel-muted">Days to decision</p>
-                    </div>
-                    <div>
-                      <p className="clock-figure" data-numeric>
-                        {num(driver.daysToAward)}
-                      </p>
-                      <p className="mt-1 text-[13px] text-panel-muted">Days to award</p>
-                    </div>
-                    <div>
-                      <p
-                        className="inline-block border-l-2 pl-2 text-[18px] leading-6"
-                        style={{ borderColor: statusColor(driver.status) }}
-                      >
-                        {driver.status}
-                      </p>
-                      <p className="mt-2 text-[13px] text-panel-muted">
-                        Blocker: {driver.blocker}
-                        {driver.blockerOwner ? ` · owner ${driver.blockerOwner}` : ""}
-                      </p>
-                      <p className="mt-1 text-[13px] text-panel-muted" data-numeric>
-                        {driver.status === "Launched"
-                          ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
-                          : driver.scheduleImpactDays === null
-                            ? "Schedule impact unknown"
-                            : driver.scheduleImpactDays >= 0
-                              ? `${driver.scheduleImpactDays} days of margin to the mission date`
-                              : `${Math.abs(driver.scheduleImpactDays)} days past the mission date`}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+            <ul className="mt-2 divide-y divide-panel-muted/30">
+              {missionRows.map(({ mission, driver }) => (
+                <MissionClockRow key={mission.mission_id} mission={mission} driver={driver} />
+              ))}
+            </ul>
+          </>
         )}
       </section>
 
