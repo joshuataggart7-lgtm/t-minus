@@ -276,6 +276,48 @@ function FilePage() {
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
 
+  const finding = (acq?.["responsibility_finding"] as string | null) ?? null;
+
+  // The responsibility finding decides whether a memorandum exists at all.
+  const setFinding = useMutation({
+    mutationFn: async (value: string) => {
+      if (!acq) return;
+      const next = value === "" ? null : value;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ responsibility_finding: next, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Responsibility finding recorded",
+        field: "responsibility_finding",
+        old_value: finding,
+        new_value: next,
+        reason:
+          next === "responsible"
+            ? "Affirmative determination made by the contracting officer's signature on the SF 1449 (FAR 9.105-2(a)(1))"
+            : next === "nonresponsibility"
+              ? "Nonresponsibility memorandum required (FAR 9.105-2(a)(1))"
+              : "Finding cleared",
+        phase: "Responsibility Check",
+      });
+      return next;
+    },
+    onSuccess: (next) => {
+      setBanner(
+        next === "responsible"
+          ? "Finding recorded. The SF 1449 signature is the affirmative determination; no memorandum is written."
+          : next === "nonresponsibility"
+            ? "Finding recorded. The nonresponsibility memorandum is now available on this phase."
+            : "The finding is cleared.",
+      );
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The finding did not save: ${e.message}. Try again.`),
+  });
+
   const scrub = useMutation({
     mutationFn: async (reason: string) => {
       if (!acq) return;
