@@ -25,6 +25,7 @@ export type DraftProvenance = {
   templateRevision: string;
   templateItem: string;
   templateText: string;
+  draftText: string;
   recordFields: { field: string; value: string }[];
   reviewed: boolean;
 };
@@ -195,6 +196,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
         templateRevision: def?.badge.revision ?? "—",
         templateItem: item.item,
         templateText,
+        draftText: text,
         recordFields,
         reviewed: false,
       },
