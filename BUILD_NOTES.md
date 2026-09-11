@@ -376,3 +376,11 @@ fields filled and the badge showing the HQ effective date.
 - `src/lib/small-business.ts` holds the computation and the plan-on-file lookup, which matches documents written from a subcontracting plan template.
 - New server handler `fetch_subawards` (`src/lib/sam-subawards.functions.ts`) calls the SAM.gov Acquisition Subaward Reporting Public API for a NAICS code and returns prime, buying agency, subcontractor, place, amount, date, and work. Raw responses are cached in `sam_checks` under "Subaward market research <NAICS>" and each run writes an audit entry. On failure it falls back to the newest cached live response, then to a clearly labeled fictional sample.
 - Verified for NAICS 481219: `api.sam.gov` answered 404 Page Not Found for the public subaward search path (the same behaviour as the contract awards endpoint on this key), so the view showed four labeled sample subaward relationships. Test check and audit rows were removed afterwards.
+
+## E6a. Nightly exclusions sweep
+
+- `src/lib/exclusions-sweep.server.ts` holds the sweep: every open file (clock state other than launched or scrubbed) with a vendor of record is checked against the SAM.gov entity exclusion flag, one `sam_checks` row is written per vendor, and each run writes one `Exclusions sweep` audit entry. Demo UEIs (prefix `DEMO`) use a clearly labeled fictional sample so the demo never depends on the network; a live failure falls back to the newest cached response, then to the sample.
+- A vendor with an exclusion puts its file on hold with `hold_reason` "vendor excluded; CO review" and the contracting officer as `hold_owner`, plus its own audit entry.
+- Same deviation as B5/B11: this stack runs server functions and server routes, not Edge Functions. HQ runs it on demand through `runExclusionsSweepNow` (`src/lib/exclusions-sweep.functions.ts`); the schedule calls `POST /api/public/hooks/exclusions-sweep` guarded by the `WATCH_CRON_SECRET` bearer token. pg_cron job `exclusions-sweep-nightly` runs at 06:30 UTC daily.
+- The Executive Overview Acquisitions tab shows the last sweep time and result (`src/components/exclusions-sweep-panel.tsx`), with the run button for HQ only.
+- Verified: on-demand run as HQ produced one vendor check for A-2027-0102 (Meridian Flight Sciences, DEMOMFS00001), labeled "Sample data, fictional vendor", no exclusion, no hold.
