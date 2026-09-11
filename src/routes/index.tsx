@@ -299,7 +299,14 @@ function ExecutiveOverview() {
       </div>
 
       {tab === "acquisitions" ? (
-        <ClockBoard metrics={metrics} plan={q.data?.plan ?? []} thresholds={ref.thresholds} />
+        <ClockBoard
+          metrics={metrics}
+          plan={q.data?.plan ?? []}
+          thresholds={ref.thresholds}
+          polls={q.data?.polls ?? []}
+          centers={q.data?.centers ?? []}
+          users={q.data?.users ?? []}
+        />
       ) : (
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
       )}
@@ -480,10 +487,16 @@ function ClockBoard({
   metrics,
   plan,
   thresholds,
+  polls,
+  centers,
+  users,
 }: {
   metrics: AcqMetrics[];
   plan: PhasePlanRow[];
   thresholds: ThresholdRow[];
+  polls: PollRow[];
+  centers: CenterRow[];
+  users: UserRow[];
 }) {
   const today = todayISO();
   const qStart = quarterStart(today);
@@ -696,6 +709,7 @@ function ClockBoard({
         </table>
       )}
 
+      <AgingPanel acqs={metrics.map((m) => m.acq)} polls={polls} centers={centers} users={users} />
       <SuccessorPanel acqs={metrics.map((m) => m.acq)} plan={plan} />
 
       <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} />
