@@ -340,14 +340,31 @@ function panelStatusColor(status: AcqMetrics["status"]) {
 
 /** Short, always-fitting wording for a blocker or next decision. */
 function shortReason(text: string) {
-  const t = String(text ?? "").trim();
+  // Drop parentheticals and section prefixes; they never fit on one line.
+  const t = String(text ?? "")
+    .replace(/\s*\([^)]*\)/g, "")
+    .replace(/^[A-Za-z ]+:\s*/, "")
+    .trim();
+
   const vote = /^(.+?)\s+has not voted$/i.exec(t);
-  if (vote) return `Awaiting ${vote[1]!.toLowerCase()} review`;
+  if (vote) return `Awaiting ${vote[1]!.trim().split(/\s+/)[0]!.toLowerCase()} review`;
+
   const missing = /^(.+?)\s+is missing$/i.exec(t);
-  if (missing) return `${missing[1]} missing`;
+  if (missing) return `${abbreviate(missing[1]!)} missing`;
+
   const exit = /^Exit\s+(.+)$/i.exec(t);
   if (exit) return `Exit ${exit[1]}`;
-  return t.length > 30 ? `${t.slice(0, 29)}…` : t;
+
+  return t.length > 24 ? `${abbreviate(t)}` : t;
+}
+
+/** Three or more words become initials, the way COs write them. */
+function abbreviate(label: string) {
+  const words = label.trim().split(/\s+/);
+  if (label.length <= 22) return label;
+  const useful = words.filter((w) => !/^(of|the|and|for|a|an|to)$/i.test(w));
+  if (useful.length >= 3) return useful.map((w) => w[0]!.toUpperCase()).join("");
+  return `${label.slice(0, 21)}…`;
 }
 
 /** One priority project on the Mission Clock. Kept under 110px tall. */
