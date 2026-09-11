@@ -187,15 +187,21 @@ export function phaseDaysToAward(ref: RefData, competition: string): number {
   return total;
 }
 
+const STOPWORDS = new Set(["and", "or", "of", "for", "the", "with", "to", "a"]);
+
+/** A strategy matches when every word of its category name appears in the
+ *  requirement text as a whole word. Substring matching is too loose. */
 export function matchStrategy(ref: RefData, text: string) {
-  const hay = text.toLowerCase();
+  const hay = ` ${text.toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
   return (
     ref.strategies.find((s) => {
       const name = (s.name ?? "").toLowerCase().trim();
       if (!name) return false;
-      const words = name.split(/[^a-z0-9]+/).filter((w) => w.length > 3);
+      const words = name
+        .split(/[^a-z0-9]+/)
+        .filter((w) => w.length >= 2 && !STOPWORDS.has(w));
       if (!words.length) return false;
-      return words.every((w) => hay.includes(w));
+      return words.every((w) => hay.includes(` ${w} `));
     }) ?? null
   );
 }
