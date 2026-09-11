@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 
 const TABLES = [
@@ -16,6 +17,9 @@ const TABLES = [
   "regulatory_refs",
   "templates",
   "clauses",
+  "clause_matrix_2603b",
+  "nfs_clause_matrix",
+  "nf1707_fields",
   "polls",
   "documents",
   "sam_checks",
@@ -55,12 +59,19 @@ export const Route = createFileRoute("/seed-status")({
 });
 
 function SeedStatus() {
-  const { data, isLoading } = useQuery({ queryKey: ["seed-status"], queryFn: countRows });
+  const { authState } = useRole();
+  const { data, isLoading } = useQuery({
+    queryKey: ["seed-status"],
+    queryFn: countRows,
+    enabled: authState === "signed-in",
+  });
 
   return (
     <AppShell>
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
-      {isLoading ? (
+      {authState !== "signed-in" ? (
+        <p className="text-muted-foreground">Waiting for sign-in.</p>
+      ) : isLoading ? (
         <p className="text-muted-foreground">Counting rows.</p>
       ) : (
         <table className="w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
