@@ -59,6 +59,34 @@ export const Route = createFileRoute("/intake")({
 
 type Answers = Record<string, string>;
 
+const RECORDED_SECTION_NAMES: Record<string, string> = {
+  Section1: "Section 1. Strategic sourcing",
+  Section2: "Section 2. Section 508 and information technology",
+  Section3: "Section 3. Environmental",
+  Section4: "Section 4. Service contracting",
+  Section5_I: "Section 5.I. Space flight hardware and software",
+  Section5_II: "Section 5.II. SCaN and radio frequency",
+  Section5_III: "Section 5.III. Earned value management",
+  Section5_IV: "Section 5.IV. Communications",
+  Section5_V: "Section 5.V. Aviation",
+  Section5_VI: "Section 5.VI. Software",
+  Section5_VII: "Section 5.VII. Sensitive and controlled items",
+  Section6: "Section 6. Quality assurance",
+  Section7: "Section 7. Safety and health",
+  Section8: "Section 8. Property management",
+  Section9: "Section 9. Center-specific approvals",
+  Section10: "Section 10. Foreign travel briefings",
+  Section11: "Section 11. Extraneous items",
+  Section12: "Section 12. Signatures and affirmations",
+};
+
+function recordedAnswerLabel(key: string) {
+  const section = Object.keys(RECORDED_SECTION_NAMES)
+    .sort((a, b) => b.length - a.length)
+    .find((prefix) => key === prefix || key.startsWith(`${prefix}_`));
+  return section ? RECORDED_SECTION_NAMES[section] : key.replaceAll("_", " ");
+}
+
 function useRefData(enabled: boolean) {
   return useQuery({
     queryKey: ["intake-ref"],
@@ -182,12 +210,18 @@ function IntakePage() {
       place_of_performance: row.place_of_performance ?? "",
       naics_code: row.naics_code ?? "",
       psc_code: row.psc_code ?? "",
-      contract_type: row.contract_type ?? "",
+      contract_type: /^(ffp|firm-fixed-price)$/i.test(row.contract_type ?? "")
+        ? "FFP"
+        : (row.contract_type ?? ""),
       acquisition_method: ACQUISITION_METHODS[0] ?? "",
       competition: /sole/i.test(row.competition ?? "")
         ? "Sole source"
-        : "Full and open competition",
-      set_aside: row.set_aside ?? "None",
+        : /simplified|competitive/i.test(row.competition ?? "")
+          ? "Competitive (simplified procedures)"
+          : "Full and open",
+      set_aside: /total small business/i.test(row.set_aside ?? "")
+        ? "Total small business set-aside"
+        : (row.set_aside ?? "None"),
       jofoc_authority_citation: row.jofoc_authority_citation ?? "",
       lead_to_delivery_days: String(row.lead_to_delivery_days ?? 30),
       funding_fiscal_year: row.funding_fiscal_year ?? "",
@@ -376,6 +410,35 @@ function IntakePage() {
       <section className="mb-10 border-t border-border pt-6">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">T-Minus record</h2>
         <div className="grid gap-x-8 md:grid-cols-2">
+          <Field label="Center" htmlFor="center" error={err("center_code")}>
+            <select
+              id="center"
+              className={inputClass}
+              value={facts.center_code}
+              onChange={(e) => set("center_code", e.target.value)}
+            >
+              {(data.data?.centers ?? []).map((center) => (
+                <option key={center.center_code} value={center.center_code}>
+                  {center.center_code} — {center.center_name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Branch" htmlFor="branch">
+            <select
+              id="branch"
+              className={inputClass}
+              value={facts.branch_code}
+              onChange={(e) => set("branch_code", e.target.value)}
+            >
+              <option value="">Choose a branch</option>
+              {branches.map((branch) => (
+                <option key={branch.branch_code} value={branch.branch_code}>
+                  {branch.branch_code} — {branch.branch_name}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Title of the requirement" htmlFor="title" error={err("title")}>
             <input
               id="title"
@@ -399,6 +462,45 @@ function IntakePage() {
               ))}
             </select>
           </Field>
+          <Field label="Requisition number" htmlFor="pr">
+            <input
+              id="pr"
+              className={inputClass}
+              value={facts.pr_number}
+              onChange={(e) => set("pr_number", e.target.value)}
+            />
+          </Field>
+          <Field label="Requesting organization" htmlFor="org">
+            <input
+              id="org"
+              className={inputClass}
+              value={facts.requester_org_code}
+              onChange={(e) => set("requester_org_code", e.target.value)}
+            />
+          </Field>
+          <Field label="Requester" htmlFor="requester" error={err("requester_name")}>
+            <input
+              id="requester"
+              className={inputClass}
+              value={facts.requester_name}
+              onChange={(e) => set("requester_name", e.target.value)}
+            />
+          </Field>
+          <div className="md:col-span-2">
+            <Field
+              label="Brief description of this requirement"
+              htmlFor="desc"
+              error={err("description_of_requirement")}
+            >
+              <textarea
+                id="desc"
+                rows={4}
+                className={inputClass}
+                value={facts.description_of_requirement}
+                onChange={(e) => set("description_of_requirement", e.target.value)}
+              />
+            </Field>
+          </div>
           <Field
             label="Successor of"
             htmlFor="successor-of"
