@@ -122,11 +122,11 @@ function WatchPage() {
               Fetch Federal Register
             </button>
           </div>
-          {fetchFeeds.isPending ? <LoadingNote>Running the fetch.</LoadingNote> : null}
+          {fetchFeeds.isPending ? <LoadingNote what="the fetch" /> : null}
           {runNote ? (
             <p className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">{runNote}</p>
           ) : null}
-          {runError ? <ErrorNote>{runError}</ErrorNote> : null}
+          {runError ? <ErrorNote message={runError} /> : null}
         </section>
       ) : null}
 
@@ -171,16 +171,14 @@ function WatchPage() {
         </div>
       </section>
 
-      {q.isLoading ? <LoadingNote>Loading the feeds.</LoadingNote> : null}
+      {q.isLoading ? <LoadingNote what="the feeds" /> : null}
       {q.error ? (
-        <ErrorNote>
-          The feeds did not load. Reload the page, and run a fetch if the list stays empty.
-        </ErrorNote>
+        <ErrorNote message="The feeds did not load. Reload the page, and run a fetch if the list stays empty." />
       ) : null}
 
       {!q.isLoading && !q.error && shown.length === 0 ? (
         <EmptyState
-          note="No items match these filters yet."
+          sentence="No items match these filters yet."
           action={
             canFetch ? (
               <button
@@ -344,7 +342,7 @@ function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>
-          {error ? <ErrorNote>{error}</ErrorNote> : null}
+          {error ? <ErrorNote message={error} /> : null}
           {saved ? <p className="text-[13px] text-muted-foreground">The notice is posted.</p> : null}
           <button type="submit" className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary">
             Post the notice
