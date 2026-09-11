@@ -119,7 +119,7 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   Closeout: "Close the file when everything is delivered, paid, and filed.",
 };
 
-export function requiredDocs(phase: string, acq: AcqRow): RequiredDoc[] {
+export function requiredDocs(phase: string): RequiredDoc[] {
   switch (phase) {
     case "Intake":
       return [
@@ -348,7 +348,7 @@ export function buildSequence(
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
-      docs: requiredDocs(phase, acq),
+      docs: requiredDocs(phase),
       citation: PHASE_CITATIONS[phase] ?? "",
       guidance: PHASE_GUIDANCE[phase] ?? "",
       needsPoll: phase === "Go/No-go Poll",
