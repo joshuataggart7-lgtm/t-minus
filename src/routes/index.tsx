@@ -114,6 +114,8 @@ function ExecutiveOverview() {
         polls: (polls.data ?? []) as PollRow[],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
+        documents: (documents.data ?? []) as unknown as CenterDocumentRow[],
+        templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
         log: log.data ?? [],
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
