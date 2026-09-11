@@ -1,0 +1,1 @@
+ALTER TABLE public.acquisition_facts ADD COLUMN IF NOT EXISTS post_award jsonb NOT NULL DEFAULT '{}'::jsonb;
