@@ -17,6 +17,7 @@ import {
 } from "@/lib/watch";
 import { SmallBusinessPanel } from "@/components/small-business-panel";
 import { successorRows } from "@/lib/successor";
+import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
 import {
   callout,
@@ -96,6 +97,10 @@ function ExecutiveOverview() {
         loadWatchRows(),
         loadRegRefs(),
       ]);
+      const [centers, users] = await Promise.all([
+        supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
+        supabase.from("users").select("name,role,center_code,supervisor_name,supervisor_email"),
+      ]);
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -104,6 +109,8 @@ function ExecutiveOverview() {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
+        centers: (centers.data ?? []) as unknown as CenterRow[],
+        users: (users.data ?? []) as unknown as UserRow[],
         log: log.data ?? [],
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
@@ -312,6 +319,65 @@ function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
         </Link>
       </p>
     </section>
+  );
+}
+
+/** Aging holds and pending polls, counted by Center. */
+function AgingPanel({
+  acqs,
+  polls,
+  centers,
+  users,
+}: {
+  acqs: AcqRow[];
+  polls: PollRow[];
+  centers: CenterRow[];
+  users: UserRow[];
+}) {
+  const rows = useMemo(() => agingByCenter(agingItems(acqs, polls, centers, users)), [acqs, polls, centers, users]);
+  const total = rows.reduce((n, r) => n + r.holds + r.polls, 0);
+
+  return (
+    <>
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">Aging holds and pending polls</h3>
+      <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
+        A hold or an unanswered Go/No-go poll is aging once it passes the number of days the Center
+        sets. Each aging item raises an entry in the digest for the owner's supervisor.
+      </p>
+      <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
+        {total}
+      </p>
+      <p className="mt-1 text-[13px] text-muted-foreground">Aging items across all Centers</p>
+      {rows.length === 0 ? (
+        <p className="mt-2 text-muted-foreground">Nothing is past its Center window.</p>
+      ) : (
+        <table className="mt-3 w-full max-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th scope="col" className="p-2">Center</th>
+              <th scope="col" className="p-2">Aging holds</th>
+              <th scope="col" className="p-2">Aging polls</th>
+              <th scope="col" className="p-2">Aging after</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.centerCode} className="border-b border-border last:border-0">
+                <td className="p-2">{r.centerCode}</td>
+                <td className="p-2" data-numeric>{r.holds}</td>
+                <td className="p-2" data-numeric>{r.polls}</td>
+                <td className="p-2" data-numeric>{r.thresholdDays} days</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <p className="mt-2 text-[13px]">
+        <Link to="/escalations" className="text-primary underline">
+          Open the escalation digest
+        </Link>
+      </p>
+    </>
   );
 }
 
