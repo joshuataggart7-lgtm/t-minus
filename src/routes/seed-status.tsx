@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 
 const TABLES = [
