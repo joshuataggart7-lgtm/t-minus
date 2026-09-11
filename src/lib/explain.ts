@@ -141,8 +141,8 @@ export function explainHold(
     why: [
       hold.reason,
       `${hold.owner} owns the hold.`,
-      acq.hold_started_at
-        ? `The hold started on ${String(acq.hold_started_at).slice(0, 10)}.`
+      acq['hold_started_at']
+        ? `The hold started on ${String(acq['hold_started_at']).slice(0, 10)}.`
         : "The hold start time is not recorded.",
     ],
     rule: "A file holds while a required document is missing, a reviewer has voted No-go, or a review left behind has not voted.",
