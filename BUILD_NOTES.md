@@ -293,3 +293,18 @@ Polish
   it then shows days ahead of or behind plan per Center.
 - Verified: ARC shows 0 ahead of plan for A-2027-0112 (launched 2026-09-01),
   matching the sum of time_saved_days on launched files this quarter.
+
+## E1. Protest window clock
+
+- `src/lib/protest-window.ts` computes the GAO filing deadline and the CICA stay
+  deadline from the award date and the debriefing date. Day counts are read from
+  the `thresholds` rows (4 CFR 21.2(a)(2); 31 U.S.C. 3553(d)(4) award and
+  debriefing rows), never hard-coded.
+- The award date is the date of the "Launched" audit entry, falling back to the
+  target award date when a seeded file was launched before the log existed.
+- New column `acquisition_facts.debriefing_date`. The contracting officer enters
+  it on the Award phase; each change writes an audit entry and moves the CICA
+  date to 5 days after the debriefing (10 days after award when blank).
+- The panel appears on the Award phase only once the file is Launched, shows the
+  citations and notes from the threshold rows, and links to the Watch items
+  filtered to the "Bid protest" tag (`/watch?tag=Bid protest`).
