@@ -599,7 +599,8 @@ function DocumentPage() {
           role="status"
           className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
         >
-          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at)} The fields are
+          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")}{" "}
+          The fields are
           read-only for you until that person saves or closes the document, or thirty minutes pass. Refresh
           this page to pick it up.
         </p>
