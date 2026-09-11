@@ -601,3 +601,9 @@ status is read from `assertions.goodsAndServices.naicsList[].sbaSmallBusiness` (
 "E" small under a NAICS exception, "N" other than small). Nine small businesses found, Rule of
 Two met (FAR 19.502-2). The subaward endpoint returned 404, so labelled fictional subawards were
 shown. Test rows were removed after the check.
+
+## E26. Teams bot (production path)
+- Added a card on the Executive Overview Enterprise tab describing the production Microsoft Teams bot as planned (not built).
+- The card includes a description of the production behavior (mention bot with a PR number, answers with clock line/status/owner/file link, reads the same role-based data as the Overview, nothing stored in Teams) and a mock transcript using sample acquisition A-2027-0101 (PR 4200999101).
+- Marked with a "Planned" badge.
+- Verified: card renders, Planned badge present, mock transcript references PR 4200999101 and A-2027-0101.
