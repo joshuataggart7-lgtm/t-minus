@@ -138,7 +138,7 @@ function DirectivesPage() {
 
       {q.data && rows.length === 0 ? (
         <EmptyState
-          message="No hardware files match these filters."
+          sentence="No hardware files match these filters."
           action={<Link to="/files" className="text-primary underline">Open Files</Link>}
         />
       ) : null}
