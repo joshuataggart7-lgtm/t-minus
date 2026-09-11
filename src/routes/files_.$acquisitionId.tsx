@@ -72,6 +72,8 @@ function FilePage() {
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
     enabled: authState === "signed-in",
+    // The poll board updates live as reviewers vote.
+    refetchInterval: 5000,
     queryFn: async () => {
       const [acq, log, plan, rules, thresholds, strategies, polls, clauses] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
