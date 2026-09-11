@@ -88,7 +88,7 @@ function DirectivesPage() {
           {q.data.length} hardware {q.data.length === 1 ? "file" : "files"}.{" "}
           {outstanding === 0
             ? "Every one has the statement attached and the clause review recorded."
-            : `${outstanding} still need the statement or the clause review.`}
+            : `${outstanding} ${outstanding === 1 ? "still needs" : "still need"} the statement or the clause review.`}
         </p>
       ) : null}
 
