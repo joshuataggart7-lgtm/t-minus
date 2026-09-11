@@ -829,6 +829,54 @@ function FilePage() {
         </button>
       </div>
 
+      <section aria-label="Contract file index" className="mb-12">
+        <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>
+        <p className="mb-4 text-[13px] text-muted-foreground">
+          Built from the documents in this file, by NF 1098 tab. FAR 4.801 contract file.
+        </p>
+        <table className="w-full border border-border text-[13px] leading-[18px]">
+          <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
+          <thead>
+            <tr className="border-b border-border bg-canvas text-left">
+              <th scope="col" className="px-3 py-2 font-medium">Tab</th>
+              <th scope="col" className="px-3 py-2 font-medium">Document</th>
+              <th scope="col" className="px-3 py-2 font-medium">Phase</th>
+              <th scope="col" className="px-3 py-2 font-medium">State</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fileIndex.present.map((t) => (
+              <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
+                <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                <td className="px-3 py-2">{t.templateName}</td>
+                <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2">
+                  Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
+                  {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(t.documents.at(-1)!.savedAt!)}` : ""}
+                </td>
+              </tr>
+            ))}
+            {fileIndex.missing.map((t) => (
+              <tr key={`m-${t.tab}`} className="border-b border-border">
+                <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                <td className="px-3 py-2">{t.templateName}</td>
+                <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
+                  Required for this acquisition type, no document
+                </td>
+              </tr>
+            ))}
+            {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
+              <tr>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={4}>
+                  No tabbed documents are saved on this file yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </section>
+
       <section aria-label="Launch sequence" className="mb-12">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Launch sequence</h2>
 
