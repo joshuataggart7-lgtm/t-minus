@@ -5,7 +5,14 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
-import { daysBetween, formatMoney, todayISO } from "@/lib/intake";
+import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import {
+  phaseForTemplate,
+  pollBoard,
+  type AcqRow,
+  type PollRow,
+  type ReviewRuleRow,
+} from "@/lib/launch-sequence";
 import {
   exportDocx,
   exportPdf,
