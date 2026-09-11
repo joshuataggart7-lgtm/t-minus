@@ -509,12 +509,13 @@ function FilePage() {
                         ) : null
                       ) : (
                         <>
-                          <span
+                          <StatusMark
+                            color={state ? "var(--ontrack)" : "var(--atrisk)"}
                             className="text-[13px]"
-                            style={{ color: state ? "var(--ontrack)" : "var(--atrisk)" }}
                           >
                             {state ? "Attached" : "Missing"}
-                          </span>
+                          </StatusMark>
+
                           {canWrite ? (
                             <button
                               type="button"
@@ -575,21 +576,22 @@ function FilePage() {
                           <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border align-top">
                             <td className="p-2">{b.reviewer_role}</td>
                             <td className="p-2">{b.reviewer_name}</td>
-                            <td
-                              className="p-2"
-                              style={{
-                                color:
+                            <td className="p-2">
+                              <StatusMark
+                                color={
                                   b.vote === "go"
                                     ? "var(--ontrack)"
                                     : b.vote === "no-go"
                                       ? "var(--atrisk)"
-                                      : "var(--attention)",
-                              }}
-                            >
-                              {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                              {b.reason ? ` — ${b.reason}` : ""}
-                              {b.poll_id ? "" : " (poll not opened)"}
+                                      : "var(--attention)"
+                                }
+                              >
+                                {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
+                                {b.reason ? ` — ${b.reason}` : ""}
+                                {b.poll_id ? "" : " (poll not opened)"}
+                              </StatusMark>
                             </td>
+
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
                             </td>

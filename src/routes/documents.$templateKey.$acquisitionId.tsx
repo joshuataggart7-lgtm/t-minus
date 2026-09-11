@@ -581,20 +581,21 @@ function DocumentPage() {
                 <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border last:border-0 align-top">
                   <td className="px-3 py-2">{b.reviewer_role}</td>
                   <td className="px-3 py-2">{b.reviewer_name}</td>
-                  <td
-                    className="px-3 py-2"
-                    style={{
-                      color:
+                  <td className="px-3 py-2">
+                    <StatusMark
+                      color={
                         b.vote === "go"
                           ? "var(--ontrack)"
                           : b.vote === "no-go"
                             ? "var(--atrisk)"
-                            : "var(--attention)",
-                    }}
-                  >
-                    {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                    {b.reason ? ` — ${b.reason}` : ""}
+                            : "var(--attention)"
+                      }
+                    >
+                      {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
+                      {b.reason ? ` — ${b.reason}` : ""}
+                    </StatusMark>
                   </td>
+
                   <td className="px-3 py-2" data-numeric>
                     {b.due_date ?? "—"}
                   </td>

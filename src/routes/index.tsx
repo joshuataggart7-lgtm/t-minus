@@ -45,14 +45,12 @@ function num(n: number | null | undefined) {
 
 function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
   return (
-    <span
-      className="inline-block border-l-2 pl-2 text-[15px] leading-[22px]"
-      style={{ borderColor: statusColor(status), color: statusColor(status) }}
-    >
+    <StatusMark color={statusColor(status)} className="text-[15px] leading-[22px]">
       {status}
-    </span>
+    </StatusMark>
   );
 }
+
 
 function ExecutiveOverview() {
   const { role, authState } = useRole();
