@@ -77,6 +77,8 @@ function DocumentPage() {
   const [values, setValues] = useState<Values>({});
   const [touched, setTouched] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [voteReason, setVoteReason] = useState("");
 
   const phase = phaseForTemplate(templateKey);
 
