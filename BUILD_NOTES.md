@@ -66,3 +66,12 @@ that preserves the demo path.
   managed project (`zgrgfkpfkhocljoqhknv`) instead. All schema, RLS, seeds, and
   auth users were applied to this managed project. The old `src/lib/supabase.ts`
   file remains in the repo but is no longer imported by any component.
+
+## B5. SAM.gov entity checks
+
+- **Server boundary.** The SAM.gov Entity Management API v3 lookup is an
+  authenticated TanStack server function rather than a Supabase Edge Function,
+  matching the application runtime. `SAM_GOV_API_KEY` remains server-only.
+- **Demo data.** Seeded UEIs beginning with `DEMO` never call the network. They
+  create a labeled fictional sample response in `sam_checks`. Live failures use
+  the latest stored payload for the UEI and display it as cached.

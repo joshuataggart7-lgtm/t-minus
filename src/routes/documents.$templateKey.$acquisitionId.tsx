@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, formatMoney, todayISO } from "@/lib/intake";
 import {
@@ -202,7 +203,33 @@ function DocumentPage() {
         <p className="mt-1 text-[13px] text-muted-foreground">
           {def.badge.citation} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
-        {def.badge.note ? <p className="mt-1 text-[13px] text-muted-foreground">{def.badge.note}</p> : null}
+        {def.badge.note ? (
+          <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
+            <p>{def.badge.note}</p>
+            {def.badge.corrections?.length ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Show the three citation corrections"
+                      className="shrink-0 rounded-md border border-border px-2 text-foreground"
+                    >
+                      Details
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-sm bg-popover text-popover-foreground">
+                    <ul className="list-disc space-y-1 pl-4">
+                      {def.badge.corrections.map((correction) => (
+                        <li key={correction}>{correction}</li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : null}
+          </div>
+        ) : null}
         <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
           {headerLine}
           {estimatedValue !== null ? ` · ${formatMoney(estimatedValue)}` : ""}
