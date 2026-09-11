@@ -33,6 +33,8 @@ import {
   type RefData,
 } from "@/lib/intake";
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
+import { ExplainThis } from "@/components/explain-this";
+import { explainRedFlag } from "@/lib/explain";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -879,6 +881,9 @@ function IntakePage() {
                   {f.citation ? (
                     <p className="text-[13px] text-muted-foreground">{f.citation}</p>
                   ) : null}
+                  <p className="mt-1">
+                    <ExplainThis explanation={explainRedFlag(f)} />
+                  </p>
                 </li>
               ))}
             </ul>

@@ -37,6 +37,14 @@ import {
   satValue,
   type ForecastAcq,
 } from "@/lib/forecast";
+import { ExplainThis } from "@/components/explain-this";
+import {
+  explainHold,
+  explainMissingDoc,
+  explainReview,
+  explainStatus,
+  explainWarrant,
+} from "@/lib/explain";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
@@ -345,6 +353,33 @@ function FilePage() {
   const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
   const effectiveState =
     acq?.clock_state === "launched" ? "launched" : hold ? "hold" : (acq?.clock_state ?? null);
+
+  // "Explain this" for the status and the hold, built from the same rules.
+  const statusExplanation = useMemo(() => {
+    const behind = phases.find(
+      (p) => p.status === "current" && p.actual_days !== null && p.actual_days > p.planned_days,
+    );
+    const soon = board.find(
+      (b) => b.vote === "pending" && b.due_date && daysBetween(todayISO(), b.due_date) <= 3,
+    );
+    const word =
+      effectiveState === "launched"
+        ? "Launched"
+        : effectiveState === "hold"
+          ? "At Risk"
+          : behind || soon
+            ? "Needs Attention"
+            : "On Track";
+    return explainStatus({
+      status: word,
+      clockState: effectiveState,
+      holdReason: hold?.reason ?? null,
+      scheduleImpactDays: null,
+      behindPhase: behind?.phase ?? null,
+      pollDueSoon: soon?.reviewer_role ?? null,
+    });
+  }, [phases, board, effectiveState, hold]);
+
 
   // Open the poll for a review phase: one row per applicable review rule, with
   // the due date taken from the rule's planned days.
@@ -803,6 +838,14 @@ function FilePage() {
         </div>
       </section>
 
+      <div className="mb-10 flex flex-wrap items-start gap-6">
+        <ExplainThis explanation={statusExplanation} label="Explain this status" />
+        {hold ? (
+          <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" />
+        ) : null}
+      </div>
+
+
       {warrant ? (
         <section aria-label="Warrant check" className="mb-10 max-w-[70ch]">
           <h2 className="mb-1 text-[18px] leading-6 font-medium">Warrant check</h2>
@@ -816,6 +859,17 @@ function FilePage() {
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
               contracting officer with a warrant at or above the value has to sign the award.
             </p>
+          ) : null}
+          {warrant.exceeds ? (
+            <div className="mt-2">
+              <ExplainThis
+                explanation={explainWarrant({
+                  coName: warrant.coName,
+                  value: warrant.value,
+                  limit: warrant.limit as number,
+                })}
+              />
+            </div>
           ) : warrant.unknown ? (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
               No warrant limit is recorded for {warrant.coName}, so the estimated value of{" "}
@@ -1144,6 +1198,11 @@ function FilePage() {
                             >
                               {state ? "Remove" : "Attach"}
                             </button>
+                          ) : null}
+                          {state === false ? (
+                            <span className="block w-full">
+                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                            </span>
                           ) : null}
                         </>
                       )}
@@ -1718,7 +1777,12 @@ function FilePage() {
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
                             </td>
-                            <td className="p-2 text-muted-foreground">{b.citation}</td>
+                            <td className="p-2 text-muted-foreground">
+                              {b.citation}
+                              <span className="mt-1 block">
+                                <ExplainThis explanation={explainReview(b, acq as AcqRow)} />
+                              </span>
+                            </td>
                           </tr>
                         ))
                       ) : (

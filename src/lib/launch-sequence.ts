@@ -257,8 +257,12 @@ const num = (v: unknown) => {
 function answeredYes(acq: AcqRow, needle: RegExp) {
   const answers = acq.nf1707_answers;
   if (!answers || typeof answers !== "object") return false;
+  // The seeded answers hold the section code in the key ("S5V") or inside the
+  // recorded answer text ("S5Vn2 YES: ..."), so both are checked.
   return Object.entries(answers as Record<string, unknown>).some(
-    ([k, v]) => needle.test(k) && (v === "1" || v === true || /yes/i.test(String(v))),
+    ([k, v]) =>
+      (needle.test(k) || needle.test(String(v))) &&
+      (v === "1" || v === true || /yes/i.test(String(v))),
   );
 }
 
