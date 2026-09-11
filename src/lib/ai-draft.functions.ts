@@ -158,7 +158,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         model,
-        max_tokens: 900,
+        max_tokens: 2000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
@@ -167,12 +167,20 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       console.error(`[Claude] ${response.status} ${body}`);
       throw new Error(`Claude responded ${response.status}. ${body || "No detail was returned."}`);
     }
-    const payload = (await response.json()) as { content?: { type?: string; text?: string }[] };
+    const payload = (await response.json()) as {
+      content?: { type?: string; text?: string }[];
+      stop_reason?: string;
+    };
     const text = (payload.content ?? [])
-      .filter((c) => c.type === "text")
+      .filter((c) => typeof c.text === "string" && c.type !== "thinking")
       .map((c) => c.text ?? "")
       .join("\n")
       .trim();
+    if (!text) {
+      console.error(
+        `[Claude] empty text; stop_reason=${payload.stop_reason ?? "none"}; blocks=${(payload.content ?? []).map((c) => c.type).join(",")}`,
+      );
+    }
     if (!text) throw new Error("Claude returned no text for this item. Try again.");
 
     const generatedAt = new Date().toISOString();
