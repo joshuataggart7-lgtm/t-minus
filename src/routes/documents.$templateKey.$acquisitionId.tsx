@@ -466,8 +466,22 @@ function DocumentPage() {
     },
     onSuccess: async (v) => {
       setMessage(`Saved as version ${v}.`);
+      // Saving releases the check-out, so the next person can edit.
+      if (myCheckoutId && def) {
+        await releaseCheckout({
+          checkoutId: myCheckoutId,
+          acquisitionId,
+          documentName: def.name,
+          phase,
+          userName: user.name,
+          reason: "Saved a version",
+        });
+        setMyCheckoutId(null);
+        setCheckout(null);
+      }
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
     },
+
     onError: (e: unknown) =>
       setMessage(
         e instanceof Error ? `The save did not finish: ${e.message}` : "The save did not finish. Try again.",
