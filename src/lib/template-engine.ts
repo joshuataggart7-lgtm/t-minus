@@ -1611,6 +1611,298 @@ const commercialTmLh: TemplateDef = {
   signature: coSignature("FAR 12.207(b)(1)(ii)(C)", "Executed by the contracting officer before the contract or order is awarded, and placed in the contract file (FAR 4.801)."),
 };
 
+// -------------------------------------------------- Post-award forms (E3)
+
+const corAppointment: TemplateDef = {
+  key: "cor-appointment",
+  name: "Recommendation for Appointment of COR or Alternate COR",
+  tab: "074",
+  badge: {
+    citation: "FAR 1.602-2(d); NFS 1801.670; NFS CG 1842.2",
+    tier: "binding",
+    revision: "HQ 05/2026 revision, effective 5/22/2026",
+    effective: "2026-05-22",
+    note: "The contracting officer appoints the representative in writing and states the limits of the delegation.",
+  },
+  lead: "Recommendation and appointment of a contracting officer's representative.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "appointee",
+      title: "Person recommended",
+      citation: "FAR 1.602-2(d)(1)",
+      tier: "binding",
+      fields: [
+        { key: "cor_name", label: "Name", kind: "text", bind: "cor_name", required: true },
+        {
+          key: "cor_type",
+          label: "Appointment",
+          kind: "select",
+          required: true,
+          options: ["Contracting officer's representative", "Alternate contracting officer's representative"],
+        },
+        { key: "cor_org", label: "Organization code", kind: "text", required: true },
+        { key: "cor_email", label: "Email", kind: "text", required: true },
+        { key: "cor_phone", label: "Telephone", kind: "text" },
+        { key: "contract_number", label: "Contract or order number", kind: "text", required: true },
+        { key: "effective_date", label: "Effective date of the appointment", kind: "date", required: true },
+      ],
+    },
+    {
+      id: "qualifications",
+      title: "Qualifications",
+      citation: "FAR 1.602-2(d)(2); NFS CG 1842.2",
+      tier: "binding",
+      fields: [
+        { key: "training", label: "FAC-COR certification level and training completed", kind: "textarea", required: true },
+        { key: "experience", label: "Technical experience relevant to this requirement", kind: "textarea", required: true },
+        {
+          key: "coi",
+          label: "No conflict of interest exists",
+          kind: "select",
+          required: true,
+          options: ["No conflict of interest identified", "A conflict was identified and resolved as described below"],
+        },
+        {
+          key: "coi_detail",
+          label: "Conflict identified and how it was resolved",
+          kind: "textarea",
+          required: true,
+          showIf: (v) => (v["coi"] ?? "").startsWith("A conflict"),
+        },
+      ],
+    },
+    {
+      id: "authority",
+      title: "Scope of the delegation",
+      citation: "FAR 1.602-2(d)(3) and (d)(5)",
+      tier: "binding",
+      standingText:
+        "The representative may not make any commitment or change that affects price, quality, quantity, delivery, or other terms. Only the contracting officer may change the contract.",
+      fields: [
+        { key: "duties", label: "Duties delegated", kind: "textarea", required: true },
+        { key: "limits", label: "Limits on the delegation", kind: "textarea", required: true },
+        { key: "file_copy", label: "Copy furnished to the contractor and filed in the contract file", kind: "textarea", required: true },
+      ],
+    },
+  ],
+  signature: coSignature("FAR 1.602-2(d)", "Signed by the contracting officer; a copy goes to the representative and the contractor."),
+};
+
+const corCancellation: TemplateDef = {
+  key: "cor-cancellation",
+  name: "Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum",
+  tab: "074",
+  badge: {
+    citation: "FAR 1.602-2(d); NFS CG 1842.2",
+    tier: "binding",
+    revision: "HQ 05/2026 revision, effective 5/22/2026",
+    effective: "2026-05-22",
+    note: "Cancels an appointment made under FAR 1.602-2(d). The contractor is notified.",
+  },
+  lead: "Cancellation of a contracting officer's representative appointment.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "cancel",
+      title: "Appointment being cancelled",
+      citation: "FAR 1.602-2(d)",
+      tier: "binding",
+      fields: [
+        { key: "cor_name", label: "Name of the representative", kind: "text", bind: "cor_name", required: true },
+        {
+          key: "cor_type",
+          label: "Appointment cancelled",
+          kind: "select",
+          required: true,
+          options: ["Contracting officer's representative", "Alternate contracting officer's representative"],
+        },
+        { key: "contract_number", label: "Contract or order number", kind: "text", required: true },
+        { key: "appointed_on", label: "Date of the original appointment", kind: "date" },
+        { key: "cancel_date", label: "Cancellation effective date", kind: "date", required: true },
+        {
+          key: "reason",
+          label: "Reason for the cancellation",
+          kind: "select",
+          required: true,
+          options: ["Reassignment", "Separation from the agency", "Contract completion", "Performance", "Other"],
+        },
+        { key: "reason_detail", label: "Detail", kind: "textarea" },
+      ],
+    },
+    {
+      id: "transition",
+      title: "Transition",
+      citation: "FAR 4.801; NFS CG 1842.2",
+      tier: "binding",
+      fields: [
+        { key: "successor", label: "Successor representative, or none appointed", kind: "text", required: true },
+        { key: "records", label: "COR file and records transferred", kind: "textarea", required: true },
+        { key: "notified", label: "Contractor notified on", kind: "date", required: true },
+      ],
+    },
+  ],
+  signature: coSignature("FAR 1.602-2(d)"),
+};
+
+const cparsInput: TemplateDef = {
+  key: "cpars-input",
+  name: "Contractor Performance Assessment Reporting System (CPARS) Input",
+  tab: "099",
+  badge: {
+    citation: "RFO FAR Part 42 (formerly 42.1502, 42.1503)",
+    tier: "binding",
+    revision: "HQ 04/2026 revision, effective 4/21/2026",
+    effective: "2026-04-21",
+    note: "Input to CPARS. CPARS is the system of record; the evaluation is entered there.",
+  },
+  lead: "Past performance input for the evaluation period, prepared for entry in CPARS.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "contract",
+      title: "Contract and period",
+      citation: "RFO FAR Part 42 (formerly 42.1503(f))",
+      tier: "binding",
+      fields: [
+        { key: "contract_number", label: "Contract or order number", kind: "text", required: true },
+        { key: "contractor_name", label: "Contractor", kind: "text", bind: "vendor_legal_name", required: true },
+        { key: "uei", label: "UEI", kind: "text", bind: "vendor_uei" },
+        { key: "period_start", label: "Evaluation period start", kind: "date", required: true },
+        { key: "period_end", label: "Evaluation period end", kind: "date", required: true },
+        {
+          key: "report_type",
+          label: "Report type",
+          kind: "select",
+          required: true,
+          options: ["Interim", "Final", "Addendum"],
+        },
+        { key: "obligated", label: "Amount obligated to date", kind: "money" },
+      ],
+    },
+    {
+      id: "ratings",
+      title: "Ratings",
+      citation: "RFO FAR Part 42 (formerly 42.1503, Table 42-1 and Table 42-2)",
+      tier: "binding",
+      standingText:
+        "Each rating is exceptional, very good, satisfactory, marginal, or unsatisfactory, and each carries a narrative.",
+      fields: [
+        ...(
+          [
+            ["quality", "Quality"],
+            ["schedule", "Schedule"],
+            ["cost_control", "Cost control"],
+            ["management", "Management or business relations"],
+            ["small_business", "Small business subcontracting"],
+            ["other", "Other areas"],
+          ] as const
+        ).flatMap(([key, label]) => [
+          {
+            key: `${key}_rating`,
+            label: `${label} rating`,
+            kind: "select" as const,
+            required: key !== "other",
+            options: [
+              "Exceptional",
+              "Very good",
+              "Satisfactory",
+              "Marginal",
+              "Unsatisfactory",
+              "Not applicable",
+            ],
+          },
+          { key: `${key}_narrative`, label: `${label} narrative`, kind: "textarea" as const, required: key !== "other" },
+        ]),
+        {
+          key: "recommend",
+          label: "Would you recommend this contractor for similar requirements?",
+          kind: "select",
+          required: true,
+          options: ["Yes", "No"],
+        },
+        {
+          key: "recommend_reason",
+          label: "Why not",
+          kind: "textarea",
+          required: true,
+          showIf: (v) => (v["recommend"] ?? "") === "No",
+        },
+      ],
+    },
+    {
+      id: "process",
+      title: "Contractor comment period",
+      citation: "RFO FAR Part 42 (formerly 42.1503(d))",
+      tier: "binding",
+      fields: [
+        { key: "sent_to_contractor", label: "Date sent to the contractor for comment", kind: "date", required: true },
+        { key: "comments_received", label: "Contractor comments received", kind: "textarea" },
+        { key: "submitted", label: "Date entered in CPARS", kind: "date" },
+      ],
+    },
+  ],
+  signature: coSignature("RFO FAR Part 42", "Signed by the assessing official and entered in CPARS."),
+};
+
+const closeoutChecklist: TemplateDef = {
+  key: "closeout-checklist",
+  name: "Closeout Transfer Checklist",
+  tab: "NA",
+  badge: {
+    citation: "FAR 4.804-5; FAR 4.805",
+    tier: "binding",
+    revision: "HQ 06/2026 revision, effective 6/10/2026",
+    effective: "2026-06-10",
+    note: "The checklist that accompanies the contract file when it transfers to records.",
+  },
+  lead: "Closeout of the contract file and transfer to records.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "contract",
+      title: "Contract",
+      citation: "FAR 4.804-1",
+      tier: "binding",
+      fields: [
+        { key: "contract_number", label: "Contract or order number", kind: "text", required: true },
+        { key: "contractor_name", label: "Contractor", kind: "text", bind: "vendor_legal_name", required: true },
+        { key: "closeout_pr", label: "NASA closeout requisition (PR) number", kind: "text", required: true },
+        { key: "final_payment_date", label: "Date of final payment", kind: "date", required: true },
+        { key: "deobligated", label: "Excess funds deobligated", kind: "money" },
+        { key: "physically_complete", label: "Date physically complete", kind: "date", required: true },
+      ],
+    },
+    {
+      id: "steps",
+      title: "Closeout steps",
+      citation: "FAR 4.804-5(a)",
+      tier: "binding",
+      standingText: CLOSEOUT_CHECKLIST.join(" "),
+      fields: CLOSEOUT_CHECKLIST.map((step, i) => ({
+        key: `step_${i + 1}`,
+        label: step,
+        kind: "select" as const,
+        required: true,
+        options: ["Complete", "Not applicable", "Open"],
+      })),
+      },
+    {
+      id: "retention",
+      title: "Transfer and retention",
+      citation: "FAR 4.805; NFS CG 1804.8",
+      tier: "binding",
+      fields: [
+        { key: "retention_date", label: "Records retention date", kind: "date", required: true },
+        { key: "retention_basis", label: "Basis for the retention date", kind: "textarea", required: true },
+        { key: "transferred_to", label: "Records office the file transfers to", kind: "text", required: true },
+        { key: "closed_on", label: "Date the file was closed", kind: "date", required: true },
+      ],
+    },
+  ],
+  signature: coSignature("FAR 4.804-5(b)", "Signed by the contracting officer closing the file."),
+};
+
 export const TEMPLATES: TemplateDef[] = [
   nf1707,
   jofoc,
