@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Json } from "@/integrations/supabase/types";
 
 const inputSchema = z
   .object({
@@ -211,7 +212,7 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
       acquisition_id: acquisitionId,
       vendor_uei: uei,
       check_type: view.sourceLabel,
-      response_json: { raw, normalized: view, providerError: providerError || null },
+      response_json: { raw, normalized: view, providerError: providerError || null } as Json,
       checked_by: me.name,
       checked_at: checkedAt,
     });
