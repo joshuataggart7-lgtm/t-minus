@@ -651,111 +651,44 @@ function IntakePage() {
         </fieldset>
       </section>
 
-      {/* The NF 1707 itself, rendered from the seeded field list. */}
+      {/* The NF 1707 itself, rendered from the complete field export. */}
       {SECTION_GROUPS.map((group) => {
         const groupFields = fields
           .filter((f) => group.raw.includes(f.section ?? ""))
-          .filter((f) => visibleForCenter(f, facts.center_code));
+          .filter((f) => visibleForCenter(f, facts.center_code))
+          .filter((f) => !/^(ServerName|ServerURL)$/i.test(f.field_name ?? ""));
         if (!groupFields.length) return null;
-        const parts = group.parts ?? group.raw.map((r) => ({ raw: r, title: "" }));
+        const parts = group.parts ?? group.raw.map((raw) => ({ raw, title: "" }));
         return (
           <section key={group.key} className="mb-10 border-t border-border pt-6">
             <h2 className="mb-4 text-[18px] leading-6 font-medium">{group.title}</h2>
-            {group.key === "header" ? (
-              <div className="grid gap-x-8 md:grid-cols-2">
-                <Field label="Center" htmlFor="center" error={err("center_code")}>
-                  <select
-                    id="center"
-                    className={inputClass}
-                    value={facts.center_code}
-                    onChange={(e) => set("center_code", e.target.value)}
-                  >
-                    {(data.data?.centers ?? []).map((c) => (
-                      <option key={c.center_code} value={c.center_code}>
-                        {c.center_code} — {c.center_name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Branch" htmlFor="branch">
-                  <select
-                    id="branch"
-                    className={inputClass}
-                    value={facts.branch_code}
-                    onChange={(e) => set("branch_code", e.target.value)}
-                  >
-                    <option value="">Choose a branch</option>
-                    {branches.map((b) => (
-                      <option key={b.branch_code} value={b.branch_code}>
-                        {b.branch_code} — {b.branch_name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="Requisition number" htmlFor="pr">
-                  <input
-                    id="pr"
-                    className={inputClass}
-                    value={facts.pr_number}
-                    onChange={(e) => set("pr_number", e.target.value)}
-                  />
-                </Field>
-                <Field
-                  label="Requesting organization"
-                  htmlFor="org"
-                >
-                  <input
-                    id="org"
-                    className={inputClass}
-                    value={facts.requester_org_code}
-                    onChange={(e) => set("requester_org_code", e.target.value)}
-                  />
-                </Field>
-                <Field label="Requester" htmlFor="requester" error={err("requester_name")}>
-                  <input
-                    id="requester"
-                    className={inputClass}
-                    value={facts.requester_name}
-                    onChange={(e) => set("requester_name", e.target.value)}
-                  />
-                </Field>
-                <div className="md:col-span-2">
-                  <Field
-                    label="Brief description of this requirement"
-                    htmlFor="desc"
-                    error={err("description_of_requirement")}
-                  >
-                    <textarea
-                      id="desc"
-                      rows={4}
-                      className={inputClass}
-                      value={facts.description_of_requirement}
-                      onChange={(e) => set("description_of_requirement", e.target.value)}
-                    />
-                  </Field>
-                </div>
-              </div>
-            ) : null}
-
             {parts.map((part) => {
               const partFields = groupFields.filter((f) => f.section === part.raw);
               if (!partFields.length) return null;
               return (
                 <div key={part.raw} className="mb-6">
-                  {part.title ? (
-                    <h3 className="mb-3 text-[15px] font-medium">{part.title}</h3>
-                  ) : null}
+                  {part.title ? <h3 className="mb-3 text-[15px] font-medium">{part.title}</h3> : null}
                   {partFields.map((f) => {
                     const key = answerKey(f);
                     const id = `f-${f.field_id}`;
                     const label = fieldLabel(f);
-                    const items = parseItems(f.caption);
-                    if (f.field_kind === "button") return null;
-                    if (f.field_kind === "checkButton" && isTriState(f.caption)) {
+                    const items = parseItems(f.choice_items);
+                    const answerable = (f.is_answerable ?? "").toLowerCase() === "yes";
+
+                    if (!answerable) {
+                      const instruction = f.nearest_form_text_full?.trim() || f.caption_full?.trim();
+                      return instruction ? (
+                        <p key={key} className="mb-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+                          {instruction}
+                        </p>
+                      ) : null;
+                    }
+
+                    if ((f.field_kind === "checkButton" || f.field_kind === "radioGroup") && isTriState(f.choice_items)) {
                       return (
-                        <fieldset key={key} className="mb-3">
-                          <legend className="text-[15px]">{label}</legend>
-                          <div className="mt-1 flex flex-wrap gap-4">
+                        <fieldset key={key} className="mb-4">
+                          <legend className="max-w-[80ch] text-[15px] leading-[22px]">{label}</legend>
+                          <div className="mt-2 flex flex-wrap gap-4">
                             {TRISTATE_LABELS.map((opt) => (
                               <label key={opt.value} className="flex items-center gap-2 text-[14px]">
                                 <input
@@ -763,7 +696,7 @@ function IntakePage() {
                                   name={key}
                                   value={opt.value}
                                   checked={answers[key] === opt.value}
-                                  onChange={() => setAnswers((a) => ({ ...a, [key]: opt.value }))}
+                                  onChange={() => setAnswers((current) => ({ ...current, [key]: opt.value }))}
                                 />
                                 {opt.label}
                               </label>
@@ -772,21 +705,7 @@ function IntakePage() {
                         </fieldset>
                       );
                     }
-                    if (f.field_kind === "checkButton") {
-                      return (
-                        <label key={key} className="mb-2 flex items-center gap-2 text-[15px]">
-                          <input
-                            id={id}
-                            type="checkbox"
-                            checked={answers[key] === "1"}
-                            onChange={(e) =>
-                              setAnswers((a) => ({ ...a, [key]: e.target.checked ? "1" : "0" }))
-                            }
-                          />
-                          {label}
-                        </label>
-                      );
-                    }
+
                     if (f.field_kind === "choiceList" && items) {
                       return (
                         <Field key={key} label={label} htmlFor={id}>
@@ -794,18 +713,18 @@ function IntakePage() {
                             id={id}
                             className={inputClass}
                             value={answers[key] ?? ""}
-                            onChange={(e) => setAnswers((a) => ({ ...a, [key]: e.target.value }))}
+                            onChange={(e) => setAnswers((current) => ({ ...current, [key]: e.target.value }))}
                           >
                             <option value="">Choose one</option>
-                            {items.map((i) => (
-                              <option key={i} value={i}>
-                                {i}
-                              </option>
+                            {items.filter(Boolean).map((item) => (
+                              <option key={item} value={item}>{item}</option>
                             ))}
                           </select>
                         </Field>
                       );
                     }
+
+                    if (f.field_kind === "button") return null;
                     return (
                       <Field
                         key={key}
@@ -817,7 +736,7 @@ function IntakePage() {
                           type={f.field_kind === "dateTimeEdit" ? "date" : "text"}
                           className={inputClass}
                           value={answers[key] ?? ""}
-                          onChange={(e) => setAnswers((a) => ({ ...a, [key]: e.target.value }))}
+                          onChange={(e) => setAnswers((current) => ({ ...current, [key]: e.target.value }))}
                         />
                       </Field>
                     );
@@ -831,11 +750,11 @@ function IntakePage() {
 
       {Object.keys(carried).length ? (
         <section className="mb-10 border-t border-border pt-6">
-          <h2 className="mb-4 text-[18px] leading-6 font-medium">Answers carried on the record</h2>
+          <h2 className="mb-4 text-[18px] leading-6 font-medium">Recorded answers</h2>
           <dl className="max-w-[80ch]">
             {Object.entries(carried).map(([k, v]) => (
               <div key={k} className="mb-3">
-                <dt className="text-[13px] text-muted-foreground">{k}</dt>
+                <dt className="text-[13px] text-muted-foreground">{recordedAnswerLabel(k)}</dt>
                 <dd className="text-[15px]">{String(v)}</dd>
               </div>
             ))}

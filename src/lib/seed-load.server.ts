@@ -268,14 +268,16 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   await wipe(db, "nf1707_fields", "field_id");
   await put(
     "nf1707_fields",
-    parseCsv(read("nf1707_fields.csv")).map((r) => ({
+    parseCsv(read("nf1707_fields_full.csv")).map((r) => ({
       section: nul(r["section"]),
       subform: nul(r["subform"]),
       field_name: nul(r["field_name"]),
       field_kind: nul(r["field_kind"]),
-      caption: nul(r["caption"]),
-      nearest_form_text: nul(r["nearest_form_text"]),
+      caption_full: nul(r["caption_full"]),
+      nearest_form_text_full: nul(r["nearest_form_text_full"]),
+      choice_items: nul(r["choice_items"]),
       center_specific: nul(r["center_specific"]),
+      is_answerable: nul(r["is_answerable"]),
     })),
   );
 
