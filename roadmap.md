@@ -9,3 +9,4 @@
 - [x] Clarify Watch sample/live state and exclusions sweep never-run state
 - [x] Correct option preliminary notice calculation from contract dates and clause fill-in
 - [ ] Verify A-2027-0109 consistency, A-2027-0103 lifecycle, and fresh-load behavior
+- [ ] Reorder mission seeds and reload the five mission rows
