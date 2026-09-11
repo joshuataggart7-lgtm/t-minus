@@ -305,11 +305,14 @@ export function phaseForTemplate(templateKey: string): string {
 }
 
 export type BoardEntry = {
+  poll_id: string | null;
+  phase: string;
   reviewer_role: string;
   reviewer_name: string;
   vote: "go" | "no-go" | "pending";
   reason: string | null;
   due_date: string | null;
+  planned_days: number | null;
   citation: string | null;
   trigger: string | null;
   note: string | null;
@@ -321,25 +324,26 @@ export function pollBoard(
   polls: PollRow[],
   ref: RefData,
   dueDate: string | null,
+  phase = "Go/No-go Poll",
 ): BoardEntry[] {
-  return rules
-    .filter((r) => reviewApplies(r, acq, ref))
-    .map((r) => {
-      const row = polls.find(
-        (p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase(),
-      );
-      const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
-      return {
-        reviewer_role: r.reviewer_role,
-        reviewer_name: row?.reviewer_name ?? "Not yet assigned",
-        vote: vote === "go" || vote === "no-go" ? vote : "pending",
-        reason: row?.reason ?? null,
-        due_date: row?.due_date ?? dueDate,
-        citation: r.citation,
-        trigger: r.trigger,
-        note: r.note,
-      };
-    });
+  const forPhase = polls.filter((p) => (p.phase ?? "Go/No-go Poll") === phase);
+  return reviewRulesForPhase(phase, acq, rules, ref).map((r) => {
+    const row = forPhase.find((p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase());
+    const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
+    return {
+      poll_id: row?.poll_id ?? null,
+      phase,
+      reviewer_role: r.reviewer_role,
+      reviewer_name: row?.reviewer_name ?? "Not yet assigned",
+      vote: vote === "go" || vote === "no-go" ? vote : "pending",
+      reason: row?.reason ?? null,
+      due_date: row?.due_date ?? dueDate,
+      planned_days: r.planned_days,
+      citation: r.citation,
+      trigger: r.trigger,
+      note: r.note,
+    };
+  });
 }
 
 // ------------------------------------------------------------------ sequence
