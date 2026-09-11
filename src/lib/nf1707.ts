@@ -116,6 +116,7 @@ export function fieldLabel(f: Nf1707Field) {
   if (caption && !/^(yes|no|or|and)$/i.test(caption)) return caption;
   if (nearby.length >= 4 && !/^(yes|no|or|and)$/i.test(nearby)) return nearby;
   if (caption) return caption;
+  if (nearby) return nearby.charAt(0).toUpperCase() + nearby.slice(1).toLowerCase();
 
   if (f.section === "Section9s1") return "Center-specific approval";
 
@@ -137,5 +138,8 @@ export function fieldLabel(f: Nf1707Field) {
 
 export function visibleForCenter(f: Nf1707Field, center: string) {
   const cs = (f.center_specific ?? "").trim();
-  return cs === "" || cs === center;
+  if (cs !== "" && cs !== center) return false;
+  const sourceLabel = `${f.caption_full ?? ""} ${f.nearest_form_text_full ?? ""}`.trim();
+  if (center !== "KSC" && /^KSC\b/i.test(sourceLabel)) return false;
+  return true;
 }
