@@ -53,8 +53,13 @@ export function thresholdFor(centerCode: string | null | undefined, centers: Cen
   return typeof value === "number" ? value : DEFAULT_AGING_DAYS;
 }
 
-function supervisorOf(owner: string, users: UserRow[]) {
-  const match = users.find((u) => u.name === owner);
+// The digest goes to the supervisor on the owner's user record. Reviewers named
+// on a hold are often not user records, so the file's contracting officer's
+// supervisor takes the entry instead.
+function supervisorOf(owner: string, fallbackOwner: string | null, users: UserRow[]) {
+  const match =
+    users.find((u) => u.name === owner) ??
+    (fallbackOwner ? users.find((u) => u.name === fallbackOwner) : undefined);
   return {
     supervisor: match?.supervisor_name ?? null,
     supervisorEmail: match?.supervisor_email ?? null,
@@ -85,7 +90,7 @@ export function agingItems(
       title: String(acq.title ?? ""),
       subject: String(acq.hold_reason ?? "On hold"),
       owner,
-      ...supervisorOf(owner, users),
+      ...supervisorOf(owner, acq.co_name ? String(acq.co_name) : null, users),
       ageDays,
       thresholdDays,
       aging: ageDays >= thresholdDays,
@@ -109,7 +114,7 @@ export function agingItems(
       title: String(acq.title ?? ""),
       subject: `${poll.reviewer_role ?? "Reviewer"} has not voted`,
       owner,
-      ...supervisorOf(owner, users),
+      ...supervisorOf(owner, acq.co_name ? String(acq.co_name) : null, users),
       ageDays,
       thresholdDays,
       aging: ageDays >= thresholdDays,
