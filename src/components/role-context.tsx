@@ -29,6 +29,9 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     const seeded = userForRole(role);
     setAuthState("signing-in");
     void (async () => {
+      // Switching roles ends the previous session before starting the next one.
+      await supabase.auth.signOut();
+      if (cancelled) return;
       const { error } = await supabase.auth.signInWithPassword({
         email: seeded.email,
         password: DEMO_PASSWORD,
