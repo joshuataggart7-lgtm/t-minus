@@ -183,9 +183,10 @@ function ExecutiveOverview() {
   );
 
   // Stamped when this page loads, so a reader knows how fresh the figures are.
-  const [computedAt] = useState(() =>
-    new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }),
-  );
+  const [computedAt, setComputedAt] = useState("");
+  useEffect(() => {
+    setComputedAt(new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }));
+  }, []);
 
   const summary = useMemo(() => {
     const today = todayISO();
@@ -256,9 +257,11 @@ function ExecutiveOverview() {
         )}
       </section>
 
-      <p className="-mt-6 mb-8 text-[13px] text-muted-foreground" data-numeric>
-        Computed at {computedAt}
-      </p>
+      {computedAt ? (
+        <p className="-mt-6 mb-8 text-[13px] text-muted-foreground" data-numeric>
+          Computed at {computedAt}
+        </p>
+      ) : null}
 
       <section aria-label="What leadership needs to know now" className="mb-10">
         <h2 className="section-title text-[18px] leading-6 font-medium">What leadership needs to know now</h2>
