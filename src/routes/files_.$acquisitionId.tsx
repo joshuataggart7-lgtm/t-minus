@@ -550,6 +550,50 @@ function FilePage() {
                 })}
               </ul>
 
+              {p.phase === "Responsibility Check" ? (
+                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                  <p className="text-[15px] font-medium">Finding</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    <label className="text-[13px]" htmlFor="responsibility-finding">
+                      Contracting officer's responsibility finding
+                    </label>
+                    <select
+                      id="responsibility-finding"
+                      value={finding ?? ""}
+                      disabled={!canWrite}
+                      onChange={(e) => setFinding.mutate(e.target.value)}
+                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                    >
+                      <option value="">Not yet determined</option>
+                      <option value="responsible">Responsible</option>
+                      <option value="nonresponsibility">Nonresponsibility</option>
+                    </select>
+                  </div>
+                  {finding === "responsible" ? (
+                    <p className="mt-3 text-[13px] text-muted-foreground">
+                      The contracting officer's signature on the SF 1449 is the affirmative responsibility
+                      determination (FAR 9.105-2(a)(1)). No memorandum is generated.
+                    </p>
+                  ) : finding === "nonresponsibility" ? (
+                    <p className="mt-3 text-[13px]">
+                      <Link
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: "nonresponsibility", acquisitionId }}
+                        className="text-primary"
+                      >
+                        Open the determination of nonresponsibility memorandum
+                      </Link>
+                      <span className="ml-2 text-muted-foreground">FAR 9.105-2(a)(1)</span>
+                    </p>
+                  ) : (
+                    <p className="mt-3 text-[13px] text-muted-foreground">
+                      Record the finding once the SAM.gov check and the FAR 9.104-1 factors have been reviewed.
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
+
               {(p.phase === "Solicitation/Quote" || p.phase === "Award") && (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
                   <p className="text-[15px]">
