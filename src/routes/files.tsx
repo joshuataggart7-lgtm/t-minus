@@ -4,6 +4,13 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, formatMoney, todayISO } from "@/lib/intake";
+import type { StoredEstimate } from "@/lib/estimator";
+
+/** The same summary the requester saw when the clock started. */
+function estimateLine(est: StoredEstimate | null) {
+  if (!est) return "—";
+  return `About ${est.months_to_award} months, ${est.phases.length} phases, ${est.hours_total.toLocaleString("en-US")} hours`;
+}
 
 export const Route = createFileRoute("/files")({
   head: () => ({
@@ -34,7 +41,7 @@ function FilesPage() {
       const { data } = await supabase
         .from("acquisition_facts")
         .select(
-          "acquisition_id,title,center_code,estimated_value,target_award_date,clock_state,current_phase,status",
+          "acquisition_id,title,center_code,estimated_value,target_award_date,clock_state,current_phase,status,intake_estimate",
         )
         .order("acquisition_id");
       return data ?? [];
@@ -71,6 +78,7 @@ function FilesPage() {
               <th scope="col" className="p-2">Phase</th>
               <th scope="col" className="p-2">Clock</th>
               <th scope="col" className="p-2">Days to award</th>
+              <th scope="col" className="p-2">Estimate at intake</th>
             </tr>
           </thead>
           <tbody>
@@ -95,6 +103,7 @@ function FilesPage() {
                 <td className="p-2">
                   {r.target_award_date ? daysBetween(todayISO(), r.target_award_date) : "—"}
                 </td>
+                <td className="p-2">{estimateLine(r.intake_estimate as StoredEstimate | null)}</td>
               </tr>
             ))}
           </tbody>

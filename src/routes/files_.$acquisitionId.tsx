@@ -22,6 +22,7 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import type { StoredEstimate } from "@/lib/estimator";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -123,6 +124,7 @@ function FilePage() {
   });
 
   const acq = q.data?.acq ?? null;
+  const intakeEstimate = (acq?.['intake_estimate'] ?? null) as StoredEstimate | null;
 
   const ref: RefData = useMemo(
     () => ({
@@ -383,6 +385,18 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {intakeEstimate ? (
+        <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
+          <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
+          <p className="text-[15px] leading-[22px]">{intakeEstimate.sentence}</p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Contracting officer {intakeEstimate.hours_co.toLocaleString("en-US")} hours · specialist{" "}
+            {intakeEstimate.hours_cs.toLocaleString("en-US")} hours · recorded{" "}
+            {intakeEstimate.estimated_at.slice(0, 10)}
+          </p>
+        </section>
+      ) : null}
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <span className="text-[13px] text-muted-foreground">View</span>

@@ -30,6 +30,7 @@ import {
   type RedFlag,
   type RefData,
 } from "@/lib/intake";
+import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -222,6 +223,8 @@ function IntakePage() {
       const today = todayISO();
       const lead = Number(facts.lead_to_delivery_days) || 0;
       const target = addDays(facts.need_date, -lead);
+      const est = estimate(inputsFromFacts(facts), data.data!.ref);
+      const stored = toStored(est);
 
       const payload = {
         acquisition_id: next,
@@ -260,6 +263,7 @@ function IntakePage() {
         status: "On Track",
         current_phase: "Intake",
         nf1707_answers: { ...carried, ...answers },
+        intake_estimate: stored,
       };
 
       const { error } = await supabase.from("acquisition_facts").insert(payload);
@@ -284,9 +288,19 @@ function IntakePage() {
           new_value: target,
           reason: `Need date ${facts.need_date} minus ${lead} days to delivery`,
         },
+        {
+          acquisition_id: next,
+          actor: user.name,
+          action: "Intake estimate recorded",
+          field: "intake_estimate",
+          old_value: null,
+          new_value: `${est.monthsToAward} months to award; ${est.phases.length} phases; ${est.hours.total} contracting hours`,
+          reason:
+            "LOE Estimator model run against the intake answers (value, competition, pricing, instrument, requirement type)",
+        },
       ]);
 
-      navigate({ to: "/files/$acquisitionId", params: { acquisitionId: next } });
+      navigate({ to: "/intake/$acquisitionId", params: { acquisitionId: next } });
     } catch (e) {
       setSaveError(
         e instanceof Error
