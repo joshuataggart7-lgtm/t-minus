@@ -88,8 +88,10 @@ function DocumentPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [voteReason, setVoteReason] = useState("");
+  const [comparables, setComparables] = useState<ComparablesView | null>(null);
 
   const phase = phaseForTemplate(templateKey);
+  const runComparablesFn = useServerFn(samContractAwards);
 
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
