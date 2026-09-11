@@ -104,7 +104,7 @@ const CORE_THRESHOLDS = /micro-purchase|simplified acquisition threshold|commerc
 const PHASE_THRESHOLDS: Record<string, RegExp> = {
   Intake: /acquisition forecast|micro-purchase|simplified acquisition/i,
   "Market Research": /simplified acquisition|small business|sources sought/i,
-  JOFOC: /jofoc|justification/i,
+  JOFOC: /jofoc/i,
   Synopsis: /justification posting|simplified acquisition/i,
   "Solicitation/Quote": /commercial simplified|simplified acquisition/i,
   "Technical Evaluation": /simplified acquisition/i,
@@ -126,8 +126,9 @@ export function thresholdsForPhase(rows: ThresholdRow[], phase: string): Sidebar
   return rows
     .filter((t) => !t.superseded_date)
     .filter((t) => {
-      const hay = `${t.name ?? ""} ${t.citation ?? ""}`;
-      return CORE_THRESHOLDS.test(hay) || (test ? test.test(hay) : false);
+      const name = t.name ?? "";
+      const hay = `${name} ${t.citation ?? ""}`;
+      return CORE_THRESHOLDS.test(name) || (test ? test.test(hay) : false);
     })
     .map((t) => {
       const n = t.value === null || t.value === undefined ? null : Number(t.value);
