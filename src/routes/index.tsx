@@ -179,7 +179,7 @@ function ExecutiveOverview() {
                   params={{ acquisitionId: driver.acq.acquisition_id }}
                   className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
                 >
-                  <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
                     <div>
                       <p className="text-[18px] leading-6 font-medium">{mission.name}</p>
                       <p className="mt-1 text-[13px] text-panel-muted">
