@@ -486,3 +486,33 @@ fields filled and the badge showing the HQ effective date.
   now deletes only untagged non-seed acquisitions, so backfilled records survive a reset.
 - Test run: agency 080, 2026-06-01 to 2026-06-30 — 2 records added, re-run added 0 (2 already
   on file), and both remained after a demo reset (14 files total).
+
+## E17. Reporting views and Center configuration
+
+Five read-only views, all `security_invoker = on` so the existing row-level
+rules still apply: `v_report_missions`, `v_report_acquisitions` (days to award,
+days to need, planned days to award, forecast delivery, schedule impact against
+the mission milestone, hold age, open polls, audit entries, status word),
+`v_report_holds`, `v_report_polls`, `v_report_audit_counts`.
+
+The status word in the view mirrors the application rule except the "behind the
+planned phase exit" case, which needs per-phase actuals that the view does not
+carry; that refinement stays in `src/lib/metrics.ts`. The view returns 14 rows:
+the twelve seeded acquisitions plus the two backfilled records from E16.
+
+Nightly extract: `src/routes/api/public/hooks/reporting-extract.ts`. A GET with
+the extract token returns one view as CSV for Power BI; the nightly POST
+(`reporting-extract-nightly`, 06:45 UTC) writes one audit entry per view with its
+row count. `/reporting` lists the views, their counts, a preview, and a CSV
+download.
+
+Center configuration (`/center-config`, HQ and contracting specialists/officers)
+writes `public.center_overrides`: Center, kind (threshold or review trigger),
+target, value, citation, note, effective date, superseded date. The rules engine
+reads the row in effect today for the acquisition's Center in
+`reviewApplies`; a Center trigger replaces the seeded dollar figure and a Center
+threshold override replaces the thresholds row. Every set and end is logged.
+
+Verified: `v_report_acquisitions` returns the acquisitions with their metrics; a
+$5,000,000 legal review trigger at ARC removed legal review from A-2027-0101's
+Go/No-go poll while GSFC's A-2027-0107 kept it; the test override was removed.
