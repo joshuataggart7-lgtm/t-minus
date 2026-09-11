@@ -274,9 +274,18 @@ function DeviationsPage() {
 
       {q.data && rows.length === 0 ? (
         <EmptyState
-          title="No deviation requests"
-          note="Nothing has been requested yet."
-          action={canWrite ? { label: "New deviation request", onClick: () => setOpen(true) } : undefined}
+          sentence="No deviation requests yet."
+          action={
+            canWrite ? (
+              <button
+                type="button"
+                className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+                onClick={() => setOpen(true)}
+              >
+                New deviation request
+              </button>
+            ) : undefined
+          }
         />
       ) : null}
 
