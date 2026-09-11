@@ -42,7 +42,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
   return (
     <div className="min-h-screen bg-canvas text-foreground">
-      <header className="flex items-center justify-between gap-6 border-b border-border bg-background px-6 py-3">
+      <a
+        href="#main-content"
+        className="sr-only rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >
+        Skip to main content
+      </a>
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 sm:px-6">
+
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -104,11 +111,19 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                         : "border-l-2 border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {collapsed ? item.label.slice(0, 1) : item.label}
+                    {collapsed ? (
+                      <>
+                        <span aria-hidden="true">{item.label.slice(0, 1)}</span>
+                        <span className="sr-only">{item.label}</span>
+                      </>
+                    ) : (
+                      item.label
+                    )}
                     {!collapsed && item.note ? (
                       <span className="block text-[12px] text-muted-foreground">{item.note}</span>
                     ) : null}
                   </Link>
+
                 </li>
               );
             })}
