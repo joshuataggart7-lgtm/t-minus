@@ -141,6 +141,12 @@ function CheckResult({ result }: { result: SamCheckView }) {
           {result.sourceLabel}
         </Badge>
       </div>
+      {result.providerError ? (
+        <p role="alert" className="mb-4 whitespace-pre-wrap break-words border border-destructive px-3 py-2 text-[13px] text-destructive">
+          Live lookup failed, so a saved result is shown. {result.providerError}
+        </p>
+      ) : null}
+
       <dl className="border-t border-border bg-background">
         {fields.map(([label, value]) => (
           <div key={label} className="grid gap-1 border-b border-border px-3 py-3 sm:grid-cols-[15rem_1fr]">
