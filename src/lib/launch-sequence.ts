@@ -1,0 +1,452 @@
+// The launch sequence: which phases apply, which documents each phase needs,
+// which reviews are triggered, and what puts the clock on hold.
+// Phase order and planned days come from phase_plan; review citations and
+// planned days come from review_rules. Nothing regulatory is invented here
+// beyond the phase citation labels.
+
+import { matchStrategy, type RefData } from "@/lib/intake";
+
+export type AcqRow = Record<string, unknown> & {
+  acquisition_id: string;
+  competition?: string | null;
+  acquisition_method?: string | null;
+  contract_type?: string | null;
+  estimated_value?: number | string | null;
+  includes_it?: boolean | null;
+  hardware_deliverable?: boolean | null;
+  igce_attached?: boolean | null;
+  sow_attached?: boolean | null;
+  funds_certified?: boolean | null;
+  acquisition_forecast_verified?: boolean | null;
+  jofoc_authority_citation?: string | null;
+  enterprise_psl_check?: string | null;
+  set_aside?: string | null;
+  current_phase?: string | null;
+  clock_state?: string | null;
+  regulatory_baseline_date?: string | null;
+  target_award_date?: string | null;
+  co_name?: string | null;
+  nf1707_answers?: Record<string, unknown> | null;
+  title?: string | null;
+  description_of_requirement?: string | null;
+};
+
+export type PhasePlanRow = {
+  acquisition_type: string | null;
+  phase: string | null;
+  planned_days: number | null;
+  order: number | null;
+  note: string | null;
+};
+
+export type ReviewRuleRow = {
+  rule_id: string;
+  reviewer_role: string;
+  trigger: string | null;
+  citation: string | null;
+  planned_days: number | null;
+  note: string | null;
+};
+
+export type PollRow = {
+  poll_id: string;
+  acquisition_id: string | null;
+  phase: string | null;
+  reviewer_role: string | null;
+  reviewer_name: string | null;
+  vote: string | null;
+  reason: string | null;
+  due_date: string | null;
+};
+
+/** Boolean or text columns on the record that stand in for an attachment. */
+export type DocField =
+  | "igce_attached"
+  | "sow_attached"
+  | "funds_certified"
+  | "acquisition_forecast_verified"
+  | "jofoc_authority_citation";
+
+export type RequiredDoc = {
+  label: string;
+  citation: string;
+  field?: DocField;
+  /** what it links to when there is no toggle */
+  link?: "templates" | "checks" | "packet";
+  note?: string;
+};
+
+export function acquisitionType(acq: AcqRow) {
+  return /sole/i.test(String(acq.competition ?? ""))
+    ? "commercial_ffp_13_5_sole_source"
+    : "commercial_ffp_13_5_competed";
+}
+
+export const PHASE_CITATIONS: Record<string, string> = {
+  Intake: "NF 1707; NFS 1807.7201 (Acquisition Forecast affirmation)",
+  "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
+  JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
+  Synopsis: "RFO FAR 5.203; FAR 12.603 (combined synopsis/solicitation)",
+  "Solicitation/Quote": "FAR 12.603; NFS CG 1804.11 (NCMS is the system of record)",
+  "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
+  "Price Reasonableness": "FAR 12.204(b)(1); FAR 13.106-3",
+  "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
+  "Go/No-go Poll": "NFS 1801.770 legal review; Center policy for the review chain",
+  Award: "FAR 13.302-3; NFS CG 1804.11 (award written in NCMS)",
+  "FPDS-NG Report": "FAR 4.604 (contract action reporting)",
+  Administration: "FAR Part 42; FAR 4.801 (contract file)",
+  Closeout: "FAR 4.804 (closeout of contract files)",
+};
+
+export const PHASE_GUIDANCE: Record<string, string> = {
+  Intake: "Confirm the requirement, the money, and the mission date. The clock starts here.",
+  "Market Research":
+    "Find out who can do this work and at what price. Write down what you found and where you looked.",
+  JOFOC:
+    "Only for a sole source. Write the justification, cite the authority, and route it for the approval its dollar tier calls for.",
+  Synopsis: "Post the notice so the market can see it. Commercial buys may combine notice and solicitation.",
+  "Solicitation/Quote":
+    "Build the solicitation in NCMS. T-Minus hands over the facts, the clause list, and the attachments.",
+  "Technical Evaluation": "Judge each quote against the stated criteria. Record who evaluated and why.",
+  "Price Reasonableness":
+    "Write the price negotiation memorandum. It is the determination of record; no separate price memo is made.",
+  "Responsibility Check":
+    "Check the vendor in SAM: registration, exclusions, and integrity records. Signing the SF 1449 is the determination.",
+  "Go/No-go Poll": "Each required reviewer votes Go or No-go by name. A No-go needs a reason.",
+  Award: "Award in NCMS from the handoff packet, then mark the file Launched.",
+  "FPDS-NG Report": "Report the action so the public record matches the file.",
+  Administration: "Run the contract: deliveries, invoices, and past performance.",
+  Closeout: "Close the file when everything is delivered, paid, and filed.",
+};
+
+export function requiredDocs(phase: string, acq: AcqRow): RequiredDoc[] {
+  switch (phase) {
+    case "Intake":
+      return [
+        {
+          label: "NF 1707 intake, Acquisition Forecast affirmed",
+          citation: "NFS 1807.7201",
+          field: "acquisition_forecast_verified",
+        },
+        {
+          label: "Independent government cost estimate (IGCE)",
+          citation: "FAR 15.404-1",
+          field: "igce_attached",
+        },
+        {
+          label: "Statement of work or performance work statement",
+          citation: "FAR 11.101",
+          field: "sow_attached",
+        },
+      ];
+    case "Market Research":
+      return [
+        { label: "Market research report", citation: "RFO FAR 10.001", link: "templates" },
+        { label: "NF 1787 small business coordination", citation: "NFS 1819.202-70", link: "templates" },
+      ];
+    case "JOFOC":
+      return [
+        {
+          label: "Justification for other than full and open competition",
+          citation: "RFO FAR 6.104-2",
+          field: "jofoc_authority_citation",
+        },
+      ];
+    case "Synopsis":
+      return [{ label: "Presolicitation or combined synopsis notice", citation: "RFO FAR 5.203", link: "templates" }];
+    case "Solicitation/Quote":
+      return [
+        { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+        { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
+      ];
+    case "Technical Evaluation":
+      return [{ label: "NASA technical evaluation report", citation: "FAR 13.106-2", link: "templates" }];
+    case "Price Reasonableness":
+      return [
+        {
+          label: "Price negotiation memorandum (PNM)",
+          citation: "FAR 12.204(b)(1)",
+          link: "templates",
+          note: "The PNM is the price reasonableness determination of record. No separate determination is generated.",
+        },
+      ];
+    case "Responsibility Check":
+      return [
+        {
+          label: "SAM.gov entity registration and exclusion results",
+          citation: "FAR 9.104-1; FAR 52.204-7",
+          link: "checks",
+        },
+        {
+          label: "Integrity records count (FAPIIS)",
+          citation: "FAR 9.104-6",
+          link: "checks",
+        },
+        {
+          label: "SF 1449 signature",
+          citation: "FAR 9.105-2",
+          link: "packet",
+          note: `The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility${
+            acq.vendor_legal_name ? "" : ""
+          }.`,
+        },
+      ];
+    case "Go/No-go Poll":
+      return [{ label: "Recorded votes from every required reviewer", citation: "Center policy" }];
+    case "Award":
+      return [
+        { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+        { label: "SF 1449 award document (written in NCMS)", citation: "FAR 12.204", link: "packet" },
+      ];
+    case "FPDS-NG Report":
+      return [{ label: "FPDS-NG contract action report", citation: "FAR 4.604" }];
+    case "Administration":
+      return [{ label: "CPARS past performance evaluation", citation: "RFO FAR Part 42" }];
+    case "Closeout":
+      return [{ label: "Closeout checklist and contract file", citation: "FAR 4.804; FAR 4.801" }];
+    default:
+      return [];
+  }
+}
+
+export function docSatisfied(doc: RequiredDoc, acq: AcqRow): boolean | null {
+  if (!doc.field) return null;
+  const v = acq[doc.field];
+  if (doc.field === "jofoc_authority_citation") return Boolean(String(v ?? "").trim());
+  return Boolean(v);
+}
+
+// ------------------------------------------------------------------ reviews
+
+const num = (v: unknown) => {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
+function answeredYes(acq: AcqRow, needle: RegExp) {
+  const answers = acq.nf1707_answers;
+  if (!answers || typeof answers !== "object") return false;
+  return Object.entries(answers as Record<string, unknown>).some(
+    ([k, v]) => needle.test(k) && (v === "1" || v === true || /yes/i.test(String(v))),
+  );
+}
+
+/** Evaluate a review_rules row against the record. Citation, days, and the
+ *  trigger text always come from the row, never from here. */
+export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): boolean {
+  const role = rule.reviewer_role.toLowerCase();
+  const value = num(acq.estimated_value);
+  const thr = (name: string) =>
+    ref.thresholds.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase())?.value ?? null;
+  const sat = thr("Simplified acquisition threshold") ?? 350_000;
+  const micro = thr("Micro-purchase threshold") ?? 15_000;
+  const certified = thr("Certified cost or pricing data (FAR text)") ?? 2_500_000;
+  const jofoc = Boolean(String(acq.jofoc_authority_citation ?? "").trim());
+
+  if (role.startsWith("legal review")) return jofoc || value >= sat;
+  if (role.startsWith("pricing review")) return /cost/i.test(String(acq.contract_type ?? "")) || value >= certified;
+  if (role.startsWith("small business")) return value > micro;
+  if (role.startsWith("procurement strategy meeting")) return value > 10_000_000;
+  if (role.includes("notification of procurement action")) return value >= 7_000_000 && value < 30_000_000;
+  if (role.startsWith("anosca")) return value >= 30_000_000;
+  if (role.startsWith("cio authorization")) return Boolean(acq.includes_it);
+  if (role.startsWith("public announcement")) return value >= 7_000_000 && /8\(a\)/i.test(String(acq.set_aside ?? ""));
+  if (role.startsWith("enterprise strategy"))
+    return (
+      value > sat &&
+      Boolean(matchStrategy(ref, `${acq.title ?? ""} ${acq.description_of_requirement ?? ""}`))
+    );
+  if (role.startsWith("flight operations")) return /A-102\.7/i.test(String(acq.enterprise_psl_check ?? ""));
+  if (role.startsWith("aviation safety")) return answeredYes(acq, /S5V/i);
+  if (role.startsWith("section 508")) return Boolean(acq.includes_it);
+  if (role.startsWith("quality assurance")) return Boolean(acq.hardware_deliverable);
+  if (role.startsWith("sources sought")) return value >= 50_000_000;
+  return false;
+}
+
+export type BoardEntry = {
+  reviewer_role: string;
+  reviewer_name: string;
+  vote: "go" | "no-go" | "pending";
+  reason: string | null;
+  due_date: string | null;
+  citation: string | null;
+  trigger: string | null;
+  note: string | null;
+};
+
+export function pollBoard(
+  acq: AcqRow,
+  rules: ReviewRuleRow[],
+  polls: PollRow[],
+  ref: RefData,
+  dueDate: string | null,
+): BoardEntry[] {
+  return rules
+    .filter((r) => reviewApplies(r, acq, ref))
+    .map((r) => {
+      const row = polls.find(
+        (p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase(),
+      );
+      const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
+      return {
+        reviewer_role: r.reviewer_role,
+        reviewer_name: row?.reviewer_name ?? "Not yet assigned",
+        vote: vote === "go" || vote === "no-go" ? vote : "pending",
+        reason: row?.reason ?? null,
+        due_date: row?.due_date ?? dueDate,
+        citation: r.citation,
+        trigger: r.trigger,
+        note: r.note,
+      };
+    });
+}
+
+// ------------------------------------------------------------------ sequence
+
+export type PhaseView = {
+  phase: string;
+  planned_days: number;
+  order: number;
+  status: "complete" | "current" | "upcoming";
+  actual_days: number | null;
+  docs: RequiredDoc[];
+  citation: string;
+  guidance: string;
+  needsPoll: boolean;
+};
+
+export function buildSequence(
+  acq: AcqRow,
+  plan: PhasePlanRow[],
+  todayISO: string,
+  daysBetween: (a: string, b: string) => number,
+): PhaseView[] {
+  const type = acquisitionType(acq);
+  const rows = plan
+    .filter((p) => p.acquisition_type === type && p.phase)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+  const currentIndex = rows.findIndex(
+    (r) => (r.phase ?? "").toLowerCase() === String(acq.current_phase ?? "").toLowerCase(),
+  );
+  const baseline = acq.regulatory_baseline_date ?? null;
+  const elapsed = baseline ? Math.max(0, daysBetween(baseline, todayISO)) : null;
+
+  let cumulative = 0;
+  return rows.map((r, i) => {
+    const planned = r.planned_days ?? 0;
+    const before = cumulative;
+    cumulative += planned;
+    const status: PhaseView["status"] =
+      currentIndex < 0 ? "upcoming" : i < currentIndex ? "complete" : i === currentIndex ? "current" : "upcoming";
+    let actual: number | null = null;
+    if (status === "complete") actual = planned;
+    if (status === "current" && elapsed !== null) actual = Math.max(0, elapsed - before);
+    const phase = r.phase as string;
+    return {
+      phase,
+      planned_days: planned,
+      order: r.order ?? i + 1,
+      status,
+      actual_days: actual,
+      docs: requiredDocs(phase, acq),
+      citation: PHASE_CITATIONS[phase] ?? "",
+      guidance: PHASE_GUIDANCE[phase] ?? "",
+      needsPoll: phase === "Go/No-go Poll",
+    };
+  });
+}
+
+// --------------------------------------------------------------------- hold
+
+export type HoldCause = { reason: string; owner: string } | null;
+
+export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[]): HoldCause {
+  const owner = acq.co_name ? `Contracting officer: ${acq.co_name}` : "Contracting officer";
+  const currentIndex = phases.findIndex((p) => p.status === "current");
+  const throughCurrent = currentIndex < 0 ? phases : phases.slice(0, currentIndex + 1);
+
+  for (const p of throughCurrent) {
+    for (const d of p.docs) {
+      if (docSatisfied(d, acq) === false)
+        return { reason: `${p.phase}: ${d.label} is missing`, owner };
+    }
+  }
+
+  const pollIndex = phases.findIndex((p) => p.needsPoll);
+  if (pollIndex >= 0 && currentIndex >= pollIndex) {
+    const nogo = board.find((b) => b.vote === "no-go");
+    if (nogo)
+      return {
+        reason: `No-go from ${nogo.reviewer_role}${nogo.reason ? `: ${nogo.reason}` : ""}`,
+        owner: `${nogo.reviewer_role}: ${nogo.reviewer_name}`,
+      };
+    const pending = board.find((b) => b.vote === "pending");
+    if (pending && currentIndex > pollIndex)
+      return {
+        reason: `Go/No-go poll still open: ${pending.reviewer_role} has not voted`,
+        owner: `${pending.reviewer_role}: ${pending.reviewer_name}`,
+      };
+  }
+  return null;
+}
+
+// ------------------------------------------------------------- NCMS packet
+
+/** Commercial simplified-procedures clause set. Numbers only; the status,
+ *  date, and disposition are read from the clauses table. FAR 52.212-5 is
+ *  Reserved and is never included. */
+export const PACKET_CLAUSE_NUMBERS = [
+  "52.204-7",
+  "52.204-13",
+  "52.204-24",
+  "52.209-6",
+  "52.212-1",
+  "52.212-3",
+  "52.212-4",
+  "52.219-6",
+  "52.222-3",
+  "52.222-21",
+  "52.222-26",
+  "52.223-18",
+  "52.225-13",
+  "52.232-33",
+  "52.233-3",
+  "52.233-4",
+  "52.247-34",
+  "1852.203-70",
+  "1852.204-76",
+  "1852.245-70",
+];
+
+export const NCMS_CHECKLIST = [
+  "Create the solicitation or award in NCMS from these facts.",
+  "Insert the clause list below, with fill-ins, in the SF 1449 streamlined format.",
+  "Attach the SOW or PWS, the IGCE, and the evaluation criteria.",
+  "Enter the funding line and the requisition number.",
+  "Route for the signatures NCMS requires; NCMS holds the document of record.",
+];
+
+export function buildPacket(
+  acq: AcqRow,
+  clauses: { clause_number: string | null; title: string | null; ucf_section: string | null; source: string | null; status: string | null; effective_date: string | null; fill_ins: unknown }[],
+  phases: PhaseView[],
+  board: BoardEntry[],
+) {
+  return {
+    generated: new Date().toISOString(),
+    note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS CG 1804.11). This packet is not the solicitation or the contract.",
+    acquisition: acq,
+    clauses,
+    checklist: NCMS_CHECKLIST,
+    record_to_date: phases.map((p) => ({
+      phase: p.phase,
+      status: p.status,
+      planned_days: p.planned_days,
+      actual_days: p.actual_days,
+      required_documents: p.docs.map((d) => d.label),
+    })),
+    reviews: board,
+  };
+}
