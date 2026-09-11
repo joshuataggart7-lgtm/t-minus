@@ -186,9 +186,7 @@ export function requiredDocs(phase: string, acq: AcqRow): RequiredDoc[] {
           label: "SF 1449 signature",
           citation: "FAR 9.105-2",
           link: "packet",
-          note: `The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility${
-            acq.vendor_legal_name ? "" : ""
-          }.`,
+          note: "The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility.",
         },
       ];
     case "Go/No-go Poll":
