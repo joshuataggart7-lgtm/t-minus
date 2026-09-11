@@ -585,3 +585,19 @@ read out of a group; no dollar value is published at all, which satisfies the
 $1M floor. Days to award are measured from the recorded regulatory clock start
 to the award date. The page is labelled as fictional prototype data and carries
 the prototype footer.
+
+## E25. Center scoreboard
+A Centers tab on the Executive Overview (`src/components/centers-tab.tsx`). All figures are
+computed from the files: lead time by phase by Center from recorded phase actuals against the
+phase plan, holds by reason by Center from each file's hold reason, template currency (a saved
+document counts as behind when its template's HQ revision date is later than the document's save
+date), and aging counts from `agingByCenter`. Centers with no files still appear with "No recorded
+time" rather than an invented figure. Verified: ARC, GSFC, JSC and MSFC show computed figures;
+KSC has no files loaded.
+
+## E24. Set-aside evidence assistant
+Verified on A-2027-0101: SAM.gov returned live entities for NAICS 481219 in CA; the SBA size
+status is read from `assertions.goodsAndServices.naicsList[].sbaSmallBusiness` ("Y" small,
+"E" small under a NAICS exception, "N" other than small). Nine small businesses found, Rule of
+Two met (FAR 19.502-2). The subaward endpoint returned 404, so labelled fictional subawards were
+shown. Test rows were removed after the check.
