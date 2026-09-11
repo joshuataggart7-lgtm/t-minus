@@ -469,7 +469,7 @@ function FilePage() {
       newValue: string;
     }) => {
       if (!acq) return;
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("acquisition_facts")
         .update({ ...input.patch, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", acq.acquisition_id)
