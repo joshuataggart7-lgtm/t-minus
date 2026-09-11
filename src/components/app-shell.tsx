@@ -47,7 +47,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           >
             <PanelLeft className="size-4" aria-hidden="true" />
           </button>
-          <Link to="/" className="block">
+          <Link to="/" className="block" onClick={onWordmarkClick}>
             <span className="block text-[18px] leading-6 font-semibold text-foreground">
               T-Minus
             </span>
@@ -136,7 +136,12 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           </footer>
         </div>
       </div>
+
+      {orbyFor ? (
+        <Orby key={orbyFor.key} acquisitionId={orbyFor.id} onDone={() => setOrbyFor(null)} />
+      ) : null}
     </div>
+
   );
 }
 
