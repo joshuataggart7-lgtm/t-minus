@@ -378,7 +378,7 @@ function FilePage() {
           <div>
             <p className="text-[18px] leading-6 font-medium">{hold?.reason ?? acq?.hold_reason ?? "No hold"}</p>
             <p className="mt-1 text-[13px] text-panel-muted">
-              {acq?.hold_owner ?? hold?.owner ?? "Nothing is blocking this file"}
+              {hold?.owner ?? acq?.hold_owner ?? "Nothing is blocking this file"}
             </p>
           </div>
         </div>
