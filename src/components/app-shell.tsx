@@ -97,6 +97,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
         <div className="min-w-0 flex-1">
           <main className={cn("px-8 py-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}>
+            {authMessage ? (
+              <p
+                className="mb-6 border-l-2 py-1 pl-3 text-[13px]"
+                style={{ borderColor: "var(--attention)", color: "var(--attention)" }}
+              >
+                Needs attention: {authMessage}
+              </p>
+            ) : null}
             {children}
           </main>
           <footer className="px-8 pb-8 text-[13px] text-muted-foreground">
