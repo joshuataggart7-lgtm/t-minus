@@ -751,7 +751,7 @@ export function exportPdf(doc: RenderedDoc, headerLine: string) {
   header, footer { font-size: 9pt; }
   h1 { font-size: 18pt; } h2 { font-size: 13pt; margin-bottom: 2px; }
   .cite { font-size: 9pt; font-style: italic; margin-top: 0; }
-  section { margin-bottom: 14px; }
+  section { margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
 </style></head><body>
 <header>${esc(headerLine)}</header>
 <h1>${esc(doc.title)}</h1>
