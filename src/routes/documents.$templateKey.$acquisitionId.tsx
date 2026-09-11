@@ -71,39 +71,174 @@ function DocumentPage() {
   const [touched, setTouched] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const phase = phaseForTemplate(templateKey);
+
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
     enabled: authState === "signed-in" && !!def,
+    // Votes and comments from other reviewers appear without a reload.
+    refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, thr, tpl] = await Promise.all([
+      const [acq, thr, tpl, polls, rules] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
+        supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
+        supabase.from("review_rules").select("*"),
       ]);
       if (acq.error) throw new Error(acq.error.message);
       const templateId = tpl.data?.template_id ?? null;
       const versions = templateId
         ? await supabase
             .from("documents")
-            .select("document_id,version,saved_by,saved_at,field_values")
+            .select(
+              "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at",
+            )
             .eq("acquisition_id", acquisitionId)
             .eq("template_id", templateId)
             .order("version", { ascending: false })
         : { data: [], error: null };
+      const latestId = versions.data?.[0]?.document_id ?? null;
+      const comments = latestId
+        ? await supabase
+            .from("comments")
+            .select("*")
+            .eq("document_id", latestId)
+            .order("created_at", { ascending: true })
+        : { data: [] };
       return {
         acq: acq.data as Record<string, unknown> | null,
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
         hqRevision: tpl.data?.hq_revision_date ?? null,
+        polls: (polls.data ?? []) as PollRow[],
+        rules: (rules.data ?? []) as ReviewRuleRow[],
+        comments: (comments.data ?? []) as {
+          comment_id: string;
+          author: string | null;
+          body: string | null;
+          created_at: string;
+        }[],
         versions: (versions.data ?? []) as {
           document_id: string;
           version: number;
           saved_by: string | null;
           saved_at: string | null;
           field_values: unknown;
+          ai_model: string | null;
+          ai_generated_at: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
         }[],
       };
     },
+  });
+
+  const latest = q.data?.versions[0] ?? null;
+
+  const board = useMemo(() => {
+    if (!q.data?.acq) return [];
+    const ref: RefData = {
+      thresholds: (q.data.thresholds ?? []).map((t) => ({
+        name: t.name,
+        value: t.value === null ? null : Number(t.value),
+        citation: t.citation,
+        note: t.note,
+      })),
+      phasePlan: [],
+      strategies: [],
+    };
+    return pollBoard(
+      q.data.acq as AcqRow,
+      q.data.rules ?? [],
+      q.data.polls ?? [],
+      ref,
+      null,
+      phase,
+    );
+  }, [q.data, phase]);
+
+  const mySeat = board.find((b) => b.reviewer_name === user.name) ?? null;
+
+  const vote = useMutation({
+    mutationFn: async ({ choice, reason }: { choice: "go" | "no-go"; reason: string | null }) => {
+      if (!mySeat?.poll_id) throw new Error("The poll for this phase is not open yet.");
+      const { error } = await supabase
+        .from("polls")
+        .update({ vote: choice, reason, voted_at: new Date().toISOString() })
+        .eq("poll_id", mySeat.poll_id);
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: choice === "go" ? "Go recorded" : "No-go recorded",
+        field: mySeat.reviewer_role,
+        old_value: mySeat.vote,
+        new_value: choice,
+        reason: reason ?? `${def?.name ?? "document"} reviewed`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async (_d, v) => {
+      setMessage(v.choice === "go" ? "Go recorded. The file resumes if nothing else blocks it." : "No-go recorded. The file is on hold.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`The vote did not save: ${e.message}`),
+  });
+
+  const addComment = useMutation({
+    mutationFn: async (body: string) => {
+      if (!latest) throw new Error("Save a version first, then start the thread.");
+      const { error } = await supabase
+        .from("comments")
+        .insert({ document_id: latest.document_id, author: user.name, body });
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: "Comment added",
+        field: def?.name ?? "document",
+        new_value: body.slice(0, 200),
+        reason: `Comment on version ${latest.version}`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async () => {
+      setComment("");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`The comment did not save: ${e.message}`),
+  });
+
+  const markReviewed = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      const reviewedAt = new Date().toISOString();
+      const { error } = await supabase
+        .from("documents")
+        .update({ reviewed_by: user.name, reviewed_at: reviewedAt })
+        .eq("document_id", latest.document_id);
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: "Document reviewed",
+        field: def?.name ?? "document",
+        old_value: latest.reviewed_by,
+        new_value: user.name,
+        reason: `Version ${latest.version} reviewed`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async () => {
+      setMessage("Marked reviewed. The provenance block shows your name and the time.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
   // Pre-fill from the record, or from the latest saved version.
