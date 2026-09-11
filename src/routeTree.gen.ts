@@ -20,6 +20,7 @@ import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
+import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,11 @@ const WorkQueueRoute = WorkQueueRouteImport.update({
   path: '/work-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FilesAcquisitionIdRoute = FilesAcquisitionIdRouteImport.update({
+  id: '/files_/$acquisitionId',
+  path: '/files/$acquisitionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files/$acquisitionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files/$acquisitionId'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/files_/$acquisitionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
+  FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/files_/$acquisitionId': {
+      id: '/files_/$acquisitionId'
+      path: '/files/$acquisitionId'
+      fullPath: '/files/$acquisitionId'
+      preLoaderRoute: typeof FilesAcquisitionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,
+  FilesAcquisitionIdRoute: FilesAcquisitionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
