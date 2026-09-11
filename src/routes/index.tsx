@@ -540,6 +540,8 @@ function ClockBoard({
       )}
 
       <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} />
+
+      <ExclusionsSweepPanel />
     </div>
   );
 }
