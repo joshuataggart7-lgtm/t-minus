@@ -10,6 +10,7 @@ import {
   SECTION_GROUPS,
   answerKey,
   fieldLabel,
+  isStructuralField,
   isTriState,
   parseItems,
   TRISTATE_LABELS,
@@ -777,7 +778,7 @@ function IntakePage() {
                     const items = parseItems(f.choice_items);
                     const answerable = (f.is_answerable ?? "").toLowerCase() === "yes";
 
-                    if (!answerable) {
+                    if (!answerable || isStructuralField(f)) {
                       const instruction = f.nearest_form_text_full?.trim() || f.caption_full?.trim();
                       return instruction ? (
                         <p key={key} className="mb-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
