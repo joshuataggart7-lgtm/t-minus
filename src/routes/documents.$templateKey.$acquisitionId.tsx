@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
+import { DefectReport } from "@/components/defect-report";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
