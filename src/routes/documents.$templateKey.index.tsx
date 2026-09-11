@@ -4,6 +4,7 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { templateByKey } from "@/lib/template-engine";
+import { DefectReport } from "@/components/defect-report";
 
 export const Route = createFileRoute("/documents/$templateKey/")({
   head: () => ({
@@ -51,6 +52,12 @@ function ChooseAcquisition() {
   return (
     <AppShell>
       <PageHeader title={def.name} lead="Choose the acquisition this document is written for." />
+      <DefectReport
+        templateKey={templateKey}
+        templateName={def.name}
+        revision={def.badge.revision}
+        defaultCitation={def.badge.citation}
+      />
       <ul className="max-w-[720px]">
         {(q.data ?? []).map((a) => (
           <li key={a.acquisition_id} className="border-b border-border py-3">
