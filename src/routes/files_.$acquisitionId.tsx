@@ -28,6 +28,7 @@ import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { protestWindow } from "@/lib/protest-window";
 import { successorFor } from "@/lib/successor";
+import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
 import {
   buildModificationPacket,
@@ -260,6 +261,13 @@ function FilePage() {
     },
     onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
   });
+
+  // Age of the current hold, against the Center's own aging window.
+  const holdAge = ageInDays((acq?.['hold_started_at'] as string | null) ?? null);
+  const holdThreshold = thresholdFor(
+    acq?.center_code ? String(acq.center_code) : null,
+    (q.data?.centers ?? []) as { center_code: string; aging_threshold_days?: number | null }[],
+  );
 
   const days = acq?.target_award_date ? daysBetween(todayISO(), acq.target_award_date) : null;
 
@@ -659,6 +667,13 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-panel-muted">
               {hold?.owner ?? acq?.hold_owner ?? "Nothing is blocking this file"}
             </p>
+            {effectiveState === "hold" && holdAge !== null ? (
+              <p className="mt-1 text-[13px] text-panel-muted">
+                {holdAge >= holdThreshold
+                  ? `Aging: on hold ${holdAge} days, past the ${holdThreshold}-day Center window`
+                  : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
+              </p>
+            ) : null}
           </div>
         </div>
       </section>
