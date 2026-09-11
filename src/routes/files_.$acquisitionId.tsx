@@ -438,6 +438,10 @@ function FilePage() {
         </div>
       </section>
 
+      {phaseNames.length ? (
+        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
+      ) : null}
+
       {intakeEstimate ? (
         <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
           <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
