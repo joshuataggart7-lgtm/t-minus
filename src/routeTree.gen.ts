@@ -24,6 +24,7 @@ import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as RegIntakeRouteImport } from './routes/reg-intake'
 import { Route as ReportingRouteImport } from './routes/reporting'
+import { Route as ScorecardRouteImport } from './routes/scorecard'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as SimulateRouteImport } from './routes/simulate'
 import { Route as TemplatesRouteImport } from './routes/templates'
@@ -112,6 +113,11 @@ const RegIntakeRoute = RegIntakeRouteImport.update({
 const ReportingRoute = ReportingRouteImport.update({
   id: '/reporting',
   path: '/reporting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScorecardRoute = ScorecardRouteImport.update({
+  id: '/scorecard',
+  path: '/scorecard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SeedStatusRoute = SeedStatusRouteImport.update({
@@ -206,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByTo {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
@@ -269,6 +277,7 @@ export interface FileRoutesById {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
@@ -302,6 +311,7 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
@@ -333,6 +343,7 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
@@ -364,6 +375,7 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
@@ -396,6 +408,7 @@ export interface RootRouteChildren {
   PgpdQueueRoute: typeof PgpdQueueRoute
   RegIntakeRoute: typeof RegIntakeRoute
   ReportingRoute: typeof ReportingRoute
+  ScorecardRoute: typeof ScorecardRoute
   SeedStatusRoute: typeof SeedStatusRoute
   SimulateRoute: typeof SimulateRoute
   TemplatesRoute: typeof TemplatesRoute
@@ -519,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scorecard': {
+      id: '/scorecard'
+      path: '/scorecard'
+      fullPath: '/scorecard'
+      preLoaderRoute: typeof ScorecardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seed-status': {
       id: '/seed-status'
       path: '/seed-status'
@@ -636,6 +656,7 @@ const rootRouteChildren: RootRouteChildren = {
   PgpdQueueRoute: PgpdQueueRoute,
   RegIntakeRoute: RegIntakeRoute,
   ReportingRoute: ReportingRoute,
+  ScorecardRoute: ScorecardRoute,
   SeedStatusRoute: SeedStatusRoute,
   SimulateRoute: SimulateRoute,
   TemplatesRoute: TemplatesRoute,

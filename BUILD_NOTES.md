@@ -571,3 +571,17 @@ rule also triggers on a JOFOC, and files under the trigger never carried it.
 - "Export forecast entry to CSV" writes the forecast's column format and logs an audit entry.
 - When the entry exists, the NF 1707 forecast affirmation (`acquisition_forecast_verified`) is set true by a specialist or HQ viewing the file, with one audit entry.
 - Verified: A-2027-0101 shows the entry ($1 million to $5 million, NAICS 481219, award 2027-03-01); A-2027-0103 ($42,000) shows no entry.
+
+## E23. Public scorecard
+
+`/scorecard` is readable without signing in. `src/lib/scorecard.functions.ts`
+runs server-side and returns aggregates only: median days to award overall and
+by acquisition method, competition rate, small business set-aside share, holds
+grouped into generalised reasons, and files launched this quarter. It never
+returns an acquisition id, title, requester, vendor, or dollar amount, and hold
+reasons are bucketed rather than shown verbatim. Categories with fewer than
+three records are folded into "Other categories combined" so one file cannot be
+read out of a group; no dollar value is published at all, which satisfies the
+$1M floor. Days to award are measured from the recorded regulatory clock start
+to the award date. The page is labelled as fictional prototype data and carries
+the prototype footer.
