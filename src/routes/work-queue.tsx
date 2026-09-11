@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import {
@@ -67,11 +68,12 @@ function WorkQueuePage() {
     enabled: authState === "signed-in",
     refetchInterval: 5000,
     queryFn: async () => {
-      const [missions, acqs, plan, rules, thresholds, strategies, polls, log] = await Promise.all([
+      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
         supabase.from("review_rules").select("*"),
+        supabase.from("center_overrides").select("*"),
         supabase.from("thresholds").select("*"),
         supabase.from("enterprise_strategies").select("*"),
         supabase.from("polls").select("*"),
@@ -86,6 +88,7 @@ function WorkQueuePage() {
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
         plan: (plan.data ?? []) as PhasePlanRow[],
         rules: (rules.data ?? []) as ReviewRuleRow[],
+        overrides: overrides.data ?? [],
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
@@ -102,6 +105,7 @@ function WorkQueuePage() {
         citation: t.citation,
         note: t.note,
       })),
+      overrides: (q.data?.overrides ?? []) as unknown as CenterOverrideRow[],
       phasePlan: (q.data?.plan ?? []).map((p) => ({
         acquisition_type: p.acquisition_type,
         phase: p.phase,

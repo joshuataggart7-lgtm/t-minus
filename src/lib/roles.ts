@@ -65,6 +65,8 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
   { to: "/escalations", label: "Escalations", roles: "all" },
   { to: "/digest", label: "Leadership digest", roles: "all" },
   { to: "/deviations", label: "Deviations", roles: "all" },
+  { to: "/reporting", label: "Reporting views", roles: ["executive", "specialist", "hq"] },
+  { to: "/center-config", label: "Center configuration", roles: ["specialist", "hq"] },
   { to: "/pgpd-queue", label: "PGPD queue", roles: ["hq"] },
   { to: "/announcements", label: "Announcements", roles: "all" },
   { to: "/intake", label: "Intake", roles: ["specialist", "requester", "hq"] },

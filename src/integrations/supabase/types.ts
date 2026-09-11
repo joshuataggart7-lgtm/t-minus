@@ -219,10 +219,31 @@ export type Database = {
             referencedColumns: ["mission_id"]
           },
           {
+            foreignKeyName: "acquisition_facts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_missions"
+            referencedColumns: ["mission_id"]
+          },
+          {
             foreignKeyName: "acquisition_facts_successor_of_fkey"
             columns: ["successor_of"]
             isOneToOne: false
             referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_facts_successor_of_fkey"
+            columns: ["successor_of"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_facts_successor_of_fkey"
+            columns: ["successor_of"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
             referencedColumns: ["acquisition_id"]
           },
         ]
@@ -356,6 +377,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "branches_center_code_fkey"
+            columns: ["center_code"]
+            isOneToOne: false
+            referencedRelation: "centers"
+            referencedColumns: ["center_code"]
+          },
+        ]
+      }
+      center_overrides: {
+        Row: {
+          center_code: string
+          citation: string | null
+          created_at: string
+          effective_date: string
+          kind: string
+          note: string | null
+          override_id: string
+          set_by: string | null
+          superseded_date: string | null
+          target: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          center_code: string
+          citation?: string | null
+          created_at?: string
+          effective_date?: string
+          kind: string
+          note?: string | null
+          override_id?: string
+          set_by?: string | null
+          superseded_date?: string | null
+          target: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          center_code?: string
+          citation?: string | null
+          created_at?: string
+          effective_date?: string
+          kind?: string
+          note?: string | null
+          override_id?: string
+          set_by?: string | null
+          superseded_date?: string | null
+          target?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "center_overrides_center_code_fkey"
             columns: ["center_code"]
             isOneToOne: false
             referencedRelation: "centers"
@@ -593,6 +667,20 @@ export type Database = {
             referencedRelation: "acquisition_facts"
             referencedColumns: ["acquisition_id"]
           },
+          {
+            foreignKeyName: "deviation_requests_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "deviation_requests_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
         ]
       }
       deviation_votes: {
@@ -798,6 +886,20 @@ export type Database = {
             columns: ["acquisition_id"]
             isOneToOne: false
             referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "documents_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "documents_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
             referencedColumns: ["acquisition_id"]
           },
           {
@@ -1022,6 +1124,20 @@ export type Database = {
             referencedRelation: "acquisition_facts"
             referencedColumns: ["acquisition_id"]
           },
+          {
+            foreignKeyName: "polls_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "polls_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
         ]
       }
       regulatory_refs: {
@@ -1124,6 +1240,20 @@ export type Database = {
             columns: ["acquisition_id"]
             isOneToOne: false
             referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "sam_checks_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "sam_checks_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
             referencedColumns: ["acquisition_id"]
           },
         ]
@@ -1334,7 +1464,170 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_report_acquisitions: {
+        Row: {
+          acquisition_id: string | null
+          acquisition_type: string | null
+          audit_entries: number | null
+          branch_code: string | null
+          center_code: string | null
+          clock_state: string | null
+          co_name: string | null
+          competition: string | null
+          contract_number: string | null
+          contract_type: string | null
+          current_phase: string | null
+          days_to_award: number | null
+          days_to_need: number | null
+          estimated_value: number | null
+          forecast_delivery_date: string | null
+          hold_age_days: number | null
+          hold_owner: string | null
+          hold_reason: string | null
+          last_activity_at: string | null
+          lead_to_delivery_days: number | null
+          milestone_date: string | null
+          mission_id: string | null
+          mission_name: string | null
+          naics_code: string | null
+          need_date: string | null
+          next_poll_due: string | null
+          no_go_votes: number | null
+          on_hold: boolean | null
+          open_polls: number | null
+          period_of_performance_end: string | null
+          planned_days_to_award: number | null
+          pr_number: string | null
+          psc_code: string | null
+          regulatory_baseline_date: string | null
+          requester_name: string | null
+          schedule_impact_days: number | null
+          set_aside: string | null
+          source_tag: string | null
+          status: string | null
+          status_word: string | null
+          target_award_date: string | null
+          title: string | null
+          vendor_legal_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_facts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["mission_id"]
+          },
+          {
+            foreignKeyName: "acquisition_facts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_missions"
+            referencedColumns: ["mission_id"]
+          },
+        ]
+      }
+      v_report_audit_counts: {
+        Row: {
+          acquisition_id: string | null
+          actors: number | null
+          center_code: string | null
+          current_phase: string | null
+          entries: number | null
+          first_entry_at: string | null
+          last_entry_at: string | null
+        }
+        Relationships: []
+      }
+      v_report_holds: {
+        Row: {
+          acquisition_id: string | null
+          aging: boolean | null
+          aging_threshold_days: number | null
+          center_code: string | null
+          current_phase: string | null
+          hold_age_days: number | null
+          hold_owner: string | null
+          hold_reason: string | null
+          hold_started_at: string | null
+          mission_id: string | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_facts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["mission_id"]
+          },
+          {
+            foreignKeyName: "acquisition_facts_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_missions"
+            referencedColumns: ["mission_id"]
+          },
+        ]
+      }
+      v_report_missions: {
+        Row: {
+          acquisition_count: number | null
+          center_code: string | null
+          days_to_milestone: number | null
+          launched_count: number | null
+          milestone: string | null
+          milestone_date: string | null
+          mission_id: string | null
+          mission_name: string | null
+          on_hold_count: number | null
+          priority: number | null
+          program: string | null
+          program_owner: string | null
+        }
+        Relationships: []
+      }
+      v_report_polls: {
+        Row: {
+          acquisition_id: string | null
+          center_code: string | null
+          days_to_due: number | null
+          due_date: string | null
+          open_age_days: number | null
+          opened_at: string | null
+          phase: string | null
+          poll_id: string | null
+          reason: string | null
+          reviewer_name: string | null
+          reviewer_role: string | null
+          title: string | null
+          vote: string | null
+          voted_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "polls_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "polls_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

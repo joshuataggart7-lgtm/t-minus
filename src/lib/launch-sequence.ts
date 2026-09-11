@@ -5,6 +5,7 @@
 // beyond the phase citation labels.
 
 import { matchStrategy, type RefData } from "@/lib/intake";
+import { overrideValue } from "@/lib/center-config";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -266,19 +267,28 @@ function answeredYes(acq: AcqRow, needle: RegExp) {
 export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): boolean {
   const role = rule.reviewer_role.toLowerCase();
   const value = num(acq.estimated_value);
+  const center = (acq['center_code'] ?? null) as string | null;
+  // A Center configuration row, when one is in effect, replaces the value the
+  // rule would otherwise read from the thresholds table.
+  const ovThr = (name: string) => overrideValue(ref.overrides, center, "threshold", name);
   const thr = (name: string) =>
-    ref.thresholds.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase())?.value ?? null;
+    ovThr(name) ??
+    ref.thresholds.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase())?.value ??
+    null;
+  const trigger = overrideValue(ref.overrides, center, "review_trigger", rule.reviewer_role);
   const sat = thr("Simplified acquisition threshold") ?? 350_000;
   const micro = thr("Micro-purchase threshold") ?? 15_000;
   const certified = thr("Certified cost or pricing data (FAR text)") ?? 2_500_000;
   const jofoc = Boolean(String(acq.jofoc_authority_citation ?? "").trim());
 
-  if (role.startsWith("legal review")) return jofoc || value >= sat;
-  if (role.startsWith("pricing review")) return /cost/i.test(String(acq.contract_type ?? "")) || value >= certified;
-  if (role.startsWith("small business")) return value > micro;
-  if (role.startsWith("procurement strategy meeting")) return value > 10_000_000;
-  if (role.includes("notification of procurement action")) return value >= 7_000_000 && value < 30_000_000;
-  if (role.startsWith("anosca")) return value >= 30_000_000;
+  if (role.startsWith("legal review")) return jofoc || value >= (trigger ?? sat);
+  if (role.startsWith("pricing review"))
+    return /cost/i.test(String(acq.contract_type ?? "")) || value >= (trigger ?? certified);
+  if (role.startsWith("small business")) return value > (trigger ?? micro);
+  if (role.startsWith("procurement strategy meeting")) return value > (trigger ?? 10_000_000);
+  if (role.includes("notification of procurement action"))
+    return value >= (trigger ?? 7_000_000) && value < 30_000_000;
+  if (role.startsWith("anosca")) return value >= (trigger ?? 30_000_000);
   if (role.startsWith("cio authorization")) return Boolean(acq.includes_it);
   if (role.startsWith("public announcement")) return value >= 7_000_000 && /8\(a\)/i.test(String(acq.set_aside ?? ""));
   if (role.startsWith("enterprise strategy"))

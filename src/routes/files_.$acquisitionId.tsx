@@ -6,6 +6,7 @@ import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
+import type { CenterOverrideRow } from "@/lib/center-config";
 import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import { DIRECTIVE_CITATION, REVIEW_STATUSES, reviewStatus } from "@/lib/directives";
 import {
@@ -125,6 +126,7 @@ function FilePage() {
       const { data: centers } = await supabase
         .from("centers")
         .select("center_code,aging_threshold_days");
+      const { data: overrides } = await supabase.from("center_overrides").select("*");
       const { data: people } = await supabase
         .from("users")
         .select("name,role,warrant_limit");
@@ -151,6 +153,7 @@ function FilePage() {
       return {
         acq: acq.data as AcqRow | null,
         centers: centers ?? [],
+        overrides: overrides ?? [],
         people: people ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
@@ -198,6 +201,7 @@ function FilePage() {
 
   const ref: RefData = useMemo(
     () => ({
+      overrides: (q.data?.overrides ?? []) as unknown as CenterOverrideRow[],
       thresholds: (q.data?.thresholds ?? []).map((t) => ({
         name: t.name,
         value: t.value === null ? null : Number(t.value),

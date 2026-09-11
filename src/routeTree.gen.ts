@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
+import { Route as CenterConfigRouteImport } from './routes/center-config'
 import { Route as ChecksRouteImport } from './routes/checks'
 import { Route as DeviationsRouteImport } from './routes/deviations'
 import { Route as DigestRouteImport } from './routes/digest'
@@ -21,6 +22,7 @@ import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
+import { Route as ReportingRouteImport } from './routes/reporting'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
@@ -32,6 +34,7 @@ import { Route as SharedTokenRouteImport } from './routes/shared.$token'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
 import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
 import { Route as ApiPublicHooksExclusionsSweepRouteImport } from './routes/api/public/hooks/exclusions-sweep'
+import { Route as ApiPublicHooksReportingExtractRouteImport } from './routes/api/public/hooks/reporting-extract'
 import { Route as ApiPublicHooksWatchRefreshRouteImport } from './routes/api/public/hooks/watch-refresh'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +50,11 @@ const AnnouncementsRoute = AnnouncementsRouteImport.update({
 const AuditLogRoute = AuditLogRouteImport.update({
   id: '/audit-log',
   path: '/audit-log',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CenterConfigRoute = CenterConfigRouteImport.update({
+  id: '/center-config',
+  path: '/center-config',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChecksRoute = ChecksRouteImport.update({
@@ -92,6 +100,11 @@ const IntakeRoute = IntakeRouteImport.update({
 const PgpdQueueRoute = PgpdQueueRouteImport.update({
   id: '/pgpd-queue',
   path: '/pgpd-queue',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportingRoute = ReportingRouteImport.update({
+  id: '/reporting',
+  path: '/reporting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SeedStatusRoute = SeedStatusRouteImport.update({
@@ -152,6 +165,12 @@ const ApiPublicHooksExclusionsSweepRoute =
     path: '/api/public/hooks/exclusions-sweep',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksReportingExtractRoute =
+  ApiPublicHooksReportingExtractRouteImport.update({
+    id: '/api/public/hooks/reporting-extract',
+    path: '/api/public/hooks/reporting-extract',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksWatchRefreshRoute =
   ApiPublicHooksWatchRefreshRouteImport.update({
     id: '/api/public/hooks/watch-refresh',
@@ -163,6 +182,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
+  '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
@@ -172,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/pgpd-queue': typeof PgpdQueueRoute
+  '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -183,12 +204,14 @@ export interface FileRoutesByFullPath {
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
+  '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
+  '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
@@ -198,6 +221,7 @@ export interface FileRoutesByTo {
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/pgpd-queue': typeof PgpdQueueRoute
+  '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -209,6 +233,7 @@ export interface FileRoutesByTo {
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
+  '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesById {
@@ -216,6 +241,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
+  '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
   '/deviations': typeof DeviationsRoute
   '/digest': typeof DigestRoute
@@ -225,6 +251,7 @@ export interface FileRoutesById {
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/pgpd-queue': typeof PgpdQueueRoute
+  '/reporting': typeof ReportingRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -236,6 +263,7 @@ export interface FileRoutesById {
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
+  '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRouteTypes {
@@ -244,6 +272,7 @@ export interface FileRouteTypes {
     | '/'
     | '/announcements'
     | '/audit-log'
+    | '/center-config'
     | '/checks'
     | '/deviations'
     | '/digest'
@@ -253,6 +282,7 @@ export interface FileRouteTypes {
     | '/files'
     | '/intake'
     | '/pgpd-queue'
+    | '/reporting'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -264,12 +294,14 @@ export interface FileRouteTypes {
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
+    | '/api/public/hooks/reporting-extract'
     | '/api/public/hooks/watch-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/announcements'
     | '/audit-log'
+    | '/center-config'
     | '/checks'
     | '/deviations'
     | '/digest'
@@ -279,6 +311,7 @@ export interface FileRouteTypes {
     | '/files'
     | '/intake'
     | '/pgpd-queue'
+    | '/reporting'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -290,12 +323,14 @@ export interface FileRouteTypes {
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey'
     | '/api/public/hooks/exclusions-sweep'
+    | '/api/public/hooks/reporting-extract'
     | '/api/public/hooks/watch-refresh'
   id:
     | '__root__'
     | '/'
     | '/announcements'
     | '/audit-log'
+    | '/center-config'
     | '/checks'
     | '/deviations'
     | '/digest'
@@ -305,6 +340,7 @@ export interface FileRouteTypes {
     | '/files'
     | '/intake'
     | '/pgpd-queue'
+    | '/reporting'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -316,6 +352,7 @@ export interface FileRouteTypes {
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
+    | '/api/public/hooks/reporting-extract'
     | '/api/public/hooks/watch-refresh'
   fileRoutesById: FileRoutesById
 }
@@ -323,6 +360,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
   AuditLogRoute: typeof AuditLogRoute
+  CenterConfigRoute: typeof CenterConfigRoute
   ChecksRoute: typeof ChecksRoute
   DeviationsRoute: typeof DeviationsRoute
   DigestRoute: typeof DigestRoute
@@ -332,6 +370,7 @@ export interface RootRouteChildren {
   FilesRoute: typeof FilesRoute
   IntakeRoute: typeof IntakeRoute
   PgpdQueueRoute: typeof PgpdQueueRoute
+  ReportingRoute: typeof ReportingRoute
   SeedStatusRoute: typeof SeedStatusRoute
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
@@ -343,6 +382,7 @@ export interface RootRouteChildren {
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
   DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
   ApiPublicHooksExclusionsSweepRoute: typeof ApiPublicHooksExclusionsSweepRoute
+  ApiPublicHooksReportingExtractRoute: typeof ApiPublicHooksReportingExtractRoute
   ApiPublicHooksWatchRefreshRoute: typeof ApiPublicHooksWatchRefreshRoute
 }
 
@@ -367,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/audit-log'
       fullPath: '/audit-log'
       preLoaderRoute: typeof AuditLogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/center-config': {
+      id: '/center-config'
+      path: '/center-config'
+      fullPath: '/center-config'
+      preLoaderRoute: typeof CenterConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checks': {
@@ -430,6 +477,13 @@ declare module '@tanstack/react-router' {
       path: '/pgpd-queue'
       fullPath: '/pgpd-queue'
       preLoaderRoute: typeof PgpdQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reporting': {
+      id: '/reporting'
+      path: '/reporting'
+      fullPath: '/reporting'
+      preLoaderRoute: typeof ReportingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seed-status': {
@@ -509,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksExclusionsSweepRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/reporting-extract': {
+      id: '/api/public/hooks/reporting-extract'
+      path: '/api/public/hooks/reporting-extract'
+      fullPath: '/api/public/hooks/reporting-extract'
+      preLoaderRoute: typeof ApiPublicHooksReportingExtractRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/watch-refresh': {
       id: '/api/public/hooks/watch-refresh'
       path: '/api/public/hooks/watch-refresh'
@@ -523,6 +584,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnnouncementsRoute: AnnouncementsRoute,
   AuditLogRoute: AuditLogRoute,
+  CenterConfigRoute: CenterConfigRoute,
   ChecksRoute: ChecksRoute,
   DeviationsRoute: DeviationsRoute,
   DigestRoute: DigestRoute,
@@ -532,6 +594,7 @@ const rootRouteChildren: RootRouteChildren = {
   FilesRoute: FilesRoute,
   IntakeRoute: IntakeRoute,
   PgpdQueueRoute: PgpdQueueRoute,
+  ReportingRoute: ReportingRoute,
   SeedStatusRoute: SeedStatusRoute,
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,
@@ -544,6 +607,7 @@ const rootRouteChildren: RootRouteChildren = {
     DocumentsTemplateKeyAcquisitionIdRoute,
   DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,
   ApiPublicHooksExclusionsSweepRoute: ApiPublicHooksExclusionsSweepRoute,
+  ApiPublicHooksReportingExtractRoute: ApiPublicHooksReportingExtractRoute,
   ApiPublicHooksWatchRefreshRoute: ApiPublicHooksWatchRefreshRoute,
 }
 export const routeTree = rootRouteImport

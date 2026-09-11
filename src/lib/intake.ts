@@ -161,6 +161,8 @@ export type RedFlag = {
 };
 
 export type RefData = {
+  /** Per-Center threshold and review-trigger overrides in effect. */
+  overrides?: import("@/lib/center-config").CenterOverrideRow[];
   thresholds: { name: string | null; value: number | null; citation: string | null; note: string | null }[];
   phasePlan: { acquisition_type: string | null; phase: string | null; planned_days: number | null }[];
   strategies: {
