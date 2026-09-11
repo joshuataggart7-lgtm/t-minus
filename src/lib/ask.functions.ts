@@ -44,9 +44,11 @@ function tierLabel(tier: string | null | undefined) {
   return t ? t : "tier not recorded";
 }
 
-function money(value: number | null) {
+/** Thresholds hold both dollar figures and day counts; label each correctly. */
+function amount(name: string, value: number | null) {
   if (value === null || value === undefined) return "";
-  return `$${Number(value).toLocaleString("en-US")}`;
+  const n = Number(value).toLocaleString("en-US");
+  return /\bdays?\b|\bmonths?\b|\byears?\b/i.test(name) ? n : `$${n}`;
 }
 
 export const askTMinus = createServerFn({ method: "POST" })
@@ -96,7 +98,7 @@ export const askTMinus = createServerFn({ method: "POST" })
       if (t.superseded_date) continue;
       const s: AskSource = {
         citation: t.citation ?? t.name,
-        title: `${t.name}${t.value !== null ? ` — ${money(t.value)}` : ""}`,
+        title: `${t.name}${t.value !== null ? ` — ${amount(t.name, t.value)}` : ""}`,
         tier: tierLabel(t.tier),
         source: "thresholds",
         effectiveDate: t.effective_date ?? "",
