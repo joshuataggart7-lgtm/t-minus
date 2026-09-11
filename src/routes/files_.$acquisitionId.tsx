@@ -404,6 +404,47 @@ function FilePage() {
 
   const value = acq?.estimated_value ? Number(acq.estimated_value) : null;
 
+  // Protest window: the award date is the day the file was marked Launched,
+  // and the target award date when no such entry exists.
+  const launchedEntry = (q.data?.log ?? []).find((l) => l.action === "Launched");
+  const awardDate = launchedEntry?.logged_at
+    ? String(launchedEntry.logged_at).slice(0, 10)
+    : (acq?.target_award_date ?? null);
+  const debriefingDate = (acq?.['debriefing_date'] as string | null | undefined) ?? null;
+  const protestDeadlines = useMemo(
+    () =>
+      acq?.clock_state === "launched"
+        ? protestWindow(awardDate, debriefingDate, q.data?.thresholds ?? [], todayISO())
+        : [],
+    [acq?.clock_state, awardDate, debriefingDate, q.data?.thresholds],
+  );
+
+  const setDebriefing = useMutation({
+    mutationFn: async (next: string) => {
+      if (!acq) return;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ debriefing_date: next || null, updated_at: new Date().toISOString() })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Debriefing date recorded",
+        field: "debriefing_date",
+        old_value: debriefingDate ?? "",
+        new_value: next || "",
+        reason: "Protest window recomputed",
+        phase: "Award",
+      });
+    },
+    onSuccess: () => {
+      setBanner("The debriefing date is recorded and the protest deadlines are recomputed.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
+  });
+
   return (
     <AppShell>
       <PageHeader
