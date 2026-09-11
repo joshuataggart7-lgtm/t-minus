@@ -209,8 +209,8 @@ async function main() {
     })),
   );
 
-  // Deduplicate clauses by clause_number (CSV has 253 duplicate entries with
-  // different dates/sources; keep the first occurrence for the prototype).
+  // All clause rows load exactly as written; clause_number repeats across
+  // prescription variants and is a non-unique indexed column.
   const clauseRows = parseCsv(read("clauses.csv")).map((r) => ({
     clause_number: r["clause_number"],
     title: nul(r["title"]),
@@ -227,13 +227,7 @@ async function main() {
     rfo_number_or_pcd: nul(r["rfo_number_or_pcd"]),
     post_rfo_date: nul(r["post_rfo_date"]),
   }));
-  const seenClauses = new Set<string>();
-  const dedupClauses = clauseRows.filter((r) => {
-    if (seenClauses.has(r.clause_number)) return false;
-    seenClauses.add(r.clause_number);
-    return true;
-  });
-  await load("clauses", dedupClauses, "clause_number");
+  await load("clauses", clauseRows);
 
   await load(
     "clause_matrix_2603b",

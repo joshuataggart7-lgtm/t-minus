@@ -176,7 +176,8 @@ create table if not exists public.templates (
 );
 
 create table if not exists public.clauses (
-  clause_number text primary key,
+  row_id uuid primary key default gen_random_uuid(),
+  clause_number text,
   title text,
   ucf_section text,
   source text,
@@ -192,6 +193,7 @@ create table if not exists public.clauses (
   rfo_number_or_pcd text,
   post_rfo_date text
 );
+create index if not exists clauses_clause_number_idx on public.clauses (clause_number);
 
 create table if not exists public.clause_matrix_2603b (
   row_id uuid primary key default gen_random_uuid(),
