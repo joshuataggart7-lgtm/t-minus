@@ -179,6 +179,26 @@ function ExecutiveOverview() {
     [missionRows],
   );
 
+  const summary = useMemo(() => {
+    const today = todayISO();
+    const qStart = quarterStart(today);
+    const count = (s: AcqMetrics["status"]) => metrics.filter((m) => m.status === s).length;
+    const launchedThisQuarter = metrics.filter(
+      (m) =>
+        m.clockState === "launched" &&
+        m.acq.target_award_date &&
+        String(m.acq.target_award_date) >= qStart &&
+        String(m.acq.target_award_date) <= today,
+    ).length;
+    return [
+      { label: "At Risk", count: count("At Risk"), color: "var(--atrisk)" },
+      { label: "Needs Attention", count: count("Needs Attention"), color: "var(--attention)" },
+      { label: "On Track", count: count("On Track"), color: "var(--ontrack)" },
+      { label: "Launched this quarter", count: launchedThisQuarter, color: "var(--panel-muted)" },
+    ];
+  }, [metrics]);
+
+
   return (
     <AppShell wide>
       <PageHeader title="Executive Overview" lead="T-Minus turns acquisition time into mission readiness." />
