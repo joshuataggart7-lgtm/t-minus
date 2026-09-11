@@ -148,15 +148,68 @@ function FilePage() {
     [acq, q.data],
   );
 
-  const board = useMemo(
-    () =>
-      acq
-        ? pollBoard(acq, q.data?.rules ?? [], q.data?.polls ?? [], ref, acq.target_award_date ?? null)
-        : [],
-    [acq, q.data, ref],
-  );
+  const boards = useMemo(() => {
+    const out: Record<string, BoardEntry[]> = {};
+    if (!acq) return out;
+    for (const phase of REVIEW_PHASES) {
+      out[phase] = pollBoard(
+        acq,
+        q.data?.rules ?? [],
+        q.data?.polls ?? [],
+        ref,
+        acq.target_award_date ?? null,
+        phase,
+      );
+    }
+    return out;
+  }, [acq, q.data, ref]);
+
+  const board = useMemo(() => Object.values(boards).flat(), [boards]);
 
   const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
+  const effectiveState =
+    acq?.clock_state === "launched" ? "launched" : hold ? "hold" : (acq?.clock_state ?? null);
+
+  // Open the poll for a review phase: one row per applicable review rule, with
+  // the due date taken from the rule's planned days.
+  const openPoll = useMutation({
+    mutationFn: async (phase: string) => {
+      if (!acq) return;
+      const rules = reviewRulesForPhase(phase, acq, q.data?.rules ?? [], ref);
+      const existing = new Set(
+        (q.data?.polls ?? [])
+          .filter((p) => (p.phase ?? "") === phase)
+          .map((p) => (p.reviewer_role ?? "").toLowerCase()),
+      );
+      const rows = rules
+        .filter((r) => !existing.has(r.reviewer_role.toLowerCase()))
+        .map((r) => ({
+          acquisition_id: acq.acquisition_id,
+          phase,
+          reviewer_role: r.reviewer_role,
+          reviewer_name: REVIEWER_NAME,
+          vote: "pending",
+          due_date: addDays(todayISO(), r.planned_days ?? 5),
+        }));
+      if (!rows.length) return;
+      const { error } = await supabase.from("polls").insert(rows);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Poll opened",
+        field: "polls",
+        new_value: `${rows.length} reviewer${rows.length === 1 ? "" : "s"}`,
+        reason: `${phase} requires review`,
+        phase,
+      });
+    },
+    onSuccess: () => {
+      setBanner("The poll is open. Reviewers can vote on the documents for that phase.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
+  });
 
   const days = acq?.target_award_date ? daysBetween(todayISO(), acq.target_award_date) : null;
 
