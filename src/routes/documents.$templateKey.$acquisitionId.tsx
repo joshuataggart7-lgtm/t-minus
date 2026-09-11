@@ -5,7 +5,14 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
-import { daysBetween, formatMoney, todayISO } from "@/lib/intake";
+import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import {
+  phaseForTemplate,
+  pollBoard,
+  type AcqRow,
+  type PollRow,
+  type ReviewRuleRow,
+} from "@/lib/launch-sequence";
 import {
   exportDocx,
   exportPdf,
@@ -70,40 +77,177 @@ function DocumentPage() {
   const [values, setValues] = useState<Values>({});
   const [touched, setTouched] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [voteReason, setVoteReason] = useState("");
+
+  const phase = phaseForTemplate(templateKey);
 
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
     enabled: authState === "signed-in" && !!def,
+    // Votes and comments from other reviewers appear without a reload.
+    refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, thr, tpl] = await Promise.all([
+      const [acq, thr, tpl, polls, rules] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
+        supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
+        supabase.from("review_rules").select("*"),
       ]);
       if (acq.error) throw new Error(acq.error.message);
       const templateId = tpl.data?.template_id ?? null;
       const versions = templateId
         ? await supabase
             .from("documents")
-            .select("document_id,version,saved_by,saved_at,field_values")
+            .select(
+              "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at",
+            )
             .eq("acquisition_id", acquisitionId)
             .eq("template_id", templateId)
             .order("version", { ascending: false })
         : { data: [], error: null };
+      const latestId = versions.data?.[0]?.document_id ?? null;
+      const comments = latestId
+        ? await supabase
+            .from("comments")
+            .select("*")
+            .eq("document_id", latestId)
+            .order("created_at", { ascending: true })
+        : { data: [] };
       return {
         acq: acq.data as Record<string, unknown> | null,
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
         hqRevision: tpl.data?.hq_revision_date ?? null,
+        polls: (polls.data ?? []) as PollRow[],
+        rules: (rules.data ?? []) as ReviewRuleRow[],
+        comments: (comments.data ?? []) as {
+          comment_id: string;
+          author: string | null;
+          body: string | null;
+          created_at: string;
+        }[],
         versions: (versions.data ?? []) as {
           document_id: string;
           version: number;
           saved_by: string | null;
           saved_at: string | null;
           field_values: unknown;
+          ai_model: string | null;
+          ai_generated_at: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
         }[],
       };
     },
+  });
+
+  const latest = q.data?.versions[0] ?? null;
+
+  const board = useMemo(() => {
+    if (!q.data?.acq) return [];
+    const ref: RefData = {
+      thresholds: (q.data.thresholds ?? []).map((t) => ({
+        name: t.name,
+        value: t.value === null ? null : Number(t.value),
+        citation: t.citation,
+        note: t.note,
+      })),
+      phasePlan: [],
+      strategies: [],
+    };
+    return pollBoard(
+      q.data.acq as AcqRow,
+      q.data.rules ?? [],
+      q.data.polls ?? [],
+      ref,
+      null,
+      phase,
+    );
+  }, [q.data, phase]);
+
+  const mySeat = board.find((b) => b.reviewer_name === user.name) ?? null;
+
+  const vote = useMutation({
+    mutationFn: async ({ choice, reason }: { choice: "go" | "no-go"; reason: string | null }) => {
+      if (!mySeat?.poll_id) throw new Error("The poll for this phase is not open yet.");
+      const { error } = await supabase
+        .from("polls")
+        .update({ vote: choice, reason, voted_at: new Date().toISOString() })
+        .eq("poll_id", mySeat.poll_id);
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: choice === "go" ? "Go recorded" : "No-go recorded",
+        field: mySeat.reviewer_role,
+        old_value: mySeat.vote,
+        new_value: choice,
+        reason: reason ?? `${def?.name ?? "document"} reviewed`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async (_d, v) => {
+      setMessage(v.choice === "go" ? "Go recorded. The file resumes if nothing else blocks it." : "No-go recorded. The file is on hold.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`The vote did not save: ${e.message}`),
+  });
+
+  const addComment = useMutation({
+    mutationFn: async (body: string) => {
+      if (!latest) throw new Error("Save a version first, then start the thread.");
+      const { error } = await supabase
+        .from("comments")
+        .insert({ document_id: latest.document_id, author: user.name, body });
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: "Comment added",
+        field: def?.name ?? "document",
+        new_value: body.slice(0, 200),
+        reason: `Comment on version ${latest.version}`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async () => {
+      setComment("");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`The comment did not save: ${e.message}`),
+  });
+
+  const markReviewed = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      const reviewedAt = new Date().toISOString();
+      const { error } = await supabase
+        .from("documents")
+        .update({ reviewed_by: user.name, reviewed_at: reviewedAt })
+        .eq("document_id", latest.document_id);
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: "Document reviewed",
+        field: def?.name ?? "document",
+        old_value: latest.reviewed_by,
+        new_value: user.name,
+        reason: `Version ${latest.version} reviewed`,
+        phase,
+      });
+      if (logError) throw new Error(logError.message);
+    },
+    onSuccess: async () => {
+      setMessage("Marked reviewed. The provenance block shows your name and the time.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
   // Pre-fill from the record, or from the latest saved version.
@@ -151,6 +295,10 @@ function DocumentPage() {
         version: nextVersion,
         saved_by: user.name,
         saved_at: savedAt,
+        // Fields are drawn from the record by the template engine, so the
+        // provenance names the engine, and review is recorded separately.
+        ai_model: "T-Minus template engine (record pre-fill, no model)",
+        ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
       const { error: logError } = await supabase.from("audit_log").insert({
@@ -161,6 +309,7 @@ function DocumentPage() {
         old_value: q.data.versions[0] ? `version ${q.data.versions[0].version}` : null,
         new_value: `version ${nextVersion}`,
         reason: `${def.name} saved from the template engine`,
+        phase,
       });
       if (logError) throw new Error(logError.message);
       return nextVersion;
@@ -193,7 +342,12 @@ function DocumentPage() {
 
   return (
     <AppShell>
-      <PageHeader title={def.name} lead={`${acquisitionId} · ${def.lead}`} />
+      <PageHeader
+        title={def.name}
+        lead={`${acquisitionId} · ${def.lead}${
+          latest && !latest.reviewed_by ? " · AI draft, not yet reviewed" : ""
+        }`}
+      />
 
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
@@ -378,6 +532,166 @@ function DocumentPage() {
           </p>
         ) : null}
       </form>
+
+      <section aria-label="Provenance" className="mb-10 max-w-[80ch] border border-border bg-background p-4">
+        <h2 className="mb-2 text-[18px] leading-6 font-medium">Provenance</h2>
+        {latest ? (
+          <>
+            <p className="text-[15px] leading-[22px]">
+              {latest.reviewed_by ? "Reviewed" : "AI draft, not yet reviewed"}
+            </p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Model: {latest.ai_model ?? "—"} · Generated:{" "}
+              {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "—"}
+            </p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Reviewed by: {latest.reviewed_by ?? "—"} · Reviewed at:{" "}
+              {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "—"}
+            </p>
+            {canWrite ? (
+              <button
+                type="button"
+                className="mt-3 rounded-lg border border-border px-3 py-2 text-[15px]"
+                onClick={() => markReviewed.mutate()}
+                disabled={markReviewed.isPending}
+              >
+                Mark reviewed
+              </button>
+            ) : null}
+          </>
+        ) : (
+          <p className="text-muted-foreground">Save a version to record its provenance.</p>
+        )}
+      </section>
+
+      <section aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
+        <h2 className="mb-3 text-[18px] leading-6 font-medium">Go/No-go for {phase}</h2>
+        {board.length ? (
+          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="px-3 py-2 font-medium">Reviewer</th>
+                <th className="px-3 py-2 font-medium">Name</th>
+                <th className="px-3 py-2 font-medium">Vote</th>
+                <th className="px-3 py-2 font-medium">Due</th>
+              </tr>
+            </thead>
+            <tbody>
+              {board.map((b) => (
+                <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border last:border-0 align-top">
+                  <td className="px-3 py-2">{b.reviewer_role}</td>
+                  <td className="px-3 py-2">{b.reviewer_name}</td>
+                  <td
+                    className="px-3 py-2"
+                    style={{
+                      color:
+                        b.vote === "go"
+                          ? "var(--ontrack)"
+                          : b.vote === "no-go"
+                            ? "var(--atrisk)"
+                            : "var(--attention)",
+                    }}
+                  >
+                    {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
+                    {b.reason ? ` — ${b.reason}` : ""}
+                  </td>
+                  <td className="px-3 py-2" data-numeric>
+                    {b.due_date ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-muted-foreground">No review is triggered for this phase.</p>
+        )}
+
+        {role === "reviewer" ? (
+          mySeat?.poll_id ? (
+            <div className="mt-4">
+              <label htmlFor="vote-reason" className="block text-[13px] text-muted-foreground">
+                Reason (required for No-go)
+              </label>
+              <textarea
+                id="vote-reason"
+                rows={3}
+                className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                value={voteReason}
+                onChange={(e) => setVoteReason(e.target.value)}
+              />
+              <div className="mt-3 flex gap-3">
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-[15px] text-white"
+                  style={{ background: "var(--ontrack)" }}
+                  disabled={vote.isPending}
+                  onClick={() => vote.mutate({ choice: "go", reason: voteReason.trim() || null })}
+                >
+                  Go
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg px-3 py-2 text-[15px] text-white"
+                  style={{ background: "var(--atrisk)" }}
+                  disabled={vote.isPending}
+                  onClick={() => {
+                    if (!voteReason.trim()) {
+                      setMessage("A No-go needs a reason. Write one, then vote again.");
+                      return;
+                    }
+                    vote.mutate({ choice: "no-go", reason: voteReason.trim() });
+                  }}
+                >
+                  No-go
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              The poll for this phase is not open yet. A contracting specialist opens it on the acquisition file.
+            </p>
+          )
+        ) : null}
+      </section>
+
+      <section aria-label="Comments" className="mb-10 max-w-[80ch]">
+        <h2 className="mb-3 text-[18px] leading-6 font-medium">Comments</h2>
+        {q.data?.comments.length ? (
+          <ul className="mb-4 border border-border bg-background">
+            {q.data.comments.map((c) => (
+              <li key={c.comment_id} className="border-b border-border p-3 last:border-0">
+                <p className="text-[13px] text-muted-foreground">
+                  {c.author ?? "—"} · {new Date(c.created_at).toLocaleString()}
+                </p>
+                <p className="text-[15px] leading-[22px]">{c.body}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mb-4 text-muted-foreground">No comments yet. Start the thread below.</p>
+        )}
+        <label htmlFor="new-comment" className="block text-[13px] text-muted-foreground">
+          Add a comment
+        </label>
+        <textarea
+          id="new-comment"
+          rows={3}
+          className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <button
+          type="button"
+          className="mt-3 rounded-lg border border-border px-3 py-2 text-[15px]"
+          disabled={addComment.isPending || !comment.trim() || !latest}
+          onClick={() => addComment.mutate(comment.trim())}
+        >
+          Add comment
+        </button>
+        {!latest ? (
+          <p className="mt-2 text-[13px] text-muted-foreground">Save a version first, then comment on it.</p>
+        ) : null}
+      </section>
 
       <section className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>

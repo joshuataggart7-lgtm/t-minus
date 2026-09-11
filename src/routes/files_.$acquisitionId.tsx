@@ -3,8 +3,9 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
-import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import {
   acquisitionType,
   buildPacket,
@@ -14,7 +15,10 @@ import {
   NCMS_CHECKLIST,
   PACKET_CLAUSE_NUMBERS,
   pollBoard,
+  REVIEW_PHASES,
+  reviewRulesForPhase,
   type AcqRow,
+  type BoardEntry,
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
@@ -51,6 +55,10 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
 
 type Mode = "novice" | "veteran";
 
+/** The prototype has one seeded reviewer account; every review seat is
+ *  assigned to it so the demo path can vote. */
+const REVIEWER_NAME = userForRole("reviewer").name;
+
 function statusColor(state: string | null | undefined) {
   if (state === "hold") return "var(--atrisk)";
   if (state === "launched") return "var(--ontrack)";
@@ -69,6 +77,8 @@ function FilePage() {
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
     enabled: authState === "signed-in",
+    // The poll board updates live as reviewers vote.
+    refetchInterval: 5000,
     queryFn: async () => {
       const [acq, log, plan, rules, thresholds, strategies, polls, clauses] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
@@ -143,15 +153,68 @@ function FilePage() {
     [acq, q.data],
   );
 
-  const board = useMemo(
-    () =>
-      acq
-        ? pollBoard(acq, q.data?.rules ?? [], q.data?.polls ?? [], ref, acq.target_award_date ?? null)
-        : [],
-    [acq, q.data, ref],
-  );
+  const boards = useMemo(() => {
+    const out: Record<string, BoardEntry[]> = {};
+    if (!acq) return out;
+    for (const phase of REVIEW_PHASES) {
+      out[phase] = pollBoard(
+        acq,
+        q.data?.rules ?? [],
+        q.data?.polls ?? [],
+        ref,
+        acq.target_award_date ?? null,
+        phase,
+      );
+    }
+    return out;
+  }, [acq, q.data, ref]);
+
+  const board = useMemo(() => Object.values(boards).flat(), [boards]);
 
   const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
+  const effectiveState =
+    acq?.clock_state === "launched" ? "launched" : hold ? "hold" : (acq?.clock_state ?? null);
+
+  // Open the poll for a review phase: one row per applicable review rule, with
+  // the due date taken from the rule's planned days.
+  const openPoll = useMutation({
+    mutationFn: async (phase: string) => {
+      if (!acq) return;
+      const rules = reviewRulesForPhase(phase, acq, q.data?.rules ?? [], ref);
+      const existing = new Set(
+        (q.data?.polls ?? [])
+          .filter((p) => (p.phase ?? "") === phase)
+          .map((p) => (p.reviewer_role ?? "").toLowerCase()),
+      );
+      const rows = rules
+        .filter((r) => !existing.has(r.reviewer_role.toLowerCase()))
+        .map((r) => ({
+          acquisition_id: acq.acquisition_id,
+          phase,
+          reviewer_role: r.reviewer_role,
+          reviewer_name: REVIEWER_NAME,
+          vote: "pending",
+          due_date: addDays(todayISO(), r.planned_days ?? 5),
+        }));
+      if (!rows.length) return;
+      const { error } = await supabase.from("polls").insert(rows);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Poll opened",
+        field: "polls",
+        new_value: `${rows.length} reviewer${rows.length === 1 ? "" : "s"}`,
+        reason: `${phase} requires review`,
+        phase,
+      });
+    },
+    onSuccess: () => {
+      setBanner("The poll is open. Reviewers can vote on the documents for that phase.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
+  });
 
   const days = acq?.target_award_date ? daysBetween(todayISO(), acq.target_award_date) : null;
 
@@ -302,20 +365,20 @@ function FilePage() {
           </div>
           <div>
             <p className="text-[18px] leading-6 font-medium">
-              {acq?.clock_state === "running"
+              {effectiveState === "running"
                 ? "Clock running"
-                : acq?.clock_state === "hold"
+                : effectiveState === "hold"
                   ? "On hold"
-                  : acq?.clock_state === "launched"
+                  : effectiveState === "launched"
                     ? "Launched"
-                    : (acq?.clock_state ?? "—")}
+                    : (effectiveState ?? "—")}
             </p>
             <p className="mt-1 text-[13px] text-panel-muted">Clock state</p>
           </div>
           <div>
-            <p className="text-[18px] leading-6 font-medium">{acq?.hold_reason ?? hold?.reason ?? "No hold"}</p>
+            <p className="text-[18px] leading-6 font-medium">{hold?.reason ?? acq?.hold_reason ?? "No hold"}</p>
             <p className="mt-1 text-[13px] text-panel-muted">
-              {acq?.hold_owner ?? hold?.owner ?? "Nothing is blocking this file"}
+              {hold?.owner ?? acq?.hold_owner ?? "Nothing is blocking this file"}
             </p>
           </div>
         </div>
@@ -491,11 +554,11 @@ function FilePage() {
                 </div>
               )}
 
-              {p.needsPoll ? (
+              {(REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div className="mt-3 max-w-[80ch] border border-border">
                   <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
-                      Go/No-go poll. Reviewers vote; approval stays with the contracting officer.
+                      Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
                     </caption>
                     <thead>
                       <tr className="border-y border-border text-left">
@@ -507,9 +570,9 @@ function FilePage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {board.length ? (
-                        board.map((b) => (
-                          <tr key={b.reviewer_role} className="border-b border-border align-top">
+                      {(boards[p.phase] ?? []).length ? (
+                        (boards[p.phase] ?? []).map((b) => (
+                          <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border align-top">
                             <td className="p-2">{b.reviewer_role}</td>
                             <td className="p-2">{b.reviewer_name}</td>
                             <td
@@ -525,6 +588,7 @@ function FilePage() {
                             >
                               {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
                               {b.reason ? ` — ${b.reason}` : ""}
+                              {b.poll_id ? "" : " (poll not opened)"}
                             </td>
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
@@ -535,12 +599,23 @@ function FilePage() {
                       ) : (
                         <tr>
                           <td className="p-2 text-muted-foreground" colSpan={5}>
-                            No review is triggered for this acquisition.
+                            No review is triggered for this acquisition at this phase.
                           </td>
                         </tr>
                       )}
                     </tbody>
                   </table>
+                  {canWrite && (boards[p.phase] ?? []).some((b) => !b.poll_id) ? (
+                    <div className="border-t border-border p-2">
+                      <button
+                        type="button"
+                        onClick={() => openPoll.mutate(p.phase)}
+                        className="text-[13px] text-primary"
+                      >
+                        Open the poll for {p.phase}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </li>
