@@ -6,6 +6,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { resetDemo } from "@/lib/reset-demo.functions";
+import { agencyBackfill, type BackfillResult } from "@/lib/agency-backfill.functions";
 
 const TABLES = [
   "users",
@@ -67,6 +68,12 @@ function SeedStatus() {
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const runReset = useServerFn(resetDemo);
+  const runBackfill = useServerFn(agencyBackfill);
+  const [agencyCode, setAgencyCode] = useState("080");
+  const [from, setFrom] = useState("2026-06-01");
+  const [to, setTo] = useState("2026-06-30");
+  const [backfill, setBackfill] = useState<BackfillResult | null>(null);
+  const [backfillError, setBackfillError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["seed-status"],
@@ -101,6 +108,21 @@ function SeedStatus() {
         e instanceof Error
           ? `The reset did not finish: ${e.message} Try again, or reload the page.`
           : "The reset did not finish. Try again, or reload the page.",
+      );
+    },
+  });
+
+  const backfillRun = useMutation({
+    mutationFn: async () => await runBackfill({ data: { agencyCode, from, to, limit: 25 } }),
+    onSuccess: async (result) => {
+      setBackfill(result);
+      await queryClient.invalidateQueries();
+    },
+    onError: (e: unknown) => {
+      setBackfillError(
+        e instanceof Error
+          ? `The backfill did not finish: ${e.message} Check the dates and try again.`
+          : "The backfill did not finish. Check the dates and try again.",
       );
     },
   });
@@ -160,6 +182,56 @@ function SeedStatus() {
             <p role="status" className="mt-3 text-[15px]">
               {message}
             </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      {authState === "signed-in" && role === "hq" ? (
+        <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+          <h2 className="text-[18px] leading-6 font-medium">Agency backfill</h2>
+          <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
+            Pulls NASA awards from SAM.gov contract awards for one agency code and date range and adds
+            them as post-award records in Administration, reading Launched and tagged backfilled. A
+            contract number already on file is skipped. The demo reset leaves these records alone.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-4">
+            <div>
+              <label htmlFor="backfill-agency" className="block text-[13px] text-muted-foreground">Agency code</label>
+              <input id="backfill-agency" value={agencyCode} onChange={(e) => setAgencyCode(e.target.value)}
+                className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]" />
+            </div>
+            <div>
+              <label htmlFor="backfill-from" className="block text-[13px] text-muted-foreground">Awarded from</label>
+              <input id="backfill-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)}
+                className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]" />
+            </div>
+            <div>
+              <label htmlFor="backfill-to" className="block text-[13px] text-muted-foreground">Awarded to</label>
+              <input id="backfill-to" type="date" value={to} onChange={(e) => setTo(e.target.value)}
+                className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]" />
+            </div>
+          </div>
+          <button
+            type="button"
+            className="mt-4 rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+            disabled={backfillRun.isPending}
+            onClick={() => {
+              setBackfill(null);
+              setBackfillError(null);
+              backfillRun.mutate();
+            }}
+          >
+            {backfillRun.isPending ? "Running the backfill" : "Run the backfill"}
+          </button>
+          {backfill ? (
+            <p role="status" className="mt-3 text-[15px] leading-[22px]" data-numeric>
+              {backfill.inserted} records added, {backfill.skippedDuplicates} already on file, from{" "}
+              {backfill.found} awards for agency {backfill.agencyCode}, {backfill.from} to {backfill.to}.{" "}
+              {backfill.sourceLabel}.
+            </p>
+          ) : null}
+          {backfillError ? (
+            <p role="status" className="mt-3 text-[15px] leading-[22px]">{backfillError}</p>
           ) : null}
         </section>
       ) : null}
