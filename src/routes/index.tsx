@@ -17,6 +17,7 @@ import {
   withinDays,
 } from "@/lib/watch";
 import { SmallBusinessPanel } from "@/components/small-business-panel";
+import { CentersTab, type CenterDocumentRow, type CenterTemplateRow } from "@/components/centers-tab";
 import { successorRows } from "@/lib/successor";
 import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
