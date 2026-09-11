@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
@@ -74,6 +75,9 @@ function FilePage() {
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
   const [banner, setBanner] = useState<string | null>(null);
+  // Which phase the regulation sidebar is showing. Empty until the file loads,
+  // then it follows the current phase unless the reader picks another.
+  const [regPhase, setRegPhase] = useState<string | null>(null);
 
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
@@ -172,6 +176,12 @@ function FilePage() {
   }, [acq, q.data, ref]);
 
   const board = useMemo(() => Object.values(boards).flat(), [boards]);
+
+  const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
+  const sidebarPhase =
+    regPhase && phaseNames.includes(regPhase)
+      ? regPhase
+      : (phases.find((p) => p.status === "current")?.phase ?? phaseNames[0] ?? "Intake");
 
   const hold = useMemo(() => (acq ? computeHold(acq, phases, board) : null), [acq, phases, board]);
   const effectiveState =
@@ -427,6 +437,10 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {phaseNames.length ? (
+        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
+      ) : null}
 
       {intakeEstimate ? (
         <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
