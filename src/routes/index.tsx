@@ -323,13 +323,25 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
 
   const running = metrics.filter((m) => m.clockState === "running").length;
   const onHold = metrics.filter((m) => m.clockState === "hold");
-  const launchedThisQuarter = metrics.filter(
+  const launchedThisQuarterRows = metrics.filter(
     (m) =>
       m.clockState === "launched" &&
       m.acq.target_award_date &&
       String(m.acq.target_award_date) >= qStart &&
       String(m.acq.target_award_date) <= today,
-  ).length;
+  );
+  const launchedThisQuarter = launchedThisQuarterRows.length;
+
+  const daysReturned = useMemo(() => {
+    const map = new Map<string, number>();
+    let total = 0;
+    for (const m of launchedThisQuarterRows) {
+      const center = String(m.acq.center_code ?? "Unassigned");
+      map.set(center, (map.get(center) ?? 0) + m.timeSavedDays);
+      total += m.timeSavedDays;
+    }
+    return { byCenter: [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])), total };
+  }, [launchedThisQuarterRows]);
   const scrubbed = metrics.filter((m) => m.clockState === "scrubbed").length;
 
   const byReason = useMemo(() => {
@@ -392,6 +404,31 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
           </div>
         ))}
       </div>
+
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">Days returned to missions</h3>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        Method: planned days minus actual days across completed phases, summed over files launched this quarter, by Center.
+      </p>
+      {daysReturned.byCenter.length === 0 ? (
+        <p className="mt-2 text-muted-foreground">No file has launched this quarter.</p>
+      ) : (
+        <div className="mt-3 max-w-[70ch]">
+          <p className="text-[28px] leading-[34px] font-semibold" data-numeric>
+            {daysReturned.total}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">Days returned to missions this quarter</p>
+          <ul className="mt-3 space-y-1 border-t border-border pt-3">
+            {daysReturned.byCenter.map(([center, days]) => (
+              <li key={center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
+                <span>{center}</span>
+                <span data-numeric>
+                  {Math.abs(days)} {days >= 0 ? "ahead of" : "behind"} plan
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Holds by reason</h3>
       {byReason.length === 0 ? (
