@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { userForRole } from "@/lib/roles";
@@ -103,6 +104,40 @@ function statusColor(state: string | null | undefined) {
   if (state === "hold") return "var(--atrisk)";
   if (state === "launched") return "var(--ontrack)";
   return "var(--ontrack)";
+}
+
+function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
+  const { authState } = useRole();
+  const q = useQuery({
+    queryKey: ["clause-mod-tasks", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => (await loadModTasks()).filter((t) => t.acquisition_id === acquisitionId),
+  });
+  const tasks = q.data ?? [];
+  if (tasks.length === 0) return null;
+  return (
+    <section aria-label="Clause change mod tasks" className="mb-12">
+      <h2 className="mb-1 text-[18px] leading-6 font-medium">Clause change mod tasks</h2>
+      <p className="mb-4 text-[13px] text-muted-foreground">
+        A clause on this contract changed status.{" "}
+        <Link to="/clause-changes" className="text-primary">
+          Open the clause change impact list
+        </Link>
+        .
+      </p>
+      <ul className="max-w-[80ch] space-y-2 border-t border-border pt-3">
+        {tasks.map((t) => (
+          <li key={t.task_id} className="text-[13px] leading-[18px]">
+            <span className="font-medium">{t.clause_number}</span> — {t.change_kind} ({t.change_source ?? "source not recorded"})
+            <span className="block text-muted-foreground">
+              {t.status === "complete" ? "Complete" : "Open"} · {t.owner_name ?? "Owner not recorded"} · due{" "}
+              {t.deadline_date ?? "no date"}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function FilePage() {
@@ -1056,6 +1091,8 @@ function FilePage() {
           {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
         </button>
       </div>
+
+      <ClauseModTasks acquisitionId={acquisitionId} />
 
       <section aria-label="Contract file index" className="mb-12">
         <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>
