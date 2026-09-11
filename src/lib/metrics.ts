@@ -152,7 +152,7 @@ export function computeMetrics(
   const forecastAwardDate =
     clockState === "launched" ? (acq.target_award_date ? String(acq.target_award_date) : null) : addDays(today, remaining + holdDays);
 
-  const lead = Number(acq.lead_to_delivery_days ?? 0) || 0;
+  const lead = Number(acq['lead_to_delivery_days'] ?? 0) || 0;
   const milestoneDate = opts.mission?.milestone_date ?? null;
   const scheduleImpactDays =
     milestoneDate && forecastAwardDate
@@ -210,7 +210,7 @@ export function computeMetrics(
     status,
     blocker,
     blockerOwner,
-    blockerSince: opts.holdSince ?? null,
+    blockerSince: opts.holdSince ?? null as string | null,
   };
 }
 
@@ -228,7 +228,7 @@ export function callout(m: AcqMetrics, mission: MissionRow): string {
  *  tightest schedule impact. */
 export function missionDriver(rows: AcqMetrics[]): AcqMetrics | null {
   if (!rows.length) return null;
-  const critical = rows.filter((r) => r.acq.is_critical_path);
+  const critical = rows.filter((r) => r.acq['is_critical_path']);
   const pool = critical.length ? critical : rows;
   return [...pool].sort(
     (a, b) => (a.scheduleImpactDays ?? 9999) - (b.scheduleImpactDays ?? 9999),
