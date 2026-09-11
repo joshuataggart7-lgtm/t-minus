@@ -643,7 +643,11 @@ export function renderDocument(
     const lines: string[] = [];
     if (s.standingText) lines.push(s.standingText);
     for (const f of visibleFields(s, v)) {
-      const value = (v[f.key] ?? "").trim();
+      const raw = (v[f.key] ?? "").trim();
+      const value =
+        f.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+          ? money(Number(raw.replace(/[$,]/g, "")))
+          : raw;
       lines.push(`${f.label}: ${value || "—"}`);
     }
     return { heading: s.title, citation: s.citation, lines };
