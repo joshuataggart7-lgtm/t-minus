@@ -10,7 +10,13 @@ import { TEMPLATES } from "./template-engine";
 import { phaseForTemplate } from "./launch-sequence";
 
 /** Core tabbed records every file of that type is expected to hold. */
-const CORE_KEYS = ["jofoc", "tech-eval", "pnm", "cor-appointment", "cpars-input"] as const;
+const CORE_KEYS = [
+  "jofoc",
+  "technical-evaluation-report",
+  "pnm",
+  "cor-appointment",
+  "cpars-input",
+] as const;
 
 export type IndexDocument = {
   templateName: string;
