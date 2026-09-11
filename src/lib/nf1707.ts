@@ -7,9 +7,11 @@ export type Nf1707Field = {
   subform: string | null;
   field_name: string | null;
   field_kind: string | null;
-  caption: string | null;
-  nearest_form_text: string | null;
+  caption_full: string | null;
+  nearest_form_text_full: string | null;
+  choice_items: string | null;
   center_specific: string | null;
+  is_answerable: string | null;
 };
 
 export type SectionGroup = {
@@ -20,18 +22,16 @@ export type SectionGroup = {
 };
 
 export const SECTION_GROUPS: SectionGroup[] = [
-  { key: "header", title: "Header", raw: ["HeaderWrapper"] },
   { key: "s1", title: "Section 1. Strategic sourcing", raw: ["Section1"] },
   { key: "s2", title: "Section 2. Section 508 and information technology", raw: ["Section2"] },
   {
     key: "s3",
     title: "Section 3. Environmental",
-    raw: ["Section3", "Section3s2", "Section3s3", "Section3Old"],
+    raw: ["Section3", "Section3s2", "Section3s3"],
     parts: [
       { raw: "Section3", title: "Environmental review" },
       { raw: "Section3s2", title: "Sustainable acquisition" },
       { raw: "Section3s3", title: "NEPA categorical exclusion" },
-      { raw: "Section3Old", title: "Prior environmental questions (retained form text)" },
     ],
   },
   { key: "s4", title: "Section 4. Service contracting", raw: ["Section4"] },
@@ -84,21 +84,17 @@ export function answerKey(f: Nf1707Field) {
   return `${f.section ?? ""}.${f.subform ?? ""}.${f.field_name ?? ""}`;
 }
 
-/** Captions in the export sometimes carry the XFA item list: items=['1', '0', '2'] */
-export function parseItems(caption: string | null): string[] | null {
-  if (!caption || !caption.startsWith("items=")) return null;
-  const inner = caption.slice(caption.indexOf("[") + 1, caption.lastIndexOf("]"));
-  const items = inner
-    .split(",")
-    .map((s) => s.trim().replace(/^['"]|['"]$/g, ""))
-    .filter(Boolean);
+/** Select and answer choices are pipe-delimited in the complete field export. */
+export function parseItems(choiceItems: string | null): string[] | null {
+  if (!choiceItems) return null;
+  const items = choiceItems.split("|").map((s) => s.trim());
   return items.length ? items : null;
 }
 
 const TRISTATE = ["1", "0", "2"];
 
-export function isTriState(caption: string | null) {
-  const items = parseItems(caption);
+export function isTriState(choiceItems: string | null) {
+  const items = parseItems(choiceItems)?.filter(Boolean);
   return !!items && items.length === 3 && items.every((i) => TRISTATE.includes(i));
 }
 
@@ -115,11 +111,13 @@ export const TRISTATE_LABELS: { value: string; label: string }[] = [
  * name, and code-like names ("S3s3n1") become a numbered question.
  */
 export function fieldLabel(f: Nf1707Field) {
-  const c = (f.caption ?? "").trim();
-  if (c && !c.startsWith("items=")) return c;
+  const caption = (f.caption_full ?? "").replace(/\s+/g, " ").trim();
+  const nearby = (f.nearest_form_text_full ?? "").replace(/\s+/g, " ").trim();
+  if (caption && !/^(yes|no|or|and)$/i.test(caption)) return caption;
+  if (nearby.length >= 4 && !/^(yes|no|or|and)$/i.test(nearby)) return nearby;
+  if (caption) return caption;
 
-  const near = (f.nearest_form_text ?? "").replace(/\s+/g, " ").trim().replace(/[,;]$/, "");
-  if (near.length >= 4) return near;
+  if (f.section === "Section9s1") return "Center-specific approval";
 
   const name = (f.field_name ?? "").trim();
   if (!name) return "Question";

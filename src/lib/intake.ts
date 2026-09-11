@@ -72,7 +72,7 @@ export const EMPTY_FACTS: IntakeFacts = {
 };
 
 export const CONTRACT_TYPES = [
-  "Firm-fixed-price",
+  "FFP",
   "Fixed-price with economic price adjustment",
   "Cost-plus-fixed-fee",
   "Time-and-materials / labor-hour",
@@ -88,14 +88,14 @@ export const ACQUISITION_METHODS = [
 ];
 
 export const COMPETITION_CHOICES = [
-  "Full and open competition",
-  "Competition after exclusion of sources",
+  "Competitive (simplified procedures)",
+  "Full and open",
   "Sole source",
 ];
 
 export const SET_ASIDES = [
   "None",
-  "Total small business",
+  "Total small business set-aside",
   "8(a)",
   "HUBZone",
   "Service-disabled veteran-owned",

@@ -233,6 +233,10 @@ create table if not exists public.nf1707_fields (
   field_kind text,
   caption text,
   nearest_form_text text,
+  caption_full text,
+  nearest_form_text_full text,
+  choice_items text,
+  is_answerable text,
   center_specific text
 );
 
