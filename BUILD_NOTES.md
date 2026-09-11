@@ -539,3 +539,27 @@ Verified: uploaded templates.csv with the Consolidation of Requirements date
 moved from 4/21/2026 to 5/21/2026; the page showed 0 added, 1 changed, 0 removed,
 98 unchanged; applying it posted "Regulatory data updated: Template list." The
 test change, its notice, and its log entries were removed afterwards.
+
+## E19. Policy impact simulator
+
+`/simulate`, open to executives and HQ, read-only for everyone else. Pick a
+threshold or a review rule trigger, type a proposed dollar value, and run it.
+Nothing is written; the page re-runs the same review rules and phase plan the
+engine already uses, once against the values loaded today and once against the
+proposed value.
+
+Planned days for a file are the phase plan days through award for its
+acquisition type plus the planned days of every review rule that applies, so
+the difference is the planned days of the review steps that appear or
+disappear. Only active files count; launched and scrubbed files are left out. A
+proposed review trigger is read as if every Center carried it.
+
+The answer reads "If the legal review trigger were $1,000,000, 1 file clears 5
+days sooner," with the affected files listed: file, Center, estimated value,
+planned days now and then, the difference, and which review steps are lost or
+gained.
+
+Verified: raising the legal review trigger to $1,000,000, above the simplified
+acquisition threshold, dropped legal review from A-2027-0106 (JSC, $380,000),
+113 planned days down to 108. Sole-source files keep legal review because the
+rule also triggers on a JOFOC, and files under the trigger never carried it.
