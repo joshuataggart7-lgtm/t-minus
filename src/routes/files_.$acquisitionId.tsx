@@ -354,6 +354,33 @@ function FilePage() {
   const effectiveState =
     acq?.clock_state === "launched" ? "launched" : hold ? "hold" : (acq?.clock_state ?? null);
 
+  // "Explain this" for the status and the hold, built from the same rules.
+  const statusExplanation = useMemo(() => {
+    const behind = phases.find(
+      (p) => p.status === "current" && p.actual_days !== null && p.actual_days > p.planned_days,
+    );
+    const soon = board.find(
+      (b) => b.vote === "pending" && b.due_date && daysBetween(todayISO(), b.due_date) <= 3,
+    );
+    const word =
+      effectiveState === "launched"
+        ? "Launched"
+        : effectiveState === "hold"
+          ? "At Risk"
+          : behind || soon
+            ? "Needs Attention"
+            : "On Track";
+    return explainStatus({
+      status: word,
+      clockState: effectiveState,
+      holdReason: hold?.reason ?? null,
+      scheduleImpactDays: null,
+      behindPhase: behind?.phase ?? null,
+      pollDueSoon: soon?.reviewer_role ?? null,
+    });
+  }, [phases, board, effectiveState, hold]);
+
+
   // Open the poll for a review phase: one row per applicable review rule, with
   // the due date taken from the rule's planned days.
   const openPoll = useMutation({
