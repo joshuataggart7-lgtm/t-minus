@@ -74,9 +74,15 @@ function useRefData(enabled: boolean) {
             .select("psl,name,buying_location,mandatory_vehicles,required_coordination"),
           supabase.from("nf1707_fields").select("*"),
         ]);
+      // Files a new intake can be recorded as the successor of.
+      const { data: priorFiles } = await supabase
+        .from("acquisition_facts")
+        .select("acquisition_id,title,clock_state,period_of_performance_end")
+        .order("acquisition_id");
       const plan = (phasePlan.data ?? []).slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
       return {
         missions: missions.data ?? [],
+        priorFiles: priorFiles ?? [],
         centers: centers.data ?? [],
         branches: branches.data ?? [],
         fields: (fields.data ?? []) as Nf1707Field[],
@@ -248,6 +254,7 @@ function IntakePage() {
       const payload = {
         acquisition_id: next,
         mission_id: facts.mission_id || null,
+        successor_of: facts.successor_of || null,
         title: facts.title,
         center_code: facts.center_code,
         branch_code: facts.branch_code || null,
@@ -386,6 +393,26 @@ function IntakePage() {
               {(data.data?.missions ?? []).map((m) => (
                 <option key={m.mission_id} value={m.mission_id}>
                   {m.name} — needs {m.milestone_date}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            label="Successor of"
+            htmlFor="successor-of"
+            hint="Leave this blank unless the request replaces an existing acquisition."
+          >
+            <select
+              id="successor-of"
+              className={inputClass}
+              value={facts.successor_of}
+              onChange={(e) => set("successor_of", e.target.value)}
+            >
+              <option value="">Not a follow-on</option>
+              {(data.data?.priorFiles ?? []).map((f) => (
+                <option key={f.acquisition_id} value={f.acquisition_id}>
+                  {f.acquisition_id} — {f.title ?? "Untitled"}
+                  {f.period_of_performance_end ? ` (ends ${f.period_of_performance_end})` : ""}
                 </option>
               ))}
             </select>
