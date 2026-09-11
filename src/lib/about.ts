@@ -99,8 +99,7 @@ export function templateGroups(rows: TemplateRow[]) {
 
 /** The build stamp is set at deploy time in vite.config.ts. */
 export function buildStamp(): string {
-  const stamp = (globalThis as { __BUILD_STAMP__?: string }).__BUILD_STAMP__;
-  const raw = typeof stamp === "string" ? stamp : "";
+  const raw = typeof __BUILD_STAMP__ === "string" ? __BUILD_STAMP__ : "";
   if (!raw) return "not recorded";
   const d = new Date(raw);
   return Number.isNaN(d.getTime()) ? raw : d.toUTCString().replace("GMT", "UTC");

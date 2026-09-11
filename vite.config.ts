@@ -8,7 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   // Build stamp: evaluated when the deploy builds, shown on the About page.
-  vite: { define: { "globalThis.__BUILD_STAMP__": JSON.stringify(new Date().toISOString()) } },
+  vite: { define: { __BUILD_STAMP__: JSON.stringify(new Date().toISOString()) } },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
