@@ -286,7 +286,7 @@ function IntakePage() {
         },
       ]);
 
-      navigate({ to: "/files/$acquisitionId", params: { acquisitionId: next } });
+      navigate({ to: "/files_/$acquisitionId", params: { acquisitionId: next } });
     } catch (e) {
       setSaveError(
         e instanceof Error
