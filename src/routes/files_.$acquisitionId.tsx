@@ -852,7 +852,7 @@ function FilePage() {
                 <td className="px-3 py-2">{t.phase}</td>
                 <td className="px-3 py-2">
                   Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
-                  {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(t.documents.at(-1)!.savedAt!)}` : ""}
+                  {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(String(t.documents.at(-1)!.savedAt).slice(0, 10))}` : ""}
                 </td>
               </tr>
             ))}
