@@ -554,11 +554,11 @@ function FilePage() {
                 </div>
               )}
 
-              {p.needsPoll ? (
+              {(REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div className="mt-3 max-w-[80ch] border border-border">
                   <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
-                      Go/No-go poll. Reviewers vote; approval stays with the contracting officer.
+                      Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
                     </caption>
                     <thead>
                       <tr className="border-y border-border text-left">
@@ -570,9 +570,9 @@ function FilePage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {board.length ? (
-                        board.map((b) => (
-                          <tr key={b.reviewer_role} className="border-b border-border align-top">
+                      {(boards[p.phase] ?? []).length ? (
+                        (boards[p.phase] ?? []).map((b) => (
+                          <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border align-top">
                             <td className="p-2">{b.reviewer_role}</td>
                             <td className="p-2">{b.reviewer_name}</td>
                             <td
@@ -588,6 +588,7 @@ function FilePage() {
                             >
                               {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
                               {b.reason ? ` — ${b.reason}` : ""}
+                              {b.poll_id ? "" : " (poll not opened)"}
                             </td>
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
@@ -598,12 +599,23 @@ function FilePage() {
                       ) : (
                         <tr>
                           <td className="p-2 text-muted-foreground" colSpan={5}>
-                            No review is triggered for this acquisition.
+                            No review is triggered for this acquisition at this phase.
                           </td>
                         </tr>
                       )}
                     </tbody>
                   </table>
+                  {canWrite && (boards[p.phase] ?? []).some((b) => !b.poll_id) ? (
+                    <div className="border-t border-border p-2">
+                      <button
+                        type="button"
+                        onClick={() => openPoll.mutate(p.phase)}
+                        className="text-[13px] text-primary"
+                      >
+                        Open the poll for {p.phase}
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </li>
