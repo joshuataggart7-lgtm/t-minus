@@ -1199,6 +1199,11 @@ function FilePage() {
                               {state ? "Remove" : "Attach"}
                             </button>
                           ) : null}
+                          {state === false ? (
+                            <span className="block w-full">
+                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                            </span>
+                          ) : null}
                         </>
                       )}
                       <span className="text-[13px] text-muted-foreground">{d.citation}</span>
