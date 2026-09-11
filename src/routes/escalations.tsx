@@ -97,7 +97,7 @@ function EscalationsPage() {
     <AppShell>
       <PageHeader
         title="Aging holds and escalation"
-        lede="Every hold and every pending Go/No-go poll carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
+        lead="Every hold and every pending Go/No-go poll carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
       />
       {banner ? (
         <p role="status" className="mb-4 max-w-[70ch] text-[13px]">
@@ -105,14 +105,14 @@ function EscalationsPage() {
         </p>
       ) : null}
 
-      {q.isLoading ? <LoadingNote /> : null}
+      {q.isLoading ? <LoadingNote what="the aging holds and polls" /> : null}
       {q.isError ? <ErrorNote message="The aging items did not load. Refresh the page to try again." /> : null}
 
       {q.data ? (
         <>
           <h2 className="section-title text-[18px] leading-6 font-medium">Open holds and pending polls</h2>
           {items.length === 0 ? (
-            <EmptyState message="No file is on hold and no poll is waiting on a vote." />
+            <EmptyState sentence="No file is on hold and no poll is waiting on a vote." />
           ) : (
             <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
               <thead>
@@ -169,7 +169,7 @@ function EscalationsPage() {
             One entry per aging item, gathered for the supervisor recorded on the owner's user record.
           </p>
           {digest.length === 0 ? (
-            <EmptyState message="Nothing is aging, so no digest entry has been raised." />
+            <EmptyState sentence="Nothing is aging, so no digest entry has been raised." />
           ) : (
             digest.map((group) => (
               <div key={group.supervisor} className="mt-4">
