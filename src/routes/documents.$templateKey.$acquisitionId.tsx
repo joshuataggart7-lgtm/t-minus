@@ -309,6 +309,7 @@ function DocumentPage() {
         old_value: q.data.versions[0] ? `version ${q.data.versions[0].version}` : null,
         new_value: `version ${nextVersion}`,
         reason: `${def.name} saved from the template engine`,
+        phase,
       });
       if (logError) throw new Error(logError.message);
       return nextVersion;
