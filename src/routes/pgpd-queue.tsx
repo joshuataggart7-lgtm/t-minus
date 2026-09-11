@@ -106,7 +106,7 @@ function PgpdQueuePage() {
 
       {message ? <p className="mb-4 text-[13px] text-muted-foreground">{message}</p> : null}
 
-      {q.isLoading ? <LoadingNote /> : null}
+      {q.isLoading ? <LoadingNote what="the PGPD queue" /> : null}
       {q.error ? <ErrorNote message="The queue could not be loaded. Reload the page." /> : null}
       {!q.isLoading && !q.error && rows.length === 0 ? (
         <EmptyState sentence="No defects are on the queue. Report one from any template." />
