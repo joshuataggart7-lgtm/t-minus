@@ -200,8 +200,12 @@ function ClauseChangesPage() {
 
       {change && rows.length === 0 && !loading ? (
         <EmptyState
-          what="No launched or active contract is affected by this clause change."
-          action={{ to: "/files", label: "Open Files" }}
+          sentence="No launched or active contract is affected by this clause change."
+          action={
+            <Link to="/files" className="text-primary">
+              Open Files
+            </Link>
+          }
         />
       ) : null}
 
