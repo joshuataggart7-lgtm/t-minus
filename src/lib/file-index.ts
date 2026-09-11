@@ -1,0 +1,105 @@
+// NF 1098 contract file index (E14).
+//
+// The index is built from the documents saved on the file: each document's
+// template carries an NF 1098 tab. Tabs the acquisition type requires are
+// derived from the phase plan for that type — a core tabbed record whose
+// phase is in the file's sequence is required. Nothing is invented: tabs and
+// names come from the template definitions and the templates table.
+
+import { TEMPLATES } from "./template-engine";
+import { phaseForTemplate } from "./launch-sequence";
+
+/** Core tabbed records every file of that type is expected to hold. */
+const CORE_KEYS = ["jofoc", "tech-eval", "pnm", "cor-appointment", "cpars-input"] as const;
+
+export type IndexDocument = {
+  templateName: string;
+  version: number;
+  savedBy: string | null;
+  savedAt: string | null;
+};
+
+export type IndexTab = {
+  tab: string;
+  templateName: string;
+  phase: string;
+  documents: IndexDocument[];
+};
+
+export type FileIndex = {
+  present: IndexTab[];
+  missing: IndexTab[];
+};
+
+export type IndexDocRow = {
+  template_id: string | null;
+  version: number | null;
+  saved_by: string | null;
+  saved_at: string | null;
+};
+
+export type IndexTemplateRow = {
+  template_id: string;
+  name: string;
+  nf_1098_tab: string | null;
+};
+
+export function tabRank(tab: string | null | undefined): number {
+  const n = Number(String(tab ?? "").replace(/[^0-9]/g, ""));
+  return Number.isFinite(n) && String(tab ?? "").trim() !== "" ? n : 9999;
+}
+
+const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
+
+/** Tabs the acquisition type requires, from the phases in its sequence. */
+export function requiredTabs(phases: string[]): IndexTab[] {
+  const inSequence = new Set(phases.map((p) => p.toLowerCase()));
+  return TEMPLATES.filter((t) => (CORE_KEYS as readonly string[]).includes(t.key))
+    .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
+    .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
+    .filter((t) => inSequence.has(t.phase.toLowerCase()));
+}
+
+export function buildFileIndex(
+  documents: IndexDocRow[],
+  templates: IndexTemplateRow[],
+  phases: string[],
+): FileIndex {
+  const tplById = new Map(templates.map((t) => [t.template_id, t]));
+  const present = new Map<string, IndexTab>();
+
+  for (const d of documents) {
+    const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
+    if (!tpl) continue;
+    const tab = normTab(tpl.nf_1098_tab);
+    if (tab === "" || tab === "—") continue;
+    const def = TEMPLATES.find((t) => t.name === tpl.name);
+    const key = `${tab}|${tpl.name}`;
+    const entry =
+      present.get(key) ??
+      ({
+        tab,
+        templateName: tpl.name,
+        phase: def ? phaseForTemplate(def.key) : "—",
+        documents: [],
+      } satisfies IndexTab);
+    entry.documents.push({
+      templateName: tpl.name,
+      version: d.version ?? 1,
+      savedBy: d.saved_by,
+      savedAt: d.saved_at,
+    });
+    present.set(key, entry);
+  }
+
+  const presentList = [...present.values()]
+    .map((t) => ({ ...t, documents: [...t.documents].sort((a, b) => a.version - b.version) }))
+    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab) || a.templateName.localeCompare(b.templateName));
+
+  const presentTabs = new Set(presentList.map((t) => t.tab));
+  const missing = requiredTabs(phases)
+    .filter((t) => !presentTabs.has(t.tab))
+    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab));
+
+  return { present: presentList, missing };
+}
