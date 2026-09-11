@@ -145,8 +145,11 @@ function WorkQueuePage() {
                 : current
                   ? `Complete ${current.phase}`
                   : "Start the clock";
+        const recordHold = String(acq.hold_reason ?? "");
         const dependency = m.hold
           ? `${m.hold.reason} · owner ${m.hold.owner}`
+          : m.clockState === "hold" && recordHold
+            ? `${recordHold}${acq.hold_owner ? ` · owner ${String(acq.hold_owner)}` : ""}`
           : pending
             ? `${pending.reviewer_role} vote pending · ${pending.reviewer_name}`
             : m.blocker === "None"
