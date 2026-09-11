@@ -173,7 +173,9 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
           "includeSections",
           "entityRegistration,coreData,assertions,repsAndCerts,integrityInformation",
         );
-        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        const response = await fetch(url, {
+          headers: { Accept: "application/json", "X-Api-Key": apiKey },
+        });
         if (!response.ok) throw new Error(`SAM.gov returned ${response.status}: ${await response.text()}`);
         raw = await response.json();
         if (!array(object(raw)["entityData"]).length) throw new Error("SAM.gov returned no registration for this UEI.");
