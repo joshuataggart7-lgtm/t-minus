@@ -15,6 +15,7 @@ import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChecksRouteImport } from './routes/checks'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
+import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
@@ -50,6 +51,11 @@ const FilesRoute = FilesRouteImport.update({
   path: '/files',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntakeRoute = IntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SeedStatusRoute = SeedStatusRouteImport.update({
   id: '/seed-status',
   path: '/seed-status',
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/checks': typeof ChecksRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
+  '/intake': typeof IntakeRoute
   '/seed-status': typeof SeedStatusRoute
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/checks'
     | '/estimate'
     | '/files'
+    | '/intake'
     | '/seed-status'
     | '/templates'
     | '/watch'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   ChecksRoute: typeof ChecksRoute
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
+  IntakeRoute: typeof IntakeRoute
   SeedStatusRoute: typeof SeedStatusRoute
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
@@ -204,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/intake': {
+      id: '/intake'
+      path: '/intake'
+      fullPath: '/intake'
+      preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/seed-status': {
       id: '/seed-status'
       path: '/seed-status'
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChecksRoute: ChecksRoute,
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
+  IntakeRoute: IntakeRoute,
   SeedStatusRoute: SeedStatusRoute,
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,

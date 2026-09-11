@@ -95,8 +95,8 @@ function Field({
   htmlFor,
 }: {
   label: string;
-  hint?: string;
-  error?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
   children: React.ReactNode;
   htmlFor: string;
 }) {
