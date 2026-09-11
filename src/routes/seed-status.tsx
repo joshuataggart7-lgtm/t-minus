@@ -62,16 +62,108 @@ export const Route = createFileRoute("/seed-status")({
 });
 
 function SeedStatus() {
-  const { authState } = useRole();
+  const { authState, role } = useRole();
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const runReset = useServerFn(resetDemo);
+
   const { data, isLoading } = useQuery({
     queryKey: ["seed-status"],
     queryFn: countRows,
     enabled: authState === "signed-in",
   });
 
+  const lastReset = useQuery({
+    queryKey: ["seed-status", "last-reset"],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      const { data: rows } = await supabase
+        .from("audit_log")
+        .select("logged_at")
+        .eq("action", "Demo reset")
+        .order("logged_at", { ascending: false })
+        .limit(1);
+      return rows?.[0]?.logged_at ?? null;
+    },
+  });
+
+  const reset = useMutation({
+    mutationFn: async () => await runReset({ data: undefined }),
+    onSuccess: async () => {
+      setConfirming(false);
+      setMessage("The demo is back in its seeded state.");
+      await queryClient.invalidateQueries();
+    },
+    onError: (e: unknown) => {
+      setConfirming(false);
+      setMessage(
+        e instanceof Error
+          ? `The reset did not finish: ${e.message} Try again, or reload the page.`
+          : "The reset did not finish. Try again, or reload the page.",
+      );
+    },
+  });
+
   return (
     <AppShell>
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
+
+      {authState === "signed-in" && role === "hq" ? (
+        <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+          <h2 className="text-[18px] leading-6 font-medium">Reset demo</h2>
+          <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
+            Reloads every seed file as written, clears the history, polls, comments, documents, checks
+            and acknowledgements recorded since the seed, and removes any acquisition that is not one of
+            the twelve seeded records.
+          </p>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            Last reset:{" "}
+            <span data-numeric>
+              {lastReset.data ? new Date(lastReset.data).toLocaleString() : "not reset yet"}
+            </span>
+          </p>
+          {confirming ? (
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <p className="text-[15px]">This replaces all demo activity. Continue?</p>
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-[15px] text-white"
+                style={{ background: "var(--atrisk)" }}
+                disabled={reset.isPending}
+                onClick={() => reset.mutate()}
+              >
+                {reset.isPending ? "Resetting" : "Yes, reset demo"}
+              </button>
+              <button
+                type="button"
+                className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                onClick={() => setConfirming(false)}
+                disabled={reset.isPending}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="mt-4 rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+              onClick={() => {
+                setMessage(null);
+                setConfirming(true);
+              }}
+            >
+              Reset demo
+            </button>
+          )}
+          {message ? (
+            <p role="status" className="mt-3 text-[15px]">
+              {message}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       {authState !== "signed-in" ? (
         <p className="text-muted-foreground">Waiting for sign-in.</p>
       ) : isLoading ? (
