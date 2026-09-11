@@ -168,12 +168,14 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
         if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
         const url = new URL("https://api.sam.gov/entity-information/v3/entities");
         url.searchParams.set("api_key", apiKey);
-        url.searchParams.set("samUEI", uei);
+        url.searchParams.set("ueiSAM", uei);
         url.searchParams.set(
           "includeSections",
           "entityRegistration,coreData,assertions,repsAndCerts,integrityInformation",
         );
-        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        const response = await fetch(url, {
+          headers: { Accept: "application/json", "X-Api-Key": apiKey },
+        });
         if (!response.ok) throw new Error(`SAM.gov returned ${response.status}: ${await response.text()}`);
         raw = await response.json();
         if (!array(object(raw)["entityData"]).length) throw new Error("SAM.gov returned no registration for this UEI.");
