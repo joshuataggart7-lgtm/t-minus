@@ -1,8 +1,9 @@
 nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
+N/A,Commerciality Determination and Findings,,live,FAR 2.101; FAR 10.002(e); FAR 12.102,binding
 —,NASA Form 1707 (intake),"current XFA form (Adobe Experience Manager), field map in nf1707_fields.csv",live,"NF 1707, Special Approvals and Affirmations of Requisitions",binding
 002,Addendum Outlining Significant Changes to Approved PSMs / Written Acquisition Plans Template,4/6/2026,planned,[fill from template header],guidance
-002,Determination and Findings for Consolidation of Requirements,4/21/2026,planned,[fill from template header],binding
-002,Determination and Findings for Bundled Requirements,4/21/2026,planned,[fill from template header],binding
+002,Determination and Findings for Consolidation of Requirements,4/21/2026,live,"FAR 7.107-1; FAR 7.107-2; 15 U.S.C. 657q",binding
+002,Determination and Findings for Bundled Requirements,4/21/2026,live,"FAR 7.107-1; FAR 7.107-3; FAR 7.107-4",binding
 002,Determination ASM Not Conducted Memorandum,4/6/2026,planned,[fill from template header],binding
 002,Procurement Strategy Meeting Signature Page Template for Contracts,4/6/2026,planned,[fill from template header],guidance
 002,Written Acquisition Plan Template for Contracts,2/26/2026,planned,[fill from template header],guidance
@@ -11,11 +12,11 @@ nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
 003,Determination and Findings Authority to Execute a CPIF Contract,5/1/2026,planned,[fill from template header],binding
 003,Determination and Findings Authority to Execute a FPAF Contract,5/1/2026,planned,[fill from template header],binding
 003,Determination and Findings Authority to Execute a FPI Contract,5/1/2026,planned,[fill from template header],binding
-003,Determination and Findings Commercial Time and Materials or Labor Hour Contract / Order,4/20/2026,planned,[fill from template header],binding
+003,Determination and Findings Commercial Time and Materials or Labor Hour Contract / Order,4/20/2026,live,"FAR 12.207(b); FAR 16.601(d)",binding
 003,Determination and Findings Authority to Execute a CPAF Contract,5/1/2026,planned,[fill from template header],binding
 003,Determination and Findings Noncommercial Time and Materials or Labor Hour Contract / Order,4/13/2026,planned,[fill from template header],binding
 003,Determination and Findings POP or Ordering Period Over 5 years,3/18/2026,planned,[fill from template header],binding
-003,Determination and Findings Interagency Acquisitions Economy Act,4/21/2026,planned,[fill from template header],binding
+003,Determination and Findings Interagency Acquisitions Economy Act,4/21/2026,live,"FAR 17.502-2(c); 31 U.S.C. 1535",binding
 004,AbilityOne Coordination,5/20/2026,planned,[fill from template header],guidance
 004,Governmentwide Point of Entry (GPE) Templates,5/14/2026,planned,[fill from template header],guidance
 004,Request to Solicit a Non-Commercial Product or Service Template,5/19/2026,planned,[fill from template header],guidance
@@ -27,7 +28,7 @@ nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
 016,Limited Sources Justification (LSJ) GSA Federal Supply Schedule (FSS),4/16/2026,planned,[fill from template header],guidance
 018,OCI Determination Memorandum and Checklist Template,5/1/2026,planned,[fill from template header],binding
 021,Determination and Findings Authority to Exclude a Source,4/27/2026,planned,[fill from template header],binding
-024,Option Justification,7/21/2026,planned,[fill from template header],guidance
+024,Option Justification,7/21/2026,live,"FAR 17.205(a); FAR 17.202",guidance
 025,Buy American Act Nonavailability Determination - Supplies,4/20/2026,planned,[fill from template header],binding
 028/72,UCA-Letter Contract Justification,5/14/2026,planned,[fill from template header],guidance
 030,Notification to Interested Parties under CBAs,4/30/2026,planned,[fill from template header],guidance
@@ -49,8 +50,8 @@ nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
 069,Postaward Notification Letter Successful Offeror,4/15/2026,planned,[fill from template header],guidance
 069,Postaward Notification Letter Unsuccessful Offeror,3/18/2026,planned,[fill from template header],guidance
 069,Set-Aside Preaward Apparent Successful Offeror Notification,4/21/2026,planned,[fill from template header],guidance
-072,Fair Opportunity Exception - Brand Name Justification,4/10/2026,planned,[fill from template header],guidance
-072,Option Exercise Contractor Preliminary Notification,7/21/2026,planned,[fill from template header],guidance
+072,Fair Opportunity Exception - Brand Name Justification,4/10/2026,live,"FAR 16.505(b)(2); FAR 11.105; FAR 8.405-6",guidance
+072,Option Exercise Contractor Preliminary Notification,7/21/2026,live,"FAR 17.207(a)",guidance
 074,Recommendation for Appointment of COR or Alternate COR,5/22/2026,planned,[fill from template header],guidance
 074,Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum,5/22/2026,planned,[fill from template header],guidance
 076,Award Term Determination,4/14/2026,planned,[fill from template header],binding
@@ -61,7 +62,7 @@ nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
 083,NASA Voucher Review Checklist (Cost-Type Contract),4/21/2026,planned,[fill from template header],guidance
 095,Duty Free Certificate,4/7/2026,planned,[fill from template header],guidance
 18,Organizational Conflicts of Interest – Limitation of Future Contracting Memo,5/1/2026,planned,[fill from template header],guidance
-24,Option Exercise Determination,7/21/2026,planned,[fill from template header],binding
+24,Option Exercise Determination,7/21/2026,live,"FAR 17.207(c) and (d); FAR 17.207(f)",binding
 30,Contracting Officer Determination to Provide Government Property,4/23/2026,planned,[fill from template header],binding
 33,FAR & NFS Deviation Request,4/27/2026,planned,[fill from template header],guidance
 38,Electronic Document Posting Checklist,4/27/2026,planned,[fill from template header],guidance
