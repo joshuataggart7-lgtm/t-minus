@@ -4,6 +4,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES } from "@/lib/template-engine";
+import { DEVIATION_TEMPLATE } from "@/lib/deviations";
 
 type TemplateRow = {
   template_id: string;
