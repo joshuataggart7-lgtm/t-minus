@@ -8,6 +8,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import {
+  checkoutTime,
+  claimCheckout,
+  loadCheckout,
+  releaseCheckout,
+  type Checkout,
+} from "@/lib/document-checkout";
+import {
   itemsFromRefs,
   itemsFromWatchRows,
   loadRegRefs,
