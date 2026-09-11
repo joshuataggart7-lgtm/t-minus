@@ -1,0 +1,224 @@
+import type { Json } from "@/integrations/supabase/types";
+
+/**
+ * exclusions_sweep
+ *
+ * Checks every vendor of record on every open file against SAM.gov exclusions.
+ * Fictional demo vendors (UEIs beginning DEMO) get a clearly labeled sample
+ * result so the sweep never depends on the network. Every vendor checked gets a
+ * sam_checks row. A file whose vendor is excluded goes on hold with the reason
+ * "vendor excluded; CO review" and the contracting officer as owner.
+ */
+
+export const SWEEP_CHECK_TYPE = "Exclusions sweep";
+export const EXCLUSION_HOLD_REASON = "vendor excluded; CO review";
+
+type JsonRecord = Record<string, unknown>;
+const object = (value: unknown): JsonRecord =>
+  value !== null && typeof value === "object" && !Array.isArray(value) ? (value as JsonRecord) : {};
+const array = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+const text = (...values: unknown[]) => {
+  const found = values.find((value) => typeof value === "string" && value.trim());
+  return typeof found === "string" ? found : "";
+};
+
+export type SweepVendorResult = {
+  acquisitionId: string;
+  uei: string;
+  legalName: string;
+  excluded: boolean;
+  exclusionLabel: string;
+  source: "live" | "cached" | "sample";
+  sourceLabel: string;
+  placedOnHold: boolean;
+  providerError?: string;
+};
+
+export type SweepResult = {
+  ranAt: string;
+  actor: string;
+  filesChecked: number;
+  vendorsChecked: number;
+  excludedFound: number;
+  placedOnHold: number;
+  results: SweepVendorResult[];
+};
+
+/** Fictional exclusion response for a demo vendor, clearly labeled. */
+function sampleExclusion(legalName: string | null, uei: string) {
+  return {
+    sample: true,
+    ueiSAM: uei,
+    entityData: [
+      {
+        entityRegistration: {
+          legalBusinessName: legalName ?? "Fictional vendor",
+          registrationStatus: "Active — sample",
+          exclusionStatusFlag: "N",
+        },
+      },
+    ],
+  };
+}
+
+function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
+  const root = object(raw);
+  const exclusions = array(root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"]);
+  if (exclusions.length > 0) return { excluded: true, label: `Exclusion found (${exclusions.length} record(s))` };
+  const entity = object(array(root["entityData"])[0] ?? root["entityData"] ?? root);
+  const registration = object(entity["entityRegistration"]);
+  const flag = text(registration["exclusionStatusFlag"], object(entity["coreData"])["exclusionStatusFlag"]);
+  if (flag.toUpperCase() === "Y") return { excluded: true, label: "Exclusion found" };
+  return { excluded: false, label: "No active exclusion" };
+}
+
+async function lookupExclusion(uei: string, legalName: string | null) {
+  const apiKey = process.env['SAM_GOV_API_KEY']?.trim();
+  console.log(`[Exclusions sweep] key present: ${Boolean(apiKey)}; length: ${apiKey?.length ?? 0}`);
+  if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
+  const url = new URL("https://api.sam.gov/entity-information/v3/entities");
+  url.searchParams.set("api_key", apiKey);
+  url.searchParams.set("ueiSAM", uei);
+  url.searchParams.set("includeSections", "entityRegistration,coreData");
+  const redacted = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
+  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  if (!response.ok) {
+    const body = (await response.text()).slice(0, 300);
+    throw new Error(`api.sam.gov responded ${response.status} for GET ${redacted}. Body: ${body || "(empty)"}`);
+  }
+  const raw = await response.json();
+  if (!array(object(raw)["entityData"]).length)
+    throw new Error(`SAM.gov returned no registration for ${legalName ?? uei}.`);
+  return raw;
+}
+
+/** Runs the sweep. `actor` is the name recorded on every check and audit row. */
+export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const ranAt = new Date().toISOString();
+
+  const open = await supabaseAdmin
+    .from("acquisition_facts")
+    .select("acquisition_id,vendor_uei,vendor_legal_name,clock_state,hold_reason,hold_owner,co_name,status")
+    .order("acquisition_id");
+  if (open.error) throw new Error(open.error.message);
+
+  const files = (open.data ?? []).filter(
+    (row) => row.clock_state !== "launched" && row.clock_state !== "scrubbed" && Boolean(row.vendor_uei),
+  );
+
+  const results: SweepVendorResult[] = [];
+  let placedOnHold = 0;
+
+  for (const file of files) {
+    const uei = String(file.vendor_uei).trim().toUpperCase();
+    const legalName = file.vendor_legal_name ?? null;
+    let raw: unknown;
+    let source: SweepVendorResult["source"];
+    let providerError = "";
+
+    if (uei.startsWith("DEMO")) {
+      raw = sampleExclusion(legalName, uei);
+      source = "sample";
+    } else {
+      try {
+        raw = await lookupExclusion(uei, legalName);
+        source = "live";
+      } catch (error) {
+        providerError = error instanceof Error ? error.message : "The exclusions lookup failed.";
+        console.error(`[Exclusions sweep] ${providerError}`);
+        const cached = await supabaseAdmin
+          .from("sam_checks")
+          .select("response_json,checked_at")
+          .eq("vendor_uei", uei)
+          .order("checked_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const envelope = object(cached.data?.response_json);
+        raw = envelope["raw"] ?? cached.data?.response_json ?? null;
+        source = raw ? "cached" : "sample";
+        if (!raw) raw = sampleExclusion(legalName, uei);
+      }
+    }
+
+    const { excluded, label } = excludedFromRaw(raw);
+    const sourceLabel =
+      source === "live"
+        ? "Live SAM.gov exclusions result"
+        : source === "cached"
+          ? "Cached SAM.gov result"
+          : "Sample data, fictional vendor";
+
+    const result: SweepVendorResult = {
+      acquisitionId: file.acquisition_id,
+      uei,
+      legalName: legalName ?? uei,
+      excluded,
+      exclusionLabel: label,
+      source,
+      sourceLabel,
+      placedOnHold: false,
+    };
+    if (providerError) result.providerError = providerError;
+
+    const { error: saveError } = await supabaseAdmin.from("sam_checks").insert({
+      acquisition_id: file.acquisition_id,
+      vendor_uei: uei,
+      check_type: SWEEP_CHECK_TYPE,
+      response_json: { raw, normalized: result, source, providerError: providerError || null } as Json,
+      checked_by: actor,
+      checked_at: ranAt,
+    });
+    if (saveError) throw new Error(saveError.message);
+
+    if (excluded && file.clock_state !== "hold") {
+      const owner = file.co_name ? `Contracting officer: ${file.co_name}` : "Contracting officer";
+      const { error: holdError } = await supabaseAdmin
+        .from("acquisition_facts")
+        .update({ clock_state: "hold", hold_reason: EXCLUSION_HOLD_REASON, hold_owner: owner })
+        .eq("acquisition_id", file.acquisition_id);
+      if (holdError) throw new Error(holdError.message);
+      await supabaseAdmin.from("audit_log").insert({
+        acquisition_id: file.acquisition_id,
+        actor,
+        action: "Clock placed on hold",
+        field: "clock_state",
+        old_value: String(file.clock_state ?? ""),
+        new_value: "hold",
+        reason: `${EXCLUSION_HOLD_REASON} — ${label} for ${legalName ?? uei} (${uei})`,
+        logged_at: ranAt,
+      });
+      result.placedOnHold = true;
+      placedOnHold += 1;
+    }
+
+    results.push(result);
+  }
+
+  const excludedFound = results.filter((r) => r.excluded).length;
+
+  const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
+    acquisition_id: null,
+    actor,
+    action: "Exclusions sweep",
+    field: "vendor exclusions",
+    old_value: null,
+    new_value: `${results.length} vendor check${results.length === 1 ? "" : "s"} across ${files.length} open file${files.length === 1 ? "" : "s"}`,
+    reason:
+      excludedFound === 0
+        ? "No vendor of record is excluded"
+        : `${excludedFound} excluded; ${placedOnHold} placed on hold`,
+    logged_at: ranAt,
+  });
+  if (auditError) throw new Error(auditError.message);
+
+  return {
+    ranAt,
+    actor,
+    filesChecked: files.length,
+    vendorsChecked: results.length,
+    excludedFound,
+    placedOnHold,
+    results,
+  };
+}

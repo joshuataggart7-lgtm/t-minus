@@ -26,6 +26,7 @@ import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisi
 import { Route as IntakeAcquisitionIdRouteImport } from './routes/intake_.$acquisitionId'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
 import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
+import { Route as ApiPublicHooksExclusionsSweepRouteImport } from './routes/api/public/hooks/exclusions-sweep'
 import { Route as ApiPublicHooksWatchRefreshRouteImport } from './routes/api/public/hooks/watch-refresh'
 
 const IndexRoute = IndexRouteImport.update({
@@ -115,6 +116,12 @@ const DocumentsTemplateKeyAcquisitionIdRoute =
     path: '/documents/$templateKey/$acquisitionId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksExclusionsSweepRoute =
+  ApiPublicHooksExclusionsSweepRouteImport.update({
+    id: '/api/public/hooks/exclusions-sweep',
+    path: '/api/public/hooks/exclusions-sweep',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksWatchRefreshRoute =
   ApiPublicHooksWatchRefreshRouteImport.update({
     id: '/api/public/hooks/watch-refresh',
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesByTo {
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesById {
@@ -181,6 +190,7 @@ export interface FileRoutesById {
   '/intake_/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRouteTypes {
@@ -203,6 +213,7 @@ export interface FileRouteTypes {
     | '/intake/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
+    | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/watch-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/intake/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey'
+    | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/watch-refresh'
   id:
     | '__root__'
@@ -243,6 +255,7 @@ export interface FileRouteTypes {
     | '/intake_/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
+    | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/watch-refresh'
   fileRoutesById: FileRoutesById
 }
@@ -264,6 +277,7 @@ export interface RootRouteChildren {
   IntakeAcquisitionIdRoute: typeof IntakeAcquisitionIdRoute
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
   DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
+  ApiPublicHooksExclusionsSweepRoute: typeof ApiPublicHooksExclusionsSweepRoute
   ApiPublicHooksWatchRefreshRoute: typeof ApiPublicHooksWatchRefreshRoute
 }
 
@@ -388,6 +402,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocumentsTemplateKeyAcquisitionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/exclusions-sweep': {
+      id: '/api/public/hooks/exclusions-sweep'
+      path: '/api/public/hooks/exclusions-sweep'
+      fullPath: '/api/public/hooks/exclusions-sweep'
+      preLoaderRoute: typeof ApiPublicHooksExclusionsSweepRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/watch-refresh': {
       id: '/api/public/hooks/watch-refresh'
       path: '/api/public/hooks/watch-refresh'
@@ -417,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentsTemplateKeyAcquisitionIdRoute:
     DocumentsTemplateKeyAcquisitionIdRoute,
   DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,
+  ApiPublicHooksExclusionsSweepRoute: ApiPublicHooksExclusionsSweepRoute,
   ApiPublicHooksWatchRefreshRoute: ApiPublicHooksWatchRefreshRoute,
 }
 export const routeTree = rootRouteImport
