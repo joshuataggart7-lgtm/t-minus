@@ -896,6 +896,57 @@ export type Database = {
           },
         ]
       }
+      template_defects: {
+        Row: {
+          acquisition_id: string | null
+          citation: string | null
+          correction: string | null
+          created_at: string
+          defect: string
+          defect_id: string
+          reported_at: string
+          reporter_name: string
+          reporter_role: string | null
+          revision: string | null
+          status: string
+          template_key: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id?: string | null
+          citation?: string | null
+          correction?: string | null
+          created_at?: string
+          defect: string
+          defect_id?: string
+          reported_at?: string
+          reporter_name: string
+          reporter_role?: string | null
+          revision?: string | null
+          status?: string
+          template_key: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string | null
+          citation?: string | null
+          correction?: string | null
+          created_at?: string
+          defect?: string
+          defect_id?: string
+          reported_at?: string
+          reporter_name?: string
+          reporter_role?: string | null
+          revision?: string | null
+          status?: string
+          template_key?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           applies_when: Json | null
