@@ -9,6 +9,7 @@ import { DefectReport } from "@/components/defect-report";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
+import { draftJofocItem, DRAFTABLE_JOFOC_FIELDS, type DraftProvenance } from "@/lib/ai-draft.functions";
 import {
   checkoutTime,
   claimCheckout,
@@ -100,9 +101,14 @@ function DocumentPage() {
   const [comparables, setComparables] = useState<ComparablesView | null>(null);
   const [checkout, setCheckout] = useState<Checkout | null>(null);
   const [myCheckoutId, setMyCheckoutId] = useState<string | null>(null);
+  // Provenance for each drafted paragraph, carried in the saved version.
+  const [aiMeta, setAiMeta] = useState<Record<string, DraftProvenance>>({});
+  const [sourcePanel, setSourcePanel] = useState<{ title: string; lines: string[] } | null>(null);
+  const [draftingKey, setDraftingKey] = useState<string | null>(null);
 
   const phase = phaseForTemplate(templateKey);
   const runComparablesFn = useServerFn(samContractAwards);
+  const draftItemFn = useServerFn(draftJofocItem);
 
   // Check-out: the first person to open the document holds it; everyone else
   // sees who and since when, and reads it until that person saves or closes,
@@ -407,7 +413,16 @@ function DocumentPage() {
     if (!def || !q.data?.acq || touched) return;
     const latest = q.data.versions[0]?.field_values;
     if (latest && typeof latest === "object") {
-      setValues(latest as Values);
+      const stored = { ...(latest as Values) };
+      const provenance = stored["__ai_provenance"];
+      if (provenance) {
+        try {
+          setAiMeta(JSON.parse(provenance) as Record<string, DraftProvenance>);
+        } catch {
+          setAiMeta({});
+        }
+      }
+      setValues(stored);
       return;
     }
     const filled = prefill(def, { ...q.data.acq, ...samFacts, acquisition_id: acquisitionId });
@@ -440,10 +455,19 @@ function DocumentPage() {
       if (!def || !q.data?.templateId) throw new Error("This template is not loaded in the database.");
       const nextVersion = (q.data.versions[0]?.version ?? 0) + 1;
       const savedAt = new Date().toISOString();
+      // Editing a drafted paragraph clears its AI label on the new version.
+      const keptMeta: Record<string, DraftProvenance> = {};
+      for (const [key, meta] of Object.entries(aiMeta)) {
+        if ((values[key] ?? "") === meta.draftText) keptMeta[key] = meta;
+      }
+      const fieldValues: Values = { ...values };
+      if (Object.keys(keptMeta).length) fieldValues["__ai_provenance"] = JSON.stringify(keptMeta);
+      else delete fieldValues["__ai_provenance"];
+      setAiMeta(keptMeta);
       const { error } = await supabase.from("documents").insert({
         acquisition_id: acquisitionId,
         template_id: q.data.templateId,
-        field_values: values as never,
+        field_values: fieldValues as never,
         version: nextVersion,
         saved_by: user.name,
         saved_at: savedAt,
