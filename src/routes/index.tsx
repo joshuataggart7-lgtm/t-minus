@@ -418,7 +418,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           {driver.daysToAward === null ? (
             <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
           ) : driver.daysToAward < 0 ? (
-            <p className="text-[18px] leading-6 font-semibold" style={{ color: "var(--atrisk)" }} data-numeric>
+            <p className="text-[18px] leading-6 font-semibold" style={{ color }} data-numeric>
               {Math.abs(driver.daysToAward)} days overdue
             </p>
           ) : (
