@@ -879,6 +879,9 @@ function IntakePage() {
                   {f.citation ? (
                     <p className="text-[13px] text-muted-foreground">{f.citation}</p>
                   ) : null}
+                  <p className="mt-1">
+                    <ExplainThis explanation={explainRedFlag(f)} />
+                  </p>
                 </li>
               ))}
             </ul>
