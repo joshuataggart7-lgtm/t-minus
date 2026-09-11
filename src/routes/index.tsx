@@ -157,11 +157,20 @@ function ExecutiveOverview() {
     <AppShell wide>
       <PageHeader title="Executive Overview" lead="T-Minus turns acquisition time into mission readiness." />
 
-      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-8 py-7 text-panel-foreground">
+      {q.isError ? (
+        <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+      ) : null}
+
+      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-5 py-6 text-panel-foreground sm:px-8 sm:py-7">
         <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
-        {missionRows.length === 0 ? (
+        {q.isLoading ? (
+          <p role="status" className="mt-4 text-panel-muted">
+            Loading the priority projects.
+          </p>
+        ) : missionRows.length === 0 ? (
           <p className="mt-4 text-panel-muted">No priority projects are loaded yet.</p>
         ) : (
+
           <ul className="mt-5 divide-y divide-panel-muted/30">
             {missionRows.map(({ mission, driver }) => (
               <li key={mission.mission_id} className="py-5">
