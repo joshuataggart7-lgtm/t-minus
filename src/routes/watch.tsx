@@ -34,9 +34,8 @@ export const Route = createFileRoute("/watch")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    tag: typeof search['tag'] === "string" ? (search['tag'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { tag?: string } =>
+    typeof search['tag'] === "string" ? { tag: search['tag'] as string } : {},
   component: WatchPage,
 });
 
