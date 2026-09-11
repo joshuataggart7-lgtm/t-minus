@@ -38,6 +38,7 @@ import {
   type ForecastAcq,
 } from "@/lib/forecast";
 import { ExplainThis } from "@/components/explain-this";
+import { SetAsideEvidencePanel } from "@/components/set-aside-evidence";
 import {
   explainHold,
   explainMissingDoc,
@@ -1214,6 +1215,14 @@ function FilePage() {
                   );
                 })}
               </ul>
+
+              {p.phase === "Market Research" ? (
+                <SetAsideEvidencePanel
+                  acquisitionId={acquisitionId}
+                  canWrite={canWrite}
+                  onConfirmed={() => void q.refetch()}
+                />
+              ) : null}
 
               {p.phase === "Price Reasonableness" ? (
                 <p className="mt-3 max-w-[80ch] text-[13px]">
