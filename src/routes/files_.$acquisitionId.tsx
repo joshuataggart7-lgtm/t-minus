@@ -25,6 +25,7 @@ import {
 } from "@/lib/launch-sequence";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
+import { protestWindow } from "@/lib/protest-window";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
