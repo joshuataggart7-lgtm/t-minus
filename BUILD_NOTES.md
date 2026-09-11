@@ -280,3 +280,16 @@ Polish
   audit entry with the file name and the counts included.
 - Verified on A-2027-0102: index lists the JOFOC versions, the TER, the SAM.gov checks
   and the audit log in tab order. Temporary test documents and audit rows were removed.
+
+## Days returned to missions
+
+- The Acquisitions tab on the Executive Overview shows a "Days returned to missions"
+  counter: the sum of each launched file's planned-minus-actual days (the same
+  timeSavedDays figure shown on mission rows) over files launched this quarter,
+  grouped by Center, with the method stated in one line above the figure.
+- Quarter membership follows the existing "Launched this quarter" rule: target
+  award date between the quarter start and today. Completed phases record actual
+  equal to planned, so the counter is 0 until phase actuals diverge from plan;
+  it then shows days ahead of or behind plan per Center.
+- Verified: ARC shows 0 ahead of plan for A-2027-0112 (launched 2026-09-01),
+  matching the sum of time_saved_days on launched files this quarter.
