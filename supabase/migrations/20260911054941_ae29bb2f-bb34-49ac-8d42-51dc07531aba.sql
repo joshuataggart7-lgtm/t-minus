@@ -1,0 +1,2 @@
+DELETE FROM public.audit_log WHERE acquisition_id LIKE 'A-2027-01%' AND acquisition_id NOT IN (SELECT acquisition_id FROM public.acquisition_facts WHERE acquisition_id <= 'A-2027-0112');
+DELETE FROM public.acquisition_facts WHERE acquisition_id > 'A-2027-0112';
