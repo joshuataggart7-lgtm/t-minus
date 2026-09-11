@@ -4,6 +4,7 @@ import { navFor, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { GlobalSearch } from "@/components/global-search";
 
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
@@ -72,6 +73,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         </div>
 
         <div className="flex items-center gap-3">
+          <GlobalSearch />
           <label htmlFor="role-toggle" className="text-[13px] text-muted-foreground">
             Signed in as
           </label>
