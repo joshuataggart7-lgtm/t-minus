@@ -21,6 +21,8 @@ import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
 import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
+import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
+import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +84,18 @@ const FilesAcquisitionIdRoute = FilesAcquisitionIdRouteImport.update({
   path: '/files/$acquisitionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocumentsTemplateKeyIndexRoute =
+  DocumentsTemplateKeyIndexRouteImport.update({
+    id: '/documents/$templateKey/',
+    path: '/documents/$templateKey/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DocumentsTemplateKeyAcquisitionIdRoute =
+  DocumentsTemplateKeyAcquisitionIdRouteImport.update({
+    id: '/documents/$templateKey/$acquisitionId',
+    path: '/documents/$templateKey/$acquisitionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -96,6 +110,8 @@ export interface FileRoutesByFullPath {
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
+  '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,6 +126,8 @@ export interface FileRoutesByTo {
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
+  '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -125,6 +143,8 @@ export interface FileRoutesById {
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
+  '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +161,8 @@ export interface FileRouteTypes {
     | '/watch'
     | '/work-queue'
     | '/files/$acquisitionId'
+    | '/documents/$templateKey/$acquisitionId'
+    | '/documents/$templateKey/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,6 +177,8 @@ export interface FileRouteTypes {
     | '/watch'
     | '/work-queue'
     | '/files/$acquisitionId'
+    | '/documents/$templateKey/$acquisitionId'
+    | '/documents/$templateKey'
   id:
     | '__root__'
     | '/'
@@ -169,6 +193,8 @@ export interface FileRouteTypes {
     | '/watch'
     | '/work-queue'
     | '/files_/$acquisitionId'
+    | '/documents/$templateKey/$acquisitionId'
+    | '/documents/$templateKey/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +210,8 @@ export interface RootRouteChildren {
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
   FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
+  DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
+  DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +300,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FilesAcquisitionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/documents/$templateKey/': {
+      id: '/documents/$templateKey/'
+      path: '/documents/$templateKey'
+      fullPath: '/documents/$templateKey/'
+      preLoaderRoute: typeof DocumentsTemplateKeyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documents/$templateKey/$acquisitionId': {
+      id: '/documents/$templateKey/$acquisitionId'
+      path: '/documents/$templateKey/$acquisitionId'
+      fullPath: '/documents/$templateKey/$acquisitionId'
+      preLoaderRoute: typeof DocumentsTemplateKeyAcquisitionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -288,6 +330,9 @@ const rootRouteChildren: RootRouteChildren = {
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,
   FilesAcquisitionIdRoute: FilesAcquisitionIdRoute,
+  DocumentsTemplateKeyAcquisitionIdRoute:
+    DocumentsTemplateKeyAcquisitionIdRoute,
+  DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
