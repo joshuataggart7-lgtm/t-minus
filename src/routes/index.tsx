@@ -66,7 +66,7 @@ function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
 function ExecutiveOverview() {
   const { role, authState } = useRole();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"acquisitions" | "enterprise">("acquisitions");
+  const [tab, setTab] = useState<"acquisitions" | "centers" | "enterprise">("acquisitions");
 
   useEffect(() => {
     if (role !== "executive" && role !== "hq") {
