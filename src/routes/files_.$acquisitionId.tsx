@@ -54,6 +54,10 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
 
 type Mode = "novice" | "veteran";
 
+/** The prototype has one seeded reviewer account; every review seat is
+ *  assigned to it so the demo path can vote. */
+const REVIEWER_NAME = userForRole("reviewer").name;
+
 function statusColor(state: string | null | undefined) {
   if (state === "hold") return "var(--atrisk)";
   if (state === "launched") return "var(--ontrack)";
