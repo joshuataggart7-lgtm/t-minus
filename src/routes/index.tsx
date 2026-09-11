@@ -388,10 +388,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             {mission.name}
           </Link>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
-            {mission.milestone ?? "Milestone"}
-          </p>
-          <p className="truncate text-[13px] leading-[18px] text-panel-muted">
-            Mission date {formatDate(mission.milestone_date)}
+            {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
           </p>
         </div>
 
