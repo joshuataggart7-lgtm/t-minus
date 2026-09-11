@@ -367,7 +367,7 @@ function DocumentPage() {
                     <button
                       type="button"
                       aria-label="Show the three citation corrections"
-                      className="shrink-0 rounded-md border border-border px-2 text-foreground"
+                      className="shrink-0 rounded-lg border border-border px-2 text-foreground"
                     >
                       Details
                     </button>
@@ -495,7 +495,7 @@ function DocumentPage() {
         <div className="mb-6 flex flex-wrap gap-3">
           <button
             type="submit"
-            className="rounded-lg px-3 py-2 text-[15px] text-white"
+            className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
             style={{ background: "var(--primary, #0B3D91)" }}
             disabled={!canWrite || save.isPending}
           >
@@ -622,7 +622,7 @@ function DocumentPage() {
               <div className="mt-3 flex gap-3">
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-white"
+                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
                   style={{ background: "var(--ontrack)" }}
                   disabled={vote.isPending}
                   onClick={() => vote.mutate({ choice: "go", reason: voteReason.trim() || null })}
@@ -631,7 +631,7 @@ function DocumentPage() {
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-white"
+                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
                   style={{ background: "var(--atrisk)" }}
                   disabled={vote.isPending}
                   onClick={() => {

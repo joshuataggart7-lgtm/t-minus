@@ -91,7 +91,7 @@ function ChecksPage() {
               onChange={(event) => setUei(event.target.value)}
               maxLength={20}
               autoComplete="off"
-              className="mt-2 block w-full rounded-lg border border-input bg-background px-3 py-2 uppercase"
+              className="mt-2 block w-full rounded-lg border border-input bg-background px-3 py-2"
               placeholder="Enter UEI"
             />
           </label>

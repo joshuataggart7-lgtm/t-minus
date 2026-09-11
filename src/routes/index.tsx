@@ -159,18 +159,18 @@ function ExecutiveOverview() {
     <AppShell wide>
       <PageHeader title="Executive Overview" lead="T-Minus turns acquisition time into mission readiness." />
 
-      <section aria-label="Mission clock" className="mb-10 rounded-xl bg-panel px-8 py-7 text-panel-foreground">
+      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-8 py-7 text-panel-foreground">
         <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
         {missionRows.length === 0 ? (
           <p className="mt-4 text-panel-muted">No priority projects are loaded yet.</p>
         ) : (
-          <ul className="mt-5 divide-y divide-white/15">
+          <ul className="mt-5 divide-y divide-panel-muted/30">
             {missionRows.map(({ mission, driver }) => (
               <li key={mission.mission_id} className="py-5">
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: driver.acq.acquisition_id }}
-                  className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                  className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
                 >
                   <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
                     <div>
@@ -543,7 +543,7 @@ function EnterpriseTab({
         ref={frame}
         title="ORBIT prototype"
         src="/orbit-prototype.html"
-        className="mt-6 h-[1200px] w-full rounded-xl border border-border bg-background"
+        className="mt-6 h-[1200px] w-full rounded-lg border border-border bg-background"
       />
     </div>
   );

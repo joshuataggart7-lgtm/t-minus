@@ -349,7 +349,7 @@ function FilePage() {
         </p>
       ) : null}
 
-      <section aria-label="Clock line" className="mb-10 rounded-xl bg-panel px-8 py-8 text-panel-foreground">
+      <section aria-label="Clock line" className="mb-10 rounded-lg bg-panel px-8 py-8 text-panel-foreground">
         <div className="grid gap-8 sm:grid-cols-4">
           <div>
             <p className="clock-figure" data-numeric>
