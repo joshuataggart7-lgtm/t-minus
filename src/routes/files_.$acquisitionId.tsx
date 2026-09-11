@@ -28,6 +28,7 @@ import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { protestWindow } from "@/lib/protest-window";
 import { successorFor } from "@/lib/successor";
+import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
 import {
   buildModificationPacket,
@@ -120,6 +121,9 @@ function FilePage() {
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
       ]);
+      const { data: centers } = await supabase
+        .from("centers")
+        .select("center_code,aging_threshold_days");
       const { data: successors } = await supabase
         .from("acquisition_facts")
         .select("acquisition_id")
@@ -135,6 +139,7 @@ function FilePage() {
       }
       return {
         acq: acq.data as AcqRow | null,
+        centers: centers ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
@@ -261,6 +266,13 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
   });
 
+  // Age of the current hold, against the Center's own aging window.
+  const holdAge = ageInDays((acq?.['hold_started_at'] as string | null) ?? null);
+  const holdThreshold = thresholdFor(
+    acq?.center_code ? String(acq.center_code) : null,
+    (q.data?.centers ?? []) as { center_code: string; aging_threshold_days?: number | null }[],
+  );
+
   const days = acq?.target_award_date ? daysBetween(todayISO(), acq.target_award_date) : null;
 
   const currentIndex = Math.max(
@@ -282,6 +294,10 @@ function FilePage() {
         next["clock_state"] = cause ? "hold" : "running";
         next["hold_reason"] = cause?.reason ?? null;
         next["hold_owner"] = cause?.owner ?? null;
+        // the hold's age runs from the moment it went on
+        next["hold_started_at"] = cause
+          ? ((acq['hold_started_at'] as string | null) ?? new Date().toISOString())
+          : null;
       }
 
       const { error } = await supabase
@@ -366,7 +382,13 @@ function FilePage() {
       if (!acq) return;
       const { error } = await supabase
         .from("acquisition_facts")
-        .update({ clock_state: "hold", hold_reason: reason, hold_owner: user.name, status: "scrubbed" })
+        .update({
+          clock_state: "hold",
+          hold_reason: reason,
+          hold_owner: user.name,
+          status: "scrubbed",
+          hold_started_at: new Date().toISOString(),
+        })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
       await supabase.from("audit_log").insert({
@@ -390,7 +412,13 @@ function FilePage() {
       if (!acq) return;
       const { error } = await supabase
         .from("acquisition_facts")
-        .update({ clock_state: "launched", hold_reason: null, hold_owner: null, status: "awarded" })
+        .update({
+          clock_state: "launched",
+          hold_reason: null,
+          hold_owner: null,
+          hold_started_at: null,
+          status: "awarded",
+        })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
       await supabase.from("audit_log").insert({
@@ -643,6 +671,13 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-panel-muted">
               {hold?.owner ?? acq?.hold_owner ?? "Nothing is blocking this file"}
             </p>
+            {effectiveState === "hold" && holdAge !== null ? (
+              <p className="mt-1 text-[13px] text-panel-muted">
+                {holdAge >= holdThreshold
+                  ? `Aging: on hold ${holdAge} days, past the ${holdThreshold}-day Center window`
+                  : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
+              </p>
+            ) : null}
           </div>
         </div>
       </section>

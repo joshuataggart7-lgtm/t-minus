@@ -432,3 +432,21 @@ fields filled and the badge showing the HQ effective date.
 - The seeds record no period of performance end for the two launched files, so a
   launched file without one shows a control for the CO to record it; the entry
   is audited and the clock computes from it. Nothing was invented in the seed.
+
+## E11. Aging holds and escalation
+
+- `centers.aging_threshold_days` (default 5) is the Center-configured window;
+  `users.supervisor_name` / `supervisor_email` name the supervisor a digest entry
+  goes to; `acquisition_facts.hold_started_at` and `polls.opened_at` give each
+  hold and each pending poll its age. Existing holds were backfilled from the
+  audit log.
+- `src/lib/aging.ts` computes each item's age, whether it is aging (age at or
+  past the Center's window), counts by Center, and the digest grouped by
+  supervisor. A hold owner who is not a user record escalates to the file's
+  contracting officer's supervisor.
+- `/escalations` lists open holds and pending polls with age, owner and standing,
+  shows the supervisor digest, and lets HQ set each Center's window (Center
+  policy); the change is audited. The Executive Overview Acquisitions tab shows
+  aging counts by Center, and the file's clock line shows the hold's age.
+- Checked by setting every Center's window to 0 days: both on-hold files read
+  Aging and appeared in the digest; the window was set back to 5.
