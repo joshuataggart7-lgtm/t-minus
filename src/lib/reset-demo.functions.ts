@@ -40,19 +40,28 @@ export const resetDemo = createServerFn({ method: "POST" })
     await clear("audit_log", "log_id");
     await clear("template_defects", "defect_id");
 
-    // Acquisitions that are not in acquisitions.json
+    // Acquisitions that are not in acquisitions.json. Records backfilled from
+    // SAM.gov are tagged "backfilled" and are left in place by the reset.
     const ids = seededAcquisitionIds();
     const { error: acqError } = await (
       supabaseAdmin as unknown as {
         from: (t: string) => {
-          delete: () => { not: (c: string, op: string, v: unknown) => Promise<{ error: { message: string } | null }> };
+          delete: () => {
+            not: (
+              c: string,
+              op: string,
+              v: unknown,
+            ) => { is: (c: string, v: unknown) => Promise<{ error: { message: string } | null }> };
+          };
         };
       }
     )
       .from("acquisition_facts")
       .delete()
-      .not("acquisition_id", "in", `(${ids.map((i) => `"${i}"`).join(",")})`);
+      .not("acquisition_id", "in", `(${ids.map((i) => `"${i}"`).join(",")})`)
+      .is("source_tag", null);
     if (acqError) throw new Error(`acquisition_facts: ${acqError.message}`);
+
 
     const counts = await reloadSeed(supabaseAdmin as never);
 

@@ -15,6 +15,8 @@ type Row = {
   vendor_uei: string | null;
   vendor_cage: string | null;
   mission_id: string | null;
+  contract_number: string | null;
+  source_tag: string | null;
   current_phase: string | null;
   clock_state: string | null;
   status: string | null;
@@ -46,6 +48,7 @@ function haystack(r: Row) {
     r.vendor_cage,
     r.mission_id,
     r.missions?.name,
+    r.contract_number,
   ]
     .filter(Boolean)
     .join(" ")
@@ -82,7 +85,7 @@ export function GlobalSearch() {
       const { data, error } = await supabase
         .from("acquisition_facts")
         .select(
-          "acquisition_id,title,pr_number,requester_name,vendor_legal_name,vendor_uei,vendor_cage,mission_id,current_phase,clock_state,status,hold_reason,target_award_date,missions(mission_id,name)",
+          "acquisition_id,title,pr_number,requester_name,vendor_legal_name,vendor_uei,vendor_cage,mission_id,contract_number,source_tag,current_phase,clock_state,status,hold_reason,target_award_date,missions(mission_id,name)",
         )
         .order("acquisition_id");
       if (error) throw error;
@@ -183,6 +186,8 @@ export function GlobalSearch() {
                           r.missions?.name ?? r.mission_id,
                           r.vendor_legal_name,
                           r.requester_name,
+                          r.contract_number ? `Contract ${r.contract_number}` : null,
+                          r.source_tag === "backfilled" ? "Backfilled" : null,
                         ]
                           .filter(Boolean)
                           .join(" · ")}

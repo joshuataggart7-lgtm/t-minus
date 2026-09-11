@@ -41,7 +41,7 @@ function FilesPage() {
       const { data } = await supabase
         .from("acquisition_facts")
         .select(
-          "acquisition_id,title,center_code,estimated_value,target_award_date,clock_state,current_phase,status,intake_estimate",
+          "acquisition_id,title,center_code,estimated_value,target_award_date,clock_state,current_phase,status,intake_estimate,source_tag,contract_number",
         )
         .order("acquisition_id");
       return data ?? [];
@@ -93,7 +93,14 @@ function FilesPage() {
                     {r.acquisition_id}
                   </Link>
                 </td>
-                <td className="p-2">{r.title}</td>
+                <td className="p-2">
+                  {r.title}
+                  {r.source_tag === "backfilled" ? (
+                    <span className="mt-1 block text-[13px] text-muted-foreground">
+                      Backfilled{r.contract_number ? ` · contract ${r.contract_number}` : ""}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="p-2">{r.center_code}</td>
                 <td className="p-2">
                   {r.estimated_value ? formatMoney(Number(r.estimated_value)) : "—"}

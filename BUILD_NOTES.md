@@ -470,3 +470,19 @@ fields filled and the badge showing the HQ effective date.
 - Required tabs are derived, not hard-coded: core tabbed records (JOFOC 015, Technical Evaluation Report 054, PNM 065, COR appointment 074, CPARS input 099) whose phase appears in the acquisition type's phase plan sequence.
 - The index appears on every acquisition file (tabs present with version counts, then required tabs with no document) and in the NEAR export index page.
 - Fixed `phaseForTemplate` to recognise the actual `technical-evaluation-report` template key.
+
+## E16. Agency backfill from Contract Awards
+
+- `src/lib/agency-backfill.functions.ts` (`agencyBackfill`, HQ only) calls the SAM.gov
+  Contract Awards API by agency code for a date range with `includeSections=nasaSpecific`,
+  reading `SAM_GOV_API_KEY` server-side (presence and length logged, never the value).
+- Awards land in `acquisition_facts` as post-award records: `current_phase` Administration,
+  `clock_state` launched, `status` Launched, `source_tag` "backfilled", raw award kept in
+  `backfill_source`. New columns: `contract_number` (partial unique index), `source_tag`,
+  `backfill_source`. De-duplication is by contract number.
+- The public contract awards endpoint still answers 404 for this key, so the run falls back to
+  two clearly labeled fictional NASA awards ("Sample data, fictional NASA awards").
+- Files and global search show the "Backfilled" tag and the contract number; the demo reset
+  now deletes only untagged non-seed acquisitions, so backfilled records survive a reset.
+- Test run: agency 080, 2026-06-01 to 2026-06-30 — 2 records added, re-run added 0 (2 already
+  on file), and both remained after a demo reset (14 files total).
