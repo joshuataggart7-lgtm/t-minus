@@ -1,0 +1,2 @@
+update public.acquisition_facts set igce_attached = false, acquisition_forecast_verified = true, clock_state = 'running', hold_reason = null, hold_owner = null where acquisition_id = 'A-2027-0101';
+delete from public.audit_log where acquisition_id = 'A-2027-0101' and actor = 'J. Rivera (fictional CO)' and action in ('Document attached','Document removed','Clock on hold','Clock resumed');
