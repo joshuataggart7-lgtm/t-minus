@@ -54,6 +54,7 @@ export type Database = {
           period_of_performance_end: string | null
           period_of_performance_start: string | null
           place_of_performance: string | null
+          place_of_performance_standardized: string | null
           post_award: Json
           pr_number: string | null
           psc_code: string | null
@@ -113,6 +114,7 @@ export type Database = {
           period_of_performance_end?: string | null
           period_of_performance_start?: string | null
           place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
           post_award?: Json
           pr_number?: string | null
           psc_code?: string | null
@@ -172,6 +174,7 @@ export type Database = {
           period_of_performance_end?: string | null
           period_of_performance_start?: string | null
           place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
           post_award?: Json
           pr_number?: string | null
           psc_code?: string | null
