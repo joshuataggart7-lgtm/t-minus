@@ -6,7 +6,7 @@ export const Route = createFileRoute("/api/public/hooks/watch-refresh")({
     handlers: {
       POST: async ({ request }) => {
         const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-        const secret = process.env['LOVABLE_CRON_SECRET'];
+        const secret = process.env['WATCH_CRON_SECRET'] ?? process.env['LOVABLE_CRON_SECRET'];
         if (!secret || !token || token !== secret) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 401,
