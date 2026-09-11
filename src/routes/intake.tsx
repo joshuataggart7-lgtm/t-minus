@@ -223,6 +223,8 @@ function IntakePage() {
       const today = todayISO();
       const lead = Number(facts.lead_to_delivery_days) || 0;
       const target = addDays(facts.need_date, -lead);
+      const est = estimate(inputsFromFacts(facts), data.data!.ref);
+      const stored = toStored(est);
 
       const payload = {
         acquisition_id: next,
