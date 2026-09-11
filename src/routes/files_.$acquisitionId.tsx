@@ -151,6 +151,7 @@ function FilePage() {
       return {
         acq: acq.data as AcqRow | null,
         centers: centers ?? [],
+        people: people ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
