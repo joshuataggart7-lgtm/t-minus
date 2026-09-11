@@ -227,13 +227,7 @@ async function main() {
     rfo_number_or_pcd: nul(r["rfo_number_or_pcd"]),
     post_rfo_date: nul(r["post_rfo_date"]),
   }));
-  const seenClauses = new Set<string>();
-  const dedupClauses = clauseRows.filter((r) => {
-    if (seenClauses.has(r.clause_number)) return false;
-    seenClauses.add(r.clause_number);
-    return true;
-  });
-  await load("clauses", dedupClauses, "clause_number");
+  await load("clauses", clauseRows);
 
   await load(
     "clause_matrix_2603b",
