@@ -16,6 +16,7 @@ import {
   withinDays,
 } from "@/lib/watch";
 import { SmallBusinessPanel } from "@/components/small-business-panel";
+import { successorRows } from "@/lib/successor";
 import type { ThresholdRow } from "@/lib/small-business";
 import {
   callout,
