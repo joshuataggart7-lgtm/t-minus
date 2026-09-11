@@ -99,11 +99,20 @@ function FilesPage() {
             ))}
           </tbody>
         </table>
-      ) : (
-        <p className="text-muted-foreground">
-          No files yet. Start an intake to put the first acquisition on the clock.
-        </p>
+      ) : q.isLoading || q.isError ? null : (
+        <EmptyState
+          sentence="No files are on the clock yet."
+          action={
+            <Link
+              to="/intake"
+              className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            >
+              Start an intake
+            </Link>
+          }
+        />
       )}
+
     </AppShell>
   );
 }

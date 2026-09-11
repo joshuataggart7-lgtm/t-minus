@@ -165,9 +165,10 @@ function SeedStatus() {
       ) : null}
 
       {authState !== "signed-in" ? (
-        <p className="text-muted-foreground">Waiting for sign-in.</p>
+        <LoadingNote what="your sign-in" />
       ) : isLoading ? (
-        <p className="text-muted-foreground">Counting rows.</p>
+        <LoadingNote what="the row counts" />
+
       ) : (
         <table className="w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Seeded table row counts</caption>
@@ -193,13 +194,14 @@ function SeedStatus() {
                 </td>
                 <td className="px-4 py-2">
                   {r.error ? (
-                    <span style={{ color: "var(--atrisk)" }}>Not created</span>
+                    <StatusMark color="var(--atrisk)">Not created</StatusMark>
                   ) : r.count > 0 ? (
-                    <span style={{ color: "var(--ontrack)" }}>Loaded</span>
+                    <StatusMark color="var(--ontrack)">Loaded</StatusMark>
                   ) : (
-                    <span style={{ color: "var(--attention)" }}>Empty</span>
+                    <StatusMark color="var(--attention)">Empty</StatusMark>
                   )}
                 </td>
+
               </tr>
             ))}
           </tbody>
