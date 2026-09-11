@@ -135,16 +135,16 @@ function SimulatePage() {
 
       {q.data ? (
         <>
-          <section className="mb-8 max-w-3xl">
-            <h2 className="section-heading">What to change</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+          <section className="mt-8 max-w-[80ch] border-t border-border pt-6">
+            <h2 className="text-lg font-medium">What to change</h2>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="sim-kind" className="field-label">
+                <label htmlFor="sim-kind" className="block text-sm text-muted">
                   Kind of rule
                 </label>
                 <select
                   id="sim-kind"
-                  className="field-control"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
                   value={kind}
                   onChange={(e) => {
                     const k = e.target.value as "threshold" | "review_trigger";
@@ -158,12 +158,12 @@ function SimulatePage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="sim-target" className="field-label">
+                <label htmlFor="sim-target" className="block text-sm text-muted">
                   {kind === "threshold" ? "Threshold" : "Reviewer"}
                 </label>
                 <select
                   id="sim-target"
-                  className="field-control"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
                   value={target}
                   onChange={(e) => {
                     setTarget(e.target.value);
@@ -178,12 +178,12 @@ function SimulatePage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="sim-value" className="field-label">
+                <label htmlFor="sim-value" className="block text-sm text-muted">
                   Proposed value in dollars
                 </label>
                 <input
                   id="sim-value"
-                  className="field-control tabular-nums"
+                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 tabular-nums"
                   inputMode="numeric"
                   value={value}
                   onChange={(e) => {
@@ -204,7 +204,7 @@ function SimulatePage() {
               <div className="flex items-end">
                 <button
                   type="button"
-                  className="btn-primary"
+                  className="rounded-lg bg-primary px-4 py-2 text-primary-foreground"
                   onClick={() => {
                     const n = Number(String(value).replace(/[^0-9.]/g, ""));
                     if (!Number.isFinite(n)) return;
@@ -218,8 +218,8 @@ function SimulatePage() {
           </section>
 
           {result ? (
-            <section>
-              <h2 className="section-heading">What would move</h2>
+            <section className="mt-10">
+              <h2 className="text-lg font-medium">What would move</h2>
               <p className="mb-2 text-lg">{result.headline}</p>
               <p className="mb-6 text-sm text-muted">
                 {result.filesConsidered} active files considered. {result.method}
@@ -228,38 +228,38 @@ function SimulatePage() {
               {result.filesAffected.length === 0 ? (
                 <EmptyState sentence="Every active file keeps the same review steps and the same planned days under this value." />
               ) : (
-                <table className="data-table">
+                <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
                   <caption className="sr-only">Files whose planned days change under the proposed value</caption>
                   <thead>
-                    <tr>
-                      <th scope="col">File</th>
-                      <th scope="col">Center</th>
-                      <th scope="col">Estimated value</th>
-                      <th scope="col">Planned days now</th>
-                      <th scope="col">Planned days then</th>
-                      <th scope="col">Difference</th>
-                      <th scope="col">Review steps that change</th>
+                    <tr className="border-b border-border text-left text-muted">
+                      <th scope="col" className="py-2 pr-4 font-medium">File</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Center</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Estimated value</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Planned days now</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Planned days then</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Difference</th>
+                      <th scope="col" className="py-2 pr-4 font-medium">Review steps that change</th>
                     </tr>
                   </thead>
                   <tbody>
                     {result.filesAffected.map((f) => (
-                      <tr key={f.acquisition_id}>
-                        <th scope="row" className="font-normal">
+                      <tr key={f.acquisition_id} className="border-b border-border align-top">
+                        <th scope="row" className="py-2 pr-4 text-left font-normal">
                           <Link to="/files/$acquisitionId" params={{ acquisitionId: f.acquisition_id }}>
                             {f.acquisition_id}
                           </Link>
                           <span className="block text-muted">{f.title}</span>
                         </th>
-                        <td>{f.center_code ?? "not recorded"}</td>
-                        <td className="tabular-nums">{money(f.estimated_value)}</td>
-                        <td className="tabular-nums">{f.daysNow}</td>
-                        <td className="tabular-nums">{f.daysThen}</td>
-                        <td className="tabular-nums">
+                        <td className="py-2 pr-4">{f.center_code ?? "not recorded"}</td>
+                        <td className="py-2 pr-4 tabular-nums">{money(f.estimated_value)}</td>
+                        <td className="py-2 pr-4 tabular-nums">{f.daysNow}</td>
+                        <td className="py-2 pr-4 tabular-nums">{f.daysThen}</td>
+                        <td className="py-2 pr-4 tabular-nums">
                           {f.daysSooner > 0
                             ? `${f.daysSooner} days sooner`
                             : `${Math.abs(f.daysSooner)} days longer`}
                         </td>
-                        <td>
+                        <td className="py-2 pr-4">
                           {f.removed.length ? <span className="block">Loses {f.removed.join(", ")}</span> : null}
                           {f.added.length ? <span className="block">Gains {f.added.join(", ")}</span> : null}
                         </td>
