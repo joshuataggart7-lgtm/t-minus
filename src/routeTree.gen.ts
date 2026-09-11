@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as ChecksRouteImport } from './routes/checks'
+import { Route as DeviationsRouteImport } from './routes/deviations'
 import { Route as DirectivesRouteImport } from './routes/directives'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
@@ -22,6 +23,7 @@ import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
+import { Route as DeviationsDeviationIdRouteImport } from './routes/deviations_.$deviationId'
 import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
 import { Route as IntakeAcquisitionIdRouteImport } from './routes/intake_.$acquisitionId'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
@@ -47,6 +49,11 @@ const AuditLogRoute = AuditLogRouteImport.update({
 const ChecksRoute = ChecksRouteImport.update({
   id: '/checks',
   path: '/checks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeviationsRoute = DeviationsRouteImport.update({
+  id: '/deviations',
+  path: '/deviations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DirectivesRoute = DirectivesRouteImport.update({
@@ -94,6 +101,11 @@ const WorkQueueRoute = WorkQueueRouteImport.update({
   path: '/work-queue',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeviationsDeviationIdRoute = DeviationsDeviationIdRouteImport.update({
+  id: '/deviations_/$deviationId',
+  path: '/deviations/$deviationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FilesAcquisitionIdRoute = FilesAcquisitionIdRouteImport.update({
   id: '/files_/$acquisitionId',
   path: '/files/$acquisitionId',
@@ -134,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
+  '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
@@ -143,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
@@ -155,6 +169,7 @@ export interface FileRoutesByTo {
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
+  '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
@@ -164,6 +179,7 @@ export interface FileRoutesByTo {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
@@ -177,6 +193,7 @@ export interface FileRoutesById {
   '/announcements': typeof AnnouncementsRoute
   '/audit-log': typeof AuditLogRoute
   '/checks': typeof ChecksRoute
+  '/deviations': typeof DeviationsRoute
   '/directives': typeof DirectivesRoute
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
@@ -186,6 +203,7 @@ export interface FileRoutesById {
   '/templates': typeof TemplatesRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
+  '/deviations_/$deviationId': typeof DeviationsDeviationIdRoute
   '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake_/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
@@ -200,6 +218,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/audit-log'
     | '/checks'
+    | '/deviations'
     | '/directives'
     | '/estimate'
     | '/files'
@@ -209,6 +228,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/deviations/$deviationId'
     | '/files/$acquisitionId'
     | '/intake/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
@@ -221,6 +241,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/audit-log'
     | '/checks'
+    | '/deviations'
     | '/directives'
     | '/estimate'
     | '/files'
@@ -230,6 +251,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/deviations/$deviationId'
     | '/files/$acquisitionId'
     | '/intake/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
@@ -242,6 +264,7 @@ export interface FileRouteTypes {
     | '/announcements'
     | '/audit-log'
     | '/checks'
+    | '/deviations'
     | '/directives'
     | '/estimate'
     | '/files'
@@ -251,6 +274,7 @@ export interface FileRouteTypes {
     | '/templates'
     | '/watch'
     | '/work-queue'
+    | '/deviations_/$deviationId'
     | '/files_/$acquisitionId'
     | '/intake_/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
@@ -264,6 +288,7 @@ export interface RootRouteChildren {
   AnnouncementsRoute: typeof AnnouncementsRoute
   AuditLogRoute: typeof AuditLogRoute
   ChecksRoute: typeof ChecksRoute
+  DeviationsRoute: typeof DeviationsRoute
   DirectivesRoute: typeof DirectivesRoute
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
@@ -273,6 +298,7 @@ export interface RootRouteChildren {
   TemplatesRoute: typeof TemplatesRoute
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
+  DeviationsDeviationIdRoute: typeof DeviationsDeviationIdRoute
   FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
   IntakeAcquisitionIdRoute: typeof IntakeAcquisitionIdRoute
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
@@ -309,6 +335,13 @@ declare module '@tanstack/react-router' {
       path: '/checks'
       fullPath: '/checks'
       preLoaderRoute: typeof ChecksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deviations': {
+      id: '/deviations'
+      path: '/deviations'
+      fullPath: '/deviations'
+      preLoaderRoute: typeof DeviationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/directives': {
@@ -374,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkQueueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deviations_/$deviationId': {
+      id: '/deviations_/$deviationId'
+      path: '/deviations/$deviationId'
+      fullPath: '/deviations/$deviationId'
+      preLoaderRoute: typeof DeviationsDeviationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/files_/$acquisitionId': {
       id: '/files_/$acquisitionId'
       path: '/files/$acquisitionId'
@@ -424,6 +464,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnnouncementsRoute: AnnouncementsRoute,
   AuditLogRoute: AuditLogRoute,
   ChecksRoute: ChecksRoute,
+  DeviationsRoute: DeviationsRoute,
   DirectivesRoute: DirectivesRoute,
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
@@ -433,6 +474,7 @@ const rootRouteChildren: RootRouteChildren = {
   TemplatesRoute: TemplatesRoute,
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,
+  DeviationsDeviationIdRoute: DeviationsDeviationIdRoute,
   FilesAcquisitionIdRoute: FilesAcquisitionIdRoute,
   IntakeAcquisitionIdRoute: IntakeAcquisitionIdRoute,
   DocumentsTemplateKeyAcquisitionIdRoute:

@@ -384,3 +384,13 @@ fields filled and the badge showing the HQ effective date.
 - Same deviation as B5/B11: this stack runs server functions and server routes, not Edge Functions. HQ runs it on demand through `runExclusionsSweepNow` (`src/lib/exclusions-sweep.functions.ts`); the schedule calls `POST /api/public/hooks/exclusions-sweep` guarded by the `WATCH_CRON_SECRET` bearer token. pg_cron job `exclusions-sweep-nightly` runs at 06:30 UTC daily.
 - The Executive Overview Acquisitions tab shows the last sweep time and result (`src/components/exclusions-sweep-panel.tsx`), with the run button for HQ only.
 - Verified: on-demand run as HQ produced one vendor check for A-2027-0102 (Meridian Flight Sciences, DEMOMFS00001), labeled "Sample data, fictional vendor", no exclusion, no hold.
+
+## E7. Deviation and waiver routing
+
+- `deviation_requests` and `deviation_votes` tables hold each request and its three votes, so a deviation can stand alone (no acquisition) or hang off one.
+- `src/lib/deviations.ts` holds the template metadata (NF 1098 tab 33, HQ effective 4/27/2026, guidance tier, FAR 1.402/1.403/1.404 and NFS 1801.4), the three reviewers (legal 5 days, policy 5, HCA 7), the clock reading and the poll board.
+- `/deviations` lists requests with their clock and state and carries the request form; `/deviations/$deviationId` shows the clock line, the request, the legal/policy/HCA poll with Go/No-go (a No-go needs a reason), the HCA decision and a delete action.
+- Start the clock sets the decision date 17 days out (the sum of the reviewer days) and opens the three votes with staggered due dates.
+- Every create, clock start, vote, decision and delete writes an audit entry with phase "Deviation request".
+- `templates.csv` row for tab 33 is now `live` and the catalog links it to `/deviations`.
+- Reviewer days are constants in `deviations.ts` rather than table rows; `review_rules.csv` carries no deviation rows to read from.

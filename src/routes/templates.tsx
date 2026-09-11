@@ -4,6 +4,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES } from "@/lib/template-engine";
+import { DEVIATION_TEMPLATE } from "@/lib/deviations";
 
 type TemplateRow = {
   template_id: string;
@@ -110,10 +111,15 @@ function TemplatesPage() {
                     .filter((r) => (r.nf_1098_tab ?? "—") === tab)
                     .map((r) => {
                       const key = r.status === "live" ? liveKeyFor(r.name) : null;
+                      const isDeviation = r.name === DEVIATION_TEMPLATE.name && r.status === "live";
                       return (
                         <tr key={r.template_id} className="border-b border-border last:border-0 align-top">
                           <td className="px-3 py-2">
-                            {key ? (
+                            {isDeviation ? (
+                              <Link to="/deviations" className="text-primary">
+                                {r.name}
+                              </Link>
+                            ) : key ? (
                               <Link to="/documents/$templateKey" params={{ templateKey: key }} className="text-primary">
                                 {r.name}
                               </Link>

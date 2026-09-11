@@ -490,6 +490,133 @@ export type Database = {
           },
         ]
       }
+      deviation_requests: {
+        Row: {
+          acquisition_id: string | null
+          center_code: string | null
+          citation: string
+          clock_started_at: string | null
+          clock_state: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision: string | null
+          decision_reason: string | null
+          deviation_id: string
+          deviation_type: string
+          justification: string | null
+          need_date: string | null
+          proposed_text: string | null
+          regulation_text: string | null
+          requester_name: string
+          status: string
+          target_decision_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id?: string | null
+          center_code?: string | null
+          citation: string
+          clock_started_at?: string | null
+          clock_state?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          decision_reason?: string | null
+          deviation_id?: string
+          deviation_type?: string
+          justification?: string | null
+          need_date?: string | null
+          proposed_text?: string | null
+          regulation_text?: string | null
+          requester_name: string
+          status?: string
+          target_decision_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string | null
+          center_code?: string | null
+          citation?: string
+          clock_started_at?: string | null
+          clock_state?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          decision_reason?: string | null
+          deviation_id?: string
+          deviation_type?: string
+          justification?: string | null
+          need_date?: string | null
+          proposed_text?: string | null
+          regulation_text?: string | null
+          requester_name?: string
+          status?: string
+          target_decision_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deviation_requests_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
+      deviation_votes: {
+        Row: {
+          created_at: string
+          deviation_id: string
+          due_date: string | null
+          reason: string | null
+          reviewer_name: string | null
+          reviewer_role: string
+          updated_at: string
+          vote: string | null
+          vote_id: string
+          voted_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deviation_id: string
+          due_date?: string | null
+          reason?: string | null
+          reviewer_name?: string | null
+          reviewer_role: string
+          updated_at?: string
+          vote?: string | null
+          vote_id?: string
+          voted_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deviation_id?: string
+          due_date?: string | null
+          reason?: string | null
+          reviewer_name?: string | null
+          reviewer_role?: string
+          updated_at?: string
+          vote?: string | null
+          vote_id?: string
+          voted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deviation_votes_deviation_id_fkey"
+            columns: ["deviation_id"]
+            isOneToOne: false
+            referencedRelation: "deviation_requests"
+            referencedColumns: ["deviation_id"]
+          },
+        ]
+      }
       document_checkouts: {
         Row: {
           acquisition_id: string
