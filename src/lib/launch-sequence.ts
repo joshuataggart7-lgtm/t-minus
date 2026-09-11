@@ -223,6 +223,9 @@ export function docSatisfied(doc: RequiredDoc, acq: AcqRow): boolean | null {
   if (!doc.field) return null;
   const v = acq[doc.field];
   if (doc.field === "jofoc_authority_citation") return Boolean(String(v ?? "").trim());
+  // A null value means the record has never carried this answer, which is not
+  // the same as a document that was removed. Only an explicit false holds.
+  if (v === null || v === undefined) return null;
   return Boolean(v);
 }
 
