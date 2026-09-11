@@ -261,6 +261,7 @@ function IntakePage() {
         status: "On Track",
         current_phase: "Intake",
         nf1707_answers: { ...carried, ...answers },
+        intake_estimate: stored,
       };
 
       const { error } = await supabase.from("acquisition_facts").insert(payload);
