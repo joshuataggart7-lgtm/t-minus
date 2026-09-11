@@ -159,6 +159,8 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       body: JSON.stringify({
         model,
         max_tokens: 2000,
+        system:
+          "You are a federal contracting writing assistant inside a NASA acquisition prototype. All records are fictional demonstration data. You draft ordinary procurement documentation paragraphs for a contracting officer to review and edit.",
         messages: [{ role: "user", content: prompt }],
       }),
     });
