@@ -418,21 +418,25 @@ export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[
     }
   }
 
-  const pollIndex = phases.findIndex((p) => p.needsPoll);
-  if (pollIndex >= 0 && currentIndex >= pollIndex) {
-    const nogo = board.find((b) => b.vote === "no-go");
-    if (nogo)
-      return {
-        reason: `No-go from ${nogo.reviewer_role}${nogo.reason ? `: ${nogo.reason}` : ""}`,
-        owner: `${nogo.reviewer_role}: ${nogo.reviewer_name}`,
-      };
-    const pending = board.find((b) => b.vote === "pending");
-    if (pending && currentIndex > pollIndex)
-      return {
-        reason: `Go/No-go poll still open: ${pending.reviewer_role} has not voted`,
-        owner: `${pending.reviewer_role}: ${pending.reviewer_name}`,
-      };
-  }
+  // A No-go holds the file at once, whichever review phase it came from.
+  const nogo = board.find((b) => b.vote === "no-go");
+  if (nogo)
+    return {
+      reason: `No-go: ${shortRole(nogo.reviewer_role)}${nogo.reason ? ` — ${nogo.reason}` : ""}`,
+      owner: `${nogo.reviewer_name} (${nogo.reviewer_role})`,
+    };
+
+  // A vote still pending when its phase has been left holds the file too.
+  const indexOf = (phase: string) => phases.findIndex((p) => p.phase === phase);
+  const pending = board.find((b) => {
+    const i = indexOf(b.phase);
+    return b.vote === "pending" && i >= 0 && currentIndex > i;
+  });
+  if (pending)
+    return {
+      reason: `${pending.phase}: ${pending.reviewer_role} has not voted`,
+      owner: `${pending.reviewer_name} (${pending.reviewer_role})`,
+    };
   return null;
 }
 
