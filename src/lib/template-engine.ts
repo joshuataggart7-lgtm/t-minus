@@ -42,6 +42,8 @@ export type TemplateDef = {
     citation: string;
     tier: "binding" | "guidance";
     revision: string;
+    /** Machine-readable HQ revision date, used to spot newer guidance. */
+    effective?: string;
     note?: string;
     corrections?: string[];
   };
@@ -165,6 +167,7 @@ const jofoc: TemplateDef = {
     citation: "FAR 6.103, FAR 6.104-1, NFS CG 1806.1, NFS CG 1806.15(a)",
     tier: "binding",
     revision: "HQ 04/2026 revision, effective 4/27/2026",
+    effective: "2026-04-27",
     note: "HQ 04/2026 revision; three citation corrections applied by T-Minus; reported to PGPD.",
     corrections: [
       "FAR 6.1030 to FAR 6.103",
@@ -478,6 +481,7 @@ const ter: TemplateDef = {
     citation: "FAR 15.404-4, FAR 15.404-9(c)(4)(ii), NFS CG 1815.45(b)",
     tier: "guidance",
     revision: "HQ revision 07/2026, effective 7/30/2026",
+    effective: "2026-07-30",
     note: "Mandatory above the simplified acquisition threshold for a sole-source proposal; optional at or below it.",
   },
   lead: "Items 1 through 7 are standard. Section 8 is tailored; mark anything that does not apply as N/A.",

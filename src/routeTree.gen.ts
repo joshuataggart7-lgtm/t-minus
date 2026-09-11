@@ -23,6 +23,7 @@ import { Route as WorkQueueRouteImport } from './routes/work-queue'
 import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
 import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
+import { Route as ApiPublicHooksWatchRefreshRouteImport } from './routes/api/public/hooks/watch-refresh'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +97,12 @@ const DocumentsTemplateKeyAcquisitionIdRoute =
     path: '/documents/$templateKey/$acquisitionId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksWatchRefreshRoute =
+  ApiPublicHooksWatchRefreshRouteImport.update({
+    id: '/api/public/hooks/watch-refresh',
+    path: '/api/public/hooks/watch-refresh',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -128,6 +136,7 @@ export interface FileRoutesByTo {
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,6 +154,7 @@ export interface FileRoutesById {
   '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
+  '/api/public/hooks/watch-refresh': typeof ApiPublicHooksWatchRefreshRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/files/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
+    | '/api/public/hooks/watch-refresh'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/files/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey'
+    | '/api/public/hooks/watch-refresh'
   id:
     | '__root__'
     | '/'
@@ -195,6 +207,7 @@ export interface FileRouteTypes {
     | '/files_/$acquisitionId'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
+    | '/api/public/hooks/watch-refresh'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +225,7 @@ export interface RootRouteChildren {
   FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
   DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
+  ApiPublicHooksWatchRefreshRoute: typeof ApiPublicHooksWatchRefreshRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -314,6 +328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocumentsTemplateKeyAcquisitionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/watch-refresh': {
+      id: '/api/public/hooks/watch-refresh'
+      path: '/api/public/hooks/watch-refresh'
+      fullPath: '/api/public/hooks/watch-refresh'
+      preLoaderRoute: typeof ApiPublicHooksWatchRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -333,6 +354,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocumentsTemplateKeyAcquisitionIdRoute:
     DocumentsTemplateKeyAcquisitionIdRoute,
   DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,
+  ApiPublicHooksWatchRefreshRoute: ApiPublicHooksWatchRefreshRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
