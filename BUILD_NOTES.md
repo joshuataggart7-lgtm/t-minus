@@ -516,3 +516,26 @@ threshold override replaces the thresholds row. Every set and end is logged.
 Verified: `v_report_acquisitions` returns the acquisitions with their metrics; a
 $5,000,000 legal review trigger at ARC removed legal review from A-2027-0101's
 Go/No-go poll while GSFC's A-2027-0107 kept it; the test override was removed.
+
+## E18. HQ regulatory data intake
+
+`/reg-intake`, HQ only (read-only sentence for every other role). HQ picks what
+is in the file — template list, thresholds, PCD list and regulatory references,
+clause matrix 26-03B, or the NFS clause matrix — uploads the comma separated
+file, and sets the effective date of the change.
+
+The file is read exactly as written; nothing is filled in for it. Rows are
+matched to what is loaded on a natural key (tab and name for templates, name and
+effective date for thresholds, citation and phase for references, clause number
+and title for the matrices), and the difference names the row, the column, the
+value loaded now, and the value in the file. Rows only in the file are new; rows
+only in the table are shown as no longer in the file.
+
+Apply writes the difference row by row, logs one summary entry plus one entry per
+changed field (capped at 200 rows of detail), and posts an announcement
+summarizing the change with its effective date and the file it came from.
+
+Verified: uploaded templates.csv with the Consolidation of Requirements date
+moved from 4/21/2026 to 5/21/2026; the page showed 0 added, 1 changed, 0 removed,
+98 unchanged; applying it posted "Regulatory data updated: Template list." The
+test change, its notice, and its log entries were removed afterwards.
