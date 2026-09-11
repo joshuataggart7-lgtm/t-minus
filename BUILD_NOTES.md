@@ -343,3 +343,12 @@ to Administration, so the regulation sidebar and poll board follow the phase.
 templates.csv and the templates table now mark these rows live with their
 governing citations. Verified: all nine open on A-2027-0101 with the record
 fields filled and the badge showing the HQ effective date.
+
+## E3. Post-award modules
+
+- New `acquisition_facts.post_award` jsonb block holds the option notice and exercise dates, COR appointment and cancellation dates, the CPARS entry date, the NASA closeout requisition number, and the final payment date. Every change writes an audit entry with phase Administration or Closeout.
+- `src/lib/post-award.ts`: option schedule (base period from the recorded period of performance, or one year from the award date when none is recorded; option years follow it; preliminary notice due 60 days before each option period, FAR 52.217-9 fill-in), CPARS view (applies above the CPARS threshold row; period is the twelve months after award, input due 120 days after that period ends), retention view (years read from a new thresholds row), FAR 4.804-5 closeout checklist, and the SF 30 clause delta computed from the disposition/status recorded in the clause matrices.
+- New thresholds row "Contract file records retention after final payment (years)" = 6, FAR 4.805 Table 4-1, added to the database and to `t-minus-seed/thresholds.csv` so a demo reset keeps it.
+- Four templates marked live and defined: COR appointment and COR cancellation (tab 074, HQ 5/22/2026), CPARS Input (tab 099, HQ 4/21/2026), Closeout Transfer Checklist (HQ 6/10/2026). Option exercise notice and determination were already live from E2.
+- Administration phase now shows the option-exercise panel with the option-year dates and an SF 30 handoff packet for the modification, the COR panel, the CPARS panel with the computed due date, and the SF 30 clause delta with its packet. Closeout shows the checklist, the NASA closeout PR field, the final payment date, and the computed records retention date.
+- Verified: A-2027-0112 (launched) shows the checklist and a retention date of 2032-09-01 from the 2026-09-01 award; A-2027-0111 shows option period 1 starting 2028-02-24 with the preliminary notice due 2027-12-26.
