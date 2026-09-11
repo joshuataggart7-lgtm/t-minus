@@ -38,7 +38,13 @@ export type TemplateDef = {
   /** Name as it appears in the templates table. */
   name: string;
   tab: string;
-  badge: { citation: string; tier: "binding" | "guidance"; revision: string; note?: string };
+  badge: {
+    citation: string;
+    tier: "binding" | "guidance";
+    revision: string;
+    note?: string;
+    corrections?: string[];
+  };
   lead: string;
   sections: SectionDef[];
   /** Optional signature page selected by estimated value. */
@@ -160,6 +166,11 @@ const jofoc: TemplateDef = {
     tier: "binding",
     revision: "HQ 04/2026 revision, effective 4/27/2026",
     note: "HQ 04/2026 revision; three citation corrections applied by T-Minus; reported to PGPD.",
+    corrections: [
+      "FAR 6.1030 to FAR 6.103",
+      "six areas to eleven items at FAR 6.104-1(a)(1) through (a)(11)",
+      "Subpart 5.2 and 'synopsized' to Subpart 5.1 and 'publicized.'",
+    ],
   },
   lead: "Eleven items at FAR 6.104-1(a)(1) through (a)(11).",
   sections: [
