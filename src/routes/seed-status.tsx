@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell, PageHeader } from "@/components/app-shell";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 const TABLES = [
   "users",
@@ -28,7 +28,9 @@ const TABLES = [
 async function countRows() {
   const results = await Promise.all(
     TABLES.map(async (table) => {
-      const { count, error } = await supabase
+      const { count, error } = await (supabase as never as {
+        from: (t: string) => { select: (s: string, o: { count: "exact"; head: boolean }) => Promise<{ count: number | null; error: { message: string } | null }> };
+      })
         .from(table)
         .select("*", { count: "exact", head: true });
       return { table, count: count ?? 0, error: error?.message ?? null };

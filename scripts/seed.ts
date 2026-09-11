@@ -122,7 +122,17 @@ async function main() {
   );
 
   await load("missions", JSON.parse(read("missions.json")), "mission_id");
-  await load("acquisition_facts", JSON.parse(read("acquisitions.json")), "acquisition_id");
+
+  // Sanitize acquisition rows: convert empty strings to null for date/numeric
+  // fields so Postgres doesn't reject them.
+  const acqRows = (JSON.parse(read("acquisitions.json")) as Record<string, unknown>[]).map((row) => {
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(row)) {
+      out[k] = v === "" ? null : v;
+    }
+    return out;
+  });
+  await load("acquisition_facts", acqRows, "acquisition_id");
 
   await load(
     "thresholds",
@@ -199,26 +209,31 @@ async function main() {
     })),
   );
 
-  await load(
-    "clauses",
-    parseCsv(read("clauses.csv")).map((r) => ({
-      clause_number: r["clause_number"],
-      title: nul(r["title"]),
-      ucf_section: nul(r["ucf_section"]),
-      prescription_citation: nul(r["prescription_citation"]),
-      last_updated: nul(r["last_updated"]),
-      last_sync: nul(r["last_sync"]),
-      source: nul(r["source"]),
-      status: nul(r["status"]),
-      applies_when: r["applies_when"] ? JSON.parse(r["applies_when"]) : null,
-      fill_ins: r["fill_ins"] ? JSON.parse(r["fill_ins"]) : null,
-      pcd_reference: nul(r["pcd_reference"]),
-      disposition: nul(r["disposition"]),
-      rfo_number_or_pcd: nul(r["rfo_number_or_pcd"]),
-      post_rfo_date: nul(r["post_rfo_date"]),
-    })),
-    "clause_number",
-  );
+  // Deduplicate clauses by clause_number (CSV has 253 duplicate entries with
+  // different dates/sources; keep the first occurrence for the prototype).
+  const clauseRows = parseCsv(read("clauses.csv")).map((r) => ({
+    clause_number: r["clause_number"],
+    title: nul(r["title"]),
+    ucf_section: nul(r["ucf_section"]),
+    prescription_citation: nul(r["prescription_citation"]),
+    last_updated: nul(r["last_updated"]),
+    last_sync: nul(r["last_sync"]),
+    source: nul(r["source"]),
+    status: nul(r["status"]),
+    applies_when: r["applies_when"] ? JSON.parse(r["applies_when"]) : null,
+    fill_ins: r["fill_ins"] ? JSON.parse(r["fill_ins"]) : null,
+    pcd_reference: nul(r["pcd_reference"]),
+    disposition: nul(r["disposition"]),
+    rfo_number_or_pcd: nul(r["rfo_number_or_pcd"]),
+    post_rfo_date: nul(r["post_rfo_date"]),
+  }));
+  const seenClauses = new Set<string>();
+  const dedupClauses = clauseRows.filter((r) => {
+    if (seenClauses.has(r.clause_number)) return false;
+    seenClauses.add(r.clause_number);
+    return true;
+  });
+  await load("clauses", dedupClauses, "clause_number");
 
   await load(
     "clause_matrix_2603b",
