@@ -446,6 +446,65 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
 
+  // ------------------------------------------------------ post-award modules
+  const pa = postAward(acq);
+  const options = useMemo(() => optionSchedule(acq, awardDate), [acq, awardDate]);
+  const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);
+  const retention = useMemo(
+    () => retentionView(q.data?.thresholds ?? [], pa.final_payment_date ?? null, awardDate),
+    [q.data?.thresholds, pa.final_payment_date, awardDate],
+  );
+  const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
+
+  const savePostAward = useMutation({
+    mutationFn: async (input: { patch: PostAward; action: string; field: string; reason: string; phase: string }) => {
+      if (!acq) return;
+      const next = { ...pa, ...input.patch };
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ post_award: next, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: input.action,
+        field: input.field,
+        old_value: String((pa as Record<string, string | undefined>)[input.field] ?? ""),
+        new_value: String((input.patch as Record<string, string | undefined>)[input.field] ?? ""),
+        reason: input.reason,
+        phase: input.phase,
+      });
+    },
+    onSuccess: () => {
+      setBanner("Recorded.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
+  });
+
+  function downloadModPacket(kind: "option exercise" | "administrative", authority: string, period: OptionPeriod | null) {
+    if (!acq) return;
+    const packet = buildModificationPacket(acq, kind, authority, delta, period);
+    const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sf30-handoff-${acq.acquisition_id}-${kind.replace(/\s+/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    void supabase.from("audit_log").insert({
+      acquisition_id: acq.acquisition_id,
+      actor: user.name,
+      action: "SF 30 modification handoff packet built",
+      field: "modification",
+      old_value: null,
+      new_value: kind,
+      reason: `${authority}; ${delta.updated.length} clauses updated, ${delta.removed.length} removed`,
+      phase: "Administration",
+    });
+  }
+
   return (
     <AppShell>
       <PageHeader
