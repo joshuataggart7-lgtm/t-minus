@@ -653,6 +653,80 @@ export type Database = {
         }
         Relationships: []
       }
+      document_shares: {
+        Row: {
+          acquisition_id: string | null
+          created_at: string
+          document_id: string
+          document_version: number | null
+          expires_at: string
+          issued_by: string
+          issued_by_user_id: string | null
+          last_opened_at: string | null
+          magic_link_note: string | null
+          magic_link_sent: boolean
+          open_count: number
+          recipient_email: string
+          recipient_name: string | null
+          revoked_at: string | null
+          revoked_by: string | null
+          share_id: string
+          template_name: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id?: string | null
+          created_at?: string
+          document_id: string
+          document_version?: number | null
+          expires_at: string
+          issued_by: string
+          issued_by_user_id?: string | null
+          last_opened_at?: string | null
+          magic_link_note?: string | null
+          magic_link_sent?: boolean
+          open_count?: number
+          recipient_email: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          share_id?: string
+          template_name: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string | null
+          created_at?: string
+          document_id?: string
+          document_version?: number | null
+          expires_at?: string
+          issued_by?: string
+          issued_by_user_id?: string | null
+          last_opened_at?: string | null
+          magic_link_note?: string | null
+          magic_link_sent?: boolean
+          open_count?: number
+          recipient_email?: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          revoked_by?: string | null
+          share_id?: string
+          template_name?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_shares_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["document_id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           acquisition_id: string | null

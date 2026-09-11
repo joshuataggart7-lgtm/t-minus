@@ -26,6 +26,7 @@ import { Route as WorkQueueRouteImport } from './routes/work-queue'
 import { Route as DeviationsDeviationIdRouteImport } from './routes/deviations_.$deviationId'
 import { Route as FilesAcquisitionIdRouteImport } from './routes/files_.$acquisitionId'
 import { Route as IntakeAcquisitionIdRouteImport } from './routes/intake_.$acquisitionId'
+import { Route as SharedTokenRouteImport } from './routes/shared.$token'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
 import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
 import { Route as ApiPublicHooksExclusionsSweepRouteImport } from './routes/api/public/hooks/exclusions-sweep'
@@ -116,6 +117,11 @@ const IntakeAcquisitionIdRoute = IntakeAcquisitionIdRouteImport.update({
   path: '/intake/$acquisitionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SharedTokenRoute = SharedTokenRouteImport.update({
+  id: '/shared/$token',
+  path: '/shared/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocumentsTemplateKeyIndexRoute =
   DocumentsTemplateKeyIndexRouteImport.update({
     id: '/documents/$templateKey/',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
   '/files/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/deviations_/$deviationId': typeof DeviationsDeviationIdRoute
   '/files_/$acquisitionId': typeof FilesAcquisitionIdRoute
   '/intake_/$acquisitionId': typeof IntakeAcquisitionIdRoute
+  '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
@@ -231,6 +240,7 @@ export interface FileRouteTypes {
     | '/deviations/$deviationId'
     | '/files/$acquisitionId'
     | '/intake/$acquisitionId'
+    | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/deviations/$deviationId'
     | '/files/$acquisitionId'
     | '/intake/$acquisitionId'
+    | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey'
     | '/api/public/hooks/exclusions-sweep'
@@ -277,6 +288,7 @@ export interface FileRouteTypes {
     | '/deviations_/$deviationId'
     | '/files_/$acquisitionId'
     | '/intake_/$acquisitionId'
+    | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
@@ -301,6 +313,7 @@ export interface RootRouteChildren {
   DeviationsDeviationIdRoute: typeof DeviationsDeviationIdRoute
   FilesAcquisitionIdRoute: typeof FilesAcquisitionIdRoute
   IntakeAcquisitionIdRoute: typeof IntakeAcquisitionIdRoute
+  SharedTokenRoute: typeof SharedTokenRoute
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
   DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
   ApiPublicHooksExclusionsSweepRoute: typeof ApiPublicHooksExclusionsSweepRoute
@@ -428,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IntakeAcquisitionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/shared/$token': {
+      id: '/shared/$token'
+      path: '/shared/$token'
+      fullPath: '/shared/$token'
+      preLoaderRoute: typeof SharedTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/documents/$templateKey/': {
       id: '/documents/$templateKey/'
       path: '/documents/$templateKey'
@@ -477,6 +497,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeviationsDeviationIdRoute: DeviationsDeviationIdRoute,
   FilesAcquisitionIdRoute: FilesAcquisitionIdRoute,
   IntakeAcquisitionIdRoute: IntakeAcquisitionIdRoute,
+  SharedTokenRoute: SharedTokenRoute,
   DocumentsTemplateKeyAcquisitionIdRoute:
     DocumentsTemplateKeyAcquisitionIdRoute,
   DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,

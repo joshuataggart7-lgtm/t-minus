@@ -6,6 +6,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { DefectReport } from "@/components/defect-report";
+import { ShareDocument } from "@/components/share-document";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
@@ -1095,6 +1096,11 @@ function DocumentPage() {
           <p className="mt-2 text-[13px] text-muted-foreground">Save a version first, then comment on it.</p>
         ) : null}
       </section>
+
+      <ShareDocument
+        documentId={latest?.document_id ?? null}
+        canShare={role === "specialist" || role === "hq"}
+      />
 
       <section className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>
