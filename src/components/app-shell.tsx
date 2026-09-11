@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { navFor, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
+import { Orby } from "@/components/orby";
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
 
@@ -10,6 +11,29 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = navFor(role);
+
+  // Easter egg: five clicks in a row on the wordmark summon Orby once.
+  const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
+  const clicks = useRef({ count: 0, at: 0, acq: null as string | null });
+  const onWordmarkClick = useCallback(
+    (e: React.MouseEvent) => {
+      const now = Date.now();
+      const s = clicks.current;
+      if (now - s.at > 700) {
+        s.count = 0;
+        s.acq = /^\/files\/([^/]+)/.exec(pathname)?.[1] ?? null;
+      }
+      s.at = now;
+      s.count += 1;
+      if (s.count > 1) e.preventDefault();
+      if (s.count >= 5) {
+        s.count = 0;
+        setOrbyFor({ id: s.acq, key: now });
+      }
+    },
+    [pathname],
+  );
+
 
   return (
     <div className="min-h-screen bg-canvas text-foreground">
