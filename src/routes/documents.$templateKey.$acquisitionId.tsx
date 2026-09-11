@@ -549,6 +549,50 @@ function DocumentPage() {
 
   const guidance = newerGuidance(def.badge.citation, def.badge.effective ?? null, q.data?.watchItems ?? []);
 
+  const recordValue = (bind: string) => {
+    const v = (q.data?.acq as Record<string, unknown> | null | undefined)?.[bind];
+    return v === null || v === undefined || v === "" ? "not recorded" : String(v);
+  };
+
+  /** Where a filled field came from: the intake field, the template item, or the citation. */
+  const openSource = (s: { id: string; title: string; citation?: string }, f: { key: string; label: string; bind?: string }) => {
+    const meta = aiMeta[f.key];
+    const lines: string[] = [];
+    if (meta) {
+      lines.push(`AI draft written by ${meta.model} on ${new Date(meta.generatedAt).toLocaleString()}.`);
+      lines.push(`Template revision: ${meta.templateRevision} · Item: ${meta.templateItem}`);
+      lines.push(`Template instruction used: ${meta.templateText}`);
+      lines.push(`Record fields used: ${meta.recordFields.map((r) => `${r.field} = ${r.value}`).join("; ")}`);
+      lines.push(meta.reviewed ? "Marked reviewed by the contracting officer." : "AI draft, not yet reviewed.");
+    } else if (f.bind) {
+      lines.push(`Intake field: ${f.bind}`);
+      lines.push(`Value on the record: ${recordValue(f.bind)}`);
+      lines.push(`Written into: ${s.title}`);
+      lines.push(`Template revision: ${def.badge.revision}`);
+    } else {
+      lines.push(`Typed on this template. Template revision: ${def.badge.revision}`);
+      lines.push(`Item: ${s.title}`);
+    }
+    if (s.citation) lines.push(`Authority citation: ${s.citation}`);
+    setSourcePanel({ title: f.label, lines });
+  };
+
+  const runDraft = async (key: string) => {
+    setDraftingKey(key);
+    setMessage(null);
+    try {
+      const result = await draftItemFn({ data: { acquisitionId, fieldKey: key } });
+      setTouched(true);
+      setValues((prev) => ({ ...prev, [key]: result.text }));
+      setAiMeta((prev) => ({ ...prev, [key]: result.provenance }));
+      setMessage(`Drafted with ${result.provenance.model}. Read it, edit it, then save a version.`);
+    } catch (e) {
+      setMessage(e instanceof Error ? `The draft did not run: ${e.message}` : "The draft did not run.");
+    } finally {
+      setDraftingKey(null);
+    }
+  };
+
   const set = (key: string, v: string) => {
     setTouched(true);
     setValues((prev) => ({ ...prev, [key]: v }));
@@ -559,7 +603,7 @@ function DocumentPage() {
       <PageHeader
         title={def.name}
         lead={`${acquisitionId} · ${def.lead}${
-          latest && !latest.reviewed_by ? " · AI draft, not yet reviewed" : ""
+          Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
 
@@ -670,10 +714,51 @@ function DocumentPage() {
               const err = touched ? errors[f.key] : undefined;
               return (
                 <div key={f.key} className="mb-4">
-                  <label htmlFor={id} className="block text-[13px] text-muted-foreground">
-                    {f.label}
-                    {f.required ? " (required)" : ""}
-                  </label>
+                  <div className="flex flex-wrap items-baseline gap-3">
+                    <label htmlFor={id} className="block text-[13px] text-muted-foreground">
+                      {f.label}
+                      {f.required ? " (required)" : ""}
+                    </label>
+                    <button
+                      type="button"
+                      className="text-[13px] text-primary underline"
+                      onClick={() => openSource(s, f)}
+                    >
+                      Source
+                    </button>
+                    {def.key === "jofoc" && DRAFTABLE_JOFOC_FIELDS[f.key] && canEdit ? (
+                      <button
+                        type="button"
+                        className="rounded-lg border border-border px-2 py-1 text-[13px]"
+                        disabled={draftingKey === f.key}
+                        onClick={() => void runDraft(f.key)}
+                      >
+                        {draftingKey === f.key ? "Drafting" : "Draft from the record"}
+                      </button>
+                    ) : null}
+                  </div>
+                  {aiMeta[f.key] ? (
+                    <p className="mt-1 text-[13px]">
+                      <StatusMark color={aiMeta[f.key]!.reviewed ? "var(--ontrack)" : "var(--attention)"}>
+                        {aiMeta[f.key]!.reviewed ? "Reviewed by the contracting officer" : "AI draft, not yet reviewed"}
+                      </StatusMark>
+                      <span className="ml-2 text-muted-foreground">
+                        {aiMeta[f.key]!.model} · {new Date(aiMeta[f.key]!.generatedAt).toLocaleString()}
+                      </span>
+                      {!aiMeta[f.key]!.reviewed && canEdit ? (
+                        <button
+                          type="button"
+                          className="ml-3 rounded-lg border border-border px-2 py-1 text-[13px]"
+                          onClick={() => {
+                            setTouched(true);
+                            setAiMeta((prev) => ({ ...prev, [f.key]: { ...prev[f.key]!, reviewed: true } }));
+                          }}
+                        >
+                          Mark reviewed
+                        </button>
+                      ) : null}
+                    </p>
+                  ) : null}
                   {f.kind === "readonly" ? (
                     <p id={id} className="text-[15px]">
                       {values[f.key] || "—"}
@@ -1037,6 +1122,29 @@ function DocumentPage() {
           <p className="text-muted-foreground">No versions yet. Save one to start the history.</p>
         )}
       </section>
+
+      {sourcePanel ? (
+        <section
+          aria-label="Source"
+          className="mb-10 max-w-[80ch] border border-border bg-background p-4"
+        >
+          <h2 className="text-[18px] leading-6 font-medium">Source of {sourcePanel.title}</h2>
+          <ul className="mt-2 space-y-1">
+            {sourcePanel.lines.map((line) => (
+              <li key={line} className="text-[15px] leading-[22px]">
+                {line}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            className="mt-3 rounded-lg border border-border px-3 py-2 text-[15px]"
+            onClick={() => setSourcePanel(null)}
+          >
+            Close
+          </button>
+        </section>
+      ) : null}
 
       <div className="flex gap-4">
         <Link to="/templates" className="text-primary">
