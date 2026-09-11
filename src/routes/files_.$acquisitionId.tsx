@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
 import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";

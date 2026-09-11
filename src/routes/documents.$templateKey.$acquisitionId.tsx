@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
@@ -536,6 +537,8 @@ function DocumentPage() {
           latest && !latest.reviewed_by ? " · AI draft, not yet reviewed" : ""
         }`}
       />
+
+      <RegulationSidebar phase={phase} />
 
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
