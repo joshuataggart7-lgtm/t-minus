@@ -304,6 +304,7 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "jofoc") return "JOFOC";
   if (templateKey === "nf-1707") return "Intake";
   if (templateKey === "tech-eval") return "Technical Evaluation";
+  if (templateKey === "nonresponsibility") return "Responsibility Check";
   return "Go/No-go Poll";
 }
 
