@@ -118,7 +118,7 @@ const CLAUSE_PATTERN = /\b(?:52|1852)\.\d{3}-\d{1,2}(?:\s*Alt\.?\s*[IVX]+)?/i;
 export function changesFromWatch(items: WatchClauseItem[]): ClauseChange[] {
   return items
     .filter((i) => (i.tags ?? []).some((t) => /clause change/i.test(t)))
-    .map((i) => {
+    .map((i): ClauseChange | null => {
       const found = CLAUSE_PATTERN.exec(`${i.title ?? ""} ${i.summary ?? ""}`);
       if (!found) return null;
       return {
@@ -370,7 +370,7 @@ export async function sf30PacketFor(change: ClauseChange, row: ImpactRow) {
     .from("clauses")
     .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
     .eq("clause_number", change.clause_number);
-  const delta = clauseDelta(((clauseRows ?? []) as unknown as ClauseRow[]) ?? []);
+  const delta = clauseDelta((clauseRows ?? []) as unknown as ClauseRow[]);
   const packet = buildModificationPacket(
     acq as never,
     "administrative",
