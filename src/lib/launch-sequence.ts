@@ -382,7 +382,7 @@ export function pollBoard(
       poll_id: row?.poll_id ?? null,
       phase,
       reviewer_role: r.reviewer_role,
-      reviewer_name: row?.reviewer_name ?? "Not yet assigned",
+      reviewer_name: row?.reviewer_name ?? reviewerNameForRole(r.reviewer_role),
       vote: vote === "go" || vote === "no-go" ? vote : "pending",
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,

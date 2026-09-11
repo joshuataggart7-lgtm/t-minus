@@ -72,7 +72,7 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
   { to: "/pgpd-queue", label: "PGPD queue", roles: ["hq"] },
   { to: "/announcements", label: "Announcements", roles: "all" },
   { to: "/intake", label: "Intake", roles: ["specialist", "requester", "hq"] },
-  { to: "/estimate", label: "Estimate", roles: ["specialist", "hq"], note: "Reserved for B12" },
+  { to: "/estimate", label: "Estimate", roles: ["specialist", "hq"] },
 ];
 
 export function userForRole(role: RoleId): SeededUser {
