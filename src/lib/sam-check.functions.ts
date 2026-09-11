@@ -217,6 +217,8 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
     }
 
     const view = normalizedFromRaw(raw, uei, naicsCode, checkedAt, source, acquisitionId);
+    if (providerError) view.providerError = providerError;
+
     const { error: saveError } = await supabaseAdmin.from("sam_checks").insert({
       acquisition_id: acquisitionId,
       vendor_uei: uei,
