@@ -7,3 +7,4 @@
 - [x] E26. Teams bot (production path): planned card on Enterprise tab with mock transcript using A-2027-0101; marked Planned, not built.
 - [x] E27. Clause change impact list: affected contracts, mod tasks, SF 30 handoff packets, mods done against due by Center.
 - [x] E28. About page, data sources, build stamp, feedback to the HQ queue, computed-at line on the Overview.
+- [ ] Rebuild NF 1707 intake from the complete field export with full labels and CSV-driven controls.
