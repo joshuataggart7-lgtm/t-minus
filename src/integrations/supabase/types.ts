@@ -41,6 +41,7 @@ export type Database = {
           hold_reason: string | null
           igce_attached: boolean | null
           includes_it: boolean | null
+          intake_estimate: Json | null
           is_critical_path: boolean | null
           jofoc_authority_citation: string | null
           lead_to_delivery_days: number | null
@@ -94,6 +95,7 @@ export type Database = {
           hold_reason?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
+          intake_estimate?: Json | null
           is_critical_path?: boolean | null
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
@@ -147,6 +149,7 @@ export type Database = {
           hold_reason?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
+          intake_estimate?: Json | null
           is_critical_path?: boolean | null
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
