@@ -153,10 +153,14 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
         ["AI generated at", d.ai_generated_at ?? null],
       ],
     );
-    const fileName = `documents/${String(i + 1).padStart(2, "0")}-${(tab || "no-tab")}-${name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")}-v${d.version ?? 1}.html`;
+    const slug = (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+    const fileName = `documents/${String(i + 1).padStart(2, "0")}-${slug(tab) || "no-tab"}-${slug(name)}-v${
+      d.version ?? 1
+    }.html`;
     add(fileName, page(acquisitionId, stamp, `${name} — version ${d.version ?? 1}`, `${provenance}${body}`));
     indexRows.push([tab || "—", name, `v${d.version ?? 1}`, d.saved_by ?? "—", d.saved_at ?? "—", fileName]);
   });
