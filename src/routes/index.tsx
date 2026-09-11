@@ -231,8 +231,9 @@ function ExecutiveOverview() {
           <>
             <ul
               aria-label="Status summary"
-              className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
+              className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
             >
+              <li className="text-[13px] text-panel-muted">Across {metrics.length} acquisitions</li>
               {summary.map((s) => (
                 <li key={s.label} className="flex items-baseline gap-2">
                   <span
