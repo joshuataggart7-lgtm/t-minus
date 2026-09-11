@@ -30,6 +30,7 @@ import {
   type RedFlag,
   type RefData,
 } from "@/lib/intake";
+import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
