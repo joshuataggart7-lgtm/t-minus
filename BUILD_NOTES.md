@@ -75,3 +75,20 @@ that preserves the demo path.
 - **Demo data.** Seeded UEIs beginning with `DEMO` never call the network. They
   create a labeled fictional sample response in `sam_checks`. Live failures use
   the latest stored payload for the UEI and display it as cached.
+
+## B6. Audit log, comments, polls, provenance
+
+- `audit_log` gained a `phase` column; every comment, vote, poll opening, save,
+  and review writes an entry with its phase.
+- Polls are created per review phase (JOFOC, Go/No-go Poll) from `review_rules`,
+  with due dates from each rule's planned days. The prototype has one seeded
+  reviewer account, so every review seat is assigned to it.
+- A No-go holds the file immediately with `No-go: <role> — <reason>` and the
+  reviewer as owner; a pending vote holds once its phase has been exited.
+  Changing the vote to Go resumes the clock.
+- Documents carry provenance (model, generated at, reviewed by, reviewed at).
+  Until a specialist marks a version reviewed, the header reads
+  "AI draft, not yet reviewed".
+- Verified in the browser: poll opened, No-go held the file with reason and
+  owner, entry visible in the audit log, Go resumed it, comment thread saved,
+  and the provenance block updated. Test rows were removed afterward.
