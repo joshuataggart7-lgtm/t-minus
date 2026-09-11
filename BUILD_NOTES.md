@@ -163,3 +163,21 @@ Polish
 - Rows are de-duplicated on `source` + `external_id`, so repeated fetches add only what is new. Every fetch and every hand-entered notice writes an audit entry.
 - The Executive Overview carries a small Watch line with the count of items in the last 14 days, linking to the page.
 - Template badges: each live template now carries a machine-readable HQ revision date. When a PCD or Federal Register item dated after that revision touches a FAR or NFS part the template cites (parts parsed from the citation and from item titles, plus `far_part` / `nfs_part` on regulatory references), the badge shows "Newer guidance published; review" with a link to the item. Verified by adding a FAR Part 6 class deviation dated after the JOFOC 4/27/2026 revision; the JOFOC badge picked it up. The test row was removed afterwards.
+
+## B12 addition: the requester sees the estimate at intake
+
+- `src/lib/estimator.ts` ports the pre-award model from
+  `t-minus-seed/Procurement_LOE_Estimator.html` (same thresholds, scale factors,
+  calendar-month timeline, CO/CS task hours). Inputs are derived from the intake
+  answers: value, competition, pricing, instrument, requirement type. Phase names
+  and planned days come from the seeded `phase_plan`, not from the estimator.
+- Pressing "Start the clock" runs the model, stores the result in the new
+  `acquisition_facts.intake_estimate` (jsonb), writes an audit entry
+  "Intake estimate recorded", and opens a confirmation page at
+  `/intake/{acquisition_id}` (`src/routes/intake_.$acquisitionId.tsx`) with the
+  plain-words sentence, months to award, the phase list, and the CO/specialist hours.
+- The same summary appears on the acquisition file under "Estimate at intake", and
+  as an "Estimate at intake" column in the Files list (the requester's status view).
+- Verified end to end with the Commercial Aviation Services sample: about six months,
+  nine phases, 89 contracting hours; confirmation page, file page, and audit entry all
+  present. The test record was removed afterwards.
