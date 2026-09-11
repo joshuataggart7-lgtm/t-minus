@@ -477,6 +477,34 @@ function FilePage() {
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
 
+  // The period of performance end drives the successor clock; a launched file
+  // that never recorded one can record it here.
+  const setPopEnd = useMutation({
+    mutationFn: async (next: string) => {
+      if (!acq) return;
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ period_of_performance_end: next || null, updated_at: new Date().toISOString() })
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: user.name,
+        action: "Period of performance end recorded",
+        field: "period_of_performance_end",
+        old_value: (acq.period_of_performance_end as string | null) ?? "",
+        new_value: next || "",
+        reason: "Successor clock recomputed",
+        phase: String(acq.current_phase ?? "Administration"),
+      });
+    },
+    onSuccess: () => {
+      setBanner("The period of performance end is recorded and the successor clock is recomputed.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The end date did not save: ${e.message}. Try again.`),
+  });
+
   // ------------------------------------- directive compliance (hardware buys)
   const setDirective = useMutation({
     mutationFn: async (input: {
@@ -618,6 +646,27 @@ function FilePage() {
           </div>
         </div>
       </section>
+
+      {!successor && effectiveState === "launched" ? (
+        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            This file has no period of performance end recorded, so the date its successor must start
+            cannot be computed. Record the end date to start the successor clock.
+          </p>
+          <label className="mt-3 block text-[13px]" htmlFor="pop-end">
+            Period of performance end
+          </label>
+          <input
+            id="pop-end"
+            type="date"
+            className="mt-1 h-9 rounded-lg border border-border bg-background px-2 text-[13px]"
+            defaultValue=""
+            disabled={!canWrite}
+            onChange={(e) => setPopEnd.mutate(e.target.value)}
+          />
+        </section>
+      ) : null}
 
       {successor ? (
         <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
