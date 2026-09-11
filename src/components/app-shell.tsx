@@ -134,15 +134,27 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               title="Seed status"
               className="block truncate text-[13px] text-muted-foreground hover:text-foreground"
             >
-              {collapsed ? "S" : "Seed status"}
+              {collapsed ? (
+                <>
+                  <span aria-hidden="true">S</span>
+                  <span className="sr-only">Seed status</span>
+                </>
+              ) : (
+                "Seed status"
+              )}
             </Link>
           </div>
         </nav>
 
         <div className="min-w-0 flex-1">
-          <main className={cn("px-8 py-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className={cn("px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
+          >
             {authMessage ? (
               <p
+                role="status"
                 className="mb-6 border-l-2 py-1 pl-3 text-[13px]"
                 style={{ borderColor: "var(--attention)", color: "var(--attention)" }}
               >
@@ -151,10 +163,11 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             ) : null}
             {children}
           </main>
-          <footer className="px-8 pb-8 text-[13px] text-muted-foreground">
+          <footer className="px-4 pb-8 text-[13px] text-muted-foreground sm:px-8">
             Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.
           </footer>
         </div>
+
       </div>
 
       {orbyFor ? (
