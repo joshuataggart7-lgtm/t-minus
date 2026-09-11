@@ -395,7 +395,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         <div className="min-w-0">
           <p className="truncate text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted">
-            Next decision: {driver.nextDecision}
+            {driver.nextDecision}
           </p>
         </div>
 
