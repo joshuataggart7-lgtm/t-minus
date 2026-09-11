@@ -604,7 +604,30 @@ function DocumentPage() {
           }
           save.mutate();
         }}
+      {heldByOther && checkout ? (
+        <p
+          role="status"
+          className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
+        >
+          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at)}. The fields are
+          read-only for you until that person saves or closes the document, or thirty minutes pass. Refresh
+          this page to pick it up.
+        </p>
+      ) : null}
+
+      <form
+        className="max-w-[80ch]"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setTouched(true);
+          if (errorCount) {
+            setMessage(`${errorCount} required field${errorCount === 1 ? "" : "s"} still to complete.`);
+            return;
+          }
+          save.mutate();
+        }}
       >
+
         {visibleSections(def, values).map((s) => (
           <section key={s.id} className="mb-8">
             <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
