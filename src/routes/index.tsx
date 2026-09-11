@@ -314,6 +314,95 @@ function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
   );
 }
 
+/** Launched files and the date their replacement has to start. */
+function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }) {
+  const rows = useMemo(() => successorRows(acqs, plan), [acqs, plan]);
+  const flagged = rows.filter((r) => r.overdue);
+
+  return (
+    <>
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">Successor clock</h3>
+      <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
+        Method: the period of performance end date less the summed planned days in the phase plan for
+        that acquisition type. A file is flagged once that date has passed with no successor file
+        linked to it.
+      </p>
+      {rows.length === 0 ? (
+        <p className="mt-2 text-muted-foreground">No launched file records a period of performance end.</p>
+      ) : (
+        <>
+          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
+            {flagged.length}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Launched files past their successor start date with nothing linked
+          </p>
+          <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th scope="col" className="p-2">Acquisition</th>
+                <th scope="col" className="p-2">Period of performance ends</th>
+                <th scope="col" className="p-2">Planned days</th>
+                <th scope="col" className="p-2">Successor must start by</th>
+                <th scope="col" className="p-2">Successor file</th>
+                <th scope="col" className="p-2">Standing</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.acq.acquisition_id} className="border-b border-border last:border-0">
+                  <td className="p-2">
+                    <Link
+                      to="/files/$acquisitionId"
+                      params={{ acquisitionId: r.acq.acquisition_id }}
+                      className="text-primary underline"
+                    >
+                      {r.acq.acquisition_id}
+                    </Link>
+                  </td>
+                  <td className="p-2">{formatDate(String(r.acq.period_of_performance_end))}</td>
+                  <td className="p-2" data-numeric>
+                    {r.plannedDays}
+                  </td>
+                  <td className="p-2">{formatDate(r.startBy)}</td>
+                  <td className="p-2">
+                    {r.successorId ? (
+                      <Link
+                        to="/files/$acquisitionId"
+                        params={{ acquisitionId: r.successorId }}
+                        className="text-primary underline"
+                      >
+                        {r.successorId}
+                      </Link>
+                    ) : (
+                      "None linked"
+                    )}
+                  </td>
+                  <td className="p-2">
+                    {r.overdue ? (
+                      <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
+                        {`Successor overdue by ${Math.abs(r.daysUntilStart)} days`}
+                      </StatusMark>
+                    ) : r.successorId ? (
+                      <StatusMark color="var(--ontrack)" className="text-[13px] leading-[18px]">
+                        Successor linked
+                      </StatusMark>
+                    ) : (
+                      <StatusMark color="var(--ontrack)" className="text-[13px] leading-[18px]">
+                        {`Starts in ${r.daysUntilStart} days`}
+                      </StatusMark>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
+    </>
+  );
+}
+
 function quarterStart(iso: string) {
   const d = new Date(iso + "T00:00:00Z");
   const q = Math.floor(d.getUTCMonth() / 3) * 3;
