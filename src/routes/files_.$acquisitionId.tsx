@@ -859,6 +859,17 @@ function FilePage() {
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
               contracting officer with a warrant at or above the value has to sign the award.
             </p>
+          ) : null}
+          {warrant.exceeds ? (
+            <div className="mt-2">
+              <ExplainThis
+                explanation={explainWarrant({
+                  coName: warrant.coName,
+                  value: warrant.value,
+                  limit: warrant.limit as number,
+                })}
+              />
+            </div>
           ) : warrant.unknown ? (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
               No warrant limit is recorded for {warrant.coName}, so the estimated value of{" "}
