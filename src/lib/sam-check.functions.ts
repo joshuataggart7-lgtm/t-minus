@@ -30,6 +30,8 @@ export type SamCheckView = {
   checkedAt: string;
   source: "sample" | "live" | "cached";
   sourceLabel: string;
+  providerError?: string;
+
 };
 
 type JsonRecord = Record<string, unknown>;
