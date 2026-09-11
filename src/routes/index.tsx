@@ -440,13 +440,14 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             type="button"
             onClick={() => setExpanded((e) => !e)}
             aria-expanded={expanded}
+            title={fullLine}
             className={
               expanded
                 ? "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
                 : "mt-0.5 block w-full truncate text-left text-[13px] leading-[18px] text-panel-muted"
             }
           >
-            {blockerLine}
+            {expanded ? fullLine : shortLine}
           </button>
           <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {driver.status === "Launched"
