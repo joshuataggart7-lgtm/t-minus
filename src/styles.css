@@ -104,7 +104,8 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Tabular numerals wherever numbers appear. */
+  /* Tabular numerals everywhere numbers appear. */
+  body,
   table,
   time,
   .tabular,
@@ -112,10 +113,20 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Shadows only under an open dialog; radius 12 on dialogs. */
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [role="dialog"],
+  [role="alertdialog"] {
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(29, 29, 31, 0.18);
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
+
 }
 
 @utility clock-figure {
