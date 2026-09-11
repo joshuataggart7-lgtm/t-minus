@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -29,6 +29,14 @@ import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
 import { protestWindow } from "@/lib/protest-window";
+import {
+  FORECAST_CITATION,
+  FORECAST_FIELDS,
+  forecastCsv,
+  forecastEntry,
+  satValue,
+  type ForecastAcq,
+} from "@/lib/forecast";
 import { successorFor } from "@/lib/successor";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { formatDate } from "@/lib/metrics";
