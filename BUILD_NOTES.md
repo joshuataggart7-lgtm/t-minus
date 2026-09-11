@@ -51,7 +51,7 @@ that preserves the demo path.
 | enterprise_strategies | 28 | 28 | |
 | regulatory_refs | 62 | 62 | Spec said 63; source CSV has 62 data rows |
 | templates | 98 | 98 | |
-| clauses | 1,359 | 932 | See deviation below |
+| clauses | 1,359 | 1,359 | Surrogate `row_id` primary key; `clause_number` indexed, non-unique |
 | clause_matrix_2603b | 819 | 819 | |
 | nfs_clause_matrix | 125 | 125 | |
 | nf1707_fields | 271 | 271 | |
