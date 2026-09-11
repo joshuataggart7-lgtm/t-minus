@@ -166,8 +166,17 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
     } else {
       try {
         if (data.simulateFailure) throw new Error("Simulated network failure");
-        const apiKey = process.env['SAM_GOV_API_KEY'];
+        const rawKey = process.env['SAM_GOV_API_KEY'];
+        console.log(
+          `[SAM.gov] key source: server environment variable SAM_GOV_API_KEY (project secret store); present: ${Boolean(rawKey)}; length: ${rawKey?.length ?? 0}; trimmed length: ${rawKey?.trim().length ?? 0}`,
+        );
+        const apiKey = rawKey?.trim();
         if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
+        if (apiKey.length !== 40) {
+          throw new Error(
+            `The stored SAM.gov key is ${apiKey.length} characters; a valid key is 40. Enter the key again in the secret dialog.`,
+          );
+        }
         const url = new URL("https://api.sam.gov/entity-information/v3/entities");
         url.searchParams.set("api_key", apiKey);
         url.searchParams.set("ueiSAM", uei);
