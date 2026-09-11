@@ -615,7 +615,13 @@ function FilePage() {
   const launch = useMutation({
     mutationFn: async () => {
       if (!acq) return;
-      const preAwardComplete = acq.current_phase === "Award" || acq.current_phase === "FPDS-NG Report";
+      const currentIndex = phases.findIndex((phase) => phase.phase === acq.current_phase);
+      const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
+      const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
+      const preAwardComplete = currentIndex >= 0 && (
+        (fpdsIndex >= 0 && currentIndex >= fpdsIndex) ||
+        (fpdsIndex < 0 && administrationIndex >= 0 && currentIndex >= administrationIndex)
+      );
       if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
       }

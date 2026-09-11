@@ -485,7 +485,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
           >
             {expanded ? fullLine : shortLine}
           </button>
-          <p className="mt-0.5 truncate text-[13px] leading-[18px] text-panel-muted" data-numeric>
+          <p className="mt-0.5 break-words text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {driver.status === "Launched"
               ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
               : driver.scheduleImpactDays === null
