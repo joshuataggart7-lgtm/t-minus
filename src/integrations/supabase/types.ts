@@ -1053,31 +1053,43 @@ export type Database = {
       nf1707_fields: {
         Row: {
           caption: string | null
+          caption_full: string | null
           center_specific: string | null
+          choice_items: string | null
           field_id: string
           field_kind: string | null
           field_name: string | null
+          is_answerable: string | null
           nearest_form_text: string | null
+          nearest_form_text_full: string | null
           section: string | null
           subform: string | null
         }
         Insert: {
           caption?: string | null
+          caption_full?: string | null
           center_specific?: string | null
+          choice_items?: string | null
           field_id?: string
           field_kind?: string | null
           field_name?: string | null
+          is_answerable?: string | null
           nearest_form_text?: string | null
+          nearest_form_text_full?: string | null
           section?: string | null
           subform?: string | null
         }
         Update: {
           caption?: string | null
+          caption_full?: string | null
           center_specific?: string | null
+          choice_items?: string | null
           field_id?: string
           field_kind?: string | null
           field_name?: string | null
+          is_answerable?: string | null
           nearest_form_text?: string | null
+          nearest_form_text_full?: string | null
           section?: string | null
           subform?: string | null
         }
