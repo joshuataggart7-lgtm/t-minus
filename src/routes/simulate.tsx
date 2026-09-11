@@ -35,7 +35,7 @@ function SimulatePage() {
   const mayUse = role === "executive" || role === "hq";
 
   const [kind, setKind] = useState<"threshold" | "review_trigger">("review_trigger");
-  const [target, setTarget] = useState("Legal review");
+  const [target, setTarget] = useState("");
   const [value, setValue] = useState("1000000");
   const [applied, setApplied] = useState<SimChange | null>(null);
 
@@ -101,13 +101,16 @@ function SimulatePage() {
     [q.data],
   );
 
+  const options = kind === "threshold" ? thresholdNames : roles;
+  const chosen = target || options[0] || "";
+
   const loadedNow = useMemo(() => {
     if (kind === "threshold") {
-      const row = (q.data?.thresholds ?? []).find((t) => String(t.name ?? "") === target);
+      const row = (q.data?.thresholds ?? []).find((t) => String(t.name ?? "") === chosen);
       return row?.value === null || row?.value === undefined ? null : Number(row.value);
     }
     return null;
-  }, [kind, target, q.data]);
+  }, [kind, chosen, q.data]);
 
   if (!mayUse) {
     return (
@@ -149,7 +152,7 @@ function SimulatePage() {
                   onChange={(e) => {
                     const k = e.target.value as "threshold" | "review_trigger";
                     setKind(k);
-                    setTarget(k === "threshold" ? (thresholdNames[0] ?? "") : (roles[0] ?? ""));
+                    setTarget("");
                     setApplied(null);
                   }}
                 >
@@ -164,13 +167,13 @@ function SimulatePage() {
                 <select
                   id="sim-target"
                   className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-                  value={target}
+                  value={chosen}
                   onChange={(e) => {
                     setTarget(e.target.value);
                     setApplied(null);
                   }}
                 >
-                  {(kind === "threshold" ? thresholdNames : roles).map((n) => (
+                  {options.map((n) => (
                     <option key={n} value={n}>
                       {n}
                     </option>
@@ -208,7 +211,7 @@ function SimulatePage() {
                   onClick={() => {
                     const n = Number(String(value).replace(/[^0-9.]/g, ""));
                     if (!Number.isFinite(n)) return;
-                    setApplied({ kind, target, value: n });
+                    setApplied({ kind, target: chosen, value: n });
                   }}
                 >
                   Run the simulation
