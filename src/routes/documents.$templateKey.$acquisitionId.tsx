@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
@@ -570,10 +570,10 @@ function DocumentPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">Reviewer</th>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Vote</th>
-                <th className="px-3 py-2 font-medium">Due</th>
+                <th scope="col" className="px-3 py-2 font-medium">Reviewer</th>
+                <th scope="col" className="px-3 py-2 font-medium">Name</th>
+                <th scope="col" className="px-3 py-2 font-medium">Vote</th>
+                <th scope="col" className="px-3 py-2 font-medium">Due</th>
               </tr>
             </thead>
             <tbody>
@@ -581,20 +581,21 @@ function DocumentPage() {
                 <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border last:border-0 align-top">
                   <td className="px-3 py-2">{b.reviewer_role}</td>
                   <td className="px-3 py-2">{b.reviewer_name}</td>
-                  <td
-                    className="px-3 py-2"
-                    style={{
-                      color:
+                  <td className="px-3 py-2">
+                    <StatusMark
+                      color={
                         b.vote === "go"
                           ? "var(--ontrack)"
                           : b.vote === "no-go"
                             ? "var(--atrisk)"
-                            : "var(--attention)",
-                    }}
-                  >
-                    {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                    {b.reason ? ` — ${b.reason}` : ""}
+                            : "var(--attention)"
+                      }
+                    >
+                      {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
+                      {b.reason ? ` — ${b.reason}` : ""}
+                    </StatusMark>
                   </td>
+
                   <td className="px-3 py-2" data-numeric>
                     {b.due_date ?? "—"}
                   </td>
@@ -622,8 +623,8 @@ function DocumentPage() {
               <div className="mt-3 flex gap-3">
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
-                  style={{ background: "var(--ontrack)" }}
+                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
+                  style={{ borderColor: "var(--ontrack)" }}
                   disabled={vote.isPending}
                   onClick={() => vote.mutate({ choice: "go", reason: voteReason.trim() || null })}
                 >
@@ -631,8 +632,9 @@ function DocumentPage() {
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
-                  style={{ background: "var(--atrisk)" }}
+                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
+                  style={{ borderColor: "var(--atrisk)" }}
+
                   disabled={vote.isPending}
                   onClick={() => {
                     if (!voteReason.trim()) {
@@ -699,9 +701,9 @@ function DocumentPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">Version</th>
-                <th className="px-3 py-2 font-medium">Saved by</th>
-                <th className="px-3 py-2 font-medium">Saved</th>
+                <th scope="col" className="px-3 py-2 font-medium">Version</th>
+                <th scope="col" className="px-3 py-2 font-medium">Saved by</th>
+                <th scope="col" className="px-3 py-2 font-medium">Saved</th>
               </tr>
             </thead>
             <tbody>

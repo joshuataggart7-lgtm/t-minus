@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -136,13 +136,30 @@ function AuditLogPage() {
         </div>
       </div>
 
-      {q.isLoading ? <p className="text-muted-foreground">Loading the log.</p> : null}
+      {q.isLoading ? <LoadingNote what="the log" /> : null}
 
-      {!q.isLoading && !groups.length ? (
-        <p className="text-muted-foreground">
-          Nothing recorded yet for this filter. Clear the filters, or start work on a file.
-        </p>
+      {q.isError ? (
+        <ErrorNote message="The log did not load. Refresh the page; if it fails again, switch roles in the header to sign in as a seeded user." />
       ) : null}
+
+      {!q.isLoading && !q.isError && !groups.length ? (
+        <EmptyState
+          sentence="Nothing is recorded yet for this filter."
+          action={
+            <button
+              type="button"
+              onClick={() => {
+                setActor("");
+                setPhase("");
+              }}
+              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            >
+              Clear the filters
+            </button>
+          }
+        />
+      ) : null}
+
 
       {groups.map(([acqId, list]) => (
         <section key={acqId} className="mb-10">
@@ -158,14 +175,14 @@ function AuditLogPage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="px-3 py-2 font-medium">When</th>
-                <th className="px-3 py-2 font-medium">Actor</th>
-                <th className="px-3 py-2 font-medium">Action</th>
-                <th className="px-3 py-2 font-medium">Phase</th>
-                <th className="px-3 py-2 font-medium">Field</th>
-                <th className="px-3 py-2 font-medium">Old</th>
-                <th className="px-3 py-2 font-medium">New</th>
-                <th className="px-3 py-2 font-medium">Reason</th>
+                <th scope="col" className="px-3 py-2 font-medium">When</th>
+                <th scope="col" className="px-3 py-2 font-medium">Actor</th>
+                <th scope="col" className="px-3 py-2 font-medium">Action</th>
+                <th scope="col" className="px-3 py-2 font-medium">Phase</th>
+                <th scope="col" className="px-3 py-2 font-medium">Field</th>
+                <th scope="col" className="px-3 py-2 font-medium">Old</th>
+                <th scope="col" className="px-3 py-2 font-medium">New</th>
+                <th scope="col" className="px-3 py-2 font-medium">Reason</th>
               </tr>
             </thead>
             <tbody>

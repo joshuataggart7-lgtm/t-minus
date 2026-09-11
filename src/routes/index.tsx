@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
@@ -45,14 +45,12 @@ function num(n: number | null | undefined) {
 
 function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
   return (
-    <span
-      className="inline-block border-l-2 pl-2 text-[15px] leading-[22px]"
-      style={{ borderColor: statusColor(status), color: statusColor(status) }}
-    >
+    <StatusMark color={statusColor(status)} className="text-[15px] leading-[22px]">
       {status}
-    </span>
+    </StatusMark>
   );
 }
+
 
 function ExecutiveOverview() {
   const { role, authState } = useRole();
@@ -159,11 +157,20 @@ function ExecutiveOverview() {
     <AppShell wide>
       <PageHeader title="Executive Overview" lead="T-Minus turns acquisition time into mission readiness." />
 
-      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-8 py-7 text-panel-foreground">
+      {q.isError ? (
+        <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+      ) : null}
+
+      <section aria-label="Mission clock" className="mb-10 rounded-lg bg-panel px-5 py-6 text-panel-foreground sm:px-8 sm:py-7">
         <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
-        {missionRows.length === 0 ? (
+        {q.isLoading ? (
+          <p role="status" className="mt-4 text-panel-muted">
+            Loading the priority projects.
+          </p>
+        ) : missionRows.length === 0 ? (
           <p className="mt-4 text-panel-muted">No priority projects are loaded yet.</p>
         ) : (
+
           <ul className="mt-5 divide-y divide-panel-muted/30">
             {missionRows.map(({ mission, driver }) => (
               <li key={mission.mission_id} className="py-5">
@@ -172,7 +179,7 @@ function ExecutiveOverview() {
                   params={{ acquisitionId: driver.acq.acquisition_id }}
                   className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
                 >
-                  <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.4fr)_auto_auto_minmax(0,1.2fr)]">
                     <div>
                       <p className="text-[18px] leading-6 font-medium">{mission.name}</p>
                       <p className="mt-1 text-[13px] text-panel-muted">
@@ -389,10 +396,10 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Reason</th>
-              <th className="p-2">Responsible role</th>
-              <th className="p-2">Days on hold</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Reason</th>
+              <th scope="col" className="p-2">Responsible role</th>
+              <th scope="col" className="p-2">Days on hold</th>
             </tr>
           </thead>
           <tbody>
@@ -425,11 +432,11 @@ function ClockBoard({ metrics, plan }: { metrics: AcqMetrics[]; plan: PhasePlanR
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Phase</th>
-              <th className="p-2">Files measured</th>
-              <th className="p-2">Planned days</th>
-              <th className="p-2">Actual days</th>
-              <th className="p-2">Against plan</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Files measured</th>
+              <th scope="col" className="p-2">Planned days</th>
+              <th scope="col" className="p-2">Actual days</th>
+              <th scope="col" className="p-2">Against plan</th>
             </tr>
           </thead>
           <tbody>

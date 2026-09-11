@@ -42,7 +42,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
   return (
     <div className="min-h-screen bg-canvas text-foreground">
-      <header className="flex items-center justify-between gap-6 border-b border-border bg-background px-6 py-3">
+      <a
+        href="#main-content"
+        className="sr-only rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >
+        Skip to main content
+      </a>
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 sm:px-6">
+
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -104,11 +111,19 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                         : "border-l-2 border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {collapsed ? item.label.slice(0, 1) : item.label}
+                    {collapsed ? (
+                      <>
+                        <span aria-hidden="true">{item.label.slice(0, 1)}</span>
+                        <span className="sr-only">{item.label}</span>
+                      </>
+                    ) : (
+                      item.label
+                    )}
                     {!collapsed && item.note ? (
                       <span className="block text-[12px] text-muted-foreground">{item.note}</span>
                     ) : null}
                   </Link>
+
                 </li>
               );
             })}
@@ -119,15 +134,27 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               title="Seed status"
               className="block truncate text-[13px] text-muted-foreground hover:text-foreground"
             >
-              {collapsed ? "S" : "Seed status"}
+              {collapsed ? (
+                <>
+                  <span aria-hidden="true">S</span>
+                  <span className="sr-only">Seed status</span>
+                </>
+              ) : (
+                "Seed status"
+              )}
             </Link>
           </div>
         </nav>
 
         <div className="min-w-0 flex-1">
-          <main className={cn("px-8 py-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}>
+          <main
+            id="main-content"
+            tabIndex={-1}
+            className={cn("px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
+          >
             {authMessage ? (
               <p
+                role="status"
                 className="mb-6 border-l-2 py-1 pl-3 text-[13px]"
                 style={{ borderColor: "var(--attention)", color: "var(--attention)" }}
               >
@@ -136,10 +163,11 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             ) : null}
             {children}
           </main>
-          <footer className="px-8 pb-8 text-[13px] text-muted-foreground">
+          <footer className="px-4 pb-8 text-[13px] text-muted-foreground sm:px-8">
             Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.
           </footer>
         </div>
+
       </div>
 
       {orbyFor ? (
@@ -158,6 +186,64 @@ export function PageHeader({ title, lead }: { title: string; lead?: string }) {
     </div>
   );
 }
+
+/**
+ * A status word paired with its colour as a marker, never colour alone.
+ * The word itself stays in the text colour so every label clears 4.5:1;
+ * the marker carries the palette colour and clears 3:1 as a graphic.
+ */
+export function StatusMark({
+  color,
+  children,
+  className,
+}: {
+  color: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={cn("inline-flex items-baseline gap-2 text-foreground", className)}>
+      <span
+        aria-hidden="true"
+        className="inline-block size-2 shrink-0 translate-y-[-1px] rounded-[2px]"
+        style={{ background: color }}
+      />
+      <span>{children}</span>
+    </span>
+  );
+}
+
+export function LoadingNote({ what }: { what: string }) {
+  return (
+    <p role="status" className="text-muted-foreground">
+      Loading {what}.
+    </p>
+  );
+}
+
+export function ErrorNote({ message }: { message: string }) {
+  return (
+    <p role="alert" className="max-w-[80ch] border-l-2 py-1 pl-3" style={{ borderColor: "var(--atrisk)" }}>
+      {message}
+    </p>
+  );
+}
+
+export function EmptyState({
+  sentence,
+  action,
+}: {
+  sentence: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="max-w-[70ch]">
+      <p className="text-muted-foreground">{sentence}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
+    </div>
+  );
+}
+
 
 export function Placeholder({ note }: { note: string }) {
   return (

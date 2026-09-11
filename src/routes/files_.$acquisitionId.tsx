@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
@@ -509,12 +509,13 @@ function FilePage() {
                         ) : null
                       ) : (
                         <>
-                          <span
+                          <StatusMark
+                            color={state ? "var(--ontrack)" : "var(--atrisk)"}
                             className="text-[13px]"
-                            style={{ color: state ? "var(--ontrack)" : "var(--atrisk)" }}
                           >
                             {state ? "Attached" : "Missing"}
-                          </span>
+                          </StatusMark>
+
                           {canWrite ? (
                             <button
                               type="button"
@@ -562,11 +563,11 @@ function FilePage() {
                     </caption>
                     <thead>
                       <tr className="border-y border-border text-left">
-                        <th className="p-2">Reviewer</th>
-                        <th className="p-2">Name</th>
-                        <th className="p-2">Vote</th>
-                        <th className="p-2">Due</th>
-                        <th className="p-2">Citation</th>
+                        <th scope="col" className="p-2">Reviewer</th>
+                        <th scope="col" className="p-2">Name</th>
+                        <th scope="col" className="p-2">Vote</th>
+                        <th scope="col" className="p-2">Due</th>
+                        <th scope="col" className="p-2">Citation</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -575,21 +576,22 @@ function FilePage() {
                           <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border align-top">
                             <td className="p-2">{b.reviewer_role}</td>
                             <td className="p-2">{b.reviewer_name}</td>
-                            <td
-                              className="p-2"
-                              style={{
-                                color:
+                            <td className="p-2">
+                              <StatusMark
+                                color={
                                   b.vote === "go"
                                     ? "var(--ontrack)"
                                     : b.vote === "no-go"
                                       ? "var(--atrisk)"
-                                      : "var(--attention)",
-                              }}
-                            >
-                              {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                              {b.reason ? ` — ${b.reason}` : ""}
-                              {b.poll_id ? "" : " (poll not opened)"}
+                                      : "var(--attention)"
+                                }
+                              >
+                                {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
+                                {b.reason ? ` — ${b.reason}` : ""}
+                                {b.poll_id ? "" : " (poll not opened)"}
+                              </StatusMark>
                             </td>
+
                             <td className="p-2" data-numeric>
                               {b.due_date ?? "—"}
                             </td>
@@ -631,12 +633,12 @@ function FilePage() {
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Threshold</th>
-              <th className="p-2">Value</th>
-              <th className="p-2">This acquisition</th>
-              <th className="p-2">Tier</th>
-              <th className="p-2">Effective</th>
-              <th className="p-2">Citation and note</th>
+              <th scope="col" className="p-2">Threshold</th>
+              <th scope="col" className="p-2">Value</th>
+              <th scope="col" className="p-2">This acquisition</th>
+              <th scope="col" className="p-2">Tier</th>
+              <th scope="col" className="p-2">Effective</th>
+              <th scope="col" className="p-2">Citation and note</th>
             </tr>
           </thead>
           <tbody>
@@ -708,12 +710,12 @@ function FilePage() {
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th className="p-2">Logged</th>
-                <th className="p-2">Actor</th>
-                <th className="p-2">Action</th>
-                <th className="p-2">Field</th>
-                <th className="p-2">New value</th>
-                <th className="p-2">Reason</th>
+                <th scope="col" className="p-2">Logged</th>
+                <th scope="col" className="p-2">Actor</th>
+                <th scope="col" className="p-2">Action</th>
+                <th scope="col" className="p-2">Field</th>
+                <th scope="col" className="p-2">New value</th>
+                <th scope="col" className="p-2">Reason</th>
               </tr>
             </thead>
             <tbody>
@@ -734,7 +736,7 @@ function FilePage() {
         )}
       </section>
 
-      <Link to="/files" className="text-primary">
+      <Link to="/files" className="text-primary underline underline-offset-2">
         Back to Files
       </Link>
     </AppShell>

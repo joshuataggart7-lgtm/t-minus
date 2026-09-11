@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, formatMoney, todayISO } from "@/lib/intake";
@@ -54,17 +54,23 @@ function FilesPage() {
         </Link>
       ) : null}
 
+      {q.isLoading ? <LoadingNote what="the files" /> : null}
+      {q.isError ? (
+        <ErrorNote message="The file list did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+      ) : null}
+
       {q.data?.length ? (
+
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Title</th>
-              <th className="p-2">Center</th>
-              <th className="p-2">Estimated value</th>
-              <th className="p-2">Phase</th>
-              <th className="p-2">Clock</th>
-              <th className="p-2">Days to award</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Title</th>
+              <th scope="col" className="p-2">Center</th>
+              <th scope="col" className="p-2">Estimated value</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Clock</th>
+              <th scope="col" className="p-2">Days to award</th>
             </tr>
           </thead>
           <tbody>
@@ -93,11 +99,20 @@ function FilesPage() {
             ))}
           </tbody>
         </table>
-      ) : (
-        <p className="text-muted-foreground">
-          No files yet. Start an intake to put the first acquisition on the clock.
-        </p>
+      ) : q.isLoading || q.isError ? null : (
+        <EmptyState
+          sentence="No files are on the clock yet."
+          action={
+            <Link
+              to="/intake"
+              className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            >
+              Start an intake
+            </Link>
+          }
+        />
       )}
+
     </AppShell>
   );
 }

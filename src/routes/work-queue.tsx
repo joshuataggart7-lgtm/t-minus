@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
@@ -261,11 +261,28 @@ function WorkQueuePage() {
         Cards open the file. Status changes happen in the file, not by dragging.
       </p>
 
-      {filtered.length === 0 ? (
-        <p className="text-muted-foreground">
-          No file matches this filter. Choose Everything, or start an intake.
-        </p>
+      {q.isLoading ? (
+        <LoadingNote what="the queue" />
+      ) : q.isError ? (
+        <ErrorNote message="The queue did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          sentence="No file matches this filter."
+          action={
+            <button
+              type="button"
+              onClick={() => {
+                setScope("all");
+                setMissionId("all");
+              }}
+              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            >
+              Show everything
+            </button>
+          }
+        />
       ) : view === "board" ? (
+
         <div className="grid gap-6 lg:grid-cols-5">
           {COLUMNS.map((col) => {
             const items = filtered.filter((c) => c.column === col);
@@ -290,16 +307,16 @@ function WorkQueuePage() {
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th className="p-2">Acquisition</th>
-              <th className="p-2">Mission</th>
-              <th className="p-2">Owner</th>
-              <th className="p-2">Column</th>
-              <th className="p-2">Phase</th>
-              <th className="p-2">Next task</th>
-              <th className="p-2">Dependency</th>
-              <th className="p-2">Days in phase</th>
-              <th className="p-2">Days to award</th>
-              <th className="p-2">Status</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Mission</th>
+              <th scope="col" className="p-2">Owner</th>
+              <th scope="col" className="p-2">Column</th>
+              <th scope="col" className="p-2">Phase</th>
+              <th scope="col" className="p-2">Next task</th>
+              <th scope="col" className="p-2">Dependency</th>
+              <th scope="col" className="p-2">Days in phase</th>
+              <th scope="col" className="p-2">Days to award</th>
+              <th scope="col" className="p-2">Status</th>
             </tr>
           </thead>
           <tbody>
