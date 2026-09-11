@@ -14,7 +14,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
-  const clicks = useRef({ count: 0, at: 0, acq: null as string | null });
+  const clicks = wordmarkClicks;
+
   const onWordmarkClick = useCallback(
     (e: React.MouseEvent) => {
       const now = Date.now();
