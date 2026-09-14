@@ -210,12 +210,16 @@ function IntakePage() {
   }, [profile?.last_center_code, profile?.last_organization_code, user.center_code]);
 
   async function loadSample(acquisitionId: string) {
-    const { data: row } = await supabase
+    setSaveError(null);
+    const { data: row, error } = await supabase
       .from("acquisition_facts")
       .select("*")
       .eq("acquisition_id", acquisitionId)
       .maybeSingle();
-    if (!row) return;
+    if (error || !row) {
+      setSaveError("The sample could not be loaded. Try again.");
+      return;
+    }
     setFacts((f) => ({
       ...f,
       title: row.title ?? "",
