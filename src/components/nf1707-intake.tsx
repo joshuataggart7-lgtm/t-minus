@@ -6,7 +6,7 @@ import type { Nf1707Field } from "@/lib/nf1707";
 export type NfAnswers = Record<string, string>;
 type GateKey = "services" | "it" | "hardware" | "space" | "aviation" | "hazards";
 type SectionKey = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12";
-type Question = { key: string; label: string; kind: "yesno" | "check" | "radio" | "text" | "number"; options?: { value: string; label: string; help?: string }[]; when?: (a: NfAnswers) => boolean; required?: boolean; help?: string; placeholder?: string };
+type Question = { key: string; label: string; kind: "yesno" | "check" | "checklist" | "radio" | "text" | "number"; options?: { value: string; label: string; help?: string }[]; when?: (a: NfAnswers) => boolean; required?: boolean; help?: string; placeholder?: string };
 type Section = { key: SectionKey; title: string; citation: string; gates?: GateKey[]; questions: Question[] };
 
 export const GATES: { key: GateKey; label: string }[] = [
@@ -74,7 +74,7 @@ export const NF1707_SECTIONS: Section[] = [
     q("s6_gidep", "Does GIDEP screening identify a requirement for coordination?", "yesno", {options:yna}),
   ]},
   { key:"7", title:"Safety and health", citation:"NF 1707 Section 7; Center safety and health routing", gates:["hazards"], questions:[
-    q("s7_hazards", "Will this involve any of the following?", "checklist", { options:[{value:"radiation",label:"Ionizing radiation"},{value:"lasers",label:"Lasers / optical radiation"},{value:"uvir",label:"High-intensity UV / IR"},{value:"rf",label:"RF / microwave"},{value:"noise",label:"Hazardous noise ≥80 dBA at 1 m"},{value:"explosives",label:"Pyrotechnics / explosives"},{value:"pressure",label:"Pressure vessels"},{value:"toxic",label:"Toxic / hazardous substances"},{value:"nano",label:"Nano / ultrafine particles"},{value:"biological",label:"Infectious / biological agents"},{value:"other",label:"Other Appendix D hazard"}] } as never),
+    q("s7_hazards", "Will this involve any of the following?", "checklist", { options:[{value:"radiation",label:"Ionizing radiation"},{value:"lasers",label:"Lasers / optical radiation"},{value:"uvir",label:"High-intensity UV / IR"},{value:"rf",label:"RF / microwave"},{value:"noise",label:"Hazardous noise ≥80 dBA at 1 m"},{value:"explosives",label:"Pyrotechnics / explosives"},{value:"pressure",label:"Pressure vessels"},{value:"toxic",label:"Toxic / hazardous substances"},{value:"nano",label:"Nano / ultrafine particles"},{value:"biological",label:"Infectious / biological agents"},{value:"other",label:"Other Appendix D hazard"}] }),
   ]},
   { key:"8", title:"Property management", citation:"NF 1707 Section 8", gates:["hardware"], questions:[q("s8_capital", "Will this acquisition include capital equipment?", "yesno", {options:yna})]},
   { key:"9", title:"Center-specific approvals", citation:"NF 1707 Section 9; Center policy", questions:[q("s9_required", "Is a Center-specific approval required?", "yesno", {options:yna}),q("s9_which", "Which approval?", "text", {when:a=>a.s9_required==="yes"})]},
