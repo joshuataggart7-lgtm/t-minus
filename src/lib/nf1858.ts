@@ -273,9 +273,13 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
   const h = memo.header;
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
-  const p = (text: string, opts: { bold?: boolean; size?: number; after?: number; center?: boolean } = {}) =>
+  const p = (
+    text: string,
+    opts: { bold?: boolean; size?: number; after?: number; center?: boolean; keepNext?: boolean } = {},
+  ) =>
     new Paragraph({
       ...(opts.center ? { alignment: "center" as const } : {}),
+      ...(opts.keepNext ? { keepNext: true, keepLines: true } : {}),
       spacing: { after: opts.after ?? 120 },
       children: [new TextRun({ ...serif, ...(opts.size ? { size: opts.size } : {}), text, bold: opts.bold ?? false })],
     });
@@ -318,7 +322,12 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
     }
     if (para.lines.length) children.push(p("", { after: 140 }));
   });
-  children.push(p("", { after: 400 }), p(h.signatureName), p(h.signatureTitle, { after: 240 }));
+  // Signature and Distribution stay together on the page when they fit.
+  children.push(
+    p("", { after: 400 }),
+    p(h.signatureName, { keepNext: true }),
+    p(h.signatureTitle, { after: 240, keepNext: true }),
+  );
   if (h.concurrence.length) {
     children.push(p("CONCURRENCE:", { bold: true }));
     for (const c of h.concurrence) {
@@ -331,8 +340,8 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
     h.enclosures.forEach((e, i) => children.push(p(`${i + 1}. ${e}`, { after: 40 })));
   }
   if (h.distribution.length) {
-    children.push(p("Distribution:", { bold: true, after: 60 }));
-    h.distribution.forEach((d) => children.push(p(d, { after: 40 })));
+    children.push(p("Distribution:", { bold: true, after: 60, keepNext: true }));
+    h.distribution.forEach((d) => children.push(p(d, { after: 40, keepNext: true })));
   }
   if (h.cc.length) {
     children.push(p("cc:", { bold: true, after: 60 }));
