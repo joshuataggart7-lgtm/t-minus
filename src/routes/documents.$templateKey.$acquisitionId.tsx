@@ -46,6 +46,7 @@ import {
   type ThresholdRow,
   type Values,
 } from "@/lib/template-engine";
+import { applyMemoDraft, draftMemoBody } from "@/lib/memo-draft";
 import {
   buildMemoDoc,
   buildMemoHeader,
@@ -242,6 +243,20 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const missionId = String((acq.data as Record<string, unknown> | null)?.["mission_id"] ?? "");
+      const mission = missionId
+        ? await supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
+        : { data: null };
+      // The set-aside evidence search, when it has been run, is what the
+      // market research memorandum reports.
+      const evidence = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .like("check_type", "Set-aside entities%")
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -251,6 +266,8 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
+        evidence: evidence.data ?? null,
         center: center.data as { center_name: string; address_line: string | null } | null,
         routing:
           ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
