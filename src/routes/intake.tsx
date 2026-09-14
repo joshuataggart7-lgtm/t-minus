@@ -32,6 +32,8 @@ import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
 import { Nf1707Intake, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
+import { RequesterPackageDraft } from "@/components/requester-package-draft";
+import type { PackageClin } from "@/lib/requester-package.functions";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -172,6 +174,8 @@ function IntakePage() {
   const [scan, setScan] = useState<RedFlag[] | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [packageClins, setPackageClins] = useState<PackageClin[]>([]);
+  const [packageConfirmedCount, setPackageConfirmedCount] = useState(0);
 
   const errors = useMemo(() => fieldErrors(facts), [facts]);
   const errorCount = Object.keys(errors).length;
@@ -404,6 +408,21 @@ function IntakePage() {
       const { error } = await supabase.from("acquisition_facts").insert(payload);
       if (error) throw error;
 
+      if (packageClins.length) {
+        const { error: clinError } = await supabase.from("igce_clins").insert(packageClins.map((clin) => ({
+          acquisition_id: next,
+          clin_number: clin.clinNumber,
+          description: clin.description,
+          quantity: clin.quantity ? Number(clin.quantity) : null,
+          unit_of_issue: clin.unit || null,
+          unit_price: clin.unitPrice ? parseMoney(clin.unitPrice) : null,
+          extended_price: clin.extendedPrice ? parseMoney(clin.extendedPrice) : null,
+          period_start: clin.periodStart || null,
+          period_end: clin.periodEnd || null,
+        })));
+        if (clinError) throw clinError;
+      }
+
       if (profile) {
         await supabase.from("profiles").update({
           last_center_code: facts.center_code,
@@ -421,6 +440,15 @@ function IntakePage() {
           new_value: "running",
           reason: "NF 1707 intake submitted and red-flag scan cleared",
         },
+        ...(packageConfirmedCount > 0 || packageClins.length ? [{
+          acquisition_id: next,
+          actor: user.name,
+          action: "Requester package draft confirmed",
+          field: "igce_clins",
+          old_value: null,
+          new_value: `${packageConfirmedCount} proposed value${packageConfirmedCount === 1 ? "" : "s"}; ${packageClins.length} CLIN row${packageClins.length === 1 ? "" : "s"}`,
+          reason: "CO confirmed requester-package suggestions before starting the clock; source files were session-only and were not stored",
+        }] : []),
         {
           acquisition_id: next,
           actor: user.name,
@@ -491,6 +519,17 @@ function IntakePage() {
           Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
         </span>
       </div>
+
+      <RequesterPackageDraft
+        missions={data.data?.missions ?? []}
+        applyFact={(key, nextValue) => set(key, nextValue)}
+        applyAnswers={(nextAnswers) => {
+          setAnswers((current) => ({ ...current, ...nextAnswers }));
+          setScan(null);
+        }}
+        onClinsConfirmed={setPackageClins}
+        onConfirmedCount={setPackageConfirmedCount}
+      />
 
       {/* T-Minus section: the facts the paper form does not carry. */}
       <section className="mb-10 border-t border-border pt-6">
