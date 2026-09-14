@@ -185,7 +185,11 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
 
   // A plain, uncompressed cross-reference stream listing only the two objects
   // this update writes.
-  const xrefNumber = doc.context.largestObjectNumber + 1;
+  // The new object number must clear every number already used, including the
+  // objects the previous cross-reference stream reports.
+  const prevDict = new TextDecoder("latin1").decode(original.slice(prev, prev + 600));
+  const prevSize = Number.parseInt(/\/Size\s+(\d+)/.exec(prevDict)?.[1] ?? "0", 10);
+  const xrefNumber = Math.max(doc.context.largestObjectNumber + 1, Number.isFinite(prevSize) ? prevSize : 0);
   const xrefOffset = offset;
   const rows = [
     { num: datasetsRef.objectNumber, at: dataOffset },
