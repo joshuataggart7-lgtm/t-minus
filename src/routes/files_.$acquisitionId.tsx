@@ -190,7 +190,7 @@ function FilePage() {
       const [fileDocs, fileTemplates] = await Promise.all([
         supabase
           .from("documents")
-          .select("template_id,version,saved_by,saved_at")
+          .select("template_id,version,saved_by,saved_at,issue_on_nf1858,memo_header")
           .eq("acquisition_id", acquisitionId),
         supabase.from("templates").select("template_id,name,nf_1098_tab"),
       ]);
