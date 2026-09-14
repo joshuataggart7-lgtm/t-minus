@@ -46,6 +46,15 @@ import {
   type ThresholdRow,
   type Values,
 } from "@/lib/template-engine";
+import {
+  buildMemoDoc,
+  buildMemoHeader,
+  exportMemoDocx,
+  exportMemoPdf,
+  memoDefaultFor,
+  type MemoHeader,
+  type MemoRoutingRow,
+} from "@/lib/nf1858";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   head: () => ({
@@ -106,6 +115,9 @@ function DocumentPage() {
   const [aiMeta, setAiMeta] = useState<Record<string, DraftProvenance>>({});
   const [sourcePanel, setSourcePanel] = useState<{ title: string; lines: string[] } | null>(null);
   const [draftingKey, setDraftingKey] = useState<string | null>(null);
+  // NF 1858: whether this document is issued as a memorandum, and its header.
+  const [memoOn, setMemoOn] = useState<boolean | null>(null);
+  const [memoHeader, setMemoHeader] = useState<MemoHeader | null>(null);
 
   const phase = phaseForTemplate(templateKey);
   const runComparablesFn = useServerFn(samContractAwards);
@@ -182,7 +194,7 @@ function DocumentPage() {
     // Votes and comments from other reviewers appear without a reload.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, thr, tpl, polls, rules, watchRows, refs] = await Promise.all([
+      const [acq, thr, tpl, polls, rules, watchRows, refs, routing, approvals, fileDocs] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
@@ -190,6 +202,16 @@ function DocumentPage() {
         supabase.from("review_rules").select("*"),
         loadWatchRows(),
         loadRegRefs(),
+        supabase.from("memo_routing").select("*").eq("document_key", templateKey),
+        supabase
+          .from("nf1707_approvals")
+          .select("approval_role,owner_name,status")
+          .eq("acquisition_id", acquisitionId),
+        supabase
+          .from("documents")
+          .select("template_id,saved_at,templates(name)")
+          .eq("acquisition_id", acquisitionId)
+          .order("saved_at", { ascending: true }),
       ]);
       if (acq.error) throw new Error(acq.error.message);
       const templateId = tpl.data?.template_id ?? null;
@@ -197,7 +219,7 @@ function DocumentPage() {
         ? await supabase
             .from("documents")
             .select(
-              "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at",
+              "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at,issue_on_nf1858,memo_header",
             )
             .eq("acquisition_id", acquisitionId)
             .eq("template_id", templateId)
@@ -220,7 +242,26 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
+      const center = centerCode
+        ? await supabase
+            .from("centers")
+            .select("center_code,center_name,address_line")
+            .eq("center_code", centerCode)
+            .maybeSingle()
+        : { data: null };
       return {
+        center: center.data as { center_name: string; address_line: string | null } | null,
+        routing:
+          ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
+        approvals: (approvals.data ?? []) as { approval_role: string; owner_name: string | null; status: string }[],
+        fileDocuments: [
+          ...new Set(
+            ((fileDocs.data ?? []) as { templates: { name: string } | null }[])
+              .map((d) => d.templates?.name ?? "")
+              .filter(Boolean),
+          ),
+        ],
         acq: acq.data as Record<string, unknown> | null,
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
@@ -245,6 +286,8 @@ function DocumentPage() {
           ai_generated_at: string | null;
           reviewed_by: string | null;
           reviewed_at: string | null;
+          issue_on_nf1858?: boolean | null;
+          memo_header?: unknown;
         }[],
       };
     },
@@ -437,6 +480,34 @@ function DocumentPage() {
     setValues(filled);
   }, [def, q.data, touched, acquisitionId, samFacts]);
 
+  // NF 1858: the flag and the header come from the saved version when there is
+  // one, and otherwise from the Center's routing table and the record.
+  useEffect(() => {
+    if (!def || !q.data?.acq || memoHeader) return;
+    const saved = q.data.versions[0];
+    const routing = q.data.routing;
+    const on =
+      typeof saved?.issue_on_nf1858 === "boolean" ? saved.issue_on_nf1858 : memoDefaultFor(def.key, routing);
+    const built = buildMemoHeader({
+      templateKey: def.key,
+      templateName: def.name,
+      documentCitation: def.badge.citation,
+      acquisition: { ...q.data.acq, acquisition_id: acquisitionId },
+      centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
+      centerAddress: q.data.center?.address_line ?? "",
+      routing,
+      coName: String(q.data.acq["co_name"] ?? user.name),
+      approvals: (q.data.approvals ?? []).map((a) => ({ role: a.approval_role, name: a.owner_name })),
+      enclosures: def.key === "packet-transmittal-memo" ? (q.data.fileDocuments ?? []) : [],
+      today: todayISO(),
+    });
+    const storedHeader = saved?.memo_header;
+    setMemoOn(on);
+    setMemoHeader(
+      storedHeader && typeof storedHeader === "object" ? { ...built, ...(storedHeader as MemoHeader) } : built,
+    );
+  }, [def, q.data, memoHeader, acquisitionId, user.name]);
+
   const estimatedValue = q.data?.acq?.["estimated_value"] ? Number(q.data.acq["estimated_value"]) : null;
   const signature = useMemo(
     () => (def?.signature ? def.signature(estimatedValue, q.data?.thresholds ?? []) : undefined),
@@ -446,6 +517,10 @@ function DocumentPage() {
   const errors = def ? validate(def, values) : {};
   const errorCount = Object.keys(errors).length;
   const rendered = def ? renderDocument(def, values, acquisitionId, signature) : null;
+  const memoDoc = rendered && memoHeader ? buildMemoDoc(rendered, memoHeader) : null;
+  const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
+    setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
+  const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
   const targetDate = q.data?.acq?.["target_award_date"] as string | null | undefined;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
@@ -470,6 +545,8 @@ function DocumentPage() {
         template_id: q.data.templateId,
         field_values: fieldValues as never,
         version: nextVersion,
+        issue_on_nf1858: memoOn ?? false,
+        memo_header: (memoOn && memoHeader ? memoHeader : null) as never,
         saved_by: user.name,
         saved_at: savedAt,
         // Fields are drawn from the record by the template engine, so the
@@ -830,6 +907,183 @@ function DocumentPage() {
           </section>
         ) : null}
 
+        <section className="mb-8 border border-border bg-background p-4" aria-label="NF 1858 memorandum">
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              id="issue-on-1858"
+              type="checkbox"
+              checked={!!memoOn}
+              disabled={!canEdit}
+              onChange={(e) => {
+                setMemoOn(e.target.checked);
+                setTouched(true);
+              }}
+            />
+            <label htmlFor="issue-on-1858" className="text-[18px] leading-6 font-medium">
+              Issue on NF 1858
+            </label>
+            <span className="text-[13px] text-muted-foreground">
+              NASA Form 1858 (Rev 12/24) electronic letterhead memorandum.
+            </span>
+          </div>
+          {memoOn && memoHeader ? (
+            <div className="mt-4 max-w-[80ch]">
+              <p className="mb-3 text-[13px] text-muted-foreground">
+                {memoHeader.centerName}
+                {memoHeader.centerAddress ? ` · ${memoHeader.centerAddress}` : ""} · {memoHeader.date} · Reply to Attn
+                of: {memoHeader.replyTo || "—"}
+              </p>
+              <div className="mb-3">
+                <label htmlFor="memo-to" className="text-[15px]">To</label>
+                <input
+                  id="memo-to"
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.to}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("to", e.target.value); setTouched(true); }}
+                />
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  From the Center routing table for this document type. Edit it in Center configuration.
+                </p>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-thru" className="text-[15px]">Thru, one official per line</label>
+                <textarea
+                  id="memo-thru"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.thru.join("\n")}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("thru", linesToList(e.target.value)); setTouched(true); }}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-from" className="text-[15px]">From</label>
+                <input
+                  id="memo-from"
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.from}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("from", e.target.value); setTouched(true); }}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-subject" className="text-[15px]">Subject</label>
+                <input
+                  id="memo-subject"
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.subject}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("subject", e.target.value); setTouched(true); }}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-ref" className="text-[15px]">Ref, one authority per line</label>
+                <textarea
+                  id="memo-ref"
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.ref.join("\n")}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("ref", linesToList(e.target.value)); setTouched(true); }}
+                />
+              </div>
+              <div className="mb-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="memo-sig-name" className="text-[15px]">Signature, typed name</label>
+                  <input
+                    id="memo-sig-name"
+                    className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                    value={memoHeader.signatureName}
+                    disabled={!canEdit}
+                    onChange={(e) => { setMemo("signatureName", e.target.value); setTouched(true); }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="memo-sig-title" className="text-[15px]">Signature, title</label>
+                  <input
+                    id="memo-sig-title"
+                    className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                    value={memoHeader.signatureTitle}
+                    disabled={!canEdit}
+                    onChange={(e) => { setMemo("signatureTitle", e.target.value); setTouched(true); }}
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-conc" className="text-[15px]">Concurrence, one official per line as name, title</label>
+                <textarea
+                  id="memo-conc"
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.concurrence.map((c) => [c.name, c.title].filter(Boolean).join(", ")).join("\n")}
+                  disabled={!canEdit}
+                  onChange={(e) => {
+                    setMemo(
+                      "concurrence",
+                      linesToList(e.target.value).map((l) => {
+                        const [name, ...rest] = l.split(",");
+                        return { name: rest.length ? (name ?? "").trim() : "", title: (rest.length ? rest.join(",") : l).trim() };
+                      }),
+                    );
+                    setTouched(true);
+                  }}
+                />
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  Prefilled from the officials the Approvals step records, in order, and left blank for signature.
+                </p>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="memo-encl" className="text-[15px]">Enclosures, one per line, numbered on the memo</label>
+                <textarea
+                  id="memo-encl"
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                  value={memoHeader.enclosures.join("\n")}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("enclosures", linesToList(e.target.value)); setTouched(true); }}
+                />
+              </div>
+              <div className="mb-3 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="memo-dist" className="text-[15px]">Distribution, one per line</label>
+                  <textarea
+                    id="memo-dist"
+                    rows={2}
+                    className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                    value={memoHeader.distribution.join("\n")}
+                    disabled={!canEdit}
+                    onChange={(e) => { setMemo("distribution", linesToList(e.target.value)); setTouched(true); }}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="memo-cc" className="text-[15px]">cc, one per line</label>
+                  <textarea
+                    id="memo-cc"
+                    rows={2}
+                    className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                    value={memoHeader.cc.join("\n")}
+                    disabled={!canEdit}
+                    onChange={(e) => { setMemo("cc", linesToList(e.target.value)); setTouched(true); }}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  id="memo-cui"
+                  type="checkbox"
+                  checked={memoHeader.cui}
+                  disabled={!canEdit}
+                  onChange={(e) => { setMemo("cui", e.target.checked); setTouched(true); }}
+                />
+                <label htmlFor="memo-cui" className="text-[15px]">
+                  Mark CUI, adding the banner and the cover sheet
+                </label>
+              </div>
+            </div>
+          ) : null}
+        </section>
+
         <div className="mb-6 flex flex-wrap gap-3">
           <button
             type="submit"
@@ -842,20 +1096,24 @@ function DocumentPage() {
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
-            onClick={() => rendered && void exportDocx(rendered, `${def.key}-${acquisitionId}`)}
+            onClick={() => {
+              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`);
+              else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`);
+            }}
           >
-            Export .docx
+            {memoOn ? "Export memo .docx" : "Export .docx"}
           </button>
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
-              if (rendered && !exportPdf(rendered, headerLine)) {
+              const ok = memoOn && memoDoc ? exportMemoPdf(memoDoc, headerLine) : rendered ? exportPdf(rendered, headerLine) : true;
+              if (!ok) {
                 setMessage("The print window was blocked. Allow pop-ups for this site, then export again.");
               }
             }}
           >
-            Export PDF
+            {memoOn ? "Export memo PDF" : "Export PDF"}
           </button>
         </div>
 

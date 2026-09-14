@@ -1182,6 +1182,7 @@ function FilePage() {
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
               <th scope="col" className="px-3 py-2 font-medium">Phase</th>
+              <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
               <th scope="col" className="px-3 py-2 font-medium">State</th>
             </tr>
           </thead>
@@ -1191,6 +1192,11 @@ function FilePage() {
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
                 <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2">
+                  {t.documents.at(-1)?.memo
+                    ? `Yes, to ${t.documents.at(-1)?.memoTo ?? "addressee not set"}`
+                    : "No"}
+                </td>
                 <td className="px-3 py-2">
                   Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
                   {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(String(t.documents.at(-1)!.savedAt).slice(0, 10))}` : ""}
@@ -1202,6 +1208,7 @@ function FilePage() {
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
                 <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
                   Required for this acquisition type, no document
                 </td>
@@ -1209,7 +1216,7 @@ function FilePage() {
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={4}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
                   No tabbed documents are saved on this file yet.
                 </td>
               </tr>

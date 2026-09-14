@@ -472,16 +472,19 @@ export type Database = {
       }
       centers: {
         Row: {
+          address_line: string | null
           aging_threshold_days: number
           center_code: string
           center_name: string
         }
         Insert: {
+          address_line?: string | null
           aging_threshold_days?: number
           center_code: string
           center_name: string
         }
         Update: {
+          address_line?: string | null
           aging_threshold_days?: number
           center_code?: string
           center_name?: string
@@ -994,6 +997,8 @@ export type Database = {
           document_id: string
           field_values: Json | null
           is_seed: boolean
+          issue_on_nf1858: boolean | null
+          memo_header: Json | null
           reviewed_at: string | null
           reviewed_by: string | null
           saved_at: string | null
@@ -1009,6 +1014,8 @@ export type Database = {
           document_id?: string
           field_values?: Json | null
           is_seed?: boolean
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           saved_at?: string | null
@@ -1024,6 +1031,8 @@ export type Database = {
           document_id?: string
           field_values?: Json | null
           is_seed?: boolean
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           saved_at?: string | null
@@ -1161,6 +1170,42 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      memo_routing: {
+        Row: {
+          approving_official_title: string
+          center_code: string
+          document_key: string
+          memo_default: boolean | null
+          note: string | null
+          routing_id: string
+          thru_chain: string[]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          approving_official_title: string
+          center_code: string
+          document_key: string
+          memo_default?: boolean | null
+          note?: string | null
+          routing_id?: string
+          thru_chain?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          approving_official_title?: string
+          center_code?: string
+          document_key?: string
+          memo_default?: boolean | null
+          note?: string | null
+          routing_id?: string
+          thru_chain?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       missions: {
         Row: {

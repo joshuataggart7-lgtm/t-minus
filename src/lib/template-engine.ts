@@ -1905,6 +1905,221 @@ const closeoutChecklist: TemplateDef = {
   signature: coSignature("FAR 4.804-5(b)", "Signed by the contracting officer closing the file."),
 };
 
+// ------------------------------------------------- memoranda issued on NF 1858
+const marketResearchMemo: TemplateDef = {
+  key: "market-research-memo",
+  name: "Market Research Memorandum",
+  tab: "N/A",
+  badge: {
+    citation: "FAR Part 10; NFS 1810",
+    tier: "binding",
+    revision: "T-Minus form; issued on NF 1858",
+    note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
+  },
+  lead: "Records the market research conducted and the conclusions the contracting officer drew from it.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "purpose",
+      title: "Purpose",
+      citation: "FAR 10.002(e)",
+      tier: "binding",
+      fields: [{ key: "purpose", label: "Purpose of this memorandum", kind: "textarea", required: true }],
+    },
+    {
+      id: "requirement",
+      title: "Requirement",
+      citation: "FAR 10.001",
+      tier: "binding",
+      fields: [
+        {
+          key: "requirement",
+          label: "The requirement, its schedule and its estimated value",
+          kind: "textarea",
+          bind: "description_of_requirement",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "research",
+      title: "Research conducted",
+      citation: "FAR 10.002(b)",
+      tier: "binding",
+      fields: [
+        { key: "research", label: "Sources searched, dates and techniques used", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "findings",
+      title: "Findings",
+      citation: "FAR 10.002(d)",
+      tier: "binding",
+      fields: [{ key: "findings", label: "What the research found about each source", kind: "textarea", required: true }],
+    },
+    {
+      id: "commercial",
+      title: "Commercial products and services",
+      citation: "FAR 10.002(d)(1); FAR 12.102",
+      tier: "binding",
+      fields: [
+        { key: "commercial", label: "Whether commercial products or services meet the need", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "conclusion",
+      title: "Conclusion",
+      citation: "FAR 10.002(e)",
+      tier: "binding",
+      fields: [{ key: "conclusion", label: "Conclusion and the procedures to be used", kind: "textarea", required: true }],
+    },
+  ],
+  signature: coSignature("FAR 10.002(e)"),
+};
+
+const waiverDeviation: TemplateDef = {
+  key: "waiver-deviation-request",
+  name: "Waiver or Deviation Request",
+  tab: "N/A",
+  badge: {
+    citation: "FAR 1.402; NFS 1801.404",
+    tier: "binding",
+    revision: "T-Minus form; issued on NF 1858",
+    note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
+  },
+  lead: "Requests a waiver or a deviation from a regulation, with the authority and the rationale.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "request",
+      title: "Request",
+      citation: "FAR 1.402",
+      tier: "binding",
+      fields: [
+        {
+          key: "kind",
+          label: "Kind of relief requested",
+          kind: "select",
+          required: true,
+          options: ["Individual deviation", "Class deviation", "Waiver"],
+        },
+        { key: "provision", label: "Regulation or clause the request is from", kind: "text", required: true },
+        { key: "relief", label: "Relief requested, stated plainly", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "rationale",
+      title: "Rationale",
+      citation: "NFS 1801.404",
+      tier: "binding",
+      fields: [
+        { key: "rationale", label: "Why the relief is needed and the effect on the mission", kind: "textarea", required: true },
+        { key: "alternatives", label: "Alternatives considered and why they do not work", kind: "textarea", required: true },
+        { key: "period", label: "Period the relief applies to", kind: "text", required: true },
+      ],
+    },
+    {
+      id: "approval",
+      title: "Approval requested",
+      citation: "NFS 1801.404",
+      tier: "binding",
+      fields: [{ key: "approval_level", label: "Official whose approval is requested", kind: "text", required: true }],
+    },
+  ],
+  signature: coSignature("FAR 1.402"),
+};
+
+const coordinationMemo: TemplateDef = {
+  key: "coordination-memo",
+  name: "Coordination Memorandum",
+  tab: "N/A",
+  badge: {
+    citation: "FAR 4.801; NFS CG 1804.8",
+    tier: "guidance",
+    revision: "T-Minus form; issued on NF 1858",
+    note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
+  },
+  lead: "Records coordination with a requester, a reviewer or another organization, and what was agreed.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "matter",
+      title: "Matter coordinated",
+      citation: "FAR 4.801(b)",
+      tier: "binding",
+      fields: [
+        { key: "matter", label: "What was coordinated, and with whom", kind: "textarea", required: true },
+        { key: "coordination_date", label: "Date of the coordination", kind: "date", required: true },
+      ],
+    },
+    {
+      id: "positions",
+      title: "Positions",
+      citation: "FAR 4.801(b)",
+      tier: "binding",
+      fields: [{ key: "positions", label: "Positions taken by each organization", kind: "textarea", required: true }],
+    },
+    {
+      id: "agreement",
+      title: "Agreement and next step",
+      citation: "FAR 4.801(b)",
+      tier: "binding",
+      fields: [
+        { key: "agreement", label: "What was agreed", kind: "textarea", required: true },
+        { key: "next_step", label: "Next step, its owner and its date", kind: "textarea", required: true },
+      ],
+    },
+  ],
+  signature: coSignature("FAR 4.801(b)"),
+};
+
+const packetTransmittal: TemplateDef = {
+  key: "packet-transmittal-memo",
+  name: "Pre-award Package Transmittal Memorandum",
+  tab: "N/A",
+  badge: {
+    citation: "NF 1098 Checklist for Contract Award File Content; FAR 4.801",
+    tier: "binding",
+    revision: "T-Minus form; issued on NF 1858",
+    note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
+  },
+  lead: "Transmits the pre-award review package and asks for review and concurrence.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "action",
+      title: "Action",
+      citation: "FAR 4.801",
+      tier: "binding",
+      fields: [
+        { key: "action", label: "The award the package supports, its vendor and its amount", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "competition",
+      title: "Competition",
+      citation: "FAR 6; FAR 13.501",
+      tier: "binding",
+      fields: [{ key: "competition_basis", label: "How competition was handled and any notice issued", kind: "textarea", required: true }],
+    },
+    {
+      id: "strategy",
+      title: "Enterprise strategy",
+      citation: "Enterprise Procurement Strategies",
+      tier: "guidance",
+      fields: [{ key: "strategy", label: "Strategy reviewed and the result", kind: "textarea", required: true }],
+    },
+    {
+      id: "request",
+      title: "Request",
+      citation: "FAR 4.801",
+      tier: "binding",
+      fields: [{ key: "request", label: "What is asked of the addressee, and by when", kind: "textarea", required: true }],
+    },
+  ],
+  signature: coSignature("FAR 4.801"),
+};
+
 export const TEMPLATES: TemplateDef[] = [
   nf1707,
   jofoc,
@@ -1924,6 +2139,10 @@ export const TEMPLATES: TemplateDef[] = [
   corCancellation,
   cparsInput,
   closeoutChecklist,
+  marketResearchMemo,
+  waiverDeviation,
+  coordinationMemo,
+  packetTransmittal,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
