@@ -140,15 +140,8 @@ const concat = (parts: Uint8Array[]) => {
  * values in the fields. Rewriting the file with a PDF library instead breaks
  * dynamic XFA forms in Reader, which is why the original bytes are preserved.
  */
-export async function exportXfaIncremental(
-  pdfUrl: string,
-  datasetsXml: string,
-  fileName: string,
-): Promise<void> {
+export async function buildXfaIncremental(original: Uint8Array, datasetsXml: string): Promise<Uint8Array> {
   const { PDFDocument, PDFName, PDFDict, PDFArray, PDFRef, PDFString, PDFHexString } = await import("pdf-lib");
-  const response = await fetch(pdfUrl);
-  if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
-  const original = new Uint8Array(await response.arrayBuffer());
 
   const doc = await PDFDocument.load(original);
   const acro = doc.catalog.lookup(PDFName.of("AcroForm"), PDFDict);
@@ -218,7 +211,18 @@ export async function exportXfaIncremental(
   parts.push(ascii(`${xrefNumber} 0 obj\n${dict}\nstream\n`), entries, ascii("\nendstream\nendobj\n"));
   parts.push(ascii(`startxref\n${xrefOffset}\n%%EOF\n`));
 
-  download(concat(parts), fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`, "application/pdf");
+  return concat(parts);
+}
+
+export async function exportXfaIncremental(
+  pdfUrl: string,
+  datasetsXml: string,
+  fileName: string,
+): Promise<void> {
+  const response = await fetch(pdfUrl);
+  if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
+  const bytes = await buildXfaIncremental(new Uint8Array(await response.arrayBuffer()), datasetsXml);
+  download(bytes, fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`, "application/pdf");
 }
 
 /**
