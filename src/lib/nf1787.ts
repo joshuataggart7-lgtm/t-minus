@@ -71,6 +71,10 @@ export type FormCtx = {
   /** Label of the evidence run, or null when the search has never been run. */
   evidenceLabel: string | null;
   gates: { services: boolean | null; it: boolean | null; hardware: boolean | null };
+  /** SBA size standard for the record's NAICS, or null when none is seeded. */
+  sizeStandard?: SizeStandard | null;
+  /** Simplified acquisition threshold from the threshold table, with its citation. */
+  simplifiedAcquisition?: { value: number; citation: string } | null;
 };
 
 export const GENERATED_FORM_KEYS: FormKey[] = ["nf-1787", "nf-1787a"];
