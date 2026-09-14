@@ -131,7 +131,7 @@ export const draftFromRequesterPackage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<PackageDraft> => {
-    const { data: profile } = await context.supabase.from("profiles").select("role,is_admin").eq("id", context.userId).maybeSingle();
+    const { data: profile } = await context.supabase.from("profiles").select("role,is_admin,email").eq("id", context.userId).maybeSingle();
     const claims = context.claims as { is_anonymous?: boolean; email?: string } | undefined;
     const isDemo = Boolean(claims?.is_anonymous) || (!profile?.email && !claims?.email);
     if (!isDemo && !profile?.is_admin && !["co", "specialist", "hq"].includes(profile?.role ?? "")) {
