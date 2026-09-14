@@ -23,6 +23,9 @@ export type IndexDocument = {
   version: number;
   savedBy: string | null;
   savedAt: string | null;
+  /** Issued on NASA Form 1858 letterhead, and the official it is addressed to. */
+  memo: boolean;
+  memoTo: string | null;
 };
 
 export type IndexTab = {
@@ -42,6 +45,8 @@ export type IndexDocRow = {
   version: number | null;
   saved_by: string | null;
   saved_at: string | null;
+  issue_on_nf1858?: boolean | null;
+  memo_header?: { to?: string } | null;
 };
 
 export type IndexTemplateRow = {
@@ -94,6 +99,8 @@ export function buildFileIndex(
       version: d.version ?? 1,
       savedBy: d.saved_by,
       savedAt: d.saved_at,
+      memo: d.issue_on_nf1858 === true,
+      memoTo: d.memo_header?.to ?? null,
     });
     present.set(key, entry);
   }

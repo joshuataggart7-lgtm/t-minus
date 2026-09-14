@@ -190,7 +190,7 @@ function FilePage() {
       const [fileDocs, fileTemplates] = await Promise.all([
         supabase
           .from("documents")
-          .select("template_id,version,saved_by,saved_at")
+          .select("template_id,version,saved_by,saved_at,issue_on_nf1858,memo_header")
           .eq("acquisition_id", acquisitionId),
         supabase.from("templates").select("template_id,name,nf_1098_tab"),
       ]);
@@ -357,7 +357,7 @@ function FilePage() {
   const fileIndex = useMemo(
     () =>
       buildFileIndex(
-        q.data?.documents ?? [],
+        (q.data?.documents ?? []) as never,
         q.data?.templates ?? [],
         phases.map((p) => p.phase),
       ),
@@ -1182,6 +1182,7 @@ function FilePage() {
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
               <th scope="col" className="px-3 py-2 font-medium">Phase</th>
+              <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
               <th scope="col" className="px-3 py-2 font-medium">State</th>
             </tr>
           </thead>
@@ -1191,6 +1192,11 @@ function FilePage() {
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
                 <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2">
+                  {t.documents.at(-1)?.memo
+                    ? `Yes, to ${t.documents.at(-1)?.memoTo ?? "addressee not set"}`
+                    : "No"}
+                </td>
                 <td className="px-3 py-2">
                   Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
                   {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(String(t.documents.at(-1)!.savedAt).slice(0, 10))}` : ""}
@@ -1202,6 +1208,7 @@ function FilePage() {
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
                 <td className="px-3 py-2">{t.phase}</td>
+                <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
                   Required for this acquisition type, no document
                 </td>
@@ -1209,7 +1216,7 @@ function FilePage() {
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={4}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
                   No tabbed documents are saved on this file yet.
                 </td>
               </tr>

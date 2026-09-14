@@ -15,3 +15,5 @@
 
 - [x] Rebuild NF 1707 Intake sections, mapping, tracked approvals, and 271-field export preview
 - [x] Add session-only requester-package drafting, confirmations, provenance, IGCE CLINs, and NAICS lookup
+
+- [x] Add the NF 1858 memorandum layout, routing table, memo exports, and packet index column
