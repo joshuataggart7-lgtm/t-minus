@@ -193,6 +193,8 @@ export function fieldErrors(f: IntakeFacts): Record<string, string> {
   if (!f.contract_type) e["contract_type"] = "Choose a contract type.";
   if (!f.acquisition_method) e["acquisition_method"] = "Choose an acquisition method.";
   if (!f.competition) e["competition"] = "Choose the competition approach.";
+  if (/limited sources|sole source|brand name/i.test(f.competition) && !f.jofoc_authority_citation)
+    e["jofoc_authority_citation"] = "Choose the authority for this competition approach.";
 
   const start = f.period_of_performance_start;
   const end = f.period_of_performance_end;

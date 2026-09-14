@@ -116,6 +116,18 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
 
   await put("missions", JSON.parse(read("missions.json")), "mission_id");
 
+  await wipe(db, "competition_authorities", "authority_id");
+  await put(
+    "competition_authorities",
+    parseCsv(read("competition_authorities.csv")).map((r) => ({
+      acquisition_method: r["acquisition_method"],
+      competition_type: r["competition_type"],
+      citation: r["citation"],
+      description: r["description"],
+      source_tier: r["source_tier"] || "binding",
+    })),
+  );
+
   const acqRows = (JSON.parse(read("acquisitions.json")) as Record<string, unknown>[]).map((row) => {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(row)) out[k] = v === "" ? null : v;
