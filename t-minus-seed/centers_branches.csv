@@ -1,9 +1,13 @@
 center_code,center_name,branch_code,branch_name
-ARC,Ames Research Center,JAZ,Branch JAZ (fictional label)
-ARC,Ames Research Center,JAE,Branch JAE (fictional label)
-GSFC,Goddard Space Flight Center,210.S,Branch 210.S (fictional label)
-GSFC,Goddard Space Flight Center,210.Y,Branch 210.Y (fictional label)
-JSC,Johnson Space Center,BJ2,Branch BJ2 (fictional label)
-JSC,Johnson Space Center,BJ4,Branch BJ4 (fictional label)
-KSC,Kennedy Space Center,OP-ES,Branch OP-ES (fictional label)
-KSC,Kennedy Space Center,OP-RS,Branch OP-RS (fictional label)
+HQ,NASA Headquarters,JAZ,JAZ
+ARC,Ames Research Center,JAZ,JAZ
+AFRC,Armstrong Flight Research Center,JAZ,JAZ
+GRC,Glenn Research Center,JAZ,JAZ
+GSFC,Goddard Space Flight Center,JAZ,JAZ
+JPL,Jet Propulsion Laboratory,JAZ,JAZ
+JSC,Johnson Space Center,JAZ,JAZ
+KSC,Kennedy Space Center,JAZ,JAZ
+LaRC,Langley Research Center,JAZ,JAZ
+MSFC,Marshall Space Flight Center,JAZ,JAZ
+SSC,Stennis Space Center,JAZ,JAZ
+Other,Other,JAZ,JAZ

@@ -20,6 +20,8 @@ type Profile = {
   display_name: string | null;
   role: string;
   is_admin: boolean;
+  last_center_code: string | null;
+  last_organization_code: string | null;
 };
 
 type RoleContextValue = {
@@ -84,7 +86,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     void (async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, display_name, role, is_admin")
+        .select("id, email, display_name, role, is_admin, last_center_code, last_organization_code")
         .eq("id", session.user.id)
         .maybeSingle();
       if (cancelled) return;

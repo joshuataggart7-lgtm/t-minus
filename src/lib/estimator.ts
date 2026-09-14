@@ -50,16 +50,16 @@ export function inputsFromFacts(f: IntakeFacts): EstimatorInputs {
   const soleSource = /sole/i.test(f.competition);
 
   const type = f.contract_type.toLowerCase();
-  const pricing: Pricing = /cost-plus/.test(type)
+  const pricing: Pricing = /cost-plus|cost-no-fee|cost-sharing/.test(type)
     ? "COST"
-    : /time-and-materials|labor-hour/.test(type)
+    : /time-and-materials|t&m|labor-hour|\blh\b/.test(type)
       ? "TM"
       : "FFP";
 
   const method = f.acquisition_method.toLowerCase();
-  const instrument: Instrument = /indefinite-delivery/.test(type)
+  const instrument: Instrument = /indefinite-delivery|idiq/.test(type)
     ? "IDIQ"
-    : /existing contract vehicle|gwac/.test(method)
+    : /existing idiq|gwac|gsa schedule/.test(method)
       ? "TO"
       : "STANDALONE";
 
