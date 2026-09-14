@@ -364,6 +364,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
         properties: {
           page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1152, left: 1440 } },
         },
+        footers: { default: footer },
         children,
       },
     ],
