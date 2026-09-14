@@ -128,6 +128,14 @@ export type BuildMemoInput = {
   today: string;
 };
 
+/**
+ * Documents that are filed rather than approved. They are addressed to the
+ * contract file, with no Thru chain.
+ */
+const FILE_ADDRESSED = new Set(["market-research-memo", "commerciality"]);
+
+const fileAddressed = (templateKey: string) => FILE_ADDRESSED.has(templateKey);
+
 /** Prefilled header for a memorandum, before the CO edits it. */
 export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   const org = String(input.acquisition["branch_code"] ?? input.acquisition["org_code"] ?? "").trim();
