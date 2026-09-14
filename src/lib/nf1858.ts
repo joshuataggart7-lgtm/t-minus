@@ -12,6 +12,7 @@
  */
 
 import { TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
+import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
