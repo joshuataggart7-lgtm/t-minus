@@ -179,11 +179,19 @@ function FormPage() {
   const exportPopulated = async () => {
     if (!form) return;
     try {
-      await exportPopulatedXfa(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
-      setMessage("Form exported with its fields populated. Open it in Adobe Acrobat to see the filled form.");
+      await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
+      setMessage(
+        "Form PDF exported. Open it in Adobe Reader; the answers are already in the fields. If your reader will not open it, use the data file with Import Data on the blank form.",
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
     }
+  };
+
+  const exportData = () => {
+    if (!form) return;
+    exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
+    setMessage("Data file exported. In Adobe Reader open the blank form, then choose Import Data and pick this file.");
   };
 
   return (
