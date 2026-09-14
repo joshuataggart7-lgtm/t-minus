@@ -38,6 +38,7 @@ import { Route as IntakeAcquisitionIdRouteImport } from './routes/intake_.$acqui
 import { Route as SharedTokenRouteImport } from './routes/shared.$token'
 import { Route as DocumentsTemplateKeyIndexRouteImport } from './routes/documents.$templateKey.index'
 import { Route as DocumentsTemplateKeyAcquisitionIdRouteImport } from './routes/documents.$templateKey.$acquisitionId'
+import { Route as FormsFormKeyAcquisitionIdRouteImport } from './routes/forms.$formKey.$acquisitionId'
 import { Route as ApiPublicHooksExclusionsSweepRouteImport } from './routes/api/public/hooks/exclusions-sweep'
 import { Route as ApiPublicHooksReportingExtractRouteImport } from './routes/api/public/hooks/reporting-extract'
 import { Route as ApiPublicHooksWatchRefreshRouteImport } from './routes/api/public/hooks/watch-refresh'
@@ -189,6 +190,12 @@ const DocumentsTemplateKeyAcquisitionIdRoute =
     path: '/documents/$templateKey/$acquisitionId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const FormsFormKeyAcquisitionIdRoute =
+  FormsFormKeyAcquisitionIdRouteImport.update({
+    id: '/forms/$formKey/$acquisitionId',
+    path: '/forms/$formKey/$acquisitionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksExclusionsSweepRoute =
   ApiPublicHooksExclusionsSweepRouteImport.update({
     id: '/api/public/hooks/exclusions-sweep',
@@ -237,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/forms/$formKey/$acquisitionId': typeof FormsFormKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
@@ -271,6 +279,7 @@ export interface FileRoutesByTo {
   '/intake/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/forms/$formKey/$acquisitionId': typeof FormsFormKeyAcquisitionIdRoute
   '/documents/$templateKey': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
@@ -306,6 +315,7 @@ export interface FileRoutesById {
   '/intake_/$acquisitionId': typeof IntakeAcquisitionIdRoute
   '/shared/$token': typeof SharedTokenRoute
   '/documents/$templateKey/$acquisitionId': typeof DocumentsTemplateKeyAcquisitionIdRoute
+  '/forms/$formKey/$acquisitionId': typeof FormsFormKeyAcquisitionIdRoute
   '/documents/$templateKey/': typeof DocumentsTemplateKeyIndexRoute
   '/api/public/hooks/exclusions-sweep': typeof ApiPublicHooksExclusionsSweepRoute
   '/api/public/hooks/reporting-extract': typeof ApiPublicHooksReportingExtractRoute
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/intake/$acquisitionId'
     | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
+    | '/forms/$formKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/reporting-extract'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/intake/$acquisitionId'
     | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
+    | '/forms/$formKey/$acquisitionId'
     | '/documents/$templateKey'
     | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/reporting-extract'
@@ -410,6 +422,7 @@ export interface FileRouteTypes {
     | '/intake_/$acquisitionId'
     | '/shared/$token'
     | '/documents/$templateKey/$acquisitionId'
+    | '/forms/$formKey/$acquisitionId'
     | '/documents/$templateKey/'
     | '/api/public/hooks/exclusions-sweep'
     | '/api/public/hooks/reporting-extract'
@@ -445,6 +458,7 @@ export interface RootRouteChildren {
   IntakeAcquisitionIdRoute: typeof IntakeAcquisitionIdRoute
   SharedTokenRoute: typeof SharedTokenRoute
   DocumentsTemplateKeyAcquisitionIdRoute: typeof DocumentsTemplateKeyAcquisitionIdRoute
+  FormsFormKeyAcquisitionIdRoute: typeof FormsFormKeyAcquisitionIdRoute
   DocumentsTemplateKeyIndexRoute: typeof DocumentsTemplateKeyIndexRoute
   ApiPublicHooksExclusionsSweepRoute: typeof ApiPublicHooksExclusionsSweepRoute
   ApiPublicHooksReportingExtractRoute: typeof ApiPublicHooksReportingExtractRoute
@@ -656,6 +670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocumentsTemplateKeyAcquisitionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forms/$formKey/$acquisitionId': {
+      id: '/forms/$formKey/$acquisitionId'
+      path: '/forms/$formKey/$acquisitionId'
+      fullPath: '/forms/$formKey/$acquisitionId'
+      preLoaderRoute: typeof FormsFormKeyAcquisitionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/exclusions-sweep': {
       id: '/api/public/hooks/exclusions-sweep'
       path: '/api/public/hooks/exclusions-sweep'
@@ -710,6 +731,7 @@ const rootRouteChildren: RootRouteChildren = {
   SharedTokenRoute: SharedTokenRoute,
   DocumentsTemplateKeyAcquisitionIdRoute:
     DocumentsTemplateKeyAcquisitionIdRoute,
+  FormsFormKeyAcquisitionIdRoute: FormsFormKeyAcquisitionIdRoute,
   DocumentsTemplateKeyIndexRoute: DocumentsTemplateKeyIndexRoute,
   ApiPublicHooksExclusionsSweepRoute: ApiPublicHooksExclusionsSweepRoute,
   ApiPublicHooksReportingExtractRoute: ApiPublicHooksReportingExtractRoute,
