@@ -1288,6 +1288,9 @@ function FilePage() {
                   return (
                     <li key={d.label} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]">
                       <span>{d.label}</span>
+                      <span className="text-[13px] text-muted-foreground">
+                        {d.optional ? "Offered" : "Required"}
+                      </span>
                       {state === null ? (
                         d.link === "packet" ? (
                           <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
@@ -1297,10 +1300,28 @@ function FilePage() {
                           <Link to="/checks" className="text-[13px] text-primary">
                             Open Checks
                           </Link>
-                        ) : d.link === "templates" ? (
-                          <Link to="/templates" className="text-[13px] text-primary">
-                            Open the template
+                        ) : d.link === "form" && d.formKey ? (
+                          <Link
+                            to="/forms/$formKey/$acquisitionId"
+                            params={{ formKey: d.formKey, acquisitionId }}
+                            className="text-[13px] text-primary"
+                          >
+                            Open the form for this file
                           </Link>
+                        ) : d.link === "templates" ? (
+                          d.templateKey ? (
+                            <Link
+                              to="/documents/$templateKey/$acquisitionId"
+                              params={{ templateKey: d.templateKey, acquisitionId }}
+                              className="text-[13px] text-primary"
+                            >
+                              Open the document for this file
+                            </Link>
+                          ) : (
+                            <Link to="/templates" className="text-[13px] text-primary">
+                              Open the template
+                            </Link>
+                          )
                         ) : null
                       ) : (
                         <>
