@@ -1,0 +1,29 @@
+Rule for this and every future document: a document or form is required in the roadmap only when a cited regulation, NFS text, Companion Guide entry, PCD, or Enterprise Procurement Strategy requires it at this value or condition. Optional documents are offered, never required. Every "required" must show its citation.
+
+PART A — Fix the NF 1858 memo body
+
+The NF 1858 memo shell is correct. The body is not drafted. Fix:
+
+1. When a memo-type document is opened or generated, run the document drafter for every body section, the same way the JOFOC and TER are drafted. For the Market Research Memorandum: Purpose (one sentence), Requirement (from the record), Research conducted (SAM.gov set-aside evidence search results if run, sources sought if any, prior contract file review, discussions with industry from the record), Findings (number of sources, small business capability, Rule of Two result), Commercial products and services (cross-reference the commerciality determination), Conclusion (consistent with the record's competition and set-aside values: for A-2027-0101 that is competitive, total small business set-aside). Never export a numbered heading with no text under it; if a section can't be drafted from the record, insert "[Contracting officer to complete: <what is missing>]" so the gap is visible.
+
+2. Paragraph 1 must not be a run-on key:value string. Render the record facts as labeled lines (Acquisition, Requirement, Center, Requisition, Mission, Estimated value, NAICS, PSC, Contract type, Competition, Contracting officer), one per line. Show the mission's name, never its code (M1).
+
+3. Default routing for the Market Research Memorandum and the Commerciality Determination is To: Contract File [requisition]; no Thru. Keep Branch Chief / Team Lead routing for the transmittal memo and JOFOC.
+
+4. Keep Distribution on the same page as the signature when it fits. Put the metadata line (file id, citation, "issued on NF 1858", prototype notice) in a small page footer, not in the Distribution block.
+
+5. Export: the memo editor needs visible "Export Word" and "Export PDF" buttons that produce the file server-side or via docx, with no browser print headers or footers.
+
+6. In the launch sequence, "Open the template" on a document line must open that document for the current file (creating it from the template if it doesn't exist yet), not navigate to the Templates library.
+
+PART B — Add NF 1787 and NF 1787A as generated forms
+
+Add NF 1787 (Small Business Coordination) and NF 1787A (Market Research) as generated forms, mapped field by field from the record the way the NF 1707 is. The blank forms are at seed/forms/NF1787.pdf and seed/forms/NF1787A.pdf.
+
+NF 1787A fields: ProjectTitle, MissionSupported, RequirementsDirectorate, DescriptionOfRequirement, TotalValue, PRNumber, ProductCode, NAICSCode; WOSB/EDWOSB questions (WOSBYes, EDWOSBYes, WOSBNo); nonmanufacturer rule (NMRYes, NMRNo, NMRWaiverYes, NMRWaiverNo, ClassWaiverNo, WaiverYes, WaiverNo, Comment); ConsolidationYes/No, PriorContractYes/No, FollowOnYes/No, AffirmativeYes/No, Section508Yes/No, JOFOCYes/No, ServicesYes/No, GovernmentalYes/No; mandatory sources (MandatoryYes/No, MandatorySource, MandatoryComments, ProcurementListedYes/No, NFSCitation); strategic sourcing (StrategicSourcing, StrategicSourcingCenter/MultiCenter/Agency/Contract/Input); research methods as checkboxes with text (ckHistory/ProcurementHistory, ckResults/IdentifyResults, ckContacts/IdentifyContacts, ckRFI/GovtPOE/PublicationBeginningDate/PublicationEndingDate/PubRFI, ckSBIRSTTRSources/SBIRSTTRSourceMeetings, ckInterchange/MeetingDates, ckQuery/CiteInformation, ckSBA/SBA, ckCPG/CPGComments, ckMarketResearch/MarketResearch, ckOnshoring/Onshoring, ckOSBPStrategyLab/OSBPStrategyLab, ckOther/Other); SuppliesServices and SupplyServices1–6; commerciality (MetByCommercialItems, NonCommercialItems, OtherDetermination, ElaborateOtherDetermination); respondents table (UEI, Respondent, SBCategory, SBCategoryText, OverallAssessment, Explain, repeatable); subcontracting (SBSubCoding, SBSubCodingValue, SCYes/SCNo, SOYes/SONo, SODropdown, Comments, SBSubcontractingGoal ×8, RecommendedSBGoals); Determination; two signature blocks (FullName, EmailField).
+
+NF 1787 fields: Initial/Revised, PurchaseRequestNo, TotalEstimatedValue, QuantityAmt, TotLengthContract, ItemDescription, NAICSCode, NumberEmployees, Reciepts, YES/NO, FARException, ThresholdYes/No, SubOpYes/No, PriorYes/No, YesText1, ApplyYes/No, YesText2; vehicle type (PO, DEFINITIVE, BPA with BPAbase/BPAorder/BPAinput, IDIQ with IDIQbase/IDIQorder/IDIQinput, MAC with MACinput/MACbase/MACorder); set-aside rows a–k each with Competitive/SoleSource variants and fPortion; MRRreqYes/No, Explain, Attach, Remarks; signatures ContractSp/CSsign/DateTimeField1, ContractorOfficerName/CONTRACTING_OFFICER/DateTimeField2, SBA_SPECIALIST CONCURS/NONCONCURS/DateTimeField3, SBA_Rep CONCURS/NONCONCURS/UNAVAILABLE/DateTimeField3, Explain.
+
+Fill every field the record can answer (title, mission name not code, PR, value, NAICS, PSC, competition, set-aside, contract vehicle, services yes/no, JOFOC yes/no, prior contract from "Successor of", strategic sourcing from 1707 Section 1). Fill the respondents table from the set-aside evidence search when it has been run. Leave signature and concurrence fields blank; they come from the Approvals step. Show an export preview of each filled form, and export as PDF with the XFA fields populated, and as a flattened PDF.
+
+Roadmap: in the Market Research phase, require NF 1787A when estimated value is $2,000,000 or more (NFS CG 1810.12(c)); below that, the Market Research Memorandum on NF 1858 is the document of record and NF 1787A is optional. Require NF 1787 above the micro-purchase threshold (NFS 1819.202-70) with the exceptions already in the threshold table. The Market Research Memorandum and NF 1787A draw from the same research record so they never disagree.
