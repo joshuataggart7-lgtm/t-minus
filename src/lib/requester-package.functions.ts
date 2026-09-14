@@ -132,7 +132,8 @@ export const draftFromRequesterPackage = createServerFn({ method: "POST" })
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<PackageDraft> => {
     const { data: profile } = await context.supabase.from("profiles").select("role,is_admin").eq("id", context.userId).maybeSingle();
-    const isDemo = Boolean((context.claims as { is_anonymous?: boolean } | undefined)?.is_anonymous);
+    const claims = context.claims as { is_anonymous?: boolean; email?: string } | undefined;
+    const isDemo = Boolean(claims?.is_anonymous) || (!profile?.email && !claims?.email);
     if (!isDemo && !profile?.is_admin && !["co", "specialist", "hq"].includes(profile?.role ?? "")) {
       throw new Error("Requester-package drafting is available to contracting and HQ roles.");
     }
