@@ -149,6 +149,21 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   );
 
   await put(
+    "naics_size_standards",
+    parseCsv(read("naics_size_standards.csv")).map((r) => ({
+      naics_code: r["naics_code"],
+      naics_title: nul(r["naics_title"]),
+      standard_type: r["standard_type"],
+      employees: r["employees"] ? int(r["employees"]) : null,
+      receipts_usd: r["receipts_usd"] ? num(r["receipts_usd"]) : null,
+      citation: nul(r["citation"]),
+      effective_date: nul(r["effective_date"]),
+      note: nul(r["note"]),
+    })),
+    "naics_code",
+  );
+
+  await put(
     "phase_plan",
     parseCsv(read("phase_plan.csv")).map((r) => ({
       acquisition_type: r["acquisition_type"],
