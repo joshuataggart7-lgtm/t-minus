@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/center-config";
+import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
@@ -40,22 +41,26 @@ function CenterConfigPage() {
   const [citation, setCitation] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [newCenter, setNewCenter] = useState("");
+  const [newDocKey, setNewDocKey] = useState("");
 
   const q = useQuery({
     queryKey: ["center-config"],
     enabled: authState === "signed-in",
     queryFn: async () => {
-      const [centers, overrides, thresholds, rules] = await Promise.all([
+      const [centers, overrides, thresholds, rules, routing] = await Promise.all([
         supabase.from("centers").select("center_code,center_name").order("center_code"),
         supabase.from("center_overrides").select("*").order("effective_date", { ascending: false }),
         supabase.from("thresholds").select("name,value,citation").order("name"),
         supabase.from("review_rules").select("reviewer_role,trigger,citation").order("reviewer_role"),
+        supabase.from("memo_routing").select("*").order("center_code").order("document_key"),
       ]);
       return {
         centers: centers.data ?? [],
         overrides: (overrides.data ?? []) as unknown as CenterOverrideRow[],
         thresholds: thresholds.data ?? [],
         rules: rules.data ?? [],
+        routing: (routing.data ?? []) as unknown as MemoRoutingRow[],
       };
     },
   });
@@ -133,6 +138,36 @@ function CenterConfigPage() {
       note.trim() || CENTER_POLICY_NOTE,
     );
     setMessage(`${row.target} at ${row.center_code} returns to the seeded value today.`);
+    void qc.invalidateQueries({ queryKey: ["center-config"] });
+  }
+
+  async function saveRouting(row: MemoRoutingRow) {
+    setMessage(null);
+    setProblem(null);
+    const { error } = await supabase.from("memo_routing").upsert(
+      {
+        center_code: row.center_code,
+        document_key: row.document_key,
+        approving_official_title: row.approving_official_title,
+        thru_chain: row.thru_chain ?? [],
+        memo_default: row.memo_default,
+        updated_by: user?.name ?? null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "center_code,document_key" },
+    );
+    if (error) {
+      setProblem(`The routing was not saved: ${error.message}`);
+      return;
+    }
+    await log(
+      "Memorandum routing set",
+      `${row.center_code} · ${row.document_key}`,
+      null,
+      row.approving_official_title,
+      CENTER_POLICY_NOTE,
+    );
+    setMessage(`${row.center_code} memoranda of this type now go to ${row.approving_official_title}.`);
     void qc.invalidateQueries({ queryKey: ["center-config"] });
   }
 
@@ -301,6 +336,157 @@ function CenterConfigPage() {
           </table>
         ) : null}
       </section>
+
+      <section className="mt-10">
+        <h2 className="text-lg font-medium">Memorandum routing, NF 1858</h2>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted">
+          To and Thru on a memorandum read from this table. The seeded ARC titles are placeholders; edit them for
+          your Center.
+        </p>
+        {(q.data?.routing ?? []).length === 0 && !q.isLoading ? (
+          <EmptyState sentence="No memorandum routing is set. Add a row for a Center and document type." />
+        ) : null}
+        <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
+          <thead>
+            <tr className="border-b border-border text-left text-muted">
+              <th scope="col" className="py-2 pr-4 font-medium">Center</th>
+              <th scope="col" className="py-2 pr-4 font-medium">Document type</th>
+              <th scope="col" className="py-2 pr-4 font-medium">Approving official title (To)</th>
+              <th scope="col" className="py-2 pr-4 font-medium">Thru chain, comma separated</th>
+              <th scope="col" className="py-2 pr-4 font-medium">Issue on NF 1858 by default</th>
+              <th scope="col" className="py-2 font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(q.data?.routing ?? []).map((r) => (
+              <MemoRoutingRowEditor key={r.routing_id} row={r} mayEdit={mayEdit} onSaved={saveRouting} />
+            ))}
+          </tbody>
+        </table>
+        {mayEdit ? (
+          <form
+            className="mt-4 flex flex-wrap items-end gap-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newCenter || !newDocKey) {
+                setProblem("Choose a Center and a document type before adding a route.");
+                return;
+              }
+              void saveRouting({
+                center_code: newCenter,
+                document_key: newDocKey,
+                approving_official_title: "Branch Chief (placeholder)",
+                thru_chain: [],
+                memo_default: true,
+              } as MemoRoutingRow);
+            }}
+          >
+            <label className="block text-sm">
+              <span className="text-muted">Center</span>
+              <select
+                value={newCenter}
+                onChange={(e) => setNewCenter(e.target.value)}
+                className="mt-1 rounded-lg border border-border bg-background px-3 py-2"
+              >
+                <option value="">Choose a Center</option>
+                {(q.data?.centers ?? []).map((c) => (
+                  <option key={c.center_code} value={c.center_code}>
+                    {c.center_code}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-sm">
+              <span className="text-muted">Document type</span>
+              <select
+                value={newDocKey}
+                onChange={(e) => setNewDocKey(e.target.value)}
+                className="mt-1 rounded-lg border border-border bg-background px-3 py-2"
+              >
+                <option value="">Choose a document type</option>
+                {MEMO_DOCUMENT_KEYS.map((k) => (
+                  <option key={k.key} value={k.key}>
+                    {k.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" className="rounded-lg border border-border px-4 py-2 text-primary">
+              Add a route
+            </button>
+          </form>
+        ) : null}
+      </section>
     </AppShell>
+  );
+}
+
+function MemoRoutingRowEditor({
+  row,
+  mayEdit,
+  onSaved,
+}: {
+  row: MemoRoutingRow;
+  mayEdit: boolean;
+  onSaved: (row: MemoRoutingRow) => Promise<void>;
+}) {
+  const [title, setTitle] = useState(row.approving_official_title ?? "");
+  const [thru, setThru] = useState((row.thru_chain ?? []).join(", "));
+  const [def, setDef] = useState(row.memo_default !== false);
+  return (
+    <tr className="border-b border-border align-top">
+      <td className="py-2 pr-4">{row.center_code}</td>
+      <td className="py-2 pr-4">
+        {MEMO_DOCUMENT_KEYS.find((k) => k.key === row.document_key)?.name ?? row.document_key}
+      </td>
+      <td className="py-2 pr-4">
+        <label className="sr-only" htmlFor={`title-${row.routing_id}`}>Approving official title</label>
+        <input
+          id={`title-${row.routing_id}`}
+          value={title}
+          disabled={!mayEdit}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full rounded-lg border border-border bg-background px-2 py-1"
+        />
+      </td>
+      <td className="py-2 pr-4">
+        <label className="sr-only" htmlFor={`thru-${row.routing_id}`}>Thru chain</label>
+        <input
+          id={`thru-${row.routing_id}`}
+          value={thru}
+          disabled={!mayEdit}
+          onChange={(e) => setThru(e.target.value)}
+          className="w-full rounded-lg border border-border bg-background px-2 py-1"
+        />
+      </td>
+      <td className="py-2 pr-4">
+        <label className="sr-only" htmlFor={`def-${row.routing_id}`}>Issue on NF 1858 by default</label>
+        <input
+          id={`def-${row.routing_id}`}
+          type="checkbox"
+          checked={def}
+          disabled={!mayEdit}
+          onChange={(e) => setDef(e.target.checked)}
+        />
+      </td>
+      <td className="py-2">
+        {mayEdit ? (
+          <button
+            type="button"
+            className="rounded-lg border border-border px-3 py-1 text-primary"
+            onClick={() =>
+              void onSaved({
+                ...row,
+                approving_official_title: title,
+                thru_chain: thru.split(",").map((t) => t.trim()).filter(Boolean),
+                memo_default: def,
+              })
+            }
+          >
+            Save
+          </button>
+        ) : null}
+      </td>
+    </tr>
   );
 }
