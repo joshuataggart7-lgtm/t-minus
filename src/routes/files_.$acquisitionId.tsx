@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { Button } from "@/components/ui/button";
 import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
@@ -157,7 +158,7 @@ function FilePage() {
     // The poll board updates live as reviewers vote.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, log, plan, rules, thresholds, strategies, polls, clauses] = await Promise.all([
+      const [acq, log, plan, rules, thresholds, strategies, polls, clauses, nfApprovals] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase
           .from("audit_log")
@@ -173,6 +174,7 @@ function FilePage() {
           .from("clauses")
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
+        supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
       ]);
       const { data: centers } = await supabase
         .from("centers")
@@ -219,6 +221,7 @@ function FilePage() {
         successors: successors ?? [],
         documents: fileDocs.data ?? [],
         templates: fileTemplates.data ?? [],
+        nfApprovals: nfApprovals.data ?? [],
       };
     },
   });
@@ -1132,6 +1135,40 @@ function FilePage() {
       ) : null}
 
       <ClauseModTasks acquisitionId={acquisitionId} />
+
+      <section aria-labelledby="nf1707-approvals" className="mb-12 max-w-[80ch] border-t border-border pt-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h2 id="nf1707-approvals" className="text-[18px] leading-6 font-medium">NF 1707 approvals</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">Tracked sign-offs supply the approval names and dates in the exported form.</p>
+          </div>
+          {canWrite ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                const rows = [
+                  { form_section: "Section 5.I", form_field_name: "TaskOrderInput1", approval_role: "Engineering representative" },
+                  { form_section: "Section 6.VI", form_field_name: "GidepSign", approval_role: "GIDEP coordinator" },
+                  { form_section: "Section 7", form_field_name: "S7Sign", approval_role: "Health and safety reviewer" },
+                  { form_section: "Section 12", form_field_name: "QualitSign", approval_role: "Quality point of contact" },
+                ].map((approval) => ({ acquisition_id: acquisitionId, ...approval, owner_name: null, status: "pending" }));
+                const { error } = await supabase.from("nf1707_approvals").upsert(rows, { onConflict: "acquisition_id,form_section,form_field_name" });
+                if (error) setBanner(`The approval routing did not start: ${error.message}`);
+                else { setBanner("NF 1707 approval routing is ready."); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }
+              }}
+            >
+              Prepare sign-offs
+            </Button>
+          ) : null}
+        </div>
+        {(q.data?.nfApprovals ?? []).length ? (
+          <table className="mt-3 w-full border border-border text-[13px]">
+            <thead><tr className="border-b border-border text-left"><th className="p-2">Sign-off</th><th className="p-2">Owner</th><th className="p-2">Status</th><th className="p-2">Date</th><th className="p-2"><span className="sr-only">Action</span></th></tr></thead>
+            <tbody>{(q.data?.nfApprovals ?? []).map((approval) => <tr key={approval.approval_id} className="border-b border-border"><td className="p-2">{approval.approval_role}<span className="block text-muted-foreground">{approval.form_section}</span></td><td className="p-2">{approval.owner_name ?? "Assign in review"}</td><td className="p-2">{approval.status === "complete" ? "Complete" : "Pending"}</td><td className="p-2" data-numeric>{approval.completed_at?.slice(0, 10) ?? approval.due_date ?? "—"}</td><td className="p-2">{canWrite && approval.status !== "complete" ? <Button type="button" variant="link" className="h-auto p-0" onClick={async () => { const completedAt = new Date().toISOString(); const { error } = await supabase.from("nf1707_approvals").update({ status: "complete", owner_name: user.name, completed_by: user.name, completed_at: completedAt }).eq("approval_id", approval.approval_id); if (error) setBanner(`The sign-off did not save: ${error.message}`); else { await supabase.from("audit_log").insert({ acquisition_id: acquisitionId, actor: user.name, action: "NF 1707 sign-off completed", field: approval.form_field_name, old_value: "pending", new_value: "complete", reason: approval.approval_role, phase: "Intake" }); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); } }}>Complete</Button> : null}</td></tr>)}</tbody>
+          </table>
+        ) : <p className="mt-3 text-[13px] text-muted-foreground">No sign-offs have been routed.</p>}
+      </section>
 
       <section aria-label="Contract file index" className="mb-12">
         <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>

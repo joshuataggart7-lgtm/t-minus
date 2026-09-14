@@ -61,7 +61,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   const stamp = new Date().toISOString().replace(/\.\d+Z$/, "Z");
   const safeStamp = stamp.replace(/[:]/g, "").replace(/[-]/g, "");
 
-  const [acqRes, docRes, tplRes, samRes, pollRes, auditRes] = await Promise.all([
+  const [acqRes, docRes, tplRes, samRes, pollRes, auditRes, nfFieldRes, nfApprovalRes] = await Promise.all([
     supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
     supabase
       .from("documents")
@@ -72,10 +72,12 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     supabase.from("sam_checks").select("*").eq("acquisition_id", acquisitionId).order("checked_at", { ascending: true }),
     supabase.from("polls").select("*").eq("acquisition_id", acquisitionId),
     supabase.from("audit_log").select("*").eq("acquisition_id", acquisitionId).order("logged_at", { ascending: true }),
+    supabase.from("nf1707_fields").select("section, subform, field_name, caption_full, caption").order("section").order("subform").order("field_name"),
+    supabase.from("nf1707_approvals").select("form_field_name, approval_role, owner_name, status, completed_at").eq("acquisition_id", acquisitionId),
   ]);
 
   const err =
-    acqRes.error ?? docRes.error ?? tplRes.error ?? samRes.error ?? pollRes.error ?? auditRes.error;
+    acqRes.error ?? docRes.error ?? tplRes.error ?? samRes.error ?? pollRes.error ?? auditRes.error ?? nfFieldRes.error ?? nfApprovalRes.error;
   if (err) throw new Error(err.message);
   const acq = acqRes.data as Record<string, unknown> | null;
   if (!acq) throw new Error("That acquisition could not be read.");
@@ -169,6 +171,16 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
 
   // ---------------------------------------------------------- NF 1707 filed
   const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
+  const approvalByField = new Map((nfApprovalRes.data ?? []).map((a) => [a.form_field_name, a]));
+  const mappedAnswerRows = (nfFieldRes.data ?? []).map((field) => {
+    const key = `${field.section ?? ""}.${field.subform ?? ""}.${field.field_name ?? ""}`;
+    const approval = approvalByField.get(field.field_name ?? "");
+    const approvalValue = approval?.status === "complete"
+      ? `${approval.owner_name ?? approval.approval_role} — ${approval.completed_at?.slice(0, 10) ?? "complete"}`
+      : undefined;
+    const value = approvalValue ?? answers[key] ?? "";
+    return [field.caption_full ?? field.caption ?? field.field_name ?? key, typeof value === "object" && value !== null ? JSON.stringify(value) : String(value)] as (string | null)[];
+  });
   const factRows = Object.entries(acq)
     .filter(([k]) => k !== "nf1707_answers")
     .map(([k, v]) => [k, typeof v === "object" && v !== null ? JSON.stringify(v) : String(v ?? "")] as (string | null)[]);
@@ -178,7 +190,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     "NF 1707 as filed",
     `<h2>Record fields</h2>${rows(["Field", "Value"], factRows)}<h2>Form answers</h2>${rows(
       ["Field", "Answer"],
-      Object.entries(answers).map(([k, v]) => [k, typeof v === "object" && v !== null ? JSON.stringify(v) : String(v ?? "")]),
+      mappedAnswerRows,
     )}`,
   );
   add("nf-1707-as-filed.html", nf1707Html);

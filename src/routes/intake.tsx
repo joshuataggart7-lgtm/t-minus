@@ -7,13 +7,6 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
 import {
-  SECTION_GROUPS,
-  answerKey,
-  fieldLabel,
-  isStructuralField,
-  isTriState,
-  parseItems,
-  TRISTATE_LABELS,
   visibleForCenter,
   type Nf1707Field,
 } from "@/lib/nf1707";
@@ -38,6 +31,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
+import { Nf1707Intake, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -398,7 +392,12 @@ function IntakePage() {
         clock_state: "running",
         status: "On Track",
         current_phase: "Intake",
-        nf1707_answers: { ...carried, ...answers },
+        nf1707_answers: mappedNf1707(
+          fields,
+          { ...canonicalFromFacts(facts), ...answers },
+          {},
+          facts,
+        ),
         intake_estimate: stored,
       };
 
@@ -911,102 +910,13 @@ function IntakePage() {
         </fieldset>
       </section>
 
-      {/* The NF 1707 itself, rendered from the complete field export. */}
-      {SECTION_GROUPS.map((group) => {
-        const groupFields = fields
-          .filter((f) => group.raw.includes(f.section ?? ""))
-          .filter((f) => visibleForCenter(f, facts.center_code))
-          .filter((f) => !/^(ServerName|ServerURL)$/i.test(f.field_name ?? ""));
-        if (!groupFields.length) return null;
-        const parts = group.parts ?? group.raw.map((raw) => ({ raw, title: "" }));
-        return (
-          <section key={group.key} className="mb-10 border-t border-border pt-6">
-            <h2 className="mb-4 text-[18px] leading-6 font-medium">{group.title}</h2>
-            {parts.map((part) => {
-              const partFields = groupFields.filter((f) => f.section === part.raw);
-              if (!partFields.length) return null;
-              return (
-                <div key={part.raw} className="mb-6">
-                  {part.title ? <h3 className="mb-3 text-[15px] font-medium">{part.title}</h3> : null}
-                  {partFields.map((f) => {
-                    const key = answerKey(f);
-                    const id = `f-${f.field_id}`;
-                    const label = fieldLabel(f);
-                    const items = parseItems(f.choice_items);
-                    const answerable = (f.is_answerable ?? "").toLowerCase() === "yes";
-
-                    if (!answerable || isStructuralField(f)) {
-                      const instruction = f.nearest_form_text_full?.trim() || f.caption_full?.trim();
-                      return instruction ? (
-                        <p key={key} className="mb-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
-                          {instruction}
-                        </p>
-                      ) : null;
-                    }
-
-                    if ((f.field_kind === "checkButton" || f.field_kind === "radioGroup") && isTriState(f.choice_items)) {
-                      return (
-                        <fieldset key={key} className="mb-4">
-                          <legend className="max-w-[80ch] text-[15px] leading-[22px]">{label}</legend>
-                          <div className="mt-2 flex flex-wrap gap-4">
-                            {TRISTATE_LABELS.map((opt) => (
-                              <label key={opt.value} className="flex items-center gap-2 text-[14px]">
-                                <input
-                                  type="radio"
-                                  name={key}
-                                  value={opt.value}
-                                  checked={answers[key] === opt.value}
-                                  onChange={() => setAnswers((current) => ({ ...current, [key]: opt.value }))}
-                                />
-                                {opt.label}
-                              </label>
-                            ))}
-                          </div>
-                        </fieldset>
-                      );
-                    }
-
-                    if (f.field_kind === "choiceList" && items) {
-                      return (
-                        <Field key={key} label={label} htmlFor={id}>
-                          <select
-                            id={id}
-                            className={inputClass}
-                            value={answers[key] ?? ""}
-                            onChange={(e) => setAnswers((current) => ({ ...current, [key]: e.target.value }))}
-                          >
-                            <option value="">Choose one</option>
-                            {items.filter(Boolean).map((item) => (
-                              <option key={item} value={item}>{item}</option>
-                            ))}
-                          </select>
-                        </Field>
-                      );
-                    }
-
-                    if (f.field_kind === "button") return null;
-                    return (
-                      <Field
-                        key={key}
-                        label={f.field_kind === "signature" ? `${label} (typed name)` : label}
-                        htmlFor={id}
-                      >
-                        <input
-                          id={id}
-                          type={f.field_kind === "dateTimeEdit" ? "date" : "text"}
-                          className={inputClass}
-                          value={answers[key] ?? ""}
-                          onChange={(e) => setAnswers((current) => ({ ...current, [key]: e.target.value }))}
-                        />
-                      </Field>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </section>
-        );
-      })}
+      <Nf1707Intake
+        answers={answers}
+        setAnswers={setAnswers}
+        fields={fields.filter((field) => visibleForCenter(field, facts.center_code))}
+        facts={facts}
+        evmThreshold={Number(data.data?.ref.thresholds.find((threshold) => threshold.name === "Earned value management system applicability")?.value ?? 50_000_000)}
+      />
 
       {Object.keys(carried).length ? (
         <section className="mb-10 border-t border-border pt-6">
