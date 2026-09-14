@@ -1131,6 +1131,76 @@ export type Database = {
         }
         Relationships: []
       }
+      nf1707_approvals: {
+        Row: {
+          acquisition_id: string
+          approval_id: string
+          approval_role: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          due_date: string | null
+          form_field_name: string
+          form_section: string
+          note: string | null
+          owner_name: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          approval_id?: string
+          approval_role: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          due_date?: string | null
+          form_field_name: string
+          form_section: string
+          note?: string | null
+          owner_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          approval_id?: string
+          approval_role?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          due_date?: string | null
+          form_field_name?: string
+          form_section?: string
+          note?: string | null
+          owner_name?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nf1707_approvals_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "nf1707_approvals_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "nf1707_approvals_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       nf1707_fields: {
         Row: {
           caption: string | null
