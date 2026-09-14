@@ -1147,11 +1147,11 @@ function FilePage() {
               className="rounded-lg border border-border px-3 py-2 text-[13px] text-primary"
               onClick={async () => {
                 const rows = [
-                  ["Section 5.I", "TaskOrderInput1", "Engineering representative"],
-                  ["Section 6.VI", "GidepSign", "GIDEP coordinator"],
-                  ["Section 7", "S7Sign", "Health and safety reviewer"],
-                  ["Section 12", "QualitSign", "Quality point of contact"],
-                ].map(([form_section, form_field_name, approval_role]) => ({ acquisition_id: acquisitionId, form_section, form_field_name, approval_role, owner_name: null, status: "pending" }));
+                  { form_section: "Section 5.I", form_field_name: "TaskOrderInput1", approval_role: "Engineering representative" },
+                  { form_section: "Section 6.VI", form_field_name: "GidepSign", approval_role: "GIDEP coordinator" },
+                  { form_section: "Section 7", form_field_name: "S7Sign", approval_role: "Health and safety reviewer" },
+                  { form_section: "Section 12", form_field_name: "QualitSign", approval_role: "Quality point of contact" },
+                ].map((approval) => ({ acquisition_id: acquisitionId, ...approval, owner_name: null, status: "pending" }));
                 const { error } = await supabase.from("nf1707_approvals").upsert(rows, { onConflict: "acquisition_id,form_section,form_field_name" });
                 if (error) setBanner(`The approval routing did not start: ${error.message}`);
                 else { setBanner("NF 1707 approval routing is ready."); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }
