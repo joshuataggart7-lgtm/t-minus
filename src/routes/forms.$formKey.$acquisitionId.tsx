@@ -122,6 +122,21 @@ function FormPage() {
         ? `run ${String(q.data.evidence.checked_at).slice(0, 10)}`
         : null,
       gates: { services: gate("services"), it: gate("it"), hardware: gate("hardware") },
+      sizeStandard: q.data.size
+        ? {
+            naicsCode: String(q.data.size["naics_code"] ?? ""),
+            naicsTitle: String(q.data.size["naics_title"] ?? ""),
+            standardType: q.data.size["standard_type"] === "employees" ? "employees" : "receipts",
+            employees: q.data.size["employees"] === null ? null : Number(q.data.size["employees"]),
+            receiptsUsd: q.data.size["receipts_usd"] === null ? null : Number(q.data.size["receipts_usd"]),
+            citation: String(q.data.size["citation"] ?? ""),
+            effectiveDate: String(q.data.size["effective_date"] ?? ""),
+            note: String(q.data.size["note"] ?? ""),
+          }
+        : null,
+      simplifiedAcquisition: q.data.sat?.value
+        ? { value: Number(q.data.sat.value), citation: String(q.data.sat.citation ?? "") }
+        : null,
     };
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);
