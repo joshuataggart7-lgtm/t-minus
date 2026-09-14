@@ -7,13 +7,6 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
 import {
-  SECTION_GROUPS,
-  answerKey,
-  fieldLabel,
-  isStructuralField,
-  isTriState,
-  parseItems,
-  TRISTATE_LABELS,
   visibleForCenter,
   type Nf1707Field,
 } from "@/lib/nf1707";
