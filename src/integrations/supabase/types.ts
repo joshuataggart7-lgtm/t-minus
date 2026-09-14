@@ -33,6 +33,7 @@ export type Database = {
           contract_type: string | null
           cor_name: string | null
           created_at: string
+          created_by: string | null
           current_phase: string | null
           debriefing_date: string | null
           description_of_requirement: string | null
@@ -48,6 +49,7 @@ export type Database = {
           includes_it: boolean | null
           intake_estimate: Json | null
           is_critical_path: boolean | null
+          is_seed: boolean
           jofoc_authority_citation: string | null
           lead_to_delivery_days: number | null
           mission_id: string | null
@@ -99,6 +101,7 @@ export type Database = {
           contract_type?: string | null
           cor_name?: string | null
           created_at?: string
+          created_by?: string | null
           current_phase?: string | null
           debriefing_date?: string | null
           description_of_requirement?: string | null
@@ -114,6 +117,7 @@ export type Database = {
           includes_it?: boolean | null
           intake_estimate?: Json | null
           is_critical_path?: boolean | null
+          is_seed?: boolean
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
           mission_id?: string | null
@@ -165,6 +169,7 @@ export type Database = {
           contract_type?: string | null
           cor_name?: string | null
           created_at?: string
+          created_by?: string | null
           current_phase?: string | null
           debriefing_date?: string | null
           description_of_requirement?: string | null
@@ -180,6 +185,7 @@ export type Database = {
           includes_it?: boolean | null
           intake_estimate?: Json | null
           is_critical_path?: boolean | null
+          is_seed?: boolean
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
           mission_id?: string | null
@@ -515,6 +521,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           deadline_date: string | null
+          is_seed: boolean
           note: string | null
           owner_name: string | null
           status: string
@@ -531,6 +538,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deadline_date?: string | null
+          is_seed?: boolean
           note?: string | null
           owner_name?: string | null
           status?: string
@@ -547,6 +555,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           deadline_date?: string | null
+          is_seed?: boolean
           note?: string | null
           owner_name?: string | null
           status?: string
@@ -927,8 +936,10 @@ export type Database = {
           acquisition_id: string | null
           ai_generated_at: string | null
           ai_model: string | null
+          created_by: string | null
           document_id: string
           field_values: Json | null
+          is_seed: boolean
           reviewed_at: string | null
           reviewed_by: string | null
           saved_at: string | null
@@ -940,8 +951,10 @@ export type Database = {
           acquisition_id?: string | null
           ai_generated_at?: string | null
           ai_model?: string | null
+          created_by?: string | null
           document_id?: string
           field_values?: Json | null
+          is_seed?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
           saved_at?: string | null
@@ -953,8 +966,10 @@ export type Database = {
           acquisition_id?: string | null
           ai_generated_at?: string | null
           ai_model?: string | null
+          created_by?: string | null
           document_id?: string
           field_values?: Json | null
+          is_seed?: boolean
           reviewed_at?: string | null
           reviewed_by?: string | null
           saved_at?: string | null
@@ -1233,6 +1248,36 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          is_admin: boolean
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          is_admin?: boolean
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       regulatory_refs: {
         Row: {
