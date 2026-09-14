@@ -268,5 +268,5 @@ Section12,GRC9,GRC9c2,checkButton,,OR,1|0|2,GRC,yes
 Section12,GRC9,ApproverResponse,choiceList,Approver Response,GRC SECTION 15 - PHYSICAL SECURITY,Approve|Reject|Approve with Modifications,GRC,yes
 Section12,GRC9,Approvals,textEdit,Approval Log,GRC SECTION 15 - PHYSICAL SECURITY,,GRC,yes
 Section12,GRC9,Comments,textEdit,Approver Comment,GRC SECTION 15 - PHYSICAL SECURITY,,GRC,yes
-Section12,ServerValues,ServerName,textEdit,Server Name,,,,no
-Section12,ServerValues,ServerURL,textEdit,Server URL,,,,no
+Section12,ServerValues,ServerName,textEdit,Server Name,,,no
+Section12,ServerValues,ServerURL,textEdit,Server URL,,,no
