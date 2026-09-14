@@ -22,6 +22,7 @@ import {
   fieldErrors,
   formatMoney,
   parseMoney,
+  matchStrategy,
   scanRedFlags,
   todayISO,
   type IntakeFacts,
@@ -31,7 +32,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
-import { Nf1707Intake, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
+import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 
@@ -58,33 +59,10 @@ export const Route = createFileRoute("/intake")({
 
 type Answers = Record<string, string>;
 
-const RECORDED_SECTION_NAMES: Record<string, string> = {
-  Section1: "Section 1. Strategic sourcing",
-  Section2: "Section 2. Section 508 and information technology",
-  Section3: "Section 3. Environmental",
-  Section4: "Section 4. Service contracting",
-  Section5_I: "Section 5.I. Space flight hardware and software",
-  Section5_II: "Section 5.II. SCaN and radio frequency",
-  Section5_III: "Section 5.III. Earned value management",
-  Section5_IV: "Section 5.IV. Communications",
-  Section5_V: "Section 5.V. Aviation",
-  Section5_VI: "Section 5.VI. Software",
-  Section5_VII: "Section 5.VII. Sensitive and controlled items",
-  Section6: "Section 6. Quality assurance",
-  Section7: "Section 7. Safety and health",
-  Section8: "Section 8. Property management",
-  Section9: "Section 9. Center-specific approvals",
-  Section10: "Section 10. Foreign travel briefings",
-  Section11: "Section 11. Extraneous items",
-  Section12: "Section 12. Signatures and affirmations",
-};
-
-function recordedAnswerLabel(key: string) {
-  const section = Object.keys(RECORDED_SECTION_NAMES)
-    .sort((a, b) => b.length - a.length)
-    .find((prefix) => key === prefix || key.startsWith(`${prefix}_`));
-  return section ? RECORDED_SECTION_NAMES[section] : key.replaceAll("_", " ");
+function strategyValue(strategy: { psl: string; name: string | null }) {
+  return `${strategy.psl} — ${strategy.name ?? ""}`.trim().replace(/—$/, "").trim();
 }
+
 
 function useRefData(enabled: boolean) {
   return useQuery({
@@ -169,7 +147,7 @@ function IntakePage() {
     center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
-  const [carried, setCarried] = useState<Record<string, string>>({});
+  
   const [touched, setTouched] = useState(false);
   const [scan, setScan] = useState<RedFlag[] | null>(null);
   const [saving, setSaving] = useState(false);
@@ -190,6 +168,14 @@ function IntakePage() {
   const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
   const authorityOptions = (data.data?.authorities ?? []).filter(
     (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
+  );
+  const strategies = data.data?.ref.strategies ?? [];
+  const strategyMatch = useMemo(
+    () =>
+      data.data
+        ? matchStrategy(data.data.ref, `${facts.title} ${facts.description_of_requirement}`)
+        : null,
+    [data.data, facts.title, facts.description_of_requirement],
   );
   const [addingProject, setAddingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -267,12 +253,8 @@ function IntakePage() {
       includes_it: !!row.includes_it,
       acquisition_forecast_verified: !!row.acquisition_forecast_verified,
     }));
-    const carriedAnswers = (row.nf1707_answers ?? {}) as Record<string, string>;
-    setCarried(carriedAnswers);
-    const seeded: Answers = {};
-    const aviation = carriedAnswers["Section5_V_aviation"] ?? "";
-    if (/yes/i.test(aviation)) seeded["Section5s5.Section5s5.S5Vn2"] = "1";
-    setAnswers(seeded);
+    const carriedAnswers = (row.nf1707_answers ?? {}) as Record<string, unknown>;
+    setAnswers(answersFromStored(carriedAnswers));
     setScan(null);
   }
 
@@ -328,7 +310,13 @@ function IntakePage() {
       setScan(null);
       return;
     }
-    setScan(scanRedFlags(facts, data.data!.ref));
+    const result = scanRedFlags(facts, data.data!.ref);
+    setScan(result);
+    // A matched enterprise strategy preselects the determination; the CO's
+    // choice then clears or keeps the flag on the next scan.
+    if (result.some((flag) => flag.id === "psl") && strategyMatch && !facts.enterprise_psl_check) {
+      setFacts((current) => ({ ...current, enterprise_psl_check: strategyValue(strategyMatch) }));
+    }
   }
 
   async function startTheClock() {
@@ -597,7 +585,7 @@ function IntakePage() {
               }}
             >
               <option value="">Choose a directorate</option>
-              {MISSION_DIRECTORATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
+              {MISSION_DIRECTORATES.map(([code, name]) => <option key={code} value={code}>{["HSMD", "RTMD", "SMD", "MSD"].includes(code) ? `${name} (${code})` : name}</option>)}
             </select>
           </Field>
           {facts.is_reimbursable ? (
@@ -914,12 +902,28 @@ function IntakePage() {
             />
           </Field>
           <Field label="Enterprise strategy determination" htmlFor="psl">
-            <input
+            <select
               id="psl"
               className={inputClass}
               value={facts.enterprise_psl_check}
               onChange={(e) => set("enterprise_psl_check", e.target.value)}
-            />
+            >
+              <option value="">Choose a determination</option>
+              {strategies.map((strategy) => (
+                <option key={strategy.psl} value={strategyValue(strategy)}>
+                  {strategyValue(strategy)}
+                </option>
+              ))}
+              <option value="No mandatory strategy applies">No mandatory strategy applies</option>
+              <option value="Deviation approved (attach)">Deviation approved (attach)</option>
+            </select>
+            {strategyMatch ? (
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Matched {strategyValue(strategyMatch)}. Mandatory vehicles:{" "}
+                {strategyMatch.mandatory_vehicles ?? "not stated"}. Required coordination:{" "}
+                {strategyMatch.required_coordination ?? "not stated"}.
+              </p>
+            ) : null}
           </Field>
         </div>
 
@@ -957,19 +961,6 @@ function IntakePage() {
         evmThreshold={Number(data.data?.ref.thresholds.find((threshold) => threshold.name === "Earned value management system applicability")?.value ?? 50_000_000)}
       />
 
-      {Object.keys(carried).length ? (
-        <section className="mb-10 border-t border-border pt-6">
-          <h2 className="mb-4 text-[18px] leading-6 font-medium">Recorded answers</h2>
-          <dl className="max-w-[80ch]">
-            {Object.entries(carried).map(([k, v]) => (
-              <div key={k} className="mb-3">
-                <dt className="text-[13px] text-muted-foreground">{recordedAnswerLabel(k)}</dt>
-                <dd className="text-[15px]">{String(v)}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ) : null}
 
       {/* Red-flag scan and submit */}
       <section className="border-t border-border pt-6">
