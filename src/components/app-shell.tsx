@@ -76,21 +76,39 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <div className="flex items-center gap-3">
           <GlobalSearch />
           <AskTMinus />
-          <label htmlFor="role-toggle" className="text-[13px] text-muted-foreground">
-            Signed in as
-          </label>
-          <select
-            id="role-toggle"
-            value={role}
-            onChange={(e) => setRole(e.target.value as RoleId)}
+          {isAnonymous ? (
+            <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
+              Demo
+            </span>
+          ) : null}
+          {canSwitchPersona ? (
+            <>
+              <label htmlFor="role-toggle" className="text-[13px] text-muted-foreground">
+                Signed in as
+              </label>
+              <select
+                id="role-toggle"
+                value={role}
+                onChange={(e) => setRole(e.target.value as RoleId)}
+                className="rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
+              >
+                {SEEDED_USERS.map((u) => (
+                  <option key={u.role} value={u.role}>
+                    {u.title} — {u.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : (
+            <span className="text-[13px] text-muted-foreground">{user.name}</span>
+          )}
+          <button
+            type="button"
+            onClick={() => void signOut()}
             className="rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
           >
-            {SEEDED_USERS.map((u) => (
-              <option key={u.role} value={u.role}>
-                {u.title} — {u.name}
-              </option>
-            ))}
-          </select>
+            Sign out
+          </button>
         </div>
       </header>
 
