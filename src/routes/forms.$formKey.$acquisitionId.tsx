@@ -80,10 +80,23 @@ function FormPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const naics = String(row?.["naics_code"] ?? "");
+      const size = naics
+        ? await supabase.from("naics_size_standards").select("*").eq("naics_code", naics).maybeSingle()
+        : { data: null };
+      const sat = await supabase
+        .from("thresholds")
+        .select("value,citation,effective_date")
+        .ilike("name", "%simplified acquisition%")
+        .order("effective_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return {
         acq: row,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
+        size: (size.data ?? null) as Record<string, unknown> | null,
+        sat: (sat.data ?? null) as { value?: number; citation?: string } | null,
       };
     },
   });
