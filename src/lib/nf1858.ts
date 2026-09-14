@@ -210,91 +210,61 @@ export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader): MemoDoc {
   return { header, paragraphs: memoParagraphs(doc), badgeLine: doc.badgeLine, title: doc.title };
 }
 
-const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-/** PDF export in the 1858 layout, through the browser print dialog. */
-export function exportMemoPdf(memo: MemoDoc, headerLine: string): boolean {
+/**
+ * PDF export in the 1858 layout. The file is drawn directly, so it carries no
+ * browser header or footer, and the metadata sits in the page footer.
+ */
+export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName: string): Promise<void> {
   const h = memo.header;
-  const line = (label: string, value: string) =>
-    `<div class="row"><span class="label">${esc(label)}</span><span class="value">${esc(value)}</span></div>`;
-  const rows = [
-    line("TO:", h.to),
-    ...h.thru.map((t, i) => line(i === 0 ? "THRU:" : "", t)),
-    line("FROM:", h.from),
-    line("SUBJECT:", h.subject),
-    ...h.ref.map((r, i) => line(i === 0 ? "REF:" : "", r)),
-  ].join("");
-  const cover = h.cui
-    ? `<section class="cover">${CUI_SHEET_TEXT.split("\n")
-        .map((p) => `<p>${esc(p)}</p>`)
-        .join("")}</section><div class="break"></div>`
-    : "";
-  const concurrence = h.concurrence.length
-    ? `<section class="tail"><p class="tail-head">CONCURRENCE:</p>${h.concurrence
-        .map(
-          (c) =>
-            `<p class="sigline">______________________________&nbsp;&nbsp;&nbsp;Date: __________</p><p>${esc(
-              [c.name, c.title].filter(Boolean).join(", "),
-            )}</p>`,
-        )
-        .join("")}</section>`
-    : "";
-  const list = (label: string, items: string[], numbered: boolean) =>
-    items.length
-      ? `<section class="tail"><p class="tail-head">${esc(label)}</p>${
-          numbered
-            ? `<ol>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ol>`
-            : items.map((i) => `<p>${esc(i)}</p>`).join("")
-        }</section>`
-      : "";
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(memo.title)}</title>
-<style>
-  @page { margin: 25mm 25mm 20mm 25mm; }
-  body { font-family: "Times New Roman", Times, serif; color: #000; background: #fff; font-size: 12pt; line-height: 1.35; }
-  .banner { text-align: center; font-weight: bold; letter-spacing: 2px; font-size: 11pt; margin-bottom: 10px; }
-  .letterhead { font-size: 10pt; line-height: 1.2; margin-bottom: 28px; }
-  .letterhead .agency { font-weight: bold; }
-  .datebox { margin-bottom: 18px; }
-  .replyto { margin-bottom: 22px; }
-  .row { display: flex; gap: 0; margin-bottom: 4px; font-weight: bold; }
-  .label { width: 90px; flex: 0 0 90px; }
-  .value { flex: 1; }
-  .body { margin-top: 20px; }
-  .body p { margin: 0 0 12px 0; text-align: left; }
-  .sig { margin-top: 36px; }
-  .tail { margin-top: 22px; break-inside: avoid; }
-  .tail-head { font-weight: bold; margin-bottom: 6px; }
-  .sigline { margin: 14px 0 0 0; }
-  ol { margin: 0; padding-left: 20px; }
-  .cover { font-size: 12pt; }
-  .break { page-break-after: always; }
-  footer { margin-top: 28px; font-size: 9pt; }
-</style></head><body>
-${cover}
-${h.cui ? `<p class="banner">${esc(CUI_BANNER)}</p>` : ""}
-<div class="letterhead"><div class="agency">${esc(AGENCY_LINE)}</div><div>${esc(h.centerName)}</div><div>${esc(
-    h.centerAddress,
-  )}</div></div>
-<div class="datebox">${esc(h.date)}</div>
-<div class="replyto">Reply to Attn of:&nbsp;&nbsp;${esc(h.replyTo)}</div>
-${rows}
-${h.salutation ? `<p>${esc(h.salutation)}</p>` : ""}
-<div class="body">${memo.paragraphs.map((p, i) => `<p>${i + 1}. ${esc(p)}</p>`).join("")}</div>
-<div class="sig"><p>${esc(h.signatureName)}</p><p>${esc(h.signatureTitle)}</p></div>
-${concurrence}
-${list("Enclosures:", h.enclosures, true)}
-${list("Distribution:", h.distribution, false)}
-${list("cc:", h.cc, false)}
-${h.cui ? `<p class="banner">${esc(CUI_BANNER)}</p>` : ""}
-<footer><p>${esc(headerLine)}</p><p>${esc(memo.badgeLine)}</p><p>Prototype. Not an official NASA system.</p></footer>
-<script>window.onload = function () { window.print(); }<\/script>
-</body></html>`;
-  const w = window.open("", "_blank");
-  if (!w) return false;
-  w.document.write(html);
-  w.document.close();
-  return true;
+  const blocks: PdfBlock[] = [];
+  if (h.cui) {
+    for (const part of CUI_SHEET_TEXT.split("\n")) blocks.push({ text: part, gap: 10 });
+    blocks.push({ text: CUI_BANNER, bold: true, center: true, pageBreakBefore: true, gap: 12 });
+  }
+  blocks.push(
+    { text: AGENCY_LINE, bold: true, size: 10, gap: 0 },
+    { text: h.centerName, size: 10, gap: 0 },
+    { text: h.centerAddress, size: 10, gap: 22 },
+    { text: h.date, gap: 14 },
+    { text: `Reply to Attn of:  ${h.replyTo}`, gap: 20 },
+  );
+  const labelled = (label: string, value: string) => ({ text: `${label.padEnd(10, " ")}${value}`, bold: true, gap: 2 });
+  blocks.push(labelled("TO:", h.to));
+  h.thru.forEach((t, i) => blocks.push(labelled(i === 0 ? "THRU:" : "", t)));
+  blocks.push(labelled("FROM:", h.from), labelled("SUBJECT:", h.subject));
+  h.ref.forEach((r, i) => blocks.push(labelled(i === 0 ? "REF:" : "", r)));
+  if (h.salutation) blocks.push({ text: h.salutation, gap: 10 });
+  blocks.push({ text: "", gap: 8 });
+  memo.paragraphs.forEach((p, i) => {
+    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10 });
+    for (const line of p.lines) blocks.push({ text: line, indent: 24, gap: 1 });
+    if (p.lines.length) blocks.push({ text: "", gap: 6 });
+  });
+  blocks.push({ text: "", gap: 28 }, { text: h.signatureName, gap: 0 }, { text: h.signatureTitle, gap: 16 });
+  if (h.concurrence.length) {
+    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4 });
+    for (const c of h.concurrence) {
+      blocks.push({ text: "______________________________   Date: __________", gap: 2 });
+      blocks.push({ text: [c.name, c.title].filter(Boolean).join(", "), gap: 10 });
+    }
+  }
+  if (h.enclosures.length) {
+    blocks.push({ text: "Enclosures:", bold: true, gap: 4 });
+    h.enclosures.forEach((e, i) => blocks.push({ text: `${i + 1}. ${e}`, indent: 12, gap: 2 }));
+  }
+  if (h.distribution.length) {
+    blocks.push({ text: "Distribution:", bold: true, gap: 4 });
+    h.distribution.forEach((d) => blocks.push({ text: d, indent: 12, gap: 2 }));
+  }
+  if (h.cc.length) {
+    blocks.push({ text: "cc:", bold: true, gap: 4 });
+    h.cc.forEach((c) => blocks.push({ text: c, indent: 12, gap: 2 }));
+  }
+  if (h.cui) blocks.push({ text: CUI_BANNER, bold: true, center: true, gap: 0 });
+  await renderPdf(blocks, {
+    fileName,
+    footer: [headerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."],
+  });
 }
 
 /** Word export in the 1858 layout. */
