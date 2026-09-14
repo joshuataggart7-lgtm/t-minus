@@ -9,6 +9,7 @@
  */
 
 import type { Values } from "@/lib/template-engine";
+import { findingText, type FindingMap } from "@/lib/research-findings";
 
 export type MemoDraftCtx = {
   acquisitionId: string;
@@ -18,6 +19,8 @@ export type MemoDraftCtx = {
   fileDocuments: string[];
   /** Set-aside evidence search, when it has been run. */
   evidence: { runOn: string; sources: number; smallBusinesses: number } | null;
+  /** Values drafted by the market research evidence engine, keyed by target. */
+  findings?: FindingMap;
 };
 
 const gap = (what: string) => `[Contracting officer to complete: ${what}]`;
@@ -43,18 +46,27 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   const commercialityOnFile = ctx.fileDocuments.some((d) => /commercial/i.test(d));
 
   const research: string[] = [];
-  if (ctx.evidence) {
+  // Paragraph 4 comes from the market research evidence engine when it has run;
+  // the values carry their source and date until the contracting officer
+  // confirms them.
+  const engineResearch = findingText(ctx.findings, "memo.research");
+  const engineFindings = findingText(ctx.findings, "memo.findings");
+  if (engineResearch) {
+    research.push(`Sources searched: ${engineResearch}`);
+  } else if (ctx.evidence) {
     research.push(
       `A SAM.gov registered-entity and subaward search was run on ${ctx.evidence.runOn} for NAICS ${str(
         a["naics_code"],
       )}. It returned ${ctx.evidence.sources} sources, of which ${ctx.evidence.smallBusinesses} are small business under that code.`,
     );
   } else {
-    research.push(gap("record the sources searched, the dates and the techniques used, or run the set-aside evidence search"));
+    research.push(gap("record the sources searched, the dates and the techniques used, or run market research"));
   }
   if (prior) research.push(`The contract file for the prior acquisition ${prior} was reviewed.`);
 
-  const findings = ctx.evidence
+  const findings = engineFindings
+    ? engineFindings
+    : ctx.evidence
     ? ctx.evidence.smallBusinesses >= 2
       ? `${ctx.evidence.smallBusinesses} small business concerns were identified as capable of meeting the requirement. The expectation of offers from two or more responsible small business concerns at fair market prices is met (FAR 19.502-2).`
       : `${ctx.evidence.smallBusinesses} small business concerns were identified. The expectation of offers from two or more responsible small business concerns is not supported on this record (FAR 19.502-2).`

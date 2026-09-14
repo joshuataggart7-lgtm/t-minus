@@ -1605,6 +1605,133 @@ export type Database = {
         }
         Relationships: []
       }
+      research_findings: {
+        Row: {
+          acquisition_id: string
+          confirmed: boolean
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          finding_id: string
+          label: string
+          run_id: string | null
+          source: string
+          source_date: string | null
+          target: string
+          value: string
+        }
+        Insert: {
+          acquisition_id: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          finding_id?: string
+          label: string
+          run_id?: string | null
+          source: string
+          source_date?: string | null
+          target: string
+          value: string
+        }
+        Update: {
+          acquisition_id?: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          finding_id?: string
+          label?: string
+          run_id?: string | null
+          source?: string
+          source_date?: string | null
+          target?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_findings_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "research_runs"
+            referencedColumns: ["run_id"]
+          },
+        ]
+      }
+      research_log: {
+        Row: {
+          acquisition_id: string
+          log_id: string
+          outcome: string
+          query: string
+          ran_at: string
+          result_count: number | null
+          run_id: string
+          source: string
+        }
+        Insert: {
+          acquisition_id: string
+          log_id?: string
+          outcome: string
+          query: string
+          ran_at?: string
+          result_count?: number | null
+          run_id: string
+          source: string
+        }
+        Update: {
+          acquisition_id?: string
+          log_id?: string
+          outcome?: string
+          query?: string
+          ran_at?: string
+          result_count?: number | null
+          run_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_log_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "research_runs"
+            referencedColumns: ["run_id"]
+          },
+        ]
+      }
+      research_runs: {
+        Row: {
+          acquisition_id: string
+          acquisition_method: string | null
+          naics_code: string | null
+          psc_code: string | null
+          ran_at: string
+          ran_by: string | null
+          run_id: string
+          state_code: string | null
+        }
+        Insert: {
+          acquisition_id: string
+          acquisition_method?: string | null
+          naics_code?: string | null
+          psc_code?: string | null
+          ran_at?: string
+          ran_by?: string | null
+          run_id?: string
+          state_code?: string | null
+        }
+        Update: {
+          acquisition_id?: string
+          acquisition_method?: string | null
+          naics_code?: string | null
+          psc_code?: string | null
+          ran_at?: string
+          ran_by?: string | null
+          run_id?: string
+          state_code?: string | null
+        }
+        Relationships: []
+      }
       review_rules: {
         Row: {
           citation: string | null

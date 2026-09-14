@@ -47,6 +47,7 @@ import {
   type Values,
 } from "@/lib/template-engine";
 import { applyMemoDraft, draftMemoBody } from "@/lib/memo-draft";
+import type { FindingMap } from "@/lib/research-findings";
 import {
   buildMemoDoc,
   buildMemoHeader,
@@ -257,6 +258,12 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      // Values drafted by the market research evidence engine, with their
+      // source and date, so the memorandum shows where each came from.
+      const research = await supabase
+        .from("research_findings")
+        .select("target,label,value,source,source_date,confirmed,confirmed_by")
+        .eq("acquisition_id", acquisitionId);
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -268,6 +275,20 @@ function DocumentPage() {
       return {
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
+        findings: Object.fromEntries(
+          (research.data ?? []).map((f) => [
+            f.target,
+            {
+              target: f.target,
+              label: f.label,
+              value: f.value,
+              source: f.source,
+              sourceDate: f.source_date,
+              confirmed: f.confirmed,
+              confirmedBy: f.confirmed_by,
+            },
+          ]),
+        ) as FindingMap,
         center: center.data as { center_name: string; address_line: string | null } | null,
         routing:
           ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
@@ -533,6 +554,7 @@ function DocumentPage() {
       missionName: q.data.missionName ?? "",
       fileDocuments: q.data.fileDocuments ?? [],
       evidence: researchEvidence,
+      findings: q.data.findings,
     }));
     setValues(drafted);
   }, [def, q.data, touched, acquisitionId, samFacts, researchEvidence]);

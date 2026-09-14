@@ -1,0 +1,238 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { ResearchFinding } from "@/lib/research-findings";
+
+/**
+ * Market research evidence engine.
+ *
+ * Runs only on the contracting officer's click. Every source, query, date and
+ * result count is written to the research log on the file, and the drafted
+ * values are stored as findings carrying their source and date until the
+ * contracting officer confirms them.
+ */
+
+const runSchema = z.object({ acquisitionId: z.string().trim().min(1).max(40) });
+
+export type ResearchLogEntry = {
+  source: string;
+  query: string;
+  resultCount: number | null;
+  outcome: string;
+  ranAt: string;
+};
+
+export type ResearchRunView = {
+  runId: string;
+  acquisitionId: string;
+  naics: string;
+  stateCode: string | null;
+  ranAt: string;
+  log: ResearchLogEntry[];
+  findings: ResearchFinding[];
+  smallBusinessCount: number;
+  ruleOfTwoMet: boolean;
+  suggestedSetAside: string;
+  entityCount: number;
+  noticeCount: number;
+  awardCount: number;
+};
+
+export const runMarketResearch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => runSchema.parse(input))
+  .handler(async ({ data, context }): Promise<ResearchRunView> => {
+    const { data: me, error: meError } = await context.supabase
+      .from("users")
+      .select("name,role")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (meError) throw new Error(meError.message);
+    if (!me || !["specialist", "reviewer", "hq"].includes(me.role)) {
+      throw new Error("Market research is run by the contracting, reviewer and HQ roles.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { runEngine, draftFindings } = await import("@/lib/market-research.server");
+
+    const acq = await supabaseAdmin
+      .from("acquisition_facts")
+      .select("*")
+      .eq("acquisition_id", data.acquisitionId)
+      .maybeSingle();
+    if (acq.error) throw new Error(acq.error.message);
+    if (!acq.data) throw new Error("The acquisition was not found.");
+    const record = acq.data as Record<string, unknown>;
+    const naics = String(record["naics_code"] ?? "").trim();
+    if (!naics) throw new Error("This record has no NAICS code, so the research cannot run. Add one on the intake.");
+
+    const run = await supabaseAdmin
+      .from("research_runs")
+      .insert({
+        acquisition_id: data.acquisitionId,
+        naics_code: naics,
+        psc_code: String(record["psc_code"] ?? "") || null,
+        acquisition_method: String(record["acquisition_method"] ?? "") || null,
+        ran_by: me.name,
+      })
+      .select("run_id,ran_at")
+      .single();
+    if (run.error) throw new Error(run.error.message);
+
+    const result = await runEngine({ runId: run.data.run_id, acq: record, supabaseAdmin });
+
+    await supabaseAdmin.from("research_runs").update({ state_code: result.stateCode }).eq("run_id", run.data.run_id);
+
+    const logRows = result.log.map((entry) => ({
+      run_id: run.data.run_id,
+      acquisition_id: data.acquisitionId,
+      source: entry.source,
+      query: entry.query,
+      result_count: entry.resultCount,
+      outcome: entry.outcome,
+      ran_at: result.ranAt,
+    }));
+    if (logRows.length) {
+      const { error } = await supabaseAdmin.from("research_log").insert(logRows);
+      if (error) throw new Error(error.message);
+    }
+
+    const drafted = draftFindings(result, record);
+    for (const f of drafted) {
+      const { error } = await supabaseAdmin.from("research_findings").upsert(
+        {
+          run_id: run.data.run_id,
+          acquisition_id: data.acquisitionId,
+          target: f.target,
+          label: f.label,
+          value: f.value,
+          source: f.source,
+          source_date: f.sourceDate,
+          confirmed: false,
+          confirmed_by: null,
+          confirmed_at: null,
+        },
+        { onConflict: "acquisition_id,target" },
+      );
+      if (error) throw new Error(error.message);
+    }
+
+    const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
+      acquisition_id: data.acquisitionId,
+      actor: me.name,
+      action: "Market research run",
+      field: `NAICS ${naics}${result.stateCode ? ` · ${result.stateCode}` : ""}`,
+      old_value: null,
+      new_value: `${result.log.length} sources searched · ${drafted.length} values drafted`,
+      reason: "Market research evidence engine, public sources only.",
+      phase: "Market Research",
+      logged_at: result.ranAt,
+    });
+    if (auditError) throw new Error(auditError.message);
+
+    return {
+      runId: run.data.run_id,
+      acquisitionId: data.acquisitionId,
+      naics,
+      stateCode: result.stateCode,
+      ranAt: result.ranAt,
+      log: result.log.map((l) => ({ ...l, ranAt: result.ranAt })),
+      findings: drafted.map((f) => ({
+        target: f.target,
+        label: f.label,
+        value: f.value,
+        source: f.source,
+        sourceDate: f.sourceDate,
+        confirmed: false,
+        confirmedBy: null,
+      })),
+      smallBusinessCount: result.smallBusinessCount,
+      ruleOfTwoMet: result.ruleOfTwoMet,
+      suggestedSetAside: result.ruleOfTwoMet
+        ? "Total small business set-aside"
+        : "No set-aside; proceed unrestricted and document the market research",
+      entityCount: new Set([...result.stateEntities, ...result.nationalEntities].map((e) => e.uei)).size,
+      noticeCount: result.notices.length,
+      awardCount: result.awards.length,
+    };
+  });
+
+const readSchema = z.object({ acquisitionId: z.string().trim().min(1).max(40) });
+
+export const readMarketResearch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => readSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const findings = await context.supabase
+      .from("research_findings")
+      .select("target,label,value,source,source_date,confirmed,confirmed_by")
+      .eq("acquisition_id", data.acquisitionId);
+    if (findings.error) throw new Error(findings.error.message);
+    const log = await context.supabase
+      .from("research_log")
+      .select("source,query,result_count,outcome,ran_at")
+      .eq("acquisition_id", data.acquisitionId)
+      .order("ran_at", { ascending: false })
+      .limit(60);
+    if (log.error) throw new Error(log.error.message);
+    return {
+      findings: (findings.data ?? []).map((f) => ({
+        target: f.target,
+        label: f.label,
+        value: f.value,
+        source: f.source,
+        sourceDate: f.source_date,
+        confirmed: f.confirmed,
+        confirmedBy: f.confirmed_by,
+      })) as ResearchFinding[],
+      log: (log.data ?? []).map((l) => ({
+        source: l.source,
+        query: l.query,
+        resultCount: l.result_count,
+        outcome: l.outcome,
+        ranAt: l.ran_at,
+      })) as ResearchLogEntry[],
+    };
+  });
+
+const confirmSchema = z.object({
+  acquisitionId: z.string().trim().min(1).max(40),
+  targets: z.array(z.string().trim().min(1).max(80)).min(1).max(40),
+});
+
+export const confirmResearchFindings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => confirmSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: me, error: meError } = await context.supabase
+      .from("users")
+      .select("name,role")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (meError) throw new Error(meError.message);
+    if (!me || !["specialist", "hq"].includes(me.role)) {
+      throw new Error("Only the contracting officer or specialist confirms a researched value.");
+    }
+    const now = new Date().toISOString();
+    const { error } = await context.supabase
+      .from("research_findings")
+      .update({ confirmed: true, confirmed_by: me.name, confirmed_at: now })
+      .eq("acquisition_id", data.acquisitionId)
+      .in("target", data.targets);
+    if (error) throw new Error(error.message);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
+      acquisition_id: data.acquisitionId,
+      actor: me.name,
+      action: "Research finding confirmed",
+      field: data.targets.join(", "),
+      old_value: "from public data",
+      new_value: "confirmed by the contracting officer",
+      reason: "Confirmed on the market research evidence engine.",
+      phase: "Market Research",
+      logged_at: now,
+    });
+    if (auditError) throw new Error(auditError.message);
+    return { confirmed: data.targets, confirmedBy: me.name };
+  });

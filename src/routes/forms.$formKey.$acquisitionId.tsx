@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
+import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
 
@@ -91,7 +92,27 @@ function FormPage() {
         .order("effective_date", { ascending: false })
         .limit(1)
         .maybeSingle();
+      // Values drafted by the market research evidence engine, each carrying its
+      // source and date until the contracting officer confirms it.
+      const research = await supabase
+        .from("research_findings")
+        .select("target,label,value,source,source_date,confirmed,confirmed_by")
+        .eq("acquisition_id", acquisitionId);
       return {
+        findings: Object.fromEntries(
+          (research.data ?? []).map((f) => [
+            f.target,
+            {
+              target: f.target,
+              label: f.label,
+              value: f.value,
+              source: f.source,
+              sourceDate: f.source_date,
+              confirmed: f.confirmed,
+              confirmedBy: f.confirmed_by,
+            },
+          ]),
+        ) as FindingMap,
         acq: row,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
@@ -118,6 +139,7 @@ function FormPage() {
       coName: String(acq["co_name"] ?? ""),
       specialistName: String(acq["requester_name"] ?? ""),
       respondents,
+      findings: q.data.findings,
       evidenceLabel: q.data.evidence?.checked_at
         ? `run ${String(q.data.evidence.checked_at).slice(0, 10)}`
         : null,

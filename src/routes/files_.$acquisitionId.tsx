@@ -40,7 +40,7 @@ import {
   type ForecastAcq,
 } from "@/lib/forecast";
 import { ExplainThis } from "@/components/explain-this";
-import { SetAsideEvidencePanel } from "@/components/set-aside-evidence";
+import { MarketResearchEngine } from "@/components/market-research-engine";
 import {
   explainHold,
   explainMissingDoc,
@@ -1358,7 +1358,7 @@ function FilePage() {
               </ul>
 
               {p.phase === "Market Research" ? (
-                <SetAsideEvidencePanel
+                <MarketResearchEngine
                   acquisitionId={acquisitionId}
                   canWrite={canWrite}
                   onConfirmed={() => void q.refetch()}
