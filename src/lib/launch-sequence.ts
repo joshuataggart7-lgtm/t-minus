@@ -605,7 +605,10 @@ export function buildPacket(
       status: p.status,
       planned_days: p.planned_days,
       actual_days: p.actual_days,
-      required_documents: p.docs.map((d) => d.label),
+      required_documents: p.docs
+        .filter((d) => !d.optional)
+        .map((d) => `${d.label} (${d.citation})`),
+      offered_documents: p.docs.filter((d) => d.optional).map((d) => `${d.label} (${d.citation})`),
     })),
     reviews: board,
   };
