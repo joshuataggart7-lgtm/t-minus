@@ -357,7 +357,7 @@ function FilePage() {
   const fileIndex = useMemo(
     () =>
       buildFileIndex(
-        q.data?.documents ?? [],
+        (q.data?.documents ?? []) as never,
         q.data?.templates ?? [],
         phases.map((p) => p.phase),
       ),
