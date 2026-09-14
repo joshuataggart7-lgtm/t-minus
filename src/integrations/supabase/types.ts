@@ -1249,6 +1249,39 @@ export type Database = {
         }
         Relationships: []
       }
+      naics_size_standards: {
+        Row: {
+          citation: string | null
+          effective_date: string | null
+          employees: number | null
+          naics_code: string
+          naics_title: string | null
+          note: string | null
+          receipts_usd: number | null
+          standard_type: string
+        }
+        Insert: {
+          citation?: string | null
+          effective_date?: string | null
+          employees?: number | null
+          naics_code: string
+          naics_title?: string | null
+          note?: string | null
+          receipts_usd?: number | null
+          standard_type: string
+        }
+        Update: {
+          citation?: string | null
+          effective_date?: string | null
+          employees?: number | null
+          naics_code?: string
+          naics_title?: string | null
+          note?: string | null
+          receipts_usd?: number | null
+          standard_type?: string
+        }
+        Relationships: []
+      }
       nf1707_approvals: {
         Row: {
           acquisition_id: string
