@@ -505,7 +505,7 @@ export function buildSequence(
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
-      docs: requiredDocs(phase),
+      docs: requiredDocs(phase, acq),
       citation: PHASE_CITATIONS[phase] ?? "",
       guidance: PHASE_GUIDANCE[phase] ?? "",
       needsPoll: phase === "Go/No-go Poll",
