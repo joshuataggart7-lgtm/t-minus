@@ -14,3 +14,4 @@
 - [x] Verify both sample loaders, defaults, project creation, and package gate
 
 - [x] Rebuild NF 1707 Intake sections, mapping, tracked approvals, and 271-field export preview
+- [x] Add session-only requester-package drafting, confirmations, provenance, IGCE CLINs, and NAICS lookup
