@@ -15,7 +15,7 @@ const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null 
 
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
 
-  const { role, user, setRole, authMessage } = useRole();
+  const { role, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = navFor(role);
