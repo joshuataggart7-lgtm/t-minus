@@ -31,7 +31,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
-import { Nf1707Intake } from "@/components/nf1707-intake";
+import { Nf1707Intake, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -392,7 +392,12 @@ function IntakePage() {
         clock_state: "running",
         status: "On Track",
         current_phase: "Intake",
-        nf1707_answers: { ...carried, ...answers },
+        nf1707_answers: mappedNf1707(
+          fields,
+          { ...canonicalFromFacts(facts), ...answers },
+          {},
+          facts,
+        ),
         intake_estimate: stored,
       };
 

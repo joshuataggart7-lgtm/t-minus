@@ -270,6 +270,31 @@ create table if not exists public.nf1707_fields (
   center_specific text
 );
 
+create table if not exists public.nf1707_approvals (
+  approval_id uuid primary key default gen_random_uuid(),
+  acquisition_id text not null references public.acquisition_facts(acquisition_id) on delete cascade,
+  form_section text not null,
+  form_field_name text not null,
+  approval_role text not null,
+  owner_name text,
+  status text not null default 'pending' check (status in ('pending', 'complete', 'not required')),
+  due_date date,
+  completed_at timestamptz,
+  completed_by text,
+  note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (acquisition_id, form_section, form_field_name)
+);
+grant select, insert, update, delete on public.nf1707_approvals to authenticated;
+grant all on public.nf1707_approvals to service_role;
+alter table public.nf1707_approvals enable row level security;
+create policy nf1707_approvals_read on public.nf1707_approvals for select to authenticated using (true);
+create policy nf1707_approvals_create on public.nf1707_approvals for insert to authenticated with check (private.is_specialist() or private.is_admin() or private.is_demo());
+create policy nf1707_approvals_edit on public.nf1707_approvals for update to authenticated using (private.is_specialist() or private.is_admin() or private.is_demo() or owner_name = (select name from public.users where user_id = auth.uid())) with check (private.is_specialist() or private.is_admin() or private.is_demo() or owner_name = (select name from public.users where user_id = auth.uid()));
+create policy nf1707_approvals_remove on public.nf1707_approvals for delete to authenticated using (private.is_admin());
+create index if not exists nf1707_approvals_acquisition_idx on public.nf1707_approvals (acquisition_id, status, due_date);
+
 -- ---------------------------------------------------------------- working data
 create table if not exists public.polls (
   poll_id uuid primary key default gen_random_uuid(),
