@@ -83,6 +83,17 @@ const DEFAULT_OFF = new Set([
   "closeout-checklist",
 ]);
 
+/** Document types the routing table can address, named as the templates name them. */
+export const MEMO_DOCUMENT_KEYS: { key: string; name: string }[] = [...DEFAULT_ON, "jofoc"]
+  .sort()
+  .map((key) => ({
+    key,
+    name: key
+      .split("-")
+      .map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+      .join(" "),
+  }));
+
 /**
  * Default flag for a document type at a Center. The JOFOC follows the
  * Center's routing row, because the flag is on only where the Center's
