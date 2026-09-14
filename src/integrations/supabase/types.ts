@@ -1089,6 +1089,79 @@ export type Database = {
         }
         Relationships: []
       }
+      igce_clins: {
+        Row: {
+          acquisition_id: string
+          clin_id: string
+          clin_number: string
+          created_at: string
+          created_by: string | null
+          description: string
+          extended_price: number | null
+          is_seed: boolean
+          period_end: string | null
+          period_start: string | null
+          quantity: number | null
+          unit_of_issue: string | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          clin_id?: string
+          clin_number: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          extended_price?: number | null
+          is_seed?: boolean
+          period_end?: string | null
+          period_start?: string | null
+          quantity?: number | null
+          unit_of_issue?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          clin_id?: string
+          clin_number?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          extended_price?: number | null
+          is_seed?: boolean
+          period_end?: string | null
+          period_start?: string | null
+          quantity?: number | null
+          unit_of_issue?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "igce_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "igce_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "igce_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       missions: {
         Row: {
           center_code: string | null
