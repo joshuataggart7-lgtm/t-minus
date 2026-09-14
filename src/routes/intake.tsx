@@ -58,33 +58,10 @@ export const Route = createFileRoute("/intake")({
 
 type Answers = Record<string, string>;
 
-const RECORDED_SECTION_NAMES: Record<string, string> = {
-  Section1: "Section 1. Strategic sourcing",
-  Section2: "Section 2. Section 508 and information technology",
-  Section3: "Section 3. Environmental",
-  Section4: "Section 4. Service contracting",
-  Section5_I: "Section 5.I. Space flight hardware and software",
-  Section5_II: "Section 5.II. SCaN and radio frequency",
-  Section5_III: "Section 5.III. Earned value management",
-  Section5_IV: "Section 5.IV. Communications",
-  Section5_V: "Section 5.V. Aviation",
-  Section5_VI: "Section 5.VI. Software",
-  Section5_VII: "Section 5.VII. Sensitive and controlled items",
-  Section6: "Section 6. Quality assurance",
-  Section7: "Section 7. Safety and health",
-  Section8: "Section 8. Property management",
-  Section9: "Section 9. Center-specific approvals",
-  Section10: "Section 10. Foreign travel briefings",
-  Section11: "Section 11. Extraneous items",
-  Section12: "Section 12. Signatures and affirmations",
-};
-
-function recordedAnswerLabel(key: string) {
-  const section = Object.keys(RECORDED_SECTION_NAMES)
-    .sort((a, b) => b.length - a.length)
-    .find((prefix) => key === prefix || key.startsWith(`${prefix}_`));
-  return section ? RECORDED_SECTION_NAMES[section] : key.replaceAll("_", " ");
+function strategyValue(strategy: { psl: string; name: string | null }) {
+  return `${strategy.psl} — ${strategy.name ?? ""}`.trim().replace(/—$/, "").trim();
 }
+
 
 function useRefData(enabled: boolean) {
   return useQuery({
