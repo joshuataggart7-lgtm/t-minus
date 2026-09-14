@@ -379,6 +379,32 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const end = str(a["period_of_performance_end"]);
   const prior = str(a["successor_of"]);
   const competitiveVariant = !sole;
+  const method = str(a["acquisition_method"]).toLowerCase();
+
+  // The vehicle box follows the acquisition method, with the record's own
+  // vehicle words taking precedence when it names one.
+  const bpa = has(contractType, "bpa") || has(method, "8.4") || has(method, "blanket");
+  const mac = has(contractType, "mac") || has(contractType, "gwac") || has(method, "gwac");
+  const idiq = !mac && (has(contractType, "idiq") || has(contractType, "indefinite") || has(method, "16.5"));
+  const simplified = has(method, "far 13") || has(method, "13.5") || has(method, "simplified");
+  const po = !bpa && !mac && !idiq && (has(contractType, "purchase order") || simplified);
+  const negotiated =
+    has(method, "far 15") || has(method, "part 15") || (has(method, "far 12") && has(method, "15"));
+  const definitive = !bpa && !mac && !idiq && !po && (negotiated || Boolean(contractType));
+
+  const size = ctx.sizeStandard ?? null;
+  const sizeSource = size
+    ? `${size.citation}, effective ${size.effectiveDate}${size.note ? ` (${size.note})` : ""}`
+    : "";
+  const employeeStandard =
+    size && size.standardType === "employees" && size.employees
+      ? `${size.employees.toLocaleString("en-US")} employees`
+      : "";
+  const receiptsStandard =
+    size && size.standardType === "receipts" && size.receiptsUsd ? dollars(size.receiptsUsd) : "";
+
+  const sat = ctx.simplifiedAcquisition ?? null;
+  const overSat = sat ? value > sat.value : null;
 
   const rowField = (path: string, label: string, on: boolean): FormField => ({ path, label, value: on });
 
