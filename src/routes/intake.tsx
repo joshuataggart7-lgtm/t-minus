@@ -22,6 +22,7 @@ import {
   fieldErrors,
   formatMoney,
   parseMoney,
+  matchStrategy,
   scanRedFlags,
   todayISO,
   type IntakeFacts,
@@ -31,7 +32,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
-import { Nf1707Intake, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
+import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 
@@ -167,6 +168,14 @@ function IntakePage() {
   const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
   const authorityOptions = (data.data?.authorities ?? []).filter(
     (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
+  );
+  const strategies = data.data?.ref.strategies ?? [];
+  const strategyMatch = useMemo(
+    () =>
+      data.data
+        ? matchStrategy(data.data.ref, `${facts.title} ${facts.description_of_requirement}`)
+        : null,
+    [data.data, facts.title, facts.description_of_requirement],
   );
   const [addingProject, setAddingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
