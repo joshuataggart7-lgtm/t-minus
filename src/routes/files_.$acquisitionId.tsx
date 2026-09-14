@@ -157,7 +157,7 @@ function FilePage() {
     // The poll board updates live as reviewers vote.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, log, plan, rules, thresholds, strategies, polls, clauses] = await Promise.all([
+      const [acq, log, plan, rules, thresholds, strategies, polls, clauses, nfApprovals] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase
           .from("audit_log")
@@ -173,6 +173,7 @@ function FilePage() {
           .from("clauses")
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
+        supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
       ]);
       const { data: centers } = await supabase
         .from("centers")
@@ -219,6 +220,7 @@ function FilePage() {
         successors: successors ?? [],
         documents: fileDocs.data ?? [],
         templates: fileTemplates.data ?? [],
+        nfApprovals: nfApprovals.data ?? [],
       };
     },
   });
@@ -1132,6 +1134,40 @@ function FilePage() {
       ) : null}
 
       <ClauseModTasks acquisitionId={acquisitionId} />
+
+      <section aria-labelledby="nf1707-approvals" className="mb-12 max-w-[80ch] border-t border-border pt-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <h2 id="nf1707-approvals" className="text-[18px] leading-6 font-medium">NF 1707 approvals</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">Tracked sign-offs supply the approval names and dates in the exported form.</p>
+          </div>
+          {canWrite ? (
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[13px] text-primary"
+              onClick={async () => {
+                const rows = [
+                  ["Section 5.I", "TaskOrderInput1", "Engineering representative"],
+                  ["Section 6.VI", "GidepSign", "GIDEP coordinator"],
+                  ["Section 7", "S7Sign", "Health and safety reviewer"],
+                  ["Section 12", "QualitSign", "Quality point of contact"],
+                ].map(([form_section, form_field_name, approval_role]) => ({ acquisition_id: acquisitionId, form_section, form_field_name, approval_role, owner_name: null, status: "pending" }));
+                const { error } = await supabase.from("nf1707_approvals").upsert(rows, { onConflict: "acquisition_id,form_section,form_field_name" });
+                if (error) setBanner(`The approval routing did not start: ${error.message}`);
+                else { setBanner("NF 1707 approval routing is ready."); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }
+              }}
+            >
+              Prepare sign-offs
+            </button>
+          ) : null}
+        </div>
+        {(q.data?.nfApprovals ?? []).length ? (
+          <table className="mt-3 w-full border border-border text-[13px]">
+            <thead><tr className="border-b border-border text-left"><th className="p-2">Sign-off</th><th className="p-2">Owner</th><th className="p-2">Status</th><th className="p-2">Date</th></tr></thead>
+            <tbody>{(q.data?.nfApprovals ?? []).map((approval) => <tr key={approval.approval_id} className="border-b border-border"><td className="p-2">{approval.approval_role}<span className="block text-muted-foreground">{approval.form_section}</span></td><td className="p-2">{approval.owner_name ?? "Assign in review"}</td><td className="p-2">{approval.status === "complete" ? "Complete" : "Pending"}</td><td className="p-2" data-numeric>{approval.completed_at?.slice(0, 10) ?? approval.due_date ?? "—"}</td></tr>)}</tbody>
+          </table>
+        ) : <p className="mt-3 text-[13px] text-muted-foreground">No sign-offs have been routed.</p>}
+      </section>
 
       <section aria-label="Contract file index" className="mb-12">
         <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>
