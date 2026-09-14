@@ -224,7 +224,7 @@ function FormPage() {
               style={{ background: "var(--primary, #0B3D91)" }}
               onClick={() => void exportPopulated()}
             >
-              Export PDF with fields filled
+              Export form PDF
             </button>
             <button
               type="button"
@@ -233,7 +233,18 @@ function FormPage() {
             >
               Export flattened PDF
             </button>
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              onClick={exportData}
+            >
+              Export data file for Import Data
+            </button>
           </div>
+          <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+            The form PDF is the original form with only its data replaced, so Adobe Reader opens it as the
+            form. The flattened PDF prints every answer as text for the contract file.
+          </p>
           {message ? (
             <p role="status" className="mb-6 text-[15px]">
               {message}
