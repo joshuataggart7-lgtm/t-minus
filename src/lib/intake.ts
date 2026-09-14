@@ -3,9 +3,15 @@
 export type IntakeFacts = {
   title: string;
   mission_id: string;
+  mission_directorate_code: string;
+  mission_directorate_name: string;
+  mission_directorate_other: string;
+  sponsoring_agency: string;
+  is_reimbursable: boolean;
   /** the acquisition this one replaces, when it is a follow-on */
   successor_of: string;
   center_code: string;
+  center_name: string;
   branch_code: string;
   requester_name: string;
   requester_org_code: string;
@@ -19,6 +25,7 @@ export type IntakeFacts = {
   naics_code: string;
   psc_code: string;
   contract_type: string;
+  hybrid_contract_type: string;
   acquisition_method: string;
   competition: string;
   set_aside: string;
@@ -39,8 +46,14 @@ export type IntakeFacts = {
 export const EMPTY_FACTS: IntakeFacts = {
   title: "",
   mission_id: "",
+  mission_directorate_code: "",
+  mission_directorate_name: "",
+  mission_directorate_other: "",
+  sponsoring_agency: "",
+  is_reimbursable: false,
   successor_of: "",
   center_code: "ARC",
+  center_name: "Ames Research Center",
   branch_code: "",
   requester_name: "",
   requester_org_code: "",
@@ -54,6 +67,7 @@ export const EMPTY_FACTS: IntakeFacts = {
   naics_code: "",
   psc_code: "",
   contract_type: "",
+  hybrid_contract_type: "",
   acquisition_method: "",
   competition: "",
   set_aside: "",
@@ -72,35 +86,71 @@ export const EMPTY_FACTS: IntakeFacts = {
 };
 
 export const CONTRACT_TYPES = [
-  "FFP",
-  "Fixed-price with economic price adjustment",
-  "Cost-plus-fixed-fee",
-  "Time-and-materials / labor-hour",
-  "Indefinite-delivery indefinite-quantity",
+  "Firm-fixed-price (FFP)",
+  "Fixed-price with economic price adjustment (FP-EPA)",
+  "Fixed-price incentive (FPIF)",
+  "Cost-plus-fixed-fee (CPFF)",
+  "Cost-plus-incentive-fee (CPIF)",
+  "Cost-plus-award-fee (CPAF)",
+  "Cost-no-fee / cost-sharing",
+  "Time-and-materials (T&M)",
+  "Labor-hour (LH)",
+  "Indefinite-delivery indefinite-quantity (IDIQ)",
+  "Blanket purchase agreement (BPA) call",
+  "Purchase order",
 ];
 
 export const ACQUISITION_METHODS = [
   "FAR 13.5 commercial simplified procedures",
-  "FAR 13 simplified acquisition procedures",
+  "FAR 13 simplified acquisition (non-commercial)",
   "FAR 12 commercial, Part 15 procedures",
-  "FAR 15 negotiated procedures",
-  "Existing contract vehicle or GWAC",
+  "FAR 15 negotiated",
+  "FAR 8.4 GSA schedule order",
+  "FAR 16.5 order under existing IDIQ / GWAC",
+  "FAR 14 sealed bidding",
+  "Other transaction / Space Act (not a FAR contract)",
 ];
 
 export const COMPETITION_CHOICES = [
-  "Competitive (simplified procedures)",
-  "Full and open",
+  "Competitive",
+  "Limited sources (FAR 8.405-6 / 16.505)",
   "Sole source",
+  "Brand name",
 ];
 
 export const SET_ASIDES = [
   "None",
   "Total small business set-aside",
+  "Partial small business",
   "8(a)",
+  "8(a) sole source",
   "HUBZone",
+  "HUBZone sole source",
   "Service-disabled veteran-owned",
+  "SDVOSB sole source",
   "Women-owned small business",
+  "WOSB/EDWOSB sole source",
+  "Local area (FAR 26.2)",
 ];
+
+export const CENTERS = [
+  ["HQ", "NASA Headquarters"], ["ARC", "Ames Research Center"],
+  ["AFRC", "Armstrong Flight Research Center"], ["GRC", "Glenn Research Center"],
+  ["GSFC", "Goddard Space Flight Center"], ["JPL", "Jet Propulsion Laboratory"],
+  ["JSC", "Johnson Space Center"], ["KSC", "Kennedy Space Center"],
+  ["LaRC", "Langley Research Center"], ["MSFC", "Marshall Space Flight Center"],
+  ["SSC", "Stennis Space Center"], ["Other", "Other"],
+] as const;
+
+export const MISSION_DIRECTORATES = [
+  ["HSMD", "Human Spaceflight Mission Directorate"],
+  ["RTMD", "Research and Technology Mission Directorate"],
+  ["SMD", "Science Mission Directorate"],
+  ["MSD", "Mission Support Directorate"],
+  ["CENTER", "Center institutional / operations"],
+  ["REIMBURSABLE", "Reimbursable or other-agency (Economy Act, Space Act, etc.)"],
+  ["OTHER", "Other (specify)"],
+] as const;
 
 export function parseMoney(v: string): number | null {
   const cleaned = v.replace(/[$,\s]/g, "");
@@ -118,6 +168,11 @@ export function fieldErrors(f: IntakeFacts): Record<string, string> {
   const e: Record<string, string> = {};
   if (!f.title.trim()) e["title"] = "Enter a short title for this requirement.";
   if (!f.mission_id) e["mission_id"] = "Choose the mission this supports.";
+  if (!f.mission_directorate_code) e["mission_directorate_code"] = "Choose a mission directorate.";
+  if (f.mission_directorate_code === "OTHER" && !f.mission_directorate_other.trim())
+    e["mission_directorate_other"] = "Specify the mission directorate.";
+  if (f.is_reimbursable && !f.sponsoring_agency.trim())
+    e["sponsoring_agency"] = "Enter the sponsoring agency.";
   if (!f.center_code) e["center_code"] = "Choose the Center.";
   if (!f.requester_name.trim()) e["requester_name"] = "Enter the requester's name.";
   if (!f.description_of_requirement.trim())
@@ -271,7 +326,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
     });
   }
 
-  if (/sole/i.test(f.competition) && !f.jofoc_authority_citation.trim())
+  if (/sole|limited sources|brand name/i.test(f.competition) && !f.jofoc_authority_citation.trim())
     flags.push({
       id: "jofoc",
       title: "Sole source selected with no JOFOC authority cited",
