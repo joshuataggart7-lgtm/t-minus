@@ -476,7 +476,17 @@ function DocumentPage() {
     const envelope = (row.response_json ?? {}) as Record<string, unknown>;
     const raw = (envelope["raw"] ?? {}) as Record<string, unknown>;
     const rows = Array.isArray(raw["entityData"]) ? (raw["entityData"] as Record<string, unknown>[]) : [];
-    const small = rows.filter((r) => JSON.stringify(r).toLowerCase().includes('"y"')).length;
+    const isSmall = (r: Record<string, unknown>): boolean => {
+      for (const [key, value] of Object.entries(r)) {
+        if (/smallbusiness/i.test(key)) {
+          const v = String(value).trim().toLowerCase();
+          if (v === "y" || v === "yes" || v === "true") return true;
+        }
+        if (value && typeof value === "object" && isSmall(value as Record<string, unknown>)) return true;
+      }
+      return false;
+    };
+    const small = rows.filter(isSmall).length;
     return {
       runOn: (row.checked_at ?? "").slice(0, 10),
       sources: rows.length,
