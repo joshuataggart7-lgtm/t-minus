@@ -174,10 +174,16 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   };
 }
 
+/**
+ * One numbered paragraph. The record facts paragraph carries labeled lines,
+ * one fact per line, rather than a run-on string.
+ */
+export type MemoParagraph = { text: string; lines: string[] };
+
 export type MemoDoc = {
   header: MemoHeader;
   /** Numbered body paragraphs, in the order they are read. */
-  paragraphs: string[];
+  paragraphs: MemoParagraph[];
   badgeLine: string;
   title: string;
 };
@@ -185,18 +191,19 @@ export type MemoDoc = {
 /**
  * The body of a memorandum is the rendered document turned into numbered
  * paragraphs: one paragraph per section, its heading leading the sentence.
+ * The record block is rendered as labeled lines so the facts read as facts.
  */
-export function memoParagraphs(doc: RenderedDoc): string[] {
+export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures"))
     .map((b) => {
-      const text = b.lines
-        .map((l) => l.trim())
-        .filter((l) => l && !l.endsWith(": —"))
-        .join(" ");
-      return `${b.heading}. ${text}`.trim();
+      const lines = b.lines.map((l) => l.trim()).filter((l) => l && !l.endsWith(": —"));
+      if (b.heading === "Acquisition") {
+        return { text: "This memorandum concerns the following acquisition.", lines };
+      }
+      return { text: `${b.heading}. ${lines.join(" ")}`.trim(), lines: [] };
     })
-    .filter((p) => p.length > 2);
+    .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }
 
 export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader): MemoDoc {
