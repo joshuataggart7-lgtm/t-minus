@@ -224,40 +224,46 @@ export async function runEngine(options: {
   }
   const nationalEntities = await samEntities(`SAM.gov Entity Management API, NAICS ${naics} nationally`, false);
 
-  // SAM.gov Opportunities, last three years.
+  // SAM.gov Opportunities, last three years. The API rejects a range wider
+  // than one year, so the three years are searched one year at a time and each
+  // window is logged on its own.
   let notices: EngineNotice[] = [];
+  let noticesSearched = false;
   {
-    const url = new URL("https://api.sam.gov/opportunities/v2/search");
-    url.searchParams.set("api_key", samKey ?? "");
-    url.searchParams.set("limit", "15");
-    if (naics) url.searchParams.set("ncode", naics);
-    else if (psc) url.searchParams.set("ccode", psc);
-    const from = new Date();
-    from.setFullYear(from.getFullYear() - 3);
     const mmddyyyy = (d: Date) =>
       `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
-    url.searchParams.set("postedFrom", mmddyyyy(from));
-    url.searchParams.set("postedTo", mmddyyyy(new Date()));
-    const query = redact(url, samKey);
-    if (!samKey) {
-      record({
-        source: "SAM.gov Opportunities API, last three years",
-        query,
-        resultCount: null,
-        outcome: "Not run. The SAM.gov key is not configured.",
-      });
-    } else {
+    for (let year = 1; year <= 3; year += 1) {
+      const to = new Date();
+      to.setFullYear(to.getFullYear() - (year - 1));
+      const from = new Date(to);
+      from.setFullYear(from.getFullYear() - 1);
+      from.setDate(from.getDate() + 1);
+      const url = new URL("https://api.sam.gov/opportunities/v2/search");
+      url.searchParams.set("api_key", samKey ?? "");
+      url.searchParams.set("limit", "15");
+      if (naics) url.searchParams.set("ncode", naics);
+      else if (psc) url.searchParams.set("ccode", psc);
+      url.searchParams.set("postedFrom", mmddyyyy(from));
+      url.searchParams.set("postedTo", mmddyyyy(to));
+      const source = `SAM.gov Opportunities API, ${dateOnly(from.toISOString())} to ${dateOnly(to.toISOString())}`;
+      const query = redact(url, samKey);
+      if (!samKey) {
+        record({ source, query, resultCount: null, outcome: "Not run. The SAM.gov key is not configured." });
+        continue;
+      }
       try {
-        notices = noticesFromRaw(await getJson(url, samKey));
+        const found = noticesFromRaw(await getJson(url, samKey));
+        noticesSearched = true;
+        notices = notices.concat(found);
         record({
-          source: "SAM.gov Opportunities API, last three years",
+          source,
           query,
-          resultCount: notices.length,
-          outcome: notices.length ? "Returned notices." : "Returned no notices under this code.",
+          resultCount: found.length,
+          outcome: found.length ? "Returned notices." : "Returned no notices under this code.",
         });
       } catch (error) {
         record({
-          source: "SAM.gov Opportunities API, last three years",
+          source,
           query,
           resultCount: null,
           outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
