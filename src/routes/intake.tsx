@@ -1,7 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,9 +19,11 @@ import {
 } from "@/lib/nf1707";
 import {
   ACQUISITION_METHODS,
+  CENTERS,
   COMPETITION_CHOICES,
   CONTRACT_TYPES,
   EMPTY_FACTS,
+  MISSION_DIRECTORATES,
   SET_ASIDES,
   addDays,
   fieldErrors,
@@ -93,11 +95,11 @@ function useRefData(enabled: boolean) {
     queryKey: ["intake-ref"],
     enabled,
     queryFn: async () => {
-      const [missions, centers, branches, thresholds, phasePlan, strategies, fields] =
+      const [missions, orgCodes, authorities, thresholds, phasePlan, strategies, fields] =
         await Promise.all([
-          supabase.from("missions").select("mission_id,name,milestone,milestone_date").order("priority"),
-          supabase.from("centers").select("center_code,center_name").order("center_code"),
-          supabase.from("branches").select("center_code,branch_code,branch_name"),
+          supabase.from("missions").select("mission_id,name,milestone,milestone_date,mission_directorate_code,mission_directorate_name").order("priority"),
+          supabase.from("acquisition_facts").select("branch_code").not("branch_code", "is", null),
+          supabase.from("competition_authorities").select("acquisition_method,competition_type,citation,description").order("citation"),
           supabase.from("thresholds").select("name,value,citation,note"),
           supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order"),
           supabase
@@ -114,8 +116,8 @@ function useRefData(enabled: boolean) {
       return {
         missions: missions.data ?? [],
         priorFiles: priorFiles ?? [],
-        centers: centers.data ?? [],
-        branches: branches.data ?? [],
+        orgCodes: [...new Set((orgCodes.data ?? []).map((row) => row.branch_code).filter(Boolean))] as string[],
+        authorities: authorities.data ?? [],
         fields: (fields.data ?? []) as Nf1707Field[],
         ref: {
           thresholds: thresholds.data ?? [],
@@ -160,14 +162,15 @@ const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground";
 
 function IntakePage() {
-  const { user, role, authState } = useRole();
+  const { user, role, authState, profile } = useRole();
   const navigate = useNavigate();
   const data = useRefData(authState === "signed-in");
 
   const [facts, setFacts] = useState<IntakeFacts>({
     ...EMPTY_FACTS,
     requester_name: user.name,
-    center_code: user.center_code === "HQ" ? "ARC" : user.center_code,
+    center_code: user.center_code,
+    center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
   const [carried, setCarried] = useState<Record<string, string>>({});
@@ -185,20 +188,45 @@ function IntakePage() {
   const err = (k: string) => (touched ? errors[k] : undefined);
 
   const fields = data.data?.fields ?? [];
-  const branches = (data.data?.branches ?? []).filter((b) => b.center_code === facts.center_code);
+  const packageComplete = facts.funds_certified && facts.igce_attached && facts.sow_attached;
+  const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
+  const authorityOptions = (data.data?.authorities ?? []).filter(
+    (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
+  );
+  const [addingProject, setAddingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDate, setNewProjectDate] = useState("");
+  const [projectError, setProjectError] = useState<string | null>(null);
 
-  async function loadSample() {
+  useEffect(() => {
+    const centerCode = profile?.last_center_code || user.center_code;
+    const centerName = CENTERS.find(([code]) => code === centerCode)?.[1] ?? "Other";
+    setFacts((current) => ({
+      ...current,
+      center_code: centerCode,
+      center_name: centerName,
+      branch_code: profile?.last_organization_code || current.branch_code,
+    }));
+  }, [profile?.last_center_code, profile?.last_organization_code, user.center_code]);
+
+  async function loadSample(acquisitionId: string) {
     const { data: row } = await supabase
       .from("acquisition_facts")
       .select("*")
-      .eq("acquisition_id", "A-2027-0101")
+      .eq("acquisition_id", acquisitionId)
       .maybeSingle();
     if (!row) return;
     setFacts((f) => ({
       ...f,
       title: row.title ?? "",
       mission_id: row.mission_id ?? "",
+      mission_directorate_code: row.mission_directorate_code ?? "",
+      mission_directorate_name: row.mission_directorate_name ?? "",
+      mission_directorate_other: row.mission_directorate_other ?? "",
+      sponsoring_agency: row.sponsoring_agency ?? "",
+      is_reimbursable: !!row.is_reimbursable,
       center_code: row.center_code ?? f.center_code,
+      center_name: row.center_name ?? CENTERS.find(([code]) => code === row.center_code)?.[1] ?? "Other",
       branch_code: row.branch_code ?? "",
       requester_name: row.requester_name ?? f.requester_name,
       requester_org_code: row.requester_org_code ?? "",
@@ -212,14 +240,17 @@ function IntakePage() {
       naics_code: row.naics_code ?? "",
       psc_code: row.psc_code ?? "",
       contract_type: /^(ffp|firm-fixed-price)$/i.test(row.contract_type ?? "")
-        ? "FFP"
+        ? "Firm-fixed-price (FFP)"
         : (row.contract_type ?? ""),
-      acquisition_method: ACQUISITION_METHODS[0] ?? "",
+      hybrid_contract_type: row.hybrid_contract_type ?? "",
+      acquisition_method: /13\.5/.test(row.acquisition_method ?? "")
+        ? ACQUISITION_METHODS[0] ?? ""
+        : /13/.test(row.acquisition_method ?? "")
+          ? ACQUISITION_METHODS[1] ?? ""
+          : (row.acquisition_method ?? ""),
       competition: /sole/i.test(row.competition ?? "")
         ? "Sole source"
-        : /simplified|competitive/i.test(row.competition ?? "")
-          ? "Competitive (simplified procedures)"
-          : "Full and open",
+        : "Competitive",
       set_aside: /total small business/i.test(row.set_aside ?? "")
         ? "Total small business set-aside"
         : (row.set_aside ?? "None"),
@@ -228,7 +259,7 @@ function IntakePage() {
       funding_fiscal_year: row.funding_fiscal_year ?? "",
       funds_certified: !!row.funds_certified,
       // The sample arrives with the IGCE still missing: that is the demo flag.
-      igce_attached: false,
+      igce_attached: acquisitionId === "A-2027-0101" ? false : !!row.igce_attached,
       sow_attached: !!row.sow_attached,
       hardware_deliverable: !!row.hardware_deliverable,
       includes_it: !!row.includes_it,
@@ -241,6 +272,35 @@ function IntakePage() {
     if (/yes/i.test(aviation)) seeded["Section5s5.Section5s5.S5Vn2"] = "1";
     setAnswers(seeded);
     setScan(null);
+  }
+
+  async function addProject() {
+    if (!newProjectName.trim() || !newProjectDate || !facts.mission_directorate_code) {
+      setProjectError("Enter a project name and need date after choosing a mission directorate.");
+      return;
+    }
+    const missionId = `M-${crypto.randomUUID().slice(0, 8)}`;
+    const { error } = await supabase.from("missions").insert({
+      mission_id: missionId,
+      name: newProjectName.trim(),
+      program: newProjectName.trim(),
+      center_code: facts.center_code,
+      milestone: "Mission need date",
+      milestone_date: newProjectDate,
+      mission_directorate_code: facts.mission_directorate_code,
+      mission_directorate_name: facts.mission_directorate_name,
+    });
+    if (error) {
+      setProjectError(`The project could not be added: ${error.message}`);
+      return;
+    }
+    await data.refetch();
+    set("mission_id", missionId);
+    set("need_date", newProjectDate);
+    setAddingProject(false);
+    setNewProjectName("");
+    setNewProjectDate("");
+    setProjectError(null);
   }
 
   const [place, setPlace] = useState<PlaceLookup | null>(null);

@@ -76,10 +76,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const isAnonymous = Boolean(session?.user?.is_anonymous);
 
-  // Load the profile row for a real (non-demo) session.
+  // Load defaults for every authenticated session, including an anonymous demo.
   useEffect(() => {
     let cancelled = false;
-    if (!session || isAnonymous) {
+    if (!session) {
       setProfile(null);
       return;
     }
@@ -100,7 +100,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [session, isAnonymous]);
+  }, [session]);
 
   const canSwitchPersona = isAnonymous || Boolean(profile?.is_admin);
 
