@@ -143,8 +143,12 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
     centerAddress: input.centerAddress,
     date: formatMemoDate(input.today),
     replyTo: org,
-    to: input.routing?.approving_official_title ?? "Contract File",
-    thru: (input.routing?.thru_chain ?? []).filter(Boolean),
+    // The market research memorandum and the commerciality determination are
+    // addressed to the contract file: nothing is approved outside the file.
+    to: fileAddressed(input.templateKey)
+      ? `Contract File ${pr || String(input.acquisition["acquisition_id"] ?? "")}`
+      : (input.routing?.approving_official_title ?? "Contract File"),
+    thru: fileAddressed(input.templateKey) ? [] : (input.routing?.thru_chain ?? []).filter(Boolean),
     from: `${input.coName}, Contracting Officer${org ? `, ${org}` : ""}`,
     subject,
     ref: refs,
