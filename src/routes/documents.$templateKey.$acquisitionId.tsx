@@ -1114,23 +1114,29 @@ function DocumentPage() {
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
-              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`);
+              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
               else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`);
             }}
           >
-            {memoOn ? "Export memo .docx" : "Export .docx"}
+            Export Word
           </button>
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
-              const ok = memoOn && memoDoc ? exportMemoPdf(memoDoc, headerLine) : rendered ? exportPdf(rendered, headerLine) : true;
+              if (memoOn && memoDoc) {
+                void exportMemoPdf(memoDoc, headerLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                  setMessage("The PDF did not export. Try again, or export Word."),
+                );
+                return;
+              }
+              const ok = rendered ? exportPdf(rendered, headerLine) : true;
               if (!ok) {
                 setMessage("The print window was blocked. Allow pop-ups for this site, then export again.");
               }
             }}
           >
-            {memoOn ? "Export memo PDF" : "Export PDF"}
+            Export PDF
           </button>
         </div>
 
