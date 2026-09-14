@@ -12,3 +12,5 @@
 - [x] Reorder mission seeds and reload the five mission rows
 - [x] Correct the Intake record block without changing NF 1707 sections
 - [x] Verify both sample loaders, defaults, project creation, and package gate
+
+- [ ] Rebuild NF 1707 Intake sections, mapping, approvals, and export preview
