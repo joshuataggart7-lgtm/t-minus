@@ -441,19 +441,49 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
             value: str(a["description_of_requirement"]) || str(a["title"]),
           },
           { path: "form1.Page2.Sec678Sub.NAICSCode", label: "NAICS code", value: str(a["naics_code"]) },
+          {
+            path: "form1.Page2.Sec678Sub.NumberEmployees",
+            label: "Size standard, number of employees",
+            value: employeeStandard,
+            ...(size ? {} : { gap: "No SBA size standard is seeded for this NAICS code." }),
+          },
+          {
+            path: "form1.Page2.Sec678Sub.Receipts",
+            label: "Size standard, average annual receipts",
+            value: receiptsStandard,
+          },
+          {
+            path: "form1.Page2.Sec678Sub.SizeStandardSource",
+            label: "Size standard source",
+            value: sizeSource,
+          },
+          rowField(
+            "form1.Page2.Sec678Sub.ThresholdYes",
+            "Exceeds the simplified acquisition threshold",
+            overSat === true,
+          ),
+          rowField(
+            "form1.Page2.Sec678Sub.ThresholdNo",
+            "Does not exceed the simplified acquisition threshold",
+            overSat === false,
+          ),
+          {
+            path: "form1.Page2.Sec678Sub.ThresholdSource",
+            label: "Simplified acquisition threshold",
+            value: sat ? `${dollars(sat.value)}, ${sat.citation}` : "",
+            ...(sat ? {} : { gap: "The simplified acquisition threshold is not loaded." }),
+          },
         ],
       },
       {
         title: "Contract vehicle",
+        citation: "Set from the acquisition method on the record",
         fields: [
-          rowField("form1.Page2.MidSection.PO", "Purchase order", has(contractType, "purchase order")),
-          rowField(
-            "form1.Page2.MidSection.DEFINITIVE",
-            "Definitive contract",
-            !has(contractType, "purchase order") && !has(contractType, "bpa") && !has(contractType, "idiq"),
-          ),
-          rowField("form1.Page2.MidSection.BPA", "Blanket purchase agreement", has(contractType, "bpa")),
-          rowField("form1.Page2.MidSection.IDIQ", "Indefinite delivery indefinite quantity", has(contractType, "idiq")),
+          rowField("form1.Page2.MidSection.PO", "Purchase order", po),
+          rowField("form1.Page2.MidSection.DEFINITIVE", "Definitive contract", definitive),
+          rowField("form1.Page2.MidSection.BPA", "Blanket purchase agreement", bpa),
+          rowField("form1.Page2.MidSection.IDIQ", "Indefinite delivery indefinite quantity", idiq),
+          rowField("form1.Page2.MidSection.MAC", "Multiple award contract", mac),
         ],
       },
       {
