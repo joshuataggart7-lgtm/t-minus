@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { Button } from "@/components/ui/button";
 import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
@@ -1142,9 +1143,9 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-muted-foreground">Tracked sign-offs supply the approval names and dates in the exported form.</p>
           </div>
           {canWrite ? (
-            <button
+            <Button
               type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[13px] text-primary"
+              variant="outline"
               onClick={async () => {
                 const rows = [
                   { form_section: "Section 5.I", form_field_name: "TaskOrderInput1", approval_role: "Engineering representative" },
@@ -1158,13 +1159,13 @@ function FilePage() {
               }}
             >
               Prepare sign-offs
-            </button>
+            </Button>
           ) : null}
         </div>
         {(q.data?.nfApprovals ?? []).length ? (
           <table className="mt-3 w-full border border-border text-[13px]">
             <thead><tr className="border-b border-border text-left"><th className="p-2">Sign-off</th><th className="p-2">Owner</th><th className="p-2">Status</th><th className="p-2">Date</th><th className="p-2"><span className="sr-only">Action</span></th></tr></thead>
-            <tbody>{(q.data?.nfApprovals ?? []).map((approval) => <tr key={approval.approval_id} className="border-b border-border"><td className="p-2">{approval.approval_role}<span className="block text-muted-foreground">{approval.form_section}</span></td><td className="p-2">{approval.owner_name ?? "Assign in review"}</td><td className="p-2">{approval.status === "complete" ? "Complete" : "Pending"}</td><td className="p-2" data-numeric>{approval.completed_at?.slice(0, 10) ?? approval.due_date ?? "—"}</td><td className="p-2">{canWrite && approval.status !== "complete" ? <button type="button" className="text-primary" onClick={async () => { const completedAt = new Date().toISOString(); const { error } = await supabase.from("nf1707_approvals").update({ status: "complete", owner_name: user.name, completed_by: user.name, completed_at: completedAt }).eq("approval_id", approval.approval_id); if (error) setBanner(`The sign-off did not save: ${error.message}`); else { await supabase.from("audit_log").insert({ acquisition_id: acquisitionId, actor: user.name, action: "NF 1707 sign-off completed", field: approval.form_field_name, old_value: "pending", new_value: "complete", reason: approval.approval_role, phase: "Intake" }); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); } }}>Complete</button> : null}</td></tr>)}</tbody>
+            <tbody>{(q.data?.nfApprovals ?? []).map((approval) => <tr key={approval.approval_id} className="border-b border-border"><td className="p-2">{approval.approval_role}<span className="block text-muted-foreground">{approval.form_section}</span></td><td className="p-2">{approval.owner_name ?? "Assign in review"}</td><td className="p-2">{approval.status === "complete" ? "Complete" : "Pending"}</td><td className="p-2" data-numeric>{approval.completed_at?.slice(0, 10) ?? approval.due_date ?? "—"}</td><td className="p-2">{canWrite && approval.status !== "complete" ? <Button type="button" variant="link" className="h-auto p-0" onClick={async () => { const completedAt = new Date().toISOString(); const { error } = await supabase.from("nf1707_approvals").update({ status: "complete", owner_name: user.name, completed_by: user.name, completed_at: completedAt }).eq("approval_id", approval.approval_id); if (error) setBanner(`The sign-off did not save: ${error.message}`); else { await supabase.from("audit_log").insert({ acquisition_id: acquisitionId, actor: user.name, action: "NF 1707 sign-off completed", field: approval.form_field_name, old_value: "pending", new_value: "complete", reason: approval.approval_role, phase: "Intake" }); await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); } }}>Complete</Button> : null}</td></tr>)}</tbody>
           </table>
         ) : <p className="mt-3 text-[13px] text-muted-foreground">No sign-offs have been routed.</p>}
       </section>
