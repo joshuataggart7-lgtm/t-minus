@@ -60,13 +60,17 @@ function marketResearch(ctx: MemoDraftCtx): Values {
       : `${ctx.evidence.smallBusinesses} small business concerns were identified. The expectation of offers from two or more responsible small business concerns is not supported on this record (FAR 19.502-2).`
     : gap("state the number of sources, their small business capability and the Rule of Two result");
 
-  const conclusion = setAside
-    ? `The acquisition proceeds ${competition ? competition.toLowerCase() : "as recorded"}${
-        setAside && !/none/i.test(setAside) ? `, as a ${setAside.toLowerCase()}` : ""
-      }, consistent with the research above.`
-    : competition
-      ? `The acquisition proceeds ${competition.toLowerCase()}, consistent with the research above.`
-      : gap("state the competition and set-aside the research supports");
+  const basis = [
+    competition ? `on a ${competition.toLowerCase()} basis` : "",
+    setAside && !/none/i.test(setAside) ? `as a ${setAside.toLowerCase()}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+  const conclusion = basis
+    ? `The acquisition will be conducted ${basis}, consistent with the research above, and the procedures of ${
+        str(a["acquisition_method"]) || "the acquisition method on the record"
+      } apply.`
+    : gap("state the competition and set-aside the research supports");
 
   return {
     purpose: `This memorandum records the market research conducted for ${str(a["title"]) || ctx.acquisitionId} and the conclusions drawn from it (FAR 10.002(e)).`,
@@ -76,7 +80,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     research: research.join(" "),
     findings,
     commercial: commercialDetermination
-      ? `${commercialDetermination}${
+      ? `The requirement is a ${commercialDetermination.toLowerCase()} within FAR 2.101, so the procedures of FAR Part 12 apply.${
           commercialityOnFile ? " The commerciality determination on this file states the basis in full." : ""
         }`
       : gap("record the commerciality determination, then cross-reference it here"),
