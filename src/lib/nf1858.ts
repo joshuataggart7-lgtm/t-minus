@@ -339,7 +339,23 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
     h.cc.forEach((c) => children.push(p(c, { after: 40 })));
   }
   if (h.cui) children.push(p(CUI_BANNER, { bold: true, center: true }));
-  children.push(p("Prototype. Not an official NASA system.", { size: 18 }));
+  // The metadata line belongs in the page footer, not in the Distribution block.
+  const footer = new Footer({
+    children: [
+      new Paragraph({
+        spacing: { after: 0 },
+        children: [
+          new TextRun({
+            font: "Times New Roman",
+            size: 16,
+            text: [footerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."]
+              .filter(Boolean)
+              .join(" · "),
+          }),
+        ],
+      }),
+    ],
+  });
 
   const document = new Document({
     styles: { default: { document: { run: { font: "Times New Roman", size: 24, color: "000000" } } } },
