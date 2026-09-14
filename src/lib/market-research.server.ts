@@ -72,6 +72,8 @@ export type EngineResult = {
   stateEntities: EngineEntity[];
   nationalEntities: EngineEntity[];
   notices: EngineNotice[];
+  /** True when at least one notices window was actually searched. */
+  noticesSearched: boolean;
   awards: EngineAward[];
   priorActions: { acquisitionId: string; title: string; phase: string; setAside: string }[];
   sizeStandardText: string;
@@ -438,6 +440,7 @@ export async function runEngine(options: {
     stateEntities,
     nationalEntities,
     notices,
+    noticesSearched,
     awards,
     priorActions: priorRows,
     sizeStandardText,
@@ -570,7 +573,9 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
       `${searched.length} public sources searched on ${date}${result.calcNote ? `. ${result.calcNote}` : ""}. ${
         result.notices.length
           ? `${result.notices.length} notices under this code in the last three years.`
-          : "No notices were returned under this code in the last three years."
+          : result.noticesSearched
+            ? "No notices were returned under this code in the last three years."
+            : "The notices search did not return; see the research log."
       }`,
       "market research evidence engine",
     );
