@@ -524,6 +524,7 @@ export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[
 
   for (const p of throughCurrent) {
     for (const d of p.docs) {
+      if (d.optional) continue;
       if (docSatisfied(d, acq) === false)
         return { reason: `${p.phase}: ${d.label} is missing`, owner };
     }
