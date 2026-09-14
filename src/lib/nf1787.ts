@@ -40,6 +40,12 @@ export type GeneratedForm = {
 
 export type FormKey = "nf-1787" | "nf-1787a";
 
+import {
+  findingText,
+  respondentsFromFinding,
+  type FindingMap,
+} from "@/lib/research-findings";
+
 export type FormRespondent = {
   uei: string;
   name: string;
@@ -61,6 +67,8 @@ export type SizeStandard = {
 };
 
 export type FormCtx = {
+  /** Values drafted by the market research evidence engine, keyed by target. */
+  findings?: FindingMap;
   acquisitionId: string;
   acq: Record<string, unknown>;
   missionName: string;
@@ -143,6 +151,9 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
   const evidence = ctx.evidenceLabel;
   const smallCount = ctx.respondents.filter((r) => has(r.category.toLowerCase(), "small")).length;
 
+  const researched = (target: string) => findingText(ctx.findings, target);
+  const researchedOn = (target: string) => Boolean(findingText(ctx.findings, target));
+  const researchedRespondents = respondentsFromFinding(ctx.findings);
   const researchText = evidence
     ? `SAM.gov registered-entity and subaward search for NAICS ${str(a["naics_code"])}, ${evidence}. ${
         ctx.respondents.length
@@ -268,19 +279,44 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page1.Section4.FieldHeader1.ckHistory",
             label: "Procurement history reviewed",
-            value: Boolean(prior),
+            value: researchedOn("nf1787a.ckHistory") || Boolean(prior),
           },
           {
             path: "form1.Page1.Section4.ProcurementHistory",
             label: "Procurement history",
-            value: prior ? `Prior contract file ${prior} reviewed.` : "",
+            value:
+              researched("nf1787a.ProcurementHistory") || (prior ? `Prior contract file ${prior} reviewed.` : ""),
+          },
+          {
+            path: "form1.Page1.Section4.FieldHeader2.ckResults",
+            label: "Results of the sources search",
+            value: researchedOn("nf1787a.ckResults"),
+          },
+          {
+            path: "form1.Page1.Section4.IdentifyResults",
+            label: "Identify the results",
+            value: researched("nf1787a.IdentifyResults"),
           },
           {
             path: "form1.Page1.Section4.FieldHeader7.ckQuery",
             label: "Database query, SAM.gov",
-            value: Boolean(evidence),
+            value: researchedOn("nf1787a.ckQuery") || Boolean(evidence),
           },
-          { path: "form1.Page1.Section4.CiteInformation", label: "Information cited", value: researchText },
+          {
+            path: "form1.Page1.Section4.CiteInformation",
+            label: "Information cited",
+            value: researched("nf1787a.CiteInformation") || researchText,
+          },
+          {
+            path: "form1.Page1.Section4.FieldHeader8.ckSBA",
+            label: "SBA size standard reviewed",
+            value: researchedOn("nf1787a.ckSBA"),
+          },
+          {
+            path: "form1.Page1.Section4.SBA",
+            label: "SBA size standard",
+            value: researched("nf1787a.SBA"),
+          },
           {
             path: "form1.Page1.Section4.FieldHeader11.ckMarketResearch",
             label: "Market research report prepared",
@@ -289,7 +325,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page1.Section4.MarketResearch",
             label: "Market research summary",
-            value: researchText,
+            value: researched("nf1787a.MarketResearch") || researchText,
           },
           {
             path: "form1.Page1.Section4.SuppliesAndServices.SuppliesServices",
@@ -315,15 +351,17 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page1.Section5.CommercialItem.ElaborateOtherDetermination",
             label: "Commerciality determination",
-            value: commercial || TO_COMPLETE("record the commerciality determination"),
+            value:
+              [commercial, researched("nf1787a.commerciality")].filter(Boolean).join(" ") ||
+              TO_COMPLETE("record the commerciality determination"),
           },
         ],
       },
       {
         title: "Section VI. Respondents",
         citation: "FAR 19.502-2(b)",
-        fields: ctx.respondents.length
-          ? ctx.respondents.flatMap((r, i) => [
+        fields: (researchedRespondents.length ? researchedRespondents : ctx.respondents).length
+          ? (researchedRespondents.length ? researchedRespondents : ctx.respondents).flatMap((r, i) => [
               { path: `form1.Page1.Section6.MarketResearch[${i}].UEI`, label: `Respondent ${i + 1} UEI`, value: r.uei },
               {
                 path: `form1.Page1.Section6.MarketResearch[${i}].Respondent`,
@@ -345,7 +383,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
               {
                 path: "form1.Page1.Section6.MarketResearch.Respondent",
                 label: "Respondents",
-                value: TO_COMPLETE("run the set-aside evidence search so the respondents fill in"),
+                value: TO_COMPLETE("run market research so the respondents fill in"),
               },
             ],
       },
@@ -393,9 +431,12 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const definitive = !bpa && !mac && !idiq && !po && (negotiated || Boolean(contractType));
 
   const size = ctx.sizeStandard ?? null;
+  const researchedStandard = findingText(ctx.findings, "nf1787.size_standard");
   const sizeSource = size
     ? `${size.citation}, effective ${size.effectiveDate}${size.note ? ` (${size.note})` : ""}`
-    : "";
+    : researchedStandard
+      ? `SBA table of small business size standards: ${researchedStandard}`
+      : "";
   const employeeStandard =
     size && size.standardType === "employees" && size.employees
       ? `${size.employees.toLocaleString("en-US")} employees`
@@ -529,7 +570,15 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
                 ? "Estimated value is $2,000,000 or more; the NF 1787A is required (NFS CG 1810.12(c))."
                 : "Estimated value is under $2,000,000; the market research memorandum is the document of record (NFS CG 1810.12(c)).",
           },
-          { path: "form1.Page2.Remarks", label: "Remarks", value: `Acquisition ${ctx.acquisitionId}. ${competition}${setAside ? `, ${setAside}` : ""}.` },
+          {
+            path: "form1.Page2.Remarks",
+            label: "Remarks",
+            // The set-aside evidence from the market research engine is carried
+            // into Remarks, with its source and date until it is confirmed.
+            value: `Acquisition ${ctx.acquisitionId}. ${competition}${setAside ? `, ${setAside}` : ""}.${
+              findingText(ctx.findings, "nf1787.remarks") ? ` ${findingText(ctx.findings, "nf1787.remarks")}` : ""
+            }`,
+          },
         ],
       },
       {
