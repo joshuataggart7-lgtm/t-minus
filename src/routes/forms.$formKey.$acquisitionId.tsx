@@ -5,7 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
-import { exportPopulatedXfa, renderPdf, type PdfBlock } from "@/lib/pdf-out";
+import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
@@ -179,11 +179,19 @@ function FormPage() {
   const exportPopulated = async () => {
     if (!form) return;
     try {
-      await exportPopulatedXfa(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
-      setMessage("Form exported with its fields populated. Open it in Adobe Acrobat to see the filled form.");
+      await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
+      setMessage(
+        "Form PDF exported. Open it in Adobe Reader; the answers are already in the fields. If your reader will not open it, use the data file with Import Data on the blank form.",
+      );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
     }
+  };
+
+  const exportData = () => {
+    if (!form) return;
+    exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
+    setMessage("Data file exported. In Adobe Reader open the blank form, then choose Import Data and pick this file.");
   };
 
   return (
@@ -216,7 +224,7 @@ function FormPage() {
               style={{ background: "var(--primary, #0B3D91)" }}
               onClick={() => void exportPopulated()}
             >
-              Export PDF with fields filled
+              Export form PDF
             </button>
             <button
               type="button"
@@ -225,7 +233,18 @@ function FormPage() {
             >
               Export flattened PDF
             </button>
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              onClick={exportData}
+            >
+              Export data file for Import Data
+            </button>
           </div>
+          <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+            The form PDF is the original form with only its data replaced, so Adobe Reader opens it as the
+            form. The flattened PDF prints every answer as text for the contract file.
+          </p>
           {message ? (
             <p role="status" className="mb-6 text-[15px]">
               {message}
