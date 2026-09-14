@@ -84,7 +84,7 @@ export const NF1707_SECTIONS: Section[] = [
 ];
 
 function qualityExempt(a:NfAnswers){return ["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_facilities","s6_exempt_agreement"].some(k=>a[k]==="true")}
-export function canonicalFromFacts(facts:IntakeFacts):NfAnswers{return {"gate.it":facts.includes_it?"yes":"no","gate.hardware":facts.hardware_deliverable?"yes":"no","derived.fee_contract":/cost|incentive/i.test(`${facts.contract_type} ${facts.hybrid_contract_type}`)?"yes":"no"}}
+export function canonicalFromFacts(facts:IntakeFacts):NfAnswers{return {"gate.it":facts.includes_it?"yes":"no","gate.services":facts.contract_type?(/service|time-and-materials|labor-hour/i.test(facts.contract_type)?"yes":"no"):"","gate.hardware":facts.hardware_deliverable?"yes":"no","derived.fee_contract":/cost|incentive/i.test(`${facts.contract_type} ${facts.hybrid_contract_type}`)?"yes":"no"}}
 export function sectionApplies(s:Section,a:NfAnswers){return !s.gates||s.gates.some(g=>a[`gate.${g}`]==="yes")}
 export function mappedNf1707(fields:Nf1707Field[], answers:NfAnswers, approvals:Record<string,string>={}, facts?:Partial<IntakeFacts>){
  const out:Record<string,string>={}; for(const f of fields) out[`${f.section??""}.${f.subform??""}.${f.field_name??""}`]="";
