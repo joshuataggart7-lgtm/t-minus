@@ -439,3 +439,14 @@ create policy reviewer_comment on public.comments for insert to authenticated wi
 -- everyone acknowledges their own announcements
 drop policy if exists own_ack on public.announcement_acks;
 create policy own_ack on public.announcement_acks for insert to authenticated with check (user_id = auth.uid());
+
+create table if not exists public.naics_size_standards (
+  naics_code text primary key,
+  naics_title text,
+  standard_type text not null,
+  employees integer,
+  receipts_usd numeric,
+  citation text,
+  effective_date date,
+  note text
+);

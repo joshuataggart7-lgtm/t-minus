@@ -194,6 +194,15 @@ export type MemoDoc = {
  * The record block is rendered as labeled lines so the facts read as facts.
  */
 export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
+  // The numbered heading names the paragraph, so the field prompt that opens
+  // the drafted text ("Purpose of this memorandum: ...") is dropped.
+  const withoutPrompt = (line: string) => {
+    const at = line.indexOf(": ");
+    if (at < 0 || at > 80) return line;
+    const prompt = line.slice(0, at);
+    if (/[.!?]/.test(prompt)) return line;
+    return line.slice(at + 2).trim();
+  };
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures"))
     .map((b) => {
@@ -201,7 +210,7 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
       if (b.heading === "Acquisition") {
         return { text: "This memorandum concerns the following acquisition.", lines };
       }
-      return { text: `${b.heading}. ${lines.join(" ")}`.trim(), lines: [] };
+      return { text: `${b.heading}. ${lines.map(withoutPrompt).join(" ")}`.trim(), lines: [] };
     })
     .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }

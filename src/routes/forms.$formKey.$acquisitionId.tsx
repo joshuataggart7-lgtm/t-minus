@@ -80,10 +80,23 @@ function FormPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const naics = String(row?.["naics_code"] ?? "");
+      const size = naics
+        ? await supabase.from("naics_size_standards").select("*").eq("naics_code", naics).maybeSingle()
+        : { data: null };
+      const sat = await supabase
+        .from("thresholds")
+        .select("value,citation,effective_date")
+        .ilike("name", "%simplified acquisition%")
+        .order("effective_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return {
         acq: row,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
+        size: (size.data ?? null) as Record<string, unknown> | null,
+        sat: (sat.data ?? null) as { value?: number; citation?: string } | null,
       };
     },
   });
@@ -109,6 +122,21 @@ function FormPage() {
         ? `run ${String(q.data.evidence.checked_at).slice(0, 10)}`
         : null,
       gates: { services: gate("services"), it: gate("it"), hardware: gate("hardware") },
+      sizeStandard: q.data.size
+        ? {
+            naicsCode: String(q.data.size["naics_code"] ?? ""),
+            naicsTitle: String(q.data.size["naics_title"] ?? ""),
+            standardType: q.data.size["standard_type"] === "employees" ? "employees" : "receipts",
+            employees: q.data.size["employees"] === null ? null : Number(q.data.size["employees"]),
+            receiptsUsd: q.data.size["receipts_usd"] === null ? null : Number(q.data.size["receipts_usd"]),
+            citation: String(q.data.size["citation"] ?? ""),
+            effectiveDate: String(q.data.size["effective_date"] ?? ""),
+            note: String(q.data.size["note"] ?? ""),
+          }
+        : null,
+      simplifiedAcquisition: q.data.sat?.value
+        ? { value: Number(q.data.sat.value), citation: String(q.data.sat.citation ?? "") }
+        : null,
     };
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);

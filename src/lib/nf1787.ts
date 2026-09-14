@@ -47,6 +47,19 @@ export type FormRespondent = {
   assessment: string;
 };
 
+/** SBA size standard for the record's NAICS, read from the seeded table. */
+export type SizeStandard = {
+  naicsCode: string;
+  naicsTitle: string;
+  /** Which of the two form cells the standard fills. */
+  standardType: "employees" | "receipts";
+  employees: number | null;
+  receiptsUsd: number | null;
+  citation: string;
+  effectiveDate: string;
+  note: string;
+};
+
 export type FormCtx = {
   acquisitionId: string;
   acq: Record<string, unknown>;
@@ -58,6 +71,10 @@ export type FormCtx = {
   /** Label of the evidence run, or null when the search has never been run. */
   evidenceLabel: string | null;
   gates: { services: boolean | null; it: boolean | null; hardware: boolean | null };
+  /** SBA size standard for the record's NAICS, or null when none is seeded. */
+  sizeStandard?: SizeStandard | null;
+  /** Simplified acquisition threshold from the threshold table, with its citation. */
+  simplifiedAcquisition?: { value: number; citation: string } | null;
 };
 
 export const GENERATED_FORM_KEYS: FormKey[] = ["nf-1787", "nf-1787a"];
@@ -362,6 +379,32 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const end = str(a["period_of_performance_end"]);
   const prior = str(a["successor_of"]);
   const competitiveVariant = !sole;
+  const method = str(a["acquisition_method"]).toLowerCase();
+
+  // The vehicle box follows the acquisition method, with the record's own
+  // vehicle words taking precedence when it names one.
+  const bpa = has(contractType, "bpa") || has(method, "8.4") || has(method, "blanket");
+  const mac = has(contractType, "mac") || has(contractType, "gwac") || has(method, "gwac");
+  const idiq = !mac && (has(contractType, "idiq") || has(contractType, "indefinite") || has(method, "16.5"));
+  const simplified = has(method, "far 13") || has(method, "13.5") || has(method, "simplified");
+  const po = !bpa && !mac && !idiq && (has(contractType, "purchase order") || simplified);
+  const negotiated =
+    has(method, "far 15") || has(method, "part 15") || (has(method, "far 12") && has(method, "15"));
+  const definitive = !bpa && !mac && !idiq && !po && (negotiated || Boolean(contractType));
+
+  const size = ctx.sizeStandard ?? null;
+  const sizeSource = size
+    ? `${size.citation}, effective ${size.effectiveDate}${size.note ? ` (${size.note})` : ""}`
+    : "";
+  const employeeStandard =
+    size && size.standardType === "employees" && size.employees
+      ? `${size.employees.toLocaleString("en-US")} employees`
+      : "";
+  const receiptsStandard =
+    size && size.standardType === "receipts" && size.receiptsUsd ? dollars(size.receiptsUsd) : "";
+
+  const sat = ctx.simplifiedAcquisition ?? null;
+  const overSat = sat ? value > sat.value : null;
 
   const rowField = (path: string, label: string, on: boolean): FormField => ({ path, label, value: on });
 
@@ -398,19 +441,49 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
             value: str(a["description_of_requirement"]) || str(a["title"]),
           },
           { path: "form1.Page2.Sec678Sub.NAICSCode", label: "NAICS code", value: str(a["naics_code"]) },
+          {
+            path: "form1.Page2.Sec678Sub.NumberEmployees",
+            label: "Size standard, number of employees",
+            value: employeeStandard,
+            ...(size ? {} : { gap: "No SBA size standard is seeded for this NAICS code." }),
+          },
+          {
+            path: "form1.Page2.Sec678Sub.Receipts",
+            label: "Size standard, average annual receipts",
+            value: receiptsStandard,
+          },
+          {
+            path: "form1.Page2.Sec678Sub.SizeStandardSource",
+            label: "Size standard source",
+            value: sizeSource,
+          },
+          rowField(
+            "form1.Page2.Sec678Sub.ThresholdYes",
+            "Exceeds the simplified acquisition threshold",
+            overSat === true,
+          ),
+          rowField(
+            "form1.Page2.Sec678Sub.ThresholdNo",
+            "Does not exceed the simplified acquisition threshold",
+            overSat === false,
+          ),
+          {
+            path: "form1.Page2.Sec678Sub.ThresholdSource",
+            label: "Simplified acquisition threshold",
+            value: sat ? `${dollars(sat.value)}, ${sat.citation}` : "",
+            ...(sat ? {} : { gap: "The simplified acquisition threshold is not loaded." }),
+          },
         ],
       },
       {
         title: "Contract vehicle",
+        citation: "Set from the acquisition method on the record",
         fields: [
-          rowField("form1.Page2.MidSection.PO", "Purchase order", has(contractType, "purchase order")),
-          rowField(
-            "form1.Page2.MidSection.DEFINITIVE",
-            "Definitive contract",
-            !has(contractType, "purchase order") && !has(contractType, "bpa") && !has(contractType, "idiq"),
-          ),
-          rowField("form1.Page2.MidSection.BPA", "Blanket purchase agreement", has(contractType, "bpa")),
-          rowField("form1.Page2.MidSection.IDIQ", "Indefinite delivery indefinite quantity", has(contractType, "idiq")),
+          rowField("form1.Page2.MidSection.PO", "Purchase order", po),
+          rowField("form1.Page2.MidSection.DEFINITIVE", "Definitive contract", definitive),
+          rowField("form1.Page2.MidSection.BPA", "Blanket purchase agreement", bpa),
+          rowField("form1.Page2.MidSection.IDIQ", "Indefinite delivery indefinite quantity", idiq),
+          rowField("form1.Page2.MidSection.MAC", "Multiple award contract", mac),
         ],
       },
       {
