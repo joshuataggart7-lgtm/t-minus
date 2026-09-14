@@ -60,7 +60,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
       )}. It returned ${ctx.evidence.sources} sources, of which ${ctx.evidence.smallBusinesses} are small business under that code.`,
     );
   } else {
-    research.push(gap("record the sources searched, the dates and the techniques used, or run the set-aside evidence search"));
+    research.push(gap("record the sources searched, the dates and the techniques used, or run market research"));
   }
   if (prior) research.push(`The contract file for the prior acquisition ${prior} was reviewed.`);
 
