@@ -191,6 +191,20 @@ export const draftFromRequesterPackage = createServerFn({ method: "POST" })
         origin: source.kind === "NF 1707" ? "from requester's 1707" : "AI-suggested",
       });
     }
+    const igceSource = data.sources.find((source) => source.kind === "IGCE");
+    if (!igceSource && !suggestions.some((item) => item.key === "igce_attached")) {
+      const source = data.sources.find((item) => item.kind === "SOW/PWS") ?? data.sources[0];
+      if (source) suggestions.push({
+        key: "igce_attached",
+        label: "IGCE attached",
+        value: "false",
+        sourceId: source.id,
+        sourceName: source.name,
+        excerpt: "No IGCE was uploaded in this session.",
+        rationale: "The CLIN skeleton keeps dollar cells blank until an IGCE is attached.",
+        origin: "AI-suggested",
+      });
+    }
     const clinRows = Array.isArray(parsed["clins"]) ? parsed["clins"] : [];
     const clins: PackageClin[] = clinRows.flatMap((candidate, index) => {
       if (!candidate || typeof candidate !== "object") return [];
