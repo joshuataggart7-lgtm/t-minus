@@ -268,8 +268,8 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
 }
 
 /** Word export in the 1858 layout. */
-export async function exportMemoDocx(memo: MemoDoc, fileName: string) {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak } = await import("docx");
+export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine = "") {
+  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer } = await import("docx");
   const h = memo.header;
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
