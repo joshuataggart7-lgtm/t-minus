@@ -11,7 +11,7 @@
  * Name, Concurrence, Enclosures, Distribution, cc, bcc, CUISheetText.
  */
 
-import type { RenderedDoc } from "@/lib/template-engine";
+import { TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
@@ -88,10 +88,9 @@ export const MEMO_DOCUMENT_KEYS: { key: string; name: string }[] = [...DEFAULT_O
   .sort()
   .map((key) => ({
     key,
-    name: key
-      .split("-")
-      .map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
-      .join(" "),
+    name:
+      TEMPLATES.find((t) => t.key === key)?.name ??
+      key.split("-").map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(" "),
   }));
 
 /**
