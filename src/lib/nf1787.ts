@@ -47,6 +47,19 @@ export type FormRespondent = {
   assessment: string;
 };
 
+/** SBA size standard for the record's NAICS, read from the seeded table. */
+export type SizeStandard = {
+  naicsCode: string;
+  naicsTitle: string;
+  /** Which of the two form cells the standard fills. */
+  standardType: "employees" | "receipts";
+  employees: number | null;
+  receiptsUsd: number | null;
+  citation: string;
+  effectiveDate: string;
+  note: string;
+};
+
 export type FormCtx = {
   acquisitionId: string;
   acq: Record<string, unknown>;
