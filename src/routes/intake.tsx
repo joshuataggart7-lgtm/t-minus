@@ -175,6 +175,7 @@ function IntakePage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [packageClins, setPackageClins] = useState<PackageClin[]>([]);
+  const [packageConfirmedCount, setPackageConfirmedCount] = useState(0);
 
   const errors = useMemo(() => fieldErrors(facts), [facts]);
   const errorCount = Object.keys(errors).length;
@@ -439,14 +440,14 @@ function IntakePage() {
           new_value: "running",
           reason: "NF 1707 intake submitted and red-flag scan cleared",
         },
-        ...(packageClins.length ? [{
+        ...(packageConfirmedCount > 0 || packageClins.length ? [{
           acquisition_id: next,
           actor: user.name,
           action: "Requester package draft confirmed",
           field: "igce_clins",
           old_value: null,
-          new_value: `${packageClins.length} CLIN row${packageClins.length === 1 ? "" : "s"}`,
-          reason: "CO confirmed requester-package suggestions before starting the clock",
+          new_value: `${packageConfirmedCount} proposed value${packageConfirmedCount === 1 ? "" : "s"}; ${packageClins.length} CLIN row${packageClins.length === 1 ? "" : "s"}`,
+          reason: "CO confirmed requester-package suggestions before starting the clock; source files were session-only and were not stored",
         }] : []),
         {
           acquisition_id: next,
@@ -527,6 +528,7 @@ function IntakePage() {
           setScan(null);
         }}
         onClinsConfirmed={setPackageClins}
+        onConfirmedCount={setPackageConfirmedCount}
       />
 
       {/* T-Minus section: the facts the paper form does not carry. */}

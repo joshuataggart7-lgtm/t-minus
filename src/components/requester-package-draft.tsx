@@ -40,11 +40,13 @@ async function fileToSource(file: File, kind: SourceKind): Promise<Source> {
 
 export function RequesterPackageDraft({
   missions, applyFact, applyAnswers, onClinsConfirmed,
+  onConfirmedCount,
 }: {
   missions: Mission[];
   applyFact: <K extends keyof IntakeFacts>(key: K, value: IntakeFacts[K]) => void;
   applyAnswers: (answers: NfAnswers) => void;
   onClinsConfirmed: (clins: PackageClin[]) => void;
+  onConfirmedCount: (count: number) => void;
 }) {
   const draftPackage = useServerFn(draftFromRequesterPackage);
   const lookupSize = useServerFn(lookupNaicsSizeStandard);
@@ -115,10 +117,12 @@ export function RequesterPackageDraft({
       applyFact(item.key as keyof IntakeFacts, item.value as never);
     }
     setConfirmed((current) => new Set(current).add(index));
+    onConfirmedCount(new Set([...confirmed, index]).size);
   }
 
   function applyAll() {
     suggestions.forEach(applySuggestion);
+    onConfirmedCount(suggestions.length);
     if (clins.length) { onClinsConfirmed(clins); setClinConfirmed(true); }
     setConfirmAllOpen(false);
   }
