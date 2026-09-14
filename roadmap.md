@@ -17,3 +17,4 @@
 - [x] Add session-only requester-package drafting, confirmations, provenance, IGCE CLINs, and NAICS lookup
 
 - [x] Add the NF 1858 memorandum layout, routing table, memo exports, and packet index column
+- [x] Draft memo bodies from the record, file-addressed routing, clean Word/PDF exports, NF 1787/1787A forms, cited document requirements

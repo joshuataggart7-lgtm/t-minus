@@ -46,6 +46,7 @@ import {
   type ThresholdRow,
   type Values,
 } from "@/lib/template-engine";
+import { applyMemoDraft, draftMemoBody } from "@/lib/memo-draft";
 import {
   buildMemoDoc,
   buildMemoHeader,
@@ -242,6 +243,20 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      const missionId = String((acq.data as Record<string, unknown> | null)?.["mission_id"] ?? "");
+      const mission = missionId
+        ? await supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
+        : { data: null };
+      // The set-aside evidence search, when it has been run, is what the
+      // market research memorandum reports.
+      const evidence = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .like("check_type", "Set-aside entities%")
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -251,6 +266,8 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
+        evidence: evidence.data ?? null,
         center: center.data as { center_name: string; address_line: string | null } | null,
         routing:
           ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
@@ -452,6 +469,31 @@ function DocumentPage() {
     } as Record<string, unknown>;
   }, [q.data]);
 
+  // Counts from the stored set-aside evidence search, when it has been run.
+  const researchEvidence = useMemo(() => {
+    const row = q.data?.evidence as { response_json?: unknown; checked_at?: string | null } | null | undefined;
+    if (!row) return null;
+    const envelope = (row.response_json ?? {}) as Record<string, unknown>;
+    const raw = (envelope["raw"] ?? {}) as Record<string, unknown>;
+    const rows = Array.isArray(raw["entityData"]) ? (raw["entityData"] as Record<string, unknown>[]) : [];
+    const isSmall = (r: Record<string, unknown>): boolean => {
+      for (const [key, value] of Object.entries(r)) {
+        if (/smallbusiness/i.test(key)) {
+          const v = String(value).trim().toLowerCase();
+          if (v === "y" || v === "yes" || v === "true") return true;
+        }
+        if (value && typeof value === "object" && isSmall(value as Record<string, unknown>)) return true;
+      }
+      return false;
+    };
+    const small = rows.filter(isSmall).length;
+    return {
+      runOn: (row.checked_at ?? "").slice(0, 10),
+      sources: rows.length,
+      smallBusinesses: small,
+    };
+  }, [q.data?.evidence]);
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
@@ -469,7 +511,13 @@ function DocumentPage() {
       setValues(stored);
       return;
     }
-    const filled = prefill(def, { ...q.data.acq, ...samFacts, acquisition_id: acquisitionId });
+    const filled = prefill(def, {
+      ...q.data.acq,
+      // The record block reads the mission by name, never by its code.
+      mission_id: q.data.missionName || q.data.acq["mission_id"],
+      ...samFacts,
+      acquisition_id: acquisitionId,
+    });
     if (def.key === "nf-1707" && !filled["approvals_summary"]) {
       filled["approvals_summary"] = answersSummary(q.data.acq["nf1707_answers"]);
     }
@@ -477,8 +525,17 @@ function DocumentPage() {
       filled["barriers"] =
         "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.";
     }
-    setValues(filled);
-  }, [def, q.data, touched, acquisitionId, samFacts]);
+    // A memorandum body is drafted from the record, section by section, so no
+    // numbered heading is ever exported empty.
+    const drafted = applyMemoDraft(filled, draftMemoBody(def.key, {
+      acquisitionId,
+      acq: q.data.acq,
+      missionName: q.data.missionName ?? "",
+      fileDocuments: q.data.fileDocuments ?? [],
+      evidence: researchEvidence,
+    }));
+    setValues(drafted);
+  }, [def, q.data, touched, acquisitionId, samFacts, researchEvidence]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.
@@ -1097,23 +1154,29 @@ function DocumentPage() {
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
-              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`);
+              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
               else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`);
             }}
           >
-            {memoOn ? "Export memo .docx" : "Export .docx"}
+            Export Word
           </button>
           <button
             type="button"
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
-              const ok = memoOn && memoDoc ? exportMemoPdf(memoDoc, headerLine) : rendered ? exportPdf(rendered, headerLine) : true;
+              if (memoOn && memoDoc) {
+                void exportMemoPdf(memoDoc, headerLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                  setMessage("The PDF did not export. Try again, or export Word."),
+                );
+                return;
+              }
+              const ok = rendered ? exportPdf(rendered, headerLine) : true;
               if (!ok) {
                 setMessage("The print window was blocked. Allow pop-ups for this site, then export again.");
               }
             }}
           >
-            {memoOn ? "Export memo PDF" : "Export PDF"}
+            Export PDF
           </button>
         </div>
 

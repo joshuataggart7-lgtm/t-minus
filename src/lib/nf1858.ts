@@ -12,6 +12,7 @@
  */
 
 import { TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
+import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
@@ -127,6 +128,14 @@ export type BuildMemoInput = {
   today: string;
 };
 
+/**
+ * Documents that are filed rather than approved. They are addressed to the
+ * contract file, with no Thru chain.
+ */
+const FILE_ADDRESSED = new Set(["market-research-memo", "commerciality"]);
+
+const fileAddressed = (templateKey: string) => FILE_ADDRESSED.has(templateKey);
+
 /** Prefilled header for a memorandum, before the CO edits it. */
 export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   const org = String(input.acquisition["branch_code"] ?? input.acquisition["org_code"] ?? "").trim();
@@ -142,8 +151,12 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
     centerAddress: input.centerAddress,
     date: formatMemoDate(input.today),
     replyTo: org,
-    to: input.routing?.approving_official_title ?? "Contract File",
-    thru: (input.routing?.thru_chain ?? []).filter(Boolean),
+    // The market research memorandum and the commerciality determination are
+    // addressed to the contract file: nothing is approved outside the file.
+    to: fileAddressed(input.templateKey)
+      ? `Contract File ${pr || String(input.acquisition["acquisition_id"] ?? "")}`
+      : (input.routing?.approving_official_title ?? "Contract File"),
+    thru: fileAddressed(input.templateKey) ? [] : (input.routing?.thru_chain ?? []).filter(Boolean),
     from: `${input.coName}, Contracting Officer${org ? `, ${org}` : ""}`,
     subject,
     ref: refs,
@@ -161,10 +174,16 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   };
 }
 
+/**
+ * One numbered paragraph. The record facts paragraph carries labeled lines,
+ * one fact per line, rather than a run-on string.
+ */
+export type MemoParagraph = { text: string; lines: string[] };
+
 export type MemoDoc = {
   header: MemoHeader;
   /** Numbered body paragraphs, in the order they are read. */
-  paragraphs: string[];
+  paragraphs: MemoParagraph[];
   badgeLine: string;
   title: string;
 };
@@ -172,120 +191,95 @@ export type MemoDoc = {
 /**
  * The body of a memorandum is the rendered document turned into numbered
  * paragraphs: one paragraph per section, its heading leading the sentence.
+ * The record block is rendered as labeled lines so the facts read as facts.
  */
-export function memoParagraphs(doc: RenderedDoc): string[] {
+export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures"))
     .map((b) => {
-      const text = b.lines
-        .map((l) => l.trim())
-        .filter((l) => l && !l.endsWith(": —"))
-        .join(" ");
-      return `${b.heading}. ${text}`.trim();
+      const lines = b.lines.map((l) => l.trim()).filter((l) => l && !l.endsWith(": —"));
+      if (b.heading === "Acquisition") {
+        return { text: "This memorandum concerns the following acquisition.", lines };
+      }
+      return { text: `${b.heading}. ${lines.join(" ")}`.trim(), lines: [] };
     })
-    .filter((p) => p.length > 2);
+    .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }
 
 export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader): MemoDoc {
   return { header, paragraphs: memoParagraphs(doc), badgeLine: doc.badgeLine, title: doc.title };
 }
 
-const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-
-/** PDF export in the 1858 layout, through the browser print dialog. */
-export function exportMemoPdf(memo: MemoDoc, headerLine: string): boolean {
+/**
+ * PDF export in the 1858 layout. The file is drawn directly, so it carries no
+ * browser header or footer, and the metadata sits in the page footer.
+ */
+export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName: string): Promise<void> {
   const h = memo.header;
-  const line = (label: string, value: string) =>
-    `<div class="row"><span class="label">${esc(label)}</span><span class="value">${esc(value)}</span></div>`;
-  const rows = [
-    line("TO:", h.to),
-    ...h.thru.map((t, i) => line(i === 0 ? "THRU:" : "", t)),
-    line("FROM:", h.from),
-    line("SUBJECT:", h.subject),
-    ...h.ref.map((r, i) => line(i === 0 ? "REF:" : "", r)),
-  ].join("");
-  const cover = h.cui
-    ? `<section class="cover">${CUI_SHEET_TEXT.split("\n")
-        .map((p) => `<p>${esc(p)}</p>`)
-        .join("")}</section><div class="break"></div>`
-    : "";
-  const concurrence = h.concurrence.length
-    ? `<section class="tail"><p class="tail-head">CONCURRENCE:</p>${h.concurrence
-        .map(
-          (c) =>
-            `<p class="sigline">______________________________&nbsp;&nbsp;&nbsp;Date: __________</p><p>${esc(
-              [c.name, c.title].filter(Boolean).join(", "),
-            )}</p>`,
-        )
-        .join("")}</section>`
-    : "";
-  const list = (label: string, items: string[], numbered: boolean) =>
-    items.length
-      ? `<section class="tail"><p class="tail-head">${esc(label)}</p>${
-          numbered
-            ? `<ol>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ol>`
-            : items.map((i) => `<p>${esc(i)}</p>`).join("")
-        }</section>`
-      : "";
-  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(memo.title)}</title>
-<style>
-  @page { margin: 25mm 25mm 20mm 25mm; }
-  body { font-family: "Times New Roman", Times, serif; color: #000; background: #fff; font-size: 12pt; line-height: 1.35; }
-  .banner { text-align: center; font-weight: bold; letter-spacing: 2px; font-size: 11pt; margin-bottom: 10px; }
-  .letterhead { font-size: 10pt; line-height: 1.2; margin-bottom: 28px; }
-  .letterhead .agency { font-weight: bold; }
-  .datebox { margin-bottom: 18px; }
-  .replyto { margin-bottom: 22px; }
-  .row { display: flex; gap: 0; margin-bottom: 4px; font-weight: bold; }
-  .label { width: 90px; flex: 0 0 90px; }
-  .value { flex: 1; }
-  .body { margin-top: 20px; }
-  .body p { margin: 0 0 12px 0; text-align: left; }
-  .sig { margin-top: 36px; }
-  .tail { margin-top: 22px; break-inside: avoid; }
-  .tail-head { font-weight: bold; margin-bottom: 6px; }
-  .sigline { margin: 14px 0 0 0; }
-  ol { margin: 0; padding-left: 20px; }
-  .cover { font-size: 12pt; }
-  .break { page-break-after: always; }
-  footer { margin-top: 28px; font-size: 9pt; }
-</style></head><body>
-${cover}
-${h.cui ? `<p class="banner">${esc(CUI_BANNER)}</p>` : ""}
-<div class="letterhead"><div class="agency">${esc(AGENCY_LINE)}</div><div>${esc(h.centerName)}</div><div>${esc(
-    h.centerAddress,
-  )}</div></div>
-<div class="datebox">${esc(h.date)}</div>
-<div class="replyto">Reply to Attn of:&nbsp;&nbsp;${esc(h.replyTo)}</div>
-${rows}
-${h.salutation ? `<p>${esc(h.salutation)}</p>` : ""}
-<div class="body">${memo.paragraphs.map((p, i) => `<p>${i + 1}. ${esc(p)}</p>`).join("")}</div>
-<div class="sig"><p>${esc(h.signatureName)}</p><p>${esc(h.signatureTitle)}</p></div>
-${concurrence}
-${list("Enclosures:", h.enclosures, true)}
-${list("Distribution:", h.distribution, false)}
-${list("cc:", h.cc, false)}
-${h.cui ? `<p class="banner">${esc(CUI_BANNER)}</p>` : ""}
-<footer><p>${esc(headerLine)}</p><p>${esc(memo.badgeLine)}</p><p>Prototype. Not an official NASA system.</p></footer>
-<script>window.onload = function () { window.print(); }<\/script>
-</body></html>`;
-  const w = window.open("", "_blank");
-  if (!w) return false;
-  w.document.write(html);
-  w.document.close();
-  return true;
+  const blocks: PdfBlock[] = [];
+  if (h.cui) {
+    for (const part of CUI_SHEET_TEXT.split("\n")) blocks.push({ text: part, gap: 10 });
+    blocks.push({ text: CUI_BANNER, bold: true, center: true, pageBreakBefore: true, gap: 12 });
+  }
+  blocks.push(
+    { text: AGENCY_LINE, bold: true, size: 10, gap: 0 },
+    { text: h.centerName, size: 10, gap: 0 },
+    { text: h.centerAddress, size: 10, gap: 22 },
+    { text: h.date, gap: 14 },
+    { text: `Reply to Attn of:  ${h.replyTo}`, gap: 20 },
+  );
+  const labelled = (label: string, value: string) => ({ text: `${label.padEnd(10, " ")}${value}`, bold: true, gap: 2 });
+  blocks.push(labelled("TO:", h.to));
+  h.thru.forEach((t, i) => blocks.push(labelled(i === 0 ? "THRU:" : "", t)));
+  blocks.push(labelled("FROM:", h.from), labelled("SUBJECT:", h.subject));
+  h.ref.forEach((r, i) => blocks.push(labelled(i === 0 ? "REF:" : "", r)));
+  if (h.salutation) blocks.push({ text: h.salutation, gap: 10 });
+  blocks.push({ text: "", gap: 8 });
+  memo.paragraphs.forEach((p, i) => {
+    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10 });
+    for (const line of p.lines) blocks.push({ text: line, indent: 24, gap: 1 });
+    if (p.lines.length) blocks.push({ text: "", gap: 6 });
+  });
+  blocks.push({ text: "", gap: 28 }, { text: h.signatureName, gap: 0 }, { text: h.signatureTitle, gap: 16 });
+  if (h.concurrence.length) {
+    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4 });
+    for (const c of h.concurrence) {
+      blocks.push({ text: "______________________________   Date: __________", gap: 2 });
+      blocks.push({ text: [c.name, c.title].filter(Boolean).join(", "), gap: 10 });
+    }
+  }
+  if (h.enclosures.length) {
+    blocks.push({ text: "Enclosures:", bold: true, gap: 4 });
+    h.enclosures.forEach((e, i) => blocks.push({ text: `${i + 1}. ${e}`, indent: 12, gap: 2 }));
+  }
+  if (h.distribution.length) {
+    blocks.push({ text: "Distribution:", bold: true, gap: 4 });
+    h.distribution.forEach((d) => blocks.push({ text: d, indent: 12, gap: 2 }));
+  }
+  if (h.cc.length) {
+    blocks.push({ text: "cc:", bold: true, gap: 4 });
+    h.cc.forEach((c) => blocks.push({ text: c, indent: 12, gap: 2 }));
+  }
+  if (h.cui) blocks.push({ text: CUI_BANNER, bold: true, center: true, gap: 0 });
+  await renderPdf(blocks, {
+    fileName,
+    footer: [headerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."],
+  });
 }
 
 /** Word export in the 1858 layout. */
-export async function exportMemoDocx(memo: MemoDoc, fileName: string) {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak } = await import("docx");
+export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine = "") {
+  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer } = await import("docx");
   const h = memo.header;
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
-  const p = (text: string, opts: { bold?: boolean; size?: number; after?: number; center?: boolean } = {}) =>
+  const p = (
+    text: string,
+    opts: { bold?: boolean; size?: number; after?: number; center?: boolean; keepNext?: boolean } = {},
+  ) =>
     new Paragraph({
       ...(opts.center ? { alignment: "center" as const } : {}),
+      ...(opts.keepNext ? { keepNext: true, keepLines: true } : {}),
       spacing: { after: opts.after ?? 120 },
       children: [new TextRun({ ...serif, ...(opts.size ? { size: opts.size } : {}), text, bold: opts.bold ?? false })],
     });
@@ -315,8 +309,25 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string) {
   h.ref.forEach((r, i) => children.push(labelled(i === 0 ? "REF:" : "", r)));
   if (h.salutation) children.push(p(h.salutation, { after: 200 }));
   children.push(p("", { after: 120 }));
-  memo.paragraphs.forEach((text, i) => children.push(p(`${i + 1}. ${text}`, { after: 200 })));
-  children.push(p("", { after: 400 }), p(h.signatureName), p(h.signatureTitle, { after: 240 }));
+  memo.paragraphs.forEach((para, i) => {
+    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200 }));
+    for (const line of para.lines) {
+      children.push(
+        new Paragraph({
+          indent: { left: 720 },
+          spacing: { after: 20 },
+          children: [new TextRun({ ...serif, text: line })],
+        }),
+      );
+    }
+    if (para.lines.length) children.push(p("", { after: 140 }));
+  });
+  // Signature and Distribution stay together on the page when they fit.
+  children.push(
+    p("", { after: 400 }),
+    p(h.signatureName, { keepNext: true }),
+    p(h.signatureTitle, { after: 240, keepNext: true }),
+  );
   if (h.concurrence.length) {
     children.push(p("CONCURRENCE:", { bold: true }));
     for (const c of h.concurrence) {
@@ -329,15 +340,31 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string) {
     h.enclosures.forEach((e, i) => children.push(p(`${i + 1}. ${e}`, { after: 40 })));
   }
   if (h.distribution.length) {
-    children.push(p("Distribution:", { bold: true, after: 60 }));
-    h.distribution.forEach((d) => children.push(p(d, { after: 40 })));
+    children.push(p("Distribution:", { bold: true, after: 60, keepNext: true }));
+    h.distribution.forEach((d) => children.push(p(d, { after: 40, keepNext: true })));
   }
   if (h.cc.length) {
     children.push(p("cc:", { bold: true, after: 60 }));
     h.cc.forEach((c) => children.push(p(c, { after: 40 })));
   }
   if (h.cui) children.push(p(CUI_BANNER, { bold: true, center: true }));
-  children.push(p("Prototype. Not an official NASA system.", { size: 18 }));
+  // The metadata line belongs in the page footer, not in the Distribution block.
+  const footer = new Footer({
+    children: [
+      new Paragraph({
+        spacing: { after: 0 },
+        children: [
+          new TextRun({
+            font: "Times New Roman",
+            size: 16,
+            text: [footerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."]
+              .filter(Boolean)
+              .join(" · "),
+          }),
+        ],
+      }),
+    ],
+  });
 
   const document = new Document({
     styles: { default: { document: { run: { font: "Times New Roman", size: 24, color: "000000" } } } },
@@ -346,6 +373,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string) {
         properties: {
           page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1152, left: 1440 } },
         },
+        footers: { default: footer },
         children,
       },
     ],

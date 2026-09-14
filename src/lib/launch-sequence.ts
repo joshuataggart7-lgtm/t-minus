@@ -85,7 +85,17 @@ export type RequiredDoc = {
   citation: string;
   field?: DocField;
   /** what it links to when there is no toggle */
-  link?: "templates" | "checks" | "packet";
+  link?: "templates" | "checks" | "packet" | "form";
+  /** template opened for this file, rather than the templates library */
+  templateKey?: string;
+  /** generated form opened for this file */
+  formKey?: string;
+  /**
+   * False when a regulation, NFS text, Companion Guide entry, PCD or
+   * Enterprise Procurement Strategy requires the document at this value or
+   * condition. Optional documents are offered, never required.
+   */
+  optional?: boolean;
   note?: string;
 };
 
@@ -132,7 +142,12 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   Closeout: "Close the file when everything is delivered, paid, and filed.",
 };
 
-export function requiredDocs(phase: string): RequiredDoc[] {
+/** Micro-purchase threshold, above which the NF 1787 is coordinated. */
+const MICRO_PURCHASE = 10_000;
+/** Value at which the NF 1787A becomes the market research document of record. */
+const MRR_THRESHOLD = 2_000_000;
+
+export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
       return [
@@ -152,11 +167,42 @@ export function requiredDocs(phase: string): RequiredDoc[] {
           field: "sow_attached",
         },
       ];
-    case "Market Research":
+    case "Market Research": {
+      const value = Number(acq?.estimated_value ?? 0);
+      const mrrRequired = value >= MRR_THRESHOLD;
       return [
-        { label: "Market research report", citation: "RFO FAR 10.001", link: "templates" },
-        { label: "NF 1787 small business coordination", citation: "NFS 1819.202-70", link: "templates" },
+        {
+          label: "Market research memorandum",
+          citation: "RFO FAR 10.001",
+          link: "templates",
+          templateKey: "market-research-memo",
+          ...(mrrRequired
+            ? { optional: true, note: "At this value the NF 1787A is the market research document of record." }
+            : { note: "Below $2,000,000 this memorandum is the market research document of record." }),
+        },
+        {
+          label: mrrRequired ? "NF 1787A market research report" : "NF 1787A market research report (offered)",
+          citation: "NFS CG 1810.12(c)",
+          link: "form",
+          formKey: "nf-1787a",
+          optional: !mrrRequired,
+          note: mrrRequired
+            ? "Required at an estimated value of $2,000,000 or more."
+            : "Offered below $2,000,000; the memorandum is the document of record.",
+        },
+        {
+          label: "NF 1787 small business coordination",
+          citation: "NFS 1819.202-70",
+          link: "form",
+          formKey: "nf-1787",
+          optional: value <= MICRO_PURCHASE,
+          note:
+            value <= MICRO_PURCHASE
+              ? "Offered at or below the micro-purchase threshold."
+              : "Required above the micro-purchase threshold, with the exceptions in the threshold table.",
+        },
       ];
+    }
     case "JOFOC":
       return [
         {
@@ -459,7 +505,7 @@ export function buildSequence(
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
-      docs: requiredDocs(phase),
+      docs: requiredDocs(phase, acq),
       citation: PHASE_CITATIONS[phase] ?? "",
       guidance: PHASE_GUIDANCE[phase] ?? "",
       needsPoll: phase === "Go/No-go Poll",
@@ -478,6 +524,7 @@ export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[
 
   for (const p of throughCurrent) {
     for (const d of p.docs) {
+      if (d.optional) continue;
       if (docSatisfied(d, acq) === false)
         return { reason: `${p.phase}: ${d.label} is missing`, owner };
     }
@@ -558,7 +605,10 @@ export function buildPacket(
       status: p.status,
       planned_days: p.planned_days,
       actual_days: p.actual_days,
-      required_documents: p.docs.map((d) => d.label),
+      required_documents: p.docs
+        .filter((d) => !d.optional)
+        .map((d) => `${d.label} (${d.citation})`),
+      offered_documents: p.docs.filter((d) => d.optional).map((d) => `${d.label} (${d.citation})`),
     })),
     reviews: board,
   };
