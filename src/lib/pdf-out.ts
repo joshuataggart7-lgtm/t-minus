@@ -154,7 +154,7 @@ export async function exportXfaIncremental(
   const acro = doc.catalog.lookup(PDFName.of("AcroForm"), PDFDict);
   const xfa = acro.lookup(PDFName.of("XFA"), PDFArray);
 
-  let datasetsRef: InstanceType<typeof PDFRef> | null = null;
+  let datasetsRef: import("pdf-lib").PDFRef | null = null;
   for (let i = 0; i < xfa.size() - 1; i += 1) {
     const entry = xfa.get(i);
     const name =
