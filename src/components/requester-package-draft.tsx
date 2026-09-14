@@ -134,14 +134,16 @@ export function RequesterPackageDraft({
         <span className="mt-1 block text-[13px] text-muted-foreground">Synthetic or non-sensitive documents only in this environment.</span>
       </summary>
       <div className="border-t border-border p-4">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{kinds.map((kind) => <label key={kind} className="rounded-lg border border-border p-3 text-[14px]">
-          <span className="mb-2 flex items-center gap-2 font-medium"><Upload aria-hidden="true" />{kind}</span>
-          <input className="block w-full text-[13px]" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, kind); event.target.value = ""; }} />
-        </label>)}</div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-[10rem_1fr_auto]">
-          <select aria-label="Pasted document type" className={inputClass} value={pasteKind} onChange={(event) => setPasteKind(event.target.value as SourceKind)}>{kinds.map((kind) => <option key={kind}>{kind}</option>)}</select>
-          <textarea aria-label="Paste requester package text" rows={2} className={inputClass} placeholder="Paste document text" value={paste} onChange={(event) => setPaste(event.target.value)} />
-          <Button type="button" variant="outline" onClick={addPaste} disabled={!paste.trim()}>Add text</Button>
+        <div role="tablist" aria-label="Requester package documents" className="flex flex-wrap gap-2">{kinds.map((kind) => <button key={kind} type="button" role="tab" aria-selected={pasteKind === kind} onClick={() => setPasteKind(kind)} className={`rounded-lg border px-3 py-2 text-[14px] ${pasteKind === kind ? "border-primary text-primary" : "border-border text-foreground"}`}>{kind}</button>)}</div>
+        <div role="tabpanel" className="mt-4 rounded-lg border border-border p-3">
+          <label className="block text-[14px]">
+            <span className="mb-2 flex items-center gap-2 font-medium"><Upload aria-hidden="true" />Upload {pasteKind}</span>
+            <input className="block w-full text-[13px]" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, pasteKind); event.target.value = ""; }} />
+          </label>
+          <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
+            <textarea aria-label={`Paste ${pasteKind} text`} rows={2} className={inputClass} placeholder={`Paste ${pasteKind} text`} value={paste} onChange={(event) => setPaste(event.target.value)} />
+            <Button type="button" variant="outline" onClick={addPaste} disabled={!paste.trim()}>Add text</Button>
+          </div>
         </div>
         {sources.length ? <ul className="mt-4 space-y-2">{sources.map((source) => <li key={source.id} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-[14px]"><span className="flex min-w-0 items-center gap-2"><FileText aria-hidden="true" /><span className="truncate">{source.kind}: {source.name}</span></span><Button type="button" size="icon" variant="ghost" aria-label={`Remove ${source.name}`} onClick={() => setSources((current) => current.filter((item) => item.id !== source.id))}><X /></Button></li>)}</ul> : null}
         {error ? <p role="alert" className="mt-3 text-[14px] text-destructive">{error}</p> : null}
