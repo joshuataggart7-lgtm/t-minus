@@ -119,7 +119,7 @@ export function answersFromStored(stored:Record<string,unknown>):NfAnswers{
 
  const sourcing=text("Section1_strategic_sourcing");
  if(sourcing) out["s1_strategy"]=/NotAvailable|not available/i.test(sourcing)?"no":"yes";
- if(out["gate.it"]==="no"){out["s2_authorization"]="none";out["s2_no_authorization_reason"]="The requirement does not include information technology."}
+ if(out["gate.it"]==="yes"&&/no IT authorization/i.test(it)){out["s2_authorization"]="none";out["s2_no_authorization_reason"]=it}
  else if(/CITR/i.test(it)) out["s2_authorization"]="citr"; else if(/ORCA/i.test(it)) out["s2_authorization"]="orca";
  const env=text("Section3_environmental");
  if(env) out["s3_gpc"]=/no GPC|S3n1\b/i.test(env)?"none":"requirements";
@@ -132,7 +132,7 @@ export function answersFromStored(stored:Record<string,unknown>):NfAnswers{
  if(comms) out["s5_communications"]=/S5IVn1\b|\bno\b/i.test(comms)?"no":"yes";
  if(aviation) out["s5_aviation"]=out["gate.aviation"]==="yes"?"yes":"no";
  const software=text("Section5_VI_software");
- if(software){out["s5_software"]=/not subject|S5VIn1\b/i.test(software)?"no":"yes";const cls=software.match(/class\s+([A-E])\b/i);if(cls?.[1])out["s5_software_class"]=cls[1].toUpperCase()}
+ if(software&&!/not subject|S5VIn1\b/i.test(software)){out["s5_software"]="yes";const cls=software.match(/class\s+([A-E])\b/i);if(cls?.[1])out["s5_software_class"]=cls[1].toUpperCase()}
  const scv=text("Section5_VII_scv");
  if(scv){const notRequired=/not required|SCVIn2/i.test(scv);out["s5_scv"]=notRequired?"not-required":"required";if(notRequired){out["s5_scv_under_20m"]=String(/\$20M|20 ?M|SCVIn2s1/i.test(scv));out["s5_scv_not_ampl"]=String(/AMPL/i.test(scv));out["s5_scv_modification"]=String(/modification/i.test(scv))}}
  const quality=text("Section6_quality");
