@@ -305,7 +305,19 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
   h.ref.forEach((r, i) => children.push(labelled(i === 0 ? "REF:" : "", r)));
   if (h.salutation) children.push(p(h.salutation, { after: 200 }));
   children.push(p("", { after: 120 }));
-  memo.paragraphs.forEach((text, i) => children.push(p(`${i + 1}. ${text}`, { after: 200 })));
+  memo.paragraphs.forEach((para, i) => {
+    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200 }));
+    for (const line of para.lines) {
+      children.push(
+        new Paragraph({
+          indent: { left: 720 },
+          spacing: { after: 20 },
+          children: [new TextRun({ ...serif, text: line })],
+        }),
+      );
+    }
+    if (para.lines.length) children.push(p("", { after: 140 }));
+  });
   children.push(p("", { after: 400 }), p(h.signatureName), p(h.signatureTitle, { after: 240 }));
   if (h.concurrence.length) {
     children.push(p("CONCURRENCE:", { bold: true }));
