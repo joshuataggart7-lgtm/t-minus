@@ -146,7 +146,7 @@ function IntakePage() {
     center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
-  const [carried, setCarried] = useState<Record<string, string>>({});
+  
   const [touched, setTouched] = useState(false);
   const [scan, setScan] = useState<RedFlag[] | null>(null);
   const [saving, setSaving] = useState(false);
@@ -244,12 +244,8 @@ function IntakePage() {
       includes_it: !!row.includes_it,
       acquisition_forecast_verified: !!row.acquisition_forecast_verified,
     }));
-    const carriedAnswers = (row.nf1707_answers ?? {}) as Record<string, string>;
-    setCarried(carriedAnswers);
-    const seeded: Answers = {};
-    const aviation = carriedAnswers["Section5_V_aviation"] ?? "";
-    if (/yes/i.test(aviation)) seeded["Section5s5.Section5s5.S5Vn2"] = "1";
-    setAnswers(seeded);
+    const carriedAnswers = (row.nf1707_answers ?? {}) as Record<string, unknown>;
+    setAnswers(answersFromStored(carriedAnswers));
     setScan(null);
   }
 
@@ -305,7 +301,13 @@ function IntakePage() {
       setScan(null);
       return;
     }
-    setScan(scanRedFlags(facts, data.data!.ref));
+    const result = scanRedFlags(facts, data.data!.ref);
+    setScan(result);
+    // A matched enterprise strategy preselects the determination; the CO's
+    // choice then clears or keeps the flag on the next scan.
+    if (result.some((flag) => flag.id === "psl") && strategyMatch && !facts.enterprise_psl_check) {
+      setFacts((current) => ({ ...current, enterprise_psl_check: strategyValue(strategyMatch) }));
+    }
   }
 
   async function startTheClock() {
@@ -574,7 +576,7 @@ function IntakePage() {
               }}
             >
               <option value="">Choose a directorate</option>
-              {MISSION_DIRECTORATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
+              {MISSION_DIRECTORATES.map(([code, name]) => <option key={code} value={code}>{["HSMD", "RTMD", "SMD", "MSD"].includes(code) ? `${name} (${code})` : name}</option>)}
             </select>
           </Field>
           {facts.is_reimbursable ? (
@@ -891,12 +893,28 @@ function IntakePage() {
             />
           </Field>
           <Field label="Enterprise strategy determination" htmlFor="psl">
-            <input
+            <select
               id="psl"
               className={inputClass}
               value={facts.enterprise_psl_check}
               onChange={(e) => set("enterprise_psl_check", e.target.value)}
-            />
+            >
+              <option value="">Choose a determination</option>
+              {strategies.map((strategy) => (
+                <option key={strategy.psl} value={strategyValue(strategy)}>
+                  {strategyValue(strategy)}
+                </option>
+              ))}
+              <option value="No mandatory strategy applies">No mandatory strategy applies</option>
+              <option value="Deviation approved (attach)">Deviation approved (attach)</option>
+            </select>
+            {strategyMatch ? (
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Matched {strategyValue(strategyMatch)}. Mandatory vehicles:{" "}
+                {strategyMatch.mandatory_vehicles ?? "not stated"}. Required coordination:{" "}
+                {strategyMatch.required_coordination ?? "not stated"}.
+              </p>
+            ) : null}
           </Field>
         </div>
 
@@ -934,19 +952,6 @@ function IntakePage() {
         evmThreshold={Number(data.data?.ref.thresholds.find((threshold) => threshold.name === "Earned value management system applicability")?.value ?? 50_000_000)}
       />
 
-      {Object.keys(carried).length ? (
-        <section className="mb-10 border-t border-border pt-6">
-          <h2 className="mb-4 text-[18px] leading-6 font-medium">Recorded answers</h2>
-          <dl className="max-w-[80ch]">
-            {Object.entries(carried).map(([k, v]) => (
-              <div key={k} className="mb-3">
-                <dt className="text-[13px] text-muted-foreground">{recordedAnswerLabel(k)}</dt>
-                <dd className="text-[15px]">{String(v)}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-      ) : null}
 
       {/* Red-flag scan and submit */}
       <section className="border-t border-border pt-6">
