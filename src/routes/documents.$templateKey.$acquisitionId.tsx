@@ -469,6 +469,21 @@ function DocumentPage() {
     } as Record<string, unknown>;
   }, [q.data]);
 
+  // Counts from the stored set-aside evidence search, when it has been run.
+  const researchEvidence = useMemo(() => {
+    const row = q.data?.evidence as { response_json?: unknown; checked_at?: string | null } | null | undefined;
+    if (!row) return null;
+    const envelope = (row.response_json ?? {}) as Record<string, unknown>;
+    const raw = (envelope["raw"] ?? {}) as Record<string, unknown>;
+    const rows = Array.isArray(raw["entityData"]) ? (raw["entityData"] as Record<string, unknown>[]) : [];
+    const small = rows.filter((r) => JSON.stringify(r).toLowerCase().includes('"y"')).length;
+    return {
+      runOn: (row.checked_at ?? "").slice(0, 10),
+      sources: rows.length,
+      smallBusinesses: small,
+    };
+  }, [q.data?.evidence]);
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
@@ -486,7 +501,13 @@ function DocumentPage() {
       setValues(stored);
       return;
     }
-    const filled = prefill(def, { ...q.data.acq, ...samFacts, acquisition_id: acquisitionId });
+    const filled = prefill(def, {
+      ...q.data.acq,
+      // The record block reads the mission by name, never by its code.
+      mission_id: q.data.missionName || q.data.acq["mission_id"],
+      ...samFacts,
+      acquisition_id: acquisitionId,
+    });
     if (def.key === "nf-1707" && !filled["approvals_summary"]) {
       filled["approvals_summary"] = answersSummary(q.data.acq["nf1707_answers"]);
     }
@@ -494,8 +515,17 @@ function DocumentPage() {
       filled["barriers"] =
         "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.";
     }
-    setValues(filled);
-  }, [def, q.data, touched, acquisitionId, samFacts]);
+    // A memorandum body is drafted from the record, section by section, so no
+    // numbered heading is ever exported empty.
+    const drafted = applyMemoDraft(filled, draftMemoBody(def.key, {
+      acquisitionId,
+      acq: q.data.acq,
+      missionName: q.data.missionName ?? "",
+      fileDocuments: q.data.fileDocuments ?? [],
+      evidence: researchEvidence,
+    }));
+    setValues(drafted);
+  }, [def, q.data, touched, acquisitionId, samFacts, researchEvidence]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.
