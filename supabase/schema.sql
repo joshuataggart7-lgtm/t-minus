@@ -57,6 +57,10 @@ create table if not exists public.missions (
   leadership_note text
 );
 
+alter table public.missions
+  add column if not exists mission_directorate_code text,
+  add column if not exists mission_directorate_name text;
+
 create table if not exists public.acquisition_facts (
   acquisition_id text primary key,
   mission_id text references public.missions(mission_id) on delete set null,
@@ -110,6 +114,30 @@ create table if not exists public.acquisition_facts (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.acquisition_facts
+  add column if not exists center_name text,
+  add column if not exists mission_directorate_code text,
+  add column if not exists mission_directorate_name text,
+  add column if not exists mission_directorate_other text,
+  add column if not exists sponsoring_agency text,
+  add column if not exists is_reimbursable boolean not null default false,
+  add column if not exists hybrid_contract_type text,
+  add column if not exists is_package_complete boolean not null default false;
+
+create table if not exists public.competition_authorities (
+  authority_id uuid primary key default gen_random_uuid(),
+  acquisition_method text not null,
+  competition_type text not null,
+  citation text not null,
+  description text not null,
+  source_tier text not null default 'binding',
+  created_at timestamptz not null default now(),
+  unique (acquisition_method, competition_type, citation)
+);
+grant select on public.competition_authorities to authenticated;
+grant all on public.competition_authorities to service_role;
+alter table public.competition_authorities enable row level security;
 
 create table if not exists public.phase_plan (
   plan_id uuid primary key default gen_random_uuid(),

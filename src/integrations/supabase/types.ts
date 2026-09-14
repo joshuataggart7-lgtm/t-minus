@@ -22,6 +22,7 @@ export type Database = {
           backfill_source: Json | null
           branch_code: string | null
           center_code: string | null
+          center_name: string | null
           clock_state: string | null
           co_code: string | null
           co_name: string | null
@@ -45,13 +46,19 @@ export type Database = {
           hold_owner: string | null
           hold_reason: string | null
           hold_started_at: string | null
+          hybrid_contract_type: string | null
           igce_attached: boolean | null
           includes_it: boolean | null
           intake_estimate: Json | null
           is_critical_path: boolean | null
+          is_package_complete: boolean
+          is_reimbursable: boolean
           is_seed: boolean
           jofoc_authority_citation: string | null
           lead_to_delivery_days: number | null
+          mission_directorate_code: string | null
+          mission_directorate_name: string | null
+          mission_directorate_other: string | null
           mission_id: string | null
           naics_code: string | null
           need_date: string | null
@@ -74,6 +81,7 @@ export type Database = {
           set_aside: string | null
           source_tag: string | null
           sow_attached: boolean | null
+          sponsoring_agency: string | null
           status: string | null
           successor_of: string | null
           target_award_date: string | null
@@ -90,6 +98,7 @@ export type Database = {
           backfill_source?: Json | null
           branch_code?: string | null
           center_code?: string | null
+          center_name?: string | null
           clock_state?: string | null
           co_code?: string | null
           co_name?: string | null
@@ -113,13 +122,19 @@ export type Database = {
           hold_owner?: string | null
           hold_reason?: string | null
           hold_started_at?: string | null
+          hybrid_contract_type?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
           intake_estimate?: Json | null
           is_critical_path?: boolean | null
+          is_package_complete?: boolean
+          is_reimbursable?: boolean
           is_seed?: boolean
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
           mission_id?: string | null
           naics_code?: string | null
           need_date?: string | null
@@ -142,6 +157,7 @@ export type Database = {
           set_aside?: string | null
           source_tag?: string | null
           sow_attached?: boolean | null
+          sponsoring_agency?: string | null
           status?: string | null
           successor_of?: string | null
           target_award_date?: string | null
@@ -158,6 +174,7 @@ export type Database = {
           backfill_source?: Json | null
           branch_code?: string | null
           center_code?: string | null
+          center_name?: string | null
           clock_state?: string | null
           co_code?: string | null
           co_name?: string | null
@@ -181,13 +198,19 @@ export type Database = {
           hold_owner?: string | null
           hold_reason?: string | null
           hold_started_at?: string | null
+          hybrid_contract_type?: string | null
           igce_attached?: boolean | null
           includes_it?: boolean | null
           intake_estimate?: Json | null
           is_critical_path?: boolean | null
+          is_package_complete?: boolean
+          is_reimbursable?: boolean
           is_seed?: boolean
           jofoc_authority_citation?: string | null
           lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
           mission_id?: string | null
           naics_code?: string | null
           need_date?: string | null
@@ -210,6 +233,7 @@ export type Database = {
           set_aside?: string | null
           source_tag?: string | null
           sow_attached?: boolean | null
+          sponsoring_agency?: string | null
           status?: string | null
           successor_of?: string | null
           target_award_date?: string | null
@@ -680,6 +704,36 @@ export type Database = {
           },
         ]
       }
+      competition_authorities: {
+        Row: {
+          acquisition_method: string
+          authority_id: string
+          citation: string
+          competition_type: string
+          created_at: string
+          description: string
+          source_tier: string
+        }
+        Insert: {
+          acquisition_method: string
+          authority_id?: string
+          citation: string
+          competition_type: string
+          created_at?: string
+          description: string
+          source_tier?: string
+        }
+        Update: {
+          acquisition_method?: string
+          authority_id?: string
+          citation?: string
+          competition_type?: string
+          created_at?: string
+          description?: string
+          source_tier?: string
+        }
+        Relationships: []
+      }
       deviation_requests: {
         Row: {
           acquisition_id: string | null
@@ -1041,6 +1095,8 @@ export type Database = {
           leadership_note: string | null
           milestone: string | null
           milestone_date: string | null
+          mission_directorate_code: string | null
+          mission_directorate_name: string | null
           mission_id: string
           name: string
           priority: number | null
@@ -1052,6 +1108,8 @@ export type Database = {
           leadership_note?: string | null
           milestone?: string | null
           milestone_date?: string | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
           mission_id: string
           name: string
           priority?: number | null
@@ -1063,6 +1121,8 @@ export type Database = {
           leadership_note?: string | null
           milestone?: string | null
           milestone_date?: string | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
           mission_id?: string
           name?: string
           priority?: number | null
@@ -1256,6 +1316,8 @@ export type Database = {
           email: string | null
           id: string
           is_admin: boolean
+          last_center_code: string | null
+          last_organization_code: string | null
           role: string
           updated_at: string
         }
@@ -1265,6 +1327,8 @@ export type Database = {
           email?: string | null
           id: string
           is_admin?: boolean
+          last_center_code?: string | null
+          last_organization_code?: string | null
           role?: string
           updated_at?: string
         }
@@ -1274,6 +1338,8 @@ export type Database = {
           email?: string | null
           id?: string
           is_admin?: boolean
+          last_center_code?: string | null
+          last_organization_code?: string | null
           role?: string
           updated_at?: string
         }

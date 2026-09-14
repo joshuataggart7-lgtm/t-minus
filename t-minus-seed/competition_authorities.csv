@@ -1,0 +1,22 @@
+acquisition_method,competition_type,citation,description,source_tier
+FAR 13.5 commercial simplified procedures,Sole source,41 U.S.C. 1901,Commercial simplified procedures; only one responsible source basis documented under RFO FAR 6.103-1,binding
+FAR 13.5 commercial simplified procedures,Sole source,41 U.S.C. 1903,Commercial simplified procedures; only one responsible source basis documented under RFO FAR 6.103-1,binding
+FAR 13.5 commercial simplified procedures,Brand name,41 U.S.C. 1901,Commercial simplified procedures; brand-name rationale,binding
+FAR 13.5 commercial simplified procedures,Brand name,41 U.S.C. 1903,Commercial simplified procedures; brand-name rationale,binding
+"FAR 12 commercial, Part 15 procedures",Sole source,41 U.S.C. 1901,Commercial acquisition authority under the JOFOC template Item 4,binding
+"FAR 12 commercial, Part 15 procedures",Sole source,41 U.S.C. 1903,Commercial acquisition authority under the JOFOC template Item 4,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(1) / RFO FAR 6.103-1,Only one responsible source,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(2) / RFO FAR 6.103-2,Unusual and compelling urgency,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(3) / RFO FAR 6.103-3,Industrial mobilization; expert services,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(4) / RFO FAR 6.103-4,International agreement,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(5) / RFO FAR 6.103-5,Authorized or required by statute,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(6) / RFO FAR 6.103-6,National security,binding
+FAR 15 negotiated,Sole source,10 U.S.C. 3204(a)(7) / RFO FAR 6.103-7,Public interest,binding
+FAR 8.4 GSA schedule order,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 8.405-6,Limited-sources justification,binding
+FAR 8.4 GSA schedule order,Brand name,RFO FAR 8.405-6(b) / FAR 11.105,Brand-name justification,binding
+FAR 16.5 order under existing IDIQ / GWAC,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 16.505(b)(2)(i)(A),Urgency,binding
+FAR 16.5 order under existing IDIQ / GWAC,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 16.505(b)(2)(i)(B),Only one capable source,binding
+FAR 16.5 order under existing IDIQ / GWAC,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 16.505(b)(2)(i)(C),Logical follow-on,binding
+FAR 16.5 order under existing IDIQ / GWAC,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 16.505(b)(2)(i)(D),Minimum guarantee,binding
+FAR 16.5 order under existing IDIQ / GWAC,Limited sources (FAR 8.405-6 / 16.505),RFO FAR 16.505(b)(2)(i)(E),Required by statute,binding
+FAR 16.5 order under existing IDIQ / GWAC,Brand name,RFO FAR 16.505(b)(2); FAR 11.105,Brand-name justification,binding

@@ -1,7 +1,7 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,9 +19,11 @@ import {
 } from "@/lib/nf1707";
 import {
   ACQUISITION_METHODS,
+  CENTERS,
   COMPETITION_CHOICES,
   CONTRACT_TYPES,
   EMPTY_FACTS,
+  MISSION_DIRECTORATES,
   SET_ASIDES,
   addDays,
   fieldErrors,
@@ -93,11 +95,11 @@ function useRefData(enabled: boolean) {
     queryKey: ["intake-ref"],
     enabled,
     queryFn: async () => {
-      const [missions, centers, branches, thresholds, phasePlan, strategies, fields] =
+      const [missions, orgCodes, authorities, thresholds, phasePlan, strategies, fields] =
         await Promise.all([
-          supabase.from("missions").select("mission_id,name,milestone,milestone_date").order("priority"),
-          supabase.from("centers").select("center_code,center_name").order("center_code"),
-          supabase.from("branches").select("center_code,branch_code,branch_name"),
+          supabase.from("missions").select("mission_id,name,milestone,milestone_date,mission_directorate_code,mission_directorate_name").order("priority"),
+          supabase.from("acquisition_facts").select("branch_code").not("branch_code", "is", null),
+          supabase.from("competition_authorities").select("acquisition_method,competition_type,citation,description").order("citation"),
           supabase.from("thresholds").select("name,value,citation,note"),
           supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order"),
           supabase
@@ -114,8 +116,8 @@ function useRefData(enabled: boolean) {
       return {
         missions: missions.data ?? [],
         priorFiles: priorFiles ?? [],
-        centers: centers.data ?? [],
-        branches: branches.data ?? [],
+        orgCodes: [...new Set((orgCodes.data ?? []).map((row) => row.branch_code).filter(Boolean))] as string[],
+        authorities: authorities.data ?? [],
         fields: (fields.data ?? []) as Nf1707Field[],
         ref: {
           thresholds: thresholds.data ?? [],
@@ -160,14 +162,15 @@ const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground";
 
 function IntakePage() {
-  const { user, role, authState } = useRole();
+  const { user, role, authState, profile } = useRole();
   const navigate = useNavigate();
   const data = useRefData(authState === "signed-in");
 
   const [facts, setFacts] = useState<IntakeFacts>({
     ...EMPTY_FACTS,
     requester_name: user.name,
-    center_code: user.center_code === "HQ" ? "ARC" : user.center_code,
+    center_code: user.center_code,
+    center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
   const [carried, setCarried] = useState<Record<string, string>>({});
@@ -185,20 +188,49 @@ function IntakePage() {
   const err = (k: string) => (touched ? errors[k] : undefined);
 
   const fields = data.data?.fields ?? [];
-  const branches = (data.data?.branches ?? []).filter((b) => b.center_code === facts.center_code);
+  const packageComplete = facts.funds_certified && facts.igce_attached && facts.sow_attached;
+  const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
+  const authorityOptions = (data.data?.authorities ?? []).filter(
+    (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
+  );
+  const [addingProject, setAddingProject] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectDate, setNewProjectDate] = useState("");
+  const [projectError, setProjectError] = useState<string | null>(null);
 
-  async function loadSample() {
-    const { data: row } = await supabase
+  useEffect(() => {
+    const centerCode = profile?.last_center_code || user.center_code;
+    const centerName = CENTERS.find(([code]) => code === centerCode)?.[1] ?? "Other";
+    setFacts((current) => ({
+      ...current,
+      center_code: centerCode,
+      center_name: centerName,
+      branch_code: profile?.last_organization_code || current.branch_code,
+    }));
+  }, [profile?.last_center_code, profile?.last_organization_code, user.center_code]);
+
+  async function loadSample(acquisitionId: string) {
+    setSaveError(null);
+    const { data: row, error } = await supabase
       .from("acquisition_facts")
       .select("*")
-      .eq("acquisition_id", "A-2027-0101")
+      .eq("acquisition_id", acquisitionId)
       .maybeSingle();
-    if (!row) return;
+    if (error || !row) {
+      setSaveError("The sample could not be loaded. Try again.");
+      return;
+    }
     setFacts((f) => ({
       ...f,
       title: row.title ?? "",
       mission_id: row.mission_id ?? "",
+      mission_directorate_code: row.mission_directorate_code ?? "",
+      mission_directorate_name: row.mission_directorate_name ?? "",
+      mission_directorate_other: row.mission_directorate_other ?? "",
+      sponsoring_agency: row.sponsoring_agency ?? "",
+      is_reimbursable: !!row.is_reimbursable,
       center_code: row.center_code ?? f.center_code,
+      center_name: row.center_name ?? CENTERS.find(([code]) => code === row.center_code)?.[1] ?? "Other",
       branch_code: row.branch_code ?? "",
       requester_name: row.requester_name ?? f.requester_name,
       requester_org_code: row.requester_org_code ?? "",
@@ -212,14 +244,17 @@ function IntakePage() {
       naics_code: row.naics_code ?? "",
       psc_code: row.psc_code ?? "",
       contract_type: /^(ffp|firm-fixed-price)$/i.test(row.contract_type ?? "")
-        ? "FFP"
+        ? "Firm-fixed-price (FFP)"
         : (row.contract_type ?? ""),
-      acquisition_method: ACQUISITION_METHODS[0] ?? "",
+      hybrid_contract_type: row.hybrid_contract_type ?? "",
+      acquisition_method: /13\.5/.test(row.acquisition_method ?? "")
+        ? ACQUISITION_METHODS[0] ?? ""
+        : /13/.test(row.acquisition_method ?? "")
+          ? ACQUISITION_METHODS[1] ?? ""
+          : (row.acquisition_method ?? ""),
       competition: /sole/i.test(row.competition ?? "")
         ? "Sole source"
-        : /simplified|competitive/i.test(row.competition ?? "")
-          ? "Competitive (simplified procedures)"
-          : "Full and open",
+        : "Competitive",
       set_aside: /total small business/i.test(row.set_aside ?? "")
         ? "Total small business set-aside"
         : (row.set_aside ?? "None"),
@@ -228,7 +263,7 @@ function IntakePage() {
       funding_fiscal_year: row.funding_fiscal_year ?? "",
       funds_certified: !!row.funds_certified,
       // The sample arrives with the IGCE still missing: that is the demo flag.
-      igce_attached: false,
+      igce_attached: acquisitionId === "A-2027-0101" ? false : !!row.igce_attached,
       sow_attached: !!row.sow_attached,
       hardware_deliverable: !!row.hardware_deliverable,
       includes_it: !!row.includes_it,
@@ -241,6 +276,35 @@ function IntakePage() {
     if (/yes/i.test(aviation)) seeded["Section5s5.Section5s5.S5Vn2"] = "1";
     setAnswers(seeded);
     setScan(null);
+  }
+
+  async function addProject() {
+    if (!newProjectName.trim() || !newProjectDate || !facts.mission_directorate_code) {
+      setProjectError("Enter a project name and need date after choosing a mission directorate.");
+      return;
+    }
+    const missionId = `M-${crypto.randomUUID().slice(0, 8)}`;
+    const { error } = await supabase.from("missions").insert({
+      mission_id: missionId,
+      name: newProjectName.trim(),
+      program: newProjectName.trim(),
+      center_code: facts.center_code,
+      milestone: "Mission need date",
+      milestone_date: newProjectDate,
+      mission_directorate_code: facts.mission_directorate_code,
+      mission_directorate_name: facts.mission_directorate_name,
+    });
+    if (error) {
+      setProjectError(`The project could not be added: ${error.message}`);
+      return;
+    }
+    await data.refetch();
+    set("mission_id", missionId);
+    set("need_date", newProjectDate);
+    setAddingProject(false);
+    setNewProjectName("");
+    setNewProjectDate("");
+    setProjectError(null);
   }
 
   const [place, setPlace] = useState<PlaceLookup | null>(null);
@@ -291,9 +355,15 @@ function IntakePage() {
       const payload = {
         acquisition_id: next,
         mission_id: facts.mission_id || null,
+        mission_directorate_code: facts.mission_directorate_code || null,
+        mission_directorate_name: facts.mission_directorate_name || null,
+        mission_directorate_other: facts.mission_directorate_other || null,
+        sponsoring_agency: facts.sponsoring_agency || null,
+        is_reimbursable: facts.is_reimbursable,
         successor_of: facts.successor_of || null,
         title: facts.title,
         center_code: facts.center_code,
+        center_name: facts.center_name,
         branch_code: facts.branch_code || null,
         requester_name: facts.requester_name,
         requester_org_code: facts.requester_org_code || null,
@@ -308,6 +378,7 @@ function IntakePage() {
         naics_code: facts.naics_code,
         psc_code: facts.psc_code,
         contract_type: facts.contract_type,
+        hybrid_contract_type: facts.hybrid_contract_type || null,
         acquisition_method: facts.acquisition_method,
         competition: facts.competition,
         set_aside: facts.set_aside || null,
@@ -316,6 +387,7 @@ function IntakePage() {
         funds_certified: facts.funds_certified,
         igce_attached: facts.igce_attached,
         sow_attached: facts.sow_attached,
+        is_package_complete: packageComplete,
         hardware_deliverable: facts.hardware_deliverable,
         includes_it: facts.includes_it,
         enterprise_psl_check: facts.enterprise_psl_check || null,
@@ -332,6 +404,13 @@ function IntakePage() {
 
       const { error } = await supabase.from("acquisition_facts").insert(payload);
       if (error) throw error;
+
+      if (profile) {
+        await supabase.from("profiles").update({
+          last_center_code: facts.center_code,
+          last_organization_code: facts.branch_code || null,
+        }).eq("id", profile.id);
+      }
 
       await supabase.from("audit_log").insert([
         {
@@ -394,51 +473,138 @@ function IntakePage() {
         lead="Enter the acquisition once. Every document, check, and record reads from this file."
       />
 
-      <div className="mb-8 flex flex-wrap items-center gap-4">
+      <div className="mb-8 flex flex-wrap items-center gap-3">
         <button
           type="button"
-          onClick={() => void loadSample()}
+          onClick={() => void loadSample("A-2027-0101")}
           className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
         >
-          Load the Commercial Aviation Services sample
+          Load Sample 1
+        </button>
+        <button
+          type="button"
+          onClick={() => void loadSample("A-2027-0109")}
+          className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
+        >
+          Load Sample 2 (competed)
         </button>
         <span className="text-[13px] text-muted-foreground">
-          Sample A-2027-0101 loads with the IGCE still missing.
+          Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
         </span>
       </div>
 
       {/* T-Minus section: the facts the paper form does not carry. */}
       <section className="mb-10 border-t border-border pt-6">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">T-Minus record</h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-[18px] leading-6 font-medium">T-Minus record</h2>
+          <span
+            className="rounded-lg border px-3 py-1 text-[13px] font-medium"
+            style={{ borderColor: packageComplete ? "var(--ontrack)" : "var(--attention)" }}
+          >
+            Package {packageComplete ? "complete" : "incomplete"}
+          </span>
+        </div>
         <div className="grid gap-x-8 md:grid-cols-2">
           <Field label="Center" htmlFor="center" error={err("center_code")}>
             <select
               id="center"
               className={inputClass}
               value={facts.center_code}
-              onChange={(e) => set("center_code", e.target.value)}
+              onChange={(e) => {
+                const selected = CENTERS.find(([code]) => code === e.target.value);
+                setFacts((current) => ({
+                  ...current,
+                  center_code: e.target.value,
+                  center_name: selected?.[1] ?? "Other",
+                }));
+                setScan(null);
+              }}
             >
-              {(data.data?.centers ?? []).map((center) => (
-                <option key={center.center_code} value={center.center_code}>
-                  {center.center_code} — {center.center_name}
+              {CENTERS.map(([code, name]) => (
+                <option key={code} value={code}>
+                  {code} — {name}
                 </option>
               ))}
             </select>
           </Field>
-          <Field label="Branch" htmlFor="branch">
-            <select
-              id="branch"
+          <Field label="Organization code" htmlFor="organization-code" hint="Enter any code or choose one used before.">
+            <input
+              id="organization-code"
+              list="organization-codes"
+              autoComplete="off"
               className={inputClass}
               value={facts.branch_code}
               onChange={(e) => set("branch_code", e.target.value)}
+            />
+            <datalist id="organization-codes">
+              {(data.data?.orgCodes ?? []).map((code) => <option key={code} value={code} />)}
+            </datalist>
+          </Field>
+          <Field label="Mission directorate" htmlFor="mission-directorate" error={err("mission_directorate_code")}>
+            <select
+              id="mission-directorate"
+              className={inputClass}
+              value={facts.mission_directorate_code}
+              onChange={(e) => {
+                const selected = MISSION_DIRECTORATES.find(([code]) => code === e.target.value);
+                setFacts((current) => ({
+                  ...current,
+                  mission_directorate_code: e.target.value,
+                  mission_directorate_name: selected?.[1] ?? "",
+                  is_reimbursable: e.target.value === "REIMBURSABLE",
+                  sponsoring_agency: e.target.value === "REIMBURSABLE" ? current.sponsoring_agency : "",
+                  mission_directorate_other: e.target.value === "OTHER" ? current.mission_directorate_other : "",
+                }));
+                setScan(null);
+              }}
             >
-              <option value="">Choose a branch</option>
-              {branches.map((branch) => (
-                <option key={branch.branch_code} value={branch.branch_code}>
-                  {branch.branch_code} — {branch.branch_name}
-                </option>
-              ))}
+              <option value="">Choose a directorate</option>
+              {MISSION_DIRECTORATES.map(([code, name]) => <option key={code} value={code}>{name} ({code})</option>)}
             </select>
+          </Field>
+          {facts.is_reimbursable ? (
+            <Field label="Sponsoring agency" htmlFor="sponsoring-agency" error={err("sponsoring_agency")}>
+              <input id="sponsoring-agency" className={inputClass} value={facts.sponsoring_agency} onChange={(e) => set("sponsoring_agency", e.target.value)} />
+            </Field>
+          ) : null}
+          {facts.mission_directorate_code === "OTHER" ? (
+            <Field label="Specify mission directorate" htmlFor="directorate-other" error={err("mission_directorate_other")}>
+              <input id="directorate-other" className={inputClass} value={facts.mission_directorate_other} onChange={(e) => set("mission_directorate_other", e.target.value)} />
+            </Field>
+          ) : null}
+          <Field label="Program / project" htmlFor="mission" error={err("mission_id")}>
+            <select
+              id="mission"
+              className={inputClass}
+              value={facts.mission_id}
+              onChange={(e) => {
+                if (e.target.value === "__new__") {
+                  setAddingProject(true);
+                  return;
+                }
+                const mission = data.data?.missions.find((item) => item.mission_id === e.target.value);
+                setFacts((current) => ({
+                  ...current,
+                  mission_id: e.target.value,
+                  need_date: mission?.milestone_date ?? current.need_date,
+                  mission_directorate_code: mission?.mission_directorate_code ?? current.mission_directorate_code,
+                  mission_directorate_name: mission?.mission_directorate_name ?? current.mission_directorate_name,
+                }));
+                setScan(null);
+              }}
+            >
+              <option value="">Choose a project</option>
+              {(data.data?.missions ?? []).map((m) => <option key={m.mission_id} value={m.mission_id}>{m.name}</option>)}
+              <option value="__new__">Add new project</option>
+            </select>
+            {addingProject ? (
+              <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+                <input aria-label="New project name" placeholder="Project name" className={inputClass} value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} />
+                <input aria-label="New project need date" type="date" className={inputClass} value={newProjectDate} onChange={(e) => setNewProjectDate(e.target.value)} />
+                <button type="button" className="rounded-lg bg-primary px-3 py-2 text-[14px] text-primary-foreground" onClick={() => void addProject()}>Add</button>
+              </div>
+            ) : null}
+            {projectError ? <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }}>{projectError}</p> : null}
           </Field>
           <Field label="Title of the requirement" htmlFor="title" error={err("title")}>
             <input
@@ -447,21 +613,6 @@ function IntakePage() {
               value={facts.title}
               onChange={(e) => set("title", e.target.value)}
             />
-          </Field>
-          <Field label="Mission supported" htmlFor="mission" error={err("mission_id")}>
-            <select
-              id="mission"
-              className={inputClass}
-              value={facts.mission_id}
-              onChange={(e) => set("mission_id", e.target.value)}
-            >
-              <option value="">Choose a mission</option>
-              {(data.data?.missions ?? []).map((m) => (
-                <option key={m.mission_id} value={m.mission_id}>
-                  {m.name} — needs {m.milestone_date}
-                </option>
-              ))}
-            </select>
           </Field>
           <Field label="Requisition number" htmlFor="pr">
             <input
@@ -589,6 +740,12 @@ function IntakePage() {
               ))}
             </select>
           </Field>
+          <Field label="Hybrid with (optional)" htmlFor="hybrid-type">
+            <select id="hybrid-type" className={inputClass} value={facts.hybrid_contract_type} onChange={(e) => set("hybrid_contract_type", e.target.value)}>
+              <option value="">No hybrid type</option>
+              {CONTRACT_TYPES.filter((c) => c !== facts.contract_type).map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </Field>
           <Field label="Acquisition method" htmlFor="method" error={err("acquisition_method")}>
             <select
               id="method"
@@ -634,14 +791,14 @@ function IntakePage() {
               ))}
             </select>
           </Field>
-          <Field label="Authority for other than full and open competition" htmlFor="jofoc">
-            <input
-              id="jofoc"
-              className={inputClass}
-              value={facts.jofoc_authority_citation}
-              onChange={(e) => set("jofoc_authority_citation", e.target.value)}
-            />
-          </Field>
+          {needsAuthority ? (
+            <Field label="Authority for other than full and open competition" htmlFor="jofoc" error={err("jofoc_authority_citation")}>
+              <select id="jofoc" className={inputClass} value={facts.jofoc_authority_citation} onChange={(e) => set("jofoc_authority_citation", e.target.value)}>
+                <option value="">Choose an authority</option>
+                {authorityOptions.map((option) => <option key={`${option.citation}-${option.description}`} value={`${option.citation} — ${option.description}`}>{option.citation} — {option.description}</option>)}
+              </select>
+            </Field>
+          ) : null}
           <Field label="Period of performance begins" htmlFor="pops">
             <input
               id="pops"
@@ -732,17 +889,17 @@ function IntakePage() {
           <legend className="mb-2 text-[13px] text-muted-foreground">Attachments and conditions</legend>
           {(
             [
-              ["igce_attached", "IGCE attached"],
-              ["sow_attached", "SOW or PWS attached"],
-              ["funds_certified", "Funds certified for the full period of performance"],
-              ["hardware_deliverable", "Hardware deliverable"],
-              ["right_to_repair_statement", "Right to Repair requirements statement included"],
-              ["includes_it", "Includes information technology"],
-              ["cio_review_flagged", "CIO review flagged"],
-              ["acquisition_forecast_verified", "Acquisition Forecast verified"],
+              ["igce_attached", "IGCE attached", "Supports the independent cost estimate and package-complete gate."],
+              ["sow_attached", "SOW/PWS attached", "Defines what will be bought and feeds the package-complete gate."],
+              ["funds_certified", "Funds certified", "Confirms funding and feeds the package-complete gate."],
+              ["hardware_deliverable", "Hardware deliverable", "Activates hardware-specific requirements."],
+              ["right_to_repair_statement", "Right to Repair statement included", "Required when the acquisition delivers hardware."],
+              ["includes_it", "Includes information technology", "Activates IT review requirements."],
+              ["cio_review_flagged", "CIO review flagged", "Records that required IT review is planned."],
+              ["acquisition_forecast_verified", "Acquisition Forecast verified", "Confirms the forecast entry was checked."],
             ] as const
-          ).map(([key, label]) => (
-            <label key={key} className="mb-2 flex items-center gap-2 text-[15px]">
+          ).map(([key, label, why]) => (
+            <label key={key} className="mb-2 flex items-center gap-2 text-[15px]" title={why}>
               <input
                 type="checkbox"
                 checked={facts[key] as boolean}

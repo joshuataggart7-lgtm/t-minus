@@ -65,7 +65,12 @@
       "Section11_promotional_items": "None"
     },
     "acquisition_forecast_verified": true,
-    "psc_note": "Air charter for things (V-series). The FY2022 PSC Manual lists V121 Air Charter; confirm the exact code in the FPDS-NG pick list. NAICS 481219 (Other Nonscheduled Air Transportation) verified as the fit for aircraft-with-crew specialty flying."
+    "psc_note": "Air charter for things (V-series). The FY2022 PSC Manual lists V121 Air Charter; confirm the exact code in the FPDS-NG pick list. NAICS 481219 (Other Nonscheduled Air Transportation) verified as the fit for aircraft-with-crew specialty flying.",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0102",
@@ -133,15 +138,20 @@
       "Section11_promotional_items": "None"
     },
     "acquisition_forecast_verified": true,
-    "psc_note": "Air charter for things (V-series). The FY2022 PSC Manual lists V121 Air Charter; confirm the exact code in the FPDS-NG pick list. NAICS 481219 (Other Nonscheduled Air Transportation) verified as the fit for aircraft-with-crew specialty flying."
+    "psc_note": "Air charter for things (V-series). The FY2022 PSC Manual lists V121 Air Charter; confirm the exact code in the FPDS-NG pick list. NAICS 481219 (Other Nonscheduled Air Transportation) verified as the fit for aircraft-with-crew specialty flying.",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": true
   },
   {
     "acquisition_id": "A-2027-0103",
     "mission_id": "M1",
     "is_critical_path": false,
     "title": "Snow radar shipping crates and field spares",
-    "center_code": "GSFC",
-    "branch_code": "210.S",
+    "center_code": "ARC",
+    "branch_code": "JAZ",
     "estimated_value": 42000,
     "acquisition_method": "FAR 13 simplified",
     "competition": "competitive",
@@ -160,7 +170,12 @@
     "co_name": "Center CO (fictional)",
     "vendor_legal_name": "Fictional Vendor",
     "vendor_uei": "DEMOVEND0001",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0104",
@@ -168,7 +183,7 @@
     "is_critical_path": false,
     "title": "Lidar calibration target refurbishment",
     "center_code": "ARC",
-    "branch_code": "JAE",
+    "branch_code": "JAZ",
     "estimated_value": 96000,
     "acquisition_method": "FAR 13 simplified",
     "competition": "competitive",
@@ -187,15 +202,20 @@
     "co_name": "J. Rivera (fictional CO)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0105",
     "mission_id": "M3",
     "is_critical_path": true,
     "title": "Thermal vacuum chamber feedthrough assemblies",
-    "center_code": "JSC",
-    "branch_code": "BJ2",
+    "center_code": "ARC",
+    "branch_code": "JAZ",
     "estimated_value": 2100000,
     "acquisition_method": "FAR 13.5 commercial simplified procedures",
     "competition": "competitive",
@@ -217,15 +237,20 @@
     "regulatory_baseline_date": "2026-08-01",
     "hardware_deliverable": true,
     "right_to_repair_statement": true,
-    "restrictive_clause_review": "not reviewed"
+    "restrictive_clause_review": "not reviewed",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "HSMD",
+    "mission_directorate_name": "Human Spaceflight Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0106",
     "mission_id": "M3",
     "is_critical_path": false,
     "title": "Test article ground support cabling",
-    "center_code": "JSC",
-    "branch_code": "BJ4",
+    "center_code": "ARC",
+    "branch_code": "JAZ",
     "estimated_value": 380000,
     "acquisition_method": "FAR 13.5 commercial simplified procedures",
     "competition": "competitive",
@@ -244,15 +269,20 @@
     "co_name": "Center CO (fictional)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "HSMD",
+    "mission_directorate_name": "Human Spaceflight Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0107",
     "mission_id": "M4",
     "is_critical_path": true,
     "title": "Commercial Aviation Services: hurricane overflight platform, 2027 season",
-    "center_code": "GSFC",
-    "branch_code": "210.Y",
+    "center_code": "ARC",
+    "branch_code": "JAZ",
     "estimated_value": 3900000,
     "acquisition_method": "FAR 13.5 commercial simplified procedures",
     "competition": "competitive",
@@ -271,15 +301,20 @@
     "co_name": "Center CO (fictional)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0108",
     "mission_id": "M4",
     "is_critical_path": false,
     "title": "Dropsonde consumables",
-    "center_code": "GSFC",
-    "branch_code": "210.S",
+    "center_code": "ARC",
+    "branch_code": "JAZ",
     "estimated_value": 210000,
     "acquisition_method": "FAR 13 simplified",
     "competition": "competitive",
@@ -298,7 +333,12 @@
     "co_name": "Center CO (fictional)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0109",
@@ -306,7 +346,7 @@
     "is_critical_path": true,
     "title": "Wind tunnel data acquisition system replacement",
     "center_code": "ARC",
-    "branch_code": "JAE",
+    "branch_code": "JAZ",
     "estimated_value": 4800000,
     "acquisition_method": "FAR 13.5 commercial simplified procedures",
     "competition": "competitive",
@@ -325,7 +365,12 @@
     "co_name": "J. Rivera (fictional CO)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "RTMD",
+    "mission_directorate_name": "Research and Technology Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0110",
@@ -352,7 +397,12 @@
     "co_name": "J. Rivera (fictional CO)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-02-10"
+    "regulatory_baseline_date": "2026-02-10",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "RTMD",
+    "mission_directorate_name": "Research and Technology Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0111",
@@ -379,7 +429,12 @@
     "co_name": "J. Rivera (fictional CO)",
     "vendor_legal_name": "",
     "vendor_uei": "",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   },
   {
     "acquisition_id": "A-2027-0112",
@@ -406,6 +461,11 @@
     "co_name": "J. Rivera (fictional CO)",
     "vendor_legal_name": "Fictional Vendor",
     "vendor_uei": "DEMOVEND0001",
-    "regulatory_baseline_date": "2026-08-01"
+    "regulatory_baseline_date": "2026-08-01",
+    "center_name": "Ames Research Center",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "is_reimbursable": false,
+    "is_package_complete": false
   }
 ]
