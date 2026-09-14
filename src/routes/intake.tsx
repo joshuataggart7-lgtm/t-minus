@@ -479,7 +479,7 @@ function IntakePage() {
         </button>
         <button
           type="button"
-          onClick={() => void loadSample("A-2027-0102")}
+          onClick={() => void loadSample("A-2027-0109")}
           className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
         >
           Load Sample 2 (competed)
