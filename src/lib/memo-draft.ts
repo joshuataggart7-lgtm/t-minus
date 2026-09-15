@@ -840,11 +840,13 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       } else if (/clock started|intake submitted/i.test(a.action)) {
         push(`The intake was submitted and the clock started on ${on}.`);
       } else {
-        push(
-          `${a.action} was recorded on ${on} by ${personPhrase(ctx, a.actor)}${
-            cleanClause(a.reason) ? `, ${cleanClause(a.reason)}` : ""
-          }.`,
-        );
+        // Stored field codes and engine notes never print in the narrative.
+        const note = cleanClause(a.reason)
+          .replace(/saved from the (?:template|form) engine/gi, "")
+          .replace(/\bclock_state\b/gi, "the clock state")
+          .trim();
+        const action = /^[a-z][a-z0-9_]*$/.test(a.action) ? a.action.replace(/_/g, " ") : a.action;
+        push(`${action} was recorded on ${on} by ${personPhrase(ctx, a.actor)}${note ? `, ${note}` : ""}.`);
       }
     }
 
