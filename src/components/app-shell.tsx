@@ -145,7 +145,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : null}
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <div className="flex min-w-0 items-center gap-2">
             <Link
               to="/center-config"
               hash="my-record"
@@ -154,12 +154,20 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             >
               {user.name}
             </Link>
-            <span className="flex min-w-0 flex-wrap justify-end gap-1">
-              {roles.map((assignedRole) => (
-                <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+            <span
+              className="flex min-w-0 items-center gap-1 overflow-hidden"
+              title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
+            >
+              {roles.slice(0, 2).map((assignedRole) => (
+                <span key={assignedRole} className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
                   {ROLE_LABELS[assignedRole]}
                 </span>
               ))}
+              {roles.length > 2 ? (
+                <span className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground" data-numeric>
+                  +{roles.length - 2}
+                </span>
+              ) : null}
             </span>
           </div>
           <button
