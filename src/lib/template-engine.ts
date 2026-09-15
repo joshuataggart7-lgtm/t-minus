@@ -9,6 +9,7 @@
 
 import { CLOSEOUT_CHECKLIST } from "@/lib/post-award";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
+import { HQ_TEMPLATES } from "@/lib/templates-hq";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -43,6 +44,8 @@ export type SectionDef = {
   standingText?: string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
+  /** Back-up material: shown collapsed on the form, printed in full. */
+  collapsed?: boolean;
 };
 
 /** The citation printed for a section on this record. */
@@ -79,6 +82,12 @@ export type TemplateDef = {
     corrections?: string[];
   };
   lead: string;
+  /**
+   * Printed form. "memo" and "dandf" use the NF 1858 memorandum page; "dandf"
+   * prints Findings, then Determination, then the signature page. "plan" is a
+   * multi-section report or chart package.
+   */
+  layout?: "memo" | "dandf" | "plan";
   sections: SectionDef[];
   /** Optional signature page selected by estimated value. */
   signature?: (estimatedValue: number | null, thresholds: ThresholdRow[]) => SignatureBlock;
@@ -2569,6 +2578,7 @@ export const TEMPLATES: TemplateDef[] = [
   coordinationMemo,
   packetTransmittal,
   memorandumForRecord,
+  ...HQ_TEMPLATES,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
@@ -2777,9 +2787,50 @@ function terPrintBlocks(ctx: ExportContext): PrintBlock[] {
   ];
 }
 
+/**
+ * HQ memorandum, determination and findings, and plan layouts.
+ *
+ * Headings, standing determination and certification sentences and signature
+ * titles print exactly as the HQ template carries them. A field the record has
+ * not filled prints a blank line so the contracting officer can complete it in
+ * ink; nothing prints a bracket, a label, a citation banner or a URL.
+ */
+function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
+  const def = ctx.def;
+  const v = ctx.values;
+  const out: PrintBlock[] = [
+    { lines: ["NATIONAL AERONAUTICS AND SPACE ADMINISTRATION"], center: true, bold: true },
+    { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
+    { lines: [def.name.toUpperCase()], center: true, bold: true },
+  ];
+  for (const section of visibleSections(def, v)) {
+    const lines: string[] = [];
+    if (section.standingText) lines.push(...section.standingText.split("\n").filter(Boolean));
+    for (const field of visibleFields(section, v)) {
+      const raw = (v[field.key] ?? "").trim();
+      const value =
+        field.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+          ? money(Number(raw.replace(/[$,]/g, "")))
+          : cleanExportText(raw);
+      const isSignature = field.key.startsWith("sig_");
+      if (isSignature) {
+        lines.push(`${value || blankLine}, ${field.label.replace(/^(APPROVAL|CONCURRENCES?):\s*/i, "")}`);
+        lines.push("Signature: ______________________________    Date: __________");
+        continue;
+      }
+      if (!value && !field.required) continue;
+      lines.push(value || blankLine);
+    }
+    if (!lines.length) continue;
+    out.push({ heading: section.title, lines });
+  }
+  return out;
+}
+
 function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBlock[] {
   if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
   if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
+  if (context?.def.layout) return hqPrintBlocks(context);
   return genericPrintBlocks(doc);
 }
 

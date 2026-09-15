@@ -6,7 +6,8 @@
 
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
-import { jofocVariant, triggeredDocs } from "@/lib/scenario";
+import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
+import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
 import {
   acquisitionProfile,
   exceptionLabel,
@@ -226,6 +227,7 @@ const LIVE_TEMPLATE_KEYS = new Set([
   "bundling-determination",
   "economy-act-determination",
   "commercial-tm-lh-determination",
+  ...HQ_TEMPLATE_KEYS,
 ]);
 
 /** Rows the scenario answers switch on for this phase. */
@@ -234,7 +236,10 @@ function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
   return triggeredDocs(acq as Record<string, unknown>)
     .filter((d) => d.phase === phase && !d.replacesJofoc)
     .map((d) => {
-      const live = d.templateKey && LIVE_TEMPLATE_KEYS.has(d.templateKey);
+      const templateKey = d.templateKeyFor
+        ? d.templateKeyFor(scenarioContext(acq as Record<string, unknown>))
+        : (d.templateKey ?? null);
+      const live = templateKey ? LIVE_TEMPLATE_KEYS.has(templateKey) : false;
       const row: RequiredDoc = {
         label: d.label,
         citation: d.citation,
@@ -244,8 +249,12 @@ function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
         ...(d.note ? { note: d.note } : {}),
         ...(d.handoff ? { handoff: true } : {}),
       };
-      if (live && d.templateKey) {
-        row.templateKey = d.templateKey;
+      if (d.doc_key === "contract-type-dandf" && !templateKey) {
+        // CPFF carries no determination of its own; the row says so.
+        row.note = NO_DANDF_NOTE;
+      }
+      if (live && templateKey) {
+        row.templateKey = templateKey;
         row.link = "templates";
       } else {
         row.attachOnly = true;
@@ -801,6 +810,11 @@ export function phaseForTemplate(templateKey: string): string {
     templateKey === "commercial-tm-lh-determination"
   )
     return "Market Research";
+  if (templateKey === "written-acquisition-plan" || templateKey === "psm-executive-presentation" ||
+    templateKey === "psm-signature-page" || templateKey === "psm-addendum" ||
+    templateKey === "asm-not-conducted" || templateKey === "rdt-request-appointment")
+    return "Intake";
+  if (HQ_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
     return "Administration";
