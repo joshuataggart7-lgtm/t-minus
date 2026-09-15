@@ -73,7 +73,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
-      if (!next) setProfile(null);
+      if (!next) {
+        setProfile(null);
+        setAssignedRoles([]);
+      }
     });
     void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
