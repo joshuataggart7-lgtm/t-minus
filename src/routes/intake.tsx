@@ -383,7 +383,7 @@ function IntakePage() {
       const stored = toStored(est);
 
       const payload = {
-        acquisition_id: created,
+        acquisition_id: next,
         mission_id: facts.mission_id || null,
         mission_directorate_code: facts.mission_directorate_code || null,
         mission_directorate_name: facts.mission_directorate_name || null,
