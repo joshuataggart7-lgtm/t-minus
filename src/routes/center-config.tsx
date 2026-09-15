@@ -6,6 +6,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/center-config";
 import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
+import { PeopleRoles } from "@/components/people-roles";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
