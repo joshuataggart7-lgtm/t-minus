@@ -72,6 +72,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
     } else {
       setMessage(`${ROLE_LABELS[role]} was ${enabled ? "added to" : "removed from"} ${row.display_name || row.email || "that account"}.`);
     }
+    window.dispatchEvent(new Event("tminus:roles-changed"));
     void qc.invalidateQueries({ queryKey: ["people-roles"] });
   }
 

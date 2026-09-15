@@ -67,6 +67,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [personaRole, setPersonaRole] = useState<PersonaRole>("executive");
   const [assignedRoles, setAssignedRoles] = useState<RoleId[]>([]);
+  const [roleRevision, setRoleRevision] = useState(0);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,6 +83,12 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAnonymous = Boolean(session?.user?.is_anonymous);
+
+  useEffect(() => {
+    const refreshRoles = () => setRoleRevision((revision) => revision + 1);
+    window.addEventListener("tminus:roles-changed", refreshRoles);
+    return () => window.removeEventListener("tminus:roles-changed", refreshRoles);
+  }, []);
 
   // Load account defaults. Demo sessions keep their session-only persona and do
   // not need a persisted role membership.
@@ -110,7 +117,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [session, isAnonymous]);
+  }, [session, isAnonymous, roleRevision]);
 
   const canSwitchPersona = isAnonymous;
 
