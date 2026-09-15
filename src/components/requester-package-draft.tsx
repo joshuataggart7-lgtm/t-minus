@@ -188,6 +188,27 @@ export function RequesterPackageDraft({
           </div>
         </div>
         {sources.length ? <ul className="mt-4 space-y-2">{sources.map((source) => <li key={source.id} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-[14px]"><span className="flex min-w-0 items-center gap-2"><FileText aria-hidden="true" /><span className="truncate">{source.kind}: {source.name}</span></span><Button type="button" size="icon" variant="ghost" aria-label={`Remove ${source.name}`} onClick={() => setSources((current) => current.filter((item) => item.id !== source.id))}><X /></Button></li>)}</ul> : null}
+        {sheet ? <div className="mt-4 rounded-lg border border-border p-4">
+          <h3 className="text-[16px] font-medium">Check the columns read from {sheet.file.name}</h3>
+          <p className="mt-1 text-[13px] text-muted-foreground">Correct anything that was read wrong, then load the rows into the IGCE builder.</p>
+          {sheet.read.sheetNames.length > 1 ? <label className="mt-3 block text-[14px]"><span className="mb-1 block font-medium">Sheet</span>
+            <select className={inputClass} value={sheet.read.sheetName} onChange={(event) => void changeSheet(event.target.value)}>{sheet.read.sheetNames.map((name) => <option key={name} value={name}>{name}</option>)}</select>
+          </label> : null}
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">{(Object.keys(sheetColumnLabels) as SheetColumnKey[]).map((key) => <label key={key} className="block text-[14px]">
+            <span className="mb-1 block font-medium">{sheetColumnLabels[key]}</span>
+            <select className={inputClass} value={sheet.mapping[key] ?? -1} onChange={(event) => setSheet({ ...sheet, mapping: { ...sheet.mapping, [key]: Number(event.target.value) < 0 ? undefined : Number(event.target.value) } })}>
+              <option value={-1}>Not in this sheet</option>
+              {sheet.read.headers.map((header, index) => <option key={`${header}-${index}`} value={index}>{header}</option>)}
+            </select>
+          </label>)}</div>
+          <p className="mt-3 text-[14px]">{sheet.read.rows.length} row{sheet.read.rows.length === 1 ? "" : "s"} found{sheet.read.total ? ` · Total read: ${sheet.read.total} (${sheet.read.totalLabel})` : " · No total row was found"}.</p>
+          <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[640px] border border-border text-[13px]"><thead><tr>{sheet.read.headers.map((header, index) => <th key={`${header}-${index}`} className="border-b border-border px-2 py-2 text-left">{header}</th>)}</tr></thead><tbody>{sheet.read.rows.slice(0, 5).map((row, rowIndex) => <tr key={rowIndex} className="border-t border-border">{sheet.read.headers.map((_, index) => <td key={index} className="px-2 py-2">{row[index] || "—"}</td>)}</tr>)}</tbody></table></div>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Button type="button" onClick={loadSheetRows}>Load rows into the IGCE builder</Button>
+            {sheet.read.total ? <Button type="button" variant="outline" onClick={() => applyFact("estimated_value", Number(sheet.read.total) as never)}>Use total as estimated value</Button> : null}
+            <Button type="button" variant="ghost" onClick={() => setSheet(null)}>Not now</Button>
+          </div>
+        </div> : null}
         {error ? <p role="alert" className="mt-3 text-[14px] text-destructive">{error}</p> : null}
         <div className="mt-4 flex flex-wrap gap-3"><Button type="button" onClick={() => void runDraft()} disabled={!sources.length || busy}>{busy ? "Reading package" : "Propose intake values"}</Button>{suggestions.length ? <Button type="button" variant="outline" onClick={() => setConfirmAllOpen(true)}>Confirm all</Button> : null}</div>
         {suggestions.length ? <div className="mt-6 max-w-[80ch] space-y-3"><h3 className="text-[16px] font-medium">Proposed values</h3>{suggestions.map((item, index) => <article key={`${item.key}-${index}`} className="border-t border-border py-4">
