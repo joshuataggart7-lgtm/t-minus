@@ -74,6 +74,8 @@ function DigestPage() {
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
         attachments: attachments.data ?? [],
+        documents: documents.data ?? [],
+        templates: templateRows.data ?? [],
         log: log.data ?? [],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
