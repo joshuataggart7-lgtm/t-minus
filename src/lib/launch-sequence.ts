@@ -419,7 +419,7 @@ export type BoardEntry = {
   note: string | null;
 };
 
-export type ReviewerPerson = { name: string; title: string | null; center_code: string | null };
+export type ReviewerPerson = { name: string; title?: string | null; center_code?: string | null };
 
 /**
  * The office that holds each review. A review belongs to a role, never to a
