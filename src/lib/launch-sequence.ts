@@ -463,16 +463,22 @@ export function pollBoard(
   ref: RefData,
   dueDate: string | null,
   phase = "Go/No-go Poll",
+  roster: ReviewerPerson[] = [],
 ): BoardEntry[] {
   const forPhase = polls.filter((p) => (p.phase ?? "Go/No-go Poll") === phase);
+  const center = (acq['center_code'] ?? null) as string | null;
   return reviewRulesForPhase(phase, acq, rules, ref).map((r) => {
     const row = forPhase.find((p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase());
     const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
+    // The role decides the person. A name stored on a cast vote stands, because
+    // that person actually voted; an unvoted row always reads from the roster.
+    const byRole = reviewerNameForRole(r.reviewer_role, center, roster);
+    const voted = vote === "go" || vote === "no-go";
     return {
       poll_id: row?.poll_id ?? null,
       phase,
       reviewer_role: r.reviewer_role,
-      reviewer_name: row?.reviewer_name ?? reviewerNameForRole(r.reviewer_role),
+      reviewer_name: (voted ? row?.reviewer_name : null) ?? byRole,
       vote: vote === "go" || vote === "no-go" ? vote : "pending",
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,
