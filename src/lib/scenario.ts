@@ -498,12 +498,23 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => c.competed,
     docs: [
       {
-        doc_key: "postaward-notification-letters",
-        label: "Postaward notification letters to the successful and unsuccessful offerors",
-        citation: "FAR 15.503",
+        doc_key: "postaward-letter-successful",
+        label: "Postaward notification letter to the successful offeror",
+        citation: "FAR 15.506(a)(1)",
         phase: "Award",
         state: "required",
-        tab: "050",
+        templateKey: "postaward-letter-successful",
+        tab: "069",
+      },
+      {
+        doc_key: "postaward-letter-unsuccessful",
+        label: "Postaward notification letters to the unsuccessful offerors",
+        citation: "FAR 15.207-2(b)",
+        phase: "Award",
+        state: "required",
+        templateKey: "postaward-letter-unsuccessful",
+        tab: "069",
+        note: "One letter per unsuccessful offeror on the evaluation record.",
       },
     ],
   },
@@ -512,7 +523,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A set-aside acquisition",
     when: (c) => Boolean((c.s.set_aside_type || "").trim()) && !/none|full and open/i.test(c.s.set_aside_type),
     docs: [
-      { doc_key: "preaward-apparent-successful", label: "Preaward notification to the apparent successful offeror", citation: "FAR 19.302", phase: "Award", state: "required", tab: "050" },
+      { doc_key: "preaward-apparent-successful", label: "Preaward notification to the apparent successful offeror", citation: "FAR 15.503(a)(2); FAR 19.302", phase: "Award", state: "required", templateKey: "setaside-preaward-notification", tab: "069" },
     ],
   },
   {
