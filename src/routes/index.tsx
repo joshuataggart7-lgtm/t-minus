@@ -392,7 +392,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
 
   return (
-    <li className="rounded-xl border border-border border-l-4 bg-background p-5" style={{ borderLeftColor: color }}>
+    <li className="rounded-xl border border-border bg-background p-5 shadow-none" style={{ borderLeftWidth: 4, borderLeftColor: color }}>
       <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]">
         <div className="min-w-0">
           <Link

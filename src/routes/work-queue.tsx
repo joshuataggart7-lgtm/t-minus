@@ -303,6 +303,9 @@ function WorkQueuePage() {
                 </p>
                 </div>
                 <ul className="mt-4 space-y-4">
+                  {items.length === 0 ? (
+                    <li className="text-[13px] text-muted-foreground">No file is in this column.</li>
+                  ) : null}
                   {items.map((c) => (
                     <li key={c.m.acq.acquisition_id}>
                       <CardView c={c} />
