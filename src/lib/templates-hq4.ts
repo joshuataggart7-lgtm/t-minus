@@ -1344,9 +1344,9 @@ const ucaLetterContract: TemplateDef = {
   tab: "028/72",
   layout: "memo",
   badge: {
-    citation: "NFS Subpart 1843.70; FAR 16.603; NFS Subpart 1816.603",
+    citation: "NFS CG 1843.6; FAR 16.603; NFS CG 1816.65; NFS CG 1816.66",
     tier: "binding",
-    revision: "HQ 06/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-05-14",
     note: "Approval authority is the head of the contracting activity.",
   },
@@ -1355,7 +1355,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "heading",
       title: "Justification and Approval",
-      citation: "NFS Subpart 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [
         S("action_kind", "Action", ["Undefinitized Contract Action (UCA)", "Letter Contract"], "Undefinitized Contract Action (UCA)"),
@@ -1366,7 +1366,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "purpose",
       title: "1. Purpose:",
-      citation: "NFS Subpart 1843.70; FAR 16.603",
+      citation: "NFS CG 1843.6; FAR 16.603",
       tier: "binding",
       standingText:
         "This document provides justification and request for approval to issue the action identified above. This action is in the Government's best interest because negotiating a definitive modification, contract or order is not possible in sufficient time to meet the requirement, and will provide the contractor a binding commitment so that work can start immediately.",
@@ -1379,14 +1379,14 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "background",
       title: "2. Background:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [{ key: "background", label: "Background", kind: "textarea", bind: "description_of_requirement" }],
     },
     {
       id: "impact",
       title: "3. Statement of Impact/Urgency:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       standingText:
         "The contracting officer (CO) has reviewed this work under this UCA and has determined it to be within the general scope of the contract.",
@@ -1395,7 +1395,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "description",
       title: "4. Description of Action:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [
         X("contractor_address", "Contractor name and address", "vendor_legal_name"),
@@ -1415,7 +1415,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "definitization",
       title: "5. Proposed Definitization Schedule",
-      citation: "NFS 1843.7003(b)(1)",
+      citation: "NFS CG 1843.21(b); NFS CG 1816.65",
       tier: "binding",
       fields: [
         T(
@@ -1433,7 +1433,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "determination",
       title: "6. Determination",
-      citation: "NFS Subpart 1843.70; FAR Subpart 16.603",
+      citation: "NFS CG 1843.6; FAR 16.603",
       tier: "binding",
       standingText:
         "Based on the above, it is the determination of the undersigned that it is in the Government's best interest for the contractor to start work immediately, and that negotiating a definitive contract action is not possible in sufficient time to meet the requirements. Upon approval, NASA will authorize the contractor to begin incurring costs for urgent work performed in advance of definitization at the not-to-exceed estimate amount stated above.",
@@ -1455,7 +1455,7 @@ const ucaLetterContract: TemplateDef = {
         { label: "Concurrence: Procurement Officer, Center", note: "Include this concurrence only for NOJMO, ESDMD and SOMD actions." },
         { label: "Approval: Head of Contracting Activity" },
       ],
-      "NFS Subpart 1843.70",
+      "NFS CG 1843.64; NFS CG 1816.66",
       "Concurrence / Approval:",
     ),
   ],
@@ -1488,9 +1488,9 @@ const jofoc8aOver30m: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "FAR 19.808-1; FAR 6.104-1; FAR 19.208-2(a); 15 U.S.C. 637(a)",
+    citation: "FAR 6.104-1; FAR 19.108-7; FAR 19.208-2(a); 15 U.S.C. 637(a)",
     tier: "binding",
-    revision: "HQ 11/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-05-18",
     note: "Required for an 8(a) sole source award or modification greater than $30 million.",
   },
@@ -1613,9 +1613,9 @@ const precontractCostsApproval: TemplateDef = {
   tab: "066",
   layout: "memo",
   badge: {
-    citation: "NFS 1831.205-32; NFS 1852.231-70; FAR 31.205-32",
+    citation: "NFS CG 1831.12; FAR 31.205-32; NFS 1852.231-70",
     tier: "binding",
-    revision: "HQ 02/2025 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2026-04-24",
     note: "The Procurement Officer approves the request; the authorization letter is then issued to the contractor.",
   },
