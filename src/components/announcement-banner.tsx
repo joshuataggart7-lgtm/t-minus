@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
@@ -23,6 +24,10 @@ export function AnnouncementBanner() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // The urgent line sits in the page flow under the header so it never covers
+  // the navigation headings.
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => setSlot(document.getElementById("urgent-announcement-slot")), []);
 
   const refresh = useCallback(async () => {
     const [all, acks, uid] = await Promise.all([loadAnnouncements(), loadAcks(), currentUserId()]);
