@@ -82,6 +82,29 @@ export function inputsFromFacts(f: IntakeFacts): EstimatorInputs {
   return { value, soleSource, pricing, instrument, reqType, procedures };
 }
 
+/** The same five answers, read off a stored acquisition record. */
+export function inputsFromAcq(acq: {
+  estimated_value?: unknown;
+  competition?: unknown;
+  contract_type?: unknown;
+  acquisition_method?: unknown;
+  title?: unknown;
+  description_of_requirement?: unknown;
+  psc_code?: unknown;
+}): EstimatorInputs {
+  const text = (v: unknown) => String(v ?? "");
+  return inputsFromFacts({
+    ...({} as IntakeFacts),
+    estimated_value: text(acq.estimated_value),
+    competition: text(acq.competition),
+    contract_type: text(acq.contract_type),
+    acquisition_method: text(acq.acquisition_method),
+    title: text(acq.title),
+    description_of_requirement: text(acq.description_of_requirement),
+    psc_code: text(acq.psc_code),
+  });
+}
+
 /** Phase names from intake through award, from the seeded phase plan. */
 export function phasesToAward(ref: RefData, soleSource: boolean) {
   const type = soleSource ? "commercial_ffp_13_5_sole_source" : "commercial_ffp_13_5_competed";
