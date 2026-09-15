@@ -35,6 +35,7 @@ import { explainRedFlag } from "@/lib/explain";
 import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
+import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
