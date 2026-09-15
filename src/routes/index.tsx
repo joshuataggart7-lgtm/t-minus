@@ -216,40 +216,34 @@ export function ExecutiveOverview() {
         <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
       ) : null}
 
-      <section
-        aria-label="Mission clock"
-        className="mb-8 w-full rounded-lg bg-panel px-5 py-4 text-panel-foreground sm:px-8 sm:py-5"
-      >
-        <p className="text-[13px] text-panel-muted">Priority projects on the clock</p>
+      <section aria-label="Mission clock" className="mb-8 w-full">
+        <h2 className="sr-only">Mission clock</h2>
         {q.isLoading ? (
-          <p role="status" className="mt-4 text-panel-muted">
+          <p role="status" className="text-muted-foreground">
             Loading the priority projects.
           </p>
         ) : missionRows.length === 0 ? (
-          <p className="mt-4 text-panel-muted">No priority projects are loaded yet.</p>
+          <p className="text-muted-foreground">No priority projects are loaded yet.</p>
         ) : (
           <>
-            <ul
-              aria-label="Status summary"
-              className="mt-3 flex flex-wrap items-baseline gap-x-8 gap-y-2 border-b border-panel-muted/30 pb-3"
-            >
-              <li className="text-[13px] text-panel-muted">Across {metrics.length} acquisitions</li>
+            <ul aria-label="Status summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {summary.map((s) => (
-                <li key={s.label} className="flex items-baseline gap-2">
-                  <span
-                    aria-hidden="true"
-                    className="inline-block size-2 shrink-0 translate-y-[-1px] rounded-[2px]"
-                    style={{ background: s.color }}
-                  />
-                  <span className="text-[18px] leading-6 font-semibold" data-numeric>
+                <li key={s.label} className="rounded-xl border border-border bg-background px-5 py-4">
+                  <span className="block text-[32px] leading-10 font-semibold" data-numeric>
                     {s.count}
                   </span>
-                  <span className="text-[13px] text-panel-muted">{s.label}</span>
+                  <span className="mt-1 flex items-center gap-2 text-[13px] text-muted-foreground">
+                    <span aria-hidden="true" className="size-2 rounded-[2px]" style={{ background: s.color }} />
+                    {s.label}
+                  </span>
                 </li>
               ))}
             </ul>
-
-            <ul className="mt-2 divide-y divide-panel-muted/30">
+            <div className="mt-8 flex items-baseline justify-between gap-4">
+              <h2 className="text-[18px] font-medium">Priority projects</h2>
+              <p className="text-[13px] text-muted-foreground">Across {metrics.length} acquisitions</p>
+            </div>
+            <ul className="mt-4 grid gap-4 xl:grid-cols-2">
               {missionRows.map(({ mission, driver }) => (
                 <MissionClockRow key={mission.mission_id} mission={mission} driver={driver} />
               ))}
@@ -369,7 +363,7 @@ function abbreviate(label: string) {
   return `${label.slice(0, 21)}…`;
 }
 
-/** One priority project on the Mission Clock. Kept under 110px tall. */
+/** One priority project card with a status rail. */
 function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
   const [expanded, setExpanded] = useState(false);
   const color = panelStatusColor(driver.status);
@@ -405,50 +399,35 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         : { text: String(driver.daysToNextDecision), overdue: false };
 
   return (
-    <li className="border-l-4 py-1.5 pl-4" style={{ borderLeftColor: color }}>
-      <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.3fr)_auto_auto_minmax(0,1.4fr)]">
+    <li className="rounded-xl border border-border border-l-4 bg-background p-5" style={{ borderLeftColor: color }}>
+      <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]">
         <div className="min-w-0">
           <Link
             to="/files/$acquisitionId"
             params={{ acquisitionId: driver.acq.acquisition_id }}
-             className="block rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-panel-foreground"
+             className="block rounded text-[18px] leading-6 font-medium text-foreground underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
           >
             {mission.name}
           </Link>
-           <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
+           <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground" data-numeric>
             {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
           </p>
         </div>
 
         <div className="min-w-0">
           <p className="text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
-          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
+          <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
             {driver.nextAction}
           </p>
         </div>
 
-        <div>
-          {decision === null ? (
-            <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
-          ) : (
-            <p
-              className={decision.overdue ? "text-[18px] leading-6 font-semibold" : "clock-figure"}
-              style={decision.overdue ? { color } : undefined}
-              data-numeric
-            >
-              {decision.text}
-            </p>
-          )}
-          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">Days to decision</p>
-        </div>
-
-        <div>
+        <div className="sm:text-right">
            {driver.clockState === "launched" ? (
              <p className="clock-figure" data-numeric>{driver.daysSinceAward ?? 0}</p>
            ) : driver.clockState === "scrubbed" ? (
-             <p className="text-[15px] leading-[22px] text-panel-muted">Clock stopped</p>
+             <p className="text-[15px] leading-[22px] text-muted-foreground">Clock stopped</p>
            ) : driver.daysToAward === null ? (
-            <p className="text-[15px] leading-[22px] text-panel-muted">Clock not started</p>
+            <p className="text-[15px] leading-[22px] text-muted-foreground">Clock not started</p>
           ) : driver.daysToAward < 0 ? (
             <p className="text-[18px] leading-6 font-semibold" style={{ color }} data-numeric>
               {Math.abs(driver.daysToAward)} days overdue
@@ -458,12 +437,12 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
               {driver.daysToAward}
             </p>
           )}
-          <p className="mt-0.5 text-[13px] leading-[18px] text-panel-muted">
+          <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
             {driver.clockState === "launched" ? `Days since award · ${formatDate(driver.awardDate)}` : "Days to award"}
           </p>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 sm:col-span-2 xl:col-span-3 border-t border-border pt-3">
           <p
             className="text-[18px] leading-6 font-semibold"
             style={atRisk ? { color: "var(--atrisk)" } : undefined}
@@ -477,13 +456,13 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             title={fullLine}
             className={
               expanded
-                ? "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
-                 : "mt-0.5 block w-full text-left text-[13px] leading-[18px] text-panel-muted"
+                ? "mt-1 block w-full text-left text-[13px] leading-[18px] text-muted-foreground"
+                 : "mt-1 block w-full text-left text-[13px] leading-[18px] text-muted-foreground"
             }
           >
             {expanded ? fullLine : shortLine}
           </button>
-          <p className="mt-0.5 break-words text-[13px] leading-[18px] text-panel-muted" data-numeric>
+          <p className="mt-1 break-words text-[13px] leading-[18px] text-muted-foreground" data-numeric>
             {driver.status === "Launched"
               ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
               : driver.scheduleImpactDays === null
