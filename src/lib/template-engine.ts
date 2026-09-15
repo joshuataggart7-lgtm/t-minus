@@ -9,6 +9,7 @@
 
 import { CLOSEOUT_CHECKLIST } from "@/lib/post-award";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
+import { HQ_TEMPLATES } from "@/lib/templates-hq";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2577,6 +2578,7 @@ export const TEMPLATES: TemplateDef[] = [
   coordinationMemo,
   packetTransmittal,
   memorandumForRecord,
+  ...HQ_TEMPLATES,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
