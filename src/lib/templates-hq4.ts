@@ -1547,7 +1547,7 @@ const jofocUrgency: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "FAR 6.302-2; FAR 6.104-1; RFO FAR 6.104-2",
+    citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2; FAR 6.104-1",
     tier: "binding",
     revision: "HQ 09/2026 revision",
     effective: "2026-09-03",
@@ -1557,53 +1557,123 @@ const jofocUrgency: TemplateDef = {
   sections: [
     centreHeading(
       ["UNUSUAL AND COMPELLING URGENCY", "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION (JOFOC)"],
-      "FAR 6.302-2",
+      "FAR 6.103-2",
     ),
     {
       id: "item_1",
       title:
-        "1. FAR 6.104-1(a)(3) – A description of the supplies or services required to meet the agency's needs (including the estimated value):",
-      citation: "FAR 6.104-1(a)(3)",
+        "1. FAR 6.104-1(a)(1) – Identification of the agency and the contracting activity, and specific identification of the document as a \u201cJustification for other than full and open competition.\u201d",
+      citation: "FAR 6.104-1(a)(1)",
       tier: "binding",
-      fields: [
-        X("contractor_name", "Contractor name", "vendor_legal_name"),
-        { key: "description", label: "The action requested for approval", kind: "textarea", bind: "description_of_requirement" },
-        M("estimated_value", "Estimated value", "estimated_value"),
-      ],
+      standingText:
+        "This document is a justification for other than full and open competition prepared by the National Aeronautics and Space Administration (NASA).",
+      fields: [X("buying_location", "Contracting activity", "center_code")],
     },
     {
       id: "item_2",
-      title: "2. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
-      citation: "FAR 6.302-2",
+      title: "2. FAR 6.104-1(a)(2) – The nature and/or description of the action being approved:",
+      citation: "FAR 6.104-1(a)(2)",
       tier: "binding",
-      standingText:
-        "The authority cited is FAR 6.302-2, unusual and compelling urgency. The Government would be seriously injured unless the agency is permitted to limit the number of sources from which it solicits.",
       fields: [
-        { key: "urgency_arose", label: "Date the urgent need arose", kind: "date" },
-        T("urgency_rationale", "The circumstances creating the urgency and the injury to the Government from delay"),
-        T("sources_solicited", "The sources solicited and the efforts made to obtain offers from as many sources as practicable"),
+        X("contractor_name", "Contractor name", "vendor_legal_name"),
+        X("contract_number", "Contract number for a modification or extension"),
+        T("action_nature", "The action being approved and the general purpose of the contract or modification"),
+        T("program_background", "Program background for this action"),
       ],
     },
     {
       id: "item_3",
-      title: "3. FAR 6.104-1(a)(7) – A determination that the anticipated cost to the Government will be fair and reasonable:",
-      citation: "FAR 6.104-1(a)(7); FAR 15.4",
+      title:
+        "3. FAR 6.104-1(a)(3) – A description of the supplies or services required, to meet the agency's needs (including the estimated value):",
+      citation: "FAR 6.104-1(a)(3)",
       tier: "binding",
-      standingText: FAIR_AND_REASONABLE,
-      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable per FAR 15.4")],
+      fields: [
+        { key: "description", label: "The supplies or services required", kind: "textarea", bind: "description_of_requirement" },
+        M("estimated_value", "Anticipated cost of this action", "estimated_value"),
+      ],
     },
     {
       id: "item_4",
-      title: "4. FAR 6.104-1(b) – A determination that the use of a sole-source contract is in the best interest of the agency concerned:",
-      citation: "FAR 6.104-1(b)",
+      title: "4. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
+      citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2",
+      tier: "binding",
+      standingText:
+        "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by FAR 6.103-2, Unusual and compelling urgency.",
+      fields: [],
+    },
+    {
+      id: "item_5",
+      title:
+        "5. FAR 6.104-1(a)(5) – A demonstration that the proposed contractor's unique qualifications or the nature of the acquisition requires use of the authority cited:",
+      citation: "FAR 6.104-1(a)(5)",
+      tier: "binding",
+      standingText:
+        "The agency's need is of such unusual and compelling urgency that the Government would be seriously injured if it is not permitted to limit the number of sources from which it solicits proposals.",
+      fields: [
+        { key: "urgency_arose", label: "Date the urgent need arose", kind: "date" },
+        T("urgency_rationale", "The circumstances creating the urgency and the harm to the Government from delay"),
+      ],
+    },
+    {
+      id: "item_6",
+      title:
+        "6. FAR 6.104-1(a)(6) – A description of the efforts made to ensure that offers are solicited from as many potential sources as practicable, including whether a notice was or will be publicized as required by Subpart 5.1 and, if not, which exception under 5.101 applies:",
+      citation: "FAR 6.104-1(a)(6); FAR 5.101(b)(1)",
+      tier: "binding",
+      standingText:
+        "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d).",
+      fields: [T("sources_solicited", "The efforts made to solicit offers from as many sources as practicable")],
+    },
+    {
+      id: "item_7",
+      title:
+        "7. FAR 6.104-1(a)(7) – A determination by the contracting officer that the anticipated cost to the Government will be fair and reasonable:",
+      citation: "FAR 6.104-1(a)(7)",
+      tier: "binding",
+      standingText: FAIR_AND_REASONABLE,
+      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable")],
+    },
+    {
+      id: "item_8",
+      title:
+        "8. FAR 6.104-1(a)(8) – Description of the market research conducted, and the results, or a statement of the reasons market research was not conducted:",
+      citation: "FAR 6.104-1(a)(8); FAR 6.103-2(b)",
+      tier: "binding",
+      fields: [T("market_research", "The market research conducted and its results, or the reasons it was not conducted")],
+    },
+    {
+      id: "item_9",
+      title: "9. FAR 6.104-1(a)(9) – Any other facts supporting the use of other than full and open competition:",
+      citation: "FAR 6.104-1(a)(9)",
+      tier: "binding",
+      fields: [T("other_facts", "Other facts supporting the use of other than full and open competition")],
+    },
+    {
+      id: "item_10",
+      title: "10. FAR 6.104-1(a)(10) – A listing of the sources, if any, that expressed an interest in writing in the acquisition:",
+      citation: "FAR 6.104-1(a)(10)",
+      tier: "binding",
+      fields: [T("interested_sources", "Sources that expressed an interest in writing, or a statement that there were none")],
+    },
+    {
+      id: "item_11",
+      title:
+        "11. FAR 6.104-1(a)(11) – A statement of actions, if any, the agency may take to remove or overcome any barriers to competition before any subsequent acquisition for the supplies or services required:",
+      citation: "FAR 6.104-1(a)(11)",
       tier: "binding",
       fields: [
-        T("best_interest", "Why a sole-source contract is in the best interest of the agency"),
-        T("barriers", "The actions the agency may take to remove or overcome the barriers to competition before a subsequent acquisition"),
+        {
+          key: "barriers",
+          label: "Actions to remove or overcome barriers to competition",
+          kind: "textarea",
+          default:
+            "The agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.",
+        },
       ],
     },
     jofocCommonSignature("JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION, UNUSUAL AND COMPELLING URGENCY"),
   ],
+
 };
 
 // ------------------------------------------------ 16. Precontract costs approval
