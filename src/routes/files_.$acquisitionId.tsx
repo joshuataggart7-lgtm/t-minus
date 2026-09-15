@@ -514,6 +514,10 @@ function FilePage() {
       upTo.push(p);
       if (p.phase === current) break;
     }
+    // Research comes before the memorandum that reports it. Once a run exists,
+    // the action follows the missing row instead.
+    const hasResearch = (q.data?.researchRuns ?? []).length > 0;
+    if (current === "Market Research" && !hasResearch) return { label: "Run market research" };
     for (const p of upTo) {
       for (const d of p.docs) {
         if (d.optional || !d.field) continue;
