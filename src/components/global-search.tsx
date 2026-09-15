@@ -110,11 +110,11 @@ export function GlobalSearch() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-[13px] text-muted-foreground hover:text-foreground"
+        className="flex h-9 w-full items-center gap-2 rounded-lg border border-border bg-canvas px-3 text-[13px] text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
       >
         <Search className="size-4" aria-hidden="true" />
-        <span>Search</span>
-        <span className="hidden sm:inline">(Command-K)</span>
+        <span className="truncate">Search acquisitions</span>
+        <span className="ml-auto hidden shrink-0 text-[11px] xl:inline">⌘K</span>
       </button>
 
       {open ? (

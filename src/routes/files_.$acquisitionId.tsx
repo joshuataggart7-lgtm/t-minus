@@ -1039,11 +1039,6 @@ function FilePage() {
 
   return (
     <AppShell>
-      <PageHeader
-        title={acq?.title ?? acquisitionId}
-        lead={acq ? `${acquisitionId} · ${acq.center_code ?? ""} · ${acquisitionTypeWords(acq)}` : "Loading the file."}
-      />
-
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
       {banner ? (
@@ -1052,24 +1047,24 @@ function FilePage() {
         </p>
       ) : null}
 
-      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-lg bg-panel px-8 py-8 text-panel-foreground">
-        <div className="grid gap-8 sm:grid-cols-4">
-          <div>
-            <p className="clock-figure" data-numeric>
+      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-xl border border-border bg-background p-6 lg:p-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,1fr)] lg:items-start">
+          <div className="min-w-0">
+            <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+            <h1 className="mt-2 text-[24px] leading-8 font-semibold">{acq?.title ?? acquisitionId}</h1>
+            <p className="mt-2 text-[15px] text-muted-foreground">
+              {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-border pt-5 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <div className="min-w-32">
+            <p className="text-[32px] leading-10 font-semibold" data-numeric>
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {effectiveState === "launched" ? "Days since award" : effectiveState === "scrubbed" ? "Countdown" : "Days to award"}
             </p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium" data-numeric>
-              {effectiveState === "launched" ? (lifecycle?.awardDate ?? "Not recorded") : (effectiveTargetAward ?? "Not recorded")}
-            </p>
-            <p className="mt-1 text-[13px] text-panel-muted">{effectiveState === "launched" ? "Award date" : "Target award date"}</p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium">
+            <p className="mt-3 text-[15px] font-medium">
               {effectiveState === "running"
                 ? "Clock running"
                 : effectiveState === "hold"
@@ -1078,35 +1073,34 @@ function FilePage() {
                     ? "Launched"
                     : (effectiveState ?? "—")}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">Clock state</p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
-            <p className="mt-1 text-[13px] text-panel-muted">
+            </div>
+            <div className="min-w-0">
+            <p className="text-[13px] text-muted-foreground">Current phase</p>
+            <p className="mt-1 text-[18px] leading-6 font-medium">{lifecycle?.currentPhase ?? "Not started"}</p>
+            <p className="mt-3 text-[15px] leading-[22px]">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
             {effectiveState === "hold" && holdAge !== null ? (
-              <p className="mt-1 text-[13px] text-panel-muted">
+               <p className="mt-1 text-[13px] text-muted-foreground">
                 {holdAge >= holdThreshold
                   ? `Aging: on hold ${holdAge} days, past the ${holdThreshold}-day Center window`
                   : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
               </p>
             ) : null}
+            <div className="mt-4 flex flex-wrap gap-4">
+              <ExplainThis explanation={statusExplanation} label="Explain this status" />
+              {hold ? <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" /> : null}
+            </div>
+            </div>
           </div>
         </div>
       </section> : null}
 
-      <div className="mb-10 flex flex-wrap items-start gap-6">
-        <ExplainThis explanation={statusExplanation} label="Explain this status" />
-        {hold ? (
-          <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" />
-        ) : null}
-      </div>
-
-
       {warrant ? (
-        <section aria-label="Warrant check" className="mb-10 max-w-[70ch]">
-          <h2 className="mb-1 text-[18px] leading-6 font-medium">Warrant check</h2>
+        <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+          <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Warrant check</summary>
+          <div className="border-t border-border px-5 py-4">
           {warrant.exceeds ? (
             <p
               className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
@@ -1141,7 +1135,8 @@ function FilePage() {
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
             </p>
           )}
-        </section>
+          </div>
+        </details>
       ) : null}
 
 
@@ -1205,8 +1200,9 @@ function FilePage() {
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
       ) : null}
 
-      <section aria-label="Acquisition Forecast" className="mb-10 max-w-[70ch]">
-        <h2 className="mb-1 text-[18px] font-medium leading-[24px]">Acquisition Forecast</h2>
+      <details aria-label="Acquisition Forecast" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
+        <div className="border-t border-border px-5 py-4">
         <p className="mb-3 text-[13px] text-muted-foreground">
           {FORECAST_CITATION} · binding
           {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
@@ -1247,7 +1243,8 @@ function FilePage() {
             entry.
           </p>
         )}
-      </section>
+        </div>
+      </details>
 
 
       {intakeEstimate ? (
@@ -1345,8 +1342,9 @@ function FilePage() {
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }}
       />
 
-      <section aria-label="Contract file index" className="mb-12">
-        <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>
+      <details aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
+        <div className="border-t border-border px-5 py-4">
         <p className="mb-4 text-[13px] text-muted-foreground">
           Built from the documents in this file, by NF 1098 tab. FAR 4.801 contract file.
         </p>
@@ -1398,10 +1396,12 @@ function FilePage() {
             ) : null}
           </tbody>
         </table>
-      </section>
+        </div>
+      </details>
 
-      <section aria-label="Launch sequence" className="mb-12">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">Launch sequence</h2>
+      <details open aria-label="Launch sequence" className="mb-12 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
+        <div className="border-t border-border p-5">
 
         {mode === "novice" ? (
           <div className="mb-4 flex items-center gap-3 text-[13px]">
@@ -2285,7 +2285,8 @@ function FilePage() {
             </li>
           ))}
         </ol>
-      </section>
+        </div>
+      </details>
 
       <section className="mb-12 max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>

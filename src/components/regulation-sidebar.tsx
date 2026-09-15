@@ -45,13 +45,15 @@ export function RegulationSidebar({
   const thresholds = useMemo(() => thresholdsForPhase(q.data?.thresholds ?? [], phase), [q.data, phase]);
 
   return (
-    <aside
+    <details
       aria-label="Regulations for this phase"
-      className="mb-8 border border-border bg-background lg:float-right lg:ml-8 lg:mb-6 lg:w-[22rem]"
+      className="mb-8 rounded-xl border border-border bg-background lg:float-right lg:ml-8 lg:mb-6 lg:w-[22rem]"
       style={{ borderRadius: 8 }}
     >
-      <div className="flex items-center justify-between gap-3 px-4 py-3">
-        <h2 className="text-[15px] font-medium">Regulations</h2>
+      <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-[15px] font-medium">
+        Regulations
+      </summary>
+      <div className="hidden">
         <button
           type="button"
           className="text-[13px] underline"
@@ -160,6 +162,6 @@ export function RegulationSidebar({
           )}
         </div>
       ) : null}
-    </aside>
+    </details>
   );
 }

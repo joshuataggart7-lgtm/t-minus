@@ -57,8 +57,8 @@
   --foreground: #1d1d1f;
   --muted: #f5f7fb;
   --muted-foreground: #5b6478;
-  --border: #d9dee8;
-  --input: #d9dee8;
+  --border: #dde1e8;
+  --input: #dde1e8;
   --card: #ffffff;
   --card-foreground: #1d1d1f;
   --popover: #ffffff;
@@ -104,6 +104,35 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  button,
+  a,
+  summary,
+  select,
+  input {
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  table thead {
+    color: var(--muted-foreground);
+    font-size: 11px;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+
+  table thead th {
+    font-weight: 500;
+  }
+
+  table tbody tr {
+    min-height: 44px;
+  }
+
+  table tbody td,
+  table tbody th {
+    height: 44px;
+  }
+
   /* Tabular numerals everywhere numbers appear. */
   body,
   table,
@@ -130,22 +159,15 @@
 }
 
 @utility clock-figure {
-  font-size: 40px;
-  line-height: 44px;
+  font-size: 32px;
+  line-height: 40px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 1024px) {
-  .clock-figure {
-    font-size: 48px;
-    line-height: 52px;
-  }
-}
-
 @utility page-title {
-  font-size: 28px;
-  line-height: 34px;
+  font-size: 24px;
+  line-height: 32px;
   font-weight: 600;
 }
 

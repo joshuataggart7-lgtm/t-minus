@@ -202,7 +202,7 @@ function WorkQueuePage() {
         lead="Files you own, what each one is waiting on, and when the next decision is due."
       />
 
-      <div className="mb-6 flex flex-wrap items-end gap-6">
+      <div className="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-4">
         <Link
           to="/intake"
           className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
@@ -291,15 +291,17 @@ function WorkQueuePage() {
         />
       ) : view === "board" ? (
 
-        <div className="grid gap-6 lg:grid-cols-5">
+        <div className="grid gap-4 lg:grid-cols-3 2xl:grid-cols-5">
           {COLUMNS.map((col) => {
             const items = filtered.filter((c) => c.column === col);
             return (
               <section key={col} aria-label={col}>
-                <h2 className="text-[18px] leading-6 font-medium">{col}</h2>
-                <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
+                <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
+                <h2 className="text-[15px] leading-6 font-medium">{col}</h2>
+                <p className="text-[13px] text-muted-foreground" data-numeric>
                   {items.length} {items.length === 1 ? "file" : "files"}
                 </p>
+                </div>
                 <ul className="mt-4 space-y-4">
                   {items.map((c) => (
                     <li key={c.m.acq.acquisition_id}>
@@ -396,7 +398,8 @@ function CardView({ c }: { c: Card }) {
     <Link
       to="/files/$acquisitionId"
       params={{ acquisitionId: c.m.acq.acquisition_id }}
-      className="block rounded-lg border border-border bg-background p-4 hover:border-primary"
+      className="block rounded-xl border border-border border-l-4 bg-background p-4 transition-colors duration-150 hover:border-primary"
+      style={{ borderLeftColor: statusColor(c.m.status) }}
     >
       <p className="text-[15px] leading-[22px] font-medium">
         {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
@@ -413,10 +416,7 @@ function CardView({ c }: { c: Card }) {
             ? "Clock stopped"
             : `${c.m.daysToAward ?? "Clock not started"} days to award`}
       </p>
-      <p
-        className="mt-2 inline-block border-l-2 pl-2 text-[13px]"
-        style={{ borderColor: statusColor(c.m.status) }}
-      >
+      <p className="mt-3 text-[13px] font-medium">
         {c.m.status}
       </p>
     </Link>
