@@ -1254,8 +1254,22 @@ function DocumentPage() {
 
         {visibleSections(def, values).map((s) => (
           <section key={s.id} className="mb-8">
-            <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
-            {sectionCitation(s, values) ? (
+            {s.collapsed ? (
+              <details>
+                <summary className="cursor-pointer text-[18px] leading-6 font-medium">{s.title}</summary>
+                <div className="mt-3">{renderSectionBody(s)}</div>
+              </details>
+            ) : (
+              <>
+                <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
+                {renderSectionBody(s)}
+              </>
+            )}
+          </section>
+        ))}
+        {false ? (
+          <section>
+            {sectionCitation(visibleSections(def, values)[0]!, values) ? (
               <p className="mb-2 text-[13px] text-muted-foreground">
                 {sectionCitation(s, values)}
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
