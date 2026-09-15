@@ -30,6 +30,17 @@ import {
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
+import {
+  ATTACHMENT_ACCEPT,
+  docKey,
+  downloadAttachment,
+  igceFromFile,
+  loadAttachments,
+  removeAttachment,
+  saveIgceClins,
+  uploadAttachment,
+  type AttachmentRow,
+} from "@/lib/attachments";
 import { protestWindow } from "@/lib/protest-window";
 import {
   FORECAST_CITATION,
