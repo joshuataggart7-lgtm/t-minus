@@ -2441,6 +2441,143 @@ const samNotice: TemplateDef = {
       ],
     },
     {
+      id: "presolicitation",
+      title: "Presolicitation notice",
+      citation: "FAR 5.101(c); FAR 5.207",
+      tier: "binding",
+      showIf: isPresol,
+      standingText:
+        "All responsible sources may submit an offer which will be considered by the agency. This posting, in addition to any attached documents, will be available on SAM.gov. It is the offeror's responsibility to monitor this website for the release of the solicitation and amendments (if any).",
+      fields: [
+        {
+          key: "solicitation_vehicle",
+          label: "Type of solicitation planned",
+          kind: "select",
+          options: [
+            "Request for Proposal (RFP)",
+            "Invitation for Bids (IFB)",
+            "Request for Quotations (RFQ)",
+            "Broad Agency Announcement (BAA)",
+            "Announcement of Opportunity (AO)",
+            "NASA Research Announcement (NRA)",
+          ],
+          required: true,
+        },
+        { key: "solicitation_number", label: "Solicitation number", kind: "text" },
+        { key: "anticipated_release_date", label: "Anticipated release date", kind: "date", required: true },
+        { key: "anticipated_offer_due", label: "Anticipated offer due date", kind: "date", required: true },
+        {
+          key: "size_standard",
+          label: "Size standard",
+          kind: "text",
+          help: "Revenue or number of employees for the NAICS shown above.",
+        },
+        {
+          key: "commercial_statement",
+          label: "Commercial statement",
+          kind: "select",
+          options: [
+            "The Government intends to acquire a commercial product or service using FAR Part 12.",
+            "The Government does not intend to acquire a commercial product or commercial service using FAR Part 12.",
+          ],
+          required: true,
+        },
+        {
+          key: "trade_agreements_statement",
+          label: "Trade agreements statement",
+          kind: "select",
+          options: [
+            "",
+            "One or more of the items under this acquisition are subject to Free Trade Agreements.",
+            "One or more of the items under this acquisition are subject to the World Trade Organization Government Procurement Agreement and Free Trade Agreements.",
+          ],
+          help: "FAR 5.101(c)(4)(iii), Table 5-1. Leave empty when no trade agreements clause is included.",
+        },
+        {
+          key: "sole_source_statement",
+          label: "Intended source and why competition is limited",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Presolicitation notice: noncompetitive",
+          required: true,
+        },
+        {
+          key: "completion_days",
+          label: "Calendar days for completion after notice to proceed",
+          kind: "text",
+          showIf: (v) => (v["notice_type"] ?? "") === "Presolicitation notice: construction competitive",
+        },
+        {
+          key: "ae_selection_note",
+          label: "Selection process and submission instructions",
+          kind: "textarea",
+          showIf: (v) =>
+            (v["notice_type"] ?? "") === "Presolicitation notice: architect-engineer services" ||
+            (v["notice_type"] ?? "") === "Presolicitation notice: major system acquisition",
+        },
+        {
+          key: "ombudsman_note",
+          label: "Ombudsman",
+          kind: "readonly",
+          help: "NASA clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition is listed in the NASA Procurement Ombudsman and Competition Advocate listing.",
+        },
+      ],
+    },
+    {
+      id: "modification",
+      title: "Modification to a previous notice",
+      citation: "FAR 5.102",
+      tier: "binding",
+      showIf: isMod,
+      fields: [
+        { key: "original_notice_title", label: "Title of the notice being modified", kind: "text", required: true },
+        { key: "original_notice_number", label: "Solicitation number", kind: "text", required: true },
+        { key: "original_posted_date", label: "Date the notice was posted", kind: "date", required: true },
+        {
+          key: "amendment_number",
+          label: "Amendment number",
+          kind: "text",
+          showIf: (v) => (v["notice_type"] ?? "") === "Modification to a combination synopsis",
+          required: true,
+        },
+        { key: "modification_description", label: "Changes made", kind: "textarea", required: true },
+        {
+          key: "due_date_extended",
+          label: "Due date for responses",
+          kind: "select",
+          options: ["is extended", "is not extended"],
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "rfi",
+      title: "Request for information",
+      citation: "FAR 15.201(e)",
+      tier: "binding",
+      showIf: isRfi,
+      standingText:
+        "This is a request for information only. It is not a solicitation, it does not commit the Government to award a contract, and the Government will not pay for any information provided in response.",
+      fields: [
+        {
+          key: "rfi_material",
+          label: "Material released for comment",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Request for information: draft solicitation or statement of work",
+          required: true,
+        },
+        {
+          key: "oci_concern",
+          label: "Potential organizational conflict of interest described",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Request for information: organizational conflict of interest",
+          required: true,
+        },
+        { key: "rfi_response_instructions", label: "How to respond", kind: "textarea", required: true },
+        { key: "rfi_response_due", label: "Responses due", kind: "date", required: true },
+      ],
+    },
+
+    {
       id: "poc",
       title: "Point of contact",
       citation: "FAR 5.207(c)(16)",
