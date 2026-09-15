@@ -50,6 +50,8 @@ import {
   visibleSections,
   type ThresholdRow,
   type Values,
+  technicalRepresentative,
+  approvingOfficialTitle,
 } from "@/lib/template-engine";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
