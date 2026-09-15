@@ -85,7 +85,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
       >
         Skip to main content
       </a>
-      <header className="grid h-14 grid-cols-[minmax(0,1fr)_minmax(260px,560px)_minmax(0,1fr)] items-center gap-4 border-b border-border bg-background px-4 sm:px-6">
+      <header className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-border bg-background px-4 py-2 md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(260px,560px)_minmax(0,1fr)] md:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -100,8 +100,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <span className="hidden truncate text-[13px] text-muted-foreground xl:block">Mission Acquisition Acceleration</span>
           </Link>
         </div>
-        <div className="min-w-0"><GlobalSearch /></div>
-        <div className="flex min-w-0 items-center justify-end gap-3">
+        <div className="col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
+        <div className="col-start-2 row-start-1 flex min-w-0 items-center justify-end gap-3 md:col-start-3">
           <AnnouncementBanner />
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
@@ -125,16 +125,16 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : null}
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 max-w-[55vw] items-center gap-2 overflow-x-auto md:max-w-none">
             <Link
               to="/center-config"
               hash="my-record"
-              className="max-w-40 truncate text-[13px] text-foreground hover:text-primary"
+              className="shrink-0 max-w-40 truncate text-[13px] text-foreground hover:text-primary"
               title="Open my record"
             >
               {user.name}
             </Link>
-            <span className="hidden max-w-72 flex-wrap justify-end gap-1 sm:flex">
+            <span className="flex shrink-0 flex-wrap justify-end gap-1">
               {roles.map((assignedRole) => (
                 <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
                   {ROLE_LABELS[assignedRole]}
