@@ -664,7 +664,7 @@ export function buildSequence(
    * which generated documents have a saved version. A phase behind the current
    * one reads In work while one of its required documents is still missing.
    */
-  known?: { attachedKeys?: Set<string>; savedKeys?: Set<string> },
+  known?: { attachedKeys?: Set<string> | undefined; savedKeys?: Set<string> | undefined },
 ): PhaseView[] {
   const type = acquisitionType(acq);
   const rows = plan
