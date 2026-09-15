@@ -71,11 +71,41 @@ export function RequesterPackageDraft({
   async function addFile(file: File, kind: SourceKind) {
     setError("");
     if (sources.length >= 4) return setError("Remove a source before adding another. The limit is four.");
+    if (file.size > 20 * 1024 * 1024) return setError(`${file.name} is larger than 20 MB.`);
+    if (isSpreadsheetFile(file)) {
+      try {
+        const read = await readSpreadsheet(file);
+        const id = crypto.randomUUID();
+        setSources((current) => [...current, { id, kind, name: file.name, mimeType: file.type || "application/vnd.ms-excel", text: read.text, pdfData: null }]);
+        setSheet({ file, sourceId: id, kind, read, mapping: read.mapping });
+        return;
+      } catch (reason) {
+        return setError(reason instanceof Error ? reason.message : `${file.name} could not be read. Tried: Excel, CSV.`);
+      }
+    }
     try {
       const source = await fileToSource(file, kind);
       setSources((current) => [...current, source]);
     }
     catch (reason) { setError(reason instanceof Error ? reason.message : "The file could not be read."); }
+  }
+
+  async function changeSheet(name: string) {
+    if (!sheet) return;
+    try {
+      const read = await readSpreadsheet(sheet.file, name);
+      setSheet({ ...sheet, read, mapping: read.mapping });
+      setSources((current) => current.map((item) => item.id === sheet.sourceId ? { ...item, text: read.text } : item));
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "That sheet could not be read."); }
+  }
+
+  function loadSheetRows() {
+    if (!sheet) return;
+    const rows = clinsFromSheet(sheet.read, sheet.mapping, sheet.sourceId);
+    if (!rows.length) return setError("No rows were found with the selected columns. Check the CLIN or description column.");
+    setClins(rows);
+    setClinConfirmed(false);
+    setSheet(null);
   }
 
   function addPaste() {
