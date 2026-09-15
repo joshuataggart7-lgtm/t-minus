@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
-import { attachedKeys as keysFrom } from "@/lib/hold";
+import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import {
   computeMetrics,
   awardDateFor,
@@ -88,6 +88,10 @@ function WorkQueuePage() {
         supabase.from("users").select("name,title,center_code"),
       ]);
       const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
+      const [documents, templateRows] = await Promise.all([
+        supabase.from("documents").select("acquisition_id,template_id"),
+        supabase.from("templates").select("template_id,name"),
+      ]);
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -98,6 +102,8 @@ function WorkQueuePage() {
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
         attachments: attachments.data ?? [],
+        documents: documents.data ?? [],
+        templates: templateRows.data ?? [],
         log: log.data ?? [],
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
       };
@@ -137,6 +143,7 @@ function WorkQueuePage() {
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const m = computeMetrics(acq, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
+          savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
           roster: q.data.users ?? [],
           plan: q.data.plan,
           rules: q.data.rules,
