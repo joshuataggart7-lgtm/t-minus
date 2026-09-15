@@ -141,7 +141,7 @@ function EstimatePage() {
               <dd data-numeric>{est.monthsToAward}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Planned days to award</dt>
+              <dt className="text-muted-foreground">Planned working days in the launch sequence</dt>
               <dd data-numeric>{est.plannedDaysToAward}</dd>
             </div>
             <div>

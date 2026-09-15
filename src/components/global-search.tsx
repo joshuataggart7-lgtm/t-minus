@@ -164,7 +164,7 @@ export function GlobalSearch() {
                 </p>
               ) : results.length === 0 && !rows.isLoading ? (
                 <p className="p-3 text-[13px] text-muted-foreground">
-                  No acquisition matches "{q.trim()}". Try the PR number or the mission name.
+                  No file matches "{q.trim()}". Try the PR number or the mission name.
                 </p>
               ) : null}
 

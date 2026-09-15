@@ -57,6 +57,7 @@ export type MemoRoutingRow = {
 /** Document types that are issued on NF 1858 unless the CO turns the flag off. */
 const DEFAULT_ON = new Set([
   "market-research-memo",
+  "evaluation-of-quotations",
   "commerciality",
   "nonresponsibility",
   "consolidation",
