@@ -111,7 +111,8 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
                   <TelephoneCell row={row} mayEdit={mayEdit} onSave={save} />
                 </td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       )}
