@@ -149,6 +149,21 @@ const MRR_THRESHOLD = 2_000_000;
 /** Simplified acquisition threshold, above which a sole-source proposal needs a TER. */
 const SIMPLIFIED_ACQUISITION_THRESHOLD = 350_000;
 
+/**
+ * The NASA technical evaluation report is mandatory only for a sole-source
+ * proposal above the simplified acquisition threshold. On a competed
+ * simplified acquisition the FAR 13.106-2 evaluation of quotations is the
+ * requirement and the report is offered. The launch sequence, the contract
+ * file index, and the template banner all read this one rule.
+ */
+export function isTerRequired(acq?: AcqRow): boolean {
+  const value = Number(acq?.estimated_value ?? 0);
+  const sole = /sole|limited source|brand name/i.test(
+    `${acq?.competition ?? ""} ${acq?.acquisition_method ?? ""}`,
+  );
+  return sole && value > SIMPLIFIED_ACQUISITION_THRESHOLD;
+}
+
 export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
