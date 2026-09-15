@@ -652,3 +652,24 @@ The About page reads this list at build time. Keep the format
 - "Send feedback" writes a `template_defects` row with template key `feedback`, the reporter's name and role, and the build stamp as the revision, plus the same audit entry a defect report writes. It lands on the HQ PGPD queue unchanged.
 - Executive Overview shows "Computed at [time]" under the Mission Clock panel, set in an effect on load so server and browser render the same first pass.
 - Check: opened About from the footer as the requester, all sections present; test feedback appeared on the HQ queue as "T-Minus feedback"; the test row and its audit entry were removed; the Overview shows the computed-at time.
+
+## Signed-in session and role display (15 September 2026)
+
+- A real session now ends only on a definite `SIGNED_OUT` event. Token
+  refreshes and client-side navigations no longer null the session, so the
+  sign-in screen cannot flash mid-browse.
+- Profile and `user_roles` are read by account id and retried once. A failed
+  read keeps the last known name and roles instead of falling back to a
+  generic account.
+- Roles are ordered administrator first; `profiles.is_admin` always adds the
+  administrator role. The header shows the strongest role, never Contracting
+  for an administrator.
+- The display name comes from `profiles.display_name`, then the account
+  metadata name, then the email local part. Seeded persona names are used only
+  for anonymous demo sessions, which alone show the Demo badge.
+
+**How to verify.** Sign in as the administrator account, then walk Executive
+Overview, Files, Intake, Center configuration and Watch: the header name stays
+"Joshua Taggart" and the first role chip stays "Administrator" on every page.
+Hard refresh on any of those pages: still signed in, same name and chip, no
+sign-in screen in between.
