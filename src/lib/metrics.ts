@@ -5,6 +5,9 @@ import { addDays, daysBetween, todayISO, type RefData } from "@/lib/intake";
 import {
   buildSequence,
   computeHold,
+  docRowKey,
+  docSatisfied,
+  generatorKey,
   pollBoard,
   REVIEW_PHASES,
   type AcqRow,
@@ -231,7 +234,16 @@ export function computeMetrics(
     blockerOwner = hold.owner;
   } else {
     const pending = board.find((b) => b.vote === "pending");
-    const missingDoc = current?.docs.find((d) => d.field && !acq[d.field]);
+    const missingDoc = current?.docs.find(
+      (d) =>
+        (d.field || generatorKey(d)) &&
+        docSatisfied(
+          d,
+          acq,
+          opts.attachedKeys ? opts.attachedKeys.has(docRowKey(d)) : undefined,
+          opts.savedKeys,
+        ) === false,
+    );
     if (pending) {
       blocker = `${pending.reviewer_role} has not voted`;
       blockerOwner = pending.reviewer_name;
