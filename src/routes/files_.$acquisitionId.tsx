@@ -511,7 +511,21 @@ function FilePage() {
     (q.data?.centers ?? []) as { center_code: string; aging_threshold_days?: number | null }[],
   );
 
-  const days = lifecycle?.daysToAward ?? null;
+  // When the CO has not entered a target award date, the forecast's anticipated
+  // award date stands in, so a running clock always shows days to award.
+  const effectiveTargetAward =
+    (acq?.target_award_date as string | null) ??
+    (forecast && /^\d{4}-\d{2}-\d{2}$/.test(forecast.anticipated_award_date)
+      ? forecast.anticipated_award_date
+      : null);
+  const days =
+    lifecycle?.daysToAward ??
+    (effectiveTargetAward
+      ? Math.round(
+          (new Date(effectiveTargetAward + "T00:00:00Z").getTime() - new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z").getTime()) /
+            86_400_000,
+        )
+      : null);
 
   const currentIndex = Math.max(
     0,
