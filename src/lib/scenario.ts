@@ -182,6 +182,8 @@ const outsideUS = (c: ScenarioContext) =>
   !/united states|^us$|^usa$/i.test(c.s.vendor_country.trim()) ||
   !/united states|^us$|^usa$/i.test(c.s.place_country.trim());
 
+import { contractTypeTemplateKey } from "@/lib/templates-hq";
+
 /** The seeded trigger table. Every row carries its own citation and state. */
 export const TRIGGERS: TriggerDef[] = [
   {
@@ -201,7 +203,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "An approved acquisition plan or PSM exists and this action changes it",
     when: (c) => c.s.approved_plan_exists && c.s.approved_plan_changes,
     docs: [
-      { doc_key: "psm-addendum", label: "Addendum to the approved PSM or written acquisition plan", citation: "NFS CG 1807.11", phase: "Intake", state: "required", tab: "005" },
+      { doc_key: "psm-addendum", label: "Addendum to the approved PSM or written acquisition plan", citation: "NFS CG 1807.11", phase: "Intake", state: "required", templateKey: "psm-addendum", tab: "005" },
     ],
   },
   {
@@ -209,7 +211,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Contract type CPIF, CPAF, FPAF or FPI",
     when: (c) => ["CPIF", "CPAF", "FPAF", "FPI"].includes(c.type),
     docs: [
-      { doc_key: "contract-type-dandf", label: "Determination and findings for the contract type", citation: "FAR 16.301-3; FAR 16.401", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "contract-type-dandf", label: "Determination and findings for the contract type", citation: "FAR 16.301-3; FAR 16.401", phase: "Market Research", state: "required", templateKeyFor: (c) => contractTypeTemplateKey(c.type), tab: "010" },
     ],
   },
   {
@@ -223,7 +225,12 @@ export const TRIGGERS: TriggerDef[] = [
         citation: "FAR 12.207(b); FAR 16.601(d)",
         phase: "Market Research",
         state: "required",
-        templateKey: "commercial-tm-lh-determination",
+        templateKeyFor: (c) =>
+          c.s.vehicle === "gsa_fss" || c.s.vehicle === "bpa"
+            ? "dandf-gsa-tm-lh"
+            : c.s.commercial
+              ? "commercial-tm-lh-determination"
+              : "dandf-tm-lh-noncommercial",
         tab: "010",
       },
     ],
@@ -233,8 +240,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Period of performance or ordering period longer than five years",
     when: (c) => overFiveYears(c.acq),
     docs: [
-      { doc_key: "pop-over-five-years", label: "Period or ordering period over five years determination and findings", citation: "NFS CG 1817.204", phase: "Market Research", state: "required", tab: "010" },
-      { doc_key: "pop-deviation", label: "FAR period of performance deviation", citation: "FAR 1.404", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "pop-over-five-years", label: "Period or ordering period over five years determination and findings", citation: "NFS CG 1817.204", phase: "Market Research", state: "required", templateKey: "dandf-pop-over-five-years", tab: "010" },
+      { doc_key: "pop-deviation", label: "FAR period of performance deviation", citation: "FAR 1.404", phase: "Market Research", state: "offered", templateKey: "pop-deviation-request", tab: "010" },
     ],
   },
   {
@@ -242,7 +249,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Single-award IDIQ above $150,000,000",
     when: (c) => c.s.vehicle === "idiq_award" && c.s.idiq_single_award && c.value > 150_000_000,
     docs: [
-      { doc_key: "single-award-idiq-dandf", label: "Single-award IDIQ determination and findings", citation: "FAR 16.504(c)(1)(ii)(D)", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "single-award-idiq-dandf", label: "Single-award IDIQ determination and findings", citation: "FAR 16.504(c)(1)(ii)(D)", phase: "Market Research", state: "required", templateKey: "dandf-single-award-idiq", tab: "010" },
     ],
   },
   {
