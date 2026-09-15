@@ -473,6 +473,9 @@ function jofoc(ctx: MemoDraftCtx): Values {
   return {
     authority,
     authority_rationale: rationale,
+    // Items 6 and 10 read the posting and closing dates back from the notice
+    // of intent once it has been saved in the Synopsis phase.
+    notice_date: ctx.notice?.postedOn ?? "",
     price_analysis_plan: `Price reasonableness will be determined under ${priceAnalysisCitation(
       a,
     )} before award, using the quotation received, the independent Government cost estimate and prior prices for the same service. Drafted from the record, confirm.`,
