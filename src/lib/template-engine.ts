@@ -2616,7 +2616,7 @@ export async function exportDocx(doc: RenderedDoc, fileName: string, context?: E
   const children: InstanceType<typeof Paragraph>[] = [];
   for (const [index, b] of blocks.entries()) {
     if (b.heading) children.push(new Paragraph({ spacing: { before: index ? 180 : 0, after: 120 }, children: [new TextRun({ text: b.heading, bold: true, font: "Times New Roman", size: 24 })] }));
-    for (const line of b.lines) children.push(new Paragraph({ alignment: b.center ? "center" : undefined, spacing: { after: 120 }, children: [new TextRun({ text: line, bold: b.bold, font: "Times New Roman", size: 24 })] }));
+    for (const line of b.lines) children.push(new Paragraph({ ...(b.center ? { alignment: "center" as const } : {}), spacing: { after: 120 }, children: [new TextRun({ text: line, ...(b.bold !== undefined ? { bold: b.bold } : {}), font: "Times New Roman", size: 24 })] }));
   }
   const footer = new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, tabStops: [{ type: TabStopType.CENTER, position: 4680 }], children: [
     new TextRun({ text: "Prototype, synthetic data\t", color: "777777", size: 16, font: "Times New Roman" }),
@@ -2649,7 +2649,7 @@ export async function exportPdf(doc: RenderedDoc, _headerLine: string, fileName 
   const blocks: PdfBlock[] = [];
   for (const block of exportBlocks(doc, context)) {
     if (block.heading) blocks.push({ text: block.heading, bold: true, gap: 6 });
-    block.lines.forEach((line) => blocks.push({ text: line, gap: 6, center: block.center, bold: block.bold }));
+    block.lines.forEach((line) => blocks.push({ text: line, gap: 6, ...(block.center !== undefined ? { center: block.center } : {}), ...(block.bold !== undefined ? { bold: block.bold } : {}) }));
   }
   await renderPdf(blocks, {
     fileName,
