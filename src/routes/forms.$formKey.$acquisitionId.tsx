@@ -233,7 +233,7 @@ function FormPage() {
         field: form.name,
         old_value: latest ? `version ${latest.version}` : null,
         new_value: `version ${nextVersion}`,
-        reason: `${form.name} saved from the form engine`,
+        reason: `${form.name} was saved as version ${nextVersion}`,
       });
       if (logError) throw new Error(logError.message);
       return nextVersion;

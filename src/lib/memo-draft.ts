@@ -608,10 +608,11 @@ export function chronologyDocumentTitle(field: string | null, reason?: string | 
   if (code === "sow_attached" || /statement of work|performance work statement|sow\/?pws/i.test(recorded)) {
     return "SOW/PWS";
   }
-  if (recorded && !/^[a-z][a-z0-9_]*$/i.test(recorded)) return recorded;
   const raw = str(field);
   if (/^nf[-_ ]?1787a?$/i.test(raw)) return raw.toUpperCase().replace(/[-_ ]/g, " ");
   if (/^jofoc$/i.test(raw)) return "JOFOC";
+  if (raw && !/^[a-z][a-z0-9_]*$/i.test(raw)) return raw;
+  if (recorded && !/^[a-z][a-z0-9_]*$/i.test(recorded)) return recorded;
   return raw || recorded || "document";
 }
 
@@ -745,11 +746,10 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         push(`The ${label} was removed from the file on ${on}.`);
       }
       if (saves.length) {
+        const saved = saves[saves.length - 1]!;
+        const versionMatch = /version\s+(\d+)/i.exec(str(saved.newValue));
         push(
-          `The ${label} was saved as a version on ${day(saves[saves.length - 1]!.at)} by ${personPhrase(
-            ctx,
-            saves[saves.length - 1]!.actor,
-          )}.`,
+          `The ${label} was saved as version ${versionMatch?.[1] ?? (str(saved.newValue).replace(/^version\s*/i, "") || "not recorded")} on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`,
         );
       }
     }
@@ -761,11 +761,12 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       handled.add(h);
       const clear = clears[i];
       if (clear) handled.add(clear);
-      const cause = cleanClause(h.reason);
+      const missing = /:\s*(.+?)\s+is missing\b/i.exec(str(h.reason))?.[1];
+      const cause = chronologyDocumentTitle(missing ?? h.field, missing ?? h.reason);
       push(
         clear
-          ? `The clock was held from ${day(h.at)} to ${day(clear.at)}${cause ? ` for ${cause.toLowerCase()}` : ""}.`
-          : `The clock was held from ${day(h.at)}${cause ? ` for ${cause.toLowerCase()}` : ""} and had not been cleared.`,
+          ? `The clock was held on ${day(h.at)} until the ${cause} was attached.`
+          : `The clock was held on ${day(h.at)} for the missing ${cause}.`,
       );
     });
     clears.filter((c) => !handled.has(c)).forEach((c) => {
@@ -780,11 +781,13 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         push(`The go/no-go poll was opened on ${on}.`);
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
         const noGo = /no-go/i.test(a.action) || /no-go/i.test(str(a.newValue));
-        const reason = cleanClause(a.reason);
+        const recorded = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?::|;|$)/i.exec(str(a.reason));
+        const reviewer = recorded?.[2] ?? "reviewer not recorded";
+        const recorder = recorded?.[1] ?? (str(a.actor) || "the contracting officer");
         push(
           noGo
-            ? `${seatName(a.field)} returned no-go on ${on}${reason ? `, stating ${reason.toLowerCase()}` : ""}.`
-            : `${seatName(a.field)} concurred on ${on}${reason ? `, ${reason.toLowerCase()}` : ""}.`,
+            ? `${seatName(a.field)} (${reviewer}) did not concur on ${on}; the vote was received by email and recorded by ${recorder}.`
+            : `${seatName(a.field)} (${reviewer}) concurred on ${on}; the vote was received by email and recorded by ${recorder}.`,
         );
       } else if (/market research run|research finding confirmed/i.test(a.action)) {
         if (w.phase === "Market Research" && researchSentence) push(researchSentence);
