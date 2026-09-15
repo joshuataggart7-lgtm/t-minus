@@ -9,6 +9,10 @@ import {
 import { draftFromRequesterPackage, lookupNaicsSizeStandard, type NaicsSizeView, type PackageClin, type PackageSuggestion } from "@/lib/requester-package.functions";
 import type { IntakeFacts } from "@/lib/intake";
 import type { NfAnswers } from "@/components/nf1707-intake";
+import {
+  clinsFromSheet, isSpreadsheetFile, readSpreadsheet, sheetColumnLabels,
+  type SheetColumnKey, type SheetMapping, type SheetRead,
+} from "@/lib/spreadsheet";
 
 type SourceKind = "PR" | "NF 1707" | "SOW/PWS" | "IGCE";
 type Source = { id: string; kind: SourceKind; name: string; mimeType: string; text: string; pdfData: string | null };
@@ -21,6 +25,7 @@ async function fileToSource(file: File, kind: SourceKind): Promise<Source> {
   if (file.size > 20 * 1024 * 1024) throw new Error(`${file.name} is larger than 20 MB.`);
   const extension = file.name.split(".").pop()?.toLowerCase();
   const id = crypto.randomUUID();
+  const tried: string[] = [];
   if (file.type === "application/pdf" || extension === "pdf") {
     const bytes = new Uint8Array(await file.arrayBuffer());
     let binary = "";
@@ -28,14 +33,19 @@ async function fileToSource(file: File, kind: SourceKind): Promise<Source> {
     return { id, kind, name: file.name, mimeType: "application/pdf", text: "", pdfData: `data:application/pdf;base64,${btoa(binary)}` };
   }
   if (extension === "docx" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-    const mammoth = await import("mammoth/mammoth.browser");
-    const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
-    return { id, kind, name: file.name, mimeType: file.type || "application/vnd.openxmlformats-officedocument.wordprocessingml.document", text: result.value, pdfData: null };
+    tried.push("Word");
+    try {
+      const mammoth = await import("mammoth/mammoth.browser");
+      const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      return { id, kind, name: file.name, mimeType: file.type || "application/vnd.openxmlformats-officedocument.wordprocessingml.document", text: result.value, pdfData: null };
+    } catch { /* fall through to the remaining readers */ }
   }
-  if (file.type.startsWith("text/") || ["txt", "md"].includes(extension ?? "")) {
-    return { id, kind, name: file.name, mimeType: file.type || "text/plain", text: await file.text(), pdfData: null };
+  tried.push("plain text");
+  const text = await file.text();
+  if (text && !/\u0000/.test(text.slice(0, 4000))) {
+    return { id, kind, name: file.name, mimeType: file.type || "text/plain", text, pdfData: null };
   }
-  throw new Error(`${file.name} is not a supported PDF, Word, or text file.`);
+  throw new Error(`${file.name} could not be read. Tried: ${[...new Set([...tried, "Excel or CSV"])].join(", ")}.`);
 }
 
 export function RequesterPackageDraft({
@@ -61,15 +71,46 @@ export function RequesterPackageDraft({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
+  const [sheet, setSheet] = useState<{ file: File; sourceId: string; kind: SourceKind; read: SheetRead; mapping: SheetMapping } | null>(null);
 
   async function addFile(file: File, kind: SourceKind) {
     setError("");
     if (sources.length >= 4) return setError("Remove a source before adding another. The limit is four.");
+    if (file.size > 20 * 1024 * 1024) return setError(`${file.name} is larger than 20 MB.`);
+    if (isSpreadsheetFile(file)) {
+      try {
+        const read = await readSpreadsheet(file);
+        const id = crypto.randomUUID();
+        setSources((current) => [...current, { id, kind, name: file.name, mimeType: file.type || "application/vnd.ms-excel", text: read.text, pdfData: null }]);
+        setSheet({ file, sourceId: id, kind, read, mapping: read.mapping });
+        return;
+      } catch (reason) {
+        return setError(reason instanceof Error ? reason.message : `${file.name} could not be read. Tried: Excel, CSV.`);
+      }
+    }
     try {
       const source = await fileToSource(file, kind);
       setSources((current) => [...current, source]);
     }
     catch (reason) { setError(reason instanceof Error ? reason.message : "The file could not be read."); }
+  }
+
+  async function changeSheet(name: string) {
+    if (!sheet) return;
+    try {
+      const read = await readSpreadsheet(sheet.file, name);
+      setSheet({ ...sheet, read, mapping: read.mapping });
+      setSources((current) => current.map((item) => item.id === sheet.sourceId ? { ...item, text: read.text } : item));
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "That sheet could not be read."); }
+  }
+
+  function loadSheetRows() {
+    if (!sheet) return;
+    const rows = clinsFromSheet(sheet.read, sheet.mapping, sheet.sourceId);
+    if (!rows.length) return setError("No rows were found with the selected columns. Check the CLIN or description column.");
+    setClins(rows);
+    setClinConfirmed(false);
+    setSheet(null);
   }
 
   function addPaste() {
@@ -138,7 +179,8 @@ export function RequesterPackageDraft({
         <div role="tabpanel" className="mt-4 rounded-lg border border-border p-3">
           <label className="block text-[14px]">
             <span className="mb-2 flex items-center gap-2 font-medium"><Upload aria-hidden="true" />Upload {pasteKind}</span>
-            <input className="block w-full text-[13px]" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, pasteKind); event.target.value = ""; }} />
+            <input className="block w-full text-[13px]" type="file" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, pasteKind); event.target.value = ""; }} />
+            <span className="mt-1 block text-[13px] text-muted-foreground">PDF, Word, text, Excel or CSV.</span>
           </label>
           <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <textarea aria-label={`Paste ${pasteKind} text`} rows={2} className={inputClass} placeholder={`Paste ${pasteKind} text`} value={paste} onChange={(event) => setPaste(event.target.value)} />
@@ -146,6 +188,27 @@ export function RequesterPackageDraft({
           </div>
         </div>
         {sources.length ? <ul className="mt-4 space-y-2">{sources.map((source) => <li key={source.id} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-[14px]"><span className="flex min-w-0 items-center gap-2"><FileText aria-hidden="true" /><span className="truncate">{source.kind}: {source.name}</span></span><Button type="button" size="icon" variant="ghost" aria-label={`Remove ${source.name}`} onClick={() => setSources((current) => current.filter((item) => item.id !== source.id))}><X /></Button></li>)}</ul> : null}
+        {sheet ? <div className="mt-4 rounded-lg border border-border p-4">
+          <h3 className="text-[16px] font-medium">Check the columns read from {sheet.file.name}</h3>
+          <p className="mt-1 text-[13px] text-muted-foreground">Correct anything that was read wrong, then load the rows into the IGCE builder.</p>
+          {sheet.read.sheetNames.length > 1 ? <label className="mt-3 block text-[14px]"><span className="mb-1 block font-medium">Sheet</span>
+            <select className={inputClass} value={sheet.read.sheetName} onChange={(event) => void changeSheet(event.target.value)}>{sheet.read.sheetNames.map((name) => <option key={name} value={name}>{name}</option>)}</select>
+          </label> : null}
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">{(Object.keys(sheetColumnLabels) as SheetColumnKey[]).map((key) => <label key={key} className="block text-[14px]">
+            <span className="mb-1 block font-medium">{sheetColumnLabels[key]}</span>
+            <select className={inputClass} value={sheet.mapping[key] ?? -1} onChange={(event) => setSheet({ ...sheet, mapping: { ...sheet.mapping, [key]: Number(event.target.value) < 0 ? undefined : Number(event.target.value) } })}>
+              <option value={-1}>Not in this sheet</option>
+              {sheet.read.headers.map((header, index) => <option key={`${header}-${index}`} value={index}>{header}</option>)}
+            </select>
+          </label>)}</div>
+          <p className="mt-3 text-[14px]">{sheet.read.rows.length} row{sheet.read.rows.length === 1 ? "" : "s"} found{sheet.read.total ? ` · Total read: ${sheet.read.total} (${sheet.read.totalLabel})` : " · No total row was found"}.</p>
+          <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[640px] border border-border text-[13px]"><thead><tr>{sheet.read.headers.map((header, index) => <th key={`${header}-${index}`} className="border-b border-border px-2 py-2 text-left">{header}</th>)}</tr></thead><tbody>{sheet.read.rows.slice(0, 5).map((row, rowIndex) => <tr key={rowIndex} className="border-t border-border">{sheet.read.headers.map((_, index) => <td key={index} className="px-2 py-2">{row[index] || "—"}</td>)}</tr>)}</tbody></table></div>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <Button type="button" onClick={loadSheetRows}>Load rows into the IGCE builder</Button>
+            {sheet.read.total ? <Button type="button" variant="outline" onClick={() => applyFact("estimated_value", Number(sheet.read.total) as never)}>Use total as estimated value</Button> : null}
+            <Button type="button" variant="ghost" onClick={() => setSheet(null)}>Not now</Button>
+          </div>
+        </div> : null}
         {error ? <p role="alert" className="mt-3 text-[14px] text-destructive">{error}</p> : null}
         <div className="mt-4 flex flex-wrap gap-3"><Button type="button" onClick={() => void runDraft()} disabled={!sources.length || busy}>{busy ? "Reading package" : "Propose intake values"}</Button>{suggestions.length ? <Button type="button" variant="outline" onClick={() => setConfirmAllOpen(true)}>Confirm all</Button> : null}</div>
         {suggestions.length ? <div className="mt-6 max-w-[80ch] space-y-3"><h3 className="text-[16px] font-medium">Proposed values</h3>{suggestions.map((item, index) => <article key={`${item.key}-${index}`} className="border-t border-border py-4">
