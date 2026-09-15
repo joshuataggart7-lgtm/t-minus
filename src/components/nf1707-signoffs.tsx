@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { answersFromStored } from "@/components/nf1707-intake";
 import {
   applicableBlocks,
+  hiddenBlocks,
   reviewerTitle,
   signatureCells,
   SIGNOFF_STATUS_LABEL,
-  UNMAPPED_BLOCKS,
   type SignoffBlock,
   type SignoffStatus,
 } from "@/lib/nf1707-signoffs";
