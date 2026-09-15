@@ -1205,58 +1205,17 @@ const limitedSourcesJustification: TemplateDef = {
 
     {
       id: "best_value",
-      title: "Determination by the contracting officer that the order represents the best value consistent with FAR 8.404(d):",
+      title: "Price reasonableness",
       citation: "FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
       tier: "binding",
       standingText: PCD_14_01,
       fields: [T("fair_reasonable", "How a fair and reasonable price will be determined, per FAR 15.404-1(b)(2)")],
     },
     {
-      id: "market_research",
-      title: "Market Research:",
-      citation: "FAR Part 10",
-      tier: "binding",
-      fields: [
-        T("market_research", "Market research conducted for this order"),
-        S("ebuy_posting", "FAR 8.405-6(b)(3)(i) applies", ["No", "Yes"], "No"),
-      ],
-    },
-    {
-      id: "ebuy",
-      title: "Posting",
-      citation: "FAR 8.405-6(b)(3)(i)",
-      tier: "binding",
-      standingText: "Pursuant to FAR 8.405-6(b)(3)(i), the Request for Quote and approved LSJ will be posted to e-Buy.",
-      fields: [],
-      showIf: (v: Values) => v["ebuy_posting"] === "Yes",
-    },
-    {
-      id: "other_facts",
-      title: "Other Facts:",
-      citation: "FAR 8.405-6",
-      tier: "binding",
-      fields: [T("other_facts", "Any other facts that support this justification")],
-    },
-    {
-      id: "barriers",
-      title:
-        "A statement of the actions, if any, the agency may take to remove or overcome any barriers that led to the restricted consideration before any subsequent acquisition for the supplies or services is made:",
-      citation: "FAR 8.405-6(a)",
-      tier: "binding",
-      fields: [
-        {
-          key: "barriers",
-          label: "Actions to remove or overcome barriers",
-          kind: "textarea",
-          default:
-            "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.",
-        },
-      ],
-    },
-    {
       id: "certifications",
       title: "Certifications",
-      citation: "FAR 8.405-6(c)",
+      citation: "GSAM 538.7104-3(b)(2)",
+
       tier: "binding",
       standingText:
         "Technical Representative: I certify that the supporting data presented in this justification are accurate and complete.\n" +
