@@ -44,6 +44,8 @@ export type ImpactRow = {
   reason: string;
   task: ModTaskRow | null;
   label: "Potentially affected" | "Applicability unverified" | "Modification required";
+  /** True only when a contract number is recorded; otherwise this is still a solicitation. */
+  hasContract: boolean;
 };
 
 export type ModTaskRow = {
