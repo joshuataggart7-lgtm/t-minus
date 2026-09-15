@@ -101,7 +101,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           </Link>
         </div>
         <div className="col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
-        <div className="col-start-2 row-start-1 flex min-w-0 items-center justify-end gap-3 md:col-start-3">
+        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-3 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
           <AnnouncementBanner />
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
@@ -125,7 +125,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : null}
-          <div className="flex min-w-0 max-w-[55vw] items-center gap-2 overflow-x-auto md:max-w-none">
+          <div className="flex min-w-0 items-center gap-2">
             <Link
               to="/center-config"
               hash="my-record"
