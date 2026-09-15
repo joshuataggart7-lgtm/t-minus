@@ -197,7 +197,7 @@ function FilePage() {
       const { data: overrides } = await supabase.from("center_overrides").select("*");
       const { data: people } = await supabase
         .from("users")
-        .select("name,role,warrant_limit");
+        .select("name,role,title,center_code,warrant_limit");
       const { data: successors } = await supabase
         .from("acquisition_facts")
         .select("acquisition_id")
@@ -402,6 +402,7 @@ function FilePage() {
         ref,
         acq.target_award_date ?? null,
         phase,
+        q.data?.people ?? [],
       );
     }
     return out;

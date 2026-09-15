@@ -9,6 +9,7 @@ import {
   REVIEW_PHASES,
   type AcqRow,
   type BoardEntry,
+  type ReviewerPerson,
   type PhasePlanRow,
   type PhaseView,
   type PollRow,
@@ -110,6 +111,8 @@ export function computeMetrics(
     holdSince?: string | null;
     awardDate?: string | null;
     today?: string;
+    /** Center reviewer table: who holds each reviewing role. */
+    roster?: ReviewerPerson[];
   },
 ): AcqMetrics {
   const today = opts.today ?? todayISO();
@@ -122,6 +125,7 @@ export function computeMetrics(
       opts.ref,
       acq.target_award_date ?? null,
       phase,
+      opts.roster ?? [],
     ),
   );
   const current = phases.find((p) => p.status === "current") ?? null;
