@@ -728,7 +728,7 @@ const pnm: TemplateDef = {
   name: "Price Negotiation Memorandum (PNM)",
   tab: "065",
   badge: {
-    citation: "FAR 12.204(b)(1); FAR 15.406-3",
+    citation: "FAR 12.204(b)(1); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
@@ -739,7 +739,7 @@ const pnm: TemplateDef = {
     {
       id: "header",
       title: "Acquisition and vendor",
-      citation: "FAR 15.406-3(a)(1)",
+      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(1) part 15",
       tier: "binding",
       fields: [
         { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
@@ -758,7 +758,7 @@ const pnm: TemplateDef = {
     {
       id: "pricing",
       title: "Government estimate and quoted price",
-      citation: "FAR 15.406-3(a)(7); FAR 13.106-3(a)",
+      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) part 15",
       tier: "binding",
       standingText:
         "The independent government cost estimate and the quote of record are the starting point for the analysis.",
@@ -797,7 +797,7 @@ const pnm: TemplateDef = {
     {
       id: "analysis",
       title: "Price analysis and negotiation",
-      citation: "FAR 15.406-3(a)(7) through (a)(11)",
+      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) through (a)(11) part 15",
       tier: "binding",
       fields: [
         {
@@ -848,7 +848,7 @@ const pnm: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 15.406-3(b)",
+    citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(b) part 15",
     blocks: ["Contracting officer", "Date"],
     note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
   }),

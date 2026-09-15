@@ -22,6 +22,7 @@ import { CentersTab, type CenterDocumentRow, type CenterTemplateRow } from "@/co
 import { successorRows } from "@/lib/successor";
 import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
+import { attachedKeys as keysFrom } from "@/lib/hold";
 import {
   callout,
   computeMetrics,
@@ -98,6 +99,7 @@ export function ExecutiveOverview() {
         supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
         supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);
+      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -111,6 +113,7 @@ export function ExecutiveOverview() {
         users: (users.data ?? []) as unknown as UserRow[],
         documents: (documents.data ?? []) as unknown as CenterDocumentRow[],
         templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
+        attachments: attachments.data ?? [],
         log: log.data ?? [],
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
@@ -146,6 +149,7 @@ export function ExecutiveOverview() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
+          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,

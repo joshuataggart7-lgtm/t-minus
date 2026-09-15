@@ -17,7 +17,6 @@ import {
   acquisitionTypeWords,
   buildPacket,
   buildSequence,
-  computeHold,
   docSatisfied,
   NCMS_CHECKLIST,
   pollBoard,
@@ -43,6 +42,8 @@ import {
   uploadAttachment,
   type AttachmentRow,
 } from "@/lib/attachments";
+import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
   FORECAST_CITATION,
@@ -157,6 +158,17 @@ function FilePage() {
   const { acquisitionId } = Route.useParams();
   const { authState, user, role } = useRole();
   const qc = useQueryClient();
+  // Every audit row carries the real account name, never "Signed-in user".
+  const [actorName, setActorName] = useState(user.name);
+  useEffect(() => {
+    let live = true;
+    void signedInName(user.name).then((n) => {
+      if (live) setActorName(n);
+    });
+    return () => {
+      live = false;
+    };
+  }, [user.name]);
   const canWrite = role === "specialist" || role === "hq";
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
@@ -164,6 +176,10 @@ function FilePage() {
   // Which phase the regulation sidebar is showing. Empty until the file loads,
   // then it follows the current phase unless the reader picks another.
   const [regPhase, setRegPhase] = useState<string | null>(null);
+  // Which reviewer row the contracting officer is recording a vote for.
+  const [voteRow, setVoteRow] = useState<string | null>(null);
+  const [voteReceived, setVoteReceived] = useState<string>(todayISO());
+  const [voteNote, setVoteNote] = useState("");
 
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
@@ -295,7 +311,7 @@ function FilePage() {
       }
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Acquisition Forecast entry generated",
         field: "acquisition_forecast_verified",
         old_value: String(acq.acquisition_forecast_verified ?? "not recorded"),
@@ -305,7 +321,7 @@ function FilePage() {
       } as never);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     })();
-  }, [acq, forecast, canWrite, user.name, qc, acquisitionId]);
+  }, [acq, forecast, canWrite, actorName, qc, acquisitionId]);
 
   function exportForecastCsv() {
     if (!forecast || !acq) return;
@@ -318,7 +334,7 @@ function FilePage() {
     URL.revokeObjectURL(url);
     void supabase.from("audit_log").insert({
       acquisition_id: acq.acquisition_id,
-      actor: user.name,
+      actor: actorName,
       action: "Acquisition Forecast entry exported to CSV",
       field: "acquisition_forecast",
       old_value: null,
@@ -425,8 +441,9 @@ function FilePage() {
         : null,
       holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
       awardDate: awardDateFor(acq.acquisition_id, q.data?.log ?? [], acq.target_award_date ?? null),
+      attachedKeys: keysFrom(attachments),
     });
-  }, [acq, q.data, ref]);
+  }, [acq, q.data, ref, attachments]);
 
   const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
   const sidebarPhase =
@@ -490,7 +507,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Poll opened",
         field: "polls",
         new_value: `${rows.length} reviewer${rows.length === 1 ? "" : "s"}`,
@@ -503,6 +520,49 @@ function FilePage() {
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
     onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
+  });
+
+  // A reviewer who answered by email: the contracting officer records the vote
+  // on their behalf, and the audit entry says so.
+  const recordVote = useMutation({
+    mutationFn: async (input: {
+      entry: BoardEntry;
+      choice: "go" | "no-go";
+      received: string;
+      note: string;
+    }) => {
+      if (!acq) return;
+      if (!input.entry.poll_id) throw new Error("Open the poll for this phase first");
+      if (input.choice === "no-go" && !input.note.trim()) throw new Error("A No-go needs a reason");
+      const who = await signedInName(actorName);
+      const note = input.note.trim() || null;
+      const { error } = await supabase
+        .from("polls")
+        .update({
+          vote: input.choice,
+          reason: note,
+          voted_at: new Date(`${input.received}T12:00:00Z`).toISOString(),
+        })
+        .eq("poll_id", input.entry.poll_id);
+      if (error) throw new Error(error.message);
+      await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: who,
+        action: input.choice === "go" ? "Go recorded" : "No-go recorded",
+        field: input.entry.reviewer_role,
+        old_value: input.entry.vote,
+        new_value: input.choice,
+        reason: `recorded by ${who} on behalf of ${input.entry.reviewer_name}${note ? `: ${note}` : ""}; received ${input.received}`,
+        phase: input.entry.phase,
+      });
+    },
+    onSuccess: () => {
+      setVoteRow(null);
+      setVoteNote("");
+      setBanner("The vote is recorded with the date it was received.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`The vote did not save: ${e.message}. Try again.`),
   });
 
   // Age of the current hold, against the Center's own aging window.
@@ -537,12 +597,23 @@ function FilePage() {
   const setDoc = useMutation({
     mutationFn: async ({ doc, attach }: { doc: RequiredDoc; attach: boolean }) => {
       if (!acq || !doc.field) return;
+      const who = await signedInName(actorName);
       const value = doc.field === "jofoc_authority_citation" ? (attach ? "RFO FAR 6.301(a)(1)" : "") : attach;
       const next: Record<string, unknown> = { [doc.field]: value, updated_at: new Date().toISOString() };
 
       // recompute the clock with the new value applied
       const after = { ...acq, [doc.field]: value } as AcqRow;
-      const cause = computeHold(after, buildSequence(after, q.data?.plan ?? [], todayISO(), daysBetween), board);
+      // The stored files decide, so a hold reason never outlives its cause.
+      const keys = keysFrom(attachments);
+      const rowKey = docKey(doc.field, doc.label);
+      if (attach) keys.add(rowKey);
+      else keys.delete(rowKey);
+      const cause = resolveHold(
+        after,
+        buildSequence(after, q.data?.plan ?? [], todayISO(), daysBetween),
+        board,
+        keys,
+      );
       if (acq.clock_state !== "launched") {
         next["clock_state"] = cause ? "hold" : "running";
         next["hold_reason"] = cause?.reason ?? null;
@@ -562,7 +633,7 @@ function FilePage() {
       await supabase.from("audit_log").insert([
         {
           acquisition_id: acq.acquisition_id,
-          actor: user.name,
+          actor: who,
           action: attach ? "Document attached" : "Document removed",
           field: doc.field,
           old_value: String(acq[doc.field] ?? ""),
@@ -571,7 +642,7 @@ function FilePage() {
         },
         {
           acquisition_id: acq.acquisition_id,
-          actor: user.name,
+          actor: who,
           action: cause ? "Clock on hold" : "Clock resumed",
           field: "clock_state",
           old_value: String(acq.clock_state ?? ""),
@@ -610,7 +681,7 @@ function FilePage() {
           readFailed = true;
         }
       }
-      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: user.name, parsedTotal: total });
+      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: actorName, parsedTotal: total });
       const satisfies = key !== "igce_attached" || total !== null;
       if (doc.field && satisfies) await setDoc.mutateAsync({ doc, attach: true });
       return { fileName: file.name, label: doc.label, total, clinCount, satisfies, readFailed };
@@ -637,7 +708,7 @@ function FilePage() {
     mutationFn: async (doc: RequiredDoc) => {
       const key = docKey(doc.field, doc.label);
       const row = attachmentFor(key);
-      if (row) await removeAttachment(row, user.name);
+      if (row) await removeAttachment(row, actorName);
       if (doc.field) await setDoc.mutateAsync({ doc, attach: false });
       return doc.label;
     },
@@ -668,7 +739,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Responsibility finding recorded",
         field: "responsibility_finding",
         old_value: finding,
@@ -699,12 +770,13 @@ function FilePage() {
   const scrub = useMutation({
     mutationFn: async (reason: string) => {
       if (!acq) return;
+      const who = await signedInName(actorName);
       const { error } = await supabase
         .from("acquisition_facts")
         .update({
-          clock_state: "hold",
+          clock_state: "scrubbed",
           hold_reason: reason,
-          hold_owner: user.name,
+          hold_owner: who,
           status: "scrubbed",
           hold_started_at: new Date().toISOString(),
         })
@@ -712,7 +784,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: who,
         action: "Scrubbed",
         field: "clock_state",
         old_value: String(acq.clock_state ?? ""),
@@ -729,6 +801,7 @@ function FilePage() {
   const launch = useMutation({
     mutationFn: async () => {
       if (!acq) return;
+      const who = await signedInName(actorName);
       const currentIndex = phases.findIndex((phase) => phase.phase === acq.current_phase);
       const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
       const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
@@ -756,7 +829,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: who,
         action: "Launched",
         field: "clock_state",
         old_value: String(acq.clock_state ?? ""),
@@ -772,7 +845,7 @@ function FilePage() {
   });
 
   const nearExport = useMutation({
-    mutationFn: async () => exportNearBundle(acquisitionId, user.name),
+    mutationFn: async () => exportNearBundle(acquisitionId, actorName),
     onSuccess: (r) => {
       setBanner(`Export ready: ${r.fileName}.`);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
@@ -826,7 +899,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Debriefing date recorded",
         field: "debriefing_date",
         old_value: debriefingDate ?? "",
@@ -854,7 +927,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Period of performance end recorded",
         field: "period_of_performance_end",
         old_value: (acq.period_of_performance_end as string | null) ?? "",
@@ -889,7 +962,7 @@ function FilePage() {
         throw new Error("Your role cannot change this file. Switch to the contracting specialist role");
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: input.action,
         field: input.field,
         old_value: String((acq as Record<string, unknown>)[input.field] ?? ""),
@@ -926,7 +999,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: input.action,
         field: input.field,
         old_value: String((pa as Record<string, string | undefined>)[input.field] ?? ""),
@@ -954,7 +1027,7 @@ function FilePage() {
     URL.revokeObjectURL(url);
     void supabase.from("audit_log").insert({
       acquisition_id: acq.acquisition_id,
-      actor: user.name,
+      actor: actorName,
       action: "SF 30 modification handoff packet built",
       field: "modification",
       old_value: null,
@@ -1224,7 +1297,11 @@ function FilePage() {
               type="button"
               onClick={() => {
                 const reason = window.prompt("Why is this acquisition being scrubbed?");
-                if (reason?.trim()) scrub.mutate(reason.trim());
+                if (!reason?.trim()) return;
+                const sure = window.confirm(
+                  `Scrub ${acquisitionId}? The countdown stops and the file leaves the work queue and the clause change list. The audit history is kept. Reason: ${reason.trim()}`,
+                );
+                if (sure) scrub.mutate(reason.trim());
               }}
               className="rounded-lg border border-border px-3 py-2 text-[13px]"
               style={{ color: "var(--atrisk)" }}
@@ -1263,7 +1340,7 @@ function FilePage() {
         rows={q.data?.nfApprovals ?? []}
         routing={q.data?.memoRouting ?? []}
         canWrite={canWrite}
-        actor={user.name}
+        actor={actorName}
         onBanner={setBanner}
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }}
       />
@@ -2104,6 +2181,82 @@ function FilePage() {
                               <span className="mt-1 block">
                                 <ExplainThis explanation={explainReview(b, acq as AcqRow)} />
                               </span>
+                              {canWrite && b.poll_id ? (
+                                voteRow === b.poll_id ? (
+                                  <div className="mt-2 space-y-2 text-[13px] text-foreground">
+                                    <label className="block">
+                                      Date received
+                                      <input
+                                        type="date"
+                                        value={voteReceived}
+                                        onChange={(e) => setVoteReceived(e.target.value)}
+                                        className="ml-2 rounded-lg border border-input px-2 py-1"
+                                      />
+                                    </label>
+                                    <label className="block">
+                                      Note
+                                      <input
+                                        type="text"
+                                        value={voteNote}
+                                        onChange={(e) => setVoteNote(e.target.value)}
+                                        placeholder="Required for a No-go"
+                                        className="ml-2 w-56 rounded-lg border border-input px-2 py-1"
+                                      />
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                      <button
+                                        type="button"
+                                        disabled={recordVote.isPending}
+                                        onClick={() =>
+                                          recordVote.mutate({
+                                            entry: b,
+                                            choice: "go",
+                                            received: voteReceived,
+                                            note: voteNote,
+                                          })
+                                        }
+                                        className="rounded-lg border border-input px-3 py-1 text-primary"
+                                      >
+                                        Go
+                                      </button>
+                                      <button
+                                        type="button"
+                                        disabled={recordVote.isPending}
+                                        onClick={() =>
+                                          recordVote.mutate({
+                                            entry: b,
+                                            choice: "no-go",
+                                            received: voteReceived,
+                                            note: voteNote,
+                                          })
+                                        }
+                                        className="rounded-lg border border-input px-3 py-1"
+                                      >
+                                        No-go
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setVoteRow(null)}
+                                        className="px-2 py-1 text-muted-foreground"
+                                      >
+                                        Cancel
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setVoteRow(b.poll_id ?? null);
+                                      setVoteReceived(todayISO());
+                                      setVoteNote("");
+                                    }}
+                                    className="mt-2 block text-[13px] text-primary"
+                                  >
+                                    Record vote
+                                  </button>
+                                )
+                              ) : null}
                             </td>
                           </tr>
                         ))

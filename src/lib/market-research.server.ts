@@ -171,8 +171,13 @@ export async function runEngine(options: {
   const psc = String(acq["psc_code"] ?? "").trim();
   const method = String(acq["acquisition_method"] ?? "").trim();
   const place = String(acq["place_of_performance_standardized"] ?? acq["place_of_performance"] ?? "");
-  const stateMatch = place.toUpperCase().match(/\b([A-Z]{2})\b(?!.*\b[A-Z]{2}\b)/);
-  const stateCode = stateMatch?.[1] ?? null;
+  // Every state named in the place of performance is searched, not only the last.
+  const STATES = new Set(
+    ("AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY " +
+      "NC ND OH OK OR PA PR RI SC SD TN TX UT VT VA VI WA WV WI WY").split(" "),
+  );
+  const stateCodes = [...new Set((place.toUpperCase().match(/\b[A-Z]{2}\b/g) ?? []).filter((c) => STATES.has(c)))];
+  const stateCode = stateCodes.length ? stateCodes.join(", ") : null;
   const ranAt = new Date().toISOString();
   const today = dateOnly(ranAt);
   const samKey = process.env['SAM_GOV_API_KEY']?.trim();
@@ -181,12 +186,13 @@ export async function runEngine(options: {
   const log: LogEntry[] = [];
   const record = (entry: LogEntry) => log.push(entry);
 
-  const samEntities = async (label: string, withState: boolean): Promise<EngineEntity[]> => {
+  const samEntities = async (label: string, state: string | null): Promise<EngineEntity[]> => {
     const url = new URL("https://api.sam.gov/entity-information/v3/entities");
     url.searchParams.set("api_key", samKey ?? "");
     url.searchParams.set("naicsCode", naics);
     url.searchParams.set("registrationStatus", "A");
-    if (withState && stateCode) url.searchParams.set("physicalAddressProvinceOrStateCode", stateCode);
+    url.searchParams.set("size", "100");
+    if (state) url.searchParams.set("physicalAddressProvinceOrStateCode", state);
     url.searchParams.set("includeSections", "entityRegistration,coreData,assertions");
     const query = redact(url, samKey);
     if (!samKey) {
@@ -213,10 +219,15 @@ export async function runEngine(options: {
     }
   };
 
-  const stateEntities = stateCode
-    ? await samEntities(`SAM.gov Entity Management API, NAICS ${naics} in ${stateCode}`, true)
-    : [];
-  if (!stateCode) {
+  let stateEntities: EngineEntity[] = [];
+  for (const code of stateCodes) {
+    stateEntities = stateEntities.concat(
+      await samEntities(`SAM.gov Entity Management API, NAICS ${naics} in ${code}`, code),
+    );
+  }
+  // One registrant can appear under two states; count each only once.
+  stateEntities = [...new Map(stateEntities.map((e) => [e.uei, e])).values()];
+  if (!stateCodes.length) {
     record({
       source: "SAM.gov Entity Management API, place of performance state",
       query: "not run",
@@ -224,7 +235,7 @@ export async function runEngine(options: {
       outcome: "No place of performance state is on the record, so the state search was skipped.",
     });
   }
-  const nationalEntities = await samEntities(`SAM.gov Entity Management API, NAICS ${naics} nationally`, false);
+  const nationalEntities = await samEntities(`SAM.gov Entity Management API, NAICS ${naics} nationally`, null);
 
   // SAM.gov Opportunities, last three years. The API rejects a range wider
   // than one year, so the three years are searched one year at a time and each
@@ -242,7 +253,7 @@ export async function runEngine(options: {
       from.setDate(from.getDate() + 1);
       const url = new URL("https://api.sam.gov/opportunities/v2/search");
       url.searchParams.set("api_key", samKey ?? "");
-      url.searchParams.set("limit", "15");
+      url.searchParams.set("limit", "50");
       if (naics) url.searchParams.set("ncode", naics);
       else if (psc) url.searchParams.set("ccode", psc);
       url.searchParams.set("postedFrom", mmddyyyy(from));

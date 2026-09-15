@@ -184,6 +184,7 @@ export function fieldErrors(f: IntakeFacts): Record<string, string> {
     e["estimated_value"] = "Enter a dollar figure, for example 1,450,000.";
 
   if (!f.need_date) e["need_date"] = "Enter the mission need date.";
+  else if (f.need_date <= todayISO()) e["need_date"] = "The need date has to fall after today.";
   if (f.naics_code && !/^\d{6}$/.test(f.naics_code.trim()))
     e["naics_code"] = "NAICS is six digits, for example 481219.";
   if (!f.naics_code.trim()) e["naics_code"] = "Enter the six-digit NAICS code.";
@@ -198,8 +199,8 @@ export function fieldErrors(f: IntakeFacts): Record<string, string> {
 
   const start = f.period_of_performance_start;
   const end = f.period_of_performance_end;
-  if (start && end && start > end)
-    e["period_of_performance_end"] = "The end date has to fall on or after the start date.";
+  if (start && end && start >= end)
+    e["period_of_performance_end"] = "The end date has to fall after the start date.";
   if (f.need_date && end && f.need_date > end)
     e["need_date"] = "The need date falls after the period of performance ends. Check the dates.";
 

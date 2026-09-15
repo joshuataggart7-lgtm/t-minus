@@ -437,12 +437,21 @@ function IntakePage() {
         intake_estimate: stored,
       };
 
-      const { error } = await supabase.from("acquisition_facts").insert(payload);
-      if (error) throw error;
+      // Two people submitting at once can land on the same number; take the
+      // next one instead of failing silently.
+      let inserted = await supabase.from("acquisition_facts").insert(payload);
+      let attempt = 0;
+      while (inserted.error && /duplicate key|already exists/i.test(inserted.error.message) && attempt < 5) {
+        attempt += 1;
+        payload.acquisition_id = `A-2027-${String(Number(last.slice(-4)) + 1 + attempt).padStart(4, "0")}`;
+        inserted = await supabase.from("acquisition_facts").insert(payload);
+      }
+      if (inserted.error) throw inserted.error;
+      const created = payload.acquisition_id;
 
       if (packageClins.length) {
         const { error: clinError } = await supabase.from("igce_clins").insert(packageClins.map((clin) => ({
-          acquisition_id: next,
+          acquisition_id: created,
           clin_number: clin.clinNumber,
           description: clin.description,
           quantity: clin.quantity ? Number(clin.quantity) : null,
@@ -465,7 +474,7 @@ function IntakePage() {
       for (const [key, file] of Object.entries(docFiles)) {
         if (!file) continue;
         await uploadAttachment({
-          acquisitionId: next,
+          acquisitionId: created,
           key,
           label: labels[key] ?? key,
           file,
@@ -483,7 +492,7 @@ function IntakePage() {
 
       await supabase.from("audit_log").insert([
         {
-          acquisition_id: next,
+          acquisition_id: created,
           actor: user.name,
           action: "Intake submitted; clock started",
           field: "clock_state",
@@ -492,7 +501,7 @@ function IntakePage() {
           reason: "NF 1707 intake submitted and red-flag scan cleared",
         },
         ...(packageConfirmedCount > 0 || packageClins.length ? [{
-          acquisition_id: next,
+          acquisition_id: created,
           actor: user.name,
           action: "Requester package draft confirmed",
           field: "igce_clins",
@@ -501,7 +510,7 @@ function IntakePage() {
           reason: "CO confirmed requester-package suggestions before starting the clock; source files were session-only and were not stored",
         }] : []),
         {
-          acquisition_id: next,
+          acquisition_id: created,
           actor: user.name,
           action: "Target award date set",
           field: "target_award_date",
@@ -510,7 +519,7 @@ function IntakePage() {
           reason: `Need date ${facts.need_date} minus ${lead} days to delivery`,
         },
         {
-          acquisition_id: next,
+          acquisition_id: created,
           actor: user.name,
           action: "Intake estimate recorded",
           field: "intake_estimate",
@@ -521,7 +530,7 @@ function IntakePage() {
         },
       ]);
 
-      navigate({ to: "/intake/$acquisitionId", params: { acquisitionId: next } });
+      navigate({ to: "/intake/$acquisitionId", params: { acquisitionId: created } });
     } catch (e) {
       setSaveError(
         e instanceof Error
@@ -542,6 +551,8 @@ function IntakePage() {
   }
 
   const value = parseMoney(facts.estimated_value);
+  // The level-of-effort estimate the requester sees before the clock starts.
+  const intakeEstimate = scan && data.data ? estimate(inputsFromFacts(facts), data.data.ref) : null;
   const blocking = scan?.filter((f) => f.blocking) ?? [];
 
   return (
@@ -1069,10 +1080,17 @@ function IntakePage() {
       {/* Red-flag scan and submit */}
       <section className="border-t border-border pt-6">
         {touched && errorCount > 0 ? (
-          <p className="mb-4 text-[15px]" style={{ color: "var(--atrisk)" }} role="alert">
-            {errorCount} field{errorCount === 1 ? "" : "s"} need attention above. Fix them, then run
-            the scan again.
-          </p>
+          <div className="mb-4" role="alert">
+            <p className="text-[15px]" style={{ color: "var(--atrisk)" }}>
+              {errorCount} field{errorCount === 1 ? "" : "s"} need attention above. The scan and the
+              clock wait until they are fixed.
+            </p>
+            <ul className="mt-2 text-[13px]">
+              {Object.entries(errors).map(([field, message]) => (
+                <li key={field}>{message}</li>
+              ))}
+            </ul>
+          </div>
         ) : null}
 
         <button
@@ -1082,6 +1100,28 @@ function IntakePage() {
         >
           Run the red-flag scan
         </button>
+
+        {scan && data.data ? (
+          <div className="mt-6 max-w-[80ch] border border-border p-4">
+            <h2 className="text-[18px] leading-6 font-medium">Expected effort and time to award</h2>
+            <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
+            <ul className="mt-2 text-[13px] text-muted-foreground">
+              <li>
+                Months to award: {intakeEstimate?.monthsToAward}. Planned days to award:{" "}
+                {intakeEstimate?.plannedDaysToAward}.
+              </li>
+              <li>
+                Contracting hours: {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
+                {intakeEstimate?.hours.cs.toLocaleString("en-US")}, officer{" "}
+                {intakeEstimate?.hours.co.toLocaleString("en-US")}).
+              </li>
+              <li>Phases: {intakeEstimate?.phases.join(" · ")}</li>
+            </ul>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              This estimate is stored on the record as the estimate at intake when the clock starts.
+            </p>
+          </div>
+        ) : null}
 
         {scan ? (
           <div className="mt-6 rounded-lg border border-border bg-background p-6">

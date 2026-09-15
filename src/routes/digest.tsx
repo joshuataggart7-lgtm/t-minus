@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
+import { attachedKeys as keysFrom } from "@/lib/hold";
 import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
@@ -58,6 +59,7 @@ function DigestPage() {
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
         supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
       ]);
+      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as unknown as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -67,6 +69,7 @@ function DigestPage() {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
+        attachments: attachments.data ?? [],
         log: log.data ?? [],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
@@ -103,6 +106,7 @@ function DigestPage() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
+          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,

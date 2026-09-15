@@ -5,6 +5,7 @@
 // records who attached what and when. Cancelling the picker changes nothing.
 
 import { supabase } from "@/integrations/supabase/client";
+import { signedInName } from "@/lib/account-name";
 import { clinsFromSheet, isSpreadsheetFile, readSpreadsheet, type SheetClin } from "@/lib/spreadsheet";
 
 /** What the picker offers everywhere an attachment is taken. */
@@ -72,6 +73,7 @@ export async function uploadAttachment(input: {
   actor: string;
   parsedTotal?: number | null;
 }): Promise<AttachmentRow> {
+  const actor = await signedInName(input.actor);
   if (input.file.size > 20 * 1024 * 1024) throw new Error(`${input.file.name} is larger than 20 MB.`);
   const path = `${input.acquisitionId}/${input.key}/${Date.now()}-${safeName(input.file.name)}`;
   const upload = await supabase.storage.from("attachments").upload(path, input.file, {
@@ -91,7 +93,7 @@ export async function uploadAttachment(input: {
       storage_path: path,
       content_type: input.file.type || null,
       size_bytes: input.file.size,
-      uploaded_by_name: input.actor,
+      uploaded_by_name: actor,
       parsed_total: input.parsedTotal ?? null,
     } as never)
     .select()
@@ -114,13 +116,13 @@ export async function uploadAttachment(input: {
       kind: "attachment",
     },
     version: 1,
-    saved_by: input.actor,
+    saved_by: actor,
     saved_at: new Date().toISOString(),
   } as never);
 
   await supabase.from("audit_log").insert({
     acquisition_id: input.acquisitionId,
-    actor: input.actor,
+    actor,
     action: "Document attached",
     field: input.key,
     old_value: null,
@@ -131,7 +133,8 @@ export async function uploadAttachment(input: {
   return data as AttachmentRow;
 }
 
-export async function removeAttachment(row: AttachmentRow, actor: string): Promise<void> {
+export async function removeAttachment(row: AttachmentRow, actorGiven: string): Promise<void> {
+  const actor = await signedInName(actorGiven);
   const { error } = await supabase
     .from("document_attachments")
     .delete()

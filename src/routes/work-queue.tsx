@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
+import { attachedKeys as keysFrom } from "@/lib/hold";
 import {
   computeMetrics,
   awardDateFor,
@@ -86,6 +87,7 @@ function WorkQueuePage() {
           .limit(500),
         supabase.from("users").select("name,title,center_code"),
       ]);
+      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -95,6 +97,7 @@ function WorkQueuePage() {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
+        attachments: attachments.data ?? [],
         log: log.data ?? [],
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
       };
@@ -133,6 +136,7 @@ function WorkQueuePage() {
       .map((acq) => {
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const m = computeMetrics(acq, {
+          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
           roster: q.data.users ?? [],
           plan: q.data.plan,
           rules: q.data.rules,

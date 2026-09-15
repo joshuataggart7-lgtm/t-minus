@@ -402,6 +402,11 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   }
 }
 
+/** The key an attachment is stored under for a required-document row. */
+export function docRowKey(doc: RequiredDoc): string {
+  return doc.field ?? doc.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 export function docSatisfied(doc: RequiredDoc, acq: AcqRow, hasFile?: boolean): boolean | null {
   if (!doc.field) return null;
   // A stored file is the only thing that makes a row read Attached. When the
@@ -670,7 +675,19 @@ export function buildSequence(
 
 export type HoldCause = { reason: string; owner: string } | null;
 
-export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[]): HoldCause {
+/**
+ * The cause holding this file, recomputed from the record every time.
+ *
+ * When the caller knows which documents have a stored file, that set decides
+ * whether a row counts as attached, so a hold reason never survives the file
+ * that cleared it.
+ */
+export function computeHold(
+  acq: AcqRow,
+  phases: PhaseView[],
+  board: BoardEntry[],
+  attachedKeys?: Set<string>,
+): HoldCause {
   const owner = acq.co_name ? `Contracting officer: ${acq.co_name}` : "Contracting officer";
   const currentIndex = phases.findIndex((p) => p.status === "current");
   const throughCurrent = currentIndex < 0 ? phases : phases.slice(0, currentIndex + 1);
@@ -678,7 +695,8 @@ export function computeHold(acq: AcqRow, phases: PhaseView[], board: BoardEntry[
   for (const p of throughCurrent) {
     for (const d of p.docs) {
       if (d.optional) continue;
-      if (docSatisfied(d, acq) === false)
+      const hasFile = attachedKeys && d.field ? attachedKeys.has(docRowKey(d)) : undefined;
+      if (docSatisfied(d, acq, hasFile) === false)
         return { reason: `${p.phase}: ${d.label} is missing`, owner };
     }
   }

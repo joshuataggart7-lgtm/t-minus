@@ -12,6 +12,7 @@ import {
   type UserRow,
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
+import { holdFromRecord, attachedKeys as keysFrom } from "@/lib/hold";
 
 export const Route = createFileRoute("/escalations")({
   head: () => ({
@@ -44,17 +45,33 @@ function EscalationsPage() {
     enabled: authState === "signed-in",
     queryFn: async () => {
       const [acqs, polls, centers, users] = await Promise.all([
-        supabase
-          .from("acquisition_facts")
-          .select(
-            "acquisition_id,title,center_code,clock_state,hold_reason,hold_owner,hold_started_at,current_phase,co_name",
-          ),
+        supabase.from("acquisition_facts").select("*"),
         supabase.from("polls").select("*"),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days").order("center_code"),
         supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
       ]);
+      const [plan, attachments] = await Promise.all([
+        supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
+        supabase.from("document_attachments").select("acquisition_id,doc_key"),
+      ]);
+      // The hold shown here is recomputed from the record and the stored files,
+      // so this page, the work queue and the file header read the same cause.
+      const rows = ((acqs.data ?? []) as unknown as AcqRow[]).map((acq) => {
+        if (acq.clock_state === "launched" || acq.status === "scrubbed") return acq;
+        const cause = holdFromRecord(
+          acq,
+          (plan.data ?? []) as never,
+          keysFrom(attachments.data ?? [], acq.acquisition_id),
+        );
+        return {
+          ...acq,
+          hold_reason: cause?.reason ?? null,
+          hold_owner: cause?.owner ?? null,
+          clock_state: cause ? "hold" : acq.clock_state,
+        } as AcqRow;
+      });
       return {
-        acqs: (acqs.data ?? []) as unknown as AcqRow[],
+        acqs: rows,
         polls: (polls.data ?? []) as unknown as PollRow[],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
