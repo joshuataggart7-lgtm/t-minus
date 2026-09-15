@@ -98,6 +98,7 @@ export function ExecutiveOverview() {
         supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
         supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);
+      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -111,6 +112,7 @@ export function ExecutiveOverview() {
         users: (users.data ?? []) as unknown as UserRow[],
         documents: (documents.data ?? []) as unknown as CenterDocumentRow[],
         templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
+        attachments: attachments.data ?? [],
         log: log.data ?? [],
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };

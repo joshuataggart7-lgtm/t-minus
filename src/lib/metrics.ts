@@ -15,6 +15,7 @@ import {
   type PollRow,
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
+import { resolveHold } from "@/lib/hold";
 
 export type MissionRow = {
   mission_id: string;
@@ -113,6 +114,8 @@ export function computeMetrics(
     today?: string;
     /** Center reviewer table: who holds each reviewing role. */
     roster?: ReviewerPerson[];
+    /** Document keys with a stored file, so a cleared cause never lingers. */
+    attachedKeys?: Set<string>;
   },
 ): AcqMetrics {
   const today = opts.today ?? todayISO();
@@ -134,13 +137,9 @@ export function computeMetrics(
     const phase = phases.find((p) => p.phase === entry.phase);
     return phase?.status === "upcoming";
   });
-  const computedHold = computeHold(acq, phases, board);
-  const recordedHold = acq.hold_reason
-    ? { reason: String(acq.hold_reason), owner: String(acq.hold_owner ?? acq.co_name ?? "Contracting officer") }
-    : null;
   const scrubbed = acq.status === "scrubbed" || acq.clock_state === "scrubbed";
   const launched = acq.clock_state === "launched";
-  const hold = launched || scrubbed ? null : (recordedHold ?? computedHold);
+  const hold = launched || scrubbed ? null : resolveHold(acq, phases, board, opts.attachedKeys);
   const clockState =
     launched || scrubbed
       ? (launched ? "launched" : "scrubbed")

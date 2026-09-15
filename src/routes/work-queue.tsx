@@ -86,6 +86,7 @@ function WorkQueuePage() {
           .limit(500),
         supabase.from("users").select("name,title,center_code"),
       ]);
+      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -95,6 +96,7 @@ function WorkQueuePage() {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
+        attachments: attachments.data ?? [],
         log: log.data ?? [],
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
       };
