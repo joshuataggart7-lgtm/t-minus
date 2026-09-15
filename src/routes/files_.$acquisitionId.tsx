@@ -1373,6 +1373,9 @@ function FilePage() {
               <ul className="mt-3 max-w-[80ch]">
                 {p.docs.map((d) => {
                   const state = docSatisfied(d, acq ?? ({ acquisition_id: "" } as AcqRow));
+                  const key = docKey(d.field, d.label);
+                  const attached = attachmentFor(key);
+                  const busy = attachDoc.isPending || detachDoc.isPending;
                   return (
                     <li key={d.label} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]">
                       <span>{d.label}</span>
