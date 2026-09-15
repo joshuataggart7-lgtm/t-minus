@@ -147,14 +147,16 @@ export function Nf1707Signoffs({
       </table>
 
       <details className="mt-4 text-[13px]">
-        <summary className="cursor-pointer">Blocks on the form with no stated trigger ({UNMAPPED_BLOCKS.length})</summary>
+        <summary className="cursor-pointer">Not applicable to this action ({hidden.length})</summary>
         <p className="mt-2 max-w-[70ch] text-muted-foreground">
-          These blocks are printed on the form, but neither the form nor a cited regulation says which answer triggers
-          them, so they are not routed. Tell us which section triggers each one and they will be added.
+          The form hides these blocks for this record. They are listed so nothing is dropped silently.
         </p>
         <ul className="mt-2 space-y-1">
-          {UNMAPPED_BLOCKS.map((b) => (
-            <li key={b.blockName}>{b.blockName} · {b.formSection}{b.center ? ` · ${b.center} only` : ""}</li>
+          {hidden.map((b) => (
+            <li key={b.sigField || b.blockName}>
+              {b.blockName} · {b.formSection}
+              <span className="block text-muted-foreground">{b.hiddenReason}</span>
+            </li>
           ))}
         </ul>
       </details>
