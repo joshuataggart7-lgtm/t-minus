@@ -2478,16 +2478,24 @@ export type ExportContext = {
   coTitle?: string | undefined;
   approvingOfficialTitle?: string | undefined;
   technicalRepresentativeName?: string | undefined;
+  centerName?: string | undefined;
+  centerAddress?: string | undefined;
+  preparedDate?: string | undefined;
+  organizationCode?: string | undefined;
+  additionalApprovalRequired?: boolean | undefined;
 };
 
 type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean; center?: boolean; bold?: boolean };
 
 const cleanExportText = (text: string) =>
   text
-    .replace(/\[[^\]]*(?:Contracting officer|not yet|complete|confirm)[^\]]*\]/gi, "")
+    .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
     .replace(/\s*Source:.*$/gi, "")
     .replace(/^\s*[—–-]\s*$/, "")
+    .replace(/\.\s*\.$/g, ".")
+    .replace(/\s+([,.;:])/g, "$1")
+    .replace(/\s{2,}/g, " ")
     .trim();
 
 const blankLine = "____________________________________________";
@@ -2510,52 +2518,65 @@ function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const value = (key: string) => cleanExportText(v[key] ?? "");
   const contractor = value("contractor_name") || blankLine;
   const action = (value("action_type") || "sole-source contract").toLowerCase();
-  const actionDescription = value("action_description") || value("requirement_description") || blankLine;
+  const actionDescription = (value("action_description") || value("requirement_description") || blankLine).replace(/[.!?]+$/, "");
+  const authorityRationale = value("authority_rationale").replace(/\s*Basis of record:.*$/i, "").trim();
   const notice = value("notice_date")
     ? `The notice of intent was posted on ${value("notice_date")}${value("interested_sources") ? `. ${value("interested_sources")}` : "."}`
     : "The notice of intent has not yet been posted.";
   const item = (n: number, heading: string, prose: string): PrintBlock => ({ heading: `${n}. ${heading}`, lines: [prose] });
+  const approvalLines = [
+    `${ctx.technicalRepresentativeName || blankLine}, Technical Representative`,
+    "Signature: ______________________________    Date: __________",
+    `${ctx.coName || blankLine}, ${ctx.coTitle || "Contracting Officer"}`,
+    "Signature: ______________________________    Date: __________",
+  ];
+  if (ctx.additionalApprovalRequired) {
+    approvalLines.push(ctx.approvingOfficialTitle || blankLine, "Signature: ______________________________    Date: __________");
+  } else {
+    approvalLines.push("Approved by the Contracting Officer under FAR 6.104-2 Table 6-1");
+  }
   return [
     { lines: ["National Aeronautics and Space Administration"], center: true },
+    { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
     { lines: ["JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION"], center: true, bold: true },
     { lines: [`Center: ${value("center_code") || blankLine}`, `Solicitation/contract number: ${value("solicitation_name") || blankLine}`, `Program: ${value("program_name") || blankLine}`] },
     item(1, "Identification of the agency and the contracting activity", `The procuring agency is the National Aeronautics and Space Administration, and the contracting activity is ${value("buying_location") || blankLine}.`),
     item(2, "Nature and description of the action being approved", `This action is a ${action} to ${contractor} for ${actionDescription}.`),
     item(3, "Description of the supplies or services required, including estimated value", `${value("requirement_description") || actionDescription} The estimated value is ${value("estimated_value") ? money(Number(value("estimated_value").replace(/[$,]/g, ""))) : blankLine}.${value("pop_start") || value("pop_end") ? ` The period of performance is ${value("pop_start") || blankLine} to ${value("pop_end") || blankLine}.` : ""}`),
     item(4, "Statutory authority permitting other than full and open competition", `This action is authorized by ${value("authority") || blankLine}.`),
-    item(5, "Demonstration that the authority cited applies", value("authority_rationale") || blankLine),
+    item(5, "Demonstration that the authority cited applies", authorityRationale || blankLine),
     item(6, "Efforts to solicit offers from as many potential sources as practicable", notice),
     item(7, "Determination that the anticipated cost will be fair and reasonable", value("price_analysis_plan") || blankLine),
-    item(8, "Market research conducted and the results", value("market_research") || blankLine),
+    { heading: "8. Market research conducted and the results", lines: (value("market_research") || blankLine).split("\n").filter(Boolean) },
     item(9, "Other facts supporting the use of other than full and open competition", value("other_facts") || "No other facts were identified."),
     item(10, "Sources that expressed an interest in writing", notice),
     item(11, "Actions to remove barriers to competition", value("barriers") || blankLine),
     {
       heading: "Certification and approval",
-      lines: [
-        `${ctx.technicalRepresentativeName || blankLine}, Technical Representative`,
-        "Signature: ______________________________    Date: __________",
-        `${ctx.coName || blankLine}, ${ctx.coTitle || "Contracting Officer"}`,
-        "Signature: ______________________________    Date: __________",
-        `${ctx.approvingOfficialTitle || "Approving Official"}`,
-        "Signature: ______________________________    Date: __________",
-      ],
+      lines: approvalLines,
     },
   ];
 }
 
 function terPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const v = ctx.values;
-  const value = (key: string) => cleanExportText(v[key] ?? "") || "N/A";
+  const raw = (key: string) => cleanExportText(v[key] ?? "");
+  const value = (key: string) => raw(key) || "N/A";
+  const evaluator = ctx.technicalRepresentativeName || raw("from_evaluator");
+  const org = ctx.organizationCode || raw("office_name");
+  const co = [ctx.coName, org].filter(Boolean).join(", ");
+  const item7 = [raw("acceptability"), raw("acceptability_basis"), raw("ae_six_percent")].filter(Boolean);
   return [
-    { lines: [`Date: ${value("memo_date")}`, `Reply to Attn of: ${value("office_name")}`, `TO: ${value("to_co")}`, `FROM: ${value("from_evaluator")}`, `SUBJECT: ${value("subject")}`] },
+    { lines: ["National Aeronautics and Space Administration"], center: true },
+    { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
+    { lines: [`Date: ${ctx.preparedDate || ""}`, `Reply to Attn of: ${org}`, `TO: ${co}`, `FROM: ${[evaluator, org].filter(Boolean).join(", ")}`, `SUBJECT: ${raw("subject")}`] },
     { heading: "1. Technical requirement and background", lines: [value("background")] },
     { heading: "2. Technical evaluation team members", lines: [value("team")] },
     { heading: "3. Fact-finding", lines: [value("fact_finding")] },
     { heading: "4. Ground rules and assumptions", lines: [value("ground_rules")] },
     { heading: "5. Data requirements documents (DRDs)", lines: [value("drds")] },
     { heading: "6. Government furnished property and information", lines: [value("gfp")] },
-    { heading: "7. Overall acceptability of the technical proposal", lines: [value("acceptability"), value("acceptability_basis"), value("ae_six_percent")] },
+    { heading: "7. Overall acceptability of the technical proposal", lines: item7.length ? item7 : ["N/A"] },
     { heading: "8. Evaluation of resources", lines: [
       `a. Direct labor: ${value("res_labor")}`,
       `b. Material: ${value("res_material")}`,
@@ -2564,7 +2585,7 @@ function terPrintBlocks(ctx: ExportContext): PrintBlock[] {
       `e. Special tooling and test equipment: ${value("res_tooling")}`,
       `f. Other direct costs, training, consultants, and IWTs: ${value("res_odc")}`,
     ] },
-    { heading: "Technical evaluator", lines: [`${value("from_evaluator")}`, "Signature: ______________________________    Date: __________"] },
+    { heading: "Technical evaluator", lines: [evaluator || blankLine, "Signature: ______________________________    Date: __________"] },
   ];
 }
 

@@ -876,6 +876,11 @@ function DocumentPage() {
     coTitle: "Contracting Officer",
     approvingOfficialTitle: q.data.routing?.approving_official_title,
     technicalRepresentativeName: String(q.data.acq["technical_representative_name"] ?? q.data.acq["requester_name"] ?? ""),
+    centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
+    centerAddress: q.data.center?.address_line ?? "",
+    preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
+    organizationCode: String(q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
+    additionalApprovalRequired: Boolean(signature && signature.blocks.length > 2),
   } : undefined;
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
