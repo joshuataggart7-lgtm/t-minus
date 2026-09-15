@@ -2803,9 +2803,20 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
     { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
     { lines: [def.name.toUpperCase()], center: true, bold: true },
   ];
+  // The printed page already carries the agency line and the document title,
+  // so a standing line that repeats either of them is not printed again.
+  const key = (text: string) => text.replace(/[^a-z0-9]+/gi, " ").trim().toLowerCase();
+  const banner = new Set([key("National Aeronautics and Space Administration"), key(def.name)]);
+  const titleWords = key(def.name).split(" ").filter(Boolean);
+  const repeatsTitle = (line: string) => {
+    const l = key(line);
+    if (banner.has(l)) return true;
+    return titleWords.length > 2 && l.length > 8 && key(def.name).includes(l);
+  };
   for (const section of visibleSections(def, v)) {
     const lines: string[] = [];
-    if (section.standingText) lines.push(...section.standingText.split("\n").filter(Boolean));
+    if (section.standingText)
+      lines.push(...section.standingText.split("\n").filter(Boolean).filter((line) => !repeatsTitle(line)));
     for (const field of visibleFields(section, v)) {
       const raw = (v[field.key] ?? "").trim();
       const value =
@@ -2827,7 +2838,7 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
   return out;
 }
 
-function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBlock[] {
+export function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBlock[] {
   if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
   if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
   if (context?.def.layout) return hqPrintBlocks(context);
