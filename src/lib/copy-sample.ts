@@ -58,8 +58,10 @@ const INTAKE_FIELDS = [
 /** A-2027-0101 gives series "A-2027-" and a four-digit counter. */
 function seriesOf(acquisitionId: string) {
   const match = /^(.*?)(\d+)$/.exec(acquisitionId);
-  if (!match) return { prefix: `${acquisitionId}-`, width: 4 };
-  return { prefix: match[1], width: match[2].length };
+  const prefix = match?.[1];
+  const digits = match?.[2];
+  if (prefix === undefined || digits === undefined) return { prefix: `${acquisitionId}-`, width: 4 };
+  return { prefix, width: digits.length };
 }
 
 async function nextIdInSeries(sourceId: string): Promise<string> {
