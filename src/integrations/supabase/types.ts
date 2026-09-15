@@ -80,6 +80,7 @@ export type Database = {
           responsibility_finding: string | null
           restrictive_clause_review: string | null
           right_to_repair_statement: boolean | null
+          scenario: Json
           set_aside: string | null
           source_tag: string | null
           sow_attached: boolean | null
@@ -158,6 +159,7 @@ export type Database = {
           responsibility_finding?: string | null
           restrictive_clause_review?: string | null
           right_to_repair_statement?: boolean | null
+          scenario?: Json
           set_aside?: string | null
           source_tag?: string | null
           sow_attached?: boolean | null
@@ -236,6 +238,7 @@ export type Database = {
           responsibility_finding?: string | null
           restrictive_clause_review?: string | null
           right_to_repair_statement?: boolean | null
+          scenario?: Json
           set_aside?: string | null
           source_tag?: string | null
           sow_attached?: boolean | null
@@ -1892,6 +1895,57 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      scenario_trigger_config: {
+        Row: {
+          citation: string
+          condition_label: string
+          config_id: string
+          created_at: string
+          doc_key: string
+          enabled: boolean
+          label: string
+          note: string | null
+          phase: string
+          sort_order: number
+          state: string
+          trigger_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          citation: string
+          condition_label: string
+          config_id?: string
+          created_at?: string
+          doc_key: string
+          enabled?: boolean
+          label: string
+          note?: string | null
+          phase: string
+          sort_order?: number
+          state?: string
+          trigger_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          citation?: string
+          condition_label?: string
+          config_id?: string
+          created_at?: string
+          doc_key?: string
+          enabled?: boolean
+          label?: string
+          note?: string | null
+          phase?: string
+          sort_order?: number
+          state?: string
+          trigger_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       template_defects: {
         Row: {

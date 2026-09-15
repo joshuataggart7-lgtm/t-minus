@@ -547,7 +547,7 @@ function FilePage() {
     for (const d of currentPhase.docs) {
         const generator = generatorKey(d);
         if (d.optional || (!d.field && !generator)) continue;
-        const key = docKey(d.field, d.label);
+        const key = d.docKey ?? docKey(d.field, d.label);
         const state = docSatisfied(
           d,
           acq,
@@ -586,7 +586,7 @@ function FilePage() {
     if (!acq || !currentPhase) return [];
     return currentPhase.docs.filter((doc) => {
       if (doc.optional) return false;
-      const key = docKey(doc.field, doc.label);
+      const key = doc.docKey ?? docKey(doc.field, doc.label);
       return docSatisfied(doc, acq, Boolean(attachmentFor(key)), savedKeys) === false;
     });
   }, [acq, currentPhase, attachments, savedKeys]);
@@ -771,7 +771,7 @@ function FilePage() {
       const after = { ...acq, [doc.field]: value } as AcqRow;
       // The stored files decide, so a hold reason never outlives its cause.
       const keys = keysFrom(attachments);
-      const rowKey = docKey(doc.field, doc.label);
+      const rowKey = doc.docKey ?? docKey(doc.field, doc.label);
       if (attach) keys.add(rowKey);
       else keys.delete(rowKey);
       const cause = resolveHold(
@@ -864,7 +864,7 @@ function FilePage() {
   // then mark the row Attached. Cancelling the picker changes nothing.
   const attachDoc = useMutation({
     mutationFn: async ({ doc, file }: { doc: RequiredDoc; file: File }) => {
-      const key = docKey(doc.field, doc.label);
+      const key = doc.docKey ?? docKey(doc.field, doc.label);
       let total: number | null = null;
       let clinCount = 0;
       let readFailed = false;
@@ -882,7 +882,7 @@ function FilePage() {
           readFailed = true;
         }
       }
-      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: actorName, parsedTotal: total });
+      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: actorName, parsedTotal: total, tab: doc.tab });
       const satisfies = key !== "igce_attached" || total !== null;
       if (doc.field && satisfies) await setDoc.mutateAsync({ doc, attach: true });
       return { fileName: file.name, label: doc.label, total, clinCount, satisfies, readFailed };
@@ -907,7 +907,7 @@ function FilePage() {
 
   const detachDoc = useMutation({
     mutationFn: async ({ doc, reason }: { doc: RequiredDoc; reason: string }) => {
-      const key = docKey(doc.field, doc.label);
+      const key = doc.docKey ?? docKey(doc.field, doc.label);
       const row = attachmentFor(key);
       if (row) await removeAttachment(row, actorName, reason);
       if (doc.field) await setDoc.mutateAsync({ doc, attach: false, reason });
@@ -1798,14 +1798,14 @@ function FilePage() {
 
               <ul className="mt-3 max-w-[80ch]">
                 {p.docs.map((d) => {
-                  const key = docKey(d.field, d.label);
+                  const key = d.docKey ?? docKey(d.field, d.label);
                   const attached = attachmentFor(key);
                   const generator = generatorKey(d);
                   const saved = generator ? savedDocs.get(generator) : undefined;
                   const state = docSatisfied(
                     d,
                     acq ?? ({ acquisition_id: "" } as AcqRow),
-                    d.field || generator ? Boolean(attached) : undefined,
+                    d.field || generator || d.attachOnly ? Boolean(attached) : undefined,
                     savedKeys,
                   );
                   const busy = attachDoc.isPending || detachDoc.isPending;
@@ -1960,6 +1960,63 @@ function FilePage() {
                              </span>
                            ) : null}
                            {state === false ? (
+                             <span className="block w-full">
+                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                             </span>
+                           ) : null}
+                         </>
+                       ) : d.attachOnly ? (
+                         <>
+                           <StatusMark
+                             color={attached ? "var(--ontrack)" : "var(--atrisk)"}
+                             className="text-[13px]"
+                           >
+                             {attached ? "Attached" : "Missing"}
+                           </StatusMark>
+                           {attached ? (
+                             <button
+                               type="button"
+                               onClick={() => void openAttachment(attached)}
+                               className="text-[13px] text-primary"
+                             >
+                               {attached.file_name}
+                             </button>
+                           ) : null}
+                           {canWrite ? (
+                             attached ? (
+                               <button
+                                 type="button"
+                                 disabled={busy}
+                                 onClick={() => showActionDialog({ kind: "remove", doc: d })}
+                                 className="text-[13px] text-primary disabled:opacity-60"
+                               >
+                                 Remove the external copy
+                               </button>
+                             ) : (
+                               <label className="cursor-pointer text-[13px] text-primary">
+                                 {busy
+                                   ? "Attaching"
+                                   : d.handoff
+                                     ? "Attach the signed copy"
+                                     : "Template planned; attach an external copy"}
+                                 <input
+                                   type="file"
+                                   className="sr-only"
+                                   accept={ATTACHMENT_ACCEPT}
+                                   disabled={busy}
+                                   onChange={(event) => {
+                                     const file = event.target.files?.[0];
+                                     if (file) attachDoc.mutate({ doc: d, file });
+                                     event.target.value = "";
+                                   }}
+                                 />
+                               </label>
+                             )
+                           ) : null}
+                           {d.note ? (
+                             <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
+                           ) : null}
+                           {!attached && !d.optional ? (
                              <span className="block w-full">
                                <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
                              </span>
