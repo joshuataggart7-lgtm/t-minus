@@ -241,11 +241,7 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       // The TER is mandatory only for a sole-source proposal above the SAT.
       // On a competed FAR 13.5 buy the FAR 13.106-2 evaluation of quotations
       // is the requirement and the TER is offered.
-      const value = Number(acq?.estimated_value ?? 0);
-      const sole = /sole|limited source|brand name/i.test(
-        `${acq?.competition ?? ""} ${acq?.acquisition_method ?? ""}`,
-      );
-      const terRequired = sole && value > SIMPLIFIED_ACQUISITION_THRESHOLD;
+      const terRequired = isTerRequired(acq);
       return [
         {
           label: terRequired
