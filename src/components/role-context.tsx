@@ -159,18 +159,23 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const legacyRole = profile?.is_admin ? "administrator" : roleFromProfile(profile?.role);
-  const roles: RoleId[] = isAnonymous ? [personaRole] : assignedRoles.length ? assignedRoles : [legacyRole];
+  const signedInRoles = orderRoles(
+    profile?.is_admin ? ["administrator" as RoleId, ...assignedRoles] : assignedRoles,
+  );
+  const roles: RoleId[] = isAnonymous ? [personaRole] : signedInRoles.length ? signedInRoles : [legacyRole];
   const role: RoleId = isAnonymous ? personaRole : roles[0] ?? legacyRole;
 
   const value = useMemo<RoleContextValue>(() => {
     const seeded = userForRole(role === "administrator" ? "hq" : role);
+    const metadata = (session?.user?.user_metadata ?? {}) as Record<string, unknown>;
+    const metaName = typeof metadata['display_name'] === "string" ? metadata['display_name'] : null;
     const user: SeededUser =
       canSwitchPersona || !session
         ? seeded
         : {
             ...seeded,
-            name: accountName(profile?.display_name, profile?.email),
-            email: profile?.email ?? seeded.email,
+            name: accountName(profile?.display_name ?? metaName, profile?.email ?? session.user.email),
+            email: profile?.email ?? session.user.email ?? seeded.email,
           };
     return {
       role,
