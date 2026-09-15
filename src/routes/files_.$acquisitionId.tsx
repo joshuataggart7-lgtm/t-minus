@@ -1482,6 +1482,16 @@ function FilePage() {
         >
           {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
         </button>
+        {canWrite ? (
+          <button
+            type="button"
+            onClick={() => copySample.mutate()}
+            disabled={copySample.isPending}
+            className="rounded-lg border border-border px-3 py-1.5 text-[13px] disabled:opacity-40"
+          >
+            {copySample.isPending ? "Copying the file" : "Copy as new sample"}
+          </button>
+        ) : null}
       </div>
       ) : null}
 
