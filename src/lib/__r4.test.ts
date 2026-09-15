@@ -54,7 +54,7 @@ describe("round 4", () => {
     expect(body).toContain("entered the Intake phase on 2026-08-01 and left it on 2026-08-06");
     expect(body).toContain("attached Statement of work on 2026-08-02");
     expect(body).toContain("IGCE is missing");
-    expect(body).toContain("entered the Market Research phase on 2026-08-06");
+    expect(body).toContain("entered the Market Research phase on 2026-08-10");
     expect(body).toContain("10 registrants and 7 notices after duplicates were removed");
     expect(body).toContain("go/no-go poll was opened on 2026-08-12");
   });
