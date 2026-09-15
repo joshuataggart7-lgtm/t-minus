@@ -19,7 +19,7 @@ import {
   computeHold,
   docSatisfied,
   NCMS_CHECKLIST,
-  NCMS_CHECKLIST as NCMS_CHECKLIST_UNUSED_ALIAS,
+  pollBoard as pollBoardFn,
   pollBoard,
   REVIEW_PHASES,
   reviewRulesForPhase,
