@@ -536,7 +536,6 @@ function FilePage() {
       }
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
-    if (current === "Market Research") return { label: "Run market research" };
     return { label: `Exit ${current}` };
   }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys]);
 
