@@ -166,7 +166,6 @@ function WorkQueuePage() {
     return owned ? String(owned.m.acq['branch_code'] ?? "") : "";
   }, [cards, user.name]);
 
-  const sortList = null;
   const filtered = useMemo(
     () =>
       cards.filter((c) => {
@@ -179,6 +178,18 @@ function WorkQueuePage() {
       }),
     [cards, missionId, scope, user, myBranch],
   );
+
+  // The list view sorts by owner, phase or days to award; the board keeps its order.
+  const sortedList = useMemo(() => {
+    const rows = [...filtered];
+    rows.sort((a, b) => {
+      if (sortBy === "owner") return a.owner.localeCompare(b.owner);
+      if (sortBy === "phase") return String(a.m.currentPhase ?? "").localeCompare(String(b.m.currentPhase ?? ""));
+      const value = (c: Card) => (typeof c.m.daysToAward === "number" ? c.m.daysToAward : Number.POSITIVE_INFINITY);
+      return value(a) - value(b);
+    });
+    return rows;
+  }, [filtered, sortBy]);
 
   return (
     <AppShell>
