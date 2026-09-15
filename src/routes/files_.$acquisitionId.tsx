@@ -185,7 +185,7 @@ function FilePage() {
         supabase
           .from("clauses")
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
-          .in("clause_number", PACKET_CLAUSE_NUMBERS),
+          .in("clause_number", PACKET_CANDIDATE_NUMBERS),
         supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
       ]);
       const { data: memoRouting } = await supabase
