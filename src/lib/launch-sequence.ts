@@ -235,15 +235,39 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
         { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
       ];
-    case "Technical Evaluation":
+    case "Technical Evaluation": {
+      // The TER is mandatory only for a sole-source proposal above the SAT.
+      // On a competed FAR 13.5 buy the FAR 13.106-2 evaluation of quotations
+      // is the requirement and the TER is offered.
+      const value = Number(acq?.estimated_value ?? 0);
+      const sole = /sole|limited source|brand name/i.test(
+        `${acq?.competition ?? ""} ${acq?.acquisition_method ?? ""}`,
+      );
+      const terRequired = sole && value > SIMPLIFIED_ACQUISITION_THRESHOLD;
       return [
         {
-          label: "NASA technical evaluation report",
-          citation: "FAR 13.106-2",
+          label: terRequired
+            ? "NASA technical evaluation report"
+            : "NASA technical evaluation report (offered)",
+          citation: terRequired ? "NFS 1815.305-70" : "FAR 13.106-2",
           link: "templates",
           templateKey: "technical-evaluation-report",
+          optional: !terRequired,
+          note: terRequired
+            ? "Required for a sole-source proposal above the simplified acquisition threshold."
+            : "Offered on a competed simplified acquisition; the evaluation of quotations below is the requirement.",
         },
+        ...(terRequired
+          ? []
+          : [
+              {
+                label: "Evaluation of quotations record",
+                citation: "FAR 13.106-2",
+                note: "Judge each quote against the stated criteria and record who evaluated and why.",
+              } as RequiredDoc,
+            ]),
       ];
+    }
     case "Price Reasonableness":
       return [
         {
