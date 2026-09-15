@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole, currentActor } from "@/lib/actor";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
@@ -115,13 +116,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<SubawardView> => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me) throw new Error("Your account was not found.");
+    const me = await currentActor(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const naics = data.naicsCode.trim();

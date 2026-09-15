@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole, currentActor } from "@/lib/actor";
 
 export type ResetResult = { resetAt: string; counts: Record<string, number> };
 
@@ -7,13 +8,7 @@ export type ResetResult = { resetAt: string; counts: Record<string, number> };
 export const resetDemo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ResetResult> => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("role,name")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (me?.role !== "hq") throw new Error("Reset demo is available to HQ only.");
+    const me = await requireRole(context, ["hq"], "Reset demo is available to HQ only.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { reloadSeed, seededAcquisitionIds } = await import("./seed-load.server");
