@@ -1208,7 +1208,7 @@ const ppm: TemplateDef = {
     {
       id: "chronology",
       title: "E. Evaluation Documentation Chronology:",
-      citation: "FAR 15.406-1(a)",
+      citation: "FAR 15.408-1(b)",
       tier: "binding",
       fields: [
         S("igce_developed", "1. Was an Independent Government Cost Estimate (IGCE) developed for this action?", ["Yes", "No"], "Yes"),
@@ -1216,7 +1216,7 @@ const ppm: TemplateDef = {
         X("igce_approved", "1. Approved by and on"),
         S("igce_used", "1. Was the IGCE utilized in developing the prenegotiation positions?", ["Yes", "No"], "Yes"),
         T("proposals", "2. Contractor's Proposal(s): number(s), date(s) and amount(s)"),
-        T("fact_finding", "3. Fact-Finding Results (FAR 15.406-1(a)): date(s) and key findings"),
+        T("fact_finding", "3. Fact-Finding Results: date(s) and key findings"),
         T("technical_evaluation", "4. Technical Evaluation Report: signer, date, approval, and the findings supporting this memorandum"),
         T("field_pricing", "5. Field Pricing Report or Auditor Rate Verification, if prepared"),
         T("cost_price_report", "6. Cost/Price Evaluation Report, if prepared"),
@@ -1225,7 +1225,7 @@ const ppm: TemplateDef = {
     {
       id: "data_schedule_team",
       title: "F. Certified Cost or Pricing Data; G. Proposed Negotiation Schedule; H. Negotiation Team:",
-      citation: "FAR 15.403; FAR 15.406",
+      citation: "FAR 15.403; FAR 15.408",
       tier: "binding",
       standingText: "Negotiations will commence upon approval of this PPM.",
       fields: [
@@ -1247,7 +1247,7 @@ const ppm: TemplateDef = {
     {
       id: "special_features",
       title: "III. SPECIAL FEATURES AND REQUIREMENTS",
-      citation: "FAR 15.406",
+      citation: "FAR 15.408",
       tier: "binding",
       standingText:
         "Checking \u201cNo\u201d means none or not applicable to the requirement. Checking \u201cYes\u201d means the item applies to this requirement. The CO will address any \u201cYes\u201d items under this section.",
@@ -1299,7 +1299,7 @@ const ppm: TemplateDef = {
     {
       id: "approval",
       title: "V. NEGOTIATION APPROVAL SOUGHT",
-      citation: "FAR 15.406; NFS 1815.406",
+      citation: "FAR 15.408; NFS CG 1815.48",
       tier: "binding",
       standingText:
         "The prenegotiation position above represents the Government's realistic assessment of fair and reasonable prices for the requirement named in this memorandum. Based on the information provided herein, approval is sought for the prenegotiation positions set forth in this document.",
