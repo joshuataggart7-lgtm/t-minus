@@ -206,7 +206,7 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         },
         {
           label: "Independent government cost estimate (IGCE)",
-          citation: "FAR 15.404-1",
+          citation: /13/.test(String(acq?.acquisition_method ?? "")) ? "FAR 13.106-3" : "FAR 15.404-1",
           field: "igce_attached",
         },
         {
