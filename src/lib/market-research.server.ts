@@ -497,6 +497,8 @@ export async function runEngine(options: {
   };
 }
 
+import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
+
 export type DraftFinding = {
   target: string;
   label: string;
@@ -536,14 +538,23 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
     );
   }
 
-  // Paragraph 5: number of sources, small business capability, Rule of Two.
+  // Paragraph 5: the findings sentence the record's competition calls for. A
+  // sole-source or brand-name file never carries a Rule of Two conclusion.
+  const soleSource = isSoleSourceRecord(acq);
+  const soleSourceSentence = soleSourceFindings(
+    acq,
+    { n: entities.length, m: result.smallBusinessCount },
+    false,
+  );
   if (entities.length) {
     add(
       "memo.findings",
       "Memorandum paragraph 5, findings",
-      `${entities.length} source${entities.length === 1 ? "" : "s"} were identified under NAICS ${result.naics}, of which ${result.smallBusinessCount} are registered as small business under that code. The expectation of offers from two or more responsible small business concerns at fair market prices is ${
-        result.ruleOfTwoMet ? "met" : "not met"
-      } (FAR 19.502-2).`,
+      soleSource
+        ? soleSourceSentence
+        : `${entities.length} source${entities.length === 1 ? "" : "s"} were identified under NAICS ${result.naics}, of which ${result.smallBusinessCount} are registered as small business under that code. The expectation of offers from two or more responsible small business concerns at fair market prices is ${
+            result.ruleOfTwoMet ? "met" : "not met"
+          } (FAR 19.502-2).`,
       "SAM.gov Entity Management API",
     );
   }
@@ -558,9 +569,11 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
   }
 
   const setAsideEvidence = entities.length
-    ? `Set-aside evidence: ${entities.length} registrants under NAICS ${result.naics}${
+    ? `${soleSource ? "Market research: " : "Set-aside evidence: "}${entities.length} registrants under NAICS ${result.naics}${
         result.stateCode ? ` (${result.stateEntities.length} in ${result.stateCode})` : ""
-      }, ${result.smallBusinessCount} small business. Rule of Two ${result.ruleOfTwoMet ? "met" : "not met"} (FAR 19.502-2).${
+      }, ${result.smallBusinessCount} small business. ${
+        soleSource ? soleSourceSentence : `Rule of Two ${result.ruleOfTwoMet ? "met" : "not met"} (FAR 19.502-2).`
+      }${
         result.awards.length ? ` ${result.awards.length} comparable federal awards in the last five years.` : ""
       }${result.notices.length ? ` ${result.notices.length} notices posted under this code in the last three years.` : ""}`
     : "";
@@ -575,7 +588,7 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
       `${entities.length} registrants identified under NAICS ${result.naics}; ${result.smallBusinessCount} small business. ${entities
         .slice(0, 5)
         .map((e) => `${e.legalName} (${e.uei}, ${e.smallBusinessLabel})`)
-        .join("; ")}.`,
+        .join("; ")}.${soleSource ? ` ${soleSourceSentence}` : ""}`,
       "SAM.gov Entity Management API",
     );
     add("nf1787a.ckQuery", "NF 1787A, database query", "Yes", "SAM.gov Entity Management API");
