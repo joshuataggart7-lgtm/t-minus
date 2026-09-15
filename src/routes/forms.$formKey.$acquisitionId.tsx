@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -55,7 +55,8 @@ function respondentsFromRaw(raw: unknown): FormRespondent[] {
 
 function FormPage() {
   const { formKey, acquisitionId } = Route.useParams();
-  const { authState } = useRole();
+  const { authState, user } = useRole();
+  const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
 
   const q = useQuery({
@@ -98,7 +99,24 @@ function FormPage() {
         .from("research_findings")
         .select("target,label,value,source,source_date,confirmed,confirmed_by")
         .eq("acquisition_id", acquisitionId);
+      // The library row for this form, and the versions already filed under it.
+      const template = await supabase
+        .from("templates")
+        .select("template_id")
+        .eq("name", FORM_NAMES[formKey as FormKey])
+        .maybeSingle();
+      const templateId = (template.data as { template_id?: string } | null)?.template_id ?? null;
+      const versions = templateId
+        ? await supabase
+            .from("documents")
+            .select("version,saved_at,saved_by")
+            .eq("acquisition_id", acquisitionId)
+            .eq("template_id", templateId)
+            .order("version", { ascending: false })
+        : { data: [] };
       return {
+        templateId,
+        versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null }[],
         findings: Object.fromEntries(
           (research.data ?? []).map((f) => [
             f.target,
@@ -180,6 +198,54 @@ function FormPage() {
     );
   }
 
+  const latest = q.data?.versions?.[0] ?? null;
+
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!form) throw new Error("The form is still loading.");
+      if (!q.data?.templateId) throw new Error("This form is not loaded in the document library.");
+      const nextVersion = Number(latest?.version ?? 0) + 1;
+      const savedAt = new Date().toISOString();
+      const fieldValues: Record<string, string> = {};
+      for (const section of form.sections) {
+        for (const field of section.fields) {
+          fieldValues[field.path] =
+            typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value;
+        }
+      }
+      const { error } = await supabase.from("documents").insert({
+        acquisition_id: acquisitionId,
+        template_id: q.data.templateId,
+        field_values: fieldValues as never,
+        version: nextVersion,
+        saved_by: user.name,
+        saved_at: savedAt,
+        // Every value is drawn from the record and the research log, so the
+        // provenance names the engine rather than a model.
+        ai_model: "T-Minus form engine (record and research run, no model)",
+        ai_generated_at: savedAt,
+      });
+      if (error) throw new Error(error.message);
+      const { error: logError } = await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: user.name,
+        action: "Document saved",
+        field: form.name,
+        old_value: latest ? `version ${latest.version}` : null,
+        new_value: `version ${nextVersion}`,
+        reason: `${form.name} saved from the form engine`,
+      });
+      if (logError) throw new Error(logError.message);
+      return nextVersion;
+    },
+    onSuccess: async (v) => {
+      setMessage(`Saved as version ${v}. The version is in the contract file index and the launch sequence row now reads Saved.`);
+      await queryClient.invalidateQueries({ queryKey: ["generated-form", formKey, acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setMessage(e instanceof Error ? `The save did not finish: ${e.message}` : "The save did not finish."),
+  });
+
   const exportFlat = async () => {
     if (!form) return;
     const blocks: PdfBlock[] = [
@@ -229,6 +295,7 @@ function FormPage() {
       />
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
+        {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
       <p className="mb-6 text-[15px]">
         <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
@@ -249,6 +316,14 @@ function FormPage() {
               type="button"
               className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
               style={{ background: "var(--primary, #0B3D91)" }}
+              onClick={() => save.mutate()}
+              disabled={save.isPending}
+            >
+              {save.isPending ? "Saving" : "Save version"}
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
               onClick={() => void exportPopulated()}
             >
               Export form PDF

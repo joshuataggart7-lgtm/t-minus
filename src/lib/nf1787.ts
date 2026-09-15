@@ -42,9 +42,35 @@ export type FormKey = "nf-1787" | "nf-1787a";
 
 import {
   findingText,
+  rawFinding,
   respondentsFromFinding,
   type FindingMap,
 } from "@/lib/research-findings";
+import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
+
+/**
+ * Registrant and small business counts read back out of the latest research
+ * run, so the form's sentences are re-derived whenever the rule or the record
+ * changes, without the contracting officer running the research again.
+ */
+function counts(findings: FindingMap | undefined): { n: number; m: number } | null {
+  for (const target of ["memo.findings", "nf1787.remarks", "nf1787a.IdentifyResults"]) {
+    const text = rawFinding(findings, target);
+    const m =
+      /(\d[\d,]*)\s+registrants?[\s\S]{0,120}?(\d[\d,]*)\s+small business/i.exec(text) ??
+      /(\d[\d,]*)\s+(?:sources?|registrants?)[\s\S]{0,80}?of which\s+(\d[\d,]*)/i.exec(text);
+    if (m) return { n: Number(m[1]!.replace(/,/g, "")), m: Number(m[2]!.replace(/,/g, "")) };
+  }
+  return null;
+}
+
+/** Any Rule of Two conclusion left in stored text, removed on a sole-source file. */
+function withoutRuleOfTwo(text: string): string {
+  return text
+    .replace(/[^.]*Rule of Two[^.]*\.\s*/gi, "")
+    .replace(/[^.]*two or more responsible small business concerns[^.]*\.\s*/gi, "")
+    .trim();
+}
 
 export type FormRespondent = {
   uei: string;
@@ -151,7 +177,16 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
   const evidence = ctx.evidenceLabel;
   const smallCount = ctx.respondents.filter((r) => has(r.category.toLowerCase(), "small")).length;
 
-  const researched = (target: string) => findingText(ctx.findings, target);
+  const sole = isSoleSourceRecord(a);
+  const soleSentence = soleSourceFindings(a, counts(ctx.findings), false);
+  // On a sole-source file the stored sentence is replaced by the sentence the
+  // rule calls for now, re-derived from the latest run.
+  const researched = (target: string) => {
+    const text = findingText(ctx.findings, target);
+    if (!sole || !text) return text;
+    const trimmed = withoutRuleOfTwo(text);
+    return `${trimmed}${trimmed ? " " : ""}${soleSentence}`;
+  };
   const researchedOn = (target: string) => Boolean(findingText(ctx.findings, target));
   const researchedRespondents = respondentsFromFinding(ctx.findings);
   const researchText = evidence
@@ -165,8 +200,8 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       ? `Two or more responsible small business concerns are expected to submit offers at fair market prices. The requirement is set aside for small business under FAR 19.502-2.`
       : row === "full-open"
         ? `Market research does not support a set-aside at this value; the requirement is solicited on a full and open basis.`
-        : row === "sole-source"
-          ? `Market research supports other than full and open competition; the justification is documented separately.`
+        : row === "sole-source" || sole
+          ? `${soleSentence} The justification for other than full and open competition is documented separately.`
           : setAside
             ? `Market research supports the ${setAside} approach recorded on this acquisition.`
             : TO_COMPLETE("record the set-aside determination");
@@ -404,6 +439,38 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
   };
 }
 
+/**
+ * The authority printed on the sole source row. A FAR 13.5 commercial file
+ * carries the commercial simplified authority; every other file carries the
+ * FAR 6.103 authority the justification selected. Nothing else prints here.
+ */
+function soleSourceAuthority(a: Record<string, unknown>): string {
+  const method = str(a["acquisition_method"]).toLowerCase();
+  if (has(method, "13.5") || has(method, "far 13"))
+    return "41 U.S.C. 1901, commercial simplified procedures under RFO FAR 12.201-1";
+  const cited = str(a["jofoc_authority_citation"])
+    .replace(/\[[^\]]*\]/g, "")
+    .trim();
+  return cited || TO_COMPLETE("select the FAR 6.103 authority on the justification");
+}
+
+/** The Remarks paragraph: an opening line of prose, then the findings. */
+function remarksText(ctx: FormCtx, sole: boolean): string {
+  const a = ctx.acq;
+  const setAside = str(a["set_aside"]);
+  const setAsideWords =
+    setAside && !/^none$/i.test(setAside.trim()) && !has(setAside.toLowerCase(), "sole source")
+      ? `${setAside}.`
+      : "no set-aside.";
+  const opening = sole
+    ? `Sole source under ${soleSourceAuthority(a)}; ${setAsideWords}`
+    : `${str(a["competition"]) || "Competed"}; ${setAsideWords}`;
+  const findings = sole
+    ? soleSourceFindings(a, counts(ctx.findings), false)
+    : findingText(ctx.findings, "nf1787.remarks");
+  return `Acquisition ${ctx.acquisitionId}. ${opening}${findings ? ` ${findings}` : ""}`;
+}
+
 /** NF 1787, Small Business Coordination Record. */
 export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
@@ -538,7 +605,10 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page2.LowerSection.LeftSide.InnerSub2.SelectSS",
             label: "Sole source authority",
-            value: sole ? str(a["jofoc_authority_citation"]) || TO_COMPLETE("cite the authority") : "",
+            // The authority itself, never a note about it: the commercial
+            // simplified authority on a FAR 13.5 file, otherwise the FAR 6.103
+            // authority the justification selected.
+            value: sole ? soleSourceAuthority(a) : "",
           },
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub2.e", "d. Small business set-aside, total", row === "total-sb"),
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub2.f", "e. Small business set-aside, partial", row === "partial-sb"),
@@ -577,9 +647,10 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
             label: "Remarks",
             // The set-aside evidence from the market research engine is carried
             // into Remarks, with its source and date until it is confirmed.
-            value: `Acquisition ${ctx.acquisitionId}. ${competition}${setAside ? `, ${setAside}` : ""}.${
-              findingText(ctx.findings, "nf1787.remarks") ? ` ${findingText(ctx.findings, "nf1787.remarks")}` : ""
-            }`,
+            // Prose, and the findings sentence the record's competition calls
+            // for. A sole-source file never carries a Rule of Two conclusion,
+            // and the sentence is re-derived from the latest run, not stored.
+            value: remarksText(ctx, sole),
           },
         ],
       },
