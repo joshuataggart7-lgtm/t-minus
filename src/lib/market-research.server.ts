@@ -135,7 +135,7 @@ function entitiesFromRaw(raw: unknown, naics: string): EngineEntity[] {
 
 function noticesFromRaw(raw: unknown): EngineNotice[] {
   const rows = array(object(raw)["opportunitiesData"] ?? object(raw)["data"]).map(object);
-  return rows.slice(0, 15).map((row) => ({
+  return rows.slice(0, 100).map((row) => ({
     title: text(row["title"]) || "Not reported",
     noticeType: text(row["type"], row["baseType"]) || "Not reported",
     posted: text(row["postedDate"]) || "Not reported",
@@ -186,36 +186,58 @@ export async function runEngine(options: {
   const log: LogEntry[] = [];
   const record = (entry: LogEntry) => log.push(entry);
 
+  // The Entity Management API refuses a size above 10, so each search reads ten
+  // records a page and pages through until a short page comes back or twenty
+  // pages have been read. Registrants are de-duplicated by UEI across pages.
+  const ENTITY_PAGE_SIZE = 10;
+  const ENTITY_MAX_PAGES = 20;
   const samEntities = async (label: string, state: string | null): Promise<EngineEntity[]> => {
-    const url = new URL("https://api.sam.gov/entity-information/v3/entities");
-    url.searchParams.set("api_key", samKey ?? "");
-    url.searchParams.set("naicsCode", naics);
-    url.searchParams.set("registrationStatus", "A");
-    url.searchParams.set("size", "100");
-    if (state) url.searchParams.set("physicalAddressProvinceOrStateCode", state);
-    url.searchParams.set("includeSections", "entityRegistration,coreData,assertions");
-    const query = redact(url, samKey);
+    const buildUrl = (page: number) => {
+      const url = new URL("https://api.sam.gov/entity-information/v3/entities");
+      url.searchParams.set("api_key", samKey ?? "");
+      url.searchParams.set("naicsCode", naics);
+      url.searchParams.set("registrationStatus", "A");
+      url.searchParams.set("size", String(ENTITY_PAGE_SIZE));
+      url.searchParams.set("page", String(page));
+      if (state) url.searchParams.set("physicalAddressProvinceOrStateCode", state);
+      url.searchParams.set("includeSections", "entityRegistration,coreData,assertions");
+      return url;
+    };
+    const query = redact(buildUrl(0), samKey);
     if (!samKey) {
       record({ source: label, query, resultCount: null, outcome: "Not run. The SAM.gov key is not configured." });
       return [];
     }
+    const found = new Map<string, EngineEntity>();
+    let pagesRead = 0;
     try {
-      const rows = entitiesFromRaw(await getJson(url, samKey), naics);
+      for (let page = 0; page < ENTITY_MAX_PAGES; page += 1) {
+        const rows = entitiesFromRaw(await getJson(buildUrl(page), samKey), naics);
+        pagesRead += 1;
+        for (const row of rows) if (!found.has(row.uei)) found.set(row.uei, row);
+        if (rows.length < ENTITY_PAGE_SIZE) break;
+      }
+      const rows = [...found.values()];
       record({
         source: label,
         query,
         resultCount: rows.length,
-        outcome: rows.length ? "Returned registrants." : "Returned no registrants under this code.",
+        outcome: rows.length
+          ? `Returned registrants across ${pagesRead} page${pagesRead === 1 ? "" : "s"} of ten records.`
+          : "Returned no registrants under this code.",
       });
       return rows;
     } catch (error) {
+      const partial = [...found.values()];
       record({
         source: label,
         query,
         resultCount: null,
-        outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+        outcome: `The search failed after ${pagesRead} page${pagesRead === 1 ? "" : "s"}: ${
+          error instanceof Error ? error.message : "unknown error"
+        }`,
       });
-      return [];
+      return partial;
     }
   };
 
@@ -251,22 +273,34 @@ export async function runEngine(options: {
       const from = new Date(to);
       from.setFullYear(from.getFullYear() - 1);
       from.setDate(from.getDate() + 1);
-      const url = new URL("https://api.sam.gov/opportunities/v2/search");
-      url.searchParams.set("api_key", samKey ?? "");
-      url.searchParams.set("limit", "50");
-      if (naics) url.searchParams.set("ncode", naics);
-      else if (psc) url.searchParams.set("ccode", psc);
-      url.searchParams.set("postedFrom", mmddyyyy(from));
-      url.searchParams.set("postedTo", mmddyyyy(to));
+      const NOTICE_PAGE_SIZE = 100;
+      const NOTICE_CAP = 200;
+      const buildUrl = (offset: number) => {
+        const url = new URL("https://api.sam.gov/opportunities/v2/search");
+        url.searchParams.set("api_key", samKey ?? "");
+        url.searchParams.set("limit", String(NOTICE_PAGE_SIZE));
+        url.searchParams.set("offset", String(offset));
+        if (naics) url.searchParams.set("ncode", naics);
+        else if (psc) url.searchParams.set("ccode", psc);
+        url.searchParams.set("postedFrom", mmddyyyy(from));
+        url.searchParams.set("postedTo", mmddyyyy(to));
+        return url;
+      };
       const source = `SAM.gov Opportunities API, ${dateOnly(from.toISOString())} to ${dateOnly(to.toISOString())}`;
-      const query = redact(url, samKey);
+      const query = redact(buildUrl(0), samKey);
       if (!samKey) {
         record({ source, query, resultCount: null, outcome: "Not run. The SAM.gov key is not configured." });
         continue;
       }
+      let found: EngineNotice[] = [];
       try {
-        const found = noticesFromRaw(await getJson(url, samKey));
-        noticesSearched = true;
+        for (let offset = 0; offset < NOTICE_CAP; offset += NOTICE_PAGE_SIZE) {
+          const page = noticesFromRaw(await getJson(buildUrl(offset), samKey));
+          noticesSearched = true;
+          found = found.concat(page);
+          if (page.length < NOTICE_PAGE_SIZE) break;
+        }
+        found = found.slice(0, NOTICE_CAP);
         notices = notices.concat(found);
         record({
           source,
@@ -275,6 +309,7 @@ export async function runEngine(options: {
           outcome: found.length ? "Returned notices." : "Returned no notices under this code.",
         });
       } catch (error) {
+        notices = notices.concat(found);
         record({
           source,
           query,
