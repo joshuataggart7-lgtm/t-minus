@@ -183,6 +183,8 @@ function CenterConfigPage() {
       {q.isLoading ? <LoadingNote what="the Center configuration" /> : null}
       {q.error ? <ErrorNote message="The Center configuration could not be read. Refresh the page to try again." /> : null}
 
+      {role === "hq" ? <PeopleRoles actorName={user?.name ?? "Unknown"} /> : null}
+
       {mayEdit ? (
         <form onSubmit={save} className="mt-8 max-w-[70ch] border-t border-border pt-6">
           <h2 className="text-lg font-medium">Set an override</h2>
