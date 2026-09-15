@@ -380,9 +380,28 @@ export const TRIGGERS: TriggerDef[] = [
       { doc_key: "oci-determination", label: "OCI determination memorandum and checklist", citation: "FAR 9.5", phase: "Market Research", state: "required", templateKey: "oci-determination", tab: "010" },
       { doc_key: "limitation-future-contracting", label: "Limitation of future contracting memorandum", citation: "FAR 9.507-2", phase: "Market Research", state: "offered", templateKey: "limitation-future-contracting", tab: "010" },
       { doc_key: "section-l-oci-notice", label: "Section L notice of potential OCI", citation: "FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
-      { doc_key: "oci-plan-drd", label: "OCI plan data requirement", citation: "FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
+      { doc_key: "oci-plan-drd", label: "OCI plan data requirement", citation: "FAR 9.504; NFS Appendix C-202.1", phase: "Solicitation/Quote", state: "offered", templateKey: "oci-plan-drd", tab: "DRD" },
     ],
   },
+  {
+    key: "construction",
+    condition: "A construction contract under FAR Part 36",
+    when: (c) => c.s.deliverable === "construction",
+    docs: [
+      { doc_key: "construction-bond-checklist", label: "Construction bond checklist", citation: "FAR Part 28", phase: "Award", state: "required", templateKey: "construction-bond-checklist", tab: "088" },
+      { doc_key: "preconstruction-orientation-checklist", label: "Preconstruction orientation checklist", citation: "FAR 36.212; NFS CG 1836.22", phase: "Administration", state: "required", templateKey: "preconstruction-orientation-checklist", tab: "077" },
+    ],
+  },
+  {
+    key: "performance-based-services",
+    condition: "A service requirement bought on performance standards",
+    when: (c) => c.s.deliverable === "services",
+    docs: [
+      { doc_key: "qasp", label: "Quality assurance surveillance plan", citation: "FAR 37.601(b)(3); FAR 46.401", phase: "Solicitation/Quote", state: "offered", templateKey: "qasp", tab: "NA" },
+      { doc_key: "drd-template", label: "Data requirements description", citation: "NFS Appendix C; NFS 1804.7103", phase: "Solicitation/Quote", state: "offered", templateKey: "drd-template", tab: "DRD" },
+    ],
+  },
+
   {
     key: "urgency",
     condition: "Unusual and compelling urgency",
