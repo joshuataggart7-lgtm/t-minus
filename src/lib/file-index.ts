@@ -89,6 +89,7 @@ export function buildFileIndex(
   templates: IndexTemplateRow[],
   phases: string[],
   attachments: IndexAttachmentRow[] = [],
+  acq?: AcqRow,
 ): FileIndex {
   const tplById = new Map(templates.map((t) => [t.template_id, t]));
   const present = new Map<string, IndexTab>();
