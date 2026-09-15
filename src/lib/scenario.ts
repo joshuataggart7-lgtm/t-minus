@@ -576,7 +576,7 @@ export const TRIGGERS: TriggerDef[] = [
   {
     key: "supply-sources",
     condition: "The contractor is authorized to use Government supply sources",
-    when: (c) => c.s.government_property || c.s.gfp,
+    when: (c) => c.s.gfp,
     docs: [
       { doc_key: "supply-sources-authorization", label: "Authorization to use Government supply sources", citation: "FAR 51.102(e)", phase: "Administration", state: "offered", templateKey: "supply-sources-authorization", tab: "NA" },
     ],
