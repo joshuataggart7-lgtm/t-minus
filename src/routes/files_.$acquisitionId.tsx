@@ -364,6 +364,16 @@ function FilePage() {
     [acq, q.data],
   );
 
+  // Files uploaded against the documents on this record.
+  const attachQ = useQuery({
+    queryKey: ["file-attachments", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadAttachments(acquisitionId),
+  });
+  const attachments = useMemo(() => attachQ.data ?? [], [attachQ.data]);
+  const attachmentFor = (key: string): AttachmentRow | null =>
+    attachments.find((row) => row.doc_key === key) ?? null;
+
   // NF 1098 contract file index: tabs present, and required tabs with no document.
   const fileIndex = useMemo(
     () =>
@@ -371,8 +381,9 @@ function FilePage() {
         (q.data?.documents ?? []) as never,
         q.data?.templates ?? [],
         phases.map((p) => p.phase),
+        attachments,
       ),
-    [q.data?.documents, q.data?.templates, phases],
+    [q.data?.documents, q.data?.templates, phases, attachments],
   );
 
   const boards = useMemo(() => {
