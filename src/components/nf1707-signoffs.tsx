@@ -53,6 +53,7 @@ export function Nf1707Signoffs({
 }) {
   const answers = useMemo(() => answersFromStored(storedAnswers ?? {}), [storedAnswers]);
   const blocks = useMemo(() => applicableBlocks(answers, centerCode), [answers, centerCode]);
+  const hidden = useMemo(() => hiddenBlocks(answers, centerCode), [answers, centerCode]);
   const rowFor = (block: SignoffBlock) =>
     rows.find((r) => r.form_field_name === (block.sigField || block.blockName)) ?? null;
 
