@@ -1102,8 +1102,9 @@ function FilePage() {
 
 
       {warrant ? (
-        <section aria-label="Warrant check" className="mb-10 max-w-[70ch]">
-          <h2 className="mb-1 text-[18px] leading-6 font-medium">Warrant check</h2>
+        <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+          <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Warrant check</summary>
+          <div className="border-t border-border px-5 py-4">
           {warrant.exceeds ? (
             <p
               className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
@@ -1138,7 +1139,8 @@ function FilePage() {
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
             </p>
           )}
-        </section>
+          </div>
+        </details>
       ) : null}
 
 
@@ -1202,8 +1204,9 @@ function FilePage() {
         <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
       ) : null}
 
-      <section aria-label="Acquisition Forecast" className="mb-10 max-w-[70ch]">
-        <h2 className="mb-1 text-[18px] font-medium leading-[24px]">Acquisition Forecast</h2>
+      <details aria-label="Acquisition Forecast" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
+        <div className="border-t border-border px-5 py-4">
         <p className="mb-3 text-[13px] text-muted-foreground">
           {FORECAST_CITATION} · binding
           {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
@@ -1244,7 +1247,8 @@ function FilePage() {
             entry.
           </p>
         )}
-      </section>
+        </div>
+      </details>
 
 
       {intakeEstimate ? (
@@ -1342,8 +1346,9 @@ function FilePage() {
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }}
       />
 
-      <section aria-label="Contract file index" className="mb-12">
-        <h2 className="mb-1 text-[18px] leading-6 font-medium">Contract file index</h2>
+      <details aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
+        <div className="border-t border-border px-5 py-4">
         <p className="mb-4 text-[13px] text-muted-foreground">
           Built from the documents in this file, by NF 1098 tab. FAR 4.801 contract file.
         </p>
@@ -1395,10 +1400,12 @@ function FilePage() {
             ) : null}
           </tbody>
         </table>
-      </section>
+        </div>
+      </details>
 
-      <section aria-label="Launch sequence" className="mb-12">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">Launch sequence</h2>
+      <details open aria-label="Launch sequence" className="mb-12 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
+        <div className="border-t border-border p-5">
 
         {mode === "novice" ? (
           <div className="mb-4 flex items-center gap-3 text-[13px]">
@@ -2282,7 +2289,8 @@ function FilePage() {
             </li>
           ))}
         </ol>
-      </section>
+        </div>
+      </details>
 
       <section className="mb-12 max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>

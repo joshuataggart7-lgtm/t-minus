@@ -101,8 +101,9 @@ export function Nf1707Signoffs({
   const blocked = rows.filter((r) => r.status === "non_concurred");
 
   return (
-    <section aria-labelledby="nf1707-approvals" className="mb-12 max-w-[80ch] border-t border-border pt-5">
-      <h2 id="nf1707-approvals" className="text-[18px] font-medium leading-6">NF 1707 sign-offs</h2>
+    <details className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+      <summary id="nf1707-approvals" className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-6">NF 1707 sign-offs</summary>
+      <div className="border-t border-border px-5 pb-5">
       <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
         One row for each signature or concurrence block the form prints, shown only when the record makes that review
         apply. A concurrence writes the name, title and date onto the exported form and leaves the signature line blank.
@@ -161,7 +162,8 @@ export function Nf1707Signoffs({
           ))}
         </ul>
       </details>
-    </section>
+      </div>
+    </details>
   );
 }
 
