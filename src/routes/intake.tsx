@@ -35,6 +35,7 @@ import { explainRedFlag } from "@/lib/explain";
 import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
+import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -154,6 +155,49 @@ function IntakePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [packageClins, setPackageClins] = useState<PackageClin[]>([]);
   const [packageConfirmedCount, setPackageConfirmedCount] = useState(0);
+
+  // Files staged on this intake. They upload once the record exists, and the
+  // IGCE and SOW/PWS states follow the files, never a bare checkbox.
+  type DocSlot = "igce_attached" | "sow_attached" | "pr" | "nf-1707";
+  const [docFiles, setDocFiles] = useState<Partial<Record<DocSlot, File>>>({});
+  const [igceNote, setIgceNote] = useState<string | null>(null);
+  const [igceTotal, setIgceTotal] = useState<number | null>(null);
+
+  async function stageFile(slot: DocSlot, file: File) {
+    setDocFiles((current) => ({ ...current, [slot]: file }));
+    if (slot === "sow_attached") setFacts((f) => ({ ...f, sow_attached: true }));
+    if (slot !== "igce_attached") return;
+    try {
+      const read = await igceFromFile(file);
+      if (read?.clins.length) setPackageClins(read.clins as unknown as PackageClin[]);
+      setIgceTotal(read?.total ?? null);
+      setFacts((f) => ({ ...f, igce_attached: read?.total != null }));
+      setIgceNote(
+        read?.total != null
+          ? `${read.clins.length} CLIN row${read.clins.length === 1 ? "" : "s"} read. Total: ${read.total.toLocaleString()}.`
+          : "The file was stored, but no total was found. The IGCE red flag stays until a total is found.",
+      );
+    } catch (reason) {
+      setIgceTotal(null);
+      setFacts((f) => ({ ...f, igce_attached: false }));
+      setIgceNote(reason instanceof Error ? reason.message : "That file could not be read.");
+    }
+  }
+
+  function removeStaged(slot: DocSlot) {
+    setDocFiles((current) => {
+      const next = { ...current };
+      delete next[slot];
+      return next;
+    });
+    if (slot === "sow_attached") setFacts((f) => ({ ...f, sow_attached: false }));
+    if (slot === "igce_attached") {
+      setFacts((f) => ({ ...f, igce_attached: false }));
+      setIgceNote(null);
+      setIgceTotal(null);
+    }
+  }
+
 
   const errors = useMemo(() => fieldErrors(facts), [facts]);
   const errorCount = Object.keys(errors).length;
@@ -409,6 +453,25 @@ function IntakePage() {
           period_end: clin.periodEnd || null,
         })));
         if (clinError) throw clinError;
+      }
+
+      // Staged files upload now that the record exists, each with its own audit entry.
+      const labels: Record<string, string> = {
+        igce_attached: "IGCE",
+        sow_attached: "SOW/PWS",
+        pr: "Purchase request",
+        "nf-1707": "NF 1707 from the requester",
+      };
+      for (const [key, file] of Object.entries(docFiles)) {
+        if (!file) continue;
+        await uploadAttachment({
+          acquisitionId: next,
+          key,
+          label: labels[key] ?? key,
+          file,
+          actor: user.name,
+          parsedTotal: key === "igce_attached" ? igceTotal : null,
+        });
       }
 
       if (profile) {
@@ -931,8 +994,49 @@ function IntakePage() {
           <legend className="mb-2 text-[13px] text-muted-foreground">Attachments and conditions</legend>
           {(
             [
-              ["igce_attached", "IGCE attached", "Supports the independent cost estimate and package-complete gate."],
-              ["sow_attached", "SOW/PWS attached", "Defines what will be bought and feeds the package-complete gate."],
+              ["igce_attached", "IGCE", "Supports the independent cost estimate and package-complete gate."],
+              ["sow_attached", "SOW/PWS", "Defines what will be bought and feeds the package-complete gate."],
+              ["pr", "Purchase request", "The requesting organization's purchase request."],
+              ["nf-1707", "NF 1707 from the requester", "The signed intake form as received."],
+            ] as const
+          ).map(([key, label, why]) => {
+            const staged = docFiles[key] ?? null;
+            return (
+              <div key={key} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]" title={why}>
+                <span>{label}</span>
+                {staged ? (
+                  <>
+                    <span className="text-[13px] text-muted-foreground">{staged.name}</span>
+                    <button type="button" className="text-[13px] text-primary" onClick={() => removeStaged(key)}>
+                      Remove
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[13px]" style={{ color: "var(--atrisk)" }}>Missing</span>
+                    <label className="cursor-pointer text-[13px] text-primary">
+                      Attach
+                      <input
+                        type="file"
+                        className="sr-only"
+                        accept={ATTACHMENT_ACCEPT}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void stageFile(key, file);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </>
+                )}
+                {key === "igce_attached" && igceNote ? (
+                  <span className="block w-full text-[13px] text-muted-foreground">{igceNote}</span>
+                ) : null}
+              </div>
+            );
+          })}
+          {(
+            [
               ["funds_certified", "Funds certified", "Confirms funding and feeds the package-complete gate."],
               ["hardware_deliverable", "Hardware deliverable", "Activates hardware-specific requirements."],
               ["right_to_repair_statement", "Right to Repair statement included", "Required when the acquisition delivers hardware."],

@@ -107,9 +107,32 @@ export function RequesterPackageDraft({
   function loadSheetRows() {
     if (!sheet) return;
     const rows = clinsFromSheet(sheet.read, sheet.mapping, sheet.sourceId);
-    if (!rows.length) return setError("No rows were found with the selected columns. Check the CLIN or description column.");
+    if (!rows.length) {
+      return setError(
+        `No IGCE structure was found in ${sheet.file.name}, sheet ${sheet.read.sheetName}. No CLIN or description column was matched, so nothing was loaded. Pick the columns above and try again.`,
+      );
+    }
     setClins(rows);
     setClinConfirmed(false);
+    // The total becomes a proposed estimated value with its source, confirmed
+    // by the CO like every other proposed field.
+    if (sheet.read.total) {
+      const total = sheet.read.total;
+      setSuggestions((current) => [
+        ...current.filter((item) => item.key !== "estimated_value"),
+        {
+          key: "estimated_value",
+          label: "Estimated value",
+          value: total,
+          sourceId: sheet.sourceId,
+          sourceName: sheet.file.name,
+          excerpt: `${sheet.read.totalLabel || "Total"}: ${total} (sheet ${sheet.read.sheetName})`,
+          rationale: `Read from the IGCE total across ${rows.length} line${rows.length === 1 ? "" : "s"}.`,
+          origin: "AI-suggested",
+        },
+      ]);
+    }
+    setError("");
     setSheet(null);
   }
 
@@ -205,7 +228,7 @@ export function RequesterPackageDraft({
           <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[640px] border border-border text-[13px]"><thead><tr>{sheet.read.headers.map((header, index) => <th key={`${header}-${index}`} className="border-b border-border px-2 py-2 text-left">{header}</th>)}</tr></thead><tbody>{sheet.read.rows.slice(0, 5).map((row, rowIndex) => <tr key={rowIndex} className="border-t border-border">{sheet.read.headers.map((_, index) => <td key={index} className="px-2 py-2">{row[index] || "—"}</td>)}</tr>)}</tbody></table></div>
           <div className="mt-3 flex flex-wrap gap-3">
             <Button type="button" onClick={loadSheetRows}>Load rows into the IGCE builder</Button>
-            {sheet.read.total ? <Button type="button" variant="outline" onClick={() => applyFact("estimated_value", Number(sheet.read.total) as never)}>Use total as estimated value</Button> : null}
+            {sheet.read.total ? <span className="self-center text-[13px] text-muted-foreground">The total is proposed as the estimated value for you to confirm.</span> : null}
             <Button type="button" variant="ghost" onClick={() => setSheet(null)}>Not now</Button>
           </div>
         </div> : null}

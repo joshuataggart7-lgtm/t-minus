@@ -30,6 +30,17 @@ import {
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
+import {
+  ATTACHMENT_ACCEPT,
+  docKey,
+  downloadAttachment,
+  igceFromFile,
+  loadAttachments,
+  removeAttachment,
+  saveIgceClins,
+  uploadAttachment,
+  type AttachmentRow,
+} from "@/lib/attachments";
 import { protestWindow } from "@/lib/protest-window";
 import {
   FORECAST_CITATION,
@@ -353,6 +364,16 @@ function FilePage() {
     [acq, q.data],
   );
 
+  // Files uploaded against the documents on this record.
+  const attachQ = useQuery({
+    queryKey: ["file-attachments", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadAttachments(acquisitionId),
+  });
+  const attachments = useMemo(() => attachQ.data ?? [], [attachQ.data]);
+  const attachmentFor = (key: string): AttachmentRow | null =>
+    attachments.find((row) => row.doc_key === key) ?? null;
+
   // NF 1098 contract file index: tabs present, and required tabs with no document.
   const fileIndex = useMemo(
     () =>
@@ -360,8 +381,9 @@ function FilePage() {
         (q.data?.documents ?? []) as never,
         q.data?.templates ?? [],
         phases.map((p) => p.phase),
+        attachments,
       ),
-    [q.data?.documents, q.data?.templates, phases],
+    [q.data?.documents, q.data?.templates, phases, attachments],
   );
 
   const boards = useMemo(() => {
@@ -542,6 +564,72 @@ function FilePage() {
     },
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
+
+  // Attaching a required document: store the file, index it, audit it, and only
+  // then mark the row Attached. Cancelling the picker changes nothing.
+  const attachDoc = useMutation({
+    mutationFn: async ({ doc, file }: { doc: RequiredDoc; file: File }) => {
+      const key = docKey(doc.field, doc.label);
+      let total: number | null = null;
+      let clinCount = 0;
+      let readFailed = false;
+      if (key === "igce_attached") {
+        try {
+          const read = await igceFromFile(file);
+          if (read) {
+            total = read.total;
+            if (read.clins.length) {
+              await saveIgceClins(acquisitionId, read.clins);
+              clinCount = read.clins.length;
+            }
+          } else readFailed = true;
+        } catch {
+          readFailed = true;
+        }
+      }
+      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: user.name, parsedTotal: total });
+      const satisfies = key !== "igce_attached" || total !== null;
+      if (doc.field && satisfies) await setDoc.mutateAsync({ doc, attach: true });
+      return { fileName: file.name, label: doc.label, total, clinCount, satisfies, readFailed };
+    },
+    onSuccess: (result) => {
+      void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      if (!result) return;
+      const clins = result.clinCount ? ` ${result.clinCount} CLIN rows were read into the estimate builder.` : "";
+      if (result.satisfies) {
+        setBanner(
+          `${result.label} attached: ${result.fileName}.${clins}${result.total !== null ? ` Total read: ${result.total.toLocaleString()}.` : ""}`,
+        );
+      } else {
+        setBanner(
+          `${result.fileName} was stored, but no total was found${result.readFailed ? " and the file is not a readable spreadsheet" : ""}. The IGCE red flag stays until a total is found.`,
+        );
+      }
+    },
+    onError: (e: Error) => setBanner(`That file did not attach: ${e.message}. Try again.`),
+  });
+
+  const detachDoc = useMutation({
+    mutationFn: async (doc: RequiredDoc) => {
+      const key = docKey(doc.field, doc.label);
+      const row = attachmentFor(key);
+      if (row) await removeAttachment(row, user.name);
+      if (doc.field) await setDoc.mutateAsync({ doc, attach: false });
+      return doc.label;
+    },
+    onSuccess: (label) => {
+      void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
+      setBanner(`${label} removed. The row reads Missing again.`);
+    },
+    onError: (e: Error) => setBanner(`That file did not come off: ${e.message}. Try again.`),
+  });
+
+  async function openAttachment(row: AttachmentRow) {
+    const url = await downloadAttachment(row);
+    if (url) window.open(url, "_blank", "noopener");
+    else setBanner("That file could not be opened. Try attaching it again.");
+  }
 
   const finding = (acq?.["responsibility_finding"] as string | null) ?? null;
 
@@ -1285,6 +1373,9 @@ function FilePage() {
               <ul className="mt-3 max-w-[80ch]">
                 {p.docs.map((d) => {
                   const state = docSatisfied(d, acq ?? ({ acquisition_id: "" } as AcqRow));
+                  const key = docKey(d.field, d.label);
+                  const attached = attachmentFor(key);
+                  const busy = attachDoc.isPending || detachDoc.isPending;
                   return (
                     <li key={d.label} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]">
                       <span>{d.label}</span>
@@ -1332,14 +1423,42 @@ function FilePage() {
                             {state ? "Attached" : "Missing"}
                           </StatusMark>
 
-                          {canWrite ? (
+                          {attached ? (
                             <button
                               type="button"
-                              onClick={() => setDoc.mutate({ doc: d, attach: !state })}
+                              onClick={() => void openAttachment(attached)}
                               className="text-[13px] text-primary"
                             >
-                              {state ? "Remove" : "Attach"}
+                              {attached.file_name}
                             </button>
+                          ) : null}
+
+                          {canWrite ? (
+                            attached || state ? (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => detachDoc.mutate(d)}
+                                className="text-[13px] text-primary disabled:opacity-60"
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <label className="cursor-pointer text-[13px] text-primary">
+                                {busy ? "Attaching" : "Attach"}
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept={ATTACHMENT_ACCEPT}
+                                  disabled={busy}
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (file) attachDoc.mutate({ doc: d, file });
+                                    event.target.value = "";
+                                  }}
+                                />
+                              </label>
+                            )
                           ) : null}
                           {state === false ? (
                             <span className="block w-full">

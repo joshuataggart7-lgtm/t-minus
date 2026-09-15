@@ -71,13 +71,40 @@ export function requiredTabs(phases: string[]): IndexTab[] {
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
 }
 
+/** An uploaded file on the record, indexed by the tab it belongs under. */
+export type IndexAttachmentRow = {
+  doc_label: string;
+  nf_1098_tab: string | null;
+  file_name: string;
+  uploaded_by_name: string | null;
+  created_at: string;
+};
+
 export function buildFileIndex(
   documents: IndexDocRow[],
   templates: IndexTemplateRow[],
   phases: string[],
+  attachments: IndexAttachmentRow[] = [],
 ): FileIndex {
   const tplById = new Map(templates.map((t) => [t.template_id, t]));
   const present = new Map<string, IndexTab>();
+
+  for (const a of attachments) {
+    const tab = normTab(a.nf_1098_tab);
+    if (tab === "" || tab === "—") continue;
+    const key = `${tab}|${a.doc_label}`;
+    const entry =
+      present.get(key) ?? ({ tab, templateName: a.doc_label, phase: "Intake", documents: [] } satisfies IndexTab);
+    entry.documents.push({
+      templateName: a.file_name,
+      version: entry.documents.length + 1,
+      savedBy: a.uploaded_by_name,
+      savedAt: a.created_at,
+      memo: false,
+      memoTo: null,
+    });
+    present.set(key, entry);
+  }
 
   for (const d of documents) {
     const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
