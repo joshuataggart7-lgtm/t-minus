@@ -222,7 +222,7 @@ function FilePage() {
       const [fileDocs, fileTemplates] = await Promise.all([
         supabase
           .from("documents")
-          .select("template_id,version,saved_by,saved_at,issue_on_nf1858,memo_header")
+          .select("template_id,version,saved_by,saved_at,issue_on_nf1858,memo_header,field_values")
           .eq("acquisition_id", acquisitionId),
         supabase.from("templates").select("template_id,name,nf_1098_tab"),
       ]);
@@ -1204,6 +1204,13 @@ function FilePage() {
             </button>
           </>
         ) : null}
+        <Link
+          to="/documents/$templateKey/$acquisitionId"
+          params={{ templateKey: "memorandum-for-record", acquisitionId }}
+          className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
+        >
+          Write a memo to file
+        </Link>
         <button
           type="button"
           onClick={() => nearExport.mutate()}

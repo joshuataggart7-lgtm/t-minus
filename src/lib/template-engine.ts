@@ -2147,6 +2147,93 @@ const packetTransmittal: TemplateDef = {
   signature: coSignature("FAR 4.801"),
 };
 
+// ------------------------------------------------ Memorandum for Record
+/** Purposes the memorandum can carry, in the order the form offers them. */
+export const MFR_PURPOSES = [
+  "Record of a decision not otherwise documented",
+  "Explanation of a gap or delay in the file",
+  "Correction of a document or date on the record",
+  "Chronology of the acquisition to date",
+  "Other",
+] as const;
+
+export const MFR_KEY = "memorandum-for-record";
+
+const memorandumForRecord: TemplateDef = {
+  key: MFR_KEY,
+  name: "Memorandum for Record",
+  tab: "N/A",
+  badge: {
+    citation: "FAR 4.801; FAR 4.803",
+    tier: "guidance",
+    revision: "T-Minus form; issued on NF 1858",
+    note: "Contents of contract files. Issued on NASA Form 1858 electronic letterhead and filed under the tab the contracting officer picks.",
+  },
+  lead: "A memorandum to the contract file. Available on every file, whatever its phase.",
+  sections: [
+    acquisitionHeader(),
+    {
+      id: "purpose",
+      title: "Purpose",
+      citation: "FAR 4.803",
+      tier: "guidance",
+      fields: [
+        {
+          key: "purpose",
+          label: "Purpose of the memorandum",
+          kind: "select",
+          options: [...MFR_PURPOSES],
+          required: true,
+        },
+        {
+          key: "purpose_other",
+          label: "State the purpose",
+          kind: "text",
+          showIf: (v) => (v["purpose"] ?? "") === "Other",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "body",
+      title: "Memorandum",
+      citation: "FAR 4.801",
+      tier: "binding",
+      fields: [
+        { key: "opening", label: "Opening", kind: "textarea", required: true },
+        {
+          key: "body",
+          label: "Body",
+          kind: "textarea",
+          required: true,
+          help: "State the facts and the decision. Cite the authority if one applies.",
+        },
+        {
+          key: "authority",
+          label: "Authority, if one applies",
+          kind: "text",
+          help: "Printed on the Ref line of the memorandum.",
+        },
+      ],
+    },
+    {
+      id: "filing",
+      title: "Filing",
+      citation: "NF 1098 Checklist for Contract Award File Content",
+      tier: "guidance",
+      fields: [
+        {
+          key: "file_tab",
+          label: "Contract file tab",
+          kind: "text",
+          help: "The NF 1098 tab this memorandum is filed under. Tab 001 unless the contracting officer picks another.",
+        },
+      ],
+    },
+  ],
+  signature: coSignature("FAR 4.801"),
+};
+
 // --------------------------------------------------------- SAM.gov notice
 const isSole = (v: Values) => (v["notice_type"] ?? "") === "Notice of intent to sole source";
 const isCombined = (v: Values) => (v["notice_type"] ?? "") === "Combined synopsis/solicitation";
@@ -2323,6 +2410,7 @@ export const TEMPLATES: TemplateDef[] = [
   waiverDeviation,
   coordinationMemo,
   packetTransmittal,
+  memorandumForRecord,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {

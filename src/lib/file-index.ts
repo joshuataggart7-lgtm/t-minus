@@ -47,6 +47,8 @@ export type IndexDocRow = {
   saved_at: string | null;
   issue_on_nf1858?: boolean | null;
   memo_header?: { to?: string } | null;
+  /** Saved values; a memorandum for record carries the tab the CO picked. */
+  field_values?: { __tab?: string } | null;
 };
 
 export type IndexTemplateRow = {
@@ -114,7 +116,10 @@ export function buildFileIndex(
   for (const d of documents) {
     const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
     if (!tpl) continue;
-    const tab = normTab(tpl.nf_1098_tab);
+    // A memorandum for record is filed under the tab the contracting officer
+    // picked when saving it, not under the template's own tab.
+    const picked = normTab(d.field_values?.__tab);
+    const tab = picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab);
     if (tab === "" || tab === "—") continue;
     const def = TEMPLATES.find((t) => t.name === tpl.name);
     const key = `${tab}|${tpl.name}`;

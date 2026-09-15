@@ -69,6 +69,7 @@ const DEFAULT_ON = new Set([
   "waiver-deviation-request",
   "coordination-memo",
   "packet-transmittal-memo",
+  "memorandum-for-record",
 ]);
 
 /** Document types that are never memoranda. */
@@ -144,7 +145,7 @@ export type BuildMemoInput = {
  * Documents that are filed rather than approved. They are addressed to the
  * contract file, with no Thru chain.
  */
-const FILE_ADDRESSED = new Set(["market-research-memo", "commerciality"]);
+const FILE_ADDRESSED = new Set(["market-research-memo", "commerciality", "memorandum-for-record"]);
 
 const fileAddressed = (templateKey: string) => FILE_ADDRESSED.has(templateKey);
 

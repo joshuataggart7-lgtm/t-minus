@@ -66,6 +66,26 @@ export type MemoDraftCtx = {
   values?: Values;
   /** Today, so a determination carries its date. */
   today?: string;
+  /** Audit trail on this file, oldest first, for the chronology memorandum. */
+  audit?: AuditLine[];
+  /** Phases in the file's launch sequence, in order. */
+  phases?: PhaseLine[];
+};
+
+export type AuditLine = {
+  action: string;
+  field: string | null;
+  actor: string | null;
+  reason: string | null;
+  phase: string | null;
+  at: string;
+  oldValue?: string | null;
+  newValue?: string | null;
+};
+
+export type PhaseLine = {
+  phase: string;
+  status: "complete" | "current" | "upcoming";
 };
 
 const gap = (what: string) => `[Contracting officer to complete: ${what}]`;
@@ -379,7 +399,108 @@ function samNotice(ctx: MemoDraftCtx): Values {
   };
 }
 
+// -------------------------------------------- memorandum for record (MFR)
+
+const onlyDate = (iso: string) => String(iso ?? "").slice(0, 10);
+
+/** Purpose as the memorandum states it, including the CO's own wording. */
+export function mfrPurposeLabel(values: Values | undefined): string {
+  const purpose = str(values?.["purpose"]);
+  if (purpose === "Other") return str(values?.["purpose_other"]) || "Other";
+  return purpose;
+}
+
+/** One past-tense paragraph per phase, drafted from the audit trail. */
+function chronologyParagraphs(ctx: MemoDraftCtx): string {
+  const audit = (ctx.audit ?? []).slice().sort((a, b) => a.at.localeCompare(b.at));
+  const phases = (ctx.phases ?? []).filter((p) => p.status !== "upcoming");
+  if (!phases.length || !audit.length)
+    return gap("no audit history is recorded on this file yet, so the chronology cannot be drafted");
+
+  const paragraphs: string[] = [];
+  for (const p of phases) {
+    const rows = audit.filter((a) => str(a.phase).toLowerCase() === p.phase.toLowerCase());
+    const sentences: string[] = [];
+    if (rows.length) {
+      const first = onlyDate(rows[0]!.at);
+      const last = onlyDate(rows[rows.length - 1]!.at);
+      sentences.push(
+        p.status === "current"
+          ? `The file entered the ${p.phase} phase on ${first} and remained in it as of ${last}.`
+          : `The file entered the ${p.phase} phase on ${first} and left it on ${last}.`,
+      );
+    } else {
+      sentences.push(`No activity was recorded against the ${p.phase} phase.`);
+    }
+
+    const docs = rows.filter((a) => /attach|document saved|uploaded/i.test(a.action));
+    for (const d of docs) {
+      const what = str(d.field) || str(d.newValue) || "a document";
+      sentences.push(`${what} was placed in the file on ${onlyDate(d.at)} by ${str(d.actor) || "the record"}.`);
+    }
+
+    const holds = rows.filter((a) => /hold/i.test(a.action));
+    for (const h of holds) {
+      const cleared = /clear|released|resumed/i.test(h.action);
+      sentences.push(
+        cleared
+          ? `The hold was cleared on ${onlyDate(h.at)}${str(h.reason) ? ` because ${str(h.reason)}` : ""}.`
+          : `The file was placed on hold on ${onlyDate(h.at)}${str(h.reason) ? ` because ${str(h.reason)}` : ""}.`,
+      );
+    }
+
+    const polls = rows.filter((a) => /poll|go recorded|no-go recorded/i.test(a.action));
+    for (const v of polls) {
+      if (/opened/i.test(v.action)) {
+        sentences.push(`The go/no-go poll was opened on ${onlyDate(v.at)}.`);
+      } else {
+        sentences.push(
+          `${str(v.actor) || "A reviewer"} recorded ${/no-go/i.test(v.action) ? "no-go" : "go"} for ${
+            str(v.field) || "the review seat"
+          } on ${onlyDate(v.at)}.`,
+        );
+      }
+    }
+    paragraphs.push(sentences.join(" "));
+  }
+
+  const logLines = ctx.researchLog ?? [];
+  if (logLines.length) {
+    const total = logLines.reduce((sum, l) => sum + (l.count ?? 0), 0);
+    paragraphs.push(
+      `Market research was run against ${logLines.length} public ${
+        logLines.length === 1 ? "source" : "sources"
+      }, returning ${total} ${total === 1 ? "result" : "results"} in total. ${logLines
+        .map((l) => `${l.source} returned ${l.count ?? 0} on ${onlyDate(l.ranAt)}.`)
+        .join(" ")}`,
+    );
+  }
+  return paragraphs.join("\n\n");
+}
+
+function memorandumForRecord(ctx: MemoDraftCtx): Values {
+  const purpose = mfrPurposeLabel(ctx.values);
+  const pr = str(ctx.acq["pr_number"]);
+  const phase = str(ctx.acq["current_phase"]) || "the current phase";
+  const title = str(ctx.acq["title"]);
+  const today = ctx.today ?? "";
+  const opening =
+    purpose === "Chronology of the acquisition to date"
+      ? `This memorandum records the chronology of acquisition ${ctx.acquisitionId}${
+          title ? `, ${title}` : ""
+        }${pr ? `, requisition ${pr}` : ""}, which stood in the ${phase} phase on ${today}.`
+      : `This memorandum is placed in the file for acquisition ${ctx.acquisitionId}${
+          title ? `, ${title}` : ""
+        }${pr ? `, requisition ${pr}` : ""}, which stood in the ${phase} phase on ${today}.${
+          purpose ? ` Its purpose is ${purpose.charAt(0).toLowerCase()}${purpose.slice(1)}.` : ""
+        }`;
+  const out: Values = { opening, file_tab: "001" };
+  if (purpose === "Chronology of the acquisition to date") out["body"] = chronologyParagraphs(ctx);
+  return out;
+}
+
 const DRAFTERS: Record<string, (ctx: MemoDraftCtx) => Values> = {
+  "memorandum-for-record": memorandumForRecord,
   "market-research-memo": marketResearch,
   commerciality,
   "packet-transmittal-memo": packetTransmittal,

@@ -27,8 +27,10 @@ import {
 } from "@/lib/watch";
 import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import {
+  buildSequence,
   phaseForTemplate,
   pollBoard,
+  type PhasePlanRow,
   type AcqRow,
   type PollRow,
   type ReviewRuleRow,
@@ -42,13 +44,14 @@ import {
   templateByKey,
   validate,
   sectionCitation,
+  MFR_KEY,
   type SectionDef,
   visibleFields,
   visibleSections,
   type ThresholdRow,
   type Values,
 } from "@/lib/template-engine";
-import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
+import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
 import type { FindingMap } from "@/lib/research-findings";
@@ -292,6 +295,14 @@ function DocumentPage() {
         .from("document_attachments")
         .select("doc_label,nf_1098_tab,file_name,created_at")
         .eq("acquisition_id", acquisitionId);
+      // The memorandum for record drafts its chronology from the audit trail
+      // and the phase plan for this acquisition type.
+      const auditRows = await supabase
+        .from("audit_log")
+        .select("action,field,actor,reason,phase,logged_at,old_value,new_value")
+        .eq("acquisition_id", acquisitionId)
+        .order("logged_at", { ascending: true });
+      const phasePlan = await supabase.from("phase_plan").select("*");
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -301,6 +312,17 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        auditRows: (auditRows.data ?? []) as {
+          action: string;
+          field: string | null;
+          actor: string | null;
+          reason: string | null;
+          phase: string | null;
+          logged_at: string;
+          old_value: string | null;
+          new_value: string | null;
+        }[],
+        phasePlan: (phasePlan.data ?? []) as PhasePlanRow[],
         researchLog: (researchLog.data ?? []) as {
           source: string;
           query: string;
@@ -654,6 +676,15 @@ function DocumentPage() {
       .map((i) => (i.tab && i.tab !== "—" && i.tab !== "N/A" ? `Tab ${i.tab} — ${i.label}` : i.label));
   }, [q.data]);
 
+  // The file's own launch sequence, for the chronology memorandum.
+  const filePhases = useMemo(
+    () =>
+      q.data?.acq
+        ? buildSequence(q.data.acq as AcqRow, q.data.phasePlan ?? [], todayISO(), daysBetween)
+        : [],
+    [q.data?.acq, q.data?.phasePlan],
+  );
+
   const draftCtx = useMemo(
     () => ({
       acquisitionId,
@@ -669,8 +700,19 @@ function DocumentPage() {
       awardDate,
       co: coRecord,
       today: todayISO(),
+      audit: (q.data?.auditRows ?? []).map((a) => ({
+        action: a.action,
+        field: a.field,
+        actor: a.actor,
+        reason: a.reason,
+        phase: a.phase,
+        at: a.logged_at,
+        oldValue: a.old_value,
+        newValue: a.new_value,
+      })),
+      phases: filePhases.map((p) => ({ phase: p.phase, status: p.status })),
     }),
-    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord],
+    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases],
   );
 
   // Pre-fill from the record, or from the latest saved version.
@@ -753,6 +795,41 @@ function DocumentPage() {
     );
   }, [def, q.data, memoHeader, acquisitionId, user.name, enclosures, board]);
 
+  // Memorandum for record: the opening line and, for a chronology, the body
+  // are drafted again whenever the contracting officer changes the purpose.
+  const mfrPurpose = def?.key === MFR_KEY ? `${values["purpose"] ?? ""}|${values["purpose_other"] ?? ""}` : "";
+  useEffect(() => {
+    if (def?.key !== MFR_KEY || !q.data?.acq || !values["purpose"]) return;
+    const draft = draftMemoBody(MFR_KEY, { ...draftCtx, acq: q.data.acq, values });
+    setValues((prev) => {
+      const next = { ...prev };
+      for (const [key, text] of Object.entries(draft)) {
+        if (key === "file_tab" && String(prev[key] ?? "").trim()) continue;
+        next[key] = text;
+      }
+      return next;
+    });
+    setDraftedFields((prev) => new Set([...prev, ...Object.keys(draft)]));
+    // The purpose is what the draft follows; the rest of the context is stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mfrPurpose]);
+
+  // The memorandum for record is addressed to the contract file, and its
+  // subject and Ref line follow the purpose and the authority on the form.
+  useEffect(() => {
+    if (def?.key !== MFR_KEY || !memoHeader || !q.data?.acq) return;
+    const purpose = mfrPurposeLabel(values);
+    const pr = String(q.data.acq["pr_number"] ?? "").trim();
+    const title = String(q.data.acq["title"] ?? "").trim();
+    const subject = `Memorandum for Record${purpose ? ` — ${purpose}` : ""}${title ? ` — ${title}` : ""}${
+      pr ? ` — PR ${pr}` : ""
+    }`;
+    const authority = String(values["authority"] ?? "").trim();
+    const ref = authority ? [authority] : [];
+    if (memoHeader.subject === subject && memoHeader.ref.join("|") === ref.join("|")) return;
+    setMemoHeader({ ...memoHeader, subject, ref });
+  }, [def?.key, memoHeader, q.data?.acq, values]);
+
   const estimatedValue = q.data?.acq?.["estimated_value"] ? Number(q.data.acq["estimated_value"]) : null;
   const signature = useMemo(
     () => (def?.signature ? def.signature(estimatedValue, q.data?.thresholds ?? []) : undefined),
@@ -787,6 +864,11 @@ function DocumentPage() {
       if (Object.keys(keptMeta).length) fieldValues["__ai_provenance"] = JSON.stringify(keptMeta);
       else delete fieldValues["__ai_provenance"];
       setAiMeta(keptMeta);
+      // A memorandum for record is filed under the tab the officer picked.
+      if (def.key === MFR_KEY) {
+        const picked = String(values["file_tab"] ?? "").trim() || "001";
+        fieldValues["__tab"] = picked;
+      }
       const { error } = await supabase.from("documents").insert({
         acquisition_id: acquisitionId,
         template_id: q.data.templateId,
@@ -805,7 +887,10 @@ function DocumentPage() {
       const { error: logError } = await supabase.from("audit_log").insert({
         acquisition_id: acquisitionId,
         actor: user.name,
-        action: "Document saved",
+        action:
+          def.key === MFR_KEY
+            ? `Memorandum for Record added: ${mfrPurposeLabel(values) || "purpose not stated"}`
+            : "Document saved",
         field: def.name,
         old_value: q.data.versions[0] ? `version ${q.data.versions[0].version}` : null,
         new_value: `version ${nextVersion}`,
