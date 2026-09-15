@@ -529,6 +529,22 @@ function plusDays(iso: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * One sentence of reason for the public notice, taken from the justification's
+ * item 5 text: the sentence naming the source, with the drafting note dropped.
+ */
+function soleSourceSentence(rationale: string, acq: Record<string, unknown>): string {
+  if (!rationale.trim()) return "";
+  const vendor = str(acq["vendor_legal_name"]);
+  const sentences = rationale
+    .replace(/Drafted from the record, confirm\.?/gi, "")
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const named = vendor ? sentences.find((s) => s.includes(vendor)) : undefined;
+  return named ?? sentences[sentences.length - 1] ?? "";
+}
+
 function samNotice(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const start = str(a["period_of_performance_start"]);
