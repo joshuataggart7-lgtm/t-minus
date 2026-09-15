@@ -441,6 +441,7 @@ function MemoRoutingRowEditor({
       <td className="py-2 pr-4">{row.center_code}</td>
       <td className="py-2 pr-4">
         {MEMO_DOCUMENT_KEYS.find((k) => k.key === row.document_key)?.name ?? row.document_key}
+        {row.note ? <div className="text-muted">{row.note}</div> : null}
       </td>
       <td className="py-2 pr-4">
         <label className="sr-only" htmlFor={`title-${row.routing_id}`}>Approving official title</label>
