@@ -43,6 +43,8 @@ export type SectionDef = {
   standingText?: string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
+  /** Back-up material: shown collapsed on the form, printed in full. */
+  collapsed?: boolean;
 };
 
 /** The citation printed for a section on this record. */
@@ -79,6 +81,12 @@ export type TemplateDef = {
     corrections?: string[];
   };
   lead: string;
+  /**
+   * Printed form. "memo" and "dandf" use the NF 1858 memorandum page; "dandf"
+   * prints Findings, then Determination, then the signature page. "plan" is a
+   * multi-section report or chart package.
+   */
+  layout?: "memo" | "dandf" | "plan";
   sections: SectionDef[];
   /** Optional signature page selected by estimated value. */
   signature?: (estimatedValue: number | null, thresholds: ThresholdRow[]) => SignatureBlock;
