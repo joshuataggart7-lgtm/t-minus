@@ -1062,13 +1062,14 @@ const limitationFutureContracting: TemplateDef = {
 
 // ------------------------------------------------ 10. D&F authority to exclude a source
 const EXCLUSION_CITATIONS = [
-  "FAR 6.202(a)(1)",
-  "FAR 6.202(a)(2)",
-  "FAR 6.202(a)(3)",
-  "FAR 6.202(a)(4)",
-  "FAR 6.202(a)(5)",
-  "FAR 6.202(a)(6)",
+  "FAR 6.102-1(a)(1)",
+  "FAR 6.102-1(a)(2)",
+  "FAR 6.102-1(a)(3)",
+  "FAR 6.102-1(a)(4)",
+  "FAR 6.102-1(a)(5)",
+  "FAR 6.102-1(a)(6)",
 ];
+
 
 const excludeSourceDandf: TemplateDef = {
   key: "exclude-source-dandf",
