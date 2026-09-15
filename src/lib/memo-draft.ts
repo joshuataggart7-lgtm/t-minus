@@ -64,6 +64,8 @@ export type MemoDraftCtx = {
   co?: { name: string; email: string | null; phone: string | null } | null;
   /** Values already filled on the form, so a draft can follow a chosen option. */
   values?: Values;
+  /** The JOFOC saved on this file, when there is one, so the notice can read item 5. */
+  jofocValues?: Values | null;
   /** Today, so a determination carries its date. */
   today?: string;
   /** Audit trail on this file, oldest first, for the chronology memorandum. */
@@ -293,6 +295,20 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   };
 }
 
+/**
+ * The pricing arrangement the record states, taken from the requirement text.
+ * Returns "" when the record carries no pricing description.
+ */
+export function pricingArrangement(acq: Record<string, unknown>): string {
+  const text = str(acq["pricing_description"]) || str(acq["description_of_requirement"]);
+  if (!text) return "";
+  const m =
+    /((?:firm[- ]fixed[- ]price|fixed[- ]price|cost[- ]plus[^.,;]*|time[- ]and[- ]materials|labor[- ]hour|indefinite[- ]delivery)[^.;]*)/i.exec(
+      text,
+    );
+  return m?.[1] ? m[1].trim().replace(/\s+/g, " ") : "";
+}
+
 function commerciality(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const determination = str(a["commercial_determination"]);
@@ -312,8 +328,16 @@ function commerciality(ctx: MemoDraftCtx): Values {
     category,
     procedures,
     market_research: researchParagraph(ctx) + "\n" + ruleOfTwo(ctx),
-    customary_practice:
-      "Firm-fixed-price by flight hour with a daily availability rate is the customary commercial arrangement for chartered aircraft services; no tailoring of FAR 52.212-4 is proposed. Drafted from the record, confirm.",
+    customary_practice: (() => {
+      const pricing = pricingArrangement(a);
+      if (!pricing) {
+        return gap(
+          "state the customary commercial practice for this requirement, from the pricing arrangement on the record",
+        );
+      }
+      const sentence = pricing.charAt(0).toUpperCase() + pricing.slice(1);
+      return `${sentence} is the pricing arrangement on the record and the customary commercial practice for this requirement; no tailoring of FAR 52.212-4 is proposed. Drafted from the record, confirm.`;
+    })(),
     determination: `The requirement is a commercial service within the meaning of FAR 2.101 and will be acquired under FAR Part 12 using the simplified procedures of FAR 12.201-1.`,
     determined_on: ctx.today ?? "",
   };
@@ -501,9 +525,26 @@ function samNotice(ctx: MemoDraftCtx): Values {
     evaluation_basis:
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
+    sole_source_basis:
+      str(ctx.jofocValues?.["authority_rationale"]) ||
+      gap("state why only this source can meet the need, or draft the JOFOC first"),
+    authority: samNoticeAuthority(a),
     poc_email: ctx.co?.email ?? "",
     poc_phone: ctx.co?.phone ?? "",
   };
+}
+
+/**
+ * Authority as the public notice prints it. A FAR 13.5 commercial file cites
+ * the statute with the procedures it is carried out under, never the internal
+ * picker note the record stores.
+ */
+export function samNoticeAuthority(acq: Record<string, unknown>): string {
+  const recorded = str(acq["jofoc_authority_citation"]);
+  if (isSimplifiedCommercial(acq) || /1901/.test(recorded)) {
+    return "41 U.S.C. 1901, commercial simplified procedures under RFO FAR 12.201-1";
+  }
+  return recorded;
 }
 
 // -------------------------------------------- memorandum for record (MFR)

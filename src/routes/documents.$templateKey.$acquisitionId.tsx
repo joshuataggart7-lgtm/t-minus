@@ -53,7 +53,7 @@ import {
   technicalRepresentative,
   approvingOfficialTitle,
 } from "@/lib/template-engine";
-import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
+import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
 import type { FindingMap } from "@/lib/research-findings";
@@ -720,6 +720,12 @@ function DocumentPage() {
       acq: q.data?.acq ?? {},
       missionName: q.data?.missionName ?? "",
       fileDocuments: q.data?.fileDocuments ?? [],
+      jofocValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /justification|jofoc/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
       evidence: researchEvidence,
       findings: q.data?.findings ?? {},
       researchLog,
@@ -789,6 +795,11 @@ function DocumentPage() {
     if (def.key === "jofoc") {
       const options = def.sections.find((x) => x.id === "item4")?.fields[0]?.options ?? [];
       if (!options.includes(filled["authority"] ?? "")) filled["authority"] = jofocAuthorityDefault(q.data.acq);
+    }
+    // The public notice prints the authority as a citation, never the
+    // internal picker note the record stores.
+    if (def.key === "sam-notice") {
+      filled["authority"] = samNoticeAuthority(q.data.acq);
     }
     // Every document is drafted from the record, section by section, so no
     // field the record can fill is ever opened empty.
