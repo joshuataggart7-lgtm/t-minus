@@ -424,7 +424,7 @@ function samNotice(ctx: MemoDraftCtx): Values {
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
     poc_email: ctx.co?.email ?? "",
-    poc_phone: ctx.co?.phone ?? "[not recorded on the contracting officer's user record]",
+    poc_phone: ctx.co?.phone ?? "",
   };
 }
 

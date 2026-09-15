@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/center-config";
 import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
 import { PeopleRoles } from "@/components/people-roles";
+import { PeopleContacts } from "@/components/people-contacts";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
@@ -185,6 +186,7 @@ function CenterConfigPage() {
       {q.error ? <ErrorNote message="The Center configuration could not be read. Refresh the page to try again." /> : null}
 
       {role === "hq" ? <PeopleRoles actorName={user?.name ?? "Unknown"} /> : null}
+      <PeopleContacts actorName={user?.name ?? "Unknown"} mayEdit={mayEdit} />
 
       {mayEdit ? (
         <form onSubmit={save} className="mt-8 max-w-[70ch] border-t border-border pt-6">

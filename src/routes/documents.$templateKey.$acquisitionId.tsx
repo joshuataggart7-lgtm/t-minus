@@ -211,7 +211,7 @@ function DocumentPage() {
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
         supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
         supabase.from("review_rules").select("*"),
-        supabase.from("users").select("name,title,center_code,email"),
+        supabase.from("users").select("name,title,center_code,email,telephone"),
         loadWatchRows(),
         loadRegRefs(),
         supabase.from("memo_routing").select("*").eq("document_key", templateKey),
@@ -381,7 +381,13 @@ function DocumentPage() {
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
         rules: (rules.data ?? []) as ReviewRuleRow[],
-        users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
+        users: (users.data ?? []) as {
+          name: string;
+          title: string | null;
+          center_code: string | null;
+          email?: string | null;
+          telephone?: string | null;
+        }[],
         comments: (comments.data ?? []) as {
           comment_id: string;
           author: string | null;
@@ -643,13 +649,23 @@ function DocumentPage() {
   }, [q.data?.fileDocRows]);
 
   // The contracting officer's own user record, for the notice point of contact.
+  // The signed-in officer's record comes first; the record's named officer is
+  // the fallback when someone else opens the document.
   const coRecord = useMemo(() => {
-    const name = String(q.data?.acq?.["co_name"] ?? "");
-    const row = (q.data?.users ?? []).find((u) => u.name === name) as
-      | { name: string; email?: string | null }
-      | undefined;
-    return row ? { name: row.name, email: row.email ?? null, phone: null } : null;
-  }, [q.data]);
+    const rows = (q.data?.users ?? []) as {
+      name: string;
+      email?: string | null;
+      telephone?: string | null;
+    }[];
+    const mine = rows.find(
+      (r) =>
+        (user.email && (r.email ?? "").toLowerCase() === user.email.toLowerCase()) ||
+        r.name.toLowerCase() === user.name.toLowerCase(),
+    );
+    const named = rows.find((r) => r.name === String(q.data?.acq?.["co_name"] ?? ""));
+    const row = mine ?? named;
+    return row ? { name: row.name, email: row.email ?? null, phone: row.telephone ?? null } : null;
+  }, [q.data, user]);
 
   // The clock's award date: the target date, or the forecast date behind it.
   const awardDate = useMemo(() => {
