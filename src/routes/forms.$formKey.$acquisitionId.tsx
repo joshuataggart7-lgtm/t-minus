@@ -44,10 +44,18 @@ function respondentsFromRaw(raw: unknown): FormRespondent[] {
       | undefined;
     const naicsList = (types?.["naicsList"] ?? []) as { sbaSmallBusiness?: string }[];
     const small = Array.isArray(naicsList) && naicsList.some((n) => n?.sbaSmallBusiness === "Y");
+    // Business types read as a short list of words, never as the stored record.
+    const core = (e["coreData"] ?? {}) as Record<string, unknown>;
+    const typeBlock = (core["businessTypes"] ?? {}) as Record<string, unknown>;
+    const typeList = (typeBlock["businessTypeList"] ?? []) as { businessTypeDesc?: string }[];
+    const descriptions = Array.isArray(typeList)
+      ? [...new Set(typeList.map((t) => String(t?.businessTypeDesc ?? "").trim()).filter(Boolean))].slice(0, 3)
+      : [];
+    const category = [small ? "Small business" : "", ...descriptions].filter(Boolean).join(", ");
     return {
       uei: String(reg["ueiSAM"] ?? reg["uei"] ?? ""),
       name: String(reg["legalBusinessName"] ?? reg["legalName"] ?? ""),
-      category: small ? "Small business" : "Not stated in SAM.gov",
+      category: category || "Not stated in SAM.gov",
       assessment: "Capable of performing the requirement, based on registered NAICS",
     };
   });
