@@ -1156,24 +1156,24 @@ const limitedSourcesJustification: TemplateDef = {
   tab: "016",
   layout: "memo",
   badge: {
-    citation: "FAR 8.405-6; FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
-    tier: "guidance",
-    revision: "HQ 10/2025 revision",
+    citation: "FAR 8.401(b); GSAM 538.7104-3; GSAM 538.7104-4; FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
+    tier: "binding",
+    revision: "HQ 04/2026 revision",
     effective: "2026-04-16",
     note: "Approval tier follows the estimated value of the order or BPA.",
   },
-  lead: "Justification for limiting sources on a GSA Federal Supply Schedule order or blanket purchase agreement.",
+  lead: "Justification for limiting sources on a GSA Federal Supply Schedule order or blanket purchase agreement above the simplified acquisition threshold.",
   sections: [
-    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "FAR 8.405-6", [
+    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "FAR 8.401(b)", [
       X("buying_location", "Buying location", "center_code"),
     ]),
     {
       id: "introduction",
       title: "Introduction",
-      citation: "Title 41 U.S.C. 152(3)",
+      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
       standingText:
-        "This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA). This acquisition will be conducted under the Multiple-Award Schedule (MAS) Program (Title 41 U.S.C. 152(3)).",
+        "This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA). This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)).",
       fields: [
         T("action_description", "The action type, the anticipated order or BPA type, and the supplies or services required to meet the agency's need"),
         X("contractors", "Contractor(s) the award is anticipated to be made to", "vendor_legal_name"),
@@ -1185,18 +1185,24 @@ const limitedSourcesJustification: TemplateDef = {
     {
       id: "authority",
       title: "Authority Cited and Rationale:",
-      citation: "FAR 8.405-6",
+      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
+      standingText:
+        "The statutory exception supporting the placement of this order or BPA that exceeds the simplified acquisition threshold on a sole source basis is:",
       fields: [
         S("authority", "Authority", [
-          "FAR 8.405-6(a)(1)(A). An urgent and compelling need exists, and following normal procedures would result in unacceptable delays.",
-          "FAR 8.405-6(a)(1)(B). Only one source is capable of providing the supplies or services required at the level of quality required because the supplies or services are unique or highly specialized.",
-          "FAR 8.405-6(a)(1)(C). In the interest of economy and efficiency, the new work is a logical follow-on to an original GSA FSS order provided that the original order was placed in accordance with the applicable GSA FSS ordering procedures. The original order or BPA must not have been previously issued under sole-source or limited-sources procedures.",
-          "FAR 8.405-6(b), Items Peculiar to One Manufacturer. An item peculiar to one manufacturer can be a particular brand name, product, or a feature of a product, peculiar to one manufacturer. A brand name item, whether available on one or more schedule contracts, is an item peculiar to one manufacturer.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(i). The need is of such unusual urgency that following normal procedures would result in unacceptable delays in fulfilling the need.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(ii). Only one source is capable of providing the products, services, or solution required at the level of quality required because the products, services, or solutions are unique or highly specialized.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(iii). The order should be issued on a sole source basis in the interest of economy and efficiency because it is a logical follow-on to an FSS order already issued on a competitive basis.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(iv). It is necessary to place the order with a particular FSS contractor to satisfy a minimum guarantee established in the FSS BPA.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(v). A law expressly authorizes or requires that the purchase be made from a specified source.",
+          "FAR 8.401(b)/GSAM 538.7104-4(b)(1), Items peculiar to one manufacturer. The particular brand name, product, or feature is essential to NASA's requirements, and market research indicates other companies' similar products, or products lacking the particular feature, do not meet, or cannot be modified to meet, the need.",
         ]),
-        T("rationale", "Rationale:"),
+        X("identified_law", "Law identified", undefined),
+        T("rationale", "Rationale:", "Provide sufficient detail and supporting rationale for the exception used, per GSAM 538.7104-3(b)(2)."),
       ],
     },
+
     {
       id: "best_value",
       title: "Determination by the contracting officer that the order represents the best value consistent with FAR 8.404(d):",
