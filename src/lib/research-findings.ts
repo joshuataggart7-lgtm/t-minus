@@ -58,3 +58,8 @@ export function respondentsFromFinding(findings: FindingMap | undefined): Resear
     return [];
   }
 }
+
+/** The stored value with no provenance mark, for text re-derived at render. */
+export function rawFinding(findings: FindingMap | undefined, target: string): string {
+  return findings?.[target]?.value ?? "";
+}

@@ -42,9 +42,35 @@ export type FormKey = "nf-1787" | "nf-1787a";
 
 import {
   findingText,
+  rawFinding,
   respondentsFromFinding,
   type FindingMap,
 } from "@/lib/research-findings";
+import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
+
+/**
+ * Registrant and small business counts read back out of the latest research
+ * run, so the form's sentences are re-derived whenever the rule or the record
+ * changes, without the contracting officer running the research again.
+ */
+function counts(findings: FindingMap | undefined): { n: number; m: number } | null {
+  for (const target of ["memo.findings", "nf1787.remarks", "nf1787a.IdentifyResults"]) {
+    const text = rawFinding(findings, target);
+    const m =
+      /(\d[\d,]*)\s+registrants?[\s\S]{0,120}?(\d[\d,]*)\s+small business/i.exec(text) ??
+      /(\d[\d,]*)\s+(?:sources?|registrants?)[\s\S]{0,80}?of which\s+(\d[\d,]*)/i.exec(text);
+    if (m) return { n: Number(m[1]!.replace(/,/g, "")), m: Number(m[2]!.replace(/,/g, "")) };
+  }
+  return null;
+}
+
+/** Any Rule of Two conclusion left in stored text, removed on a sole-source file. */
+function withoutRuleOfTwo(text: string): string {
+  return text
+    .replace(/[^.]*Rule of Two[^.]*\.\s*/gi, "")
+    .replace(/[^.]*two or more responsible small business concerns[^.]*\.\s*/gi, "")
+    .trim();
+}
 
 export type FormRespondent = {
   uei: string;
