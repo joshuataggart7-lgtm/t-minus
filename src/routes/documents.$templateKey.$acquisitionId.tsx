@@ -796,6 +796,11 @@ function DocumentPage() {
       const options = def.sections.find((x) => x.id === "item4")?.fields[0]?.options ?? [];
       if (!options.includes(filled["authority"] ?? "")) filled["authority"] = jofocAuthorityDefault(q.data.acq);
     }
+    // The public notice prints the authority as a citation, never the
+    // internal picker note the record stores.
+    if (def.key === "sam-notice") {
+      filled["authority"] = samNoticeAuthority(q.data.acq);
+    }
     // Every document is drafted from the record, section by section, so no
     // field the record can fill is ever opened empty.
     const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
