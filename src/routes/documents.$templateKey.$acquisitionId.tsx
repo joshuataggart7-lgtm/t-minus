@@ -1152,6 +1152,9 @@ function DocumentPage() {
             <p className="text-[13px] text-muted-foreground">
               {signature.tierLabel} · {signature.citation} · selected by the estimated value{" "}
               <span data-numeric>{money(estimatedValue)}</span>
+              {q.data?.routing?.approving_official_title ? (
+                <> · approving official: {q.data.routing.approving_official_title}</>
+              ) : null}
             </p>
             <ul className="mt-2">
               {signature.blocks.map((b) => (
@@ -1160,6 +1163,22 @@ function DocumentPage() {
                 </li>
               ))}
             </ul>
+            {def.key === "jofoc" ? (
+              <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                {[
+                  { role: "Technical Representative", name: String(q.data?.acq?.["cor_name"] ?? "") },
+                  { role: "Contracting Officer", name: String(q.data?.acq?.["co_name"] ?? "") },
+                ].map((p2) => (
+                  <div key={p2.role}>
+                    <div className="mt-6 border-t border-foreground pt-1 text-[13px] text-muted-foreground">
+                      Signature
+                    </div>
+                    <p className="text-[15px] leading-[22px]">{p2.name || "—"}</p>
+                    <p className="text-[13px] text-muted-foreground">{p2.role}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             {signature.note ? <p className="mt-2 text-[13px] text-muted-foreground">{signature.note}</p> : null}
           </section>
         ) : null}
