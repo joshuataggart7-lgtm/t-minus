@@ -1086,7 +1086,7 @@ const excludeSourceDandf: TemplateDef = {
   },
   lead: "Determination and findings that a source may be excluded from full and open competition.",
   sections: [
-    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "FAR 6.202", [
+    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "FAR 6.102", [
       X("excluded_source", "Name of source to be excluded"),
     ]),
     {
@@ -1101,28 +1101,28 @@ const excludeSourceDandf: TemplateDef = {
     {
       id: "findings",
       title: "Findings",
-      citation: "FAR 6.202(b)",
+      citation: "FAR 6.102-1(a)",
       tier: "binding",
       standingText:
-        "Pursuant to the requirements of FAR 6.202(b), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
+        "Pursuant to the requirements of FAR 6.102(a), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
       fields: [
-        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "FAR 6.202(a)(1)"),
+        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "FAR 6.102-1(a)(1)"),
         T("citation_statement", "The statement that matches the citation selected"),
-        T("finding_1", "1. A brief description of the requirement, including acquisition history, sources, quantities, prices and dates of award"),
+        T("finding_1", "1. A brief description of the requirement, including the acquisition history of the supplies or services, sources, quantities, prices, and dates of award"),
         T("finding_2", "2. The circumstances for excluding the source"),
         S("finding_3", "3. Exclusion", ["Total exclusion", "Partial exclusion"], "Total exclusion"),
         T("finding_4", "4. The potential effect on the excluded source"),
         T(
           "finding_5",
           "5. The benefit to the Government",
-          "Where FAR 6.202(a)(1) is cited, give the estimated reduction and how it was derived. Where FAR 6.202(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source.",
+          "Where FAR 6.102-1(a)(1) is cited, give the estimated reduction in overall costs and how it was derived. Where FAR 6.102-1(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source. Where FAR 6.102-1(a)(3) through (6) is cited, give details on how excluding the source serves the purpose cited.",
         ),
       ],
     },
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 6.202(a)",
+      citation: "FAR 6.102-1(a)",
       tier: "binding",
       standingText:
         "Based on the findings identified and explained above in accordance with the citation selected above, the determination has been made to exclude the company named below.",
@@ -1140,8 +1140,9 @@ const excludeSourceDandf: TemplateDef = {
         HQ_OGC_BLOCK,
         { label: "Approval: Senior Procurement Executive" },
       ],
-      "NFS 1806.202-70",
+      "NFS CG 1806.11(b)",
     ),
+
   ],
 };
 
