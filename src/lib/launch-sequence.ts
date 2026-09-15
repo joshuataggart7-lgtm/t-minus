@@ -721,6 +721,9 @@ export function computeHold(
   for (const p of throughCurrent) {
     for (const d of p.docs) {
       if (d.optional) continue;
+      // A row the app generates only holds the file where the record already
+      // carried that answer; an unwritten optional draft never places a hold.
+      if (generatorKey(d) && !d.field) continue;
       const hasFile = attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined;
       if (docSatisfied(d, acq, hasFile, savedKeys) === false)
         return { reason: `${p.phase}: ${d.label} is missing`, owner };
