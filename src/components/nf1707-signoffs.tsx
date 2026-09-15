@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { answersFromStored } from "@/components/nf1707-intake";
 import {
   applicableBlocks,
+  hiddenBlocks,
   reviewerTitle,
   signatureCells,
   SIGNOFF_STATUS_LABEL,
-  UNMAPPED_BLOCKS,
   type SignoffBlock,
   type SignoffStatus,
 } from "@/lib/nf1707-signoffs";
@@ -53,6 +53,7 @@ export function Nf1707Signoffs({
 }) {
   const answers = useMemo(() => answersFromStored(storedAnswers ?? {}), [storedAnswers]);
   const blocks = useMemo(() => applicableBlocks(answers, centerCode), [answers, centerCode]);
+  const hidden = useMemo(() => hiddenBlocks(answers, centerCode), [answers, centerCode]);
   const rowFor = (block: SignoffBlock) =>
     rows.find((r) => r.form_field_name === (block.sigField || block.blockName)) ?? null;
 
@@ -147,14 +148,16 @@ export function Nf1707Signoffs({
       </table>
 
       <details className="mt-4 text-[13px]">
-        <summary className="cursor-pointer">Blocks on the form with no stated trigger ({UNMAPPED_BLOCKS.length})</summary>
+        <summary className="cursor-pointer">Not applicable to this action ({hidden.length})</summary>
         <p className="mt-2 max-w-[70ch] text-muted-foreground">
-          These blocks are printed on the form, but neither the form nor a cited regulation says which answer triggers
-          them, so they are not routed. Tell us which section triggers each one and they will be added.
+          The form hides these blocks for this record. They are listed so nothing is dropped silently.
         </p>
         <ul className="mt-2 space-y-1">
-          {UNMAPPED_BLOCKS.map((b) => (
-            <li key={b.blockName}>{b.blockName} · {b.formSection}{b.center ? ` · ${b.center} only` : ""}</li>
+          {hidden.map((b) => (
+            <li key={b.sigField || b.blockName}>
+              {b.blockName} · {b.formSection}
+              <span className="block text-muted-foreground">{b.hiddenReason}</span>
+            </li>
           ))}
         </ul>
       </details>
