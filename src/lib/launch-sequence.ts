@@ -105,6 +105,37 @@ export function acquisitionType(acq: AcqRow) {
     : "commercial_ffp_13_5_competed";
 }
 
+/** The acquisition type written out for people, never the internal code. */
+export function acquisitionTypeWords(acq: AcqRow) {
+  const contract = String((acq as Record<string, unknown>)["contract_type"] ?? "").trim();
+  const contractWords = /ffp|firm[- ]fixed/i.test(contract)
+    ? "Commercial FFP"
+    : contract
+      ? `Commercial ${contract}`
+      : "Commercial";
+  const method = String((acq as Record<string, unknown>)["acquisition_method"] ?? "");
+  const methodWords = /13\.5/.test(method)
+    ? "FAR 13.5"
+    : /13/.test(method)
+      ? "FAR 13"
+      : /15/.test(method)
+        ? "FAR 15"
+        : /8\.4/.test(method)
+          ? "FAR 8.4"
+          : /12/.test(method)
+            ? "FAR 12"
+            : "FAR 13.5";
+  const competition = String(acq.competition ?? "");
+  const compWords = /sole/i.test(competition)
+    ? "sole source"
+    : /brand/i.test(competition)
+      ? "brand name"
+      : /limited/i.test(competition)
+        ? "limited sources"
+        : "competed";
+  return `${contractWords}, ${methodWords}, ${compWords}`;
+}
+
 export const PHASE_CITATIONS: Record<string, string> = {
   Intake: "NF 1707; NFS 1807.7201 (Acquisition Forecast affirmation)",
   "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
