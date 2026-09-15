@@ -773,24 +773,33 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       }
     }
 
-    // Holds. Cause and clearance in one sentence.
-    const holds = rows.filter((a) => /on hold/i.test(a.action));
-    const clears = rows.filter((a) => /clock resumed|hold cleared/i.test(a.action));
+    // Holds. Cause and clearance in one sentence, never the stored field code.
+    const isHoldRow = (a: AuditLine) =>
+      /on hold|clock held/i.test(a.action) ||
+      (/clock_state|clock state/i.test(str(a.field)) && /hold/i.test(str(a.newValue)));
+    const isClearRow = (a: AuditLine) =>
+      /clock resumed|hold cleared/i.test(a.action) ||
+      (/clock_state|clock state/i.test(str(a.field)) && /running|resumed/i.test(str(a.newValue)));
+    const holds = rows.filter(isHoldRow);
+    const clears = rows.filter(isClearRow);
     holds.forEach((h, i) => {
       handled.add(h);
       const clear = clears[i];
       if (clear) handled.add(clear);
       const missing = /:\s*(.+?)\s+is missing\b/i.exec(str(h.reason))?.[1];
       const cause = chronologyDocumentTitle(missing ?? h.field, missing ?? h.reason);
+      const sameDay = clear ? onlyDate(clear.at) === onlyDate(h.at) : false;
       push(
         clear
-          ? `The clock was held on ${day(h.at)} until the ${cause} was attached.`
-          : `The clock was held on ${day(h.at)} for the missing ${cause}.`,
+          ? `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing; it resumed ${
+              sameDay ? "the same day" : `on ${stamp(clear.at)}`
+            } when the ${cause} was attached.`
+          : `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing.`,
       );
     });
     clears.filter((c) => !handled.has(c)).forEach((c) => {
       handled.add(c);
-      push(`The hold was cleared and the clock resumed on ${day(c.at)}.`);
+      push(`The hold was cleared and the clock resumed on ${stamp(c.at)}.`);
     });
 
     for (const a of rows) {
