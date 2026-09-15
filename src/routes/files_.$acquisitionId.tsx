@@ -2627,7 +2627,12 @@ function FilePage() {
                 `${acq?.period_of_performance_start ?? "—"} to ${acq?.period_of_performance_end ?? "—"}`,
               ],
               ["Regulatory baseline date", String(acq?.regulatory_baseline_date ?? "—")],
-              ["Current phase", String(acq?.current_phase ?? "—")],
+              [
+                "Current phase",
+                // The phase the file is actually in: a later phase cannot start
+                // while an earlier one is short a required document.
+                phases.find((p) => p.status === "current")?.phase ?? String(acq?.current_phase ?? "—"),
+              ],
             ] as const
           ).map(([k, v]) => (
             <div key={k} className="mb-3">
