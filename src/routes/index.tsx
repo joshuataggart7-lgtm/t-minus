@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
@@ -66,16 +66,9 @@ function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
 }
 
 
-function ExecutiveOverview() {
-  const { role, authState } = useRole();
-  const navigate = useNavigate();
+export function ExecutiveOverview() {
+  const { authState } = useRole();
   const [tab, setTab] = useState<"acquisitions" | "centers" | "enterprise">("acquisitions");
-
-  useEffect(() => {
-    if (role !== "executive" && role !== "hq") {
-      navigate({ to: "/work-queue", replace: true });
-    }
-  }, [role, navigate]);
 
   const q = useQuery({
     queryKey: ["executive-overview"],

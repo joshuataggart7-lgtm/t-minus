@@ -23,6 +23,7 @@ import { Route as EscalationsRouteImport } from './routes/escalations'
 import { Route as EstimateRouteImport } from './routes/estimate'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IntakeRouteImport } from './routes/intake'
+import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as RegIntakeRouteImport } from './routes/reg-intake'
 import { Route as ReportingRouteImport } from './routes/reporting'
@@ -111,6 +112,11 @@ const FilesRoute = FilesRouteImport.update({
 const IntakeRoute = IntakeRouteImport.update({
   id: '/intake',
   path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverviewRoute = OverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PgpdQueueRoute = PgpdQueueRouteImport.update({
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/overview': typeof OverviewRoute
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/overview': typeof OverviewRoute
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
@@ -301,6 +309,7 @@ export interface FileRoutesById {
   '/estimate': typeof EstimateRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
+  '/overview': typeof OverviewRoute
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
@@ -338,6 +347,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/overview'
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/overview'
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
@@ -408,6 +419,7 @@ export interface FileRouteTypes {
     | '/estimate'
     | '/files'
     | '/intake'
+    | '/overview'
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
@@ -444,6 +456,7 @@ export interface RootRouteChildren {
   EstimateRoute: typeof EstimateRoute
   FilesRoute: typeof FilesRoute
   IntakeRoute: typeof IntakeRoute
+  OverviewRoute: typeof OverviewRoute
   PgpdQueueRoute: typeof PgpdQueueRoute
   RegIntakeRoute: typeof RegIntakeRoute
   ReportingRoute: typeof ReportingRoute
@@ -563,6 +576,13 @@ declare module '@tanstack/react-router' {
       path: '/intake'
       fullPath: '/intake'
       preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overview': {
+      id: '/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof OverviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pgpd-queue': {
@@ -716,6 +736,7 @@ const rootRouteChildren: RootRouteChildren = {
   EstimateRoute: EstimateRoute,
   FilesRoute: FilesRoute,
   IntakeRoute: IntakeRoute,
+  OverviewRoute: OverviewRoute,
   PgpdQueueRoute: PgpdQueueRoute,
   RegIntakeRoute: RegIntakeRoute,
   ReportingRoute: ReportingRoute,
