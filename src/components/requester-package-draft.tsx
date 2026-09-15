@@ -9,6 +9,10 @@ import {
 import { draftFromRequesterPackage, lookupNaicsSizeStandard, type NaicsSizeView, type PackageClin, type PackageSuggestion } from "@/lib/requester-package.functions";
 import type { IntakeFacts } from "@/lib/intake";
 import type { NfAnswers } from "@/components/nf1707-intake";
+import {
+  clinsFromSheet, isSpreadsheetFile, readSpreadsheet, sheetColumnLabels,
+  type SheetColumnKey, type SheetMapping, type SheetRead,
+} from "@/lib/spreadsheet";
 
 type SourceKind = "PR" | "NF 1707" | "SOW/PWS" | "IGCE";
 type Source = { id: string; kind: SourceKind; name: string; mimeType: string; text: string; pdfData: string | null };
