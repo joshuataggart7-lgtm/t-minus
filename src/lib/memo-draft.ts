@@ -588,6 +588,14 @@ function day(iso: string): string {
   return `${Number(m[3])} ${MONTHS[Number(m[2]) - 1] ?? ""}`.trim();
 }
 
+/** "14 Sep 2026", the way a hold or a vote is dated in a memorandum. */
+function stamp(iso: string): string {
+  const d = onlyDate(iso);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (!m) return d;
+  return `${Number(m[3])} ${(MONTHS[Number(m[2]) - 1] ?? "").slice(0, 3)} ${m[1]}`.trim();
+}
+
 /** The person by role and name, never by account name. */
 function personPhrase(ctx: MemoDraftCtx, actor: string | null | undefined): string {
   const name = str(actor);
