@@ -49,12 +49,12 @@ export const SEEDED_USERS: SeededUser[] = [
     title: "HQ",
     email: "hq@t-minus.demo",
     center_code: "HQ",
-    landing: "/",
+    landing: "/overview",
   },
 ];
 
 export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; note?: string }[] = [
-  { to: "/", label: "Executive Overview", roles: "all" },
+  { to: "/overview", label: "Executive Overview", roles: "all" },
   { to: "/work-queue", label: "Work Queue", roles: ["specialist", "reviewer", "requester", "hq"] },
   { to: "/files", label: "Files", roles: "all" },
   { to: "/templates", label: "Templates", roles: ["specialist", "reviewer", "hq"] },
