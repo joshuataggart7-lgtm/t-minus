@@ -135,6 +135,7 @@ function WorkQueuePage() {
       .map((acq) => {
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const m = computeMetrics(acq, {
+          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
           roster: q.data.users ?? [],
           plan: q.data.plan,
           rules: q.data.rules,

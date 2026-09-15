@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
+import { attachedKeys as keysFrom } from "@/lib/hold";
 import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
@@ -105,6 +106,7 @@ function DigestPage() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
+          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,
