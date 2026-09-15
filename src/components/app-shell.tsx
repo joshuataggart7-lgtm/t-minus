@@ -158,14 +158,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               className="flex min-w-0 items-center gap-1 overflow-hidden"
               title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
             >
-              {roles.slice(0, 2).map((assignedRole) => (
+              {roles.slice(0, 1).map((assignedRole) => (
                 <span key={assignedRole} className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
                   {ROLE_LABELS[assignedRole]}
                 </span>
               ))}
-              {roles.length > 2 ? (
+              {roles.length > 1 ? (
                 <span className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground" data-numeric>
-                  +{roles.length - 2}
+                  +{roles.length - 1}
                 </span>
               ) : null}
             </span>
