@@ -432,11 +432,13 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
 
   const size = ctx.sizeStandard ?? null;
   const researchedStandard = findingText(ctx.findings, "nf1787.size_standard");
+  // The seeded row carries a loading note such as "confirm"; that is bookkeeping
+  // for the seed, not part of the citation the form should print.
   const sizeSource = size
-    ? `${size.citation}, effective ${size.effectiveDate}${size.note ? ` (${size.note})` : ""}`
+    ? `${size.citation}, effective ${size.effectiveDate}`
     : researchedStandard
       ? `SBA table of small business size standards: ${researchedStandard}`
-      : "";
+      : "This NAICS code is not in the seeded SBA size standard table.";
   const employeeStandard =
     size && size.standardType === "employees" && size.employees
       ? `${size.employees.toLocaleString("en-US")} employees`
