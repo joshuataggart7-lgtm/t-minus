@@ -1423,14 +1423,42 @@ function FilePage() {
                             {state ? "Attached" : "Missing"}
                           </StatusMark>
 
-                          {canWrite ? (
+                          {attached ? (
                             <button
                               type="button"
-                              onClick={() => setDoc.mutate({ doc: d, attach: !state })}
+                              onClick={() => void openAttachment(attached)}
                               className="text-[13px] text-primary"
                             >
-                              {state ? "Remove" : "Attach"}
+                              {attached.file_name}
                             </button>
+                          ) : null}
+
+                          {canWrite ? (
+                            attached || state ? (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => detachDoc.mutate(d)}
+                                className="text-[13px] text-primary disabled:opacity-60"
+                              >
+                                Remove
+                              </button>
+                            ) : (
+                              <label className="cursor-pointer text-[13px] text-primary">
+                                {busy ? "Attaching" : "Attach"}
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept={ATTACHMENT_ACCEPT}
+                                  disabled={busy}
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (file) attachDoc.mutate({ doc: d, file });
+                                    event.target.value = "";
+                                  }}
+                                />
+                              </label>
+                            )
                           ) : null}
                           {state === false ? (
                             <span className="block w-full">
