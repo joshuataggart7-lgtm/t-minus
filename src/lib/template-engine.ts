@@ -50,6 +50,11 @@ export function sectionCitation(s: SectionDef, v: Values): string | undefined {
   return s.citationFor ? s.citationFor(v) : s.citation;
 }
 
+/** The citation printed on the template badge for this record. */
+export function badgeCitation(def: { badge: { citation: string; citationFor?: (v: Values) => string } }, v: Values): string {
+  return def.badge.citationFor ? def.badge.citationFor(v) : def.badge.citation;
+}
+
 /** True when the values carry a FAR 13, FAR 13.5 or FAR Part 12 method. */
 export function simplifiedValues(v: Values): boolean {
   const method = v["__method"] ?? "";
@@ -64,6 +69,8 @@ export type TemplateDef = {
   tab: string;
   badge: {
     citation: string;
+    /** Citation that depends on the record's acquisition method. */
+    citationFor?: (v: Values) => string;
     tier: "binding" | "guidance";
     revision: string;
     /** Machine-readable HQ revision date, used to spot newer guidance. */
@@ -536,6 +543,22 @@ const ter: TemplateDef = {
       ],
     },
     {
+      id: "proposal",
+      title: "Proposal under evaluation",
+      citation: "FAR 15.404-4",
+      tier: "binding",
+      standingText:
+        "The contractor, the estimate and the proposed price are read from the acquisition record.",
+      fields: [
+        { key: "contractor_name", label: "Contractor", kind: "text", bind: "sam_legal_name", required: true },
+        { key: "contractor_uei", label: "Unique Entity Identifier (UEI)", kind: "text", bind: "sam_uei" },
+        { key: "requirement_title", label: "Requirement", kind: "text", bind: "title", required: true },
+        { key: "igce_amount", label: "Independent government cost estimate (IGCE)", kind: "money", bind: "igce_amount" },
+        { key: "proposed_price", label: "Proposed price", kind: "money", bind: "quoted_price" },
+        { key: "proposal_received", label: "Date the proposal was received", kind: "date", bind: "proposal_received" },
+      ],
+    },
+    {
       id: "item1",
       title: "1. Technical requirement and background",
       citation: "FAR 15.404-4",
@@ -763,6 +786,10 @@ const pnm: TemplateDef = {
   tab: "065",
   badge: {
     citation: "FAR 12.204(b)(1); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
+    citationFor: (v) =>
+      simplifiedValues(v)
+        ? "FAR 12.204(b)(1); FAR 13.106-3(b)(3)"
+        : "FAR 15.406-3",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
@@ -774,6 +801,7 @@ const pnm: TemplateDef = {
       id: "header",
       title: "Acquisition and vendor",
       citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(1) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(1)"),
       tier: "binding",
       fields: [
         { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
@@ -793,6 +821,7 @@ const pnm: TemplateDef = {
       id: "pricing",
       title: "Government estimate and quoted price",
       citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(7)"),
       tier: "binding",
       standingText:
         "The independent government cost estimate and the quote of record are the starting point for the analysis.",
@@ -815,6 +844,7 @@ const pnm: TemplateDef = {
       id: "comparables",
       title: "Comparable prior awards",
       citation: "FAR 13.106-3(a)(2)(ii); FAR 15.404-1(b)(2)(ii)",
+      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(a)(2)(ii)" : "FAR 15.404-1(b)(2)(ii)"),
       tier: "binding",
       standingText:
         "Run comparables to pull prior awards for this NAICS and PSC between half and double the estimated value. Prior awards support the comparison; they do not replace the contracting officer's judgment.",
@@ -832,6 +862,7 @@ const pnm: TemplateDef = {
       id: "analysis",
       title: "Price analysis and negotiation",
       citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) through (a)(11) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(a); FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(7) through (a)(11)"),
       tier: "binding",
       fields: [
         {
@@ -882,7 +913,7 @@ const pnm: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(b) part 15",
+    citation: "FAR 13.106-3(b)(3)",
     blocks: ["Contracting officer", "Date"],
     note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
   }),
@@ -2780,7 +2811,7 @@ export function renderDocument(
   }
   return {
     title: `${def.name} — ${acquisitionId}`,
-    badgeLine: `${def.badge.citation} · ${def.badge.tier} · ${def.badge.revision}${def.badge.note ? ` · ${def.badge.note}` : ""}`,
+    badgeLine: `${badgeCitation(def, v)} · ${def.badge.tier} · ${def.badge.revision}${def.badge.note ? ` · ${def.badge.note}` : ""}`,
     blocks,
   };
 }

@@ -70,6 +70,8 @@ export type Database = {
           place_of_performance_standardized: string | null
           post_award: Json
           pr_number: string | null
+          proposed_price: number | null
+          proposed_price_received: string | null
           psc_code: string | null
           psc_note: string | null
           regulatory_baseline_date: string | null
@@ -146,6 +148,8 @@ export type Database = {
           place_of_performance_standardized?: string | null
           post_award?: Json
           pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
           psc_code?: string | null
           psc_note?: string | null
           regulatory_baseline_date?: string | null
@@ -222,6 +226,8 @@ export type Database = {
           place_of_performance_standardized?: string | null
           post_award?: Json
           pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
           psc_code?: string | null
           psc_note?: string | null
           regulatory_baseline_date?: string | null
