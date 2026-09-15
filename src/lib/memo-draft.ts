@@ -221,10 +221,25 @@ function ruleOfTwo(ctx: MemoDraftCtx, inJofoc = false): string {
   return gap("state the number of sources, their small business capability and the Rule of Two result");
 }
 
-/** Paragraph 4: one line per source, drafted from the research log. */
+/** Paragraph 4: the sources searched, written as one prose paragraph. */
 function researchParagraph(ctx: MemoDraftCtx): string {
-  const lines = researchLogLines(ctx.researchLog);
-  if (lines.length) return ["Sources searched:", ...lines].join("\n");
+  const log = ctx.researchLog ?? [];
+  if (log.length) {
+    const seen = new Set<string>();
+    const clauses: string[] = [];
+    for (const l of log) {
+      const source = l.source.replace(/\s+(?:API|endpoint)$/i, "").trim();
+      const key = `${source}|${searchedFor(l)}|${onlyDate(l.ranAt)}`.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const outcome =
+        l.count === null
+          ? "which was not available"
+          : `which returned ${l.count} result${l.count === 1 ? "" : "s"}`;
+      clauses.push(`${source} was searched for ${searchedFor(l)} on ${onlyDate(l.ranAt)}, ${outcome}`);
+    }
+    return `${clauses.join("; ")}.`;
+  }
   const engineResearch = findingText(ctx.findings, "memo.research");
   if (engineResearch) return `Sources searched: ${engineResearch}`;
   if (ctx.evidence) {
