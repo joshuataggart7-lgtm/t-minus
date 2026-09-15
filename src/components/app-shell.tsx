@@ -110,6 +110,19 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <div className="col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
         <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-3 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
           <AnnouncementBanner />
+          {isAdministrator ? (
+            <button
+              type="button"
+              onClick={() => setPresenter(!presenter)}
+              aria-pressed={presenter}
+              className={cn(
+                "shrink-0 rounded-lg border border-border px-3 py-1.5 text-[13px]",
+                presenter ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+              )}
+            >
+              Presenter
+            </button>
+          ) : null}
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
               Demo
@@ -170,7 +183,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           )}
         >
           <div className="py-3">
-            {NAV_GROUPS.map((group) => {
+            {navGroups.map((group) => {
               const groupItems = items.filter((item) => group.items.includes(item.label as never));
               if (!groupItems.length) return null;
               const expanded = groups[group.label] ?? false;
