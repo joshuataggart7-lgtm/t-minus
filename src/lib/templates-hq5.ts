@@ -97,7 +97,7 @@ function memoHeader(subjectHelp: string, extra: FieldDef[] = []): SectionDef {
 const sebAppointment: TemplateDef = {
   key: "seb-appointment",
   name: "Source Evaluation Board (SEB) Membership Appointment Memorandum",
-  tab: "020",
+  tab: "036",
   layout: "memo",
   badge: {
     citation: "FAR Subpart 15.3; FAR 15.303(b)(1); NFS Subpart 1815.3; NFS 1815.303(b)(i)(B); NFS 1815.370",
@@ -221,7 +221,7 @@ const sebAppointment: TemplateDef = {
 const setAppointment: TemplateDef = {
   key: "set-appointment",
   name: "Source Evaluation Team (non-SEB Procedures) Membership Appointment Memorandum",
-  tab: "020",
+  tab: "036",
   layout: "memo",
   badge: {
     citation:
@@ -335,7 +335,7 @@ const setAppointment: TemplateDef = {
 const ssaAppointment: TemplateDef = {
   key: "ssa-appointment",
   name: "Source Selection Authority Appointment Letter",
-  tab: "020",
+  tab: "036",
   layout: "memo",
   badge: {
     citation: "NFS 1801.603-1; FAR 15.303(a); NFS 1815.303(a); NPD 1000.3",
@@ -384,7 +384,7 @@ const ssaAppointment: TemplateDef = {
 const drfpCoverLetter: TemplateDef = {
   key: "drfp-cover-letter",
   name: "Draft Request For Proposal (DRFP) Cover Letter",
-  tab: "020",
+  tab: "037",
   layout: "memo",
   badge: {
     citation: "FAR 15.201; NFS 1815.201; NFS 1815.201(c)(6)(A); NFS 1852.215-84",
@@ -532,7 +532,7 @@ const drfpCoverLetter: TemplateDef = {
 const finalRfpCoverLetter: TemplateDef = {
   key: "final-rfp-cover-letter",
   name: "Final Request for Proposal (RFP) Cover Letter",
-  tab: "020",
+  tab: "040",
   layout: "memo",
   badge: {
     citation: "FAR 15.201; FAR 15.203; NFS 1815.201(c)(6)(D); NFS 1815.201(f); NFS 1852.215-84",
@@ -668,7 +668,7 @@ const finalRfpCoverLetter: TemplateDef = {
 const rfpNoncompetitive: TemplateDef = {
   key: "rfp-noncompetitive",
   name: "Request For Proposal (RFP) for Non-Competitive New Awards",
-  tab: "020",
+  tab: "040",
   layout: "memo",
   badge: {
     citation: "FAR 15.203(e); FAR 15.203(e)(3) and (4); NFS 1815.203-70; NFS 1804.7103",
@@ -805,7 +805,7 @@ const rfpNoncompetitive: TemplateDef = {
 const rfpExistingContract: TemplateDef = {
   key: "rfp-existing-contract",
   name: "Request for Proposal (RFP) for Existing Contracts",
-  tab: "060",
+  tab: "040",
   layout: "memo",
   badge: {
     citation: "FAR 15.203(e); FAR 43.102(b); FAR 15.403-4; NFS 1815.403-3",
@@ -894,7 +894,7 @@ const rfpExistingContract: TemplateDef = {
 const blackoutNotice: TemplateDef = {
   key: "blackout-notice",
   name: "Blackout Notice",
-  tab: "020",
+  tab: "039",
   layout: "memo",
   badge: {
     citation: "FAR 15.201(f); NFS 1815.201(f)(i); NFS 1815.201(f)(ii); NFS 1815.370(a)",
@@ -967,7 +967,7 @@ const CHECK = ["", "Completed", "N/A"];
 const electronicPostingChecklist: TemplateDef = {
   key: "electronic-posting-checklist",
   name: "Electronic Document Posting Checklist",
-  tab: "020",
+  tab: "38",
   badge: {
     citation: "NFS 1804.7103; FAR 3.104-4; NAII 2190.1",
     tier: "binding",
@@ -1022,8 +1022,8 @@ const electronicPostingChecklist: TemplateDef = {
 // ------------------------------------------------ 10. Notification to interested parties under CBAs
 const cbaNotification: TemplateDef = {
   key: "cba-notification",
-  name: "Notification to Interested Parties under Collective Bargaining Agreements (CBAs)",
-  tab: "020",
+  name: "Notification to Interested Parties under CBAs",
+  tab: "030",
   layout: "memo",
   badge: {
     citation: "FAR 22.1010; FAR 22.1010(a); FAR 22.1002-3(a); NFS 1822.1010",
@@ -1119,7 +1119,7 @@ const CHECKBOX_SYSTEM = ["", "Adequate", "Inadequate", "Other", "N/A"];
 const ppm: TemplateDef = {
   key: "ppm",
   name: "Prenegotiation Position Memorandum (PPM)",
-  tab: "030",
+  tab: "063",
   layout: "memo",
   badge: {
     citation: "FAR 15.406; NFS 1815.406; FAR 15.404-1; FAR 15.404-4(c)(3)",
@@ -1313,7 +1313,7 @@ const ppm: TemplateDef = {
 const tcpEvaluationMemo: TemplateDef = {
   key: "tcp-evaluation-memo",
   name: "Total Compensation Plan (TCP) Evaluation Memo",
-  tab: "040",
+  tab: "54",
   layout: "memo",
   badge: {
     citation: "FAR 52.222-46; FAR 22.1103; 29 CFR 541",
@@ -1370,7 +1370,7 @@ const tcpEvaluationMemo: TemplateDef = {
 const requirementsStatementsList: TemplateDef = {
   key: "requirements-statements-list",
   name: "Requirements Statements List",
-  tab: "020",
+  tab: "010",
   layout: "plan",
   badge: {
     citation: "NFS Appendix C; NFS 1801.471",

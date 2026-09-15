@@ -455,17 +455,17 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "FAR Part 15, competed",
     when: (c) => far15(c) && c.competed,
     docs: [
-      { doc_key: "seb-appointment", label: "Source Evaluation Board membership appointment memorandum", citation: "NFS 1815.303(b)(i)(B); NFS 1815.370", phase: "Solicitation/Quote", state: "offered", templateKey: "seb-appointment", tab: "020" },
-      { doc_key: "set-appointment", label: "Source Evaluation Team (non-SEB) membership appointment memorandum", citation: "NFS 1815.300-70(a)(1)(ii); NFS 1815.303(b)(i)(B)", phase: "Solicitation/Quote", state: "offered", templateKey: "set-appointment", tab: "020" },
-      { doc_key: "ssa-appointment", label: "Source Selection Authority appointment letter", citation: "NFS 1801.603-1; NFS 1815.303(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "ssa-appointment", tab: "020" },
-      { doc_key: "drfp-cover-letter", label: "Draft RFP cover letter", citation: "FAR 15.201; NFS 1815.201", phase: "Solicitation/Quote", state: "offered", templateKey: "drfp-cover-letter", tab: "020" },
-      { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "FAR 15.203; NFS 1815.201(c)(6)(D)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "020" },
-      { doc_key: "blackout-notice", label: "Blackout notice", citation: "FAR 15.201(f); NFS 1815.201(f)(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "020" },
-      { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS 1804.7103", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "020" },
+      { doc_key: "seb-appointment", label: "Source Evaluation Board membership appointment memorandum", citation: "NFS 1815.303(b)(i)(B); NFS 1815.370", phase: "Solicitation/Quote", state: "offered", templateKey: "seb-appointment", tab: "036" },
+      { doc_key: "set-appointment", label: "Source Evaluation Team (non-SEB) membership appointment memorandum", citation: "NFS 1815.300-70(a)(1)(ii); NFS 1815.303(b)(i)(B)", phase: "Solicitation/Quote", state: "offered", templateKey: "set-appointment", tab: "036" },
+      { doc_key: "ssa-appointment", label: "Source Selection Authority appointment letter", citation: "NFS 1801.603-1; NFS 1815.303(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "ssa-appointment", tab: "036" },
+      { doc_key: "drfp-cover-letter", label: "Draft RFP cover letter", citation: "FAR 15.201; NFS 1815.201", phase: "Solicitation/Quote", state: "offered", templateKey: "drfp-cover-letter", tab: "037" },
+      { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "FAR 15.203; NFS 1815.201(c)(6)(D)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "040" },
+      { doc_key: "blackout-notice", label: "Blackout notice", citation: "FAR 15.201(f); NFS 1815.201(f)(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "039" },
+      { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS 1804.7103", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "38" },
       { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1801.6", phase: "Solicitation/Quote", state: "offered", tab: "020" },
-      { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "FAR 52.222-46; FAR 22.1103", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "040" },
-      { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "020" },
-      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "FAR 15.406; NFS 1815.406", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "030" },
+      { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "FAR 52.222-46; FAR 22.1103", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
+      { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "010" },
+      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "FAR 15.406; NFS 1815.406", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "063" },
     ],
   },
   {
@@ -473,7 +473,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "FAR Part 15, sole source",
     when: (c) => far15(c) && c.sole,
     docs: [
-      { doc_key: "rfp-noncompetitive", label: "RFP for a non-competitive new award", citation: "FAR 15.203(e)", phase: "Solicitation/Quote", state: "required", templateKey: "rfp-noncompetitive", tab: "020" },
+      { doc_key: "rfp-noncompetitive", label: "RFP for a non-competitive new award", citation: "FAR 15.203(e)", phase: "Solicitation/Quote", state: "required", templateKey: "rfp-noncompetitive", tab: "040" },
     ],
   },
   {
@@ -481,7 +481,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "An existing contract and a modification needing a proposal",
     when: (c) => c.s.mod_needs_proposal,
     docs: [
-      { doc_key: "rfp-existing-contract", label: "RFP for an existing contract", citation: "FAR 15.203(e); FAR 43.102(b)", phase: "Administration", state: "required", templateKey: "rfp-existing-contract", tab: "060" },
+      { doc_key: "rfp-existing-contract", label: "RFP for an existing contract", citation: "FAR 15.203(e); FAR 43.102(b)", phase: "Administration", state: "required", templateKey: "rfp-existing-contract", tab: "040" },
     ],
   },
   {
@@ -489,7 +489,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A collective bargaining agreement covers the incumbent workforce",
     when: (c) => c.s.cba === "yes",
     docs: [
-      { doc_key: "cba-notification", label: "Notification to interested parties under collective bargaining agreements", citation: "FAR 22.1010(a)", phase: "Solicitation/Quote", state: "required", templateKey: "cba-notification", tab: "020" },
+      { doc_key: "cba-notification", label: "Notification to interested parties under collective bargaining agreements", citation: "FAR 22.1010(a)", phase: "Solicitation/Quote", state: "required", templateKey: "cba-notification", tab: "030" },
     ],
   },
   {
