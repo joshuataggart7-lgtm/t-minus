@@ -84,12 +84,22 @@ const DEFAULT_OFF = new Set([
   "closeout-checklist",
 ]);
 
+/** Names for document types the template list does not name in full. */
+const MEMO_DOCUMENT_NAMES: Record<string, string> = {
+  "commercial-tm-lh": "Commercial T&M / labor-hour D&F",
+  "economy-act": "Economy Act D&F",
+  bundling: "Bundled requirements D&F",
+  consolidation: "Consolidation D&F",
+  jofoc: "Justification for other than full and open competition (JOFOC)",
+};
+
 /** Document types the routing table can address, named as the templates name them. */
 export const MEMO_DOCUMENT_KEYS: { key: string; name: string }[] = [...DEFAULT_ON, "jofoc"]
   .sort()
   .map((key) => ({
     key,
     name:
+      MEMO_DOCUMENT_NAMES[key] ??
       TEMPLATES.find((t) => t.key === key)?.name ??
       key.split("-").map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w)).join(" "),
   }));
