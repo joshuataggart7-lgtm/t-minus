@@ -4,6 +4,7 @@
 // closes the document, or thirty minutes pass. There is no locking beyond that.
 
 import { supabase } from "@/integrations/supabase/client";
+import { signedInName } from "@/lib/account-name";
 
 export const CHECKOUT_MINUTES = 30;
 
@@ -40,7 +41,8 @@ async function logCheckout(
 ) {
   await supabase.from("audit_log").insert({
     acquisition_id: acquisitionId,
-    actor,
+    // Every audit row carries the account name, never a placeholder.
+    actor: await signedInName(actor),
     action,
     field: documentName,
     old_value: null,

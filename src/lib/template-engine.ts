@@ -340,7 +340,9 @@ const jofoc: TemplateDef = {
           key: "notice_date",
           label: "Date the notice was published to the Government Point of Entry",
           kind: "date",
-          required: true,
+          // Fills from the notice of intent once it is posted; required to
+          // exit the Synopsis phase, not to save a version.
+          requiredAtExit: true,
           showIf: (v) => !isUrgency(v),
         },
         {
@@ -392,7 +394,7 @@ const jofoc: TemplateDef = {
       citation: "FAR 6.104-1(a)(9)",
       tier: "binding",
       fields: [
-        { key: "other_facts", label: "Other facts, or none", kind: "textarea", required: true },
+        { key: "other_facts", label: "Other facts, or none", kind: "textarea", default: "None" },
         {
           key: "duplicated_cost",
           label: "Estimated cost of duplicated work and how it was derived",
