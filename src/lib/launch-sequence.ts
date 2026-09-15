@@ -283,8 +283,11 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   }
 }
 
-export function docSatisfied(doc: RequiredDoc, acq: AcqRow): boolean | null {
+export function docSatisfied(doc: RequiredDoc, acq: AcqRow, hasFile?: boolean): boolean | null {
   if (!doc.field) return null;
+  // A stored file is the only thing that makes a row read Attached. When the
+  // caller knows whether a file exists, that answer decides.
+  if (hasFile !== undefined) return hasFile;
   const v = acq[doc.field];
   if (doc.field === "jofoc_authority_citation") return Boolean(String(v ?? "").trim());
   // A null value means the record has never carried this answer, which is not
