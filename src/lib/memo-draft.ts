@@ -88,6 +88,8 @@ export type PhaseLine = {
   status: "complete" | "current" | "upcoming";
 };
 
+const onlyDate = (iso: string) => String(iso ?? "").slice(0, 10);
+
 const gap = (what: string) => `[Contracting officer to complete: ${what}]`;
 
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
@@ -111,12 +113,39 @@ export function priceAnalysisCitation(acq: Record<string, unknown>): string {
   return isSimplifiedCommercial(acq) ? "FAR 13.106-3 and FAR 12.209" : "FAR 15.404-1";
 }
 
-/** One line per source: source, query, date, count. */
+/**
+ * What a recorded search actually asked for, in plain words. The raw request
+ * URL stays in the research log; a document prints the parameters instead.
+ */
+export function searchedFor(line: ResearchLogLine): string {
+  const q = line.query ?? "";
+  const parts: string[] = [];
+  const param = (name: string) => {
+    const m = new RegExp(`[?&]${name}=([^&\\s]+)`, "i").exec(q);
+    return m ? decodeURIComponent(m[1]!) : "";
+  };
+  const naics = param("naicsCode") || param("ncode") || /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(q)?.[1] || /naics=(\d{2,6})/i.exec(q)?.[1] || "";
+  if (naics) parts.push(`NAICS ${naics}`);
+  const psc = param("pscCode") || /psc=([A-Z0-9]+)/i.exec(q)?.[1] || "";
+  if (psc) parts.push(`PSC ${psc}`);
+  const state = param("physicalAddressProvinceOrStateCode") || param("state");
+  parts.push(state ? `${state} place of performance` : /entities\?/i.test(q) ? "nationwide" : "");
+  const usDate = (v: string) => {
+    const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+    return m ? `${m[3]}-${m[1]}-${m[2]}` : v;
+  };
+  const from = usDate(param("postedFrom")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[1] || "";
+  const to = usDate(param("postedTo")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[2] || "";
+  if (from && to) parts.push(`posted ${from} to ${to}`);
+  const kept = parts.filter(Boolean);
+  return kept.length ? kept.join(", ") : "the parameters recorded in the research log";
+}
+
+/** One line per source: source, what was searched, date, count. */
 export function researchLogLines(log: ResearchLogLine[] | undefined): string[] {
   return (log ?? []).map((l) => {
-    const query = l.query.replace(/api_key=[^&\s]*/gi, "api_key=[redacted]");
     const count = l.count === null ? l.outcome : `${l.count} result${l.count === 1 ? "" : "s"}`;
-    return `${l.source} · ${query} · ${l.ranAt} · ${count}`;
+    return `${l.source} · ${searchedFor(l)} · ${onlyDate(l.ranAt)} · ${count}`;
   });
 }
 
@@ -395,13 +424,11 @@ function samNotice(ctx: MemoDraftCtx): Values {
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
     poc_email: ctx.co?.email ?? "",
-    poc_phone: ctx.co?.phone ?? "[not recorded on the contracting officer's user record]",
+    poc_phone: ctx.co?.phone ?? "",
   };
 }
 
 // -------------------------------------------- memorandum for record (MFR)
-
-const onlyDate = (iso: string) => String(iso ?? "").slice(0, 10);
 
 /** Purpose as the memorandum states it, including the CO's own wording. */
 export function mfrPurposeLabel(values: Values | undefined): string {
@@ -417,64 +444,124 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
   if (!phases.length || !audit.length)
     return gap("no audit history is recorded on this file yet, so the chronology cannot be drafted");
 
-  const paragraphs: string[] = [];
+  // Phase windows. A phase cannot begin before the one before it ended, so the
+  // dates are walked forward and held in order.
+  const windows: { phase: string; status: string; entered: string; exited: string }[] = [];
+  let floor = "";
   for (const p of phases) {
-    const rows = audit.filter((a) => str(a.phase).toLowerCase() === p.phase.toLowerCase());
+    const own = audit.filter((a) => str(a.phase).toLowerCase() === p.phase.toLowerCase());
+    let entered = own.length ? onlyDate(own[0]!.at) : floor;
+    let exited = own.length ? onlyDate(own[own.length - 1]!.at) : entered;
+    if (floor && entered < floor) entered = floor;
+    if (exited < entered) exited = entered;
+    windows.push({ phase: p.phase, status: p.status, entered, exited });
+    floor = exited;
+  }
+
+  // Events with no phase of their own belong to the window they fall inside.
+  const unphased = audit.filter((a) => !str(a.phase));
+  const windowFor = (at: string) => {
+    const d = onlyDate(at);
+    for (const w of windows) if (d >= w.entered && d <= w.exited) return w.phase;
+    const last = windows[windows.length - 1];
+    return d > (last?.exited ?? "") ? (last?.phase ?? "") : (windows[0]?.phase ?? "");
+  };
+
+  const research = ctx.researchLog ?? [];
+  const researchDay = research.length ? onlyDate(research[0]!.ranAt) : "";
+  const registrants = research
+    .filter((l) => /entity|registrant/i.test(l.source))
+    .reduce((n, l) => n + (l.count ?? 0), 0);
+  const notices = research
+    .filter((l) => /opportunit|notice/i.test(l.source))
+    .reduce((n, l) => n + (l.count ?? 0), 0);
+
+  const noise = /checked out|check-out released|reporting extract/i;
+  const paragraphs: string[] = [];
+
+  for (const w of windows) {
+    const rows = audit.filter(
+      (a) =>
+        !noise.test(a.action) &&
+        (str(a.phase).toLowerCase() === w.phase.toLowerCase() || (!str(a.phase) && windowFor(a.at) === w.phase)),
+    );
     const sentences: string[] = [];
-    if (rows.length) {
-      const first = onlyDate(rows[0]!.at);
-      const last = onlyDate(rows[rows.length - 1]!.at);
-      sentences.push(
-        p.status === "current"
-          ? `The file entered the ${p.phase} phase on ${first} and remained in it as of ${last}.`
-          : `The file entered the ${p.phase} phase on ${first} and left it on ${last}.`,
-      );
-    } else {
-      sentences.push(`No activity was recorded against the ${p.phase} phase.`);
-    }
+    sentences.push(
+      w.status === "current"
+        ? `The file entered the ${w.phase} phase on ${w.entered} and remained in it as of ${w.exited}.`
+        : `The file entered the ${w.phase} phase on ${w.entered} and left it on ${w.exited}.`,
+    );
 
-    const docs = rows.filter((a) => /attach|document saved|uploaded/i.test(a.action));
-    for (const d of docs) {
-      const what = str(d.field) || str(d.newValue) || "a document";
-      sentences.push(`${what} was placed in the file on ${onlyDate(d.at)} by ${str(d.actor) || "the record"}.`);
-    }
-
-    const holds = rows.filter((a) => /hold/i.test(a.action));
-    for (const h of holds) {
-      const cleared = /clear|released|resumed/i.test(h.action);
-      sentences.push(
-        cleared
-          ? `The hold was cleared on ${onlyDate(h.at)}${str(h.reason) ? ` because ${str(h.reason)}` : ""}.`
-          : `The file was placed on hold on ${onlyDate(h.at)}${str(h.reason) ? ` because ${str(h.reason)}` : ""}.`,
-      );
-    }
-
-    const polls = rows.filter((a) => /poll|go recorded|no-go recorded/i.test(a.action));
-    for (const v of polls) {
-      if (/opened/i.test(v.action)) {
-        sentences.push(`The go/no-go poll was opened on ${onlyDate(v.at)}.`);
-      } else {
+    for (const a of rows) {
+      const on = onlyDate(a.at);
+      const who = str(a.actor) || "the contracting officer";
+      const what = str(a.reason) || str(a.field) || "a document";
+      if (/document attached/i.test(a.action)) {
+        sentences.push(`${who} attached ${what} on ${on}.`);
+      } else if (/document removed/i.test(a.action)) {
+        sentences.push(`${who} removed ${what} on ${on}.`);
+      } else if (/document saved|version saved/i.test(a.action)) {
+        sentences.push(`${str(a.field) || "A document"} was saved as a version on ${on} by ${who}.`);
+      } else if (/on hold/i.test(a.action)) {
+        sentences.push(`The clock was placed on hold on ${on}${str(a.reason) ? ` because ${str(a.reason)}` : ""}.`);
+      } else if (/clock resumed|hold cleared/i.test(a.action)) {
+        sentences.push(`The hold was cleared and the clock resumed on ${on}${str(a.reason) ? `, ${str(a.reason).toLowerCase()}` : ""}.`);
+      } else if (/red flag|scan/i.test(a.action)) {
         sentences.push(
-          `${str(v.actor) || "A reviewer"} recorded ${/no-go/i.test(v.action) ? "no-go" : "go"} for ${
-            str(v.field) || "the review seat"
-          } on ${onlyDate(v.at)}.`,
+          `A red-flag scan was run on ${on} and ${str(a.reason) || "recorded its findings on the file"}.`,
         );
+      } else if (/exclusions sweep/i.test(a.action)) {
+        sentences.push(`An exclusions sweep was run on ${on} and ${str(a.reason) || "returned no matching exclusion"}.`);
+      } else if (/poll opened/i.test(a.action)) {
+        sentences.push(`The go/no-go poll was opened on ${on}.`);
+      } else if (/vote|go recorded|no-go/i.test(a.action)) {
+        sentences.push(
+          `${who} recorded ${/no-go/i.test(a.action) || /no-go/i.test(str(a.newValue)) ? "no-go" : "go"} for ${
+            str(a.field) || "the review seat"
+          } on ${on}${str(a.reason) ? `, stating ${str(a.reason)}` : ""}.`,
+        );
+      } else if (/market research run/i.test(a.action)) {
+        sentences.push(
+          research.length
+            ? `Market research was run on ${on} against ${research.length} public ${
+                research.length === 1 ? "source" : "sources"
+              }, returning ${registrants} registrant${registrants === 1 ? "" : "s"} and ${notices} notice${
+                notices === 1 ? "" : "s"
+              } after duplicates were removed. ${ruleOfTwo(ctx)}`
+            : `Market research was run on ${on}.`,
+        );
+      } else if (/set-aside evidence/i.test(a.action)) {
+        sentences.push(`Set-aside evidence was assembled on ${on}${str(a.reason) ? `, ${str(a.reason)}` : ""}.`);
+      } else if (/set-aside decision/i.test(a.action)) {
+        sentences.push(`The set-aside decision was confirmed on ${on}${str(a.newValue) ? ` as ${str(a.newValue)}` : ""}.`);
+      } else if (/sign-off/i.test(a.action)) {
+        sentences.push(`${str(a.field) || "A sign-off"} was completed on ${on} by ${who}.`);
+      } else if (/clock started|intake submitted/i.test(a.action)) {
+        sentences.push(`The intake was submitted and the clock started on ${on}.`);
+      } else {
+        sentences.push(`${a.action} was recorded on ${on} by ${who}${str(a.reason) ? `, ${str(a.reason)}` : ""}.`);
       }
     }
+
+    if (
+      researchDay &&
+      researchDay >= w.entered &&
+      researchDay <= w.exited &&
+      !sentences.some((t) => /Market research was run/.test(t))
+    ) {
+      sentences.push(
+        `Market research was run on ${researchDay} against ${research.length} public ${
+          research.length === 1 ? "source" : "sources"
+        }, returning ${registrants} registrant${registrants === 1 ? "" : "s"} and ${notices} notice${
+          notices === 1 ? "" : "s"
+        } after duplicates were removed. ${ruleOfTwo(ctx)}`,
+      );
+    }
+
+    if (sentences.length === 1) sentences.push("No further activity was recorded against this phase.");
     paragraphs.push(sentences.join(" "));
   }
 
-  const logLines = ctx.researchLog ?? [];
-  if (logLines.length) {
-    const total = logLines.reduce((sum, l) => sum + (l.count ?? 0), 0);
-    paragraphs.push(
-      `Market research was run against ${logLines.length} public ${
-        logLines.length === 1 ? "source" : "sources"
-      }, returning ${total} ${total === 1 ? "result" : "results"} in total. ${logLines
-        .map((l) => `${l.source} returned ${l.count ?? 0} on ${onlyDate(l.ranAt)}.`)
-        .join(" ")}`,
-    );
-  }
   return paragraphs.join("\n\n");
 }
 

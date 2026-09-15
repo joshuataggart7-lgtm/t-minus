@@ -2017,6 +2017,7 @@ export type Database = {
           role: string
           supervisor_email: string | null
           supervisor_name: string | null
+          telephone: string | null
           title: string | null
           user_id: string
           warrant_limit: number | null
@@ -2030,6 +2031,7 @@ export type Database = {
           role: string
           supervisor_email?: string | null
           supervisor_name?: string | null
+          telephone?: string | null
           title?: string | null
           user_id: string
           warrant_limit?: number | null
@@ -2043,6 +2045,7 @@ export type Database = {
           role?: string
           supervisor_email?: string | null
           supervisor_name?: string | null
+          telephone?: string | null
           title?: string | null
           user_id?: string
           warrant_limit?: number | null
