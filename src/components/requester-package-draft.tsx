@@ -228,7 +228,7 @@ export function RequesterPackageDraft({
           <div className="mt-3 overflow-x-auto"><table className="w-full min-w-[640px] border border-border text-[13px]"><thead><tr>{sheet.read.headers.map((header, index) => <th key={`${header}-${index}`} className="border-b border-border px-2 py-2 text-left">{header}</th>)}</tr></thead><tbody>{sheet.read.rows.slice(0, 5).map((row, rowIndex) => <tr key={rowIndex} className="border-t border-border">{sheet.read.headers.map((_, index) => <td key={index} className="px-2 py-2">{row[index] || "—"}</td>)}</tr>)}</tbody></table></div>
           <div className="mt-3 flex flex-wrap gap-3">
             <Button type="button" onClick={loadSheetRows}>Load rows into the IGCE builder</Button>
-            {sheet.read.total ? <Button type="button" variant="outline" onClick={() => applyFact("estimated_value", Number(sheet.read.total) as never)}>Use total as estimated value</Button> : null}
+            {sheet.read.total ? <span className="self-center text-[13px] text-muted-foreground">The total is proposed as the estimated value for you to confirm.</span> : null}
             <Button type="button" variant="ghost" onClick={() => setSheet(null)}>Not now</Button>
           </div>
         </div> : null}
