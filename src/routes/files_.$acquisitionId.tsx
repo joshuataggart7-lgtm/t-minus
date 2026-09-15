@@ -768,6 +768,12 @@ function FilePage() {
   });
 
 
+  // The clause list is built from this record, not from a fixed set.
+  const packetClauses = useMemo(
+    () => selectPacketClauses(acq, q.data?.clauses ?? [], q.data?.thresholds ?? []),
+    [acq, q.data?.clauses, q.data?.thresholds],
+  );
+
   function downloadPacket() {
     if (!acq) return;
     const packet = buildPacket(acq, packetClauses, phases, board);
