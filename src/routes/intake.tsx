@@ -36,6 +36,7 @@ import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } fro
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
+import { SCENARIO_DEFAULTS, type ScenarioAnswers } from "@/lib/scenario";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -148,6 +149,11 @@ function IntakePage() {
     center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
+  // Scenario answers. Every question carries a default, so nothing here can
+  // stop the record being saved.
+  const [scenario, setScenario] = useState<ScenarioAnswers>(SCENARIO_DEFAULTS);
+  const setScen = <K extends keyof ScenarioAnswers>(key: K, value: ScenarioAnswers[K]) =>
+    setScenario((prev) => ({ ...prev, [key]: value }));
   
   const [touched, setTouched] = useState(false);
   const [scan, setScan] = useState<RedFlag[] | null>(null);
@@ -435,6 +441,11 @@ function IntakePage() {
           facts,
         ),
         intake_estimate: stored,
+        scenario: {
+          ...scenario,
+          contract_type: facts.contract_type || scenario.contract_type,
+          set_aside_type: scenario.set_aside_type || facts.set_aside || "",
+        },
       };
 
       // Two people submitting at once can land on the same number; take the
