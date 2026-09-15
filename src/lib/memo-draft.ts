@@ -957,7 +957,84 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
   return out;
 }
 
+/** Quoters on the evaluation record, in the order they were recorded. */
+function quoters(ctx: MemoDraftCtx): { name: string; price: string }[] {
+  const e = ctx.evaluationValues ?? {};
+  const out: { name: string; price: string }[] = [];
+  for (let n = 1; n <= 4; n += 1) {
+    const name = str(e[`quoter_${n}_name`]);
+    if (name) out.push({ name, price: str(e[`quoter_${n}_price`]) });
+  }
+  return out;
+}
+
+/** Contact block every award letter carries. */
+function letterContact(ctx: MemoDraftCtx): Values {
+  const out: Values = {};
+  const co = ctx.co;
+  if (co?.name) out["co_name"] = co.name;
+  if (co?.email) out["co_email"] = co.email;
+  if (co?.phone) out["co_phone"] = co.phone;
+  if (ctx.today) out["letter_date"] = onlyDate(ctx.today);
+  const notice = ctx.notice;
+  const solicitation = str((notice as unknown as Record<string, unknown> | null)?.["notice_id"]);
+  if (solicitation) out["solicitation_number"] = solicitation;
+  return out;
+}
+
+/** Postaward letter to the selected offeror, from the evaluation record. */
+function postawardSuccessful(ctx: MemoDraftCtx): Values {
+  const a = ctx.acq;
+  const selected = str(ctx.evaluationValues?.["recommended_quoter"]) || str(a["vendor_legal_name"]);
+  const out: Values = { ...letterContact(ctx) };
+  if (selected) {
+    out["company_name"] = selected;
+    out["addressee"] = selected;
+  }
+  out["enclosures"] = "Source Selection Statement";
+  return out;
+}
+
+/** One postaward letter per unsuccessful offeror on the evaluation record. */
+function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
+  const a = ctx.acq;
+  const selected = str(ctx.evaluationValues?.["recommended_quoter"]) || str(a["vendor_legal_name"]);
+  const all = quoters(ctx);
+  const losers = all.filter((q) => q.name.toLowerCase() !== selected.toLowerCase());
+  const slot = Number(String(ctx.values?.["offeror_slot"] ?? "Offeror 1").replace(/\D+/g, "")) || 1;
+  const chosen = losers[slot - 1];
+  const out: Values = { ...letterContact(ctx) };
+  if (chosen) {
+    out["company_name"] = chosen.name;
+    out["addressee"] = chosen.name;
+  }
+  if (all.length) out["proposals_received"] = String(all.length);
+  out["offerors_solicited"] = "Solicited through the government point of entry accessed at www.SAM.gov.";
+  if (selected) out["awardees"] = selected;
+  out["selection_rationale"] = selected
+    ? `In making the selection decision, all evaluation factors stated in the solicitation were considered. The rationale for selecting ${selected} is delineated in the enclosed source selection statement.`
+    : gap("name the selected offeror and the evaluation factors considered");
+  out["enclosures"] = "Source Selection Statement";
+  return out;
+}
+
+/** Set-aside preaward notice: the apparent successful offeror and the date. */
+function setAsidePreaward(ctx: MemoDraftCtx): Values {
+  const a = ctx.acq;
+  const selected = str(ctx.evaluationValues?.["recommended_quoter"]) || str(a["vendor_legal_name"]);
+  const out: Values = { ...letterContact(ctx) };
+  if (selected) {
+    out["selected_offeror"] = selected;
+    out["selected_offeror_address"] = selected;
+    if (String(ctx.values?.["notice_variant"] ?? "") !== "Unsuccessful offeror") out["addressee"] = selected;
+  }
+  return out;
+}
+
 const DRAFTERS: Record<string, (ctx: MemoDraftCtx) => Values> = {
+  "postaward-letter-successful": postawardSuccessful,
+  "postaward-letter-unsuccessful": postawardUnsuccessful,
+  "setaside-preaward-notification": setAsidePreaward,
   "evaluation-of-quotations": evaluationOfQuotations,
   pnm: priceNegotiation,
   "memorandum-for-record": memorandumForRecord,
