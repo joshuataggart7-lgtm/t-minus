@@ -579,7 +579,6 @@ function DocumentPage() {
       centerAddress: q.data.center?.address_line ?? "",
       routing,
       coName: String(q.data.acq["co_name"] ?? user.name),
-      approvals: (q.data.approvals ?? []).map((a) => ({ role: a.approval_role, name: a.owner_name })),
       enclosures: def.key === "packet-transmittal-memo" ? (q.data.fileDocuments ?? []) : [],
       today: todayISO(),
     });
