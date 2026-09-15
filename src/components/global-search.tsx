@@ -139,7 +139,9 @@ export function GlobalSearch() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && results[0]) openFile(results[0].acquisition_id);
+                  // Enter opens a matched acquisition only; a query with no
+                  // match never opens a blank file page.
+                  if (e.key === "Enter" && q.trim() && results[0]) openFile(results[0].acquisition_id);
                 }}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground"
                 placeholder="4200999102"

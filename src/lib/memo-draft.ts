@@ -241,17 +241,39 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   const research = [researchParagraph(ctx)];
   if (prior) research.push(`The contract file for the prior acquisition ${prior} was reviewed.`);
 
+  // The conclusion is prose written from the method, never the method or
+  // competition code itself.
+  const methodProse = (() => {
+    const m = `${str(a["acquisition_method"])} ${commercialDetermination}`.toLowerCase();
+    if (m.includes("8.4")) return "the ordering procedures of FAR Subpart 8.4 apply";
+    if (m.includes("part 15") || m.includes("far 15") || m.includes("negotiat"))
+      return "the procedures of FAR Part 15 apply";
+    if (m.includes("13.5") || m.includes("commercial") || m.includes("part 12"))
+      return "the simplified procedures for commercial products and services under RFO FAR 12.201-1 apply";
+    if (m.includes("13") || m.includes("simplified"))
+      return "the simplified acquisition procedures of FAR Part 13 apply";
+    return "";
+  })();
   const basis = [
-    competition ? `on a ${competition.toLowerCase()} basis` : "",
-    setAside && !/none/i.test(setAside) ? `as a ${setAside.toLowerCase()}` : "",
+    /sole|brand/i.test(competition)
+      ? "as a sole source"
+      : competition
+        ? `on a ${competition.toLowerCase()} basis`
+        : "",
+    /total small business/i.test(setAside)
+      ? "as a total small business set-aside"
+      : setAside && !/none/i.test(setAside)
+        ? `as a ${setAside.toLowerCase()}`
+        : "",
   ]
     .filter(Boolean)
-    .join(", ");
-  const conclusion = basis
-    ? `The acquisition will be conducted ${basis}, consistent with the research above, and the procedures of ${
-        str(a["acquisition_method"]) || "the acquisition method on the record"
-      } apply.`
-    : gap("state the competition and set-aside the research supports");
+    .join(" ");
+  const conclusion =
+    basis && methodProse
+      ? `The acquisition will be conducted ${basis}, consistent with the research above, and ${methodProse}.`
+      : basis
+        ? `The acquisition will be conducted ${basis}, consistent with the research above.`
+        : gap("state the competition and set-aside the research supports");
 
   return {
     purpose: `This memorandum records the market research conducted for ${str(a["title"]) || ctx.acquisitionId} and the conclusions drawn from it (FAR 10.002(e)).`,
