@@ -1,6 +1,6 @@
-# Round 9
-- [x] Rewrite chronology with title labels, recorded capitalization, and role/display-name attribution
-- [x] Add the latest market-research narrative to the Market Research paragraph
-- [x] Make the hero follow the first missing required row in the current phase
-- [x] Keep role chips beside the signed-in name in the header
-- [x] Verify sample files and desktop/mobile header layouts
+# Phase exit
+- [ ] Exclude Offered rows from blockers, holds, hero actions, and exit gates
+- [ ] Add validated phase exit with linked missing requirements and audit entry
+- [ ] Replace Exit, Scrub, Remove, Record vote, and Open poll confirmations with in-page dialogs
+- [ ] Rewrite memorandum hold, vote, and saved-version sentences
+- [ ] Verify A-2027-0101, refusal links, audit output, and desktop/mobile dialogs
