@@ -419,17 +419,41 @@ export type BoardEntry = {
   note: string | null;
 };
 
+export type ReviewerPerson = { name: string; title: string | null; center_code: string | null };
+
 /**
- * The reviewer who holds a review when no poll row names one. Names come from
- * the five seeded users, so no owner ever reads "Not yet assigned".
+ * The office that holds each review. A review belongs to a role, never to a
+ * person by default; the person is whoever holds that role at the Center.
  */
-export function reviewerNameForRole(role: string): string {
+export function reviewerTitleForRole(role: string): string {
   const r = role.toLowerCase();
-  if (/legal|counsel|pricing|small business|quality|aviation|flight|508|cio|it\b|security/.test(r))
-    return "P. Osei (fictional counsel)";
-  if (/anosca|npa|announcement|enterprise strategy|procurement strategy|notification/.test(r))
-    return "R. Calder (fictional)";
-  return "J. Rivera (fictional CO)";
+  if (/legal|counsel/.test(r)) return "Center Chief Counsel";
+  if (/small business/.test(r)) return "Center Small Business Specialist";
+  if (/flight operations|aviation/.test(r)) return "Flight Operations Office";
+  if (/enterprise strategy/.test(r)) return "OP enterprise strategy owner";
+  if (/pricing/.test(r)) return "Center Pricing Officer";
+  if (/quality/.test(r)) return "Center Quality Assurance Officer";
+  if (/508|cio|ocio|it authorization|security/.test(r)) return "Center Chief Information Officer";
+  if (/anosca|npa|announcement|notification|sources sought/.test(r)) return "Center Procurement Officer";
+  if (/procurement strategy|acquisition plan/.test(r)) return "Center Procurement Officer";
+  return role;
+}
+
+/**
+ * The person holding a review, looked up by role from the Center's reviewer
+ * table. When nobody holds the role the row names the role, never a person who
+ * happens to be a reviewer elsewhere.
+ */
+export function reviewerNameForRole(
+  role: string,
+  center: string | null = null,
+  roster: ReviewerPerson[] = [],
+): string {
+  const title = reviewerTitleForRole(role).toLowerCase();
+  const match = (p: ReviewerPerson) => (p.title ?? "").trim().toLowerCase() === title;
+  const atCenter = roster.find((p) => match(p) && (p.center_code ?? "") === (center ?? ""));
+  const anywhere = atCenter ?? roster.find((p) => match(p) && (p.center_code ?? "") === "HQ");
+  return anywhere?.name ?? `Unassigned, role: ${reviewerTitleForRole(role)}`;
 }
 
 export function pollBoard(
