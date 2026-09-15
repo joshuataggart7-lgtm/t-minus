@@ -8,6 +8,7 @@ import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type Fo
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
+import { technicalRepresentative } from "@/lib/template-engine";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
