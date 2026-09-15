@@ -142,7 +142,7 @@ export function buildFileIndex(
     .sort((a, b) => tabRank(a.tab) - tabRank(b.tab) || a.templateName.localeCompare(b.templateName));
 
   const presentTabs = new Set(presentList.map((t) => t.tab));
-  const missing = requiredTabs(phases)
+  const missing = requiredTabs(phases, acq)
     .filter((t) => !presentTabs.has(t.tab))
     .sort((a, b) => tabRank(a.tab) - tabRank(b.tab));
 
