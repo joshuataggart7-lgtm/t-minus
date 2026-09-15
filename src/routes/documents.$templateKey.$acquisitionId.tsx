@@ -202,6 +202,7 @@ function DocumentPage() {
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
         supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
         supabase.from("review_rules").select("*"),
+        supabase.from("users").select("name,title,center_code"),
         loadWatchRows(),
         loadRegRefs(),
         supabase.from("memo_routing").select("*").eq("document_key", templateKey),

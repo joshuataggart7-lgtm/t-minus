@@ -83,6 +83,7 @@ function WorkQueuePage() {
           .select("acquisition_id,action,actor,logged_at,phase")
           .order("logged_at", { ascending: false })
           .limit(500),
+        supabase.from("users").select("name,title,center_code"),
       ]);
       return {
         missions: (missions.data ?? []) as MissionRow[],
@@ -94,6 +95,7 @@ function WorkQueuePage() {
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
         log: log.data ?? [],
+        users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
       };
     },
   });
@@ -130,6 +132,7 @@ function WorkQueuePage() {
       .map((acq) => {
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const m = computeMetrics(acq, {
+          roster: q.data.users ?? [],
           plan: q.data.plan,
           rules: q.data.rules,
           polls: q.data.polls,
