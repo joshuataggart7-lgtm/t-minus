@@ -142,7 +142,7 @@ export async function claimCheckout(args: {
     userName,
     "Document checked out",
     args.documentName,
-    `Checked out by ${args.userName}`,
+    `Checked out by ${userName}`,
     "Opened for editing",
   );
   return data as Checkout;
