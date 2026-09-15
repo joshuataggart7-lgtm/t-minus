@@ -1088,18 +1088,14 @@ function FilePage() {
                   : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
               </p>
             ) : null}
-            <div className="mt-4"><ExplainThis explanation={statusExplanation} label="Explain this status" /></div>
+            <div className="mt-4 flex flex-wrap gap-4">
+              <ExplainThis explanation={statusExplanation} label="Explain this status" />
+              {hold ? <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" /> : null}
+            </div>
             </div>
           </div>
         </div>
       </section> : null}
-
-      <div className="mb-10 flex flex-wrap items-start gap-6">
-        {hold ? (
-          <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" />
-        ) : null}
-      </div>
-
 
       {warrant ? (
         <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">

@@ -5,7 +5,6 @@ import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
-import { AskTMinus } from "@/components/ask-tminus";
 
 import { cn } from "@/lib/utils";
 import {
@@ -104,7 +103,6 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <div className="min-w-0"><GlobalSearch /></div>
         <div className="flex min-w-0 items-center justify-end gap-3">
           <AnnouncementBanner />
-          <div className="hidden xl:block"><AskTMinus /></div>
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
               Demo
@@ -112,14 +110,12 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           ) : null}
           {canSwitchPersona ? (
             <>
-              <label htmlFor="role-toggle" className="text-[13px] text-muted-foreground">
-                Signed in as
-              </label>
+              <label htmlFor="role-toggle" className="sr-only">Signed in as</label>
               <select
                 id="role-toggle"
                 value={role}
                 onChange={(e) => setRole(e.target.value as RoleId)}
-                className="rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
+                className="max-w-64 rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
               >
                 {SEEDED_USERS.map((u) => (
                   <option key={u.role} value={u.role}>
