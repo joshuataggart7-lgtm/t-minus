@@ -66,16 +66,9 @@ function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
 }
 
 
-function ExecutiveOverview() {
-  const { role, authState } = useRole();
-  const navigate = useNavigate();
+export function ExecutiveOverview() {
+  const { authState } = useRole();
   const [tab, setTab] = useState<"acquisitions" | "centers" | "enterprise">("acquisitions");
-
-  useEffect(() => {
-    if (role !== "executive" && role !== "hq") {
-      navigate({ to: "/work-queue", replace: true });
-    }
-  }, [role, navigate]);
 
   const q = useQuery({
     queryKey: ["executive-overview"],
