@@ -128,7 +128,7 @@ export async function claimCheckout(args: {
       acquisition_id: args.acquisitionId,
       template_key: args.templateKey,
       user_id: userId,
-      user_name: args.userName,
+      user_name: userName,
       checked_out_at: checkedOutAt,
     })
     .select("checkout_id,user_id,user_name,checked_out_at")
@@ -139,7 +139,7 @@ export async function claimCheckout(args: {
   await logCheckout(
     args.acquisitionId,
     args.phase,
-    args.userName,
+    userName,
     "Document checked out",
     args.documentName,
     `Checked out by ${args.userName}`,
@@ -166,7 +166,7 @@ export async function releaseCheckout(args: {
   await logCheckout(
     args.acquisitionId,
     args.phase,
-    args.userName,
+    userName,
     "Document check-out released",
     args.documentName,
     `Released by ${args.userName}`,
