@@ -51,7 +51,13 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
     return next;
   });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = navFor(roles);
+  const presenter = usePresenter();
+  const isAdministrator = roles.includes("administrator");
+  const allItems = navFor(roles);
+  const items = presenter
+    ? allItems.filter((item) => item.label !== "Seed status" && item.label !== "Simulate")
+    : allItems;
+  const navGroups = presenter ? NAV_GROUPS.filter((group) => group.label !== "Setup") : NAV_GROUPS;
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
