@@ -10,6 +10,7 @@ import {
 import type { Session } from "@supabase/supabase-js";
 import { userForRole, SEEDED_USERS, type RoleId, type SeededUser } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
+import { accountName } from "@/lib/account-name";
 import { AuthScreen } from "@/components/auth-screen";
 
 type AuthState = "signed-out" | "signing-in" | "signed-in" | "unavailable";
@@ -119,7 +120,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         ? seeded
         : {
             ...seeded,
-            name: profile?.display_name || profile?.email || "Signed-in user",
+            name: accountName(profile?.display_name, profile?.email),
             email: profile?.email ?? seeded.email,
           };
     return {

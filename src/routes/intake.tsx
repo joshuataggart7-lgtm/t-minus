@@ -557,14 +557,14 @@ function IntakePage() {
           onClick={() => void loadSample("A-2027-0101")}
           className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
         >
-          Load Sample 1
+          Load Sample 1 (competed)
         </button>
         <button
           type="button"
-          onClick={() => void loadSample("A-2027-0109")}
+          onClick={() => void loadSample("A-2027-0102")}
           className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
         >
-          Load Sample 2 (competed)
+          Load Sample 2 (sole source)
         </button>
         <span className="text-[13px] text-muted-foreground">
           Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
