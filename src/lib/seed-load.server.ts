@@ -131,6 +131,9 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   const acqRows = (JSON.parse(read("acquisitions.json")) as Record<string, unknown>[]).map((row) => {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(row)) out[k] = v === "" ? null : v;
+    // A document is only attached when a file is stored. Seeded samples carry
+    // no files, so these load as missing rather than claiming an attachment.
+    for (const k of ["igce_attached", "sow_attached", "funds_certified"]) out[k] = false;
     return out;
   });
   await put("acquisition_facts", acqRows, "acquisition_id");
