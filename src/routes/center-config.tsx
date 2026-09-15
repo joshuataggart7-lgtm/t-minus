@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { TriggerTableEditor } from "@/components/trigger-table-editor";
 import { supabase } from "@/integrations/supabase/client";
 import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/center-config";
 import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
@@ -422,6 +423,8 @@ function CenterConfigPage() {
           </form>
         ) : null}
       </section>
+
+      <TriggerTableEditor mayEdit={hasAnyRole(["hq"]) || hasRole("administrator")} actor={user.name} />
     </AppShell>
   );
 }
