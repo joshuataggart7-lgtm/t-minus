@@ -1327,7 +1327,7 @@ const ppm: TemplateDef = {
       title: "VI. OTHER ATTACHMENTS",
       citation: "FAR 4.801",
       tier: "binding",
-      fields: [T("attachments", "Attachments")],
+      fields: [T("attachments", "Attachments: any additional information supporting the contracting officer's negotiation objectives")],
     },
   ],
 };
