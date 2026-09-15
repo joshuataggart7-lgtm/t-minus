@@ -107,10 +107,10 @@ function answersSummary(answers: unknown): string {
 
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
-  const { authState, role, user } = useRole();
+  const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
   const def = templateByKey(templateKey);
-  const canWrite = role === "specialist" || role === "hq";
+  const canWrite = hasAnyRole(["specialist", "hq"]);
 
   const [values, setValues] = useState<Values>({});
   const [touched, setTouched] = useState(false);
@@ -1532,7 +1532,7 @@ function DocumentPage() {
         ) : null}
         {!canWrite ? (
           <p className="mb-6 text-[13px] text-muted-foreground">
-            Reading only. Switch to the contracting specialist or HQ role to edit and save.
+            Reading only. Editing and saving require Contracting or HQ.
           </p>
         ) : null}
       </form>
@@ -1675,7 +1675,7 @@ function DocumentPage() {
           <p className="text-muted-foreground">No review is triggered for this phase.</p>
         )}
 
-        {role === "reviewer" ? (
+        {hasRole("reviewer") ? (
           mySeat?.poll_id ? (
             <div className="mt-4">
               <label htmlFor="vote-reason" className="block text-[13px] text-muted-foreground">
@@ -1765,7 +1765,7 @@ function DocumentPage() {
 
       <ShareDocument
         documentId={latest?.document_id ?? null}
-        canShare={role === "specialist" || role === "hq"}
+        canShare={hasAnyRole(["specialist", "hq"])}
       />
 
       <section className="mb-10 max-w-[80ch]">

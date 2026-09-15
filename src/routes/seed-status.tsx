@@ -86,7 +86,7 @@ export const Route = createFileRoute("/seed-status")({
 });
 
 function SeedStatus() {
-  const { authState, role } = useRole();
+  const { authState, hasRole } = useRole();
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -154,7 +154,7 @@ function SeedStatus() {
     <AppShell>
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
 
-      {authState === "signed-in" && role === "hq" ? (
+      {authState === "signed-in" && hasRole("hq") ? (
         <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4">
           <h2 className="text-[18px] leading-6 font-medium">Reset demo</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
@@ -209,7 +209,7 @@ function SeedStatus() {
         </section>
       ) : null}
 
-      {authState === "signed-in" && role === "hq" ? (
+      {authState === "signed-in" && hasRole("hq") ? (
         <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4">
           <h2 className="text-[18px] leading-6 font-medium">Agency backfill</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">

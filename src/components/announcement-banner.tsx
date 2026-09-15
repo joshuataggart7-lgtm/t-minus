@@ -17,7 +17,7 @@ import {
 
 /** Compact header notification control plus one dismissible urgent line. */
 export function AnnouncementBanner() {
-  const { role, user, authState } = useRole();
+  const { role, roles, user, authState } = useRole();
   const [items, setItems] = useState<Announcement[]>([]);
   const [ackedIds, setAckedIds] = useState<string[]>([]);
   const [dismissed, setDismissed] = useState<string[]>([]);
@@ -42,7 +42,7 @@ export function AnnouncementBanner() {
   }, [authState, role, refresh]);
 
   const visible = items.filter(
-    (a) => isCurrent(a) && inAudience(a, role, user.center_code) && !ackedIds.includes(a.announcement_id),
+    (a) => isCurrent(a) && inAudience(a, roles, user.center_code) && !ackedIds.includes(a.announcement_id),
   );
   const urgent = visible.find((a) => isBlocking(a) && !dismissed.includes(a.announcement_id));
 

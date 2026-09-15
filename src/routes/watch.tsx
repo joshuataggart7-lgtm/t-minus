@@ -57,7 +57,7 @@ function useFeed() {
 }
 
 function WatchPage() {
-  const { role, user } = useRole();
+  const { hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
   const q = useFeed();
   const [source, setSource] = useState<"all" | WatchSource>("all");
@@ -65,8 +65,8 @@ function WatchPage() {
   const [tag, setTag] = useState(initialTag ?? "all");
   const [runNote, setRunNote] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
-  const canPost = role === "hq";
-  const canFetch = role === "hq" || role === "specialist";
+  const canPost = hasRole("hq");
+  const canFetch = hasAnyRole(["hq", "specialist"]);
 
   const items = q.data?.items ?? [];
   const tags = useMemo(

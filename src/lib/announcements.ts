@@ -51,10 +51,10 @@ export function isCurrent(a: Announcement, now = new Date()): boolean {
   return true;
 }
 
-export function inAudience(a: Announcement, role: RoleId, centerCode: string): boolean {
+export function inAudience(a: Announcement, rolesForUser: RoleId[], centerCode: string): boolean {
   const roles = a.audience_roles ?? [];
   const centers = a.audience_centers ?? [];
-  const roleOk = roles.length === 0 || roles.includes(role);
+  const roleOk = roles.length === 0 || rolesForUser.includes("administrator") || rolesForUser.some((role) => roles.includes(role));
   const centerOk = centers.length === 0 || centers.includes(centerCode) || centers.includes("All");
   return roleOk && centerOk;
 }

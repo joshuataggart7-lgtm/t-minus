@@ -34,11 +34,11 @@ const totalPlannedDays = DEVIATION_REVIEWERS.reduce((n, r) => n + r.plannedDays,
 
 function DeviationDetail() {
   const { deviationId } = Route.useParams();
-  const { authState, user, role } = useRole();
+  const { authState, user, hasAnyRole } = useRole();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const canWrite = role === "specialist" || role === "hq";
-  const canVote = role === "reviewer" || role === "hq";
+  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canVote = hasAnyRole(["reviewer", "hq"]);
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [decisionReason, setDecisionReason] = useState("");

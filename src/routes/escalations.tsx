@@ -35,10 +35,10 @@ export const Route = createFileRoute("/escalations")({
 });
 
 function EscalationsPage() {
-  const { authState, user, role } = useRole();
+  const { authState, user, hasRole } = useRole();
   const qc = useQueryClient();
   const [banner, setBanner] = useState<string | null>(null);
-  const canConfigure = role === "hq";
+  const canConfigure = hasRole("hq");
 
   const q = useQuery({
     queryKey: ["aging-escalations"],
@@ -246,7 +246,7 @@ function EscalationsPage() {
           </table>
           {!canConfigure ? (
             <p className="mt-2 max-w-[70ch] text-[13px] text-muted-foreground">
-              HQ sets these numbers.
+              Changing these numbers requires HQ or Administrator.
             </p>
           ) : null}
         </>

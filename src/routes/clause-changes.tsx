@@ -47,7 +47,7 @@ const KIND_WORD: Record<string, string> = {
 };
 
 function ClauseChangesPage() {
-  const { authState, user, role } = useRole();
+  const { authState, user, hasRole, hasAnyRole } = useRole();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string>("");
   const [message, setMessage] = useState<string | null>(null);
@@ -81,11 +81,11 @@ function ClauseChangesPage() {
   const rows = useMemo(() => allRows.filter((r) => r.hasContract), [allRows]);
   const solicitationRows = useMemo(() => allRows.filter((r) => !r.hasContract), [allRows]);
 
-  const canWrite = role === "specialist" || role === "hq";
+  const canWrite = hasAnyRole(["specialist", "hq"]);
 
   const setDirection = useMutation({
     mutationFn: async (input: { required: boolean; deadline: string | null }) => {
-      if (!change || role !== "hq") return;
+      if (!change || !hasRole("hq")) return;
       const id = change.id.replace(/^watch:/, "");
       const query = change.id.startsWith("watch:")
         ? supabase.from("watch_items").update({ modification_required: input.required, change_deadline: input.deadline }).eq("item_id", id)
@@ -208,7 +208,7 @@ function ClauseChangesPage() {
                 </dd>
               </div>
             </dl>
-            {role === "hq" ? (
+            {hasRole("hq") ? (
               <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-border pt-4">
                 <label className="flex items-center gap-2 text-[13px]">
                   <input

@@ -38,7 +38,7 @@ export const Route = createFileRoute("/about")({
 });
 
 function AboutPage() {
-  const { authState, user, role } = useRole();
+  const { authState, user, roles } = useRole();
   const q = useQuery({ queryKey: ["about"], enabled: authState === "signed-in", queryFn: loadAboutData });
   const list = features();
   const groups = q.data ? templateGroups(q.data.templates) : null;
@@ -57,7 +57,7 @@ function AboutPage() {
         defect: body,
         acquisitionId: null,
         reporterName: user.name,
-        reporterRole: role,
+        reporterRole: roles.join(", "),
       });
     },
     onSuccess: () => {

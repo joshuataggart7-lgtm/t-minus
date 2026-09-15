@@ -33,7 +33,7 @@ export const Route = createFileRoute("/files")({
 });
 
 function FilesPage() {
-  const { authState, role } = useRole();
+  const { authState, hasAnyRole } = useRole();
   const q = useQuery({
     queryKey: ["files"],
     enabled: authState === "signed-in",
@@ -52,7 +52,7 @@ function FilesPage() {
     <AppShell>
       <PageHeader title="Files" lead="Every acquisition file, its phase, and its days to award." />
 
-      {role !== "executive" ? (
+      {hasAnyRole(["specialist", "requester", "hq"]) ? (
         <Link
           to="/intake"
           className="mb-6 inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"

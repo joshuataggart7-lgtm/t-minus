@@ -1,18 +1,19 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { PROFILE_ROLE_VALUES, ROLE_LABELS, type RoleId } from "@/lib/roles";
-import { normalizeRole } from "@/lib/actor";
+import { ROLE_LABELS, type RoleId } from "@/lib/roles";
 
 type ProfileRow = {
   id: string;
   email: string | null;
   display_name: string | null;
-  role: string;
-  is_admin: boolean;
 };
 
-/** HQ sets the role on every signed-in account. Contracting is the default. */
+type MembershipRow = { id: string; user_id: string; role: RoleId };
+
+const ASSIGNABLE_ROLES = Object.keys(ROLE_LABELS) as RoleId[];
+
+/** Administrators assign any combination of roles to signed-in accounts. */
 export function PeopleRoles({ actorName }: { actorName: string }) {
   const qc = useQueryClient();
   const [message, setMessage] = useState<string | null>(null);
@@ -21,95 +22,104 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
   const q = useQuery({
     queryKey: ["people-roles"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id,email,display_name,role,is_admin")
-        .order("created_at");
-      if (error) throw new Error(error.message);
-      return (data ?? []) as ProfileRow[];
+      const [profiles, memberships] = await Promise.all([
+        supabase.from("profiles").select("id,email,display_name").order("created_at"),
+        supabase.from("user_roles").select("id,user_id,role"),
+      ]);
+      if (profiles.error) throw new Error(profiles.error.message);
+      if (memberships.error) throw new Error(memberships.error.message);
+      return {
+        profiles: (profiles.data ?? []) as ProfileRow[],
+        memberships: (memberships.data ?? []) as MembershipRow[],
+      };
     },
   });
 
-  async function setRole(row: ProfileRow, next: RoleId) {
+  async function toggleRole(row: ProfileRow, role: RoleId, enabled: boolean) {
     setMessage(null);
     setProblem(null);
-    const value = PROFILE_ROLE_VALUES[next];
-    const { error } = await supabase.from("profiles").update({ role: value }).eq("id", row.id);
+    const current = (q.data?.memberships ?? []).filter((membership) => membership.user_id === row.id);
+    if (!enabled && current.length === 1) {
+      setProblem("Every account needs at least one role. Add another role before removing this one.");
+      return;
+    }
+    if (!enabled && role === "administrator") {
+      const administratorCount = (q.data?.memberships ?? []).filter((membership) => membership.role === "administrator").length;
+      if (administratorCount === 1) {
+        setProblem("The last Administrator cannot be removed. Add Administrator to another account first.");
+        return;
+      }
+    }
+    const operation = enabled
+      ? supabase.from("user_roles").insert({ user_id: row.id, role })
+      : supabase.from("user_roles").delete().eq("user_id", row.id).eq("role", role);
+    const { error } = await operation;
     if (error) {
       setProblem(`The role was not saved: ${error.message}. Try again.`);
       return;
     }
-    await supabase.from("audit_log").insert({
+    const { error: auditError } = await supabase.from("audit_log").insert({
       acquisition_id: null,
       actor: actorName,
-      action: "Role set",
+      action: enabled ? "Role added" : "Role removed",
       field: row.email ?? row.id,
-      old_value: row.role,
-      new_value: value,
+      old_value: enabled ? null : ROLE_LABELS[role],
+      new_value: enabled ? ROLE_LABELS[role] : null,
       reason: "Center configuration",
     });
-    setMessage(`${row.display_name || row.email || "That account"} now works as ${ROLE_LABELS[next]}.`);
+    if (auditError) {
+      setProblem(`The role changed, but its audit entry did not save: ${auditError.message}. Contact an Administrator.`);
+    } else {
+      setMessage(`${ROLE_LABELS[role]} was ${enabled ? "added to" : "removed from"} ${row.display_name || row.email || "that account"}.`);
+    }
     void qc.invalidateQueries({ queryKey: ["people-roles"] });
   }
 
   return (
-    <section aria-label="People and roles" className="mt-8 max-w-[80ch] border-t border-border pt-6">
+    <section aria-label="People and roles" className="mt-8 max-w-[90ch] border-t border-border pt-6">
       <h2 className="text-lg font-medium">People and roles</h2>
       <p className="mt-1 text-[13px] text-muted-foreground">
-        Every signed-in account holds one role. A new account starts as Contracting; HQ changes it here and the change
-        is logged.
+        A person may hold several roles. Administrator includes every permission. Every change is logged.
       </p>
 
-      {problem ? (
-        <p role="alert" className="mt-3 text-[13px] text-[color:var(--status-at-risk,#C8321E)]">
-          {problem}
-        </p>
-      ) : null}
-      {message ? (
-        <p role="status" className="mt-3 text-[13px]">
-          {message}
-        </p>
-      ) : null}
+      {problem ? <p role="alert" className="mt-3 text-[13px] text-destructive">{problem}</p> : null}
+      {message ? <p role="status" className="mt-3 text-[13px]">{message}</p> : null}
 
       {q.isLoading ? (
         <p className="mt-3 text-[13px] text-muted-foreground">Loading</p>
       ) : q.error ? (
-        <p role="alert" className="mt-3 text-[13px]">
-          The accounts could not be read. Refresh the page to try again.
-        </p>
+        <p role="alert" className="mt-3 text-[13px]">The accounts could not be read. Refresh the page to try again.</p>
       ) : (
         <table className="mt-4 w-full border border-border text-[13px] leading-[18px]">
-          <caption className="sr-only">Every signed-in account and the role it holds</caption>
+          <caption className="sr-only">Signed-in accounts and every role assigned to each one</caption>
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Person</th>
               <th scope="col" className="p-2">Email</th>
-              <th scope="col" className="p-2">Role</th>
+              <th scope="col" className="p-2">Roles</th>
             </tr>
           </thead>
           <tbody>
-            {(q.data ?? []).map((row) => {
-              const current = row.is_admin ? "hq" : normalizeRole(row.role);
+            {(q.data?.profiles ?? []).map((row) => {
+              const assigned = new Set((q.data?.memberships ?? []).filter((item) => item.user_id === row.id).map((item) => item.role));
               return (
                 <tr key={row.id} className="border-b border-border align-top">
                   <td className="p-2">{row.display_name || "—"}</td>
                   <td className="p-2">{row.email || "—"}</td>
                   <td className="p-2">
-                    <label className="sr-only" htmlFor={`role-${row.id}`}>
-                      Role for {row.email ?? row.id}
-                    </label>
-                    <select
-                      id={`role-${row.id}`}
-                      value={current}
-                      onChange={(e) => void setRole(row, e.target.value as RoleId)}
-                      className="rounded-lg border border-border bg-background px-3 py-2"
-                    >
-                      {(Object.keys(ROLE_LABELS) as RoleId[]).map((r) => (
-                        <option key={r} value={r}>
-                          {ROLE_LABELS[r]}
-                        </option>
+                    <fieldset className="flex flex-wrap gap-x-4 gap-y-2">
+                      <legend className="sr-only">Roles for {row.email ?? row.id}</legend>
+                      {ASSIGNABLE_ROLES.map((role) => (
+                        <label key={role} className="inline-flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={assigned.has(role)}
+                            onChange={(event) => void toggleRole(row, role, event.target.checked)}
+                          />
+                          {ROLE_LABELS[role]}
+                        </label>
                       ))}
-                    </select>
+                    </fieldset>
                   </td>
                 </tr>
               );

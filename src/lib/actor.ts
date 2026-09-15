@@ -9,9 +9,9 @@
 
 import { accountName } from "@/lib/account-name";
 
-export type ActorRole = "executive" | "specialist" | "reviewer" | "requester" | "hq";
+export type ActorRole = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
 
-export type Actor = { name: string; role: ActorRole };
+export type Actor = { name: string; roles: ActorRole[]; role: ActorRole };
 
 type Ctx = {
   supabase: { from: (table: string) => any };
@@ -28,14 +28,22 @@ export function normalizeRole(value: string | null | undefined): ActorRole {
     case "requester":
       return "requester";
     case "hq":
-    case "admin":
       return "hq";
+    case "administrator":
+    case "admin":
+      return "administrator";
     default:
       return "specialist";
   }
 }
 
 export async function currentActor(context: Ctx): Promise<Actor> {
+  const memberships = await context.supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", context.userId);
+  if (memberships.error) throw new Error(memberships.error.message);
+  const assigned = ((memberships.data ?? []) as { role: string }[]).map((row) => normalizeRole(row.role));
   const seeded = await context.supabase
     .from("users")
     .select("name,role")
@@ -43,7 +51,9 @@ export async function currentActor(context: Ctx): Promise<Actor> {
     .maybeSingle();
   if (seeded.error) throw new Error(seeded.error.message);
   if (seeded.data) {
-    return { name: seeded.data.name as string, role: normalizeRole(seeded.data.role as string) };
+    const role = normalizeRole(seeded.data.role as string);
+    const roles = assigned.length ? assigned : [role];
+    return { name: seeded.data.name as string, roles, role: roles[0] ?? role };
   }
 
   const profile = await context.supabase
@@ -54,14 +64,18 @@ export async function currentActor(context: Ctx): Promise<Actor> {
   if (profile.error) throw new Error(profile.error.message);
   if (!profile.data) throw new Error("Your account was not found. Sign out and back in to try again.");
 
-  const role = profile.data.is_admin ? "hq" : normalizeRole(profile.data.role as string);
+  const legacyRole = profile.data.is_admin ? "administrator" : normalizeRole(profile.data.role as string);
+  const roles = assigned.length ? assigned : [legacyRole];
+  const role = roles[0] ?? legacyRole;
   const name = accountName(profile.data.display_name as string | null, profile.data.email as string | null);
-  return { name, role };
+  return { name, roles, role };
 }
 
 /** The actor, or an error naming the roles that may take this action. */
 export async function requireRole(context: Ctx, allowed: ActorRole[], message: string): Promise<Actor> {
   const actor = await currentActor(context);
-  if (!allowed.includes(actor.role)) throw new Error(message);
+  if (!actor.roles.includes("administrator") && !allowed.some((role) => actor.roles.includes(role))) {
+    throw new Error(message);
+  }
   return actor;
 }

@@ -36,7 +36,7 @@ function fmt(ts: string | null): string {
 }
 
 function AnnouncementsPage() {
-  const { role, user, authState } = useRole();
+  const { role, roles, hasRole, user, authState } = useRole();
   const [items, setItems] = useState<Announcement[]>([]);
   const [acks, setAcks] = useState<Ack[]>([]);
   const [people, setPeople] = useState<{ user_id: string; center_code: string | null }[]>([]);
@@ -91,7 +91,7 @@ function AnnouncementsPage() {
 
   const Row = ({ a }: { a: Announcement }) => {
     const mine = acks.some((k) => k.announcement_id === a.announcement_id && k.user_id === uid);
-    const forMe = inAudience(a, role, user.center_code);
+    const forMe = inAudience(a, roles, user.center_code);
     const byCenter = new Map<string, number>();
     for (const k of acks.filter((k) => k.announcement_id === a.announcement_id)) {
       const c = centerOf.get(k.user_id) ?? "Unknown";
@@ -128,7 +128,7 @@ function AnnouncementsPage() {
             )}
           </div>
         ) : null}
-        {role === "hq" && a.requires_acknowledgment ? (
+        {hasRole("hq") && a.requires_acknowledgment ? (
           <div className="mt-4 max-w-[520px] border border-border">
             <table className="w-full text-[13px]">
               <caption className="border-b border-border px-3 py-2 text-left text-muted-foreground">
@@ -168,7 +168,7 @@ function AnnouncementsPage() {
     <AppShell>
       <PageHeader title="Announcements" lead="Notices posted by HQ, with the action each one asks for." />
 
-      {role === "hq" ? <PostForm actor={user.name} onPosted={refresh} /> : null}
+      {hasRole("hq") ? <PostForm actor={user.name} onPosted={refresh} /> : null}
 
       {state === "loading" ? <LoadingNote what="announcements" /> : null}
       {state === "error" && error ? <ErrorNote message={error} /> : null}

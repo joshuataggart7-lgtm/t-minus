@@ -136,7 +136,7 @@ export const agencyBackfill = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<BackfillResult> => {
-    const me = await requireRole(context, ["hq"], "The agency backfill is available to HQ only.");
+    const me = await requireRole(context, ["hq"], "Running the agency backfill requires HQ or Administrator access.");
     if (data.from > data.to) throw new Error("The start date must fall on or before the end date.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

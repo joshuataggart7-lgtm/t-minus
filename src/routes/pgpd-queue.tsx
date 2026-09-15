@@ -27,7 +27,7 @@ export const Route = createFileRoute("/pgpd-queue")({
 });
 
 function PgpdQueuePage() {
-  const { authState, role, user } = useRole();
+  const { authState, hasRole, user } = useRole();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<"all" | DefectStatus>("all");
   const [message, setMessage] = useState<string | null>(null);
@@ -60,12 +60,12 @@ function PgpdQueuePage() {
     onError: (e: Error) => setMessage(`The item was not removed: ${e.message}. Try again.`),
   });
 
-  if (role !== "hq") {
+  if (!hasRole("hq")) {
     return (
       <AppShell>
         <PageHeader
           title="PGPD queue"
-          lead="Reported template defects are worked by HQ. Switch to the HQ role to open the queue."
+          lead="Reported template defects require HQ or Administrator access."
         />
       </AppShell>
     );

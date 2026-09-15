@@ -8,7 +8,7 @@ import type { SweepResult } from "@/lib/exclusions-sweep.server";
 
 /** Nightly exclusions sweep: last run time, HQ on-demand run, and the vendor results. */
 export function ExclusionsSweepPanel() {
-  const { role } = useRole();
+  const { hasRole } = useRole();
   const run = useServerFn(runExclusionsSweepNow);
   const [result, setResult] = useState<SweepResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -63,7 +63,7 @@ export function ExclusionsSweepPanel() {
             : "Exclusions sweep: never run"}
       </p>
 
-      {role === "hq" ? (
+      {hasRole("hq") ? (
         <button
           type="button"
           onClick={onRun}

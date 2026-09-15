@@ -22,7 +22,7 @@ export function DefectReport({
   defaultCitation: string | null;
   acquisitionId?: string | null;
 }) {
-  const { user, role } = useRole();
+  const { user, roles } = useRole();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [defect, setDefect] = useState("");
@@ -39,7 +39,7 @@ export function DefectReport({
         defect: defect.trim(),
         acquisitionId: acquisitionId ?? null,
         reporterName: user.name,
-        reporterRole: role,
+        reporterRole: roles.join(", "),
       }),
     onSuccess: () => {
       setMessage("Reported. The item is on the PGPD queue.");
