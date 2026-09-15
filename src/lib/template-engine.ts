@@ -2397,8 +2397,123 @@ export function samNoticeMode(acq: { competition?: string | null } | null | unde
     : "Combined synopsis/solicitation";
 }
 
+// ------------------------------------------- Evaluation of quotations record
+// FAR 13.106-2. Required on a competed simplified acquisition: the quotations
+// are judged against the criteria stated in the notice and the basis for the
+// recommendation is recorded.
+const quoterRow = (n: number): FieldDef[] => [
+  { key: `quoter_${n}_name`, label: `Quoter ${n}: name`, kind: "text" },
+  { key: `quoter_${n}_uei`, label: `Quoter ${n}: UEI`, kind: "text" },
+  { key: `quoter_${n}_price`, label: `Quoter ${n}: price quoted`, kind: "money" },
+  {
+    key: `quoter_${n}_rating`,
+    label: `Quoter ${n}: technical rating`,
+    kind: "select",
+    options: ["", "Acceptable", "Unacceptable"],
+  },
+  { key: `quoter_${n}_reason`, label: `Quoter ${n}: reason for the rating`, kind: "textarea" },
+];
+
+const evaluationOfQuotations: TemplateDef = {
+  key: "evaluation-of-quotations",
+  name: "Evaluation of Quotations Record",
+  tab: "054",
+  badge: {
+    citation: "FAR 13.106-2",
+    tier: "binding",
+    revision: "T-Minus 09/2026",
+    effective: "2026-09-01",
+    note: "Required on a competed simplified acquisition. It records how each quotation was judged against the criteria in the notice.",
+  },
+  lead: "Each quotation judged against the criteria stated in the notice, with the recommended quoter and the comparison to the Government estimate.",
+  sections: [
+    {
+      id: "header",
+      title: "Acquisition",
+      citation: "FAR 13.106-2",
+      tier: "binding",
+      fields: [
+        { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
+        { key: "title", label: "Requirement", kind: "text", bind: "title", required: true },
+        { key: "naics_code", label: "NAICS", kind: "text", bind: "naics_code" },
+        { key: "set_aside", label: "Set-aside", kind: "text", bind: "set_aside" },
+        {
+          key: "igce_amount",
+          label: "Independent government cost estimate",
+          kind: "money",
+          bind: "igce_amount",
+        },
+      ],
+    },
+    {
+      id: "basis",
+      title: "Basis for award and evaluation criteria",
+      citation: "FAR 13.106-2(b)",
+      tier: "binding",
+      fields: [
+        {
+          key: "award_basis",
+          label: "Basis for award",
+          kind: "select",
+          required: true,
+          options: ["Lowest price technically acceptable", "Best value tradeoff"],
+        },
+        {
+          key: "evaluation_criteria",
+          label: "Evaluation criteria stated in the notice",
+          kind: "textarea",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "quotations",
+      title: "Quotations received",
+      citation: "FAR 13.106-2(a)",
+      tier: "binding",
+      standingText:
+        "Record every quotation received: the quoter, its UEI, the price quoted, the technical rating and the reason for that rating. Leave unused rows blank.",
+      fields: [...quoterRow(1), ...quoterRow(2), ...quoterRow(3), ...quoterRow(4)],
+    },
+    {
+      id: "recommendation",
+      title: "Recommendation",
+      citation: "FAR 13.106-2(b)(3)",
+      tier: "binding",
+      fields: [
+        { key: "recommended_quoter", label: "Recommended quoter", kind: "text", required: true },
+        { key: "recommended_uei", label: "Recommended quoter UEI", kind: "text" },
+        { key: "recommended_price", label: "Recommended price", kind: "money", required: true },
+        {
+          key: "price_comparison",
+          label: "Comparison with the independent government cost estimate",
+          kind: "textarea",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "signoff",
+      title: "Sign-off",
+      citation: "FAR 4.801",
+      tier: "binding",
+      fields: [
+        { key: "evaluator_name", label: "Technical evaluator", kind: "text" },
+        { key: "co_name", label: "Contracting officer", kind: "text", bind: "co_name" },
+      ],
+    },
+  ],
+  signature: (): SignatureBlock => ({
+    tierLabel: "Technical evaluator and contracting officer",
+    citation: "FAR 13.106-2",
+    blocks: ["Technical evaluator", "Date", "Contracting officer", "Date"],
+    note: "Signed and placed in the contract file (FAR 4.801).",
+  }),
+};
+
 export const TEMPLATES: TemplateDef[] = [
   samNotice,
+  evaluationOfQuotations,
   nf1707,
   jofoc,
   ter,
