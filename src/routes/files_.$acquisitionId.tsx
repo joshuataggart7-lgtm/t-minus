@@ -14,6 +14,7 @@ import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib
 import { DIRECTIVE_CITATION, REVIEW_STATUSES, reviewStatus } from "@/lib/directives";
 import {
   acquisitionType,
+  acquisitionTypeWords,
   buildPacket,
   buildSequence,
   computeHold,
@@ -967,7 +968,7 @@ function FilePage() {
     <AppShell>
       <PageHeader
         title={acq?.title ?? acquisitionId}
-        lead={acq ? `${acquisitionId} · ${acq.center_code ?? ""} · ${acquisitionType(acq).replace(/_/g, " ")}` : "Loading the file."}
+        lead={acq ? `${acquisitionId} · ${acq.center_code ?? ""} · ${acquisitionTypeWords(acq)}` : "Loading the file."}
       />
 
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
@@ -990,7 +991,7 @@ function FilePage() {
           </div>
           <div>
             <p className="text-[18px] leading-6 font-medium" data-numeric>
-              {effectiveState === "launched" ? (lifecycle?.awardDate ?? "Not recorded") : (acq?.target_award_date ?? "Not recorded")}
+              {effectiveState === "launched" ? (lifecycle?.awardDate ?? "Not recorded") : (effectiveTargetAward ?? "Not recorded")}
             </p>
             <p className="mt-1 text-[13px] text-panel-muted">{effectiveState === "launched" ? "Award date" : "Target award date"}</p>
           </div>
