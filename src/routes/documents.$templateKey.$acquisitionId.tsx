@@ -990,10 +990,13 @@ function DocumentPage() {
         const name = String(values["recommended_quoter"] ?? "").trim();
         const uei = String(values["recommended_uei"] ?? "").trim();
         if (name || uei) {
-          const patch: Record<string, string> = {};
-          if (name) patch["vendor_legal_name"] = name;
-          if (uei) patch["vendor_uei"] = uei;
-          await supabase.from("acquisition_facts").update(patch).eq("acquisition_id", acquisitionId);
+          await supabase
+            .from("acquisition_facts")
+            .update({
+              ...(name ? { vendor_legal_name: name } : {}),
+              ...(uei ? { vendor_uei: uei } : {}),
+            })
+            .eq("acquisition_id", acquisitionId);
           await supabase.from("audit_log").insert({
             acquisition_id: acquisitionId,
             actor: user.name,
