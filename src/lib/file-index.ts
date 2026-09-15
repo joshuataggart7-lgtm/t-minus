@@ -47,6 +47,8 @@ export type IndexDocRow = {
   saved_at: string | null;
   issue_on_nf1858?: boolean | null;
   memo_header?: { to?: string } | null;
+  /** Saved values; a memorandum for record carries the tab the CO picked. */
+  field_values?: { __tab?: string } | null;
 };
 
 export type IndexTemplateRow = {
