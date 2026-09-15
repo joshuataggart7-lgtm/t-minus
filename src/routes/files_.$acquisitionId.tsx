@@ -580,7 +580,7 @@ function FilePage() {
           acquisition_id: acq.acquisition_id,
           phase,
           reviewer_role: r.reviewer_role,
-          reviewer_name: REVIEWER_NAME,
+          reviewer_name: reviewerNameForRole(r.reviewer_role, acq.center_code ?? null, q.data?.people ?? []),
           vote: "pending",
           due_date: addDays(todayISO(), r.planned_days ?? 5),
         }));
