@@ -2290,6 +2290,21 @@ const memorandumForRecord: TemplateDef = {
 const isSole = (v: Values) => (v["notice_type"] ?? "") === "Notice of intent to sole source";
 const isCombined = (v: Values) => (v["notice_type"] ?? "") === "Combined synopsis/solicitation";
 const isSources = (v: Values) => (v["notice_type"] ?? "") === "Sources sought";
+/** Presolicitation modes carried over from the HQ Governmentwide Point of Entry master. */
+const PRESOL_MODES = [
+  "Presolicitation notice: noncompetitive",
+  "Presolicitation notice: commercial competitive",
+  "Presolicitation notice: noncommercial competitive",
+  "Presolicitation notice: construction competitive",
+  "Presolicitation notice: architect-engineer services",
+  "Presolicitation notice: major system acquisition",
+];
+const MOD_MODES = ["Modification to a notice", "Modification to a combination synopsis"];
+const RFI_MODES = ["Request for information: draft solicitation or statement of work", "Request for information: organizational conflict of interest"];
+const isPresol = (v: Values) => PRESOL_MODES.includes(String(v["notice_type"] ?? ""));
+const isMod = (v: Values) => MOD_MODES.includes(String(v["notice_type"] ?? ""));
+const isRfi = (v: Values) => RFI_MODES.includes(String(v["notice_type"] ?? ""));
+
 
 const samNotice: TemplateDef = {
   key: "sam-notice",
