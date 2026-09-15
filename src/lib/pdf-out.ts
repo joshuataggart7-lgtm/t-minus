@@ -21,8 +21,9 @@ export type PdfBlock = {
 
 export type PdfOptions = {
   fileName: string;
-  /** One line per footer row, drawn small at the foot of every page. */
-  footer: string[];
+  footer?: string[];
+  prototype?: boolean;
+  margins?: { top: number; right: number; bottom: number; left: number };
 };
 
 const PAGE = { width: 612, height: 792, margin: 72 };
@@ -41,15 +42,16 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
   const roman = await doc.embedFont(StandardFonts.TimesRoman);
   const bold = await doc.embedFont(StandardFonts.TimesRomanBold);
 
+  const margins = options.margins ?? { top: PAGE.margin, right: PAGE.margin, bottom: PAGE.margin, left: PAGE.margin };
   let page = doc.addPage([PAGE.width, PAGE.height]);
-  let y = PAGE.height - PAGE.margin;
-  const maxWidth = PAGE.width - PAGE.margin * 2;
+  let y = PAGE.height - margins.top;
+  const maxWidth = PAGE.width - margins.left - margins.right;
 
-  const drawFooter = (target: typeof page) => {
-    let fy = PAGE.margin - 28;
-    for (const line of options.footer) {
+  const drawFooter = (target: typeof page, pageNumber: number, totalPages: number) => {
+    let fy = 30;
+    for (const line of options.footer ?? []) {
       target.drawText(sanitize(line).slice(0, 150), {
-        x: PAGE.margin,
+        x: margins.left,
         y: fy,
         size: 8,
         font: roman,
@@ -57,12 +59,22 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
       });
       fy -= 10;
     }
+    if (options.prototype !== false) {
+      target.drawText("Prototype, synthetic data", { x: margins.left, y: 30, size: 8, font: roman, color: rgb(0.45, 0.45, 0.45) });
+    }
+    const pageText = `Page ${pageNumber} of ${totalPages}`;
+    target.drawText(pageText, {
+      x: (PAGE.width - roman.widthOfTextAtSize(pageText, 9)) / 2,
+      y: 30,
+      size: 9,
+      font: roman,
+      color: rgb(0.25, 0.25, 0.25),
+    });
   };
 
   const newPage = () => {
-    drawFooter(page);
     page = doc.addPage([PAGE.width, PAGE.height]);
-    y = PAGE.height - PAGE.margin;
+    y = PAGE.height - margins.top;
   };
 
   for (const block of blocks) {
@@ -85,16 +97,17 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     }
     if (line || !words.length) lines.push(line);
     for (const text of lines) {
-      if (y < PAGE.margin + 10) newPage();
+      if (y < margins.bottom + 18) newPage();
       const x = block.center
         ? (PAGE.width - font.widthOfTextAtSize(text, size)) / 2
-        : PAGE.margin + indent;
+        : margins.left + indent;
       page.drawText(text, { x, y, size, font });
       y -= size * 1.35;
     }
     y -= block.gap ?? 6;
   }
-  drawFooter(page);
+  const pages = doc.getPages();
+  pages.forEach((target, index) => drawFooter(target, index + 1, pages.length));
 
   const bytes = await doc.save();
   const blob = new Blob([bytes as unknown as BlobPart], { type: "application/pdf" });

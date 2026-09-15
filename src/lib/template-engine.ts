@@ -8,6 +8,7 @@
  */
 
 import { CLOSEOUT_CHECKLIST } from "@/lib/post-award";
+import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2469,6 +2470,115 @@ export type RenderedDoc = {
   blocks: { heading: string; citation?: string | undefined; lines: string[] }[];
 };
 
+export type ExportContext = {
+  def: TemplateDef;
+  values: Values;
+  acquisitionId: string;
+  coName: string;
+  coTitle?: string | undefined;
+  approvingOfficialTitle?: string | undefined;
+  technicalRepresentativeName?: string | undefined;
+};
+
+type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean };
+
+const cleanExportText = (text: string) =>
+  text
+    .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
+    .replace(/\s*Source:.*$/gi, "")
+    .replace(/^\s*[—–-]\s*$/, "")
+    .trim();
+
+const blankLine = "____________________________________________";
+
+function genericPrintBlocks(doc: RenderedDoc): PrintBlock[] {
+  return doc.blocks
+    .filter((block) => !block.heading.startsWith("Signatures"))
+    .map((block) => ({
+      heading: block.heading,
+      lines: block.lines.map((line) => {
+        const at = line.indexOf(": ");
+        const value = at >= 0 ? line.slice(at + 2) : line;
+        return cleanExportText(value) || blankLine;
+      }),
+    }));
+}
+
+function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
+  const v = ctx.values;
+  const value = (key: string) => cleanExportText(v[key] ?? "");
+  const contractor = value("contractor_name") || blankLine;
+  const action = (value("action_type") || "sole-source contract").toLowerCase();
+  const actionDescription = value("action_description") || value("requirement_description") || blankLine;
+  const notice = value("notice_status") || value("notice_date")
+    ? `The notice of intent was posted${value("notice_date") ? ` on ${value("notice_date")}` : ""}${value("interested_sources") ? `. ${value("interested_sources")}` : "."}`
+    : "The notice of intent has not yet been posted.";
+  const item = (n: number, heading: string, prose: string): PrintBlock => ({ heading: `${n}. ${heading}`, lines: [prose] });
+  return [
+    {
+      lines: [
+        "National Aeronautics and Space Administration",
+        "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION",
+        `Center: ${value("center_code") || blankLine}`,
+        `Solicitation/contract number: ${value("solicitation_name") || blankLine}`,
+        `Program: ${value("program_name") || blankLine}`,
+      ],
+    },
+    item(1, "Identification of the agency and the contracting activity", `The procuring agency is the National Aeronautics and Space Administration, and the contracting activity is ${value("buying_location") || blankLine}.`),
+    item(2, "Nature and description of the action being approved", `This action is a ${action} to ${contractor} for ${actionDescription}.`),
+    item(3, "Description of the supplies or services required, including estimated value", `${value("requirement_description") || actionDescription} The estimated value is ${value("estimated_value") || blankLine}.${value("pop_start") || value("pop_end") ? ` The period of performance is ${value("pop_start") || blankLine} to ${value("pop_end") || blankLine}.` : ""}`),
+    item(4, "Statutory authority permitting other than full and open competition", `This action is authorized by ${value("authority") || blankLine}.`),
+    item(5, "Demonstration that the authority cited applies", value("authority_rationale") || blankLine),
+    item(6, "Efforts to solicit offers from as many potential sources as practicable", notice),
+    item(7, "Determination that the anticipated cost will be fair and reasonable", value("price_analysis_plan") || blankLine),
+    item(8, "Market research conducted and the results", value("market_research") || blankLine),
+    item(9, "Other facts supporting the use of other than full and open competition", value("other_facts") || "No other facts were identified."),
+    item(10, "Sources that expressed an interest in writing", notice),
+    item(11, "Actions to remove barriers to competition", value("barriers") || blankLine),
+    {
+      heading: "Certification and approval",
+      lines: [
+        `${ctx.technicalRepresentativeName || blankLine}, Technical Representative`,
+        "Signature: ______________________________    Date: __________",
+        `${ctx.coName || blankLine}, ${ctx.coTitle || "Contracting Officer"}`,
+        "Signature: ______________________________    Date: __________",
+        `${ctx.approvingOfficialTitle || "Approving Official"}`,
+        "Signature: ______________________________    Date: __________",
+      ],
+    },
+  ];
+}
+
+function terPrintBlocks(ctx: ExportContext): PrintBlock[] {
+  const v = ctx.values;
+  const value = (key: string) => cleanExportText(v[key] ?? "") || "N/A";
+  return [
+    { lines: [`Date: ${value("memo_date")}`, `Reply to Attn of: ${value("office_name")}`, `TO: ${value("to_co")}`, `FROM: ${value("from_evaluator")}`, `SUBJECT: ${value("subject")}`] },
+    { heading: "1. Technical requirement and background", lines: [value("background")] },
+    { heading: "2. Technical evaluation team members", lines: [value("team")] },
+    { heading: "3. Fact-finding", lines: [value("fact_finding")] },
+    { heading: "4. Ground rules and assumptions", lines: [value("ground_rules")] },
+    { heading: "5. Data requirements documents (DRDs)", lines: [value("drds")] },
+    { heading: "6. Government furnished property and information", lines: [value("gfp")] },
+    { heading: "7. Overall acceptability of the technical proposal", lines: [value("acceptability"), value("acceptability_basis"), value("ae_six_percent")] },
+    { heading: "8. Evaluation of resources", lines: [
+      `a. Direct labor: ${value("res_labor")}`,
+      `b. Material: ${value("res_material")}`,
+      `c. Travel: ${value("res_travel")}`,
+      `d. Subcontractor effort: ${value("res_subcontracts")}`,
+      `e. Special tooling and test equipment: ${value("res_tooling")}`,
+      `f. Other direct costs, training, consultants, and IWTs: ${value("res_odc")}`,
+    ] },
+    { heading: "Technical evaluator", lines: [`${value("from_evaluator")}`, "Signature: ______________________________    Date: __________"] },
+  ];
+}
+
+function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBlock[] {
+  if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
+  if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
+  return genericPrintBlocks(doc);
+}
+
 /** One rendering used by the printable view and by both exports. */
 export function renderDocument(
   def: TemplateDef,
@@ -2504,47 +2614,28 @@ export function renderDocument(
 }
 
 /** Word export. The docx library is loaded on demand in the browser. */
-export async function exportDocx(doc: RenderedDoc, fileName: string) {
-  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = await import("docx");
-  const children = [
-    new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun(doc.title)] }),
-    new Paragraph({ children: [new TextRun({ text: doc.badgeLine, size: 18 })] }),
-    new Paragraph({ children: [new TextRun({ text: "Prototype. Not an official NASA system.", size: 18 })] }),
-  ];
-  for (const b of doc.blocks) {
-    children.push(new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun(b.heading)] }));
-    if (b.citation) children.push(new Paragraph({ children: [new TextRun({ text: b.citation, italics: true, size: 18 })] }));
-    for (const line of b.lines) children.push(new Paragraph({ children: [new TextRun(line)] }));
+export async function exportDocx(doc: RenderedDoc, fileName: string, context?: ExportContext) {
+  const { Document, Packer, Paragraph, TextRun, Footer, PageNumber, AlignmentType, TabStopType } = await import("docx");
+  const blocks = exportBlocks(doc, context);
+  const isTer = context?.def.key === "technical-evaluation-report";
+  const children: InstanceType<typeof Paragraph>[] = [];
+  for (const [index, b] of blocks.entries()) {
+    if (b.heading) children.push(new Paragraph({ spacing: { before: index ? 180 : 0, after: 120 }, children: [new TextRun({ text: b.heading, bold: true, font: "Times New Roman", size: 24 })] }));
+    for (const line of b.lines) children.push(new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text: line, font: "Times New Roman", size: 24 })] }));
   }
+  const footer = new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, tabStops: [{ type: TabStopType.CENTER, position: 4680 }], children: [
+    new TextRun({ text: "Prototype, synthetic data\t", color: "777777", size: 16, font: "Times New Roman" }),
+    new TextRun({ text: "Page ", size: 18, font: "Times New Roman" }), new TextRun({ children: [PageNumber.CURRENT], size: 18, font: "Times New Roman" }),
+    new TextRun({ text: " of ", size: 18, font: "Times New Roman" }), new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 18, font: "Times New Roman" }),
+  ] })] });
   const document = new Document({
-    styles: {
-      default: { document: { run: { font: "IBM Plex Sans", size: 22, color: "000000" } } },
-      paragraphStyles: [
-        {
-          id: "Heading1",
-          name: "Heading 1",
-          basedOn: "Normal",
-          next: "Normal",
-          quickFormat: true,
-          run: { size: 30, bold: true, color: "000000", font: "IBM Plex Sans" },
-          paragraph: { spacing: { before: 240, after: 200 }, outlineLevel: 0 },
-        },
-        {
-          id: "Heading2",
-          name: "Heading 2",
-          basedOn: "Normal",
-          next: "Normal",
-          quickFormat: true,
-          run: { size: 24, bold: true, color: "000000", font: "IBM Plex Sans" },
-          paragraph: { spacing: { before: 200, after: 120 }, outlineLevel: 1 },
-        },
-      ],
-    },
+    styles: { default: { document: { run: { font: "Times New Roman", size: 24, color: "000000" } } } },
     sections: [
       {
         properties: {
-          page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+          page: { size: { width: 12240, height: 15840 }, margin: isTer ? { top: 720, right: 1440, bottom: 1440, left: 1800 } : { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
         },
+        footers: { default: footer },
         children,
       },
     ],
@@ -2558,36 +2649,19 @@ export async function exportDocx(doc: RenderedDoc, fileName: string) {
   URL.revokeObjectURL(url);
 }
 
-/** PDF export through the browser print dialog, on white with the version badge in the footer. */
-export function exportPdf(doc: RenderedDoc, headerLine: string) {
-  const esc = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const body = doc.blocks
-    .map(
-      (b) =>
-        `<section><h2>${esc(b.heading)}</h2>${b.citation ? `<p class="cite">${esc(b.citation)}</p>` : ""}${b.lines
-          .map((l) => `<p>${esc(l)}</p>`)
-          .join("")}</section>`,
-    )
-    .join("");
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(doc.title)}</title>
-<style>
-  @page { margin: 20mm; }
-  body { font-family: "IBM Plex Sans", Arial, sans-serif; color: #000; background: #fff; font-size: 12pt; line-height: 1.5; }
-  header, footer { font-size: 9pt; }
-  h1 { font-size: 18pt; } h2 { font-size: 13pt; margin-bottom: 2px; }
-  .cite { font-size: 9pt; font-style: italic; margin-top: 0; }
-  section { margin-bottom: 14px; break-inside: avoid; page-break-inside: avoid; }
-</style></head><body>
-<header>${esc(headerLine)}</header>
-<h1>${esc(doc.title)}</h1>
-${body}
-<footer><p>${esc(doc.badgeLine)}</p><p>Prototype. Not an official NASA system.</p></footer>
-<script>window.onload = function () { window.print(); }<\/script>
-</body></html>`;
-  const w = window.open("", "_blank");
-  if (!w) return false;
-  w.document.write(html);
-  w.document.close();
+/** Deterministic PDF export using the same clean, template-aware content as Word. */
+export async function exportPdf(doc: RenderedDoc, _headerLine: string, fileName = "document", context?: ExportContext) {
+  const blocks: PdfBlock[] = [];
+  for (const block of exportBlocks(doc, context)) {
+    if (block.heading) blocks.push({ text: block.heading, bold: true, gap: 6 });
+    block.lines.forEach((line) => blocks.push({ text: line, gap: 6 }));
+  }
+  await renderPdf(blocks, {
+    fileName,
+    prototype: true,
+    margins: context?.def.key === "technical-evaluation-report"
+      ? { top: 36, right: 72, bottom: 72, left: 90 }
+      : { top: 72, right: 72, bottom: 72, left: 72 },
+  });
   return true;
 }

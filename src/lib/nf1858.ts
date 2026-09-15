@@ -234,13 +234,11 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
     return line.slice(at + 2).trim();
   };
   return doc.blocks
-    .filter((b) => !b.heading.startsWith("Signatures"))
+    .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
     .map((b) => {
       const lines = b.lines.map((l) => l.trim()).filter((l) => l && !l.endsWith(": —"));
-      if (b.heading === "Acquisition") {
-        return { text: "This memorandum concerns the following acquisition.", lines };
-      }
-      return { text: `${b.heading}. ${lines.map(withoutPrompt).join(" ")}`.trim(), lines: [] };
+      const prose = lines.map(withoutPrompt).filter((line) => line && line !== "—" && !/^\[.*\]$/.test(line));
+      return { text: `${b.heading}. ${prose.join(" ")}`.trim(), lines: [] };
     })
     .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }
@@ -253,7 +251,7 @@ export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader): MemoDoc {
  * PDF export in the 1858 layout. The file is drawn directly, so it carries no
  * browser header or footer, and the metadata sits in the page footer.
  */
-export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName: string): Promise<void> {
+export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName: string): Promise<void> {
   const h = memo.header;
   const blocks: PdfBlock[] = [];
   if (h.cui) {
@@ -267,7 +265,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     { text: h.date, gap: 14 },
     { text: `Reply to Attn of:  ${h.replyTo}`, gap: 20 },
   );
-  const labelled = (label: string, value: string) => ({ text: `${label.padEnd(10, " ")}${value}`, bold: true, gap: 2 });
+  const labelled = (label: string, value: string) => ({ text: `${label.padEnd(10, " ")}${value}`, gap: 2 });
   blocks.push(labelled("TO:", h.to));
   h.thru.forEach((t, i) => blocks.push(labelled(i === 0 ? "THRU:" : "", t)));
   blocks.push(labelled("FROM:", h.from), labelled("SUBJECT:", h.subject));
@@ -302,13 +300,13 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
   if (h.cui) blocks.push({ text: CUI_BANNER, bold: true, center: true, gap: 0 });
   await renderPdf(blocks, {
     fileName,
-    footer: [headerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."],
+    prototype: true,
   });
 }
 
 /** Word export in the 1858 layout. */
-export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine = "") {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer } = await import("docx");
+export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLine = "") {
+  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer, PageNumber, AlignmentType } = await import("docx");
   const h = memo.header;
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
@@ -326,7 +324,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
     new Paragraph({
       tabStops: [{ type: TabStopType.LEFT, position: 1440 }],
       spacing: { after: 60 },
-      children: [new TextRun({ ...serif, bold: true, text: `${label}\t${value}` })],
+      children: [new TextRun({ ...serif, bold: true, text: label }), new TextRun({ ...serif, text: `\t${value}` })],
     });
 
   const children: InstanceType<typeof Paragraph>[] = [];
@@ -391,15 +389,15 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
   const footer = new Footer({
     children: [
       new Paragraph({
+        alignment: AlignmentType.CENTER,
+        tabStops: [{ type: TabStopType.CENTER, position: 4680 }],
         spacing: { after: 0 },
         children: [
-          new TextRun({
-            font: "Times New Roman",
-            size: 16,
-            text: [footerLine, memo.badgeLine, "Issued on NF 1858. Prototype. Not an official NASA system."]
-              .filter(Boolean)
-              .join(" · "),
-          }),
+          new TextRun({ font: "Times New Roman", size: 16, color: "777777", text: "Prototype, synthetic data\t" }),
+          new TextRun({ font: "Times New Roman", size: 18, text: "Page " }),
+          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.CURRENT] }),
+          new TextRun({ font: "Times New Roman", size: 18, text: " of " }),
+          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.TOTAL_PAGES] }),
         ],
       }),
     ],
@@ -410,7 +408,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, footerLine
     sections: [
       {
         properties: {
-          page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1152, left: 1440 } },
+          page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
         },
         footers: { default: footer },
         children,
