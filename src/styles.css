@@ -235,3 +235,10 @@
 @media (prefers-reduced-motion: reduce) {
   .page-fade { animation: none; }
 }
+
+/* Presenter mode: the launch sequence prints one type step larger. */
+.presenter-step summary { font-size: 20px; line-height: 28px; }
+.presenter-step h3 { font-size: 20px; line-height: 28px; }
+.presenter-step li,
+.presenter-step p { font-size: 17px; line-height: 26px; }
+.presenter-step .text-\[13px\] { font-size: 15px; line-height: 22px; }
