@@ -145,7 +145,9 @@ export function MarketResearchEngine({
       ) : (
         <div className="mt-4 space-y-5">
           <div>
-            <h5 className="text-[15px] font-medium">Research log</h5>
+            <h5 className="text-[15px] font-medium">
+              Research log{latestRanAt ? `, most recent run ${latestRanAt.slice(0, 10)}` : ""}
+            </h5>
             {log.length ? (
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
