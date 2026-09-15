@@ -318,8 +318,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Vendor country or place of performance outside the United States",
     when: (c) => outsideUS(c),
     docs: [
-      { doc_key: "foreign-contract-request", label: "Request to award a foreign contract", citation: "NFS 1825", phase: "Market Research", state: "required", tab: "010" },
-      { doc_key: "duty-free-certificate", label: "Duty free certificate", citation: "FAR 25.903", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "foreign-contract-request", label: "Request to award a foreign contract", citation: "NFS 1825", phase: "Market Research", state: "required", templateKey: "foreign-contract-request", tab: "010" },
+      { doc_key: "duty-free-certificate", label: "Duty free certificate", citation: "FAR 25.903", phase: "Market Research", state: "offered", templateKey: "duty-free-certificate", tab: "010" },
     ],
   },
   {
@@ -327,7 +327,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Supplies with an end product that is not domestic",
     when: (c) => notDomestic(c),
     docs: [
-      { doc_key: "buy-american-nonavailability", label: "Buy American Act nonavailability determination", citation: "FAR 25.103", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "buy-american-nonavailability", label: "Buy American Act nonavailability determination", citation: "FAR 25.103", phase: "Market Research", state: "required", templateKey: "buy-american-nonavailability", tab: "010" },
     ],
   },
   {
@@ -335,7 +335,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Commerciality determination: not commercial",
     when: (c) => !c.s.commercial,
     docs: [
-      { doc_key: "noncommercial-request", label: "Request to solicit a non-commercial product or service", citation: "OP memorandum of the template date", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "noncommercial-request", label: "Request to solicit a non-commercial product or service", citation: "OP memorandum of the template date", phase: "Market Research", state: "required", templateKey: "noncommercial-request", tab: "010" },
     ],
   },
   {
@@ -345,7 +345,7 @@ export const TRIGGERS: TriggerDef[] = [
       ABILITYONE_CODES.includes(String(c.acq["psc_code"] ?? "").trim()) ||
       ABILITYONE_CODES.includes(String(c.acq["naics_code"] ?? "").trim()),
     docs: [
-      { doc_key: "abilityone-coordination", label: "AbilityOne coordination", citation: "FAR 8.7", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "abilityone-coordination", label: "AbilityOne coordination", citation: "FAR 8.7", phase: "Market Research", state: "required", templateKey: "abilityone-coordination", tab: "010" },
     ],
   },
   {
@@ -353,7 +353,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value at or above $7,000,000",
     when: (c) => c.value >= 7_000_000 && c.value < 30_000_000,
     docs: [
-      { doc_key: "npa-notification", label: "NASA notification of procurement action", citation: "NFS CG 1805.31", phase: "Intake", state: "required", tab: "005" },
+      { doc_key: "npa-notification", label: "NASA notification of procurement action", citation: "NFS CG 1805.31", phase: "Intake", state: "required", templateKey: "npa-notification", tab: "005" },
     ],
   },
   {
@@ -361,7 +361,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value at or above $30,000,000",
     when: (c) => c.value >= 30_000_000,
     docs: [
-      { doc_key: "anosca", label: "ANOSCA announcement", citation: "NFS CG 1805.32", phase: "Intake", state: "required", tab: "005" },
+      { doc_key: "anosca", label: "ANOSCA announcement", citation: "NFS CG 1805.32", phase: "Intake", state: "required", templateKey: "npa-notification", tab: "005" },
     ],
   },
   {
@@ -369,7 +369,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A subcontracting plan applies and no subcontracting possibilities exist",
     when: (c) => c.s.subcontracting_plan_applies && !c.s.subcontracting_possibilities,
     docs: [
-      { doc_key: "subcontracting-plan-waiver", label: "Determination to waive the subcontracting plan", citation: "FAR 19.705-2", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "subcontracting-plan-waiver", label: "Determination to waive the subcontracting plan", citation: "FAR 19.705-2", phase: "Market Research", state: "required", templateKey: "subcontracting-plan-waiver", tab: "010" },
     ],
   },
   {
@@ -377,8 +377,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Any organizational conflict of interest answer is yes",
     when: (c) => c.oci,
     docs: [
-      { doc_key: "oci-determination", label: "OCI determination memorandum and checklist", citation: "FAR 9.5", phase: "Market Research", state: "required", tab: "010" },
-      { doc_key: "limitation-future-contracting", label: "Limitation of future contracting memorandum", citation: "FAR 9.507-2", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "oci-determination", label: "OCI determination memorandum and checklist", citation: "FAR 9.5", phase: "Market Research", state: "required", templateKey: "oci-determination", tab: "010" },
+      { doc_key: "limitation-future-contracting", label: "Limitation of future contracting memorandum", citation: "FAR 9.507-2", phase: "Market Research", state: "offered", templateKey: "limitation-future-contracting", tab: "010" },
       { doc_key: "section-l-oci-notice", label: "Section L notice of potential OCI", citation: "FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
       { doc_key: "oci-plan-drd", label: "OCI plan data requirement", citation: "FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
     ],
@@ -394,11 +394,11 @@ export const TRIGGERS: TriggerDef[] = [
         citation: "FAR 6.302-2; RFO FAR 6.104-2",
         phase: "JOFOC",
         state: "required",
-        templateKey: "jofoc",
+        templateKey: "jofoc-urgency",
         replacesJofoc: true,
         tab: "015",
       },
-      { doc_key: "uca-letter-contract", label: "Undefinitized contract action or letter contract justification", citation: "FAR 16.603-3", phase: "Solicitation/Quote", state: "offered", tab: "020" },
+      { doc_key: "uca-letter-contract", label: "Undefinitized contract action or letter contract justification", citation: "FAR 16.603-3", phase: "Solicitation/Quote", state: "offered", templateKey: "uca-letter-contract", tab: "020" },
     ],
   },
   {
@@ -412,7 +412,7 @@ export const TRIGGERS: TriggerDef[] = [
         citation: "FAR 19.808-1; RFO FAR 6.104-2",
         phase: "JOFOC",
         state: "required",
-        templateKey: "jofoc",
+        templateKey: "jofoc-8a-over-30m",
         replacesJofoc: true,
         tab: "015",
       },
@@ -423,7 +423,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Precontract costs requested",
     when: (c) => c.s.precontract_costs,
     docs: [
-      { doc_key: "precontract-costs-approval", label: "Precontract costs approval memorandum and authorization letter", citation: "FAR 31.205-32", phase: "Solicitation/Quote", state: "required", tab: "020" },
+      { doc_key: "precontract-costs-approval", label: "Precontract costs approval memorandum and authorization letter", citation: "FAR 31.205-32", phase: "Solicitation/Quote", state: "required", templateKey: "precontract-costs-approval", tab: "020" },
     ],
   },
   {
@@ -431,7 +431,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "The contracting officer chooses to exclude a source",
     when: (c) => c.s.exclude_source,
     docs: [
-      { doc_key: "exclude-source-dandf", label: "Authority to exclude a source determination and findings", citation: "FAR 6.202", phase: "Market Research", state: "required", tab: "010" },
+      { doc_key: "exclude-source-dandf", label: "Authority to exclude a source determination and findings", citation: "FAR 6.202", phase: "Market Research", state: "required", templateKey: "exclude-source-dandf", tab: "010" },
     ],
   },
   {
@@ -439,7 +439,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "GSA Federal Supply Schedule order, sole source",
     when: (c) => c.s.vehicle === "gsa_fss" && c.sole,
     docs: [
-      { doc_key: "limited-sources-justification", label: "Limited sources justification", citation: "FAR 8.405-6", phase: "JOFOC", state: "required", tab: "015" },
+      { doc_key: "limited-sources-justification", label: "Limited sources justification", citation: "FAR 8.405-6", phase: "JOFOC", state: "required", templateKey: "limited-sources-justification", tab: "015" },
     ],
   },
   {
@@ -447,7 +447,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Government-furnished property is provided",
     when: (c) => c.s.gfp,
     docs: [
-      { doc_key: "gfp-determination", label: "Contracting officer determination to provide government property", citation: "FAR 45.102", phase: "Solicitation/Quote", state: "required", tab: "020" },
+      { doc_key: "gfp-determination", label: "Contracting officer determination to provide government property", citation: "FAR 45.102", phase: "Solicitation/Quote", state: "required", templateKey: "gfp-determination", tab: "020" },
     ],
   },
   {
