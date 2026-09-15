@@ -3,6 +3,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
@@ -114,6 +122,17 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
 
 type Mode = "novice" | "veteran";
 
+type FileActionDialog =
+  | { kind: "exit"; phase: string }
+  | { kind: "scrub" }
+  | { kind: "remove"; doc: RequiredDoc }
+  | { kind: "open-poll"; phase: string }
+  | { kind: "vote"; entry: BoardEntry };
+
+function requirementId(phase: string, label: string) {
+  return `requirement-${phase}-${label}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
 /* Reviewer names come from the Center reviewer table at the moment the poll
  * opens, the same source the poll board reads. */
 
@@ -183,6 +202,10 @@ function FilePage() {
   const [voteRow, setVoteRow] = useState<string | null>(null);
   const [voteReceived, setVoteReceived] = useState<string>(todayISO());
   const [voteNote, setVoteNote] = useState("");
+  const [voteChoice, setVoteChoice] = useState<"go" | "no-go">("go");
+  const [actionDialog, setActionDialog] = useState<FileActionDialog | null>(null);
+  const [actionReason, setActionReason] = useState("");
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
@@ -548,6 +571,40 @@ function FilePage() {
     return { label: `Exit ${current}` };
   }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys, q.data?.researchRuns]);
 
+  const currentPhase = useMemo(
+    () => phases.find((phase) => phase.phase === lifecycle?.currentPhase) ?? null,
+    [phases, lifecycle?.currentPhase],
+  );
+
+  const missingCurrentRequirements = useMemo(() => {
+    if (!acq || !currentPhase) return [];
+    return currentPhase.docs.filter((doc) => {
+      if (doc.optional) return false;
+      const key = docKey(doc.field, doc.label);
+      return docSatisfied(doc, acq, Boolean(attachmentFor(key)), savedKeys) === false;
+    });
+  }, [acq, currentPhase, attachments, savedKeys]);
+
+  const pendingCurrentReviews = useMemo(
+    () =>
+      currentPhase
+        ? (boards[currentPhase.phase] ?? []).filter((entry) => entry.poll_id && entry.vote === "pending")
+        : [],
+    [boards, currentPhase],
+  );
+
+  const showActionDialog = (dialog: FileActionDialog) => {
+    setActionDialog(dialog);
+    setActionReason("");
+    setActionError(null);
+    if (dialog.kind === "vote") {
+      setVoteRow(dialog.entry.poll_id);
+      setVoteReceived(todayISO());
+      setVoteNote("");
+      setVoteChoice("go");
+    }
+  };
+
   const openLaunchSequence = () => {
     const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
     if (!el) return;
@@ -617,6 +674,7 @@ function FilePage() {
       });
     },
     onSuccess: () => {
+      setActionDialog(null);
       setBanner("The poll is open. Reviewers can vote on the documents for that phase.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
@@ -660,6 +718,7 @@ function FilePage() {
     onSuccess: () => {
       setVoteRow(null);
       setVoteNote("");
+      setActionDialog(null);
       setBanner("The vote is recorded with the date it was received.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
@@ -696,7 +755,7 @@ function FilePage() {
   const shownPhases = mode === "novice" ? phases.slice(step || currentIndex, (step || currentIndex) + 1) : phases;
 
   const setDoc = useMutation({
-    mutationFn: async ({ doc, attach }: { doc: RequiredDoc; attach: boolean }) => {
+    mutationFn: async ({ doc, attach, reason }: { doc: RequiredDoc; attach: boolean; reason?: string }) => {
       if (!acq || !doc.field) return;
       const who = await signedInName(actorName);
       const value = doc.field === "jofoc_authority_citation" ? (attach ? "RFO FAR 6.301(a)(1)" : "") : attach;
@@ -739,7 +798,7 @@ function FilePage() {
           field: doc.field,
           old_value: String(acq[doc.field] ?? ""),
           new_value: String(value),
-          reason: doc.label,
+          reason: reason?.trim() || doc.label,
         },
         {
           acquisition_id: acq.acquisition_id,
@@ -806,14 +865,15 @@ function FilePage() {
   });
 
   const detachDoc = useMutation({
-    mutationFn: async (doc: RequiredDoc) => {
+    mutationFn: async ({ doc, reason }: { doc: RequiredDoc; reason: string }) => {
       const key = docKey(doc.field, doc.label);
       const row = attachmentFor(key);
-      if (row) await removeAttachment(row, actorName);
-      if (doc.field) await setDoc.mutateAsync({ doc, attach: false });
+      if (row) await removeAttachment(row, actorName, reason);
+      if (doc.field) await setDoc.mutateAsync({ doc, attach: false, reason });
       return doc.label;
     },
     onSuccess: (label) => {
+      setActionDialog(null);
       void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
       setBanner(`${label} removed. The row reads Missing again.`);
     },
@@ -894,9 +954,58 @@ function FilePage() {
       });
     },
     onSuccess: () => {
+      setActionDialog(null);
       setBanner("The acquisition is scrubbed and the reason is in the record.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
+    onError: (e: Error) => setActionError(`The acquisition was not scrubbed: ${e.message}. Try again.`),
+  });
+
+  const exitPhase = useMutation({
+    mutationFn: async ({ phase, reason }: { phase: string; reason: string }) => {
+      if (!acq) return;
+      if (!reason.trim()) throw new Error("Enter the reason for exiting this phase");
+      if (missingCurrentRequirements.length || pendingCurrentReviews.length) {
+        throw new Error("Complete every Required row and required review listed below before exiting");
+      }
+      const index = phases.findIndex((item) => item.phase === phase);
+      const next = index >= 0 ? phases[index + 1] : null;
+      if (!next) throw new Error("There is no next phase in this acquisition's plan");
+      const who = await signedInName(actorName);
+      const { data, error } = await supabase
+        .from("acquisition_facts")
+        .update({
+          current_phase: next.phase,
+          clock_state: "running",
+          hold_reason: null,
+          hold_owner: null,
+          hold_started_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("acquisition_id", acq.acquisition_id)
+        .eq("current_phase", phase)
+        .select("acquisition_id");
+      if (error) throw new Error(error.message);
+      if (!data?.length) throw new Error("The phase changed before this action finished. Refresh and try again");
+      const { error: auditError } = await supabase.from("audit_log").insert({
+        acquisition_id: acq.acquisition_id,
+        actor: who,
+        action: `Phase exited: ${phase} → ${next.phase}`,
+        field: "current_phase",
+        old_value: phase,
+        new_value: next.phase,
+        reason: reason.trim(),
+        phase,
+      });
+      if (auditError) throw new Error(auditError.message);
+      return next.phase;
+    },
+    onSuccess: (next) => {
+      setActionDialog(null);
+      setBanner(`The ${next} phase has started and its clock is running.`);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setActionError(`${e.message}.`),
   });
 
   const launch = useMutation({
@@ -1224,14 +1333,16 @@ function FilePage() {
                       }}
                     />
                   </label>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={openLaunchSequence}
-                    className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
-                  >
+                ) : heroAction.label.startsWith("Exit ") && currentPhase ? (
+                  <Button onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>
                     {heroAction.label}
-                  </button>
+                  </Button>
+                ) : heroAction.label === "Open the poll" && currentPhase ? (
+                  <Button onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>
+                    {heroAction.label}
+                  </Button>
+                ) : (
+                  <Button onClick={openLaunchSequence}>{heroAction.label}</Button>
                 )}
               </div>
             ) : null}
@@ -1275,21 +1386,15 @@ function FilePage() {
             >
               Launched
             </button>
-            <button
+            <Button
               type="button"
-              onClick={() => {
-                const reason = window.prompt("Why is this acquisition being scrubbed?");
-                if (!reason?.trim()) return;
-                const sure = window.confirm(
-                  `Scrub ${acquisitionId}? The countdown stops and the file leaves the work queue and the clause change list. The audit history is kept. Reason: ${reason.trim()}`,
-                );
-                if (sure) scrub.mutate(reason.trim());
-              }}
-              className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
-              style={{ color: "var(--atrisk)" }}
+              variant="outline"
+              size="sm"
+              onClick={() => showActionDialog({ kind: "scrub" })}
+              className="text-destructive"
             >
               Scrub with a reason
-            </button>
+            </Button>
           </>
         ) : null}
         <Link
@@ -1625,7 +1730,11 @@ function FilePage() {
                   );
                   const busy = attachDoc.isPending || detachDoc.isPending;
                   return (
-                    <li key={d.label} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]">
+                    <li
+                      id={requirementId(p.phase, d.label)}
+                      key={d.label}
+                      className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]"
+                    >
                       <span>{d.label}</span>
                       <span className="text-[13px] text-muted-foreground">
                         {d.optional ? "Offered" : "Required"}
@@ -1671,7 +1780,7 @@ function FilePage() {
                               <button
                                 type="button"
                                 disabled={busy}
-                                onClick={() => detachDoc.mutate(d)}
+                                onClick={() => showActionDialog({ kind: "remove", doc: d })}
                                 className="text-[13px] text-primary disabled:opacity-60"
                               >
                                 Remove the external copy
@@ -1755,7 +1864,7 @@ function FilePage() {
                               <button
                                 type="button"
                                 disabled={busy}
-                                onClick={() => detachDoc.mutate(d)}
+                                onClick={() => showActionDialog({ kind: "remove", doc: d })}
                                 className="text-[13px] text-primary disabled:opacity-60"
                               >
                                 Remove
@@ -2363,7 +2472,7 @@ function FilePage() {
 
 
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
-                <div className="mt-3 max-w-[80ch] border border-border">
+                <div id={`poll-${p.phase}`} className="mt-3 max-w-[80ch] border border-border">
                   <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
                       Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
@@ -2408,80 +2517,15 @@ function FilePage() {
                                 <ExplainThis explanation={explainReview(b, acq as AcqRow)} />
                               </span>
                               {canWrite && b.poll_id ? (
-                                voteRow === b.poll_id ? (
-                                  <div className="mt-2 space-y-2 text-[13px] text-foreground">
-                                    <label className="block">
-                                      Date received
-                                      <input
-                                        type="date"
-                                        value={voteReceived}
-                                        onChange={(e) => setVoteReceived(e.target.value)}
-                                        className="ml-2 rounded-lg border border-input px-2 py-1"
-                                      />
-                                    </label>
-                                    <label className="block">
-                                      Note
-                                      <input
-                                        type="text"
-                                        value={voteNote}
-                                        onChange={(e) => setVoteNote(e.target.value)}
-                                        placeholder="Required for a No-go"
-                                        className="ml-2 w-56 rounded-lg border border-input px-2 py-1"
-                                      />
-                                    </label>
-                                    <div className="flex flex-wrap gap-2">
-                                      <button
-                                        type="button"
-                                        disabled={recordVote.isPending}
-                                        onClick={() =>
-                                          recordVote.mutate({
-                                            entry: b,
-                                            choice: "go",
-                                            received: voteReceived,
-                                            note: voteNote,
-                                          })
-                                        }
-                                        className="rounded-lg border border-input px-3 py-1 text-primary"
-                                      >
-                                        Go
-                                      </button>
-                                      <button
-                                        type="button"
-                                        disabled={recordVote.isPending}
-                                        onClick={() =>
-                                          recordVote.mutate({
-                                            entry: b,
-                                            choice: "no-go",
-                                            received: voteReceived,
-                                            note: voteNote,
-                                          })
-                                        }
-                                        className="rounded-lg border border-input px-3 py-1"
-                                      >
-                                        No-go
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => setVoteRow(null)}
-                                        className="px-2 py-1 text-muted-foreground"
-                                      >
-                                        Cancel
-                                      </button>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setVoteRow(b.poll_id ?? null);
-                                      setVoteReceived(todayISO());
-                                      setVoteNote("");
-                                    }}
-                                    className="mt-2 block text-[13px] text-primary"
-                                  >
-                                    Record vote
-                                  </button>
-                                )
+                                <Button
+                                  type="button"
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => showActionDialog({ kind: "vote", entry: b })}
+                                  className="mt-1 h-auto p-0"
+                                >
+                                  Record vote
+                                </Button>
                               ) : null}
                             </td>
                           </tr>
@@ -2497,13 +2541,15 @@ function FilePage() {
                   </table>
                   {canWrite && (boards[p.phase] ?? []).some((b) => !b.poll_id) ? (
                     <div className="border-t border-border p-2">
-                      <button
+                      <Button
                         type="button"
-                        onClick={() => openPoll.mutate(p.phase)}
-                        className="text-[13px] text-primary"
+                        variant="link"
+                        size="sm"
+                        onClick={() => showActionDialog({ kind: "open-poll", phase: p.phase })}
+                        className="h-auto p-0"
                       >
                         Open the poll for {p.phase}
-                      </button>
+                      </Button>
                     </div>
                   ) : null}
                 </div>
@@ -2629,6 +2675,157 @@ function FilePage() {
           </tbody>
         </table>
       </section>
+
+      <Dialog
+        open={actionDialog !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActionDialog(null);
+            setActionError(null);
+            setVoteRow(null);
+          }
+        }}
+      >
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {actionDialog?.kind === "exit"
+                ? `Exit ${actionDialog.phase}`
+                : actionDialog?.kind === "scrub"
+                  ? `Scrub ${acquisitionId}`
+                  : actionDialog?.kind === "remove"
+                    ? `Remove ${actionDialog.doc.label}`
+                    : actionDialog?.kind === "vote"
+                      ? `Record ${actionDialog.entry.reviewer_role} vote`
+                      : actionDialog?.kind === "open-poll"
+                        ? `Open the ${actionDialog.phase} poll`
+                        : "Confirm action"}
+            </DialogTitle>
+            <DialogDescription>
+              {actionDialog?.kind === "exit"
+                ? "This completes the current phase, records the reason, and starts the next phase clock."
+                : actionDialog?.kind === "scrub"
+                  ? "This stops the countdown and removes the file from active work queues while keeping its audit history."
+                  : actionDialog?.kind === "remove"
+                    ? "This removes the file copy and marks the requirement Missing again."
+                    : actionDialog?.kind === "vote"
+                      ? `This records the vote received from ${actionDialog.entry.reviewer_name} in the file audit history.`
+                      : "This creates one pending seat for every required reviewer using the current Center reviewer table."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {actionDialog?.kind === "exit" && (missingCurrentRequirements.length || pendingCurrentReviews.length) ? (
+            <div className="border-l-2 border-destructive pl-3 text-[13px]">
+              <p className="font-medium">The phase cannot exit until these Required items are complete:</p>
+              <ul className="mt-2 space-y-2">
+                {missingCurrentRequirements.map((doc) => {
+                  const generator = generatorKey(doc);
+                  return (
+                    <li key={doc.label}>
+                      {generator && doc.templateKey ? (
+                        <Link
+                          to="/documents/$templateKey/$acquisitionId"
+                          params={{ templateKey: doc.templateKey, acquisitionId }}
+                          className="text-primary underline"
+                        >
+                          {doc.label}
+                        </Link>
+                      ) : generator && doc.formKey ? (
+                        <Link
+                          to="/forms/$formKey/$acquisitionId"
+                          params={{ formKey: doc.formKey, acquisitionId }}
+                          className="text-primary underline"
+                        >
+                          {doc.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={`#${requirementId(actionDialog.phase, doc.label)}`}
+                          onClick={() => setActionDialog(null)}
+                          className="text-primary underline"
+                        >
+                          {doc.label}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
+                {pendingCurrentReviews.map((entry) => (
+                  <li key={entry.reviewer_role}>
+                    <a href={`#poll-${actionDialog.phase}`} onClick={() => setActionDialog(null)} className="text-primary underline">
+                      {entry.reviewer_role}: vote pending
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {actionDialog?.kind === "vote" ? (
+            <div className="space-y-4">
+              <fieldset>
+                <legend className="mb-2 text-[13px] font-medium">Vote</legend>
+                <div className="flex gap-4">
+                  {(["go", "no-go"] as const).map((choice) => (
+                    <label key={choice} className="flex items-center gap-2 text-[15px]">
+                      <input type="radio" name="vote-choice" checked={voteChoice === choice} onChange={() => setVoteChoice(choice)} />
+                      {choice === "go" ? "Go" : "No-go"}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+              <label className="block text-[13px]" htmlFor="vote-received">
+                Date received
+                <input id="vote-received" type="date" value={voteReceived} onChange={(e) => setVoteReceived(e.target.value)} className="mt-1 block h-9 w-full rounded-lg border border-input bg-background px-3" />
+              </label>
+              <label className="block text-[13px]" htmlFor="vote-note">
+                {voteChoice === "no-go" ? "Reason" : "Note (optional)"}
+                <textarea id="vote-note" value={voteNote} onChange={(e) => setVoteNote(e.target.value)} className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2" />
+              </label>
+            </div>
+          ) : actionDialog?.kind === "exit" || actionDialog?.kind === "scrub" || actionDialog?.kind === "remove" ? (
+            <label className="block text-[13px]" htmlFor="action-reason">
+              Reason
+              <textarea
+                id="action-reason"
+                value={actionReason}
+                onChange={(e) => setActionReason(e.target.value)}
+                className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2"
+              />
+            </label>
+          ) : null}
+
+          {actionError ? <p role="alert" className="text-[13px] text-destructive">{actionError}</p> : null}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setActionDialog(null)}>Cancel</Button>
+            <Button
+              disabled={
+                !actionDialog ||
+                ((actionDialog.kind === "exit" || actionDialog.kind === "scrub" || actionDialog.kind === "remove") && !actionReason.trim()) ||
+                (actionDialog.kind === "exit" && Boolean(missingCurrentRequirements.length || pendingCurrentReviews.length)) ||
+                (actionDialog.kind === "vote" && voteChoice === "no-go" && !voteNote.trim()) ||
+                exitPhase.isPending || scrub.isPending || detachDoc.isPending || openPoll.isPending || recordVote.isPending
+              }
+              onClick={async () => {
+                if (!actionDialog) return;
+                setActionError(null);
+                try {
+                  if (actionDialog.kind === "exit") await exitPhase.mutateAsync({ phase: actionDialog.phase, reason: actionReason });
+                  if (actionDialog.kind === "scrub") await scrub.mutateAsync(actionReason);
+                  if (actionDialog.kind === "remove") await detachDoc.mutateAsync({ doc: actionDialog.doc, reason: actionReason });
+                  if (actionDialog.kind === "open-poll") await openPoll.mutateAsync(actionDialog.phase);
+                  if (actionDialog.kind === "vote") await recordVote.mutateAsync({ entry: actionDialog.entry, choice: voteChoice, received: voteReceived, note: voteNote });
+                  setActionDialog(null);
+                } catch (error) {
+                  setActionError(error instanceof Error ? error.message : "That action did not finish. Try again.");
+                }
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <section className="mb-10">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>

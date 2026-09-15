@@ -133,7 +133,7 @@ export async function uploadAttachment(input: {
   return data as AttachmentRow;
 }
 
-export async function removeAttachment(row: AttachmentRow, actorGiven: string): Promise<void> {
+export async function removeAttachment(row: AttachmentRow, actorGiven: string, reason?: string): Promise<void> {
   const actor = await signedInName(actorGiven);
   const { error } = await supabase
     .from("document_attachments")
@@ -153,7 +153,7 @@ export async function removeAttachment(row: AttachmentRow, actorGiven: string): 
     field: row.doc_key,
     old_value: row.file_name,
     new_value: null,
-    reason: `${row.doc_label} removed from the contract file`,
+    reason: reason?.trim() || `${row.doc_label} removed from the contract file`,
   } as never);
 }
 
