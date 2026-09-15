@@ -22,6 +22,13 @@ export type FieldDef = {
   bind?: string;
   options?: string[];
   required?: boolean;
+  /**
+   * Required before the phase can be exited, not to save a version. The phase
+   * lists it; the save never blocks on it and the export prints a blank line.
+   */
+  requiredAtExit?: boolean;
+  /** Value the field carries before anyone types in it. */
+  default?: string;
   help?: string;
   showIf?: (v: Values) => boolean;
 };
@@ -340,7 +347,9 @@ const jofoc: TemplateDef = {
           key: "notice_date",
           label: "Date the notice was published to the Government Point of Entry",
           kind: "date",
-          required: true,
+          // Fills from the notice of intent once it is posted; required to
+          // exit the Synopsis phase, not to save a version.
+          requiredAtExit: true,
           showIf: (v) => !isUrgency(v),
         },
         {
@@ -392,7 +401,7 @@ const jofoc: TemplateDef = {
       citation: "FAR 6.104-1(a)(9)",
       tier: "binding",
       fields: [
-        { key: "other_facts", label: "Other facts, or none", kind: "textarea", required: true },
+        { key: "other_facts", label: "Other facts, or none", kind: "textarea", default: "None" },
         {
           key: "duplicated_cost",
           label: "Estimated cost of duplicated work and how it was derived",
@@ -429,7 +438,8 @@ const jofoc: TemplateDef = {
           key: "interested_sources",
           label: "Posting and closing dates, sources, responses and their disposition",
           kind: "textarea",
-          required: true,
+          // Fills from the saved notice; required to exit Synopsis, not to save.
+          requiredAtExit: true,
           help: "If a notice was not required, describe the exception and why it applies.",
         },
       ],
@@ -2430,7 +2440,7 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
     for (const f of s.fields) {
       const raw = f.bind ? acq[f.bind] : undefined;
       if (raw === null || raw === undefined || raw === "") {
-        out[f.key] = "";
+        out[f.key] = f.default ?? "";
         continue;
       }
       out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
@@ -2438,12 +2448,39 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   }
   // Carried so a section citation can follow the record's acquisition method.
   out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
+  if (def.key === "jofoc" && !out["action_type"]) {
+    // A sole-source record opens on the action it is: the CO can change it.
+    const competition = String(acq["competition"] ?? "").toLowerCase();
+    if (competition.includes("sole") || competition.includes("brand")) out["action_type"] = "Sole-source contract";
+  }
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
     out["response_period_basis"] =
       "At least 15 days from posting, unless an exception in RFO FAR 5.203 applies.";
   }
   return out;
+}
+
+/**
+ * The requester's technical representative on the record. One field, read the
+ * same way on the page, the export and the requisition.
+ */
+export function technicalRepresentative(acq: Record<string, unknown>): string {
+  const cor = String(acq["cor_name"] ?? "").trim();
+  if (cor) return cor;
+  return String(acq["requester_name"] ?? "").trim();
+}
+
+/**
+ * The approving official's title. When the value sits inside the contracting
+ * officer's tier, the approval is the contracting officer's and nothing else
+ * is printed; a routing note that is not a title never prints as one.
+ */
+export function approvingOfficialTitle(routingTitle: string | null | undefined, withinCoTier: boolean): string {
+  if (withinCoTier) return "Contracting Officer";
+  const title = (routingTitle ?? "").trim();
+  if (!title || /^per\s+far/i.test(title) || /approval level/i.test(title)) return "Contracting Officer";
+  return title;
 }
 
 export function visibleSections(def: TemplateDef, v: Values): SectionDef[] {
@@ -2454,6 +2491,10 @@ export function visibleFields(s: SectionDef, v: Values): FieldDef[] {
   return s.fields.filter((f) => !f.showIf || f.showIf(v));
 }
 
+/**
+ * Fields still to complete. A version saves with any field empty, so this is a
+ * list shown on the form and on the phase, never a gate on the save.
+ */
 export function validate(def: TemplateDef, v: Values): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const s of visibleSections(def, v)) {

@@ -87,6 +87,6 @@ export function holdFromRecord(
   keys?: Set<string>,
   saved?: Set<string>,
 ): Hold {
-  const phases = buildSequence(acq, plan, todayISO(), daysBetween);
+  const phases = buildSequence(acq, plan, todayISO(), daysBetween, { attachedKeys: keys, savedKeys: saved });
   return resolveHold(acq, phases, [], keys, saved);
 }

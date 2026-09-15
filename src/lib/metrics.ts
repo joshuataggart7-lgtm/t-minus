@@ -124,7 +124,10 @@ export function computeMetrics(
   },
 ): AcqMetrics {
   const today = opts.today ?? todayISO();
-  const phases = buildSequence(acq, opts.plan, today, daysBetween);
+  const phases = buildSequence(acq, opts.plan, today, daysBetween, {
+    attachedKeys: opts.attachedKeys,
+    savedKeys: opts.savedKeys,
+  });
   const allBoards = REVIEW_PHASES.flatMap((phase) =>
     pollBoard(
       acq,

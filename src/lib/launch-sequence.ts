@@ -659,6 +659,12 @@ export function buildSequence(
   plan: PhasePlanRow[],
   todayISO: string,
   daysBetween: (a: string, b: string) => number,
+  /**
+   * What the caller knows about documents: which rows have a stored file and
+   * which generated documents have a saved version. A phase behind the current
+   * one reads In work while one of its required documents is still missing.
+   */
+  known?: { attachedKeys?: Set<string> | undefined; savedKeys?: Set<string> | undefined },
 ): PhaseView[] {
   const type = acquisitionType(acq);
   const rows = plan
@@ -671,24 +677,39 @@ export function buildSequence(
   const baseline = acq.regulatory_baseline_date ?? null;
   const elapsed = baseline ? Math.max(0, daysBetween(baseline, todayISO)) : null;
 
+  const unfinished = (phase: string, docs: RequiredDoc[]) => {
+    if (!known) return false;
+    return docs.some((d) => {
+      if (d.optional) return false;
+      if (generatorKey(d) && !d.field && !known.savedKeys) return false;
+      const hasFile = known.attachedKeys ? known.attachedKeys.has(docRowKey(d)) : undefined;
+      return docSatisfied(d, acq, hasFile, known.savedKeys) === false;
+    });
+  };
+
   let cumulative = 0;
   return rows.map((r, i) => {
     const planned = r.planned_days ?? 0;
     const before = cumulative;
     cumulative += planned;
-    const status: PhaseView["status"] =
+    const phaseName = r.phase as string;
+    const docs = requiredDocs(phaseName, acq);
+    let status: PhaseView["status"] =
       currentIndex < 0 ? "upcoming" : i < currentIndex ? "complete" : i === currentIndex ? "current" : "upcoming";
+    // A phase cannot read Complete while one of its required documents is
+    // still missing; it reads In work until the row is satisfied.
+    if (status === "complete" && unfinished(phaseName, docs)) status = "current";
     let actual: number | null = null;
     if (status === "complete") actual = planned;
     if (status === "current" && elapsed !== null) actual = Math.max(0, elapsed - before);
-    const phase = r.phase as string;
+    const phase = phaseName;
     return {
       phase,
       planned_days: planned,
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
-      docs: requiredDocs(phase, acq),
+      docs,
       citation: PHASE_CITATIONS[phase] ?? "",
       guidance: PHASE_GUIDANCE[phase] ?? "",
       needsPoll: phase === "Go/No-go Poll",
