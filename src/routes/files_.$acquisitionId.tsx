@@ -77,6 +77,9 @@ import {
   explainWarrant,
 } from "@/lib/explain";
 import { successorFor } from "@/lib/successor";
+import { VehiclePanel } from "@/components/vehicle-panel";
+import { ModificationsPanel } from "@/components/modifications-panel";
+import { CloseoutPanel } from "@/components/closeout-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, holdSince } from "@/lib/metrics";
 import {
@@ -1666,6 +1669,23 @@ function FilePage() {
           </ul>
         </section>
       ) : null}
+
+      <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
+
+      <ModificationsPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+      />
+
+      <CloseoutPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+        cparsRecorded={(q.data?.log ?? []).some((r) => /cpars/i.test(`${r.action ?? ""} ${r.field ?? ""}`))}
+      />
 
       <ClauseModTasks acquisitionId={acquisitionId} />
 

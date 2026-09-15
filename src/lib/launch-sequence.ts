@@ -7,6 +7,13 @@
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, triggeredDocs } from "@/lib/scenario";
+import {
+  acquisitionProfile,
+  exceptionLabel,
+  fssOrderCitation,
+  isOrderProfile,
+  vehicleOf,
+} from "@/lib/vehicles";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -110,6 +117,10 @@ export type RequiredDoc = {
 };
 
 export function acquisitionType(acq: AcqRow) {
+  // A vehicle answered at intake decides the phase plan: a parent IDIQ, an
+  // order under one, a BPA, or a schedule order each run their own sequence.
+  const profile = acquisitionProfile(acq as Record<string, unknown>);
+  if (profile !== "new_contract") return profile;
   return /sole/i.test(String(acq.competition ?? ""))
     ? "commercial_ffp_13_5_sole_source"
     : "commercial_ffp_13_5_competed";
@@ -151,6 +162,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
   JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
   Synopsis: "RFO FAR 5.203; FAR 12.603 (combined synopsis/solicitation)",
+  "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
   "Solicitation/Quote": "FAR 12.603; NFS CG 1804.11 (NCMS is the system of record)",
   "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
   "Price Reasonableness": "FAR 12.204(b)(1); FAR 13.106-3",
@@ -169,6 +181,8 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   JOFOC:
     "Only for a sole source. Write the justification, cite the authority, and route it for the approval its dollar tier calls for.",
   Synopsis: "Post the notice so the market can see it. Commercial buys may combine notice and solicitation.",
+  "Fair Opportunity":
+    "Give every awardee under the vehicle a fair opportunity to be considered, or record the exception the contracting officer relies on.",
   "Solicitation/Quote":
     "Build the solicitation in NCMS. T-Minus hands over the facts, the clause list, and the attachments.",
   "Technical Evaluation": "Judge each quote against the stated criteria. Record who evaluated and why.",
@@ -386,16 +400,86 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             ]),
       ];
     }
-    case "Price Reasonableness":
+    case "Fair Opportunity": {
+      const profile = acquisitionProfile(acq as Record<string, unknown>);
+      const value = Number(acq?.estimated_value ?? 0);
+      const vehicle = vehicleOf(acq as Record<string, unknown>);
+      const exception =
+        vehicle.fair_opportunity === "competed" ? null : exceptionLabel(String(vehicle.fair_opportunity));
+      const schedule = profile === "fss_order";
+      const rows: RequiredDoc[] = [
+        {
+          label: schedule
+            ? "Record of the schedule ordering procedures followed"
+            : "Fair opportunity record: every awardee considered",
+          citation: schedule ? fssOrderCitation(value) : "FAR 16.505(b)(1)",
+          docKey: "fair-opportunity-record",
+          tab: "010",
+          attachOnly: true,
+          note: schedule
+            ? "The ordering procedure follows the order value."
+            : "Record how each awardee under the vehicle was given a fair opportunity to be considered.",
+        },
+      ];
+      if (exception) {
+        rows.push(
+          exception.key === "brand_name"
+            ? {
+                label: "Fair opportunity exception: brand name justification",
+                citation: exception.citation,
+                link: "templates",
+                templateKey: "fair-opportunity-brand-name",
+              }
+            : {
+                label: `Fair opportunity exception: ${exception.label.toLowerCase()} justification`,
+                citation: exception.citation,
+                docKey: `fair-opportunity-${exception.key}`,
+                tab: "010",
+                attachOnly: true,
+              },
+        );
+      }
+      if (schedule && /sole|limited|brand/i.test(String(acq?.competition ?? ""))) {
+        rows.push({
+          label: "Limited sources justification",
+          citation: "FAR 8.405-6",
+          docKey: "limited-sources-justification",
+          tab: "010",
+          attachOnly: true,
+        });
+      }
+      // Small business coordination is not a vehicle question: it applies to an
+      // order above the micro-purchase threshold unless the parent vehicle was
+      // itself set aside.
+      const parentSetAside = Boolean(String(acq?.set_aside ?? "").trim());
+      rows.push({
+        label: "NF 1787 small business coordination",
+        citation: "NFS 1819.202-70",
+        link: "form",
+        formKey: "nf-1787",
+        optional: value <= MICRO_PURCHASE || parentSetAside,
+        note: parentSetAside
+          ? "Offered: the parent vehicle was set aside, so the order carries the set-aside."
+          : value <= MICRO_PURCHASE
+            ? "Offered at or below the micro-purchase threshold."
+            : "Required on an order above the micro-purchase threshold.",
+      });
+      return rows;
+    }
+    case "Price Reasonableness": {
+      const order = isOrderProfile(acquisitionProfile(acq as Record<string, unknown>));
       return [
         {
           label: "Price negotiation memorandum (PNM)",
-          citation: "FAR 12.204(b)(1)",
+          citation: order ? "FAR 16.505(b)(3)" : "FAR 12.204(b)(1)",
           link: "templates",
           templateKey: "pnm",
-          note: "The PNM is the price reasonableness determination of record. No separate determination is generated.",
+          note: order
+            ? "The contracting officer determines the order price fair and reasonable under FAR 16.505(b)(3). The PNM is the determination of record."
+            : "The PNM is the price reasonableness determination of record. No separate determination is generated.",
         },
       ];
+    }
     case "Responsibility Check":
       return [
         {
@@ -417,11 +501,32 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       ];
     case "Go/No-go Poll":
       return [{ label: "Recorded votes from every required reviewer", citation: "Center policy" }];
-    case "Award":
+    case "Award": {
+      const profile = acquisitionProfile(acq as Record<string, unknown>);
+      if (isOrderProfile(profile))
+        return [
+          {
+            label: "NCMS handoff packet in order form",
+            citation: "NFS CG 1804.11",
+            link: "packet",
+            note: "The order document of record is written in NCMS from this packet.",
+          },
+          {
+            label: "Order document signed (written in NCMS)",
+            citation: profile === "fss_order" ? "FAR 8.405-3" : "FAR 16.505(a)",
+            link: "packet",
+          },
+        ];
+      if (profile === "bpa")
+        return [
+          { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+          { label: "Blanket purchase agreement signed (written in NCMS)", citation: "FAR 13.303-3", link: "packet" },
+        ];
       return [
         { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
         { label: "SF 1449 award document (written in NCMS)", citation: "FAR 12.204", link: "packet" },
       ];
+    }
     case "FPDS-NG Report":
       return [{ label: "FPDS-NG contract action report", citation: "FAR 4.604" }];
     case "Administration":
@@ -454,6 +559,18 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           optional: true,
           note: "Applies when the contract includes option line items.",
         },
+        ...(acquisitionProfile(acq as Record<string, unknown>) === "bpa"
+          ? [
+              {
+                label: "Annual review of the blanket purchase agreement",
+                citation: "FAR 13.303-6(b)",
+                docKey: "bpa-annual-review",
+                tab: "110",
+                attachOnly: true,
+                note: "Review the agreement at least once a year: prices, sources, and whether it is still advantageous.",
+              } as RequiredDoc,
+            ]
+          : []),
         {
           label: "SF 30 modification handoff packet",
           citation: "FAR 43.301; NFS CG 1804.11",
@@ -468,6 +585,13 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           citation: "FAR 4.804-5",
           link: "templates",
           templateKey: "closeout-checklist",
+        },
+        {
+          label: "Closeout record: deobligation, final invoice, release of claims, property",
+          citation: "FAR 4.804-5(a)",
+          docKey: "closeout-record",
+          tab: "120",
+          note: "Entered on the closeout panel of this file; the checklist reads those values.",
         },
         { label: "Contract file complete and retained", citation: "FAR 4.801; FAR 4.805" },
       ];
