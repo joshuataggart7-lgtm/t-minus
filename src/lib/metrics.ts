@@ -116,6 +116,8 @@ export function computeMetrics(
     roster?: ReviewerPerson[];
     /** Document keys with a stored file, so a cleared cause never lingers. */
     attachedKeys?: Set<string>;
+    /** Generator keys with a saved version, so a written document clears its row. */
+    savedKeys?: Set<string>;
   },
 ): AcqMetrics {
   const today = opts.today ?? todayISO();
@@ -139,7 +141,7 @@ export function computeMetrics(
   });
   const scrubbed = acq.status === "scrubbed" || acq.clock_state === "scrubbed";
   const launched = acq.clock_state === "launched";
-  const hold = launched || scrubbed ? null : resolveHold(acq, phases, board, opts.attachedKeys);
+  const hold = launched || scrubbed ? null : resolveHold(acq, phases, board, opts.attachedKeys, opts.savedKeys);
   const clockState =
     launched || scrubbed
       ? (launched ? "launched" : "scrubbed")
