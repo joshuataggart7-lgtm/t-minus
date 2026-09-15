@@ -22,6 +22,13 @@ export type FieldDef = {
   bind?: string;
   options?: string[];
   required?: boolean;
+  /**
+   * Required before the phase can be exited, not to save a version. The phase
+   * lists it; the save never blocks on it and the export prints a blank line.
+   */
+  requiredAtExit?: boolean;
+  /** Value the field carries before anyone types in it. */
+  default?: string;
   help?: string;
   showIf?: (v: Values) => boolean;
 };
@@ -431,7 +438,8 @@ const jofoc: TemplateDef = {
           key: "interested_sources",
           label: "Posting and closing dates, sources, responses and their disposition",
           kind: "textarea",
-          required: true,
+          // Fills from the saved notice; required to exit Synopsis, not to save.
+          requiredAtExit: true,
           help: "If a notice was not required, describe the exception and why it applies.",
         },
       ],
@@ -2456,6 +2464,10 @@ export function visibleFields(s: SectionDef, v: Values): FieldDef[] {
   return s.fields.filter((f) => !f.showIf || f.showIf(v));
 }
 
+/**
+ * Fields still to complete. A version saves with any field empty, so this is a
+ * list shown on the form and on the phase, never a gate on the save.
+ */
 export function validate(def: TemplateDef, v: Values): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const s of visibleSections(def, v)) {
