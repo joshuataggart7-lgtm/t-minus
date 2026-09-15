@@ -94,7 +94,7 @@ export function ExecutiveOverview() {
       ]);
       const [centers, users, documents, templateRows] = await Promise.all([
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
-        supabase.from("users").select("name,role,center_code,supervisor_name,supervisor_email"),
+        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
         supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
         supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);

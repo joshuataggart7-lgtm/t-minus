@@ -51,7 +51,7 @@ function EscalationsPage() {
           ),
         supabase.from("polls").select("*"),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days").order("center_code"),
-        supabase.from("users").select("name,role,center_code,supervisor_name,supervisor_email"),
+        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
       ]);
       return {
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
