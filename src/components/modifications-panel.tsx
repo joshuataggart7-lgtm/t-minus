@@ -5,7 +5,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { signedInName } from "@/lib/actor";
+import { signedInName } from "@/lib/account-name";
 import {
   MOD_TYPES,
   modRows,
