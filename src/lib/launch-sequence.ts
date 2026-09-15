@@ -6,7 +6,7 @@
 
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
-import { jofocVariant, triggeredDocs } from "@/lib/scenario";
+import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import {
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
   acquisitionProfile,
