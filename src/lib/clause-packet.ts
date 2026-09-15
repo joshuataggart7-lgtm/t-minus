@@ -21,21 +21,23 @@ export type ClauseRow = {
 
 export type ThresholdRow = { name: string | null; value: number | null; citation?: string | null };
 
-export type PacketFacts = {
-  acquisition_method?: string | null;
-  competition?: string | null;
-  set_aside?: string | null;
-  contract_type?: string | null;
-  hybrid_contract_type?: string | null;
-  estimated_value?: number | null;
-  place_of_performance?: string | null;
-  place_of_performance_standardized?: string | null;
-  hardware_deliverable?: boolean | null;
-  includes_it?: boolean | null;
-  commercial_determination?: string | null;
-  contract_format?: string | null;
-  post_award?: unknown;
+export type PacketFacts = Record<string, unknown> & {
+  acquisition_id?: unknown;
 };
+
+function str(f: PacketFacts, key: string): string {
+  const v = f[key];
+  return typeof v === "string" ? v : "";
+}
+function bool(f: PacketFacts, key: string): boolean {
+  return f[key] === true;
+}
+function num(f: PacketFacts, key: string): number {
+  const v = f[key];
+  if (typeof v === "number") return v;
+  if (typeof v === "string" && v.trim() !== "" && Number.isFinite(Number(v))) return Number(v);
+  return 0;
+}
 
 export type PacketClause = {
   clause_number: string;
@@ -160,7 +162,7 @@ const RULES: Rule[] = [
     title: "Notice of Total Small Business Set-Aside",
     applies: (c) =>
       /total small business/i.test(c.setAside)
-        ? `Set-aside on the record: ${c.f.set_aside} (FAR 19.507(a)).`
+        ? `Set-aside on the record: ${c.setAside} (FAR 19.507(a)).`
         : null,
   },
   {
@@ -234,22 +236,22 @@ const RULES: Rule[] = [
     number: "52.216-7",
     title: "Allowable Cost and Payment",
     applies: (c) =>
-      c.costReimbursement ? `Contract type on the record: ${c.f.contract_type} (FAR 16.307(a)).` : null,
+      c.costReimbursement ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.307(a)).` : null,
   },
   {
     number: "52.216-18",
     title: "Ordering",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f.contract_type} (FAR 16.506(a)).` : null),
+    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(a)).` : null),
   },
   {
     number: "52.216-19",
     title: "Order Limitations",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f.contract_type} (FAR 16.506(b)).` : null),
+    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(b)).` : null),
   },
   {
     number: "52.216-22",
     title: "Indefinite Quantity",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f.contract_type} (FAR 16.506(e)).` : null),
+    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(e)).` : null),
   },
   {
     number: "52.217-8",
@@ -286,7 +288,7 @@ const RULES: Rule[] = [
     title: "Inspection of Services—Fixed-Price",
     applies: (c) =>
       c.services && /ffp|firm[- ]fixed|fixed[- ]price/i.test(c.type)
-        ? `Fixed-price services (${c.f.contract_type}) (FAR 46.304).`
+        ? `Fixed-price services (${c.f["contract_type"]}) (FAR 46.304).`
         : null,
   },
   {
@@ -357,11 +359,11 @@ export function selectPacketClauses(
   thresholds: ThresholdRow[],
 ): PacketClause[] {
   if (!facts) return [];
-  const value = typeof facts.estimated_value === "number" ? facts.estimated_value : 0;
-  const type = `${facts.contract_type ?? ""} ${facts.hybrid_contract_type ?? ""}`;
-  const place = facts.place_of_performance_standardized || facts.place_of_performance || "";
-  const commercialText = `${facts.commercial_determination ?? ""} ${facts.contract_format ?? ""} ${facts.acquisition_method ?? ""}`;
-  const post = facts.post_award as { option_periods?: unknown[]; options?: unknown[] } | null | undefined;
+  const value = num(facts, "estimated_value");
+  const type = `${str(facts, "contract_type")} ${str(facts, "hybrid_contract_type")}`;
+  const place = str(facts, "place_of_performance_standardized") || str(facts, "place_of_performance");
+  const commercialText = `${str(facts, "commercial_determination")} ${str(facts, "contract_format")} ${str(facts, "acquisition_method")}`;
+  const post = facts["post_award"] as { option_periods?: unknown[]; options?: unknown[] } | null | undefined;
   const optionList = (post?.option_periods ?? post?.options) as unknown[] | undefined;
 
   const ctx: Ctx = {
@@ -370,18 +372,18 @@ export function selectPacketClauses(
     micro: thresholdValue(thresholds, "Micro-purchase threshold", 15000),
     sat: thresholdValue(thresholds, "Simplified acquisition threshold", 350000),
     subPlan: thresholdValue(thresholds, "Subcontracting plan", 900000),
-    method: facts.acquisition_method ?? "",
-    competition: facts.competition ?? "",
-    setAside: facts.set_aside ?? "",
+    method: str(facts, "acquisition_method"),
+    competition: str(facts, "competition"),
+    setAside: str(facts, "set_aside"),
     type,
     place,
-    commercial: /commercial/i.test(commercialText) || /sf 1449/i.test(facts.contract_format ?? ""),
-    hardware: facts.hardware_deliverable === true,
-    services: facts.hardware_deliverable !== true,
-    it: facts.includes_it === true,
+    commercial: /commercial/i.test(commercialText) || /sf 1449/i.test(str(facts, "contract_format")),
+    hardware: bool(facts, "hardware_deliverable"),
+    services: !bool(facts, "hardware_deliverable"),
+    it: bool(facts, "includes_it"),
     costReimbursement: /\bcp(ff|if|af)\b|cost/i.test(type),
     idiq: /idiq|indefinite/i.test(type),
-    soleSource: /sole source|limited source|brand name/i.test(`${facts.competition ?? ""} ${facts.acquisition_method ?? ""}`),
+    soleSource: /sole source|limited source|brand name/i.test(`${str(facts, "competition")} ${str(facts, "acquisition_method")}`),
     options: Array.isArray(optionList) && optionList.length > 0,
     onInstallation: INSTALLATION_HINTS.some((h) => place.toLowerCase().includes(h)),
     money,
