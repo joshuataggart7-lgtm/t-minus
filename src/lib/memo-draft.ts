@@ -582,7 +582,12 @@ function personPhrase(ctx: MemoDraftCtx, actor: string | null | undefined): stri
   const coName = str(ctx.acq["co_name"]);
   const title = str(row?.title);
   const displayName = row?.name ?? name;
-  if (title) return `the ${title.toLowerCase()}, ${displayName}`;
+  const narrativeTitle = /contracting specialist/i.test(title)
+    ? "contract specialist"
+    : /contracting officer/i.test(title)
+      ? "contracting officer"
+      : title.toLowerCase();
+  if (title) return `the ${narrativeTitle}, ${displayName}`;
   if (name === coName) return `the contracting officer, ${name}`;
   return `the specialist, ${name}`;
 }
@@ -629,7 +634,9 @@ export function chronologyResearchSentence(ctx: MemoDraftCtx): string | null {
   if (!research.length) return null;
   const runDate = research.map((line) => onlyDate(line.ranAt)).filter(Boolean).sort().at(-1) ?? "";
   const latest = research.filter((line) => onlyDate(line.ranAt) === runDate);
-  const sources = [...new Set(latest.map((line) => researchSourceName(line.source)).filter(Boolean))];
+  const sources = [
+    ...new Set(latest.filter((line) => line.count !== null).map((line) => researchSourceName(line.source)).filter(Boolean)),
+  ];
   const counts = researchCounts(ctx);
   const notices = latest
     .filter((line) => /opportunit|notice/i.test(line.source))

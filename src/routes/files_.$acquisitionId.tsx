@@ -516,7 +516,8 @@ function FilePage() {
     const hasResearch = (q.data?.researchRuns ?? []).length > 0;
     if (current === "Market Research" && !hasResearch) return { label: "Run market research" };
     for (const d of currentPhase.docs) {
-        if (d.optional || !d.field) continue;
+        const generator = generatorKey(d);
+        if (d.optional || (!d.field && !generator)) continue;
         const key = docKey(d.field, d.label);
         const state = docSatisfied(
           d,
@@ -525,7 +526,6 @@ function FilePage() {
           savedKeys,
         );
         if (state !== false) continue;
-        const generator = generatorKey(d);
         // A document T-Minus writes is opened, never asked for as an upload.
         if (generator) {
           const label = generator === "market-research-memo"
