@@ -262,7 +262,7 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           label: terRequired
             ? "NASA technical evaluation report"
             : "NASA technical evaluation report (offered)",
-          citation: terRequired ? "NFS 1815.305-70" : "FAR 13.106-2",
+          citation: terRequired ? "NFS CG 1815.45(b)" : "FAR 13.106-2",
           link: "templates",
           templateKey: "technical-evaluation-report",
           optional: !terRequired,
