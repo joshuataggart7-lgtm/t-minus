@@ -687,18 +687,31 @@ export function buildSequence(
     });
   };
 
+  const docsFor = rows.map((r) => requiredDocs(r.phase as string, acq));
+
+  // A phase is exited only when every required row in it is saved or attached.
+  // Where an earlier phase is still short a document, the file sits in that
+  // phase: the later phases have not started and their clocks do not run.
+  // Drafting a later document early is allowed; the order is enforced here.
+  const earliestOpen = rows.findIndex((r, i) => unfinished(r.phase as string, docsFor[i] ?? []));
+  const effectiveIndex =
+    earliestOpen >= 0 && (currentIndex < 0 || earliestOpen < currentIndex) ? earliestOpen : currentIndex;
+
   let cumulative = 0;
   return rows.map((r, i) => {
     const planned = r.planned_days ?? 0;
     const before = cumulative;
     cumulative += planned;
     const phaseName = r.phase as string;
-    const docs = requiredDocs(phaseName, acq);
-    let status: PhaseView["status"] =
-      currentIndex < 0 ? "upcoming" : i < currentIndex ? "complete" : i === currentIndex ? "current" : "upcoming";
-    // A phase cannot read Complete while one of its required documents is
-    // still missing; it reads In work until the row is satisfied.
-    if (status === "complete" && unfinished(phaseName, docs)) status = "current";
+    const docs = docsFor[i] ?? [];
+    const status: PhaseView["status"] =
+      effectiveIndex < 0
+        ? "upcoming"
+        : i < effectiveIndex
+          ? "complete"
+          : i === effectiveIndex
+            ? "current"
+            : "upcoming";
     let actual: number | null = null;
     if (status === "complete") actual = planned;
     if (status === "current" && elapsed !== null) actual = Math.max(0, elapsed - before);
