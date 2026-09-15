@@ -551,6 +551,8 @@ function IntakePage() {
   }
 
   const value = parseMoney(facts.estimated_value);
+  // The level-of-effort estimate the requester sees before the clock starts.
+  const intakeEstimate = scan && data.data ? estimate(inputsFromFacts(facts), data.data.ref) : null;
   const blocking = scan?.filter((f) => f.blocking) ?? [];
 
   return (
@@ -1098,6 +1100,28 @@ function IntakePage() {
         >
           Run the red-flag scan
         </button>
+
+        {scan && data.data ? (
+          <div className="mt-6 max-w-[80ch] border border-border p-4">
+            <h2 className="text-[18px] leading-6 font-medium">Expected effort and time to award</h2>
+            <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
+            <ul className="mt-2 text-[13px] text-muted-foreground">
+              <li>
+                Months to award: {intakeEstimate?.monthsToAward}. Planned days to award:{" "}
+                {intakeEstimate?.plannedDaysToAward}.
+              </li>
+              <li>
+                Contracting hours: {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
+                {intakeEstimate?.hours.cs.toLocaleString("en-US")}, officer{" "}
+                {intakeEstimate?.hours.co.toLocaleString("en-US")}).
+              </li>
+              <li>Phases: {intakeEstimate?.phases.join(" · ")}</li>
+            </ul>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              This estimate is stored on the record as the estimate at intake when the clock starts.
+            </p>
+          </div>
+        ) : null}
 
         {scan ? (
           <div className="mt-6 rounded-lg border border-border bg-background p-6">
