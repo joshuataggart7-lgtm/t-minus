@@ -455,6 +455,25 @@ function IntakePage() {
         if (clinError) throw clinError;
       }
 
+      // Staged files upload now that the record exists, each with its own audit entry.
+      const labels: Record<string, string> = {
+        igce_attached: "IGCE",
+        sow_attached: "SOW/PWS",
+        pr: "Purchase request",
+        "nf-1707": "NF 1707 from the requester",
+      };
+      for (const [key, file] of Object.entries(docFiles)) {
+        if (!file) continue;
+        await uploadAttachment({
+          acquisitionId: next,
+          key,
+          label: labels[key] ?? key,
+          file,
+          actor: user.name,
+          parsedTotal: key === "igce_attached" ? igceTotal : null,
+        });
+      }
+
       if (profile) {
         await supabase.from("profiles").update({
           last_center_code: facts.center_code,
