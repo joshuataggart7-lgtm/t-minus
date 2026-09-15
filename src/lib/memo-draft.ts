@@ -155,10 +155,15 @@ export function researchLogLines(log: ResearchLogLine[] | undefined): string[] {
     const key = `${source}|${searched}|${onlyDate(l.ranAt)}|${l.count ?? l.outcome}`.toLowerCase();
     if (seen.has(key)) return [];
     seen.add(key);
+    // An export never prints an error body, a URL or JSON. A source that failed
+    // reads "not available (service error)"; the detail stays in the log.
+    const notRunReason = /not configured|not run|skipped|no api|publishes no search api/i.test(l.outcome)
+      ? "not available (not run)"
+      : "not available (service error)";
     const count = l.count === null
-      ? (/^not available\b/i.test(l.outcome)
+      ? (/^not available\b/i.test(l.outcome) && !/http|\{|\}/.test(l.outcome)
           ? l.outcome.toLowerCase()
-          : `not available (${/service error/i.test(l.outcome) ? "service error" : l.outcome.toLowerCase()})`)
+          : notRunReason)
       : `${l.count} result${l.count === 1 ? "" : "s"}`;
     return [`${source}, ${searched}; ${onlyDate(l.ranAt)}; ${count}`];
   });
