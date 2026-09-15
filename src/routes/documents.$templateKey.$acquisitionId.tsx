@@ -776,6 +776,18 @@ function DocumentPage() {
     // Every document is drafted from the record, section by section, so no
     // field the record can fill is ever opened empty.
     const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
+    if (def.key === "market-research-memo") {
+      const savedCommerciality = [...q.data.fileDocRows]
+        .reverse()
+        .find((row) => /commerciality determination/i.test(row.templates?.name ?? ""));
+      if (savedCommerciality?.field_values && typeof savedCommerciality.field_values === "object") {
+        const savedValues = savedCommerciality.field_values as Record<string, unknown>;
+        const determination = String(savedValues["determination"] ?? savedValues["commercial_determination"] ?? "").trim();
+        if (determination) draft["commercial"] = determination;
+      } else {
+        draft["commercial"] = "A commerciality determination will be recorded before solicitation.";
+      }
+    }
     const drafted = applyMemoDraft(filled, draft);
     setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
@@ -797,7 +809,7 @@ function DocumentPage() {
       centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
       centerAddress: q.data.center?.address_line ?? "",
       routing,
-      coName: String(q.data.acq["co_name"] ?? user.name),
+      coName: String(q.data.acq["co_name"] ?? coRecord?.name ?? ""),
       enclosures: def.key === "packet-transmittal-memo" ? enclosures : [],
       concurrence: board
         .filter((b) => b.reviewer_role)
@@ -809,7 +821,7 @@ function DocumentPage() {
     setMemoHeader(
       storedHeader && typeof storedHeader === "object" ? { ...built, ...(storedHeader as MemoHeader) } : built,
     );
-  }, [def, q.data, memoHeader, acquisitionId, user.name, enclosures, board]);
+  }, [def, q.data, memoHeader, acquisitionId, coRecord, enclosures, board]);
 
   // Memorandum for record: the opening line and, for a chronology, the body
   // are drafted again whenever the contracting officer changes the purpose.
@@ -856,6 +868,15 @@ function DocumentPage() {
   const errorCount = Object.keys(errors).length;
   const rendered = def ? renderDocument(def, values, acquisitionId, signature) : null;
   const memoDoc = rendered && memoHeader ? buildMemoDoc(rendered, memoHeader) : null;
+  const exportContext = def && q.data?.acq ? {
+    def,
+    values,
+    acquisitionId,
+    coName: String(q.data.acq["co_name"] ?? coRecord?.name ?? ""),
+    coTitle: "Contracting Officer",
+    approvingOfficialTitle: q.data.routing?.approving_official_title,
+    technicalRepresentativeName: String(q.data.acq["technical_representative_name"] ?? q.data.acq["requester_name"] ?? ""),
+  } : undefined;
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
   const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -1475,7 +1496,7 @@ function DocumentPage() {
             className="rounded-lg border border-border px-3 py-2 text-[15px]"
             onClick={() => {
               if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
-              else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`);
+               else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
             }}
           >
             Export Word
@@ -1490,10 +1511,9 @@ function DocumentPage() {
                 );
                 return;
               }
-              const ok = rendered ? exportPdf(rendered, headerLine) : true;
-              if (!ok) {
-                setMessage("The print window was blocked. Allow pop-ups for this site, then export again.");
-              }
+               if (rendered) void exportPdf(rendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
+                 setMessage("The PDF did not export. Try again, or export Word."),
+               );
             }}
           >
             Export PDF
