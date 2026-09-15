@@ -1062,13 +1062,14 @@ const limitationFutureContracting: TemplateDef = {
 
 // ------------------------------------------------ 10. D&F authority to exclude a source
 const EXCLUSION_CITATIONS = [
-  "FAR 6.202(a)(1)",
-  "FAR 6.202(a)(2)",
-  "FAR 6.202(a)(3)",
-  "FAR 6.202(a)(4)",
-  "FAR 6.202(a)(5)",
-  "FAR 6.202(a)(6)",
+  "FAR 6.102-1(a)(1)",
+  "FAR 6.102-1(a)(2)",
+  "FAR 6.102-1(a)(3)",
+  "FAR 6.102-1(a)(4)",
+  "FAR 6.102-1(a)(5)",
+  "FAR 6.102-1(a)(6)",
 ];
+
 
 const excludeSourceDandf: TemplateDef = {
   key: "exclude-source-dandf",
@@ -1076,15 +1077,16 @@ const excludeSourceDandf: TemplateDef = {
   tab: "021",
   layout: "dandf",
   badge: {
-    citation: "FAR 6.202; FAR 6.202(b); NFS 1806.202-70; 10 U.S.C. 3203(a)(1)",
+    citation: "FAR 6.102; FAR 6.102-1(a); NFS CG 1806.11; 10 U.S.C. 3203(a)(1)",
     tier: "binding",
-    revision: "HQ 03/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-04-27",
-    note: "Approval authority is the Senior Procurement Executive.",
+    note: "Approval authority under NFS CG 1806.11(b) is the Senior Procurement Executive.",
+
   },
   lead: "Determination and findings that a source may be excluded from full and open competition.",
   sections: [
-    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "FAR 6.202", [
+    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "FAR 6.102", [
       X("excluded_source", "Name of source to be excluded"),
     ]),
     {
@@ -1099,28 +1101,28 @@ const excludeSourceDandf: TemplateDef = {
     {
       id: "findings",
       title: "Findings",
-      citation: "FAR 6.202(b)",
+      citation: "FAR 6.102-1(a)",
       tier: "binding",
       standingText:
-        "Pursuant to the requirements of FAR 6.202(b), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
+        "Pursuant to the requirements of FAR 6.102(a), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
       fields: [
-        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "FAR 6.202(a)(1)"),
+        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "FAR 6.102-1(a)(1)"),
         T("citation_statement", "The statement that matches the citation selected"),
-        T("finding_1", "1. A brief description of the requirement, including acquisition history, sources, quantities, prices and dates of award"),
+        T("finding_1", "1. A brief description of the requirement, including the acquisition history of the supplies or services, sources, quantities, prices, and dates of award"),
         T("finding_2", "2. The circumstances for excluding the source"),
         S("finding_3", "3. Exclusion", ["Total exclusion", "Partial exclusion"], "Total exclusion"),
         T("finding_4", "4. The potential effect on the excluded source"),
         T(
           "finding_5",
           "5. The benefit to the Government",
-          "Where FAR 6.202(a)(1) is cited, give the estimated reduction and how it was derived. Where FAR 6.202(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source.",
+          "Where FAR 6.102-1(a)(1) is cited, give the estimated reduction in overall costs and how it was derived. Where FAR 6.102-1(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source. Where FAR 6.102-1(a)(3) through (6) is cited, give details on how excluding the source serves the purpose cited.",
         ),
       ],
     },
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 6.202(a)",
+      citation: "FAR 6.102-1(a)",
       tier: "binding",
       standingText:
         "Based on the findings identified and explained above in accordance with the citation selected above, the determination has been made to exclude the company named below.",
@@ -1138,8 +1140,9 @@ const excludeSourceDandf: TemplateDef = {
         HQ_OGC_BLOCK,
         { label: "Approval: Senior Procurement Executive" },
       ],
-      "NFS 1806.202-70",
+      "NFS CG 1806.11(b)",
     ),
+
   ],
 };
 
@@ -1153,24 +1156,24 @@ const limitedSourcesJustification: TemplateDef = {
   tab: "016",
   layout: "memo",
   badge: {
-    citation: "FAR 8.405-6; FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
-    tier: "guidance",
-    revision: "HQ 10/2025 revision",
+    citation: "FAR 8.401(b); GSAM 538.7104-3; GSAM 538.7104-4; FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
+    tier: "binding",
+    revision: "HQ 04/2026 revision",
     effective: "2026-04-16",
     note: "Approval tier follows the estimated value of the order or BPA.",
   },
-  lead: "Justification for limiting sources on a GSA Federal Supply Schedule order or blanket purchase agreement.",
+  lead: "Justification for limiting sources on a GSA Federal Supply Schedule order or blanket purchase agreement above the simplified acquisition threshold.",
   sections: [
-    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "FAR 8.405-6", [
+    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "FAR 8.401(b)", [
       X("buying_location", "Buying location", "center_code"),
     ]),
     {
       id: "introduction",
       title: "Introduction",
-      citation: "Title 41 U.S.C. 152(3)",
+      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
       standingText:
-        "This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA). This acquisition will be conducted under the Multiple-Award Schedule (MAS) Program (Title 41 U.S.C. 152(3)).",
+        "This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA). This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)).",
       fields: [
         T("action_description", "The action type, the anticipated order or BPA type, and the supplies or services required to meet the agency's need"),
         X("contractors", "Contractor(s) the award is anticipated to be made to", "vendor_legal_name"),
@@ -1182,72 +1185,37 @@ const limitedSourcesJustification: TemplateDef = {
     {
       id: "authority",
       title: "Authority Cited and Rationale:",
-      citation: "FAR 8.405-6",
+      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
+      standingText:
+        "The statutory exception supporting the placement of this order or BPA that exceeds the simplified acquisition threshold on a sole source basis is:",
       fields: [
         S("authority", "Authority", [
-          "FAR 8.405-6(a)(1)(A). An urgent and compelling need exists, and following normal procedures would result in unacceptable delays.",
-          "FAR 8.405-6(a)(1)(B). Only one source is capable of providing the supplies or services required at the level of quality required because the supplies or services are unique or highly specialized.",
-          "FAR 8.405-6(a)(1)(C). In the interest of economy and efficiency, the new work is a logical follow-on to an original GSA FSS order provided that the original order was placed in accordance with the applicable GSA FSS ordering procedures. The original order or BPA must not have been previously issued under sole-source or limited-sources procedures.",
-          "FAR 8.405-6(b), Items Peculiar to One Manufacturer. An item peculiar to one manufacturer can be a particular brand name, product, or a feature of a product, peculiar to one manufacturer. A brand name item, whether available on one or more schedule contracts, is an item peculiar to one manufacturer.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(i). The need is of such unusual urgency that following normal procedures would result in unacceptable delays in fulfilling the need.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(ii). Only one source is capable of providing the products, services, or solution required at the level of quality required because the products, services, or solutions are unique or highly specialized.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(iii). The order should be issued on a sole source basis in the interest of economy and efficiency because it is a logical follow-on to an FSS order already issued on a competitive basis.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(iv). It is necessary to place the order with a particular FSS contractor to satisfy a minimum guarantee established in the FSS BPA.",
+          "FAR 8.401(b)/GSAM 538.7104-3(b)(v). A law expressly authorizes or requires that the purchase be made from a specified source.",
+          "FAR 8.401(b)/GSAM 538.7104-4(b)(1), Items peculiar to one manufacturer. The particular brand name, product, or feature is essential to NASA's requirements, and market research indicates other companies' similar products, or products lacking the particular feature, do not meet, or cannot be modified to meet, the need.",
         ]),
-        T("rationale", "Rationale:"),
+        X("identified_law", "Law identified", undefined),
+        T("rationale", "Rationale:", "Provide sufficient detail and supporting rationale for the exception used, per GSAM 538.7104-3(b)(2)."),
       ],
     },
+
     {
       id: "best_value",
-      title: "Determination by the contracting officer that the order represents the best value consistent with FAR 8.404(d):",
+      title: "Price reasonableness",
       citation: "FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
       tier: "binding",
       standingText: PCD_14_01,
       fields: [T("fair_reasonable", "How a fair and reasonable price will be determined, per FAR 15.404-1(b)(2)")],
     },
     {
-      id: "market_research",
-      title: "Market Research:",
-      citation: "FAR Part 10",
-      tier: "binding",
-      fields: [
-        T("market_research", "Market research conducted for this order"),
-        S("ebuy_posting", "FAR 8.405-6(b)(3)(i) applies", ["No", "Yes"], "No"),
-      ],
-    },
-    {
-      id: "ebuy",
-      title: "Posting",
-      citation: "FAR 8.405-6(b)(3)(i)",
-      tier: "binding",
-      standingText: "Pursuant to FAR 8.405-6(b)(3)(i), the Request for Quote and approved LSJ will be posted to e-Buy.",
-      fields: [],
-      showIf: (v: Values) => v["ebuy_posting"] === "Yes",
-    },
-    {
-      id: "other_facts",
-      title: "Other Facts:",
-      citation: "FAR 8.405-6",
-      tier: "binding",
-      fields: [T("other_facts", "Any other facts that support this justification")],
-    },
-    {
-      id: "barriers",
-      title:
-        "A statement of the actions, if any, the agency may take to remove or overcome any barriers that led to the restricted consideration before any subsequent acquisition for the supplies or services is made:",
-      citation: "FAR 8.405-6(a)",
-      tier: "binding",
-      fields: [
-        {
-          key: "barriers",
-          label: "Actions to remove or overcome barriers",
-          kind: "textarea",
-          default:
-            "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.",
-        },
-      ],
-    },
-    {
       id: "certifications",
       title: "Certifications",
-      citation: "FAR 8.405-6(c)",
+      citation: "GSAM 538.7104-3(b)(2)",
+
       tier: "binding",
       standingText:
         "Technical Representative: I certify that the supporting data presented in this justification are accurate and complete.\n" +
@@ -1273,7 +1241,7 @@ const limitedSourcesJustification: TemplateDef = {
         { label: "NASA Competition Advocate", note: "Include for $150M or greater." },
         { label: "Approval: Senior Procurement Executive", note: "Include for $150M or greater." },
       ],
-      "FAR 8.405-6(c)",
+      "FAR 8.401(b); GSAM 538.7104-3(b)",
       "CONCURRENCES / APPROVAL:",
     ),
   ],
@@ -1286,9 +1254,9 @@ const gfpDetermination: TemplateDef = {
   tab: "30",
   layout: "memo",
   badge: {
-    citation: "FAR 45.102(b); NFS 1845.102-70(a); NFS 1845.103-70(b)",
+    citation: "FAR 45.102(b); NFS CG 1845.12(b); NFS CG 1845.11; FAR 45.201(a)",
     tier: "binding",
-    revision: "HQ 02/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-04-23",
     note: "Memorandum to the file; the property listing is attached.",
   },
@@ -1316,7 +1284,7 @@ const gfpDetermination: TemplateDef = {
     {
       id: "scope",
       title: "Acquisition scope",
-      citation: "NFS 1845.103-70(b)",
+      citation: "NFS CG 1845.12(b)",
       tier: "binding",
       standingText:
         "Attached to this memorandum is a detailed listing of all IAGP or GFP that will be provided to the Contractor for performance. These listings include all of the information required by FAR 45.201(a). This IAGP or GFP listing will be included in the resultant instrument pursuant to the applicable property clauses.",
@@ -1343,20 +1311,20 @@ const gfpDetermination: TemplateDef = {
     },
     {
       id: "factor_5",
-      title: "(5) Additional factors in NFS 1845.102-70(a) to be considered by the CO when providing contractors Government property.",
-      citation: "NFS 1845.102-70(a)",
+      title: "(5) Additional factors in NFS CG 1845.11 to be considered by the CO when providing contractors Government property.",
+      citation: "NFS CG 1845.11",
       tier: "binding",
       standingText:
-        "I have considered the additional factors included in NFS 1845.102-70(a) with regard to providing Government property under this acquisition, and have determined that providing such property is in the best interest of the Government.",
+        "I have considered the additional factors included in NFS CG 1845.11 with regard to providing Government property under this acquisition, and have determined that providing such property is in the best interest of the Government.",
       fields: [],
     },
     {
       id: "determination",
       title: "Determination:",
-      citation: "FAR 45.102(b); NFS 1845.102-70(a)",
+      citation: "FAR 45.102(b); NFS CG 1845.11",
       tier: "binding",
       standingText:
-        "After considering the factors detailed at FAR 45.102(b) and NFS 1845.102-70(a) as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
+        "After considering the factors detailed at FAR 45.102(b) and NFS CG 1845.11 as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
       fields: [
         X("sig_co", "Contracting Officer", "co_name"),
         S("attachments", "Attachments:", [
@@ -1376,9 +1344,9 @@ const ucaLetterContract: TemplateDef = {
   tab: "028/72",
   layout: "memo",
   badge: {
-    citation: "NFS Subpart 1843.70; FAR 16.603; NFS Subpart 1816.603",
+    citation: "NFS CG 1843.6; FAR 16.603; NFS CG 1816.65; NFS CG 1816.66",
     tier: "binding",
-    revision: "HQ 06/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-05-14",
     note: "Approval authority is the head of the contracting activity.",
   },
@@ -1387,7 +1355,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "heading",
       title: "Justification and Approval",
-      citation: "NFS Subpart 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [
         S("action_kind", "Action", ["Undefinitized Contract Action (UCA)", "Letter Contract"], "Undefinitized Contract Action (UCA)"),
@@ -1398,7 +1366,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "purpose",
       title: "1. Purpose:",
-      citation: "NFS Subpart 1843.70; FAR 16.603",
+      citation: "NFS CG 1843.6; FAR 16.603",
       tier: "binding",
       standingText:
         "This document provides justification and request for approval to issue the action identified above. This action is in the Government's best interest because negotiating a definitive modification, contract or order is not possible in sufficient time to meet the requirement, and will provide the contractor a binding commitment so that work can start immediately.",
@@ -1411,14 +1379,14 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "background",
       title: "2. Background:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [{ key: "background", label: "Background", kind: "textarea", bind: "description_of_requirement" }],
     },
     {
       id: "impact",
       title: "3. Statement of Impact/Urgency:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       standingText:
         "The contracting officer (CO) has reviewed this work under this UCA and has determined it to be within the general scope of the contract.",
@@ -1427,7 +1395,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "description",
       title: "4. Description of Action:",
-      citation: "NFS 1843.70",
+      citation: "NFS CG 1843.6",
       tier: "binding",
       fields: [
         X("contractor_address", "Contractor name and address", "vendor_legal_name"),
@@ -1447,7 +1415,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "definitization",
       title: "5. Proposed Definitization Schedule",
-      citation: "NFS 1843.7003(b)(1)",
+      citation: "NFS CG 1843.21(b); NFS CG 1816.65",
       tier: "binding",
       fields: [
         T(
@@ -1465,7 +1433,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "determination",
       title: "6. Determination",
-      citation: "NFS Subpart 1843.70; FAR Subpart 16.603",
+      citation: "NFS CG 1843.6; FAR 16.603",
       tier: "binding",
       standingText:
         "Based on the above, it is the determination of the undersigned that it is in the Government's best interest for the contractor to start work immediately, and that negotiating a definitive contract action is not possible in sufficient time to meet the requirements. Upon approval, NASA will authorize the contractor to begin incurring costs for urgent work performed in advance of definitization at the not-to-exceed estimate amount stated above.",
@@ -1487,7 +1455,7 @@ const ucaLetterContract: TemplateDef = {
         { label: "Concurrence: Procurement Officer, Center", note: "Include this concurrence only for NOJMO, ESDMD and SOMD actions." },
         { label: "Approval: Head of Contracting Activity" },
       ],
-      "NFS Subpart 1843.70",
+      "NFS CG 1843.64; NFS CG 1816.66",
       "Concurrence / Approval:",
     ),
   ],
@@ -1520,9 +1488,9 @@ const jofoc8aOver30m: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "FAR 19.808-1; FAR 6.104-1; FAR 19.208-2(a); 15 U.S.C. 637(a)",
+    citation: "FAR 6.104-1; FAR 19.108-7; FAR 19.208-2(a); 15 U.S.C. 637(a)",
     tier: "binding",
-    revision: "HQ 11/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-05-18",
     note: "Required for an 8(a) sole source award or modification greater than $30 million.",
   },
@@ -1579,7 +1547,7 @@ const jofocUrgency: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "FAR 6.302-2; FAR 6.104-1; RFO FAR 6.104-2",
+    citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2; FAR 6.104-1",
     tier: "binding",
     revision: "HQ 09/2026 revision",
     effective: "2026-09-03",
@@ -1589,53 +1557,123 @@ const jofocUrgency: TemplateDef = {
   sections: [
     centreHeading(
       ["UNUSUAL AND COMPELLING URGENCY", "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION (JOFOC)"],
-      "FAR 6.302-2",
+      "FAR 6.103-2",
     ),
     {
       id: "item_1",
       title:
-        "1. FAR 6.104-1(a)(3) – A description of the supplies or services required to meet the agency's needs (including the estimated value):",
-      citation: "FAR 6.104-1(a)(3)",
+        "1. FAR 6.104-1(a)(1) – Identification of the agency and the contracting activity, and specific identification of the document as a \u201cJustification for other than full and open competition.\u201d",
+      citation: "FAR 6.104-1(a)(1)",
       tier: "binding",
-      fields: [
-        X("contractor_name", "Contractor name", "vendor_legal_name"),
-        { key: "description", label: "The action requested for approval", kind: "textarea", bind: "description_of_requirement" },
-        M("estimated_value", "Estimated value", "estimated_value"),
-      ],
+      standingText:
+        "This document is a justification for other than full and open competition prepared by the National Aeronautics and Space Administration (NASA).",
+      fields: [X("buying_location", "Contracting activity", "center_code")],
     },
     {
       id: "item_2",
-      title: "2. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
-      citation: "FAR 6.302-2",
+      title: "2. FAR 6.104-1(a)(2) – The nature and/or description of the action being approved:",
+      citation: "FAR 6.104-1(a)(2)",
       tier: "binding",
-      standingText:
-        "The authority cited is FAR 6.302-2, unusual and compelling urgency. The Government would be seriously injured unless the agency is permitted to limit the number of sources from which it solicits.",
       fields: [
-        { key: "urgency_arose", label: "Date the urgent need arose", kind: "date" },
-        T("urgency_rationale", "The circumstances creating the urgency and the injury to the Government from delay"),
-        T("sources_solicited", "The sources solicited and the efforts made to obtain offers from as many sources as practicable"),
+        X("contractor_name", "Contractor name", "vendor_legal_name"),
+        X("contract_number", "Contract number for a modification or extension"),
+        T("action_nature", "The action being approved and the general purpose of the contract or modification"),
+        T("program_background", "Program background for this action"),
       ],
     },
     {
       id: "item_3",
-      title: "3. FAR 6.104-1(a)(7) – A determination that the anticipated cost to the Government will be fair and reasonable:",
-      citation: "FAR 6.104-1(a)(7); FAR 15.4",
+      title:
+        "3. FAR 6.104-1(a)(3) – A description of the supplies or services required, to meet the agency's needs (including the estimated value):",
+      citation: "FAR 6.104-1(a)(3)",
       tier: "binding",
-      standingText: FAIR_AND_REASONABLE,
-      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable per FAR 15.4")],
+      fields: [
+        { key: "description", label: "The supplies or services required", kind: "textarea", bind: "description_of_requirement" },
+        M("estimated_value", "Anticipated cost of this action", "estimated_value"),
+      ],
     },
     {
       id: "item_4",
-      title: "4. FAR 6.104-1(b) – A determination that the use of a sole-source contract is in the best interest of the agency concerned:",
-      citation: "FAR 6.104-1(b)",
+      title: "4. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
+      citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2",
+      tier: "binding",
+      standingText:
+        "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by FAR 6.103-2, Unusual and compelling urgency.",
+      fields: [],
+    },
+    {
+      id: "item_5",
+      title:
+        "5. FAR 6.104-1(a)(5) – A demonstration that the proposed contractor's unique qualifications or the nature of the acquisition requires use of the authority cited:",
+      citation: "FAR 6.104-1(a)(5)",
+      tier: "binding",
+      standingText:
+        "The agency's need is of such unusual and compelling urgency that the Government would be seriously injured if it is not permitted to limit the number of sources from which it solicits proposals.",
+      fields: [
+        { key: "urgency_arose", label: "Date the urgent need arose", kind: "date" },
+        T("urgency_rationale", "The circumstances creating the urgency and the harm to the Government from delay"),
+      ],
+    },
+    {
+      id: "item_6",
+      title:
+        "6. FAR 6.104-1(a)(6) – A description of the efforts made to ensure that offers are solicited from as many potential sources as practicable, including whether a notice was or will be publicized as required by Subpart 5.1 and, if not, which exception under 5.101 applies:",
+      citation: "FAR 6.104-1(a)(6); FAR 5.101(b)(1)",
+      tier: "binding",
+      standingText:
+        "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d).",
+      fields: [T("sources_solicited", "The efforts made to solicit offers from as many sources as practicable")],
+    },
+    {
+      id: "item_7",
+      title:
+        "7. FAR 6.104-1(a)(7) – A determination by the contracting officer that the anticipated cost to the Government will be fair and reasonable:",
+      citation: "FAR 6.104-1(a)(7)",
+      tier: "binding",
+      standingText: FAIR_AND_REASONABLE,
+      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable")],
+    },
+    {
+      id: "item_8",
+      title:
+        "8. FAR 6.104-1(a)(8) – Description of the market research conducted, and the results, or a statement of the reasons market research was not conducted:",
+      citation: "FAR 6.104-1(a)(8); FAR 6.103-2(b)",
+      tier: "binding",
+      fields: [T("market_research", "The market research conducted and its results, or the reasons it was not conducted")],
+    },
+    {
+      id: "item_9",
+      title: "9. FAR 6.104-1(a)(9) – Any other facts supporting the use of other than full and open competition:",
+      citation: "FAR 6.104-1(a)(9)",
+      tier: "binding",
+      fields: [T("other_facts", "Other facts supporting the use of other than full and open competition")],
+    },
+    {
+      id: "item_10",
+      title: "10. FAR 6.104-1(a)(10) – A listing of the sources, if any, that expressed an interest in writing in the acquisition:",
+      citation: "FAR 6.104-1(a)(10)",
+      tier: "binding",
+      fields: [T("interested_sources", "Sources that expressed an interest in writing, or a statement that there were none")],
+    },
+    {
+      id: "item_11",
+      title:
+        "11. FAR 6.104-1(a)(11) – A statement of actions, if any, the agency may take to remove or overcome any barriers to competition before any subsequent acquisition for the supplies or services required:",
+      citation: "FAR 6.104-1(a)(11)",
       tier: "binding",
       fields: [
-        T("best_interest", "Why a sole-source contract is in the best interest of the agency"),
-        T("barriers", "The actions the agency may take to remove or overcome the barriers to competition before a subsequent acquisition"),
+        {
+          key: "barriers",
+          label: "Actions to remove or overcome barriers to competition",
+          kind: "textarea",
+          default:
+            "The agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.",
+        },
       ],
     },
     jofocCommonSignature("JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION, UNUSUAL AND COMPELLING URGENCY"),
   ],
+
 };
 
 // ------------------------------------------------ 16. Precontract costs approval
@@ -1645,9 +1683,9 @@ const precontractCostsApproval: TemplateDef = {
   tab: "066",
   layout: "memo",
   badge: {
-    citation: "NFS 1831.205-32; NFS 1852.231-70; FAR 31.205-32",
+    citation: "NFS CG 1831.12; FAR 31.205-32; NFS 1852.231-70",
     tier: "binding",
-    revision: "HQ 02/2025 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2026-04-24",
     note: "The Procurement Officer approves the request; the authorization letter is then issued to the contractor.",
   },
@@ -1656,10 +1694,10 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_header",
       title: "PRECONTRACT COSTS APPROVAL REQUEST MEMORANDUM",
-      citation: "NFS 1831.205-32(2)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
-        "TO: Procurement Officer\nFROM: Contracting Officer\n\nThis request for precontract costs approval authority is in accordance with NASA FAR Supplement 1831.205-32(2).",
+        "TO: Procurement Officer\nFROM: Contracting Officer\n\nThis request for precontract costs approval authority is in accordance with NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12.",
       fields: [
         { key: "memo_date", label: "Date", kind: "date" },
         X("org_code", "Procurement Office code or identifier", "requester_org_code"),
@@ -1679,7 +1717,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_body",
       title: "Purpose and scope",
-      citation: "NFS 1831.205-32",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       fields: [
         X("contract_type", "Proposed contract type", "contract_type"),
@@ -1695,10 +1733,10 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_recommendation",
       title: "Recommendation",
-      citation: "NFS 1831.205-32(1); NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
-        "Based on the analysis above, and the authority granted in NFS 1831.205-32(1), the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS 1831.205-32(3).",
+        "Based on the analysis above, and the authority granted in NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12, the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS CG 1831.12.",
       fields: [
         S("recommendation_basis", "Amount recommended", [
           "The current request, in the amount not to exceed the amount stated above",
@@ -1714,7 +1752,7 @@ const precontractCostsApproval: TemplateDef = {
       citation: "NFS 1852.231-70; FAR 31.205-32",
       tier: "binding",
       standingText:
-        "REFERENCES: (1) NASA FAR Supplement (NFS) 1831.205-32, Precontract Costs (2) NFS 1852.231-70, Precontract Costs\n\n" +
+        "REFERENCES: (1) NFS 1852.231-70, Precontract Costs\n\n" +
         "Acceptance of this letter constitutes an advance agreement between NASA and the contractor on precontract costs. The term \"precontract costs\" is defined in Federal Acquisition Regulation (FAR) 31.205-32. If a contract is awarded, costs incurred before the effective date of the contract will be allowable to the extent that they would have been allowable if incurred after the effective date of the contract subject to the following conditions:",
       fields: [
         X("contractor_poc", "Contractor point of contact, name and mailing address"),
@@ -1725,7 +1763,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "letter_conditions",
       title: "Conditions",
-      citation: "NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
         "(c) The costs are allowable only to the extent they would have been if incurred after formal contract award.\n" +
@@ -1742,7 +1780,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "letter_signature",
       title: "ACKNOWLEDGEMENT AND ACCEPTANCE OF THE TERMS OF THIS LETTER:",
-      citation: "NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText: "Enclosure: Attachment 1",
       fields: [

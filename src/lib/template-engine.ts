@@ -2290,6 +2290,21 @@ const memorandumForRecord: TemplateDef = {
 const isSole = (v: Values) => (v["notice_type"] ?? "") === "Notice of intent to sole source";
 const isCombined = (v: Values) => (v["notice_type"] ?? "") === "Combined synopsis/solicitation";
 const isSources = (v: Values) => (v["notice_type"] ?? "") === "Sources sought";
+/** Presolicitation modes carried over from the HQ Governmentwide Point of Entry master. */
+const PRESOL_MODES = [
+  "Presolicitation notice: noncompetitive",
+  "Presolicitation notice: commercial competitive",
+  "Presolicitation notice: noncommercial competitive",
+  "Presolicitation notice: construction competitive",
+  "Presolicitation notice: architect-engineer services",
+  "Presolicitation notice: major system acquisition",
+];
+const MOD_MODES = ["Modification to a notice", "Modification to a combination synopsis"];
+const RFI_MODES = ["Request for information: draft solicitation or statement of work", "Request for information: organizational conflict of interest"];
+const isPresol = (v: Values) => PRESOL_MODES.includes(String(v["notice_type"] ?? ""));
+const isMod = (v: Values) => MOD_MODES.includes(String(v["notice_type"] ?? ""));
+const isRfi = (v: Values) => RFI_MODES.includes(String(v["notice_type"] ?? ""));
+
 
 const samNotice: TemplateDef = {
   key: "sam-notice",
@@ -2298,10 +2313,10 @@ const samNotice: TemplateDef = {
   badge: {
     citation: "RFO FAR 5.203; FAR 12.603; RFO FAR 6.104",
     tier: "binding",
-    revision: "T-Minus form; posted in SAM.gov",
+    revision: "HQ Governmentwide Point of Entry templates 05/2026; posted in SAM.gov",
     note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",
   },
-  lead: "The notice posted to SAM.gov. The record picks the mode: combined synopsis/solicitation for a competitive commercial buy, notice of intent to sole source for a sole-source file, or sources sought when the contracting officer picks it.",
+  lead: "The notice posted to SAM.gov. The record picks the mode: combined synopsis/solicitation for a competitive commercial buy, notice of intent to sole source for a sole-source file, a presolicitation notice, a modification to a posted notice, a sources sought, or a request for information.",
   sections: [
     {
       id: "notice",
@@ -2313,7 +2328,15 @@ const samNotice: TemplateDef = {
           key: "notice_type",
           label: "Notice type",
           kind: "select",
-          options: ["Combined synopsis/solicitation", "Notice of intent to sole source", "Sources sought"],
+          options: [
+            "Combined synopsis/solicitation",
+            "Notice of intent to sole source",
+            ...PRESOL_MODES,
+            ...MOD_MODES,
+            "Sources sought",
+            ...RFI_MODES,
+          ],
+
           required: true,
           help: "Set from the record; change it when the contracting officer posts a sources sought instead.",
         },
@@ -2417,6 +2440,143 @@ const samNotice: TemplateDef = {
         { key: "submission_instructions", label: "How to respond", kind: "textarea", required: true },
       ],
     },
+    {
+      id: "presolicitation",
+      title: "Presolicitation notice",
+      citation: "FAR 5.101(c); FAR 5.207",
+      tier: "binding",
+      showIf: isPresol,
+      standingText:
+        "All responsible sources may submit an offer which will be considered by the agency. This posting, in addition to any attached documents, will be available on SAM.gov. It is the offeror's responsibility to monitor this website for the release of the solicitation and amendments (if any).",
+      fields: [
+        {
+          key: "solicitation_vehicle",
+          label: "Type of solicitation planned",
+          kind: "select",
+          options: [
+            "Request for Proposal (RFP)",
+            "Invitation for Bids (IFB)",
+            "Request for Quotations (RFQ)",
+            "Broad Agency Announcement (BAA)",
+            "Announcement of Opportunity (AO)",
+            "NASA Research Announcement (NRA)",
+          ],
+          required: true,
+        },
+        { key: "solicitation_number", label: "Solicitation number", kind: "text" },
+        { key: "anticipated_release_date", label: "Anticipated release date", kind: "date", required: true },
+        { key: "anticipated_offer_due", label: "Anticipated offer due date", kind: "date", required: true },
+        {
+          key: "size_standard",
+          label: "Size standard",
+          kind: "text",
+          help: "Revenue or number of employees for the NAICS shown above.",
+        },
+        {
+          key: "commercial_statement",
+          label: "Commercial statement",
+          kind: "select",
+          options: [
+            "The Government intends to acquire a commercial product or service using FAR Part 12.",
+            "The Government does not intend to acquire a commercial product or commercial service using FAR Part 12.",
+          ],
+          required: true,
+        },
+        {
+          key: "trade_agreements_statement",
+          label: "Trade agreements statement",
+          kind: "select",
+          options: [
+            "",
+            "One or more of the items under this acquisition are subject to Free Trade Agreements.",
+            "One or more of the items under this acquisition are subject to the World Trade Organization Government Procurement Agreement and Free Trade Agreements.",
+          ],
+          help: "FAR 5.101(c)(4)(iii), Table 5-1. Leave empty when no trade agreements clause is included.",
+        },
+        {
+          key: "sole_source_statement",
+          label: "Intended source and why competition is limited",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Presolicitation notice: noncompetitive",
+          required: true,
+        },
+        {
+          key: "completion_days",
+          label: "Calendar days for completion after notice to proceed",
+          kind: "text",
+          showIf: (v) => (v["notice_type"] ?? "") === "Presolicitation notice: construction competitive",
+        },
+        {
+          key: "ae_selection_note",
+          label: "Selection process and submission instructions",
+          kind: "textarea",
+          showIf: (v) =>
+            (v["notice_type"] ?? "") === "Presolicitation notice: architect-engineer services" ||
+            (v["notice_type"] ?? "") === "Presolicitation notice: major system acquisition",
+        },
+        {
+          key: "ombudsman_note",
+          label: "Ombudsman",
+          kind: "readonly",
+          help: "NASA clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition is listed in the NASA Procurement Ombudsman and Competition Advocate listing.",
+        },
+      ],
+    },
+    {
+      id: "modification",
+      title: "Modification to a previous notice",
+      citation: "FAR 5.102",
+      tier: "binding",
+      showIf: isMod,
+      fields: [
+        { key: "original_notice_title", label: "Title of the notice being modified", kind: "text", required: true },
+        { key: "original_notice_number", label: "Solicitation number", kind: "text", required: true },
+        { key: "original_posted_date", label: "Date the notice was posted", kind: "date", required: true },
+        {
+          key: "amendment_number",
+          label: "Amendment number",
+          kind: "text",
+          showIf: (v) => (v["notice_type"] ?? "") === "Modification to a combination synopsis",
+          required: true,
+        },
+        { key: "modification_description", label: "Changes made", kind: "textarea", required: true },
+        {
+          key: "due_date_extended",
+          label: "Due date for responses",
+          kind: "select",
+          options: ["is extended", "is not extended"],
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "rfi",
+      title: "Request for information",
+      citation: "FAR 15.201(e)",
+      tier: "binding",
+      showIf: isRfi,
+      standingText:
+        "This is a request for information only. It is not a solicitation, it does not commit the Government to award a contract, and the Government will not pay for any information provided in response.",
+      fields: [
+        {
+          key: "rfi_material",
+          label: "Material released for comment",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Request for information: draft solicitation or statement of work",
+          required: true,
+        },
+        {
+          key: "oci_concern",
+          label: "Potential organizational conflict of interest described",
+          kind: "textarea",
+          showIf: (v) => (v["notice_type"] ?? "") === "Request for information: organizational conflict of interest",
+          required: true,
+        },
+        { key: "rfi_response_instructions", label: "How to respond", kind: "textarea", required: true },
+        { key: "rfi_response_due", label: "Responses due", kind: "date", required: true },
+      ],
+    },
+
     {
       id: "poc",
       title: "Point of contact",
