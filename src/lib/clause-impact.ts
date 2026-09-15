@@ -162,7 +162,16 @@ export function changesFromClauses(rows: ClauseTableRow[]): ClauseChange[] {
       change_deadline: r.change_deadline,
     });
   }
-  return out.sort(
+  // The clause tables carry one row per variant, so the same change can appear
+  // several times. One entry per clause number and kind.
+  const seen = new Set<string>();
+  const deduped = out.filter((c) => {
+    const key = `${c.clause_number}|${c.kind}|${c.status}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return deduped.sort(
     (a, b) =>
       Number(b.kind === "removed") - Number(a.kind === "removed") ||
       a.clause_number.localeCompare(b.clause_number),
