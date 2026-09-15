@@ -533,7 +533,11 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "jofoc") return "JOFOC";
   if (templateKey === "nf-1707") return "Intake";
   if (templateKey === "sam-notice") return "Synopsis";
-  if (templateKey === "tech-eval" || templateKey === "technical-evaluation-report")
+  if (
+    templateKey === "tech-eval" ||
+    templateKey === "technical-evaluation-report" ||
+    templateKey === "evaluation-of-quotations"
+  )
     return "Technical Evaluation";
   if (templateKey === "nonresponsibility") return "Responsibility Check";
   if (templateKey === "pnm") return "Price Reasonableness";
