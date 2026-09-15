@@ -163,7 +163,9 @@ function FormPage() {
       acq,
       missionName: q.data.missionName,
       coName: String(acq["co_name"] ?? ""),
-      specialistName: String(acq["requester_name"] ?? ""),
+      // One technical representative from the record, the same name the
+      // documents print.
+      specialistName: technicalRepresentative(acq),
       respondents,
       findings: q.data.findings,
       evidenceLabel: q.data.evidence?.checked_at
