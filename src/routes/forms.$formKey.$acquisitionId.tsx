@@ -163,7 +163,12 @@ function FormPage() {
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);
 
-  const targetDate = q.data?.acq?.["target_award_date"] as string | null | undefined;
+  // The same fallback the file page uses: the forecast's anticipated award
+  // date stands in when no target award date is entered.
+  const targetDate = ((): string | null => {
+    const pick = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+    return pick(q.data?.acq?.["target_award_date"]) ?? pick(q.data?.acq?.["need_date"]);
+  })();
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
 

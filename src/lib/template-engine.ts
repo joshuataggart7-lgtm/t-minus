@@ -29,11 +29,25 @@ export type SectionDef = {
   id: string;
   title: string;
   citation?: string;
+  /** Citation that depends on the record's acquisition method. */
+  citationFor?: (v: Values) => string;
   tier?: "binding" | "guidance";
   standingText?: string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
 };
+
+/** The citation printed for a section on this record. */
+export function sectionCitation(s: SectionDef, v: Values): string | undefined {
+  return s.citationFor ? s.citationFor(v) : s.citation;
+}
+
+/** True when the values carry a FAR 13, FAR 13.5 or FAR Part 12 method. */
+export function simplifiedValues(v: Values): boolean {
+  const method = v["__method"] ?? "";
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
+  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+}
 
 export type TemplateDef = {
   key: string;
@@ -315,6 +329,13 @@ const jofoc: TemplateDef = {
       tier: "binding",
       fields: [
         {
+          key: "notice_status",
+          label: "Notice on this file",
+          kind: "readonly",
+          showIf: (v) => !isUrgency(v),
+          help: "Read from the notice of intent to sole source saved in the Synopsis phase.",
+        },
+        {
           key: "notice_date",
           label: "Date the notice was published to the Government Point of Entry",
           kind: "date",
@@ -335,13 +356,15 @@ const jofoc: TemplateDef = {
       id: "item7",
       title: "7. Determination that the anticipated cost will be fair and reasonable",
       citation: "FAR 6.104-1(a)(7)",
+      citationFor: (v) =>
+        `FAR 6.104-1(a)(7); price analysis under ${simplifiedValues(v) ? "FAR 13.106-3 and FAR 12.209" : "FAR 15.404-1"}`,
       tier: "binding",
       standingText:
         "The Contracting Officer's signature on this document indicates that the Contracting Officer has determined that the anticipated cost to the Government will be fair and reasonable. The contractor must submit a proposal to be evaluated and negotiated by the Government. Prior to execution of the contractual instrument a proposal analysis will be performed to ensure the final agreed-to price is fair and reasonable.",
       fields: [
         {
           key: "price_analysis_plan",
-          label: "Planned proposal analysis under FAR Subpart 15.4",
+          label: "Planned price or proposal analysis, under the citation for this file",
           kind: "textarea",
           required: true,
         },
@@ -2098,7 +2121,11 @@ const packetTransmittal: TemplateDef = {
     {
       id: "competition",
       title: "Competition",
-      citation: "FAR 6; FAR 13.501",
+      citation: "RFO FAR 12.201-1",
+      citationFor: (v) =>
+        /sole/i.test(v["competition"] ?? "")
+          ? "RFO FAR 12.201-1; FAR 6.104"
+          : "RFO FAR 12.201-1",
       tier: "binding",
       fields: [{ key: "competition_basis", label: "How competition was handled and any notice issued", kind: "textarea", required: true }],
     },
@@ -2176,6 +2203,12 @@ const samNotice: TemplateDef = {
           showIf: isSole,
           help: "RFO FAR 5.203 / 6.104: allow at least 15 days for responses to the notice of intent unless an exception applies.",
         },
+        {
+          key: "response_rule",
+          label: "Rule used for the response date",
+          kind: "readonly",
+          showIf: isCombined,
+        },
       ],
     },
     {
@@ -2195,7 +2228,6 @@ const samNotice: TemplateDef = {
           key: "period_of_performance",
           label: "Period of performance",
           kind: "text",
-          bind: "period_of_performance_start",
         },
       ],
     },
@@ -2315,6 +2347,8 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
       out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
     }
   }
+  // Carried so a section citation can follow the record's acquisition method.
+  out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
     out["response_period_basis"] =
@@ -2365,7 +2399,7 @@ export function renderDocument(
           : raw;
       lines.push(`${f.label}: ${value || "—"}`);
     }
-    return { heading: s.title, citation: s.citation, lines };
+    return { heading: s.title, citation: sectionCitation(s, v), lines };
   });
   if (signature) {
     blocks.push({
