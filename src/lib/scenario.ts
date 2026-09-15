@@ -549,8 +549,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A cost-reimbursement contract type",
     when: (c) => isCost(c),
     docs: [
-      { doc_key: "nf-533-analysis", label: "NF 533 monthly analysis", citation: "NFS 1842.7201", phase: "Administration", state: "offered", tab: "060" },
-      { doc_key: "voucher-review-checklist", label: "Voucher review checklist", citation: "FAR 42.803", phase: "Administration", state: "offered", tab: "060" },
+      { doc_key: "nf-533-analysis", label: "NF 533 monthly analysis", citation: "NFS 1842.7201", phase: "Administration", state: "offered", templateKey: "nf-533-analysis", tab: "080" },
+      { doc_key: "voucher-review-checklist", label: "Voucher review checklist", citation: "FAR 32.905; NFS 1832.905", phase: "Administration", state: "offered", templateKey: "voucher-review-checklist", tab: "083" },
     ],
   },
   {
@@ -566,11 +566,35 @@ export const TRIGGERS: TriggerDef[] = [
     ],
   },
   {
+    key: "bpa-administration",
+    condition: "A blanket purchase agreement",
+    when: (c) => c.s.vehicle === "bpa",
+    docs: [
+      { doc_key: "bpa-annual-review", label: "Blanket purchase agreement annual review", citation: "FAR 13.303-6(a); FAR 8.405-3(e)", phase: "Administration", state: "required", templateKey: "bpa-annual-review", tab: "099" },
+    ],
+  },
+  {
+    key: "supply-sources",
+    condition: "The contractor is authorized to use Government supply sources",
+    when: (c) => c.s.government_property || c.s.gfp,
+    docs: [
+      { doc_key: "supply-sources-authorization", label: "Authorization to use Government supply sources", citation: "FAR 51.102(e)", phase: "Administration", state: "offered", templateKey: "supply-sources-authorization", tab: "NA" },
+    ],
+  },
+  {
+    key: "near-transition",
+    condition: "Contract files were held before the NEAR transition",
+    when: (c) => c.s.vehicle !== "new",
+    docs: [
+      { doc_key: "near-file-location-memo", label: "Location of contract files prior to NEAR", citation: "PIC 24-06", phase: "Administration", state: "offered", templateKey: "near-file-location-memo", tab: "005" },
+    ],
+  },
+  {
     key: "ratification",
     condition: "A ratification is requested",
     when: (c) => c.s.ratification_requested,
     docs: [
-      { doc_key: "ratification", label: "Ratification of an unauthorized commitment", citation: "FAR 1.602-3", phase: "Intake", state: "required", tab: "005" },
+      { doc_key: "ratification", label: "Ratification of an unauthorized commitment", citation: "FAR 1.602-3; NFS 1801.602-3", phase: "Intake", state: "required", templateKey: "ratification-unauthorized-commitment", tab: "005" },
     ],
   },
 ];
