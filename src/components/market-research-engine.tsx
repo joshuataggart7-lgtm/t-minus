@@ -49,6 +49,8 @@ export function MarketResearchEngine({
         if (!live) return;
         setFindings(result.findings);
         setLog(result.log);
+        setLatestRanAt(result.latestRanAt);
+        setPreviousRuns(result.previousRuns);
       })
       .catch(() => {
         if (live) {
