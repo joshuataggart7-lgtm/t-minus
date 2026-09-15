@@ -141,7 +141,7 @@ const writtenAcquisitionPlan: TemplateDef = {
   badge: {
     citation: "FAR Subpart 7.1; NFS Subpart 1807.1; NFS 1807.103",
     tier: "binding",
-    revision: "HQ 04/2025 revision",
+    revision: "HQ 02/2026 revision",
     effective: "2025-04-01",
     note: "The Procurement Strategy Meeting template supersedes this plan unless the Senior Procurement Executive asks for a written acquisition plan.",
   },
@@ -424,7 +424,7 @@ const psm: TemplateDef = {
   badge: {
     citation: "FAR Subpart 7.1; NFS Subpart 1807.1; PIC 25-03A; PIC 24-04A",
     tier: "binding",
-    revision: "HQ 04/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2025-04-01",
     note: "The PSM must address every topic in this template. Topics that do not apply are marked N/A.",
   },
@@ -592,7 +592,7 @@ const psmSignaturePage: TemplateDef = {
   badge: {
     citation: "NFS 1807.103; PIC 24-06",
     tier: "binding",
-    revision: "HQ 04/2025 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2025-04-01",
     note: "Required for every PSM approved by NASA Headquarters Office of Procurement; optional for all other PSMs.",
   },
@@ -638,7 +638,7 @@ const psmAddendum: TemplateDef = {
   badge: {
     citation: "NFS 1807.103(j)(vii); NFS 1802.101",
     tier: "binding",
-    revision: "HQ 04/2025 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2025-04-01",
     note: "Used for significant changes until contract award. Post-award changes belong in the post-award documentation.",
   },
@@ -701,7 +701,7 @@ const asmNotConducted: TemplateDef = {
   badge: {
     citation: "NPD 1000.5; NPD 1000.3, Chapter 6.1; NAII 1000.1; PIC 24-06",
     tier: "guidance",
-    revision: "HQ 05/2025 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2025-05-01",
     note: "The final memorandum carries source selection and pre-decisional information and is filed with the SF 901 cover sheet.",
   },
@@ -790,7 +790,7 @@ const rdtLetters: TemplateDef = {
   badge: {
     citation: "FAR Part 7; FAR 3.104; NFS 1803.104; NFS 1804.7103",
     tier: "guidance",
-    revision: "HQ 01/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2025-01-01",
     note: "Required for new awards or recompetes estimated at $50 million or more; optional for other acquisitions.",
   },
@@ -913,7 +913,7 @@ const dandfCpif = contractTypeDandF({
   badge: {
     citation: "FAR 16.401(d); NFS 1816.401(d); FAR 16.405-1",
     tier: "binding",
-    revision: "HQ 07/2024 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
     note: "Signed before a solicitation using an incentive is issued. Approval authority: Head of the Contracting Activity.",
   },
@@ -980,7 +980,7 @@ const dandfCpaf = contractTypeDandF({
   badge: {
     citation: "FAR 16.401(d); NFS 1816.401(d); NFS 1816.405-270(a)",
     tier: "binding",
-    revision: "HQ 07/2024 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
     note: "Approval authority: Senior Procurement Executive.",
   },
@@ -1043,7 +1043,7 @@ const dandfFpaf = contractTypeDandF({
   badge: {
     citation: "FAR 16.401(d); NFS 1816.401(d); NFS 1816.405-270(a)",
     tier: "binding",
-    revision: "HQ 07/2024 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
     note: "Approval authority: Senior Procurement Executive. Two variants: firm-fixed-price award fee, or fixed-price award fee.",
   },
@@ -1096,7 +1096,7 @@ const dandfFpi = contractTypeDandF({
   badge: {
     citation: "FAR 16.401(d); NFS 1816.401(d); FAR 16.403",
     tier: "binding",
-    revision: "HQ 07/2023 issuance",
+    revision: "HQ 05/2026 revision",
     effective: "2023-07-20",
     note: "Approval authority: Head of the Contracting Activity. Two variants: firm target, or successive targets.",
   },
@@ -1246,7 +1246,7 @@ const dandfTmLhNoncommercial = tmLhDandF({
   badge: {
     citation: "FAR 16.601(d)(1); FAR 16.601(c)(2)(i)",
     tier: "binding",
-    revision: "HQ 12/2020 issuance",
+    revision: "HQ 04/2026 revision",
     effective: "2020-12-10",
     note: "The Head of the Contracting Activity approves this determination where the period of performance or ordering period exceeds three years.",
   },
@@ -1393,7 +1393,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
   badge: {
     citation: "FAR 16.504-3(a)(4)(i); NFS 1816.504(c)(1)(ii)(D)(1)",
     tier: "binding",
-    revision: "HQ 01/2026 revision",
+    revision: "HQ 04/2026 revision",
     effective: "2026-01-01",
     note: "Approval authority: Senior Procurement Executive. Threshold raised from $100M to $150M in the 01/2026 revision.",
   },
