@@ -124,12 +124,13 @@ export function searchedFor(line: ResearchLogLine): string {
     const m = new RegExp(`[?&]${name}=([^&\\s]+)`, "i").exec(q);
     return m ? decodeURIComponent(m[1]!) : "";
   };
-  const naics = param("naicsCode") || param("ncode") || /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(q)?.[1] || /naics=(\d{2,6})/i.exec(q)?.[1] || "";
+  const naics = param("naicsCode") || param("ncode") || /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(q)?.[1] || /naics[= ](\d{2,6})/i.exec(q)?.[1] || "";
   if (naics) parts.push(`NAICS ${naics}`);
   const psc = param("pscCode") || /psc=([A-Z0-9]+)/i.exec(q)?.[1] || "";
   if (psc) parts.push(`PSC ${psc}`);
-  const state = param("physicalAddressProvinceOrStateCode") || param("state");
-  parts.push(state ? `${state} place of performance` : /entities\?/i.test(q) ? "nationwide" : "");
+  const state = param("physicalAddressProvinceOrStateCode") || param("state") || /\bin\s+([A-Z]{2})\b/.exec(q)?.[1] || /\b([A-Z]{2})\s+place of performance\b/.exec(q)?.[1] || "";
+  if (state) parts.push(`${state} place of performance`);
+  else if (/entities\?/i.test(q)) parts.push("nationwide");
   const usDate = (v: string) => {
     const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
     return m ? `${m[3]}-${m[1]}-${m[2]}` : v;
@@ -137,15 +138,25 @@ export function searchedFor(line: ResearchLogLine): string {
   const from = usDate(param("postedFrom")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[1] || "";
   const to = usDate(param("postedTo")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[2] || "";
   if (from && to) parts.push(`posted ${from} to ${to}`);
-  const kept = parts.filter(Boolean);
+  const kept = [...new Set(parts.filter(Boolean))];
   return kept.length ? kept.join(", ") : "the parameters recorded in the research log";
 }
 
 /** One line per source: source, what was searched, date, count. */
 export function researchLogLines(log: ResearchLogLine[] | undefined): string[] {
-  return (log ?? []).map((l) => {
-    const count = l.count === null ? l.outcome : `${l.count} result${l.count === 1 ? "" : "s"}`;
-    return `${l.source} · ${searchedFor(l)} · ${onlyDate(l.ranAt)} · ${count}`;
+  const seen = new Set<string>();
+  return (log ?? []).flatMap((l) => {
+    const source = l.source.replace(/\s+(?:API|endpoint)$/i, "").trim();
+    const searched = searchedFor(l);
+    const key = `${source}|${searched}|${onlyDate(l.ranAt)}|${l.count ?? l.outcome}`.toLowerCase();
+    if (seen.has(key)) return [];
+    seen.add(key);
+    const count = l.count === null
+      ? (/^not available\b/i.test(l.outcome)
+          ? l.outcome.toLowerCase()
+          : `not available (${/service error/i.test(l.outcome) ? "service error" : l.outcome.toLowerCase()})`)
+      : `${l.count} result${l.count === 1 ? "" : "s"}`;
+    return [`${source}, ${searched}; ${onlyDate(l.ranAt)}; ${count}`];
   });
 }
 
@@ -248,7 +259,7 @@ function competitionBasis(ctx: MemoDraftCtx): string {
   const naics = str(a["naics_code"]);
   const size = ctx.sizeStandard ? `size standard ${ctx.sizeStandard}` : "size standard [not recorded on the SBA table]";
   const setAside = str(a["set_aside"]);
-  const posted = ctx.notice?.postedOn ?? "[not yet posted]";
+  const posted = ctx.notice?.postedOn;
   const quotes = ctx.notice?.quotesReceived;
   if (/sole/i.test(str(a["competition"]))) {
     const authority = str(a["jofoc_authority_citation"]);
@@ -257,16 +268,22 @@ function competitionBasis(ctx: MemoDraftCtx): string {
         authority ? `, on the authority of ${authority}` : ""
       }.`,
       `NAICS ${naics || "[not recorded]"}, ${size}.`,
-      `A notice of intent to sole source was posted to SAM.gov on ${posted}.`,
+      posted
+        ? `A notice of intent to sole source was posted to SAM.gov on ${posted}.`
+        : "A notice of intent to sole source will be posted to SAM.gov.",
     ].join(" ");
   }
   return [
     `Competed as a ${setAside ? setAside.toLowerCase() : "[set-aside not recorded]"} under FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1), NAICS ${
       naics || "[not recorded]"
     }, ${size}.`,
-    `A combined synopsis/solicitation was posted to SAM.gov on ${posted}; ${
-      quotes === null || quotes === undefined ? "[quotations received not yet recorded]" : `${quotes} quotation${quotes === 1 ? "" : "s"} were received`
-    }.`,
+    posted
+      ? `A combined synopsis/solicitation was posted to SAM.gov on ${posted}; ${
+          quotes === null || quotes === undefined
+            ? "quotations will be recorded on receipt"
+            : `${quotes} quotation${quotes === 1 ? " was" : "s were"} received`
+        }.`
+      : "A combined synopsis/solicitation will be posted to SAM.gov; quotations will be recorded on receipt.",
   ].join(" ");
 }
 
@@ -325,17 +342,12 @@ function jofoc(ctx: MemoDraftCtx): Values {
   const authority = str(v["authority"]) || jofocAuthorityDefault(a);
   const vendor = str(a["vendor_legal_name"]) || "the intended source";
   const value = dollars(a["estimated_value"]);
-  const basis = str(a["jofoc_authority_citation"]);
   const rationale = authority.includes("1901")
     ? `The authority cited is 41 U.S.C. 1901, carried out through the procedures of FAR 12.102 as applied by RFO FAR 12.201-1. The requirement is a commercial service with an estimated value of ${
         value || "the amount on the record"
-      }, within the ceiling for simplified procedures for commercial products and services, so the acquisition is conducted under those procedures rather than full and open competition. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record.${
-        basis ? ` Basis of record: ${basis}` : ""
-      } Drafted from the record, confirm.`
+      }, within the ceiling for simplified procedures for commercial products and services, so the acquisition is conducted under those procedures rather than full and open competition. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : authority
-    ? `The authority cited is ${authority}. ${vendor} is the only responsible source able to meet the requirement; the basis on the record is ${
-        basis || "[state the basis]"
-      }. Drafted from the record, confirm.`
+    ? `The authority cited is ${authority}. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : gap("choose the statutory authority in item 4, then draft this item against it");
 
   const noticeLine = ctx.notice?.postedOn

@@ -224,6 +224,12 @@ export type MemoDoc = {
  * The record block is rendered as labeled lines so the facts read as facts.
  */
 export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
+  const clean = (text: string) => text
+    .replace(/\s*\[[^\]]*\]/g, "")
+    .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
+    .replace(/\s+([,.;:])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim();
   // The numbered heading names the paragraph, so the field prompt that opens
   // the drafted text ("Purpose of this memorandum: ...") is dropped.
   const withoutPrompt = (line: string) => {
@@ -236,8 +242,13 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
     .map((b) => {
-      const lines = b.lines.map((l) => l.trim()).filter((l) => l && !l.endsWith(": —"));
-      const prose = lines.map(withoutPrompt).filter((line) => line && line !== "—" && !/^\[.*\]$/.test(line));
+      const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —"));
+      const prose = lines.map(withoutPrompt).map(clean).filter((line) => line && line !== "—");
+      const sourceStart = prose.findIndex((line) => /^(?:Sources searched|Market research was conducted from public sources):?$/i.test(line));
+      if (sourceStart >= 0 && prose.length > sourceStart + 1) {
+        const intro = prose.slice(0, sourceStart + 1).join(" ");
+        return { text: `${b.heading}. ${intro}`.trim(), lines: prose.slice(sourceStart + 1) };
+      }
       return { text: `${b.heading}. ${prose.join(" ")}`.trim(), lines: [] };
     })
     .filter((p) => p.text.length > 2 || p.lines.length > 0);
