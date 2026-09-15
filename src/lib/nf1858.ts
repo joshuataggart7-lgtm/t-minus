@@ -146,6 +146,19 @@ const FILE_ADDRESSED = new Set(["market-research-memo", "commerciality"]);
 
 const fileAddressed = (templateKey: string) => FILE_ADDRESSED.has(templateKey);
 
+/**
+ * A citation written as "A simplified, B part 15" carries both readings. The
+ * Ref line prints the one the record's acquisition method calls for: the
+ * simplified citation on FAR 13 and FAR 13.5 files, the Part 15 citation
+ * otherwise.
+ */
+function oneCitation(ref: string, method: string): string {
+  const pair = /^(.*?)\s*simplified,\s*(.*?)\s*part\s*15$/i.exec(ref);
+  if (!pair) return ref;
+  const simplified = /(^|[^\d.])13(\.5)?([^\d]|$)/.test(method) || /simplified/i.test(method);
+  return (simplified ? pair[1] : pair[2]).trim();
+}
+
 /** Prefilled header for a memorandum, before the CO edits it. */
 export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   const org = String(input.acquisition["branch_code"] ?? input.acquisition["org_code"] ?? "").trim();
