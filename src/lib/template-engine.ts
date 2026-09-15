@@ -2547,7 +2547,7 @@ function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
     item(5, "Demonstration that the authority cited applies", authorityRationale || blankLine),
     item(6, "Efforts to solicit offers from as many potential sources as practicable", notice),
     item(7, "Determination that the anticipated cost will be fair and reasonable", value("price_analysis_plan") || blankLine),
-    item(8, "Market research conducted and the results", value("market_research") || blankLine),
+    { heading: "8. Market research conducted and the results", lines: (value("market_research") || blankLine).split("\n").filter(Boolean) },
     item(9, "Other facts supporting the use of other than full and open competition", value("other_facts") || "No other facts were identified."),
     item(10, "Sources that expressed an interest in writing", notice),
     item(11, "Actions to remove barriers to competition", value("barriers") || blankLine),

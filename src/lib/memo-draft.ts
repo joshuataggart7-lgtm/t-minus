@@ -126,7 +126,7 @@ export function searchedFor(line: ResearchLogLine): string {
   };
   const naics = param("naicsCode") || param("ncode") || /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(q)?.[1] || /naics[= ](\d{2,6})/i.exec(q)?.[1] || "";
   if (naics) parts.push(`NAICS ${naics}`);
-  const psc = param("pscCode") || /psc=([A-Z0-9]+)/i.exec(q)?.[1] || "";
+  const psc = param("pscCode") || /psc(?:=|\s+)([A-Z0-9]+)/i.exec(q)?.[1] || "";
   if (psc) parts.push(`PSC ${psc}`);
   const state = param("physicalAddressProvinceOrStateCode") || param("state") || /\bin\s+([A-Z]{2})\b/.exec(q)?.[1] || /\b([A-Z]{2})\s+place of performance\b/.exec(q)?.[1] || "";
   if (state) parts.push(`${state} place of performance`);
@@ -137,8 +137,12 @@ export function searchedFor(line: ResearchLogLine): string {
   };
   const from = usDate(param("postedFrom")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[1] || "";
   const to = usDate(param("postedTo")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[2] || "";
-  if (from && to) parts.push(`posted ${from} to ${to}`);
+  if (from && to) parts.push(`${/usaspending|awards under/i.test(`${line.source} ${q}`) ? "" : "posted "}${from} to ${to}`);
   const kept = [...new Set(parts.filter(Boolean))];
+  if (/usaspending|awards under/i.test(`${line.source} ${q}`) && (naics || psc)) {
+    const codes = [naics ? `NAICS ${naics}` : "", psc ? `PSC ${psc}` : ""].filter(Boolean).join(" and ");
+    return [`awards under ${codes}`, from && to ? `${from} to ${to}` : ""].filter(Boolean).join(", ");
+  }
   return kept.length ? kept.join(", ") : "the parameters recorded in the research log";
 }
 
