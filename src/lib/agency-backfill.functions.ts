@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole } from "@/lib/actor";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
@@ -135,15 +136,7 @@ export const agencyBackfill = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<BackfillResult> => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me || me.role !== "hq") {
-      throw new Error("The agency backfill is available to HQ only.");
-    }
+    const me = await requireRole(context, ["hq"], "The agency backfill is available to HQ only.");
     if (data.from > data.to) throw new Error("The start date must fall on or before the end date.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

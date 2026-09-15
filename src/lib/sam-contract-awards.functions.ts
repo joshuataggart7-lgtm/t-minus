@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole } from "@/lib/actor";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
@@ -104,16 +105,7 @@ export const samContractAwards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<ComparablesView> => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me || !["specialist", "reviewer", "hq"].includes(me.role)) {
-      throw new Error("Comparables are available to contracting, reviewer, and HQ roles.");
-    }
-
+    const me = await requireRole(context, ["specialist", "reviewer", "hq"], "Comparables are available to contracting, reviewer, and HQ roles.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const record = await supabaseAdmin
       .from("acquisition_facts")
