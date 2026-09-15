@@ -1254,9 +1254,9 @@ const gfpDetermination: TemplateDef = {
   tab: "30",
   layout: "memo",
   badge: {
-    citation: "FAR 45.102(b); NFS 1845.102-70(a); NFS 1845.103-70(b)",
+    citation: "FAR 45.102(b); NFS CG 1845.12(b); NFS CG 1845.11; FAR 45.201(a)",
     tier: "binding",
-    revision: "HQ 02/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-04-23",
     note: "Memorandum to the file; the property listing is attached.",
   },
@@ -1284,7 +1284,7 @@ const gfpDetermination: TemplateDef = {
     {
       id: "scope",
       title: "Acquisition scope",
-      citation: "NFS 1845.103-70(b)",
+      citation: "NFS CG 1845.12(b)",
       tier: "binding",
       standingText:
         "Attached to this memorandum is a detailed listing of all IAGP or GFP that will be provided to the Contractor for performance. These listings include all of the information required by FAR 45.201(a). This IAGP or GFP listing will be included in the resultant instrument pursuant to the applicable property clauses.",
@@ -1311,20 +1311,20 @@ const gfpDetermination: TemplateDef = {
     },
     {
       id: "factor_5",
-      title: "(5) Additional factors in NFS 1845.102-70(a) to be considered by the CO when providing contractors Government property.",
-      citation: "NFS 1845.102-70(a)",
+      title: "(5) Additional factors in NFS CG 1845.11 to be considered by the CO when providing contractors Government property.",
+      citation: "NFS CG 1845.11",
       tier: "binding",
       standingText:
-        "I have considered the additional factors included in NFS 1845.102-70(a) with regard to providing Government property under this acquisition, and have determined that providing such property is in the best interest of the Government.",
+        "I have considered the additional factors included in NFS CG 1845.11 with regard to providing Government property under this acquisition, and have determined that providing such property is in the best interest of the Government.",
       fields: [],
     },
     {
       id: "determination",
       title: "Determination:",
-      citation: "FAR 45.102(b); NFS 1845.102-70(a)",
+      citation: "FAR 45.102(b); NFS CG 1845.11",
       tier: "binding",
       standingText:
-        "After considering the factors detailed at FAR 45.102(b) and NFS 1845.102-70(a) as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
+        "After considering the factors detailed at FAR 45.102(b) and NFS CG 1845.11 as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
       fields: [
         X("sig_co", "Contracting Officer", "co_name"),
         S("attachments", "Attachments:", [
