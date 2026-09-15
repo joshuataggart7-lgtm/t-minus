@@ -630,6 +630,12 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
       out.push(row);
     }
   }
+  // The postaward notice citation follows the method the award is made under.
+  const simplified = /\b13\b/.test(context.method);
+  for (const d of out) {
+    if (d.doc_key === "postaward-notification-letters" && simplified)
+      d.citation = "FAR 13.106-3(d)";
+  }
   // A consolidation determination and a bundling determination never both
   // stand: the value decides which one the record needs.
   if (out.some((d) => d.doc_key === "bundling-dandf"))
