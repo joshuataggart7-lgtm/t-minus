@@ -72,7 +72,9 @@ export function CloseoutPanel({
             inputMode="decimal"
             disabled={!canWrite}
             value={record.deobligation_amount ?? ""}
-            onChange={(e) => set({ deobligation_amount: e.target.value })}
+            onChange={(e) =>
+              set({ deobligation_amount: e.target.value.trim() ? Number(e.target.value) : null })
+            }
           />
         </label>
         <label className="block text-[13px] text-muted-foreground">
