@@ -71,6 +71,7 @@ export function RequesterPackageDraft({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmAllOpen, setConfirmAllOpen] = useState(false);
+  const [sheet, setSheet] = useState<{ file: File; sourceId: string; kind: SourceKind; read: SheetRead; mapping: SheetMapping } | null>(null);
 
   async function addFile(file: File, kind: SourceKind) {
     setError("");
