@@ -770,7 +770,7 @@ function FilePage() {
 
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, q.data?.clauses ?? [], phases, board);
+    const packet = buildPacket(acq, packetClauses, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
