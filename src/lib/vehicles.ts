@@ -162,10 +162,21 @@ export type ModRow = { label: string; citation: string; state: "required" | "off
  * negotiation memorandum; a modification that adds work outside the scope of
  * the contract needs a justification.
  */
+/** Reads the out-of-scope flag stored on the modification's clause_delta. */
+export function modOutOfScope(mod: { clause_delta?: unknown }): boolean {
+  const delta = Array.isArray(mod.clause_delta) ? (mod.clause_delta as unknown[]) : [];
+  return delta.some((d) => {
+    if (!d || typeof d !== "object") return false;
+    const rec = d as Record<string, unknown>;
+    return rec["key"] === "out_of_scope" && rec["value"] === true;
+  });
+}
+
 export function modRows(
-  mod: { mod_type: string; value_change?: number | string | null },
+  mod: { mod_type: string; value_change?: number | string | null; clause_delta?: unknown },
   opts: { method: string; sat?: number; outOfScope?: boolean },
 ): ModRow[] {
+  const outOfScope = opts.outOfScope ?? modOutOfScope(mod);
   const sat = opts.sat ?? 350_000;
   const simplified = /13/.test(opts.method);
   const value = Math.abs(Number(mod.value_change ?? 0));
