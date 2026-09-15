@@ -484,7 +484,7 @@ function jofoc(ctx: MemoDraftCtx): Values {
     interested_sources: ctx.notice?.postedOn
       ? `${noticeLine} Responses received and their disposition are recorded in the contract file. Drafted from the record, confirm.`
       : noticeLine,
-    response_period_close: ctx.notice?.closesOn ?? "",
+    
   };
 }
 
