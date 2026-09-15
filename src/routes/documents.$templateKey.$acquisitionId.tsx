@@ -1002,7 +1002,7 @@ function DocumentPage() {
             actor: user.name,
             action: "Recommended quoter carried to the record",
             field: "vendor_legal_name",
-            old_value: String(q.data.acq["vendor_legal_name"] ?? ""),
+            old_value: String(q.data.acq?.["vendor_legal_name"] ?? ""),
             new_value: [name, uei].filter(Boolean).join(" · "),
             reason: "Recommended on the evaluation of quotations record",
             phase,
