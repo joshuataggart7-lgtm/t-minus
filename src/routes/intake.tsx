@@ -931,8 +931,49 @@ function IntakePage() {
           <legend className="mb-2 text-[13px] text-muted-foreground">Attachments and conditions</legend>
           {(
             [
-              ["igce_attached", "IGCE attached", "Supports the independent cost estimate and package-complete gate."],
-              ["sow_attached", "SOW/PWS attached", "Defines what will be bought and feeds the package-complete gate."],
+              ["igce_attached", "IGCE", "Supports the independent cost estimate and package-complete gate."],
+              ["sow_attached", "SOW/PWS", "Defines what will be bought and feeds the package-complete gate."],
+              ["pr", "Purchase request", "The requesting organization's purchase request."],
+              ["nf-1707", "NF 1707 from the requester", "The signed intake form as received."],
+            ] as const
+          ).map(([key, label, why]) => {
+            const staged = docFiles[key] ?? null;
+            return (
+              <div key={key} className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]" title={why}>
+                <span>{label}</span>
+                {staged ? (
+                  <>
+                    <span className="text-[13px] text-muted-foreground">{staged.name}</span>
+                    <button type="button" className="text-[13px] text-primary" onClick={() => removeStaged(key)}>
+                      Remove
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[13px]" style={{ color: "var(--atrisk)" }}>Missing</span>
+                    <label className="cursor-pointer text-[13px] text-primary">
+                      Attach
+                      <input
+                        type="file"
+                        className="sr-only"
+                        accept={ATTACHMENT_ACCEPT}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void stageFile(key, file);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </>
+                )}
+                {key === "igce_attached" && igceNote ? (
+                  <span className="block w-full text-[13px] text-muted-foreground">{igceNote}</span>
+                ) : null}
+              </div>
+            );
+          })}
+          {(
+            [
               ["funds_certified", "Funds certified", "Confirms funding and feeds the package-complete gate."],
               ["hardware_deliverable", "Hardware deliverable", "Activates hardware-specific requirements."],
               ["right_to_repair_statement", "Right to Repair statement included", "Required when the acquisition delivers hardware."],
