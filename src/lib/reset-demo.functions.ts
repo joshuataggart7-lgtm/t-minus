@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requireRole, currentActor } from "@/lib/actor";
+import { requireRole } from "@/lib/actor";
 
 export type ResetResult = { resetAt: string; counts: Record<string, number> };
 

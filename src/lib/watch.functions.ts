@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requireRole, currentActor } from "@/lib/actor";
+import { requireRole } from "@/lib/actor";
 import type { FetchOutcome } from "@/lib/watch-fetch.server";
 
 const input = z.object({ feed: z.enum(["gao", "federal-register", "both"]) });

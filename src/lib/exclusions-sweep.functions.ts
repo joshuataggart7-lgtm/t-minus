@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { requireRole, currentActor } from "@/lib/actor";
+import { requireRole } from "@/lib/actor";
 import type { SweepResult } from "@/lib/exclusions-sweep.server";
 
 /** On-demand run of the nightly exclusions sweep. HQ only. */
