@@ -304,7 +304,8 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       id: "igce",
       title: "No independent government cost estimate attached",
       detail: "Attach the IGCE before the clock starts. Price reasonableness rests on it.",
-      citation: "FAR 15.404-1",
+      // Simplified acquisitions rest on FAR 13.106-3; Part 15 buys on 15.404-1.
+      citation: /13/.test(String(f.acquisition_method ?? "")) ? "FAR 13.106-3" : "FAR 15.404-1",
       blocking: true,
     });
 

@@ -31,6 +31,13 @@ function statusColor(status: string | null) {
   return "var(--muted-foreground)";
 }
 
+/** Placeholder text carried in the seed is not a citation. */
+function citationText(value: string | null | undefined) {
+  const text = (value ?? "").trim();
+  if (!text || /^\[.*\]$/.test(text) || /fill from template/i.test(text)) return "—";
+  return text;
+}
+
 export const Route = createFileRoute("/templates")({
   head: () => ({
     meta: [
@@ -130,7 +137,7 @@ function TemplatesPage() {
                           <td className="px-3 py-2" data-numeric>
                             {r.hq_revision_date ?? "—"}
                           </td>
-                          <td className="px-3 py-2">{r.governing_citation ?? "—"}</td>
+                          <td className="px-3 py-2">{citationText(r.governing_citation)}</td>
                           <td className="px-3 py-2">{r.citation_tier ?? "—"}</td>
                           <td className="px-3 py-2">
                             <StatusMark color={statusColor(r.status)}>{statusLabel(r.status)}</StatusMark>
