@@ -45,6 +45,7 @@ import {
 } from "@/lib/attachments";
 import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
+import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
@@ -401,6 +402,10 @@ function FilePage() {
     for (const t of q.data?.templates ?? []) {
       const def = TEMPLATES.find((d) => d.name === t.name);
       if (def) byId.set(t.template_id, def.key);
+      // The generated forms file their versions the same way the templates do.
+      for (const key of GENERATED_FORM_KEYS) {
+        if (FORM_NAMES[key] === t.name) byId.set(t.template_id, key);
+      }
     }
     const out = new Map<string, { version: number; savedAt: string | null }>();
     for (const d of (q.data?.documents ?? []) as {
