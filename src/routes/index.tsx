@@ -357,9 +357,11 @@ function shortReason(text: string) {
 
 /** Three or more words become initials, the way COs write them. */
 function abbreviate(label: string) {
+  // Known document names print as their document, never as initials.
+  if (/sow|pws|statement of work|performance work/i.test(label)) return "SOW/PWS";
   const words = label.trim().split(/\s+/);
   if (label.length <= 22) return label;
-  const useful = words.filter((w) => !/^(of|the|and|for|a|an|to)$/i.test(w));
+  const useful = words.filter((w) => !/^(of|the|and|or|for|a|an|to)$/i.test(w));
   if (useful.length >= 3) return useful.map((w) => w[0]!.toUpperCase()).join("");
   return `${label.slice(0, 21)}…`;
 }

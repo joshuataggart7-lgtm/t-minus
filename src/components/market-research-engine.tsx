@@ -8,7 +8,17 @@ import {
   type ResearchLogEntry,
 } from "@/lib/market-research.functions";
 import { confirmSetAside } from "@/lib/set-aside-evidence.functions";
-import { PROVENANCE, type ResearchFinding } from "@/lib/research-findings";
+import { PROVENANCE, type ResearchFinding, type ResearchRespondent } from "@/lib/research-findings";
+
+/** The respondents value is stored as JSON; render it as a table, never raw. */
+function parseRespondents(value: string): ResearchRespondent[] {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? (parsed as ResearchRespondent[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Market research evidence engine.
@@ -212,7 +222,31 @@ export function MarketResearchEngine({
                   {findings.map((f) => (
                     <li key={f.target} className="border border-border p-3 text-[13px] leading-[18px]">
                       <p className="text-[15px] leading-[22px]">{f.label}</p>
-                      <p className="mt-1 whitespace-pre-wrap">{f.value}</p>
+                      {f.target === "nf1787a.respondents" ? (
+                        <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
+                          <caption className="sr-only">Respondents identified by the search</caption>
+                          <thead>
+                            <tr className="border-b border-border text-left">
+                              <th scope="col" className="p-2">UEI</th>
+                              <th scope="col" className="p-2">Name</th>
+                              <th scope="col" className="p-2">Category</th>
+                              <th scope="col" className="p-2">Assessment</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {parseRespondents(f.value).map((r, i) => (
+                              <tr key={`${r.uei}-${i}`} className="border-b border-border align-top">
+                                <td className="p-2" data-numeric>{r.uei}</td>
+                                <td className="p-2">{r.name}</td>
+                                <td className="p-2">{r.category}</td>
+                                <td className="p-2">{r.assessment}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <p className="mt-1 whitespace-pre-wrap">{f.value}</p>
+                      )}
                       <p className="mt-1 text-muted-foreground">
                         {f.confirmed
                           ? `Confirmed${f.confirmedBy ? ` by ${f.confirmedBy}` : ""}`
