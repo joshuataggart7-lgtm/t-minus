@@ -2120,7 +2120,155 @@ const packetTransmittal: TemplateDef = {
   signature: coSignature("FAR 4.801"),
 };
 
+// --------------------------------------------------------- SAM.gov notice
+const isSole = (v: Values) => (v["notice_type"] ?? "") === "Notice of intent to sole source";
+const isCombined = (v: Values) => (v["notice_type"] ?? "") === "Combined synopsis/solicitation";
+const isSources = (v: Values) => (v["notice_type"] ?? "") === "Sources sought";
+
+const samNotice: TemplateDef = {
+  key: "sam-notice",
+  name: "SAM.gov notice",
+  tab: "N/A",
+  badge: {
+    citation: "RFO FAR 5.203; FAR 12.603; RFO FAR 6.104",
+    tier: "binding",
+    revision: "T-Minus form; posted in SAM.gov",
+    note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",
+  },
+  lead: "The notice posted to SAM.gov. The record picks the mode: combined synopsis/solicitation for a competitive commercial buy, notice of intent to sole source for a sole-source file, or sources sought when the contracting officer picks it.",
+  sections: [
+    {
+      id: "notice",
+      title: "Notice",
+      citation: "RFO FAR 5.203",
+      tier: "binding",
+      fields: [
+        {
+          key: "notice_type",
+          label: "Notice type",
+          kind: "select",
+          options: ["Combined synopsis/solicitation", "Notice of intent to sole source", "Sources sought"],
+          required: true,
+          help: "Set from the record; change it when the contracting officer posts a sources sought instead.",
+        },
+        { key: "title", label: "Title", kind: "text", bind: "title", required: true },
+        { key: "naics_code", label: "NAICS", kind: "text", bind: "naics_code", required: true },
+        { key: "psc_code", label: "PSC", kind: "text", bind: "psc_code", required: true },
+        { key: "set_aside", label: "Set-aside", kind: "text", bind: "set_aside" },
+        {
+          key: "place_of_performance",
+          label: "Place of performance",
+          kind: "text",
+          bind: "place_of_performance",
+          required: true,
+        },
+        {
+          key: "response_date",
+          label: "Response date",
+          kind: "date",
+          required: true,
+          help: "Combined synopsis/solicitation: the quote due date. Notice of intent: the regulation sets the period.",
+        },
+        {
+          key: "response_period_basis",
+          label: "Response period",
+          kind: "readonly",
+          showIf: isSole,
+          help: "RFO FAR 5.203 / 6.104: allow at least 15 days for responses to the notice of intent unless an exception applies.",
+        },
+      ],
+    },
+    {
+      id: "requirement",
+      title: "Description of the requirement",
+      citation: "FAR 5.207",
+      tier: "binding",
+      fields: [
+        {
+          key: "description_of_requirement",
+          label: "Description",
+          kind: "textarea",
+          bind: "description_of_requirement",
+          required: true,
+        },
+        {
+          key: "period_of_performance",
+          label: "Period of performance",
+          kind: "text",
+          bind: "period_of_performance_start",
+        },
+      ],
+    },
+    {
+      id: "combined",
+      title: "Solicitation terms",
+      citation: "FAR 12.603",
+      tier: "binding",
+      showIf: isCombined,
+      standingText:
+        "This is a combined synopsis/solicitation under FAR 12.603. This notice is the only solicitation issued; quotations are being requested and a written solicitation will not be issued.",
+      fields: [
+        { key: "evaluation_basis", label: "Basis for award", kind: "textarea", required: true },
+        { key: "clause_note", label: "Provisions and clauses that apply", kind: "textarea" },
+      ],
+    },
+    {
+      id: "intent",
+      title: "Intent to sole source",
+      citation: "RFO FAR 5.203; RFO FAR 6.104",
+      tier: "binding",
+      showIf: isSole,
+      standingText:
+        "This is a notice of intent to award on a sole-source basis. It is not a request for competitive quotations. Responses showing an ability to meet the requirement will be considered.",
+      fields: [
+        { key: "intended_vendor", label: "Intended awardee", kind: "text", bind: "vendor_legal_name", required: true },
+        { key: "sole_source_basis", label: "Why only this source can meet the need", kind: "textarea", required: true },
+        {
+          key: "authority",
+          label: "Authority cited",
+          kind: "text",
+          bind: "jofoc_authority_citation",
+          required: true,
+        },
+      ],
+    },
+    {
+      id: "sources",
+      title: "Sources sought",
+      citation: "FAR 10.002(b)",
+      tier: "binding",
+      showIf: isSources,
+      standingText:
+        "This is a sources sought notice for market research only. It is not a solicitation, and no award will be made from it.",
+      fields: [
+        { key: "capability_requested", label: "Capability information requested", kind: "textarea", required: true },
+        { key: "submission_instructions", label: "How to respond", kind: "textarea", required: true },
+      ],
+    },
+    {
+      id: "poc",
+      title: "Point of contact",
+      citation: "FAR 5.207(c)(16)",
+      tier: "binding",
+      fields: [
+        { key: "co_name", label: "Point of contact", kind: "text", bind: "co_name", required: true },
+        { key: "poc_email", label: "Email", kind: "text", required: true },
+        { key: "poc_phone", label: "Telephone", kind: "text" },
+      ],
+    },
+  ],
+  signature: coSignature("RFO FAR 5.203", "Posted in SAM.gov; the posting confirmation is filed under FAR 4.801."),
+};
+
+/** Notice mode the record calls for, before the contracting officer changes it. */
+export function samNoticeMode(acq: { competition?: string | null } | null | undefined): string {
+  return /sole/i.test(String(acq?.competition ?? ""))
+    ? "Notice of intent to sole source"
+    : "Combined synopsis/solicitation";
+}
+
 export const TEMPLATES: TemplateDef[] = [
+  samNotice,
   nf1707,
   jofoc,
   ter,
@@ -2166,6 +2314,11 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
       }
       out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
     }
+  }
+  if (def.key === "sam-notice") {
+    if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
+    out["response_period_basis"] =
+      "At least 15 days from posting, unless an exception in RFO FAR 5.203 applies.";
   }
   return out;
 }

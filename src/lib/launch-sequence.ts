@@ -211,8 +211,25 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           field: "jofoc_authority_citation",
         },
       ];
-    case "Synopsis":
-      return [{ label: "Presolicitation or combined synopsis notice", citation: "RFO FAR 5.203", link: "templates" }];
+    case "Synopsis": {
+      const sole = /sole/i.test(String(acq?.competition ?? ""));
+      return [
+        sole
+          ? {
+              label: "Notice of intent to sole source",
+              citation: "RFO FAR 5.203; RFO FAR 6.104",
+              link: "templates",
+              templateKey: "sam-notice",
+              note: "Allow at least 15 days for responses unless an exception applies.",
+            }
+          : {
+              label: "Combined synopsis/solicitation notice",
+              citation: "RFO FAR 5.203; FAR 12.603",
+              link: "templates",
+              templateKey: "sam-notice",
+            },
+      ];
+    }
     case "Solicitation/Quote":
       return [
         { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
@@ -383,6 +400,7 @@ export function reviewRulesForPhase(
 export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "jofoc") return "JOFOC";
   if (templateKey === "nf-1707") return "Intake";
+  if (templateKey === "sam-notice") return "Synopsis";
   if (templateKey === "tech-eval" || templateKey === "technical-evaluation-report")
     return "Technical Evaluation";
   if (templateKey === "nonresponsibility") return "Responsibility Check";
