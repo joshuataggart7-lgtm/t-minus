@@ -1314,14 +1314,14 @@ function FilePage() {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,1fr)] lg:items-start">
           <div className="min-w-0">
             <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
-            <h1 className="mt-2 text-[24px] leading-8 font-semibold">{acq?.title ?? acquisitionId}</h1>
+            <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
             <p className="mt-2 text-[15px] text-muted-foreground">
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
             </p>
           </div>
           <div className="grid gap-4 border-t border-border pt-5 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
             <div className="min-w-32">
-            <p className="text-[32px] leading-10 font-semibold" data-numeric>
+            <p className={presenter ? "text-[40px] leading-[48px] font-semibold" : "text-[32px] leading-10 font-semibold"} data-numeric>
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground">
@@ -1738,7 +1738,7 @@ function FilePage() {
         </div>
       </details>
 
-      <details id="launch-sequence" open aria-label="Launch sequence" className="mb-12 rounded-xl border border-border bg-background">
+      <details id="launch-sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
