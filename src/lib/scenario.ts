@@ -310,7 +310,7 @@ export const TRIGGERS: TriggerDef[] = [
         tab: "010",
         note: "The agreement is written and signed in G-Invoicing, outside T-Minus. Attach the signed copy here.",
       },
-      { doc_key: "provisional-cost-increase", label: "Request for a provisional increase in the estimated cost", citation: "FAR 17.502-2(c)", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "provisional-cost-increase", label: "Request for a provisional increase in the estimated cost", citation: "NFS 1832.704-71", phase: "Administration", state: "offered", templateKey: "provisional-cost-increase", tab: "NA" },
     ],
   },
   {
@@ -531,7 +531,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value over the simplified acquisition threshold",
     when: (c) => c.value > 350_000,
     docs: [
-      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "FAR 42.503-3", phase: "Administration", state: "offered", tab: "060" },
+      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "FAR 42.503-3", phase: "Administration", state: "offered", templateKey: "postaward-conference-report", tab: "077" },
     ],
   },
   {
@@ -539,9 +539,9 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A contract type with award term or award fee",
     when: (c) => c.s.award_term_or_award_fee || ["CPAF", "FPAF"].includes(c.type),
     docs: [
-      { doc_key: "award-term-determination", label: "Award term determination", citation: "NFS 1816.4", phase: "Administration", state: "required", tab: "060" },
-      { doc_key: "peb-appointment", label: "Performance evaluation board appointment", citation: "NFS 1816.4", phase: "Administration", state: "required", tab: "060" },
-      { doc_key: "fdo-appointment", label: "Fee determination official appointment", citation: "NFS 1816.4", phase: "Administration", state: "required", tab: "060" },
+      { doc_key: "award-term-determination", label: "Award term determination", citation: "NFS 1816.405-277", phase: "Administration", state: "required", templateKey: "award-term-determination", tab: "076" },
+      { doc_key: "peb-appointment", label: "Performance evaluation board appointment", citation: "NASA Award Fee Contracting Guide, Part 3", phase: "Administration", state: "required", templateKey: "peb-appointment", tab: "076" },
+      { doc_key: "fdo-appointment", label: "Fee determining official appointment", citation: "NFS 1816.401", phase: "Administration", state: "required", templateKey: "fdo-appointment", tab: "076" },
     ],
   },
   {
@@ -562,7 +562,7 @@ export const TRIGGERS: TriggerDef[] = [
       return list.some((x) => x.includes("52.244-2")) || isCost(c);
     },
     docs: [
-      { doc_key: "subcontract-consent-review", label: "Subcontract consent review", citation: "FAR 44.201-1", phase: "Administration", state: "offered", tab: "060" },
+      { doc_key: "subcontract-consent-review", label: "Subcontract consent review", citation: "FAR 44.201-1(b); FAR 44.202-2", phase: "Administration", state: "offered", templateKey: "subcontract-consent-review", tab: "079" },
     ],
   },
   {
