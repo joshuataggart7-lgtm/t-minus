@@ -1204,6 +1204,13 @@ function FilePage() {
             </button>
           </>
         ) : null}
+        <Link
+          to="/documents/$templateKey/$acquisitionId"
+          params={{ templateKey: "memorandum-for-record", acquisitionId }}
+          className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
+        >
+          Write a memo to file
+        </Link>
         <button
           type="button"
           onClick={() => nearExport.mutate()}
