@@ -1624,10 +1624,10 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_header",
       title: "PRECONTRACT COSTS APPROVAL REQUEST MEMORANDUM",
-      citation: "NFS 1831.205-32(2)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
-        "TO: Procurement Officer\nFROM: Contracting Officer\n\nThis request for precontract costs approval authority is in accordance with NASA FAR Supplement 1831.205-32(2).",
+        "TO: Procurement Officer\nFROM: Contracting Officer\n\nThis request for precontract costs approval authority is in accordance with NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12.",
       fields: [
         { key: "memo_date", label: "Date", kind: "date" },
         X("org_code", "Procurement Office code or identifier", "requester_org_code"),
@@ -1647,7 +1647,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_body",
       title: "Purpose and scope",
-      citation: "NFS 1831.205-32",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       fields: [
         X("contract_type", "Proposed contract type", "contract_type"),
@@ -1663,10 +1663,10 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "memo_recommendation",
       title: "Recommendation",
-      citation: "NFS 1831.205-32(1); NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
-        "Based on the analysis above, and the authority granted in NFS 1831.205-32(1), the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS 1831.205-32(3).",
+        "Based on the analysis above, and the authority granted in NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12, the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS CG 1831.12.",
       fields: [
         S("recommendation_basis", "Amount recommended", [
           "The current request, in the amount not to exceed the amount stated above",
@@ -1682,7 +1682,7 @@ const precontractCostsApproval: TemplateDef = {
       citation: "NFS 1852.231-70; FAR 31.205-32",
       tier: "binding",
       standingText:
-        "REFERENCES: (1) NASA FAR Supplement (NFS) 1831.205-32, Precontract Costs (2) NFS 1852.231-70, Precontract Costs\n\n" +
+        "REFERENCES: (1) NFS 1852.231-70, Precontract Costs\n\n" +
         "Acceptance of this letter constitutes an advance agreement between NASA and the contractor on precontract costs. The term \"precontract costs\" is defined in Federal Acquisition Regulation (FAR) 31.205-32. If a contract is awarded, costs incurred before the effective date of the contract will be allowable to the extent that they would have been allowable if incurred after the effective date of the contract subject to the following conditions:",
       fields: [
         X("contractor_poc", "Contractor point of contact, name and mailing address"),
@@ -1693,7 +1693,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "letter_conditions",
       title: "Conditions",
-      citation: "NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
         "(c) The costs are allowable only to the extent they would have been if incurred after formal contract award.\n" +
@@ -1710,7 +1710,7 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "letter_signature",
       title: "ACKNOWLEDGEMENT AND ACCEPTANCE OF THE TERMS OF THIS LETTER:",
-      citation: "NFS 1831.205-32(3)",
+      citation: "NFS CG 1831.12",
       tier: "binding",
       standingText: "Enclosure: Attachment 1",
       fields: [
