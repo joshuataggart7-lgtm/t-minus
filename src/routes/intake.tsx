@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import { FAIR_OPPORTUNITY_EXCEPTIONS, VEHICLE_DEFAULTS, type VehicleProfile } from "@/lib/vehicles";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
 import {
   visibleForCenter,
@@ -152,6 +153,10 @@ function IntakePage() {
   // Scenario answers. Every question carries a default, so nothing here can
   // stop the record being saved.
   const [scenario, setScenario] = useState<ScenarioAnswers>(SCENARIO_DEFAULTS);
+  // A parent IDIQ or BPA carries its own terms; an order inherits them.
+  const [vehicle, setVehicle] = useState<VehicleProfile>(VEHICLE_DEFAULTS);
+  const setVeh = <K extends keyof VehicleProfile>(key: K, value: VehicleProfile[K]) =>
+    setVehicle((v) => ({ ...v, [key]: value }));
   const popDays = performanceDays({
     period_of_performance_start: facts.period_of_performance_start,
     period_of_performance_end: facts.period_of_performance_end,
@@ -445,6 +450,11 @@ function IntakePage() {
           facts,
         ),
         intake_estimate: stored,
+        vehicle:
+          scenario.vehicle === "idiq_award" || scenario.vehicle === "bpa"
+            ? { ...vehicle, award_type: scenario.idiq_single_award ? "single" : "multiple" }
+            : {},
+        parent_contract_number: scenario.parent_contract_number || null,
         scenario: {
           ...scenario,
           contract_type: facts.contract_type || scenario.contract_type,
@@ -1052,6 +1062,86 @@ function IntakePage() {
                   <option value="yes">Yes, single award</option>
                 </select>
               </Field>
+            ) : null}
+            {scenario.vehicle === "idiq_award" || scenario.vehicle === "bpa" ? (
+              <>
+                <Field label="Ceiling, dollars" htmlFor="veh-ceiling">
+                  <input
+                    id="veh-ceiling"
+                    className={inputClass}
+                    inputMode="decimal"
+                    value={vehicle.ceiling ?? ""}
+                    onChange={(e) => setVeh("ceiling", e.target.value.trim() ? Number(e.target.value) : null)}
+                  />
+                </Field>
+                <Field label="Minimum guarantee, dollars" htmlFor="veh-minimum">
+                  <input
+                    id="veh-minimum"
+                    className={inputClass}
+                    inputMode="decimal"
+                    value={vehicle.minimum_guarantee ?? ""}
+                    onChange={(e) =>
+                      setVeh("minimum_guarantee", e.target.value.trim() ? Number(e.target.value) : null)
+                    }
+                  />
+                </Field>
+                <Field label="Ordering period start" htmlFor="veh-start">
+                  <input
+                    id="veh-start"
+                    type="date"
+                    className={inputClass}
+                    value={vehicle.ordering_start ?? ""}
+                    onChange={(e) => setVeh("ordering_start", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Ordering period end" htmlFor="veh-end">
+                  <input
+                    id="veh-end"
+                    type="date"
+                    className={inputClass}
+                    value={vehicle.ordering_end ?? ""}
+                    onChange={(e) => setVeh("ordering_end", e.target.value || null)}
+                  />
+                </Field>
+                <Field label="Order types allowed" htmlFor="veh-order-types">
+                  <input
+                    id="veh-order-types"
+                    className={inputClass}
+                    value={vehicle.order_types.join(", ")}
+                    onChange={(e) =>
+                      setVeh(
+                        "order_types",
+                        e.target.value.split(",").map((t) => t.trim()).filter(Boolean),
+                      )
+                    }
+                  />
+                </Field>
+                <Field label="Fair opportunity procedures" htmlFor="veh-fair">
+                  <select
+                    id="veh-fair"
+                    className={inputClass}
+                    value={vehicle.fair_opportunity}
+                    onChange={(e) =>
+                      setVeh("fair_opportunity", e.target.value as VehicleProfile["fair_opportunity"])
+                    }
+                  >
+                    <option value="competed">Fair opportunity to every awardee, FAR 16.505(b)</option>
+                    {FAIR_OPPORTUNITY_EXCEPTIONS.map((x) => (
+                      <option key={x.key} value={x.key}>
+                        Exception: {x.label}, {x.citation}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Clause set at award" htmlFor="veh-clauses">
+                  <input
+                    id="veh-clauses"
+                    className={inputClass}
+                    value={vehicle.clause_set}
+                    onChange={(e) => setVeh("clause_set", e.target.value)}
+                  />
+                </Field>
+              </>
             ) : null}
             {scenario.vehicle === "idiq_order" ? (
               <Field label="Parent contract number" htmlFor="scen-parent">
