@@ -273,22 +273,34 @@ export async function runEngine(options: {
       const from = new Date(to);
       from.setFullYear(from.getFullYear() - 1);
       from.setDate(from.getDate() + 1);
-      const url = new URL("https://api.sam.gov/opportunities/v2/search");
-      url.searchParams.set("api_key", samKey ?? "");
-      url.searchParams.set("limit", "50");
-      if (naics) url.searchParams.set("ncode", naics);
-      else if (psc) url.searchParams.set("ccode", psc);
-      url.searchParams.set("postedFrom", mmddyyyy(from));
-      url.searchParams.set("postedTo", mmddyyyy(to));
+      const NOTICE_PAGE_SIZE = 100;
+      const NOTICE_CAP = 200;
+      const buildUrl = (offset: number) => {
+        const url = new URL("https://api.sam.gov/opportunities/v2/search");
+        url.searchParams.set("api_key", samKey ?? "");
+        url.searchParams.set("limit", String(NOTICE_PAGE_SIZE));
+        url.searchParams.set("offset", String(offset));
+        if (naics) url.searchParams.set("ncode", naics);
+        else if (psc) url.searchParams.set("ccode", psc);
+        url.searchParams.set("postedFrom", mmddyyyy(from));
+        url.searchParams.set("postedTo", mmddyyyy(to));
+        return url;
+      };
       const source = `SAM.gov Opportunities API, ${dateOnly(from.toISOString())} to ${dateOnly(to.toISOString())}`;
-      const query = redact(url, samKey);
+      const query = redact(buildUrl(0), samKey);
       if (!samKey) {
         record({ source, query, resultCount: null, outcome: "Not run. The SAM.gov key is not configured." });
         continue;
       }
+      let found: EngineNotice[] = [];
       try {
-        const found = noticesFromRaw(await getJson(url, samKey));
-        noticesSearched = true;
+        for (let offset = 0; offset < NOTICE_CAP; offset += NOTICE_PAGE_SIZE) {
+          const page = noticesFromRaw(await getJson(buildUrl(offset), samKey));
+          noticesSearched = true;
+          found = found.concat(page);
+          if (page.length < NOTICE_PAGE_SIZE) break;
+        }
+        found = found.slice(0, NOTICE_CAP);
         notices = notices.concat(found);
         record({
           source,
@@ -297,6 +309,7 @@ export async function runEngine(options: {
           outcome: found.length ? "Returned notices." : "Returned no notices under this code.",
         });
       } catch (error) {
+        notices = notices.concat(found);
         record({
           source,
           query,
