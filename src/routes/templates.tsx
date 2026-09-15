@@ -18,7 +18,7 @@ type TemplateRow = {
 
 /** Register rows built as a mode of another live template rather than a page of their own. */
 const TEMPLATE_ALIASES: Record<string, string> = {
-  "Governmentwide Point of Entry (GPE) Templates": "n",
+  "Governmentwide Point of Entry (GPE) Templates": "sam-notice",
 };
 
 const liveKeyFor = (name: string) =>
