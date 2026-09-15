@@ -383,10 +383,6 @@ function FilePage() {
     [q.data],
   );
 
-  // Built after the attachments and saved versions are known, so a phase never
-  // reads Complete while one of its required documents is missing.
-  const phasesRef = { current: [] as PhaseView[] };
-  void phasesRef;
 
   // Files uploaded against the documents on this record.
   const attachQ = useQuery({
