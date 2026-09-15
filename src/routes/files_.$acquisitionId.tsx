@@ -763,9 +763,9 @@ function FilePage() {
       const { error } = await supabase
         .from("acquisition_facts")
         .update({
-          clock_state: "hold",
+          clock_state: "scrubbed",
           hold_reason: reason,
-          hold_owner: user.name,
+          hold_owner: who,
           status: "scrubbed",
           hold_started_at: new Date().toISOString(),
         })
