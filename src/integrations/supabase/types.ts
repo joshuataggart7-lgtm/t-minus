@@ -878,6 +878,82 @@ export type Database = {
           },
         ]
       }
+      document_attachments: {
+        Row: {
+          acquisition_id: string
+          attachment_id: string
+          content_type: string | null
+          created_at: string
+          doc_key: string
+          doc_label: string
+          file_name: string
+          is_seed: boolean
+          nf_1098_tab: string | null
+          parsed_total: number | null
+          size_bytes: number | null
+          storage_path: string
+          updated_at: string
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          acquisition_id: string
+          attachment_id?: string
+          content_type?: string | null
+          created_at?: string
+          doc_key: string
+          doc_label: string
+          file_name: string
+          is_seed?: boolean
+          nf_1098_tab?: string | null
+          parsed_total?: number | null
+          size_bytes?: number | null
+          storage_path: string
+          updated_at?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          acquisition_id?: string
+          attachment_id?: string
+          content_type?: string | null
+          created_at?: string
+          doc_key?: string
+          doc_label?: string
+          file_name?: string
+          is_seed?: boolean
+          nf_1098_tab?: string | null
+          parsed_total?: number | null
+          size_bytes?: number | null
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_attachments_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "document_attachments_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "document_attachments_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       document_checkouts: {
         Row: {
           acquisition_id: string
