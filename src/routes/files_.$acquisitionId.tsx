@@ -454,6 +454,37 @@ function FilePage() {
   const hold = lifecycle?.hold ?? null;
   const effectiveState = lifecycle?.clockState ?? null;
 
+  // The one action for the current blocker, shown in the hero. It does the same
+  // thing as the matching row in the launch sequence.
+  const heroAction = useMemo((): { label: string; doc?: RequiredDoc } | null => {
+    if (!acq || !lifecycle || effectiveState === "launched" || effectiveState === "scrubbed") return null;
+    const current = lifecycle.currentPhase;
+    if (!current) return null;
+    const upTo: PhaseView[] = [];
+    for (const p of phases) {
+      upTo.push(p);
+      if (p.phase === current) break;
+    }
+    for (const p of upTo) {
+      for (const d of p.docs) {
+        if (d.optional || !d.field) continue;
+        const key = docKey(d.field, d.label);
+        const state = docSatisfied(d, acq, Boolean(attachments.find((row) => row.doc_key === key)));
+        if (state === false) return { label: `Attach ${d.label}`, doc: d };
+      }
+    }
+    if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
+    if (current === "Market Research") return { label: "Run market research" };
+    return { label: `Exit ${current}` };
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards]);
+
+  const openLaunchSequence = () => {
+    const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+    if (!el) return;
+    el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   // "Explain this" for the status and the hold, built from the same rules.
   const statusExplanation = useMemo(() => {
     const behind = phases.find(
