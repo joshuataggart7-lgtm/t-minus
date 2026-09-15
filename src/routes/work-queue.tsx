@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
+import { attachedKeys as keysFrom } from "@/lib/hold";
 import {
   computeMetrics,
   awardDateFor,
