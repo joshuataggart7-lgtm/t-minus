@@ -9,6 +9,7 @@ import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
 import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
+import { HQ5_PHASES, HQ5_TEMPLATE_KEYS } from "@/lib/templates-hq5";
 import {
   acquisitionProfile,
   exceptionLabel,
@@ -230,6 +231,7 @@ const LIVE_TEMPLATE_KEYS = new Set([
   "commercial-tm-lh-determination",
   ...HQ_TEMPLATE_KEYS,
   ...HQ4_TEMPLATE_KEYS,
+  ...HQ5_TEMPLATE_KEYS,
 ]);
 
 /** Rows the scenario answers switch on for this phase. */
@@ -833,6 +835,7 @@ export function phaseForTemplate(templateKey: string): string {
     templateKey === "precontract-costs-approval"
   )
     return "Solicitation/Quote";
+  if (HQ5_PHASES[templateKey]) return HQ5_PHASES[templateKey] as string;
   if (HQ4_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")

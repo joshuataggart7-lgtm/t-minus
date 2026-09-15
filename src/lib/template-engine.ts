@@ -11,6 +11,7 @@ import { CLOSEOUT_CHECKLIST } from "@/lib/post-award";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { HQ_TEMPLATES } from "@/lib/templates-hq";
 import { HQ4_TEMPLATES } from "@/lib/templates-hq4";
+import { HQ5_TEMPLATES } from "@/lib/templates-hq5";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2741,6 +2742,7 @@ export const TEMPLATES: TemplateDef[] = [
   memorandumForRecord,
   ...HQ_TEMPLATES,
   ...HQ4_TEMPLATES,
+  ...HQ5_TEMPLATES,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
