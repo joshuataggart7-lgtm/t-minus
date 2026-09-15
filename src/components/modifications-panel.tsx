@@ -192,7 +192,7 @@ export function ModificationsPanel({
                 </p>
                 {m.description ? <p className="mt-1 text-[13px]">{m.description}</p> : null}
                 <ul className="mt-2 space-y-1 text-[13px]">
-                  {modRows(m, { method, outOfScope: false }).map((r) => (
+                  {modRows(m, { method }).map((r) => (
                     <li key={r.label}>
                       {r.label} · {r.state === "required" ? "Required" : "Offered"} · {r.citation}
                     </li>
