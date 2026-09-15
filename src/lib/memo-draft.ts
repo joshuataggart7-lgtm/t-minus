@@ -818,12 +818,12 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
         const noGo = /no-go/i.test(a.action) || /no-go/i.test(str(a.newValue));
         const recorded = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?::|;|$)/i.exec(str(a.reason));
-        const reviewer = recorded?.[2] ?? "reviewer not recorded";
-        const recorder = recorded?.[1] ?? (str(a.actor) || "the contracting officer");
+        const reviewer = recorded?.[2] ?? null;
+        const recorder = recorded?.[1] ?? str(a.actor);
         push(
-          noGo
-            ? `${seatName(a.field)} (${reviewer}) did not concur on ${on}; the vote was received by email and recorded by ${recorder}.`
-            : `${seatName(a.field)} (${reviewer}) concurred on ${on}; the vote was received by email and recorded by ${recorder}.`,
+          `${seatName(a.field)}: ${noGo ? "No-go" : "Go"} recorded ${stamp(a.at)} by ${
+            recorder ? personPhrase(ctx, recorder) : "the contracting officer"
+          }${reviewer ? ` on behalf of ${reviewer}` : ""}.`,
         );
       } else if (/market research run|research finding confirmed/i.test(a.action)) {
         if (w.phase === "Market Research" && researchSentence) push(researchSentence);
