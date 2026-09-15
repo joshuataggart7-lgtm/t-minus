@@ -44,6 +44,8 @@ export type ImpactRow = {
   reason: string;
   task: ModTaskRow | null;
   label: "Potentially affected" | "Applicability unverified" | "Modification required";
+  /** True only when a contract number is recorded; otherwise this is still a solicitation. */
+  hasContract: boolean;
 };
 
 export type ModTaskRow = {
@@ -162,7 +164,16 @@ export function changesFromClauses(rows: ClauseTableRow[]): ClauseChange[] {
       change_deadline: r.change_deadline,
     });
   }
-  return out.sort(
+  // The clause tables carry one row per variant, so the same change can appear
+  // several times. One entry per clause number and kind.
+  const seen = new Set<string>();
+  const deduped = out.filter((c) => {
+    const key = `${c.clause_number}|${c.kind}|${c.status}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return deduped.sort(
     (a, b) =>
       Number(b.kind === "removed") - Number(a.kind === "removed") ||
       a.clause_number.localeCompare(b.clause_number),
@@ -239,6 +250,7 @@ export function impactedContracts(
       center_code: c.center_code,
       co_name: c.co_name,
       contract_number: c.contract_number,
+      hasContract: Boolean(String(c.contract_number ?? "").trim()),
       clock_state: c.clock_state,
       period_of_performance_end: c.period_of_performance_end,
       monthsRemaining: monthsRemaining(c.period_of_performance_end, today),

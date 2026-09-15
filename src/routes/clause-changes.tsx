@@ -72,11 +72,14 @@ function ClauseChangesPage() {
   const change: ClauseChange | null =
     changes.find((c) => c.id === selected) ?? changes[0] ?? null;
 
-  const rows = useMemo(
+  const allRows = useMemo(
     () =>
       change ? impactedContracts(change, contractsQ.data ?? [], tasksQ.data ?? []) : ([] as ImpactRow[]),
     [change, contractsQ.data, tasksQ.data],
   );
+  // Only a file with a recorded contract number is a contract that can be modified.
+  const rows = useMemo(() => allRows.filter((r) => r.hasContract), [allRows]);
+  const solicitationRows = useMemo(() => allRows.filter((r) => !r.hasContract), [allRows]);
 
   const canWrite = role === "specialist" || role === "hq";
 
@@ -201,7 +204,7 @@ function ClauseChangesPage() {
               <div>
                 <dt className="text-[13px] text-muted-foreground">Contracts affected</dt>
                 <dd className="text-[15px]" data-numeric>
-                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified
+                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified · {solicitationRows.length} solicitations to re-check
                 </dd>
               </div>
             </dl>
@@ -341,6 +344,29 @@ function ClauseChangesPage() {
             ))}
           </tbody>
         </table>
+      ) : null}
+
+      {solicitationRows.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-[18px] leading-6 font-medium">Solicitations to re-check</h2>
+          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+            These files have no contract number yet, so there is nothing to modify. Re-check the clause in the
+            solicitation before award.
+          </p>
+          <ul className="mt-3 max-w-[80ch] space-y-2 border-t border-border pt-3">
+            {solicitationRows.map((r) => (
+              <li key={r.acquisition_id} className="text-[13px] leading-[18px]">
+                <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acquisition_id }} className="text-primary">
+                  {r.acquisition_id}
+                </Link>{" "}
+                <span>{r.title ?? "No title recorded"}</span>
+                <span className="block text-muted-foreground">
+                  {r.center_code ?? "Unassigned"} · {r.label} · {r.reason}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       <h2 className="mt-10 text-[18px] leading-6 font-medium">Mods done against mods due, by Center</h2>
