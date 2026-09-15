@@ -309,6 +309,8 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               {
                 label: "Evaluation of quotations record",
                 citation: "FAR 13.106-2",
+                link: "templates",
+                templateKey: "evaluation-of-quotations",
                 note: "Judge each quote against the stated criteria and record who evaluated and why.",
               } as RequiredDoc,
             ]),
