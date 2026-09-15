@@ -676,7 +676,10 @@ function DocumentPage() {
         r.name.toLowerCase() === user.name.toLowerCase(),
     );
     const named = rows.find((r) => r.name === String(q.data?.acq?.["co_name"] ?? ""));
-    const row = mine ?? named;
+    // The contracting officer named on the record is the point of contact a
+    // public notice prints; the signed-in officer stands in only when the
+    // record names nobody.
+    const row = named ?? mine;
     return row ? { name: row.name, email: row.email ?? null, phone: row.telephone ?? null } : null;
   }, [q.data, user]);
 
