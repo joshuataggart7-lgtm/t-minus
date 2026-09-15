@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
+import { Nf1707Signoffs } from "@/components/nf1707-signoffs";
 import { userForRole } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
