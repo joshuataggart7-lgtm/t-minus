@@ -100,7 +100,9 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : (
-            <span className="text-[13px] text-muted-foreground">{user.name}</span>
+            <span className="text-[13px] text-muted-foreground">
+              {user.name} — {ROLE_LABELS[role]}
+            </span>
           )}
           <button
             type="button"
