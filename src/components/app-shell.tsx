@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { navFor, ROLE_LABELS, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
@@ -8,7 +8,29 @@ import { GlobalSearch } from "@/components/global-search";
 import { AskTMinus } from "@/components/ask-tminus";
 
 import { cn } from "@/lib/utils";
-import { PanelLeft } from "lucide-react";
+import {
+  BellRing, BookOpenCheck, BriefcaseBusiness, Building2, Calculator, ChevronDown,
+  ClipboardCheck, FileClock, FileInput, Files, Gauge, LayoutDashboard, Megaphone,
+  PanelLeft, Radio, ScrollText, SearchCheck, Settings2, ShieldCheck, TriangleAlert,
+  type LucideIcon,
+} from "lucide-react";
+
+const NAV_GROUPS = [
+  { label: "Work", items: ["Executive Overview", "Work Queue", "Files", "Intake", "Estimate"] },
+  { label: "Documents", items: ["Templates", "Checks", "Deviations"] },
+  { label: "Oversight", items: ["Audit Log", "Watch", "Directive compliance", "Clause changes", "Escalations", "Leadership digest", "Reporting views", "Simulate", "Regulatory data intake", "PGPD queue"] },
+  { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
+] as const;
+
+const NAV_ICONS: Record<string, LucideIcon> = {
+  "Executive Overview": LayoutDashboard, "Work Queue": BriefcaseBusiness, Files, Intake: FileInput,
+  Estimate: Calculator, Templates: ScrollText, Checks: SearchCheck, Deviations: ShieldCheck,
+  "Audit Log": FileClock, Watch: Radio, "Directive compliance": ClipboardCheck,
+  "Clause changes": BookOpenCheck, Escalations: TriangleAlert, "Leadership digest": Gauge,
+  "Reporting views": Gauge, Simulate: Gauge, "Center configuration": Building2,
+  Announcements: Megaphone, "Seed status": BellRing, "Regulatory data intake": FileInput,
+  "PGPD queue": Files,
+};
 
 // Survives route remounts so the click run isn't reset by navigation.
 const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null } };
@@ -17,6 +39,18 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
   const { role, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
   const [collapsed, setCollapsed] = useState(false);
+  const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
+  useEffect(() => {
+    const saved = window.sessionStorage.getItem("tminus-nav-groups");
+    if (saved) {
+      try { setGroups((current) => ({ ...current, ...JSON.parse(saved) })); } catch { /* keep defaults */ }
+    }
+  }, []);
+  const toggleGroup = (label: string) => setGroups((current) => {
+    const next = { ...current, [label]: !current[label] };
+    window.sessionStorage.setItem("tminus-nav-groups", JSON.stringify(next));
+    return next;
+  });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const items = navFor(role);
 
@@ -52,9 +86,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
       >
         Skip to main content
       </a>
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-background px-4 py-3 sm:px-6">
-
-        <div className="flex items-center gap-3">
+      <header className="grid h-14 grid-cols-[minmax(0,1fr)_minmax(260px,560px)_minmax(0,1fr)] items-center gap-4 border-b border-border bg-background px-4 sm:px-6">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
@@ -63,19 +96,16 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           >
             <PanelLeft className="size-4" aria-hidden="true" />
           </button>
-          <Link to="/" className="block" onClick={onWordmarkClick}>
-            <span className="block text-[18px] leading-6 font-semibold text-foreground">
-              T-Minus
-            </span>
-            <span className="block text-[13px] leading-4 text-muted-foreground">
-              Mission Acquisition Acceleration
-            </span>
+          <Link to="/" className="flex min-w-0 items-baseline gap-2" onClick={onWordmarkClick}>
+            <span className="shrink-0 text-[18px] leading-6 font-semibold text-foreground">T-Minus</span>
+            <span className="hidden truncate text-[13px] text-muted-foreground xl:block">Mission Acquisition Acceleration</span>
           </Link>
         </div>
-
-        <div className="flex items-center gap-3">
+        <div className="min-w-0"><GlobalSearch /></div>
+        <div className="flex min-w-0 items-center justify-end gap-3">
+          <AnnouncementBanner />
           <GlobalSearch />
-          <AskTMinus />
+          <div className="hidden xl:block"><AskTMinus /></div>
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
               Demo
@@ -100,54 +130,55 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : (
-            <span className="text-[13px] text-muted-foreground">
-              {user.name} — {ROLE_LABELS[role]}
+            <span className="hidden max-w-52 truncate text-[13px] text-foreground lg:block">
+              {user.name} <span className="text-muted-foreground">· {ROLE_LABELS[role]}</span>
             </span>
           )}
           <button
             type="button"
             onClick={() => void signOut()}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
+            className="shrink-0 text-[13px] text-foreground hover:text-primary"
           >
             Sign out
           </button>
         </div>
       </header>
 
-      <AnnouncementBanner />
-
-
       <div className="flex">
         <nav
           aria-label="Main"
           className={cn(
-            "shrink-0 border-r border-border bg-background",
+            "min-h-[calc(100vh-56px)] shrink-0 border-r border-border bg-background transition-[width] duration-150 ease-out max-[1099px]:w-14",
             collapsed ? "w-14" : "w-60",
           )}
         >
-          <ul className="py-3">
-            {items.map((item) => {
+          <div className="py-3">
+            {NAV_GROUPS.map((group) => {
+              const groupItems = items.filter((item) => group.items.includes(item.label as never));
+              if (!groupItems.length) return null;
+              const expanded = groups[group.label] ?? false;
+              return <section key={group.label} className="mb-2">
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className="flex w-full items-center justify-between px-4 py-2 text-[11px] font-medium uppercase text-muted-foreground max-[1099px]:sr-only">
+                  <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
+                </button>
+                <ul className={cn(!expanded && "hidden", "max-[1099px]:block")}>
+                {groupItems.map((item) => {
               const active = pathname === item.to;
+              const Icon = NAV_ICONS[item.label] ?? Files;
               return (
                 <li key={item.to}>
                   <Link
                     to={item.to}
                     title={item.label}
                     className={cn(
-                      "block truncate px-4 py-2 text-[14px]",
+                      "flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
                       active
-                        ? "border-l-2 border-primary bg-canvas font-medium text-foreground"
-                        : "border-l-2 border-transparent text-muted-foreground hover:text-foreground",
+                        ? "border-primary font-medium text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
-                    {collapsed ? (
-                      <>
-                        <span aria-hidden="true">{item.label.slice(0, 1)}</span>
-                        <span className="sr-only">{item.label}</span>
-                      </>
-                    ) : (
-                      item.label
-                    )}
+                    <Icon className="size-4 shrink-0" aria-hidden="true" />
+                    <span className={cn("truncate max-[1099px]:sr-only", collapsed && "sr-only")}>{item.label}</span>
                     {!collapsed && item.note ? (
                       <span className="block text-[12px] text-muted-foreground">{item.note}</span>
                     ) : null}
@@ -155,23 +186,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
                 </li>
               );
+            })}</ul></section>;
             })}
-          </ul>
-          <div className="border-t border-border px-4 py-3">
-            <Link
-              to="/seed-status"
-              title="Seed status"
-              className="block truncate text-[13px] text-muted-foreground hover:text-foreground"
-            >
-              {collapsed ? (
-                <>
-                  <span aria-hidden="true">S</span>
-                  <span className="sr-only">Seed status</span>
-                </>
-              ) : (
-                "Seed status"
-              )}
-            </Link>
           </div>
         </nav>
 
@@ -179,7 +195,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           <main
             id="main-content"
             tabIndex={-1}
-            className={cn("px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
+            className={cn("mx-auto px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
           >
             {authMessage ? (
               <p
