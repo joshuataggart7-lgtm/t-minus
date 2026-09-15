@@ -225,6 +225,8 @@ export async function runEngine(options: {
       await samEntities(`SAM.gov Entity Management API, NAICS ${naics} in ${code}`, code),
     );
   }
+  // One registrant can appear under two states; count each only once.
+  stateEntities = [...new Map(stateEntities.map((e) => [e.uei, e])).values()];
   if (!stateCodes.length) {
     record({
       source: "SAM.gov Entity Management API, place of performance state",
