@@ -222,6 +222,11 @@ function FilePage() {
         .from("acquisition_facts")
         .select("acquisition_id")
         .eq("successor_of", acquisitionId);
+      // Whether market research has already been run on this file.
+      const { data: researchRuns } = await supabase
+        .from("research_runs")
+        .select("run_id")
+        .eq("acquisition_id", acquisitionId);
       const [fileDocs, fileTemplates] = await Promise.all([
         supabase
           .from("documents")
