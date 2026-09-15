@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   BellRing, BookOpenCheck, BriefcaseBusiness, Building2, Calculator, ChevronDown,
   ClipboardCheck, FileClock, FileInput, Files, Gauge, LayoutDashboard, Megaphone,
-  PanelLeft, Radio, ScrollText, SearchCheck, Settings2, ShieldCheck, TriangleAlert,
+  PanelLeft, Radio, ScrollText, SearchCheck, ShieldCheck, TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
 
@@ -104,7 +104,6 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <div className="min-w-0"><GlobalSearch /></div>
         <div className="flex min-w-0 items-center justify-end gap-3">
           <AnnouncementBanner />
-          <GlobalSearch />
           <div className="hidden xl:block"><AskTMinus /></div>
           {isAnonymous ? (
             <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
@@ -228,7 +227,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
 export function PageHeader({ title, lead }: { title: string; lead?: string }) {
   return (
-    <div className="mb-8">
+    <div className="mb-8 border-b border-border pb-6">
       <h1 className="page-title">{title}</h1>
       {lead ? <p className="mt-2 max-w-[70ch] text-muted-foreground">{lead}</p> : null}
     </div>
