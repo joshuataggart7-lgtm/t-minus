@@ -983,6 +983,29 @@ function DocumentPage() {
         ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
+      // The recommended quoter on the evaluation record becomes the vendor on
+      // the record, so the price memorandum and the responsibility check read
+      // the same name and UEI without anyone retyping them.
+      if (def.key === "evaluation-of-quotations") {
+        const name = String(values["recommended_quoter"] ?? "").trim();
+        const uei = String(values["recommended_uei"] ?? "").trim();
+        if (name || uei) {
+          const patch: Record<string, string> = {};
+          if (name) patch["vendor_legal_name"] = name;
+          if (uei) patch["vendor_uei"] = uei;
+          await supabase.from("acquisition_facts").update(patch).eq("acquisition_id", acquisitionId);
+          await supabase.from("audit_log").insert({
+            acquisition_id: acquisitionId,
+            actor: user.name,
+            action: "Recommended quoter carried to the record",
+            field: "vendor_legal_name",
+            old_value: String(q.data.acq["vendor_legal_name"] ?? ""),
+            new_value: [name, uei].filter(Boolean).join(" · "),
+            reason: "Recommended on the evaluation of quotations record",
+            phase,
+          });
+        }
+      }
       const { error: logError } = await supabase.from("audit_log").insert({
         acquisition_id: acquisitionId,
         actor: user.name,
