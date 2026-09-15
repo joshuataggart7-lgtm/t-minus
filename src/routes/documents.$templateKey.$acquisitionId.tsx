@@ -1170,9 +1170,12 @@ function DocumentPage() {
         onSubmit={(e) => {
           e.preventDefault();
           setTouched(true);
+          // A version saves with any field empty. Fields still to complete are
+          // listed on the form and on the phase; the export prints a blank line.
           if (errorCount) {
-            setMessage(`${errorCount} required field${errorCount === 1 ? "" : "s"} still to complete.`);
-            return;
+            setMessage(
+              `Saved with ${errorCount} field${errorCount === 1 ? "" : "s"} still to complete; the phase lists them before it can be exited.`,
+            );
           }
           save.mutate();
         }}
@@ -1196,7 +1199,7 @@ function DocumentPage() {
                   <div className="flex flex-wrap items-baseline gap-3">
                     <label htmlFor={id} className="block text-[13px] text-muted-foreground">
                       {f.label}
-                      {f.required ? " (required)" : ""}
+                      {f.required ? " (required)" : f.requiredAtExit ? " (required to exit the phase)" : ""}
                     </label>
                     <button
                       type="button"
