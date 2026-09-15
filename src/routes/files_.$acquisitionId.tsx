@@ -718,6 +718,9 @@ function FilePage() {
         (fpdsIndex >= 0 && currentIndex >= fpdsIndex) ||
         (fpdsIndex < 0 && administrationIndex >= 0 && currentIndex >= administrationIndex)
       );
+      if ((q.data?.nfApprovals ?? []).some((a) => a.status === "non_concurred")) {
+        throw new Error("A NF 1707 non-concurrence is open. Clear it before launch");
+      }
       if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
       }
