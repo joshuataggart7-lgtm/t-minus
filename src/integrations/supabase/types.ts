@@ -24,6 +24,7 @@ export type Database = {
           center_code: string | null
           center_name: string | null
           clock_state: string | null
+          closeout: Json
           co_code: string | null
           co_name: string | null
           commercial_determination: string | null
@@ -64,6 +65,7 @@ export type Database = {
           need_date: string | null
           nf1707_answers: Json | null
           note: string | null
+          parent_contract_number: string | null
           period_of_performance_end: string | null
           period_of_performance_start: string | null
           place_of_performance: string | null
@@ -90,6 +92,7 @@ export type Database = {
           target_award_date: string | null
           title: string | null
           updated_at: string
+          vehicle: Json
           vendor_cage: string | null
           vendor_legal_name: string | null
           vendor_uei: string | null
@@ -103,6 +106,7 @@ export type Database = {
           center_code?: string | null
           center_name?: string | null
           clock_state?: string | null
+          closeout?: Json
           co_code?: string | null
           co_name?: string | null
           commercial_determination?: string | null
@@ -143,6 +147,7 @@ export type Database = {
           need_date?: string | null
           nf1707_answers?: Json | null
           note?: string | null
+          parent_contract_number?: string | null
           period_of_performance_end?: string | null
           period_of_performance_start?: string | null
           place_of_performance?: string | null
@@ -169,6 +174,7 @@ export type Database = {
           target_award_date?: string | null
           title?: string | null
           updated_at?: string
+          vehicle?: Json
           vendor_cage?: string | null
           vendor_legal_name?: string | null
           vendor_uei?: string | null
@@ -182,6 +188,7 @@ export type Database = {
           center_code?: string | null
           center_name?: string | null
           clock_state?: string | null
+          closeout?: Json
           co_code?: string | null
           co_name?: string | null
           commercial_determination?: string | null
@@ -222,6 +229,7 @@ export type Database = {
           need_date?: string | null
           nf1707_answers?: Json | null
           note?: string | null
+          parent_contract_number?: string | null
           period_of_performance_end?: string | null
           period_of_performance_start?: string | null
           place_of_performance?: string | null
@@ -248,6 +256,7 @@ export type Database = {
           target_award_date?: string | null
           title?: string | null
           updated_at?: string
+          vehicle?: Json
           vendor_cage?: string | null
           vendor_legal_name?: string | null
           vendor_uei?: string | null
@@ -745,6 +754,94 @@ export type Database = {
           source_tier?: string
         }
         Relationships: []
+      }
+      contract_modifications: {
+        Row: {
+          acquisition_id: string
+          authority_text: string | null
+          clause_delta: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          funds_line: string | null
+          is_seed: boolean
+          mod_id: string
+          mod_number: string
+          mod_type: string
+          period_change_end: string | null
+          sf30_13a: boolean
+          sf30_13b: boolean
+          sf30_13c: boolean
+          sf30_13d: boolean
+          state: string
+          updated_at: string
+          value_change: number | null
+        }
+        Insert: {
+          acquisition_id: string
+          authority_text?: string | null
+          clause_delta?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          funds_line?: string | null
+          is_seed?: boolean
+          mod_id?: string
+          mod_number: string
+          mod_type: string
+          period_change_end?: string | null
+          sf30_13a?: boolean
+          sf30_13b?: boolean
+          sf30_13c?: boolean
+          sf30_13d?: boolean
+          state?: string
+          updated_at?: string
+          value_change?: number | null
+        }
+        Update: {
+          acquisition_id?: string
+          authority_text?: string | null
+          clause_delta?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          funds_line?: string | null
+          is_seed?: boolean
+          mod_id?: string
+          mod_number?: string
+          mod_type?: string
+          period_change_end?: string | null
+          sf30_13a?: boolean
+          sf30_13b?: boolean
+          sf30_13c?: boolean
+          sf30_13d?: boolean
+          state?: string
+          updated_at?: string
+          value_change?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_modifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "contract_modifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "contract_modifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
       }
       deviation_requests: {
         Row: {
