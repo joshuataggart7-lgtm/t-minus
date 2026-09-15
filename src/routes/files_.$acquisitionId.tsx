@@ -19,7 +19,6 @@ import {
   computeHold,
   docSatisfied,
   NCMS_CHECKLIST,
-  PACKET_CLAUSE_NUMBERS,
   pollBoard,
   REVIEW_PHASES,
   reviewRulesForPhase,
@@ -28,6 +27,7 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
@@ -185,7 +185,7 @@ function FilePage() {
         supabase
           .from("clauses")
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
-          .in("clause_number", PACKET_CLAUSE_NUMBERS),
+          .in("clause_number", PACKET_CANDIDATE_NUMBERS),
         supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
       ]);
       const { data: memoRouting } = await supabase
@@ -768,9 +768,15 @@ function FilePage() {
   });
 
 
+  // The clause list is built from this record, not from a fixed set.
+  const packetClauses = useMemo(
+    () => selectPacketClauses(acq, q.data?.clauses ?? [], q.data?.thresholds ?? []),
+    [acq, q.data?.clauses, q.data?.thresholds],
+  );
+
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, q.data?.clauses ?? [], phases, board);
+    const packet = buildPacket(acq, packetClauses, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1546,8 +1552,33 @@ function FilePage() {
                     ))}
                   </ul>
                   <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-                    {q.data?.clauses.length ?? 0} clauses in the packet, read from the clause table.
+                    {q.isLoading
+                      ? "Loading the clause list."
+                      : `${packetClauses.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
+                  {packetClauses.length > 0 ? (
+                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                      <caption className="sr-only">Clauses in the packet and why each is included</caption>
+                      <thead>
+                        <tr className="border-y border-border text-left">
+                          <th scope="col" className="p-2">Clause</th>
+                          <th scope="col" className="p-2">Title</th>
+                          <th scope="col" className="p-2">Why it is included</th>
+                          <th scope="col" className="p-2">Matrix status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {packetClauses.map((c) => (
+                          <tr key={c.clause_number} className="border-b border-border align-top">
+                            <td className="p-2" data-numeric>{c.clause_number}</td>
+                            <td className="p-2">{c.title}</td>
+                            <td className="p-2">{c.reason}</td>
+                            <td className="p-2 text-muted-foreground">{c.status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : null}
                   <button type="button" onClick={downloadPacket} className="mt-3 text-[15px] text-primary">
                     Download the handoff packet
                   </button>
