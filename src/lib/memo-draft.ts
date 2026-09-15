@@ -66,6 +66,10 @@ export type MemoDraftCtx = {
   values?: Values;
   /** The JOFOC saved on this file, when there is one, so the notice can read item 5. */
   jofocValues?: Values | null;
+  /** The SAM.gov notice saved on this file, for the basis for award and criteria. */
+  noticeValues?: Values | null;
+  /** The evaluation of quotations record, so the recommendation carries forward. */
+  evaluationValues?: Values | null;
   /** Today, so a determination carries its date. */
   today?: string;
   /** Audit trail on this file, oldest first, for the chronology memorandum. */
