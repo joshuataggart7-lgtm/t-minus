@@ -115,7 +115,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 id="role-toggle"
                 value={role}
                  onChange={(e) => setRole(e.target.value as PersonaRole)}
-                className="max-w-64 rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
+                className="max-w-56 rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
               >
                 {SEEDED_USERS.map((u) => (
                   <option key={u.role} value={u.role}>
@@ -124,18 +124,24 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 ))}
               </select>
             </>
-          ) : (
-            <div className="hidden min-w-0 items-center gap-2 lg:flex">
-              <span className="max-w-40 truncate text-[13px] text-foreground">{user.name}</span>
-              <span className="flex max-w-72 flex-wrap justify-end gap-1">
-                {roles.map((assignedRole) => (
-                  <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-                    {ROLE_LABELS[assignedRole]}
-                  </span>
-                ))}
-              </span>
-            </div>
-          )}
+          ) : null}
+          <div className="flex min-w-0 items-center gap-2">
+            <Link
+              to="/center-config"
+              hash="my-record"
+              className="max-w-40 truncate text-[13px] text-foreground hover:text-primary"
+              title="Open my record"
+            >
+              {user.name}
+            </Link>
+            <span className="hidden max-w-72 flex-wrap justify-end gap-1 sm:flex">
+              {roles.map((assignedRole) => (
+                <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {ROLE_LABELS[assignedRole]}
+                </span>
+              ))}
+            </span>
+          </div>
           <button
             type="button"
             onClick={() => void signOut()}
