@@ -819,6 +819,41 @@ function FilePage() {
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
 
+  // The price the single source proposed, recorded on the file and read by the
+  // technical evaluation report and the price negotiation memorandum.
+  const setProposedPrice = useMutation({
+    mutationFn: async ({ price, received }: { price: string; received: string }) => {
+      if (!acq) return;
+      const who = await signedInName(actorName);
+      const amount = price.trim() === "" ? null : Number(price);
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({
+          proposed_price: amount,
+          proposed_price_received: received.trim() === "" ? null : received,
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert([
+        {
+          acquisition_id: acq.acquisition_id,
+          actor: who,
+          action: "Proposed price recorded",
+          field: "proposed_price",
+          old_value: String(acq['proposed_price'] ?? ""),
+          new_value: amount === null ? "" : String(amount),
+          reason: received ? `Proposal received ${received}` : "Proposed price from the intended source",
+        },
+      ]);
+    },
+    onSuccess: () => {
+      setBanner("The proposed price is on the record.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
+  });
+
   // Attaching a required document: store the file, index it, audit it, and only
   // then mark the row Attached. Cancelling the picker changes nothing.
   const attachDoc = useMutation({
