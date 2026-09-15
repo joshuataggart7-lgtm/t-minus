@@ -1077,11 +1077,12 @@ const excludeSourceDandf: TemplateDef = {
   tab: "021",
   layout: "dandf",
   badge: {
-    citation: "FAR 6.202; FAR 6.202(b); NFS 1806.202-70; 10 U.S.C. 3203(a)(1)",
+    citation: "FAR 6.102; FAR 6.102-1(a); NFS CG 1806.11; 10 U.S.C. 3203(a)(1)",
     tier: "binding",
-    revision: "HQ 03/2025 revision",
+    revision: "HQ 05/2026 revision",
     effective: "2026-04-27",
-    note: "Approval authority is the Senior Procurement Executive.",
+    note: "Approval authority under NFS CG 1806.11(b) is the Senior Procurement Executive.",
+
   },
   lead: "Determination and findings that a source may be excluded from full and open competition.",
   sections: [
