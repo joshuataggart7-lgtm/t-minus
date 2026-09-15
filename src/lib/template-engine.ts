@@ -2480,10 +2480,11 @@ export type ExportContext = {
   technicalRepresentativeName?: string | undefined;
 };
 
-type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean };
+type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean; center?: boolean; bold?: boolean };
 
 const cleanExportText = (text: string) =>
   text
+    .replace(/\[[^\]]*(?:Contracting officer|not yet|complete|confirm)[^\]]*\]/gi, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
     .replace(/\s*Source:.*$/gi, "")
     .replace(/^\s*[—–-]\s*$/, "")
@@ -2510,23 +2511,17 @@ function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const contractor = value("contractor_name") || blankLine;
   const action = (value("action_type") || "sole-source contract").toLowerCase();
   const actionDescription = value("action_description") || value("requirement_description") || blankLine;
-  const notice = value("notice_status") || value("notice_date")
-    ? `The notice of intent was posted${value("notice_date") ? ` on ${value("notice_date")}` : ""}${value("interested_sources") ? `. ${value("interested_sources")}` : "."}`
+  const notice = value("notice_date")
+    ? `The notice of intent was posted on ${value("notice_date")}${value("interested_sources") ? `. ${value("interested_sources")}` : "."}`
     : "The notice of intent has not yet been posted.";
   const item = (n: number, heading: string, prose: string): PrintBlock => ({ heading: `${n}. ${heading}`, lines: [prose] });
   return [
-    {
-      lines: [
-        "National Aeronautics and Space Administration",
-        "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION",
-        `Center: ${value("center_code") || blankLine}`,
-        `Solicitation/contract number: ${value("solicitation_name") || blankLine}`,
-        `Program: ${value("program_name") || blankLine}`,
-      ],
-    },
+    { lines: ["National Aeronautics and Space Administration"], center: true },
+    { lines: ["JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION"], center: true, bold: true },
+    { lines: [`Center: ${value("center_code") || blankLine}`, `Solicitation/contract number: ${value("solicitation_name") || blankLine}`, `Program: ${value("program_name") || blankLine}`] },
     item(1, "Identification of the agency and the contracting activity", `The procuring agency is the National Aeronautics and Space Administration, and the contracting activity is ${value("buying_location") || blankLine}.`),
     item(2, "Nature and description of the action being approved", `This action is a ${action} to ${contractor} for ${actionDescription}.`),
-    item(3, "Description of the supplies or services required, including estimated value", `${value("requirement_description") || actionDescription} The estimated value is ${value("estimated_value") || blankLine}.${value("pop_start") || value("pop_end") ? ` The period of performance is ${value("pop_start") || blankLine} to ${value("pop_end") || blankLine}.` : ""}`),
+    item(3, "Description of the supplies or services required, including estimated value", `${value("requirement_description") || actionDescription} The estimated value is ${value("estimated_value") ? money(Number(value("estimated_value").replace(/[$,]/g, ""))) : blankLine}.${value("pop_start") || value("pop_end") ? ` The period of performance is ${value("pop_start") || blankLine} to ${value("pop_end") || blankLine}.` : ""}`),
     item(4, "Statutory authority permitting other than full and open competition", `This action is authorized by ${value("authority") || blankLine}.`),
     item(5, "Demonstration that the authority cited applies", value("authority_rationale") || blankLine),
     item(6, "Efforts to solicit offers from as many potential sources as practicable", notice),
@@ -2621,7 +2616,7 @@ export async function exportDocx(doc: RenderedDoc, fileName: string, context?: E
   const children: InstanceType<typeof Paragraph>[] = [];
   for (const [index, b] of blocks.entries()) {
     if (b.heading) children.push(new Paragraph({ spacing: { before: index ? 180 : 0, after: 120 }, children: [new TextRun({ text: b.heading, bold: true, font: "Times New Roman", size: 24 })] }));
-    for (const line of b.lines) children.push(new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text: line, font: "Times New Roman", size: 24 })] }));
+    for (const line of b.lines) children.push(new Paragraph({ alignment: b.center ? "center" : undefined, spacing: { after: 120 }, children: [new TextRun({ text: line, bold: b.bold, font: "Times New Roman", size: 24 })] }));
   }
   const footer = new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, tabStops: [{ type: TabStopType.CENTER, position: 4680 }], children: [
     new TextRun({ text: "Prototype, synthetic data\t", color: "777777", size: 16, font: "Times New Roman" }),
@@ -2654,7 +2649,7 @@ export async function exportPdf(doc: RenderedDoc, _headerLine: string, fileName 
   const blocks: PdfBlock[] = [];
   for (const block of exportBlocks(doc, context)) {
     if (block.heading) blocks.push({ text: block.heading, bold: true, gap: 6 });
-    block.lines.forEach((line) => blocks.push({ text: line, gap: 6 }));
+    block.lines.forEach((line) => blocks.push({ text: line, gap: 6, center: block.center, bold: block.bold }));
   }
   await renderPdf(blocks, {
     fileName,
