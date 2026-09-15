@@ -537,7 +537,7 @@ function FilePage() {
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
     return { label: `Exit ${current}` };
-  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys]);
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys, q.data?.researchRuns]);
 
   const openLaunchSequence = () => {
     const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
