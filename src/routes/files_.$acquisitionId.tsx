@@ -18,6 +18,7 @@ import {
   buildPacket,
   buildSequence,
   docSatisfied,
+  generatorKey,
   NCMS_CHECKLIST,
   pollBoard,
   REVIEW_PHASES,
@@ -43,6 +44,7 @@ import {
   type AttachmentRow,
 } from "@/lib/attachments";
 import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { TEMPLATES } from "@/lib/template-engine";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
@@ -396,6 +398,30 @@ function FilePage() {
   const attachmentFor = (key: string): AttachmentRow | null =>
     attachments.find((row) => row.doc_key === key) ?? null;
 
+  // Documents T-Minus writes itself: the latest saved version of each, by the
+  // generator key of the launch-sequence row it satisfies.
+  const savedDocs = useMemo(() => {
+    const byId = new Map<string, string>();
+    for (const t of q.data?.templates ?? []) {
+      const def = TEMPLATES.find((d) => d.name === t.name);
+      if (def) byId.set(t.template_id, def.key);
+    }
+    const out = new Map<string, { version: number; savedAt: string | null }>();
+    for (const d of (q.data?.documents ?? []) as {
+      template_id: string | null;
+      version: number | null;
+      saved_at: string | null;
+    }[]) {
+      const key = d.template_id ? byId.get(d.template_id) : undefined;
+      if (!key) continue;
+      const version = Number(d.version ?? 1);
+      const current = out.get(key);
+      if (!current || version >= current.version) out.set(key, { version, savedAt: d.saved_at });
+    }
+    return out;
+  }, [q.data?.documents, q.data?.templates]);
+  const savedKeys = useMemo(() => new Set(savedDocs.keys()), [savedDocs]);
+
   // NF 1098 contract file index: tabs present, and required tabs with no document.
   const fileIndex = useMemo(
     () =>
@@ -442,8 +468,9 @@ function FilePage() {
       holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
       awardDate: awardDateFor(acq.acquisition_id, q.data?.log ?? [], acq.target_award_date ?? null),
       attachedKeys: keysFrom(attachments),
+      savedKeys,
     });
-  }, [acq, q.data, ref, attachments]);
+  }, [acq, q.data, ref, attachments, savedKeys]);
 
   const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
   const sidebarPhase =
@@ -456,7 +483,11 @@ function FilePage() {
 
   // The one action for the current blocker, shown in the hero. It does the same
   // thing as the matching row in the launch sequence.
-  const heroAction = useMemo((): { label: string; doc?: RequiredDoc } | null => {
+  const heroAction = useMemo((): {
+    label: string;
+    doc?: RequiredDoc;
+    generated?: RequiredDoc;
+  } | null => {
     if (!acq || !lifecycle || effectiveState === "launched" || effectiveState === "scrubbed") return null;
     const current = lifecycle.currentPhase;
     if (!current) return null;
@@ -469,14 +500,23 @@ function FilePage() {
       for (const d of p.docs) {
         if (d.optional || !d.field) continue;
         const key = docKey(d.field, d.label);
-        const state = docSatisfied(d, acq, Boolean(attachments.find((row) => row.doc_key === key)));
-        if (state === false) return { label: `Attach ${d.label}`, doc: d };
+        const state = docSatisfied(
+          d,
+          acq,
+          Boolean(attachments.find((row) => row.doc_key === key)),
+          savedKeys,
+        );
+        if (state !== false) continue;
+        const generator = generatorKey(d);
+        // A document T-Minus writes is opened, never asked for as an upload.
+        if (generator) return { label: `Write the ${d.label.toLowerCase()}`, generated: d };
+        return { label: `Attach ${d.label}`, doc: d };
       }
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
     if (current === "Market Research") return { label: "Run market research" };
     return { label: `Exit ${current}` };
-  }, [acq, lifecycle, effectiveState, phases, attachments, boards]);
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys]);
 
   const openLaunchSequence = () => {
     const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
@@ -1121,7 +1161,25 @@ function FilePage() {
             ) : null}
             {heroAction && canWrite ? (
               <div className="mt-4">
-                {heroAction.doc ? (
+                {heroAction.generated ? (
+                  heroAction.generated.templateKey ? (
+                    <Link
+                      to="/documents/$templateKey/$acquisitionId"
+                      params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
+                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                    >
+                      {heroAction.label}
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/forms/$formKey/$acquisitionId"
+                      params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
+                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                    >
+                      {heroAction.label}
+                    </Link>
+                  )
+                ) : heroAction.doc ? (
                   <label className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
                     {attachDoc.isPending ? "Attaching" : heroAction.label}
                     <input
@@ -1527,10 +1585,13 @@ function FilePage() {
                 {p.docs.map((d) => {
                   const key = docKey(d.field, d.label);
                   const attached = attachmentFor(key);
+                  const generator = generatorKey(d);
+                  const saved = generator ? savedDocs.get(generator) : undefined;
                   const state = docSatisfied(
                     d,
                     acq ?? ({ acquisition_id: "" } as AcqRow),
-                    d.field ? Boolean(attached) : undefined,
+                    d.field || generator ? Boolean(attached) : undefined,
+                    savedKeys,
                   );
                   const busy = attachDoc.isPending || detachDoc.isPending;
                   return (
@@ -1539,7 +1600,76 @@ function FilePage() {
                       <span className="text-[13px] text-muted-foreground">
                         {d.optional ? "Offered" : "Required"}
                       </span>
-                      {state === null ? (
+                      {generator ? (
+                        <>
+                          <StatusMark
+                            color={saved ? "var(--ontrack)" : "var(--atrisk)"}
+                            className="text-[13px]"
+                          >
+                            {saved
+                              ? `Saved, version ${saved.version}${saved.savedAt ? `, ${formatDate(String(saved.savedAt).slice(0, 10))}` : ""}`
+                              : "Missing"}
+                          </StatusMark>
+                          {d.templateKey ? (
+                            <Link
+                              to="/documents/$templateKey/$acquisitionId"
+                              params={{ templateKey: d.templateKey, acquisitionId }}
+                              className="text-[13px] text-primary"
+                            >
+                              {saved ? "Open the saved document" : "Write the document for this file"}
+                            </Link>
+                          ) : (
+                            <Link
+                              to="/forms/$formKey/$acquisitionId"
+                              params={{ formKey: d.formKey ?? "nf-1787", acquisitionId }}
+                              className="text-[13px] text-primary"
+                            >
+                              {saved ? "Open the saved form" : "Write the form for this file"}
+                            </Link>
+                          )}
+                          {attached ? (
+                            <button
+                              type="button"
+                              onClick={() => void openAttachment(attached)}
+                              className="text-[13px] text-primary"
+                            >
+                              {attached.file_name}
+                            </button>
+                          ) : null}
+                          {canWrite ? (
+                            attached ? (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => detachDoc.mutate(d)}
+                                className="text-[13px] text-primary disabled:opacity-60"
+                              >
+                                Remove the external copy
+                              </button>
+                            ) : (
+                              <label className="cursor-pointer text-[13px] text-primary">
+                                {busy ? "Attaching" : "Attach an external copy"}
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept={ATTACHMENT_ACCEPT}
+                                  disabled={busy}
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (file) attachDoc.mutate({ doc: d, file });
+                                    event.target.value = "";
+                                  }}
+                                />
+                              </label>
+                            )
+                          ) : null}
+                          {!saved && !attached && !d.optional ? (
+                            <span className="block w-full">
+                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                            </span>
+                          ) : null}
+                        </>
+                      ) : state === null ? (
                         d.link === "packet" ? (
                           <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
                             Open the NCMS handoff packet

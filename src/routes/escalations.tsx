@@ -12,7 +12,7 @@ import {
   type UserRow,
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
-import { holdFromRecord, attachedKeys as keysFrom } from "@/lib/hold";
+import { holdFromRecord, attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 
 export const Route = createFileRoute("/escalations")({
   head: () => ({
@@ -54,6 +54,10 @@ function EscalationsPage() {
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
         supabase.from("document_attachments").select("acquisition_id,doc_key"),
       ]);
+      const [documents, templateRows] = await Promise.all([
+        supabase.from("documents").select("acquisition_id,template_id"),
+        supabase.from("templates").select("template_id,name"),
+      ]);
       // The hold shown here is recomputed from the record and the stored files,
       // so this page, the work queue and the file header read the same cause.
       const rows = ((acqs.data ?? []) as unknown as AcqRow[]).map((acq) => {
@@ -62,6 +66,7 @@ function EscalationsPage() {
           acq,
           (plan.data ?? []) as never,
           keysFrom(attachments.data ?? [], acq.acquisition_id),
+          savedDocKeys(documents.data ?? [], templateRows.data ?? [], acq.acquisition_id),
         );
         return {
           ...acq,

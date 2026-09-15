@@ -5,6 +5,9 @@ import { addDays, daysBetween, todayISO, type RefData } from "@/lib/intake";
 import {
   buildSequence,
   computeHold,
+  docRowKey,
+  docSatisfied,
+  generatorKey,
   pollBoard,
   REVIEW_PHASES,
   type AcqRow,
@@ -116,6 +119,8 @@ export function computeMetrics(
     roster?: ReviewerPerson[];
     /** Document keys with a stored file, so a cleared cause never lingers. */
     attachedKeys?: Set<string>;
+    /** Generator keys with a saved version, so a written document clears its row. */
+    savedKeys?: Set<string>;
   },
 ): AcqMetrics {
   const today = opts.today ?? todayISO();
@@ -139,7 +144,7 @@ export function computeMetrics(
   });
   const scrubbed = acq.status === "scrubbed" || acq.clock_state === "scrubbed";
   const launched = acq.clock_state === "launched";
-  const hold = launched || scrubbed ? null : resolveHold(acq, phases, board, opts.attachedKeys);
+  const hold = launched || scrubbed ? null : resolveHold(acq, phases, board, opts.attachedKeys, opts.savedKeys);
   const clockState =
     launched || scrubbed
       ? (launched ? "launched" : "scrubbed")
@@ -229,7 +234,16 @@ export function computeMetrics(
     blockerOwner = hold.owner;
   } else {
     const pending = board.find((b) => b.vote === "pending");
-    const missingDoc = current?.docs.find((d) => d.field && !acq[d.field]);
+    const missingDoc = current?.docs.find(
+      (d) =>
+        (d.field || generatorKey(d)) &&
+        docSatisfied(
+          d,
+          acq,
+          opts.attachedKeys ? opts.attachedKeys.has(docRowKey(d)) : undefined,
+          opts.savedKeys,
+        ) === false,
+    );
     if (pending) {
       blocker = `${pending.reviewer_role} has not voted`;
       blockerOwner = pending.reviewer_name;

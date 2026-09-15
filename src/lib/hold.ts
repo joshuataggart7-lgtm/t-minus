@@ -6,6 +6,7 @@
 // time it is read. A reason a person typed is left alone.
 
 import { daysBetween, todayISO } from "@/lib/intake";
+import { TEMPLATES } from "@/lib/template-engine";
 import {
   buildSequence,
   computeHold,
@@ -31,6 +32,26 @@ export function attachedKeys(
   );
 }
 
+/** The generator keys that have at least one saved version, for one file. */
+export function savedDocKeys(
+  documents: { acquisition_id?: string | null; template_id: string | null }[],
+  templates: { template_id: string; name: string }[],
+  acquisitionId?: string,
+): Set<string> {
+  const keyByTemplateId = new Map<string, string>();
+  for (const t of templates) {
+    const def = TEMPLATES.find((d) => d.name === t.name);
+    if (def) keyByTemplateId.set(t.template_id, def.key);
+  }
+  const out = new Set<string>();
+  for (const d of documents) {
+    if (acquisitionId && d.acquisition_id && d.acquisition_id !== acquisitionId) continue;
+    const key = d.template_id ? keyByTemplateId.get(d.template_id) : undefined;
+    if (key) out.add(key);
+  }
+  return out;
+}
+
 export function keyForDoc(doc: RequiredDoc) {
   return docRowKey(doc);
 }
@@ -50,8 +71,9 @@ export function resolveHold(
   phases: PhaseView[],
   board: BoardEntry[],
   keys?: Set<string>,
+  saved?: Set<string>,
 ): Hold {
-  const computed = computeHold(acq, phases, board, keys);
+  const computed = computeHold(acq, phases, board, keys, saved);
   if (computed) return computed;
   const recorded = acq.hold_reason ? String(acq.hold_reason) : "";
   if (!recorded || isDerivedHoldReason(recorded)) return null;
@@ -59,7 +81,12 @@ export function resolveHold(
 }
 
 /** Same reading without a poll board, for pages that only list holds. */
-export function holdFromRecord(acq: AcqRow, plan: PhasePlanRow[], keys?: Set<string>): Hold {
+export function holdFromRecord(
+  acq: AcqRow,
+  plan: PhasePlanRow[],
+  keys?: Set<string>,
+  saved?: Set<string>,
+): Hold {
   const phases = buildSequence(acq, plan, todayISO(), daysBetween);
-  return resolveHold(acq, phases, [], keys);
+  return resolveHold(acq, phases, [], keys, saved);
 }

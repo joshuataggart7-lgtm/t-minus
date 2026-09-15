@@ -22,7 +22,7 @@ import { CentersTab, type CenterDocumentRow, type CenterTemplateRow } from "@/co
 import { successorRows } from "@/lib/successor";
 import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
-import { attachedKeys as keysFrom } from "@/lib/hold";
+import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import {
   callout,
   computeMetrics,
@@ -150,6 +150,7 @@ export function ExecutiveOverview() {
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
+        savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,

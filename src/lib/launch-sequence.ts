@@ -257,6 +257,8 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           label: "Justification for other than full and open competition",
           citation: "RFO FAR 6.104-2",
           field: "jofoc_authority_citation",
+          link: "templates",
+          templateKey: "jofoc",
         },
       ];
     case "Synopsis": {
@@ -407,7 +409,28 @@ export function docRowKey(doc: RequiredDoc): string {
   return doc.field ?? doc.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
-export function docSatisfied(doc: RequiredDoc, acq: AcqRow, hasFile?: boolean): boolean | null {
+/**
+ * The generator key for a row T-Minus writes itself: the template or the form
+ * that produces the document. A row with a generator is satisfied by a saved
+ * version, never by an upload of something the app writes.
+ */
+export function generatorKey(doc: RequiredDoc): string | null {
+  return doc.templateKey ?? doc.formKey ?? null;
+}
+
+export function docSatisfied(
+  doc: RequiredDoc,
+  acq: AcqRow,
+  hasFile?: boolean,
+  savedKeys?: Set<string>,
+): boolean | null {
+  // A document the app generates reads from its saved versions. An external
+  // copy attached against the same row counts too.
+  const generator = generatorKey(doc);
+  if (generator) {
+    if (!savedKeys) return hasFile ? true : null;
+    return savedKeys.has(generator) || Boolean(hasFile);
+  }
   if (!doc.field) return null;
   // A stored file is the only thing that makes a row read Attached. When the
   // caller knows whether a file exists, that answer decides.
@@ -689,6 +712,7 @@ export function computeHold(
   phases: PhaseView[],
   board: BoardEntry[],
   attachedKeys?: Set<string>,
+  savedKeys?: Set<string>,
 ): HoldCause {
   const owner = acq.co_name ? `Contracting officer: ${acq.co_name}` : "Contracting officer";
   const currentIndex = phases.findIndex((p) => p.status === "current");
@@ -697,8 +721,11 @@ export function computeHold(
   for (const p of throughCurrent) {
     for (const d of p.docs) {
       if (d.optional) continue;
-      const hasFile = attachedKeys && d.field ? attachedKeys.has(docRowKey(d)) : undefined;
-      if (docSatisfied(d, acq, hasFile) === false)
+      // A row the app generates only holds the file where the record already
+      // carried that answer; an unwritten optional draft never places a hold.
+      if (generatorKey(d) && !d.field) continue;
+      const hasFile = attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined;
+      if (docSatisfied(d, acq, hasFile, savedKeys) === false)
         return { reason: `${p.phase}: ${d.label} is missing`, owner };
     }
   }

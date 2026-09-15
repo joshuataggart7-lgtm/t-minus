@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
-import { attachedKeys as keysFrom } from "@/lib/hold";
+import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
@@ -60,6 +60,10 @@ function DigestPage() {
         supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
       ]);
       const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
+      const [documents, templateRows] = await Promise.all([
+        supabase.from("documents").select("acquisition_id,template_id"),
+        supabase.from("templates").select("template_id,name"),
+      ]);
       return {
         missions: (missions.data ?? []) as unknown as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -70,6 +74,8 @@ function DigestPage() {
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
         attachments: attachments.data ?? [],
+        documents: documents.data ?? [],
+        templates: templateRows.data ?? [],
         log: log.data ?? [],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
@@ -107,6 +113,7 @@ function DigestPage() {
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
+        savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,
