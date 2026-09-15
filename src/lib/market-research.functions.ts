@@ -109,6 +109,15 @@ export const runMarketResearch = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
+    // A run replaces the previous run's values on the file: any finding left
+    // behind by an earlier run is removed, so documents read this run only.
+    const { error: staleError } = await supabaseAdmin
+      .from("research_findings")
+      .delete()
+      .eq("acquisition_id", data.acquisitionId)
+      .neq("run_id", run.data.run_id);
+    if (staleError) throw new Error(staleError.message);
+
     const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
       acquisition_id: data.acquisitionId,
       actor: me.name,
