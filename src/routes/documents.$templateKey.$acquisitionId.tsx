@@ -740,6 +740,10 @@ function DocumentPage() {
         newValue: a.new_value,
       })),
       phases: filePhases.map((p) => ({ phase: p.phase, status: p.status })),
+      people: ((q.data?.users ?? []) as { name: string; title?: string | null }[]).map((u) => ({
+        name: u.name,
+        title: u.title ?? null,
+      })),
     }),
     [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases],
   );

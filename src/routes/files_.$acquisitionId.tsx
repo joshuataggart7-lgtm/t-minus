@@ -7,7 +7,7 @@ import { loadModTasks } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { Nf1707Signoffs } from "@/components/nf1707-signoffs";
-import { userForRole } from "@/lib/roles";
+
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { addDays, daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
@@ -21,6 +21,7 @@ import {
   generatorKey,
   NCMS_CHECKLIST,
   pollBoard,
+  reviewerNameForRole,
   REVIEW_PHASES,
   reviewRulesForPhase,
   type AcqRow,
@@ -113,9 +114,8 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
 
 type Mode = "novice" | "veteran";
 
-/** The prototype has one seeded reviewer account; every review seat is
- *  assigned to it so the demo path can vote. */
-const REVIEWER_NAME = userForRole("reviewer").name;
+/* Reviewer names come from the Center reviewer table at the moment the poll
+ * opens, the same source the poll board reads. */
 
 function statusColor(state: string | null | undefined) {
   if (state === "hold") return "var(--atrisk)";
@@ -222,6 +222,11 @@ function FilePage() {
         .from("acquisition_facts")
         .select("acquisition_id")
         .eq("successor_of", acquisitionId);
+      // Whether market research has already been run on this file.
+      const { data: researchRuns } = await supabase
+        .from("research_runs")
+        .select("run_id")
+        .eq("acquisition_id", acquisitionId);
       const [fileDocs, fileTemplates] = await Promise.all([
         supabase
           .from("documents")
@@ -243,6 +248,7 @@ function FilePage() {
         centers: centers ?? [],
         overrides: overrides ?? [],
         people: people ?? [],
+        researchRuns: researchRuns ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
@@ -508,6 +514,10 @@ function FilePage() {
       upTo.push(p);
       if (p.phase === current) break;
     }
+    // Research comes before the memorandum that reports it. Once a run exists,
+    // the action follows the missing row instead.
+    const hasResearch = (q.data?.researchRuns ?? []).length > 0;
+    if (current === "Market Research" && !hasResearch) return { label: "Run market research" };
     for (const p of upTo) {
       for (const d of p.docs) {
         if (d.optional || !d.field) continue;
@@ -526,9 +536,8 @@ function FilePage() {
       }
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
-    if (current === "Market Research") return { label: "Run market research" };
     return { label: `Exit ${current}` };
-  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys]);
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys, q.data?.researchRuns]);
 
   const openLaunchSequence = () => {
     const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
@@ -581,7 +590,7 @@ function FilePage() {
           acquisition_id: acq.acquisition_id,
           phase,
           reviewer_role: r.reviewer_role,
-          reviewer_name: REVIEWER_NAME,
+          reviewer_name: reviewerNameForRole(r.reviewer_role, acq.center_code ?? null, q.data?.people ?? []),
           vote: "pending",
           due_date: addDays(todayISO(), r.planned_days ?? 5),
         }));
