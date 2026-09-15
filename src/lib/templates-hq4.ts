@@ -1241,7 +1241,7 @@ const limitedSourcesJustification: TemplateDef = {
         { label: "NASA Competition Advocate", note: "Include for $150M or greater." },
         { label: "Approval: Senior Procurement Executive", note: "Include for $150M or greater." },
       ],
-      "FAR 8.405-6(c)",
+      "FAR 8.401(b); GSAM 538.7104-3(b)",
       "CONCURRENCES / APPROVAL:",
     ),
   ],
