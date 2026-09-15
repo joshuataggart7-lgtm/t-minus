@@ -312,8 +312,16 @@ function commerciality(ctx: MemoDraftCtx): Values {
     category,
     procedures,
     market_research: researchParagraph(ctx) + "\n" + ruleOfTwo(ctx),
-    customary_practice:
-      "Firm-fixed-price by flight hour with a daily availability rate is the customary commercial arrangement for chartered aircraft services; no tailoring of FAR 52.212-4 is proposed. Drafted from the record, confirm.",
+    customary_practice: (() => {
+      const pricing = pricingArrangement(a);
+      if (!pricing) {
+        return gap(
+          "state the customary commercial practice for this requirement, from the pricing arrangement on the record",
+        );
+      }
+      const sentence = pricing.charAt(0).toUpperCase() + pricing.slice(1);
+      return `${sentence} is the pricing arrangement on the record and the customary commercial practice for this requirement; no tailoring of FAR 52.212-4 is proposed. Drafted from the record, confirm.`;
+    })(),
     determination: `The requirement is a commercial service within the meaning of FAR 2.101 and will be acquired under FAR Part 12 using the simplified procedures of FAR 12.201-1.`,
     determined_on: ctx.today ?? "",
   };
