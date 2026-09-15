@@ -7,6 +7,13 @@
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, triggeredDocs } from "@/lib/scenario";
+import {
+  acquisitionProfile,
+  exceptionLabel,
+  fssOrderCitation,
+  isOrderProfile,
+  vehicleOf,
+} from "@/lib/vehicles";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -110,6 +117,10 @@ export type RequiredDoc = {
 };
 
 export function acquisitionType(acq: AcqRow) {
+  // A vehicle answered at intake decides the phase plan: a parent IDIQ, an
+  // order under one, a BPA, or a schedule order each run their own sequence.
+  const profile = acquisitionProfile(acq as Record<string, unknown>);
+  if (profile !== "new_contract") return profile;
   return /sole/i.test(String(acq.competition ?? ""))
     ? "commercial_ffp_13_5_sole_source"
     : "commercial_ffp_13_5_competed";
@@ -151,6 +162,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
   JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
   Synopsis: "RFO FAR 5.203; FAR 12.603 (combined synopsis/solicitation)",
+  "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
   "Solicitation/Quote": "FAR 12.603; NFS CG 1804.11 (NCMS is the system of record)",
   "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
   "Price Reasonableness": "FAR 12.204(b)(1); FAR 13.106-3",
@@ -169,6 +181,8 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   JOFOC:
     "Only for a sole source. Write the justification, cite the authority, and route it for the approval its dollar tier calls for.",
   Synopsis: "Post the notice so the market can see it. Commercial buys may combine notice and solicitation.",
+  "Fair Opportunity":
+    "Give every awardee under the vehicle a fair opportunity to be considered, or record the exception the contracting officer relies on.",
   "Solicitation/Quote":
     "Build the solicitation in NCMS. T-Minus hands over the facts, the clause list, and the attachments.",
   "Technical Evaluation": "Judge each quote against the stated criteria. Record who evaluated and why.",
