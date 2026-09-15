@@ -107,9 +107,32 @@ export function RequesterPackageDraft({
   function loadSheetRows() {
     if (!sheet) return;
     const rows = clinsFromSheet(sheet.read, sheet.mapping, sheet.sourceId);
-    if (!rows.length) return setError("No rows were found with the selected columns. Check the CLIN or description column.");
+    if (!rows.length) {
+      return setError(
+        `No IGCE structure was found in ${sheet.file.name}, sheet ${sheet.read.sheetName}. No CLIN or description column was matched, so nothing was loaded. Pick the columns above and try again.`,
+      );
+    }
     setClins(rows);
     setClinConfirmed(false);
+    // The total becomes a proposed estimated value with its source, confirmed
+    // by the CO like every other proposed field.
+    if (sheet.read.total) {
+      const total = sheet.read.total;
+      setSuggestions((current) => [
+        ...current.filter((item) => item.key !== "estimated_value"),
+        {
+          key: "estimated_value",
+          label: "Estimated value",
+          value: total,
+          sourceId: sheet.sourceId,
+          sourceName: sheet.file.name,
+          excerpt: `${sheet.read.totalLabel || "Total"}: ${total} (sheet ${sheet.read.sheetName})`,
+          rationale: `Read from the IGCE total across ${rows.length} line${rows.length === 1 ? "" : "s"}.`,
+          origin: "AI-suggested",
+        },
+      ]);
+    }
+    setError("");
     setSheet(null);
   }
 
