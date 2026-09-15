@@ -146,6 +146,7 @@ export function ExecutiveOverview() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
+        roster: q.data.people ?? [],
         plan: q.data.plan,
         rules: q.data.rules,
         polls: q.data.polls,
