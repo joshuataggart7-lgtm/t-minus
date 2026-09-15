@@ -169,14 +169,38 @@ export const readMarketResearch = createServerFn({ method: "POST" })
       .select("target,label,value,source,source_date,confirmed,confirmed_by")
       .eq("acquisition_id", data.acquisitionId);
     if (findings.error) throw new Error(findings.error.message);
-    const log = await context.supabase
-      .from("research_log")
-      .select("source,query,result_count,outcome,ran_at")
+    // The file shows the most recent run; earlier runs stay as history.
+    const runs = await context.supabase
+      .from("research_runs")
+      .select("run_id,ran_at")
       .eq("acquisition_id", data.acquisitionId)
       .order("ran_at", { ascending: false })
-      .limit(60);
+      .limit(20);
+    if (runs.error) throw new Error(runs.error.message);
+    const runList = runs.data ?? [];
+    const latestRunId = runList[0]?.run_id ?? null;
+    const log = await context.supabase
+      .from("research_log")
+      .select("run_id,source,query,result_count,outcome,ran_at")
+      .eq("acquisition_id", data.acquisitionId)
+      .order("ran_at", { ascending: false })
+      .limit(400);
     if (log.error) throw new Error(log.error.message);
+    const rows = (log.data ?? []).map((l) => ({
+      runId: l.run_id as string,
+      source: l.source,
+      query: l.query,
+      resultCount: l.result_count,
+      outcome: l.outcome,
+      ranAt: l.ran_at,
+    }));
     return {
+      latestRanAt: runList[0]?.ran_at ?? null,
+      previousRuns: runList.slice(1).map((r) => ({
+        runId: r.run_id as string,
+        ranAt: r.ran_at as string,
+        log: rows.filter((l) => l.runId === r.run_id).map(({ runId: _runId, ...rest }) => rest) as ResearchLogEntry[],
+      })),
       findings: (findings.data ?? []).map((f) => ({
         target: f.target,
         label: f.label,
