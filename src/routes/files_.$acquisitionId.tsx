@@ -1272,7 +1272,11 @@ function FilePage() {
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground">
-              {effectiveState === "launched" ? "Days since award" : effectiveState === "scrubbed" ? "Countdown" : "Days to award"}
+              {effectiveState === "launched"
+                ? "Days since award"
+                : effectiveState === "scrubbed"
+                  ? "Countdown"
+                  : "Calendar days to target award date"}
             </p>
             <p className="mt-3 text-[15px] font-medium">
               {effectiveState === "running"
