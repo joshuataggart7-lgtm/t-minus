@@ -768,7 +768,7 @@ function DocumentPage() {
       />
 
       {/* The sidebar follows the file's own phase, not the template's home phase. */}
-      <RegulationSidebar phase={(q.data?.acq?.current_phase as string | null) || phase} />
+      <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
 
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
