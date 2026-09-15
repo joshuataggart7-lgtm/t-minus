@@ -112,34 +112,42 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("tminus:roles-changed", refreshRoles);
   }, []);
 
+  const userId = session?.user?.id ?? null;
+
   // Load account defaults. Demo sessions keep their session-only persona and do
-  // not need a persisted role membership.
+  // not need a persisted role membership. A failed read keeps the last known
+  // profile and roles in place and tries again, so the header never falls back
+  // to a generic account mid-browse.
   useEffect(() => {
     let cancelled = false;
-    if (!session) {
-      setProfile(null);
-      return;
-    }
-    void (async () => {
+    if (!userId) return;
+    const load = async () => {
       const [profileResult, rolesResult] = await Promise.all([
-        supabase.from("profiles").select("id, email, display_name, role, is_admin, last_center_code, last_organization_code").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("id, email, display_name, role, is_admin, last_center_code, last_organization_code").eq("id", userId).maybeSingle(),
         isAnonymous
           ? Promise.resolve({ data: [], error: null })
-          : supabase.from("user_roles").select("role").eq("user_id", session.user.id),
+          : supabase.from("user_roles").select("role").eq("user_id", userId),
       ]);
+      if (cancelled) return false;
+      if (profileResult.error || rolesResult.error) return false;
+      setAuthMessage(null);
+      if (profileResult.data) setProfile(profileResult.data as Profile);
+      const loaded = ((rolesResult.data ?? []) as { role: RoleId }[]).map((row) => row.role);
+      if (isAnonymous || loaded.length) setAssignedRoles(orderRoles(loaded));
+      return true;
+    };
+    void (async () => {
+      if (await load()) return;
+      await new Promise((resolve) => setTimeout(resolve, 1200));
       if (cancelled) return;
-      if (profileResult.error || rolesResult.error) {
+      if (!(await load()) && !cancelled) {
         setAuthMessage("Your profile did not load. Sign out and back in to try again.");
-      } else {
-        setAuthMessage(null);
-        setProfile((profileResult.data as Profile) ?? null);
-        setAssignedRoles(((rolesResult.data ?? []) as { role: RoleId }[]).map((row) => row.role));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [session, isAnonymous, roleRevision]);
+  }, [userId, isAnonymous, roleRevision]);
 
   const canSwitchPersona = isAnonymous;
 
