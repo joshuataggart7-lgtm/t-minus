@@ -108,7 +108,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           </Link>
         </div>
         <div className="col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
-        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-3 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
+        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-3 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:justify-end">
           <AnnouncementBanner />
           {isAdministrator ? (
             <button
@@ -145,7 +145,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : null}
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
             <Link
               to="/center-config"
               hash="my-record"
@@ -154,7 +154,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             >
               {user.name}
             </Link>
-            <span className="flex shrink-0 flex-wrap justify-end gap-1">
+            <span className="flex min-w-0 flex-wrap justify-end gap-1">
               {roles.map((assignedRole) => (
                 <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
                   {ROLE_LABELS[assignedRole]}

@@ -172,7 +172,8 @@ function AuditLogPage() {
               </Link>
             )}
           </h2>
-          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+          <div className="w-full overflow-x-auto">
+          <table className="w-full min-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="px-3 py-2 font-medium">When</th>
@@ -202,6 +203,7 @@ function AuditLogPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </section>
       ))}
     </AppShell>
