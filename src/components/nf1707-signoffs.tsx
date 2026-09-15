@@ -6,6 +6,7 @@ import { answersFromStored } from "@/components/nf1707-intake";
 import {
   applicableBlocks,
   reviewerTitle,
+  signatureCells,
   SIGNOFF_STATUS_LABEL,
   UNMAPPED_BLOCKS,
   type SignoffBlock,
@@ -70,6 +71,17 @@ export function Nf1707Signoffs({
     if (error) {
       onBanner(`The sign-off did not save: ${error.message}`);
       return;
+    }
+    // A concurrence supplies the printed name, title and date on the exported
+    // form; the signature line itself stays blank.
+    const after = rows
+      .filter((r) => r.approval_id !== existing?.approval_id)
+      .concat([{ ...(existing ?? ({} as ApprovalRow)), ...base, ...next } as ApprovalRow]);
+    const cells = signatureCells(after);
+    if (Object.keys(cells).length || block.textField) {
+      const merged = { ...(storedAnswers ?? {}), ...cells };
+      if (next.status !== "concurred" && block.textField) merged[block.textField] = "";
+      await supabase.from("acquisition_facts").update({ nf1707_answers: merged }).eq("acquisition_id", acquisitionId);
     }
     await supabase.from("audit_log").insert({
       acquisition_id: acquisitionId,
