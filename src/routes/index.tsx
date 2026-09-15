@@ -391,13 +391,6 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .filter(Boolean)
         .join(" · ");
 
-  const decision =
-    driver.daysToNextDecision === null
-      ? null
-      : driver.daysToNextDecision < 0
-        ? { text: `${Math.abs(driver.daysToNextDecision)} days overdue`, overdue: true }
-        : { text: String(driver.daysToNextDecision), overdue: false };
-
   return (
     <li className="rounded-xl border border-border border-l-4 bg-background p-5" style={{ borderLeftColor: color }}>
       <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]">

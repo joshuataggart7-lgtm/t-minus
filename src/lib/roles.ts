@@ -74,6 +74,7 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
   { to: "/announcements", label: "Announcements", roles: "all" },
   { to: "/intake", label: "Intake", roles: ["specialist", "requester", "hq"] },
   { to: "/estimate", label: "Estimate", roles: ["specialist", "hq"] },
+  { to: "/seed-status", label: "Seed status", roles: ["hq"] },
 ];
 
 // What each role is called on screen and in Center configuration.

@@ -1039,11 +1039,6 @@ function FilePage() {
 
   return (
     <AppShell>
-      <PageHeader
-        title={acq?.title ?? acquisitionId}
-        lead={acq ? `${acquisitionId} · ${acq.center_code ?? ""} · ${acquisitionTypeWords(acq)}` : "Loading the file."}
-      />
-
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
       {banner ? (
@@ -1052,24 +1047,24 @@ function FilePage() {
         </p>
       ) : null}
 
-      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-lg bg-panel px-8 py-8 text-panel-foreground">
-        <div className="grid gap-8 sm:grid-cols-4">
-          <div>
-            <p className="clock-figure" data-numeric>
+      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-xl border border-border bg-background p-6 lg:p-8">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,1fr)] lg:items-start">
+          <div className="min-w-0">
+            <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+            <h1 className="mt-2 text-[24px] leading-8 font-semibold">{acq?.title ?? acquisitionId}</h1>
+            <p className="mt-2 text-[15px] text-muted-foreground">
+              {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
+            </p>
+          </div>
+          <div className="grid gap-4 border-t border-border pt-5 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+            <div className="min-w-32">
+            <p className="text-[32px] leading-10 font-semibold" data-numeric>
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {effectiveState === "launched" ? "Days since award" : effectiveState === "scrubbed" ? "Countdown" : "Days to award"}
             </p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium" data-numeric>
-              {effectiveState === "launched" ? (lifecycle?.awardDate ?? "Not recorded") : (effectiveTargetAward ?? "Not recorded")}
-            </p>
-            <p className="mt-1 text-[13px] text-panel-muted">{effectiveState === "launched" ? "Award date" : "Target award date"}</p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium">
+            <p className="mt-3 text-[15px] font-medium">
               {effectiveState === "running"
                 ? "Clock running"
                 : effectiveState === "hold"
@@ -1078,26 +1073,29 @@ function FilePage() {
                     ? "Launched"
                     : (effectiveState ?? "—")}
             </p>
-            <p className="mt-1 text-[13px] text-panel-muted">Clock state</p>
-          </div>
-          <div>
-            <p className="text-[18px] leading-6 font-medium">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
-            <p className="mt-1 text-[13px] text-panel-muted">
+            </p>
+            </div>
+            <div className="min-w-0">
+            <p className="text-[13px] text-muted-foreground">Current phase</p>
+            <p className="mt-1 text-[18px] leading-6 font-medium">{lifecycle?.currentPhase ?? "Not started"}</p>
+            <p className="mt-3 text-[15px] leading-[22px]">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
+            <p className="mt-1 text-[13px] text-muted-foreground">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
             {effectiveState === "hold" && holdAge !== null ? (
-              <p className="mt-1 text-[13px] text-panel-muted">
+               <p className="mt-1 text-[13px] text-muted-foreground">
                 {holdAge >= holdThreshold
                   ? `Aging: on hold ${holdAge} days, past the ${holdThreshold}-day Center window`
                   : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
               </p>
             ) : null}
+            <div className="mt-4"><ExplainThis explanation={statusExplanation} label="Explain this status" /></div>
+            </div>
           </div>
         </div>
       </section> : null}
 
       <div className="mb-10 flex flex-wrap items-start gap-6">
-        <ExplainThis explanation={statusExplanation} label="Explain this status" />
         {hold ? (
           <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" />
         ) : null}
