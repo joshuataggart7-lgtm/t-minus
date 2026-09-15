@@ -383,10 +383,10 @@ function FilePage() {
     [q.data],
   );
 
-  const phases: PhaseView[] = useMemo(
-    () => (acq ? buildSequence(acq, q.data?.plan ?? [], todayISO(), daysBetween) : []),
-    [acq, q.data],
-  );
+  // Built after the attachments and saved versions are known, so a phase never
+  // reads Complete while one of its required documents is missing.
+  const phasesRef = { current: [] as PhaseView[] };
+  void phasesRef;
 
   // Files uploaded against the documents on this record.
   const attachQ = useQuery({
@@ -421,6 +421,17 @@ function FilePage() {
     return out;
   }, [q.data?.documents, q.data?.templates]);
   const savedKeys = useMemo(() => new Set(savedDocs.keys()), [savedDocs]);
+
+  const phases: PhaseView[] = useMemo(
+    () =>
+      acq
+        ? buildSequence(acq, q.data?.plan ?? [], todayISO(), daysBetween, {
+            attachedKeys: keysFrom(attachments),
+            savedKeys,
+          })
+        : [],
+    [acq, q.data, attachments, savedKeys],
+  );
 
   // NF 1098 contract file index: tabs present, and required tabs with no document.
   const fileIndex = useMemo(
@@ -681,7 +692,7 @@ function FilePage() {
       else keys.delete(rowKey);
       const cause = resolveHold(
         after,
-        buildSequence(after, q.data?.plan ?? [], todayISO(), daysBetween),
+        buildSequence(after, q.data?.plan ?? [], todayISO(), daysBetween, { attachedKeys: keys, savedKeys }),
         board,
         keys,
       );
