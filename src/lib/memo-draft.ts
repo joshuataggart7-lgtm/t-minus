@@ -64,6 +64,8 @@ export type MemoDraftCtx = {
   co?: { name: string; email: string | null; phone: string | null } | null;
   /** Values already filled on the form, so a draft can follow a chosen option. */
   values?: Values;
+  /** The JOFOC saved on this file, when there is one, so the notice can read item 5. */
+  jofocValues?: Values | null;
   /** Today, so a determination carries its date. */
   today?: string;
   /** Audit trail on this file, oldest first, for the chronology memorandum. */
