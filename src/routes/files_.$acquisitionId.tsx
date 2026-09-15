@@ -1119,6 +1119,34 @@ function FilePage() {
                   : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
               </p>
             ) : null}
+            {heroAction && canWrite ? (
+              <div className="mt-4">
+                {heroAction.doc ? (
+                  <label className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
+                    {attachDoc.isPending ? "Attaching" : heroAction.label}
+                    <input
+                      type="file"
+                      className="sr-only"
+                      accept={ATTACHMENT_ACCEPT}
+                      disabled={attachDoc.isPending}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file && heroAction.doc) attachDoc.mutate({ doc: heroAction.doc, file });
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openLaunchSequence}
+                    className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                  >
+                    {heroAction.label}
+                  </button>
+                )}
+              </div>
+            ) : null}
             <div className="mt-4 flex flex-wrap gap-4">
               <ExplainThis explanation={statusExplanation} label="Explain this status" />
               {hold ? <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" /> : null}
