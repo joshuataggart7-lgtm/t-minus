@@ -430,6 +430,38 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
   };
 }
 
+/**
+ * The authority printed on the sole source row. A FAR 13.5 commercial file
+ * carries the commercial simplified authority; every other file carries the
+ * FAR 6.103 authority the justification selected. Nothing else prints here.
+ */
+function soleSourceAuthority(a: Record<string, unknown>): string {
+  const method = str(a["acquisition_method"]).toLowerCase();
+  if (has(method, "13.5") || has(method, "far 13"))
+    return "41 U.S.C. 1901, commercial simplified procedures under RFO FAR 12.201-1";
+  const cited = str(a["jofoc_authority_citation"])
+    .replace(/\[[^\]]*\]/g, "")
+    .trim();
+  return cited || TO_COMPLETE("select the FAR 6.103 authority on the justification");
+}
+
+/** The Remarks paragraph: an opening line of prose, then the findings. */
+function remarksText(ctx: FormCtx, sole: boolean): string {
+  const a = ctx.acq;
+  const setAside = str(a["set_aside"]);
+  const setAsideWords =
+    setAside && !/^none$/i.test(setAside.trim()) && !has(setAside.toLowerCase(), "sole source")
+      ? `${setAside}.`
+      : "no set-aside.";
+  const opening = sole
+    ? `Sole source under ${soleSourceAuthority(a)}; ${setAsideWords}`
+    : `${str(a["competition"]) || "Competed"}; ${setAsideWords}`;
+  const findings = sole
+    ? soleSourceFindings(a, counts(ctx.findings), false)
+    : findingText(ctx.findings, "nf1787.remarks");
+  return `Acquisition ${ctx.acquisitionId}. ${opening}${findings ? ` ${findings}` : ""}`;
+}
+
 /** NF 1787, Small Business Coordination Record. */
 export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
@@ -564,7 +596,10 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page2.LowerSection.LeftSide.InnerSub2.SelectSS",
             label: "Sole source authority",
-            value: sole ? str(a["jofoc_authority_citation"]) || TO_COMPLETE("cite the authority") : "",
+            // The authority itself, never a note about it: the commercial
+            // simplified authority on a FAR 13.5 file, otherwise the FAR 6.103
+            // authority the justification selected.
+            value: sole ? soleSourceAuthority(a) : "",
           },
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub2.e", "d. Small business set-aside, total", row === "total-sb"),
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub2.f", "e. Small business set-aside, partial", row === "partial-sb"),
@@ -603,9 +638,10 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
             label: "Remarks",
             // The set-aside evidence from the market research engine is carried
             // into Remarks, with its source and date until it is confirmed.
-            value: `Acquisition ${ctx.acquisitionId}. ${competition}${setAside ? `, ${setAside}` : ""}.${
-              findingText(ctx.findings, "nf1787.remarks") ? ` ${findingText(ctx.findings, "nf1787.remarks")}` : ""
-            }`,
+            // Prose, and the findings sentence the record's competition calls
+            // for. A sole-source file never carries a Rule of Two conclusion,
+            // and the sentence is re-derived from the latest run, not stored.
+            value: remarksText(ctx, sole),
           },
         ],
       },
