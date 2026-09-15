@@ -81,7 +81,7 @@ export function ModificationsPanel({
         field: modNumber,
         old_value: null,
         new_value: info.label,
-        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}`,
+        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}${outOfScope ? "; adds out-of-scope work, justification required" : ""}`,
       } as never);
       return modNumber;
     },
@@ -92,6 +92,7 @@ export function ModificationsPanel({
       setValueChange("");
       setPeriodEnd("");
       setFundsLine("");
+      setOutOfScope(false);
       void qc.invalidateQueries({ queryKey: ["modifications", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
