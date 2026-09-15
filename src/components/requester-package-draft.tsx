@@ -21,6 +21,7 @@ async function fileToSource(file: File, kind: SourceKind): Promise<Source> {
   if (file.size > 20 * 1024 * 1024) throw new Error(`${file.name} is larger than 20 MB.`);
   const extension = file.name.split(".").pop()?.toLowerCase();
   const id = crypto.randomUUID();
+  const tried: string[] = [];
   if (file.type === "application/pdf" || extension === "pdf") {
     const bytes = new Uint8Array(await file.arrayBuffer());
     let binary = "";
@@ -28,14 +29,19 @@ async function fileToSource(file: File, kind: SourceKind): Promise<Source> {
     return { id, kind, name: file.name, mimeType: "application/pdf", text: "", pdfData: `data:application/pdf;base64,${btoa(binary)}` };
   }
   if (extension === "docx" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-    const mammoth = await import("mammoth/mammoth.browser");
-    const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
-    return { id, kind, name: file.name, mimeType: file.type || "application/vnd.openxmlformats-officedocument.wordprocessingml.document", text: result.value, pdfData: null };
+    tried.push("Word");
+    try {
+      const mammoth = await import("mammoth/mammoth.browser");
+      const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+      return { id, kind, name: file.name, mimeType: file.type || "application/vnd.openxmlformats-officedocument.wordprocessingml.document", text: result.value, pdfData: null };
+    } catch { /* fall through to the remaining readers */ }
   }
-  if (file.type.startsWith("text/") || ["txt", "md"].includes(extension ?? "")) {
-    return { id, kind, name: file.name, mimeType: file.type || "text/plain", text: await file.text(), pdfData: null };
+  tried.push("plain text");
+  const text = await file.text();
+  if (text && !/\u0000/.test(text.slice(0, 4000))) {
+    return { id, kind, name: file.name, mimeType: file.type || "text/plain", text, pdfData: null };
   }
-  throw new Error(`${file.name} is not a supported PDF, Word, or text file.`);
+  throw new Error(`${file.name} could not be read. Tried: ${[...new Set([...tried, "Excel or CSV"])].join(", ")}.`);
 }
 
 export function RequesterPackageDraft({
