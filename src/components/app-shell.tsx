@@ -139,6 +139,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         </div>
       </header>
 
+      <div id="urgent-announcement-slot" />
+
       <div className="flex">
         <nav
           aria-label="Main"

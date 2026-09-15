@@ -47,10 +47,9 @@ export function RegulationSidebar({
   return (
     <details
       aria-label="Regulations for this phase"
-      className="mb-8 rounded-xl border border-border bg-background lg:float-right lg:ml-8 lg:mb-6 lg:w-[22rem]"
-      style={{ borderRadius: 8 }}
+      className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background"
     >
-      <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-[15px] font-medium">
+      <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
         Regulations
       </summary>
       <div className="hidden">
