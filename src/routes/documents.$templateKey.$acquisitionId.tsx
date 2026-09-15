@@ -1360,8 +1360,25 @@ function DocumentPage() {
                 </div>
               );
             })}
-          </section>
-        ))}
+            </>
+          );
+          return (
+            <section key={s.id} className="mb-8">
+              {s.collapsed ? (
+                <details>
+                  <summary className="cursor-pointer text-[18px] leading-6 font-medium">{s.title}</summary>
+                  <div className="mt-3">{body}</div>
+                </details>
+              ) : (
+                <>
+                  <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
+                  {body}
+                </>
+              )}
+            </section>
+          );
+        })}
+
 
         {signature ? (
           <section className="mb-8 border border-border bg-background p-4">
