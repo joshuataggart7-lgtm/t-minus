@@ -42,6 +42,7 @@ import {
   prefill,
   renderDocument,
   templateByKey,
+  badgeCitation,
   validate,
   sectionCitation,
   MFR_KEY,
@@ -580,7 +581,10 @@ function DocumentPage() {
         n?.["integrityRecordsCount"] === undefined ? "—" : String(n["integrityRecordsCount"]),
       sam_checked_at: q.data?.samCheck?.checked_at ?? "No entity check recorded",
       igce_amount: answerValue(/igce|cost_estimate/i) || (acq?.["estimated_value"] ?? ""),
-      quoted_price: answerValue(/quote|proposed_price/i),
+      // On a sole-source file the price the single source proposed is held on
+      // the record, entered in the Solicitation/Quote phase.
+      quoted_price: acq?.["proposed_price"] ?? answerValue(/quote|proposed_price/i),
+      proposal_received: acq?.["proposed_price_received"] ?? "",
     } as Record<string, unknown>;
   }, [q.data]);
 
@@ -858,7 +862,7 @@ function DocumentPage() {
     const built = buildMemoHeader({
       templateKey: def.key,
       templateName: def.name,
-      documentCitation: def.badge.citation,
+      documentCitation: badgeCitation(def, values),
       acquisition: { ...q.data.acq, acquisition_id: acquisitionId },
       centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
       centerAddress: q.data.center?.address_line ?? "",
@@ -1161,7 +1165,7 @@ function DocumentPage() {
           {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
         </p>
         <p className="mt-1 text-[13px] text-muted-foreground">
-          {def.badge.citation} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
+          {badgeCitation(def, values)} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">

@@ -473,6 +473,9 @@ function jofoc(ctx: MemoDraftCtx): Values {
   return {
     authority,
     authority_rationale: rationale,
+    // Items 6 and 10 read the posting and closing dates back from the notice
+    // of intent once it has been saved in the Synopsis phase.
+    notice_date: ctx.notice?.postedOn ?? "",
     price_analysis_plan: `Price reasonableness will be determined under ${priceAnalysisCitation(
       a,
     )} before award, using the quotation received, the independent Government cost estimate and prior prices for the same service. Drafted from the record, confirm.`,
@@ -481,6 +484,7 @@ function jofoc(ctx: MemoDraftCtx): Values {
     interested_sources: ctx.notice?.postedOn
       ? `${noticeLine} Responses received and their disposition are recorded in the contract file. Drafted from the record, confirm.`
       : noticeLine,
+    
   };
 }
 
@@ -525,6 +529,22 @@ function plusDays(iso: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * One sentence of reason for the public notice, taken from the justification's
+ * item 5 text: the sentence naming the source, with the drafting note dropped.
+ */
+function soleSourceSentence(rationale: string, acq: Record<string, unknown>): string {
+  if (!rationale.trim()) return "";
+  const vendor = str(acq["vendor_legal_name"]);
+  const sentences = rationale
+    .replace(/Drafted from the record, confirm\.?/gi, "")
+    .split(/(?<=\.)\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const named = vendor ? sentences.find((s) => s.includes(vendor)) : undefined;
+  return named ?? sentences[sentences.length - 1] ?? "";
+}
+
 function samNotice(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const start = str(a["period_of_performance_start"]);
@@ -544,10 +564,15 @@ function samNotice(ctx: MemoDraftCtx): Values {
     evaluation_basis:
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
+    // The public notice carries one sentence of the reason from item 5 of the
+    // justification, not the whole item.
     sole_source_basis:
-      str(ctx.jofocValues?.["authority_rationale"]) ||
+      soleSourceSentence(str(ctx.jofocValues?.["authority_rationale"]), a) ||
       gap("state why only this source can meet the need, or draft the JOFOC first"),
     authority: samNoticeAuthority(a),
+    response_period_basis: posting
+      ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (RFO FAR 5.203; RFO FAR 6.104).`
+      : "At least 15 calendar days after publication (RFO FAR 5.203; RFO FAR 6.104).",
     poc_email: ctx.co?.email ?? "",
     poc_phone: ctx.co?.phone ?? "",
   };
@@ -903,9 +928,24 @@ function evaluationOfQuotations(ctx: MemoDraftCtx): Values {
 
 /** The recommended quoter on the evaluation record carries into the PNM. */
 function priceNegotiation(ctx: MemoDraftCtx): Values {
+  const a = ctx.acq;
   const evaluation = ctx.evaluationValues;
-  if (!evaluation) return {};
   const out: Values = {};
+  // On a sole-source file there is no competition to compare against, so the
+  // vendor, the price and the analysis technique come from the record.
+  if (/sole/i.test(str(a["competition"]))) {
+    const vendor = str(a["vendor_legal_name"]);
+    const uei = str(a["vendor_uei"]);
+    const price = str(a["proposed_price"]);
+    if (vendor) out["vendor_legal_name"] = vendor;
+    if (uei) out["vendor_uei"] = uei;
+    if (price) out["quoted_price"] = price;
+    out["technique"] = "Comparison with the independent government cost estimate";
+    out["negotiation_summary"] = `Price reasonableness was established under FAR 13.106-3(a), comparing the proposed price of ${
+      dollars(a["proposed_price"]) || "the amount on the record"
+    } with the independent Government cost estimate and with prior prices paid for the same service. This memorandum is the determination of record under FAR 12.209. Drafted from the record, confirm.`;
+  }
+  if (!evaluation) return out;
   const name = str(evaluation["recommended_quoter"]);
   const uei = str(evaluation["recommended_uei"]);
   const price = str(evaluation["recommended_price"]);

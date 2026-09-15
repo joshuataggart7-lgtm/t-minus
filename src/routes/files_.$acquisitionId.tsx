@@ -195,6 +195,8 @@ function FilePage() {
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
   const [banner, setBanner] = useState<string | null>(null);
+  // Edits in progress on the proposed price row, before they are saved.
+  const [priceDraft, setPriceDraft] = useState<{ price: string; received: string } | null>(null);
   // Which phase the regulation sidebar is showing. Empty until the file loads,
   // then it follows the current phase unless the reader picks another.
   const [regPhase, setRegPhase] = useState<string | null>(null);
@@ -814,6 +816,41 @@ function FilePage() {
     },
     onSuccess: (cause) => {
       setBanner(cause ? `On hold: ${cause.reason}` : "Cause cleared. The clock is running again.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
+  });
+
+  // The price the single source proposed, recorded on the file and read by the
+  // technical evaluation report and the price negotiation memorandum.
+  const setProposedPrice = useMutation({
+    mutationFn: async ({ price, received }: { price: string; received: string }) => {
+      if (!acq) return;
+      const who = await signedInName(actorName);
+      const amount = price.trim() === "" ? null : Number(price);
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({
+          proposed_price: amount,
+          proposed_price_received: received.trim() === "" ? null : received,
+          updated_at: new Date().toISOString(),
+        } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert([
+        {
+          acquisition_id: acq.acquisition_id,
+          actor: who,
+          action: "Proposed price recorded",
+          field: "proposed_price",
+          old_value: String(acq['proposed_price'] ?? ""),
+          new_value: amount === null ? "" : String(amount),
+          reason: received ? `Proposal received ${received}` : "Proposed price from the intended source",
+        },
+      ]);
+    },
+    onSuccess: () => {
+      setBanner("The proposed price is on the record.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
@@ -1821,7 +1858,84 @@ function FilePage() {
                             </span>
                           ) : null}
                         </>
-                      ) : state === null ? (
+                       ) : d.field === "proposed_price" ? (
+                         <>
+                           <StatusMark
+                             color={state ? "var(--ontrack)" : "var(--atrisk)"}
+                             className="text-[13px]"
+                           >
+                             {state
+                               ? `Recorded, ${formatMoney(Number(acq?.["proposed_price"] ?? 0))}${
+                                   acq?.['proposed_price_received']
+                                     ? `, received ${formatDate(String(acq['proposed_price_received']).slice(0, 10))}`
+                                     : ""
+                                 }`
+                               : "Missing"}
+                           </StatusMark>
+                           {canWrite ? (
+                             <span className="flex w-full flex-wrap items-end gap-3">
+                               <label className="text-[13px]">
+                                 Proposed price
+                                 <input
+                                   type="number"
+                                   min={0}
+                                   step="0.01"
+                                   value={priceDraft?.price ?? String(acq?.['proposed_price'] ?? "")}
+                                   onChange={(event) =>
+                                     setPriceDraft({
+                                       price: event.target.value,
+                                       received:
+                                         priceDraft?.received ??
+                                         String(acq?.['proposed_price_received'] ?? ""),
+                                     })
+                                   }
+                                   className="mt-1 block w-44 rounded-lg border border-input bg-background px-3 py-1.5"
+                                 />
+                               </label>
+                               <label className="text-[13px]">
+                                 Date received
+                                 <input
+                                   type="date"
+                                   value={
+                                     priceDraft?.received ??
+                                     String(acq?.['proposed_price_received'] ?? "").slice(0, 10)
+                                   }
+                                   onChange={(event) =>
+                                     setPriceDraft({
+                                       price: priceDraft?.price ?? String(acq?.['proposed_price'] ?? ""),
+                                       received: event.target.value,
+                                     })
+                                   }
+                                   className="mt-1 block rounded-lg border border-input bg-background px-3 py-1.5"
+                                 />
+                               </label>
+                               <button
+                                 type="button"
+                                 disabled={setProposedPrice.isPending}
+                                 onClick={() =>
+                                   setProposedPrice.mutate(
+                                     {
+                                       price: priceDraft?.price ?? String(acq?.['proposed_price'] ?? ""),
+                                       received:
+                                         priceDraft?.received ??
+                                         String(acq?.['proposed_price_received'] ?? "").slice(0, 10),
+                                     },
+                                     { onSuccess: () => setPriceDraft(null) },
+                                   )
+                                 }
+                                 className="rounded-lg border border-input px-3 py-1.5 text-[13px] text-primary disabled:opacity-60"
+                               >
+                                 {setProposedPrice.isPending ? "Saving" : "Save the price"}
+                               </button>
+                             </span>
+                           ) : null}
+                           {state === false ? (
+                             <span className="block w-full">
+                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                             </span>
+                           ) : null}
+                         </>
+                       ) : state === null ? (
                         d.link === "packet" ? (
                           <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
                             Open the NCMS handoff packet

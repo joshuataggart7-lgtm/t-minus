@@ -78,7 +78,8 @@ export type DocField =
   | "sow_attached"
   | "funds_certified"
   | "acquisition_forecast_verified"
-  | "jofoc_authority_citation";
+  | "jofoc_authority_citation"
+  | "proposed_price";
 
 export type RequiredDoc = {
   label: string;
@@ -280,11 +281,23 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             },
       ];
     }
-    case "Solicitation/Quote":
+    case "Solicitation/Quote": {
+      const sole = /sole/i.test(String(acq?.competition ?? ""));
       return [
         { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
         { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
+        ...(sole
+          ? [
+              {
+                label: "Proposed price from the intended source",
+                citation: "FAR 13.106-3(a)",
+                field: "proposed_price",
+                note: "Record the price the single source proposed and the date it was received; the technical evaluation report and the price negotiation memorandum read it from here.",
+              } as RequiredDoc,
+            ]
+          : []),
       ];
+    }
     case "Technical Evaluation": {
       // The TER is mandatory only for a sole-source proposal above the SAT.
       // On a competed FAR 13.5 buy the FAR 13.106-2 evaluation of quotations
@@ -434,6 +447,9 @@ export function docSatisfied(
     return savedKeys.has(generator) || Boolean(hasFile);
   }
   if (!doc.field) return null;
+  // The proposed price is a value on the record, not a file. It reads from the
+  // record whatever the attachment state is.
+  if (doc.field === "proposed_price") return Number(acq['proposed_price'] ?? 0) > 0;
   // A stored file is the only thing that makes a row read Attached. When the
   // caller knows whether a file exists, that answer decides.
   if (hasFile !== undefined) return hasFile;
@@ -515,6 +531,40 @@ export function shortRole(role: string): string {
   return head.replace(/review|coordination|authorization|meeting/gi, "").trim().toLowerCase() || role.toLowerCase();
 }
 
+/** The role name the JOFOC approving official votes under. */
+export const JOFOC_APPROVER_ROLE = "JOFOC approving official";
+
+/**
+ * The approval level FAR 6.104-2 Table 6-1 sets for this file's value, and the
+ * office that holds it. The dollar tiers come from the thresholds table.
+ */
+export function jofocApprovalTier(
+  acq: AcqRow,
+  ref: RefData,
+): { tierLabel: string; title: string } {
+  const thr = (name: string, fallback: number) =>
+    ref.thresholds.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase())?.value ?? fallback;
+  const co = thr("JOFOC approval tier: contracting officer certification", 900_000);
+  const ca = thr("JOFOC approval tier: competition advocate", 20_000_000);
+  const hca = thr("JOFOC approval tier: head of contracting activity (NASA)", 150_000_000);
+  const dollars = (n: number) => `$${n.toLocaleString("en-US")}`;
+  const value = num(acq.estimated_value);
+  if (value <= co) return { tierLabel: `Up to ${dollars(co)}`, title: "Contracting Officer" };
+  if (value <= ca)
+    return { tierLabel: `Over ${dollars(co)} to ${dollars(ca)}`, title: "Competition Advocate" };
+  if (value <= hca)
+    return { tierLabel: `Over ${dollars(ca)} to ${dollars(hca)}`, title: "Head of Contracting Activity" };
+  return { tierLabel: `Over ${dollars(hca)}`, title: "Senior Procurement Executive" };
+}
+
+/** True on a sole-source file that carries a JOFOC authority. */
+function hasJofoc(acq: AcqRow): boolean {
+  return (
+    /sole/i.test(String(acq.competition ?? "")) &&
+    Boolean(String(acq.jofoc_authority_citation ?? "").trim())
+  );
+}
+
 /** Which review rules apply to a given phase of this acquisition. */
 export function reviewRulesForPhase(
   phase: string,
@@ -524,7 +574,24 @@ export function reviewRulesForPhase(
 ): ReviewRuleRow[] {
   const applicable = rules.filter((r) => reviewApplies(r, acq, ref));
   if (phase === "JOFOC") return applicable.filter((r) => /^legal review/i.test(r.reviewer_role));
-  if (phase === "Go/No-go Poll") return applicable;
+  if (phase === "Go/No-go Poll") {
+    if (!hasJofoc(acq)) return applicable;
+    // A sole-source file carries the JOFOC approving official as a reviewer.
+    // The office comes from the Center routing table entry for the JOFOC,
+    // which points at the FAR 6.104-2 Table 6-1 level for the value.
+    const tier = jofocApprovalTier(acq, ref);
+    return [
+      ...applicable,
+      {
+        rule_id: "jofoc-approving-official",
+        reviewer_role: JOFOC_APPROVER_ROLE,
+        trigger: "Sole source with a justification on the file",
+        citation: "FAR 6.104-2 Table 6-1",
+        planned_days: null,
+        note: `${tier.tierLabel}: ${tier.title}.`,
+      },
+    ];
+  }
   return [];
 }
 
@@ -612,6 +679,18 @@ export function reviewerNameForRole(
   return anywhere?.name ?? `Unassigned, role: ${reviewerTitleForRole(role)}`;
 }
 
+/** The person holding a given title at this Center, when the roster has one. */
+function reviewerNameForTitle(
+  title: string,
+  center: string | null,
+  roster: ReviewerPerson[],
+): string | null {
+  const want = title.trim().toLowerCase();
+  const match = (p: ReviewerPerson) => (p.title ?? "").trim().toLowerCase() === want;
+  const atCenter = roster.find((p) => match(p) && (p.center_code ?? "") === (center ?? ""));
+  return (atCenter ?? roster.find((p) => match(p) && (p.center_code ?? "") === "HQ"))?.name ?? null;
+}
+
 export function pollBoard(
   acq: AcqRow,
   rules: ReviewRuleRow[],
@@ -624,11 +703,24 @@ export function pollBoard(
   const forPhase = polls.filter((p) => (p.phase ?? "Go/No-go Poll") === phase);
   const center = (acq['center_code'] ?? null) as string | null;
   return reviewRulesForPhase(phase, acq, rules, ref).map((r) => {
-    const row = forPhase.find((p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase());
+    const sameRole = (p: PollRow) =>
+      (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase();
+    // A legal vote already recorded at the justification stands on the
+    // go/no-go board rather than being asked for twice.
+    const carried =
+      phase === "Go/No-go Poll" && /^legal review/i.test(r.reviewer_role)
+        ? polls.find((p) => sameRole(p) && (p.vote === "go" || p.vote === "no-go"))
+        : undefined;
+    const row = forPhase.find(sameRole) ?? carried;
     const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
     // The role decides the person. A name stored on a cast vote stands, because
     // that person actually voted; an unvoted row always reads from the roster.
-    const byRole = reviewerNameForRole(r.reviewer_role, center, roster);
+    const tier = r.reviewer_role === JOFOC_APPROVER_ROLE ? jofocApprovalTier(acq, ref) : null;
+    const byRole = tier
+      ? (tier.title === "Contracting Officer" ? String(acq['co_name'] ?? "").trim() : "") ||
+        reviewerNameForTitle(tier.title, center, roster) ||
+        tier.title
+      : reviewerNameForRole(r.reviewer_role, center, roster);
     const voted = vote === "go" || vote === "no-go";
     return {
       poll_id: row?.poll_id ?? null,
