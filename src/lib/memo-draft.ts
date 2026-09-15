@@ -304,7 +304,7 @@ export function pricingArrangement(acq: Record<string, unknown>): string {
     /((?:firm[- ]fixed[- ]price|fixed[- ]price|cost[- ]plus[^.,;]*|time[- ]and[- ]materials|labor[- ]hour|indefinite[- ]delivery)[^.;]*)/i.exec(
       text,
     );
-  return m ? m[1].trim().replace(/\s+/g, " ") : "";
+  return m?.[1] ? m[1].trim().replace(/\s+/g, " ") : "";
 }
 
 function commerciality(ctx: MemoDraftCtx): Values {
