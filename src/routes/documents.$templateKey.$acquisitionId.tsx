@@ -885,8 +885,11 @@ function DocumentPage() {
     acquisitionId,
     coName: String(q.data.acq["co_name"] ?? coRecord?.name ?? ""),
     coTitle: "Contracting Officer",
-    approvingOfficialTitle: q.data.routing?.approving_official_title,
-    technicalRepresentativeName: String(q.data.acq["technical_representative_name"] ?? q.data.acq["requester_name"] ?? ""),
+    approvingOfficialTitle: approvingOfficialTitle(
+      q.data.routing?.approving_official_title,
+      !(signature && signature.blocks.length > 2),
+    ),
+    technicalRepresentativeName: technicalRepresentative(q.data.acq as Record<string, unknown>),
     centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
     centerAddress: q.data.center?.address_line ?? "",
     preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
@@ -1290,9 +1293,11 @@ function DocumentPage() {
             <p className="text-[13px] text-muted-foreground">
               {signature.tierLabel} · {signature.citation} · selected by the estimated value{" "}
               <span data-numeric>{money(estimatedValue)}</span>
-              {q.data?.routing?.approving_official_title ? (
-                <> · approving official: {q.data.routing.approving_official_title}</>
-              ) : null}
+              {" "}· approving official:{" "}
+              {approvingOfficialTitle(
+                q.data?.routing?.approving_official_title,
+                !(signature && signature.blocks.length > 2),
+              )}
             </p>
             <ul className="mt-2">
               {signature.blocks.map((b) => (
@@ -1304,7 +1309,10 @@ function DocumentPage() {
             {def.key === "jofoc" ? (
               <div className="mt-4 grid gap-6 sm:grid-cols-2">
                 {[
-                  { role: "Technical Representative", name: String(q.data?.acq?.["cor_name"] ?? "") },
+                  {
+                    role: "Technical Representative",
+                    name: technicalRepresentative((q.data?.acq ?? {}) as Record<string, unknown>),
+                  },
                   { role: "Contracting Officer", name: String(q.data?.acq?.["co_name"] ?? "") },
                 ].map((p2) => (
                   <div key={p2.role}>
