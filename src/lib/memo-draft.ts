@@ -928,9 +928,24 @@ function evaluationOfQuotations(ctx: MemoDraftCtx): Values {
 
 /** The recommended quoter on the evaluation record carries into the PNM. */
 function priceNegotiation(ctx: MemoDraftCtx): Values {
+  const a = ctx.acq;
   const evaluation = ctx.evaluationValues;
-  if (!evaluation) return {};
   const out: Values = {};
+  // On a sole-source file there is no competition to compare against, so the
+  // vendor, the price and the analysis technique come from the record.
+  if (/sole/i.test(str(a["competition"]))) {
+    const vendor = str(a["vendor_legal_name"]);
+    const uei = str(a["vendor_uei"]);
+    const price = str(a["proposed_price"]);
+    if (vendor) out["vendor_legal_name"] = vendor;
+    if (uei) out["vendor_uei"] = uei;
+    if (price) out["quoted_price"] = price;
+    out["technique"] = "Comparison with the independent government cost estimate";
+    out["negotiation_summary"] = `Price reasonableness was established under FAR 13.106-3(a), comparing the proposed price of ${
+      dollars(a["proposed_price"]) || "the amount on the record"
+    } with the independent Government cost estimate and with prior prices paid for the same service. This memorandum is the determination of record under FAR 12.209. Drafted from the record, confirm.`;
+  }
+  if (!evaluation) return out;
   const name = str(evaluation["recommended_quoter"]);
   const uei = str(evaluation["recommended_uei"]);
   const price = str(evaluation["recommended_price"]);
