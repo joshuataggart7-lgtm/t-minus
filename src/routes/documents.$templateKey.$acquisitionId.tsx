@@ -42,6 +42,7 @@ import {
   templateByKey,
   validate,
   sectionCitation,
+  type SectionDef,
   visibleFields,
   visibleSections,
   type ThresholdRow,
