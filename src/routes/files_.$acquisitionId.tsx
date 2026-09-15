@@ -1423,7 +1423,11 @@ function FilePage() {
 
       {!q.isLoading ? (
       <div className="mb-8 flex flex-wrap items-center justify-end gap-2">
-        <div role="group" aria-label="View" className="inline-flex overflow-hidden rounded-lg border border-border">
+        <div
+          role="group"
+          aria-label="View"
+          className={presenter ? "hidden" : "inline-flex overflow-hidden rounded-lg border border-border"}
+        >
           {(["novice", "veteran"] as Mode[]).map((m) => (
             <button
               key={m}
