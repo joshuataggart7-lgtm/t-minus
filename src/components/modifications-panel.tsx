@@ -69,7 +69,7 @@ export function ModificationsPanel({
         value_change: valueChange.trim() ? Number(valueChange) : null,
         period_change_end: periodEnd || null,
         funds_line: fundsLine.trim() || null,
-        clause_delta: [],
+        clause_delta: outOfScope ? [{ key: "out_of_scope", value: true }] : [],
         state: "draft",
       };
       const { error } = await supabase.from("contract_modifications").insert(payload as never);
@@ -81,7 +81,7 @@ export function ModificationsPanel({
         field: modNumber,
         old_value: null,
         new_value: info.label,
-        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}`,
+        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}${outOfScope ? "; adds out-of-scope work, justification required" : ""}`,
       } as never);
       return modNumber;
     },
@@ -92,6 +92,7 @@ export function ModificationsPanel({
       setValueChange("");
       setPeriodEnd("");
       setFundsLine("");
+      setOutOfScope(false);
       void qc.invalidateQueries({ queryKey: ["modifications", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
@@ -192,7 +193,7 @@ export function ModificationsPanel({
                 </p>
                 {m.description ? <p className="mt-1 text-[13px]">{m.description}</p> : null}
                 <ul className="mt-2 space-y-1 text-[13px]">
-                  {modRows(m, { method, outOfScope: false }).map((r) => (
+                  {modRows(m, { method }).map((r) => (
                     <li key={r.label}>
                       {r.label} · {r.state === "required" ? "Required" : "Offered"} · {r.citation}
                     </li>
