@@ -250,6 +250,7 @@ export function impactedContracts(
       center_code: c.center_code,
       co_name: c.co_name,
       contract_number: c.contract_number,
+      hasContract: Boolean(String(c.contract_number ?? "").trim()),
       clock_state: c.clock_state,
       period_of_performance_end: c.period_of_performance_end,
       monthsRemaining: monthsRemaining(c.period_of_performance_end, today),
