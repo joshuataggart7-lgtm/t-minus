@@ -155,6 +155,49 @@ function IntakePage() {
   const [packageClins, setPackageClins] = useState<PackageClin[]>([]);
   const [packageConfirmedCount, setPackageConfirmedCount] = useState(0);
 
+  // Files staged on this intake. They upload once the record exists, and the
+  // IGCE and SOW/PWS states follow the files, never a bare checkbox.
+  type DocSlot = "igce_attached" | "sow_attached" | "pr" | "nf-1707";
+  const [docFiles, setDocFiles] = useState<Partial<Record<DocSlot, File>>>({});
+  const [igceNote, setIgceNote] = useState<string | null>(null);
+  const [igceTotal, setIgceTotal] = useState<number | null>(null);
+
+  async function stageFile(slot: DocSlot, file: File) {
+    setDocFiles((current) => ({ ...current, [slot]: file }));
+    if (slot === "sow_attached") setFacts((f) => ({ ...f, sow_attached: true }));
+    if (slot !== "igce_attached") return;
+    try {
+      const read = await igceFromFile(file);
+      if (read?.clins.length) setPackageClins(read.clins as unknown as PackageClin[]);
+      setIgceTotal(read?.total ?? null);
+      setFacts((f) => ({ ...f, igce_attached: read?.total != null }));
+      setIgceNote(
+        read?.total != null
+          ? `${read.clins.length} CLIN row${read.clins.length === 1 ? "" : "s"} read. Total: ${read.total.toLocaleString()}.`
+          : "The file was stored, but no total was found. The IGCE red flag stays until a total is found.",
+      );
+    } catch (reason) {
+      setIgceTotal(null);
+      setFacts((f) => ({ ...f, igce_attached: false }));
+      setIgceNote(reason instanceof Error ? reason.message : "That file could not be read.");
+    }
+  }
+
+  function removeStaged(slot: DocSlot) {
+    setDocFiles((current) => {
+      const next = { ...current };
+      delete next[slot];
+      return next;
+    });
+    if (slot === "sow_attached") setFacts((f) => ({ ...f, sow_attached: false }));
+    if (slot === "igce_attached") {
+      setFacts((f) => ({ ...f, igce_attached: false }));
+      setIgceNote(null);
+      setIgceTotal(null);
+    }
+  }
+
+
   const errors = useMemo(() => fieldErrors(facts), [facts]);
   const errorCount = Object.keys(errors).length;
   const set = <K extends keyof IntakeFacts>(k: K, v: IntakeFacts[K]) => {
