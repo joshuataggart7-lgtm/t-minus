@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useCallback, useState, type ReactNode } from "react";
-import { navFor, SEEDED_USERS, type RoleId } from "@/lib/roles";
+import { navFor, ROLE_LABELS, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
