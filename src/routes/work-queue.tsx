@@ -303,6 +303,9 @@ function WorkQueuePage() {
                 </p>
                 </div>
                 <ul className="mt-4 space-y-4">
+                  {items.length === 0 ? (
+                    <li className="text-[13px] text-muted-foreground">No file is in this column.</li>
+                  ) : null}
                   {items.map((c) => (
                     <li key={c.m.acq.acquisition_id}>
                       <CardView c={c} />
@@ -398,26 +401,36 @@ function CardView({ c }: { c: Card }) {
     <Link
       to="/files/$acquisitionId"
       params={{ acquisitionId: c.m.acq.acquisition_id }}
-      className="block rounded-xl border border-border border-l-4 bg-background p-4 transition-colors duration-150 hover:border-primary"
-      style={{ borderLeftColor: statusColor(c.m.status) }}
+      className="block rounded-xl border border-border bg-background p-4 shadow-none transition-colors duration-150 hover:border-primary"
+      style={{ borderLeftWidth: 4, borderLeftColor: statusColor(c.m.status) }}
     >
-      <p className="text-[15px] leading-[22px] font-medium">
-        {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
-      </p>
-      <p className="mt-1 text-[13px] text-muted-foreground">{c.mission}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">{c.m.status}</p>
+          <p className="mt-1 text-[15px] leading-[22px] font-medium">
+            {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-[28px] leading-8 font-semibold" data-numeric>
+            {c.m.clockState === "launched"
+              ? (c.m.daysSinceAward ?? 0)
+              : c.m.clockState === "scrubbed"
+                ? "—"
+                : (c.m.daysToAward ?? "—")}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
+            {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}
+          </p>
+        </div>
+      </div>
+      <p className="mt-2 text-[13px] text-muted-foreground">{c.mission}</p>
       <p className="mt-2 text-[13px]">Owner: {c.owner}</p>
       <p className="mt-1 text-[13px]">Phase: {c.m.currentPhase ?? "Not started"}</p>
       <p className="mt-1 text-[13px]">Next: {c.nextTask}</p>
       <p className="mt-1 text-[13px]">Waiting on: {c.dependency}</p>
-      <p className="mt-2 text-[13px]" data-numeric>
-        {c.daysInPhase ?? "Not recorded"} days in phase · {c.m.clockState === "launched"
-          ? `${c.m.daysSinceAward ?? 0} days since award`
-          : c.m.clockState === "scrubbed"
-            ? "Clock stopped"
-            : `${c.m.daysToAward ?? "Clock not started"} days to award`}
-      </p>
-      <p className="mt-3 text-[13px] font-medium">
-        {c.m.status}
+      <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
+        {c.daysInPhase ?? "Not recorded"} days in phase
       </p>
     </Link>
   );

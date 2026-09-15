@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
@@ -23,6 +24,10 @@ export function AnnouncementBanner() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // The urgent line sits in the page flow under the header so it never covers
+  // the navigation headings.
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => setSlot(document.getElementById("urgent-announcement-slot")), []);
 
   const refresh = useCallback(async () => {
     const [all, acks, uid] = await Promise.all([loadAnnouncements(), loadAcks(), currentUserId()]);
@@ -97,14 +102,17 @@ export function AnnouncementBanner() {
         </div>
       ) : null}
 
-      {urgent ? (
-        <div role="alert" className="fixed left-0 right-0 top-14 z-30 grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
-          <p className="truncate"><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
-          <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-      ) : null}
+      {urgent && slot
+        ? createPortal(
+            <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
+              <p className="truncate"><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+              <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            </div>,
+            slot,
+          )
+        : null}
     </div>
   );
 }

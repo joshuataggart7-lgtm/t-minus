@@ -392,7 +392,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
 
   return (
-    <li className="rounded-xl border border-border border-l-4 bg-background p-5" style={{ borderLeftColor: color }}>
+    <li className="rounded-xl border border-border bg-background p-5 shadow-none" style={{ borderLeftWidth: 4, borderLeftColor: color }}>
       <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]">
         <div className="min-w-0">
           <Link
@@ -415,8 +415,9 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         </div>
 
         <div className="sm:text-right">
+           <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">{driver.status}</p>
            {driver.clockState === "launched" ? (
-             <p className="clock-figure" data-numeric>{driver.daysSinceAward ?? 0}</p>
+             <p className="text-[28px] leading-8 font-semibold" data-numeric>{driver.daysSinceAward ?? 0}</p>
            ) : driver.clockState === "scrubbed" ? (
              <p className="text-[15px] leading-[22px] text-muted-foreground">Clock stopped</p>
            ) : driver.daysToAward === null ? (
@@ -426,7 +427,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
               {Math.abs(driver.daysToAward)} days overdue
             </p>
           ) : (
-            <p className="clock-figure" data-numeric>
+            <p className="text-[28px] leading-8 font-semibold" data-numeric>
               {driver.daysToAward}
             </p>
           )}
@@ -437,7 +438,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
 
         <div className="min-w-0 sm:col-span-2 xl:col-span-3 border-t border-border pt-3">
           <p
-            className="text-[18px] leading-6 font-semibold"
+            className="text-[12px] font-medium uppercase tracking-wide"
             style={atRisk ? { color: "var(--atrisk)" } : undefined}
           >
             {driver.status}

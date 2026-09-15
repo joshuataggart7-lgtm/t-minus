@@ -454,6 +454,37 @@ function FilePage() {
   const hold = lifecycle?.hold ?? null;
   const effectiveState = lifecycle?.clockState ?? null;
 
+  // The one action for the current blocker, shown in the hero. It does the same
+  // thing as the matching row in the launch sequence.
+  const heroAction = useMemo((): { label: string; doc?: RequiredDoc } | null => {
+    if (!acq || !lifecycle || effectiveState === "launched" || effectiveState === "scrubbed") return null;
+    const current = lifecycle.currentPhase;
+    if (!current) return null;
+    const upTo: PhaseView[] = [];
+    for (const p of phases) {
+      upTo.push(p);
+      if (p.phase === current) break;
+    }
+    for (const p of upTo) {
+      for (const d of p.docs) {
+        if (d.optional || !d.field) continue;
+        const key = docKey(d.field, d.label);
+        const state = docSatisfied(d, acq, Boolean(attachments.find((row) => row.doc_key === key)));
+        if (state === false) return { label: `Attach ${d.label}`, doc: d };
+      }
+    }
+    if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
+    if (current === "Market Research") return { label: "Run market research" };
+    return { label: `Exit ${current}` };
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards]);
+
+  const openLaunchSequence = () => {
+    const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+    if (!el) return;
+    el.open = true;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   // "Explain this" for the status and the hold, built from the same rules.
   const statusExplanation = useMemo(() => {
     const behind = phases.find(
@@ -1088,6 +1119,34 @@ function FilePage() {
                   : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
               </p>
             ) : null}
+            {heroAction && canWrite ? (
+              <div className="mt-4">
+                {heroAction.doc ? (
+                  <label className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
+                    {attachDoc.isPending ? "Attaching" : heroAction.label}
+                    <input
+                      type="file"
+                      className="sr-only"
+                      accept={ATTACHMENT_ACCEPT}
+                      disabled={attachDoc.isPending}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file && heroAction.doc) attachDoc.mutate({ doc: heroAction.doc, file });
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openLaunchSequence}
+                    className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                  >
+                    {heroAction.label}
+                  </button>
+                )}
+              </div>
+            ) : null}
             <div className="mt-4 flex flex-wrap gap-4">
               <ExplainThis explanation={statusExplanation} label="Explain this status" />
               {hold ? <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" /> : null}
@@ -1096,6 +1155,65 @@ function FilePage() {
           </div>
         </div>
       </section> : null}
+
+      {!q.isLoading ? (
+      <div className="mb-8 flex flex-wrap items-center justify-end gap-2">
+        <div role="group" aria-label="View" className="inline-flex overflow-hidden rounded-lg border border-border">
+          {(["novice", "veteran"] as Mode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                setMode(m);
+                setStep(currentIndex);
+              }}
+              aria-pressed={mode === m}
+              className={
+                mode === m
+                  ? "bg-primary px-3 py-1.5 text-[13px] text-primary-foreground"
+                  : "px-3 py-1.5 text-[13px] text-muted-foreground"
+              }
+            >
+              {m === "novice" ? "Novice" : "Veteran"}
+            </button>
+          ))}
+        </div>
+        {canWrite && acq?.clock_state !== "launched" ? (
+          <>
+            <button
+              type="button"
+              onClick={() => launch.mutate()}
+              className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
+            >
+              Launched
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const reason = window.prompt("Why is this acquisition being scrubbed?");
+                if (!reason?.trim()) return;
+                const sure = window.confirm(
+                  `Scrub ${acquisitionId}? The countdown stops and the file leaves the work queue and the clause change list. The audit history is kept. Reason: ${reason.trim()}`,
+                );
+                if (sure) scrub.mutate(reason.trim());
+              }}
+              className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
+              style={{ color: "var(--atrisk)" }}
+            >
+              Scrub with a reason
+            </button>
+          </>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => nearExport.mutate()}
+          disabled={nearExport.isPending}
+          className="rounded-lg border border-border px-3 py-1.5 text-[13px] disabled:opacity-40"
+        >
+          {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
+        </button>
+      </div>
+      ) : null}
 
       {warrant ? (
         <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
@@ -1196,10 +1314,6 @@ function FilePage() {
         </section>
       ) : null}
 
-      {phaseNames.length ? (
-        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
-      ) : null}
-
       <details aria-label="Acquisition Forecast" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
         <div className="border-t border-border px-5 py-4">
@@ -1246,6 +1360,9 @@ function FilePage() {
         </div>
       </details>
 
+      {phaseNames.length ? (
+        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
+      ) : null}
 
       {intakeEstimate ? (
         <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
@@ -1258,64 +1375,6 @@ function FilePage() {
           </p>
         </section>
       ) : null}
-
-      <div className="mb-6 flex flex-wrap items-center gap-3">
-        <span className="text-[13px] text-muted-foreground">View</span>
-        <div className="inline-flex overflow-hidden rounded-lg border border-border">
-          {(["novice", "veteran"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m);
-                setStep(currentIndex);
-              }}
-              aria-pressed={mode === m}
-              className={
-                mode === m
-                  ? "bg-primary px-3 py-2 text-[13px] text-primary-foreground"
-                  : "px-3 py-2 text-[13px] text-muted-foreground"
-              }
-            >
-              {m === "novice" ? "Novice mode" : "Veteran mode"}
-            </button>
-          ))}
-        </div>
-        {canWrite && acq?.clock_state !== "launched" ? (
-          <>
-            <button
-              type="button"
-              onClick={() => launch.mutate()}
-              className="rounded-lg border border-border px-3 py-2 text-[13px]"
-            >
-              Launched
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const reason = window.prompt("Why is this acquisition being scrubbed?");
-                if (!reason?.trim()) return;
-                const sure = window.confirm(
-                  `Scrub ${acquisitionId}? The countdown stops and the file leaves the work queue and the clause change list. The audit history is kept. Reason: ${reason.trim()}`,
-                );
-                if (sure) scrub.mutate(reason.trim());
-              }}
-              className="rounded-lg border border-border px-3 py-2 text-[13px]"
-              style={{ color: "var(--atrisk)" }}
-            >
-              Scrub with a reason
-            </button>
-          </>
-        ) : null}
-        <button
-          type="button"
-          onClick={() => nearExport.mutate()}
-          disabled={nearExport.isPending}
-          className="rounded-lg border border-border px-3 py-2 text-[13px] disabled:opacity-40"
-        >
-          {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
-        </button>
-      </div>
 
       {lifecycle && lifecycle.upcomingReviews.length > 0 ? (
         <section aria-labelledby="upcoming-reviews" className="mb-8 max-w-[80ch] border-t border-border pt-4">
@@ -1399,7 +1458,7 @@ function FilePage() {
         </div>
       </details>
 
-      <details open aria-label="Launch sequence" className="mb-12 rounded-xl border border-border bg-background">
+      <details id="launch-sequence" open aria-label="Launch sequence" className="mb-12 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
