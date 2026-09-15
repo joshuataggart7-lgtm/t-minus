@@ -52,7 +52,7 @@ export function RegulationSidebar({
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
         Regulations
       </summary>
-      <div className="hidden">
+      <div className="border-t border-border px-5 pt-4">
         <button
           type="button"
           className="text-[13px] underline"
