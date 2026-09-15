@@ -134,6 +134,8 @@ export type BuildMemoInput = {
   routing?: MemoRoutingRow | undefined;
   coName: string;
   approvals?: ApprovalForMemo[];
+  /** Reviewers who must concur, from the Approvals step of this file. */
+  concurrence?: { name: string; title: string }[];
   enclosures?: string[];
   today: string;
 };
@@ -190,9 +192,10 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
     // Concurrence on a memo comes only from the routing table's Thru chain
     // for this document type. NF 1707 sign-offs are not memo concurrers. An
     // empty chain means no concurrence block at all.
-    concurrence: (fileAddressed(input.templateKey) ? [] : (input.routing?.thru_chain ?? []).filter(Boolean)).map(
-      (t) => ({ name: "", title: t }),
-    ),
+    // Concurrence comes from the Approvals step: the reviewers who must
+    // concur on this file. The Thru chain is the routing path, not the
+    // concurrence list, so it is never copied here.
+    concurrence: fileAddressed(input.templateKey) ? [] : (input.concurrence ?? []),
     enclosures: input.enclosures ?? [],
     distribution: [`Contract File ${pr || String(input.acquisition["acquisition_id"] ?? "")}`],
     cc: [],

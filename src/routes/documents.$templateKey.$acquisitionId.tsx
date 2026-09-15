@@ -41,12 +41,15 @@ import {
   renderDocument,
   templateByKey,
   validate,
+  sectionCitation,
   visibleFields,
   visibleSections,
   type ThresholdRow,
   type Values,
 } from "@/lib/template-engine";
-import { applyMemoDraft, draftMemoBody } from "@/lib/memo-draft";
+import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
+import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
+import { tabRank } from "@/lib/file-index";
 import type { FindingMap } from "@/lib/research-findings";
 import {
   buildMemoDoc,
@@ -117,6 +120,8 @@ function DocumentPage() {
   const [aiMeta, setAiMeta] = useState<Record<string, DraftProvenance>>({});
   const [sourcePanel, setSourcePanel] = useState<{ title: string; lines: string[] } | null>(null);
   const [draftingKey, setDraftingKey] = useState<string | null>(null);
+  // Fields the engine drafted from the record, so the Source panel says so.
+  const [draftedFields, setDraftedFields] = useState<Set<string>>(new Set());
   // NF 1858: whether this document is issued as a memorandum, and its header.
   const [memoOn, setMemoOn] = useState<boolean | null>(null);
   const [memoHeader, setMemoHeader] = useState<MemoHeader | null>(null);
@@ -202,7 +207,7 @@ function DocumentPage() {
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
         supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
         supabase.from("review_rules").select("*"),
-        supabase.from("users").select("name,title,center_code"),
+        supabase.from("users").select("name,title,center_code,email"),
         loadWatchRows(),
         loadRegRefs(),
         supabase.from("memo_routing").select("*").eq("document_key", templateKey),
@@ -212,7 +217,7 @@ function DocumentPage() {
           .eq("acquisition_id", acquisitionId),
         supabase
           .from("documents")
-          .select("template_id,saved_at,templates(name)")
+          .select("template_id,saved_at,version,field_values,templates(name,nf_1098_tab)")
           .eq("acquisition_id", acquisitionId)
           .order("saved_at", { ascending: true }),
       ]);
@@ -265,6 +270,27 @@ function DocumentPage() {
         .from("research_findings")
         .select("target,label,value,source,source_date,confirmed,confirmed_by")
         .eq("acquisition_id", acquisitionId);
+      // Public-source searches the engine ran on this file, one line per source.
+      const researchLog = await supabase
+        .from("research_log")
+        .select("source,query,result_count,outcome,ran_at")
+        .eq("acquisition_id", acquisitionId)
+        .order("ran_at", { ascending: true });
+      const naics = String((acq.data as Record<string, unknown> | null)?.["naics_code"] ?? "");
+      const sizeStandard = naics
+        ? await supabase
+            .from("naics_size_standards")
+            .select("standard_type,employees,receipts_usd,citation")
+            .eq("naics_code", naics)
+            .maybeSingle()
+        : { data: null };
+      const clauseRows = await supabase
+        .from("clauses")
+        .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins");
+      const attachments = await supabase
+        .from("document_attachments")
+        .select("doc_label,nf_1098_tab,file_name,created_at")
+        .eq("acquisition_id", acquisitionId);
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -274,6 +300,23 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        researchLog: (researchLog.data ?? []) as {
+          source: string;
+          query: string;
+          result_count: number | null;
+          outcome: string;
+          ran_at: string;
+        }[],
+        sizeStandard: sizeStandard.data as
+          | { standard_type: string; employees: number | null; receipts_usd: number | null; citation: string | null }
+          | null,
+        clauseRows: (clauseRows.data ?? []) as ClauseRow[],
+        attachments: (attachments.data ?? []) as {
+          doc_label: string;
+          nf_1098_tab: string | null;
+          file_name: string;
+          created_at: string;
+        }[],
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
         findings: Object.fromEntries(
@@ -294,6 +337,12 @@ function DocumentPage() {
         routing:
           ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
         approvals: (approvals.data ?? []) as { approval_role: string; owner_name: string | null; status: string }[],
+        fileDocRows: (fileDocs.data ?? []) as {
+          saved_at: string | null;
+          version: number | null;
+          field_values: unknown;
+          templates: { name: string; nf_1098_tab: string | null } | null;
+        }[],
         fileDocuments: [
           ...new Set(
             ((fileDocs.data ?? []) as { templates: { name: string } | null }[])
@@ -518,12 +567,122 @@ function DocumentPage() {
     };
   }, [q.data?.evidence]);
 
+  // One line per public-source search, for paragraph 4 and JOFOC item 8.
+  const researchLog = useMemo<ResearchLogLine[]>(
+    () =>
+      (q.data?.researchLog ?? []).map((r) => ({
+        source: r.source,
+        query: r.query,
+        ranAt: String(r.ran_at).slice(0, 10),
+        count: r.result_count === null || r.result_count === undefined ? null : Number(r.result_count),
+        outcome: r.outcome,
+      })),
+    [q.data?.researchLog],
+  );
+
+  // SBA size standard for the record's NAICS code.
+  const sizeStandard = useMemo(() => {
+    const row = q.data?.sizeStandard;
+    if (!row) return null;
+    if (row.receipts_usd)
+      return `${money(Number(row.receipts_usd))} average annual receipts (${row.citation ?? "13 CFR 121.201"})`;
+    if (row.employees) return `${row.employees} employees (${row.citation ?? "13 CFR 121.201"})`;
+    return row.standard_type;
+  }, [q.data?.sizeStandard]);
+
+  // The clause packet on this file, the same list the NCMS handoff shows.
+  const packetClauses = useMemo<PacketClauseLine[]>(() => {
+    if (!q.data?.acq) return [];
+    return selectPacketClauses(
+      q.data.acq,
+      q.data.clauseRows ?? [],
+      (q.data.thresholds ?? []).map((t) => ({ name: t.name, value: t.value === null ? null : Number(t.value), citation: t.citation })),
+    ).map((c) => ({
+      clause_number: c.clause_number,
+      title: c.title,
+      effective_date: c.effective_date,
+      ucf_section: c.ucf_section,
+    }));
+  }, [q.data]);
+
+  // The SAM.gov notice saved on this file, when there is one.
+  const noticeFacts = useMemo(() => {
+    const rows = (q.data?.fileDocRows ?? []).filter((d) => d.templates?.name === "SAM.gov notice");
+    const last = rows[rows.length - 1];
+    if (!last) return { postedOn: null, closesOn: null, noticeType: null, quotesReceived: null };
+    const fv = (last.field_values ?? {}) as Record<string, string>;
+    return {
+      postedOn: last.saved_at ? String(last.saved_at).slice(0, 10) : null,
+      closesOn: fv["response_date"] ?? null,
+      noticeType: fv["notice_type"] ?? null,
+      quotesReceived: null,
+    };
+  }, [q.data?.fileDocRows]);
+
+  // The contracting officer's own user record, for the notice point of contact.
+  const coRecord = useMemo(() => {
+    const name = String(q.data?.acq?.["co_name"] ?? "");
+    const row = (q.data?.users ?? []).find((u) => u.name === name) as
+      | { name: string; email?: string | null }
+      | undefined;
+    return row ? { name: row.name, email: row.email ?? null, phone: null } : null;
+  }, [q.data]);
+
+  // The clock's award date: the target date, or the forecast date behind it.
+  const awardDate = useMemo(() => {
+    const acq = q.data?.acq;
+    if (!acq) return null;
+    const target = acq["target_award_date"];
+    const forecast = acq["need_date"];
+    const pick = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+    return pick(target) ?? pick(forecast);
+  }, [q.data?.acq]);
+
+  // Packet documents in the contract file index, in NF 1098 tab order.
+  const enclosures = useMemo(() => {
+    const items: { tab: string; label: string }[] = [
+      ...(q.data?.attachments ?? []).map((a) => ({ tab: String(a.nf_1098_tab ?? ""), label: a.doc_label })),
+      ...(q.data?.fileDocRows ?? [])
+        .filter((d) => d.templates?.name)
+        .map((d) => ({ tab: String(d.templates?.nf_1098_tab ?? ""), label: d.templates!.name })),
+    ].filter((i) => i.label);
+    const seen = new Set<string>();
+    return items
+      .filter((i) => (seen.has(i.label) ? false : (seen.add(i.label), true)))
+      .sort((a, b) => tabRank(a.tab) - tabRank(b.tab))
+      .map((i) => (i.tab && i.tab !== "—" && i.tab !== "N/A" ? `Tab ${i.tab} — ${i.label}` : i.label));
+  }, [q.data]);
+
+  const draftCtx = useMemo(
+    () => ({
+      acquisitionId,
+      acq: q.data?.acq ?? {},
+      missionName: q.data?.missionName ?? "",
+      fileDocuments: q.data?.fileDocuments ?? [],
+      evidence: researchEvidence,
+      findings: q.data?.findings,
+      researchLog,
+      clauses: packetClauses,
+      notice: noticeFacts,
+      sizeStandard,
+      awardDate,
+      co: coRecord,
+      today: todayISO(),
+    }),
+    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord],
+  );
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
     const latest = q.data.versions[0]?.field_values;
     if (latest && typeof latest === "object") {
       const stored = { ...(latest as Values) };
+      // A stored version keeps its text; the method is carried so the
+      // citations still follow this record.
+      stored["__method"] = `${String(q.data.acq["acquisition_method"] ?? "")} ${String(
+        q.data.acq["contract_format"] ?? "",
+      )}`.trim();
       const provenance = stored["__ai_provenance"];
       if (provenance) {
         try {
@@ -549,18 +708,19 @@ function DocumentPage() {
       filled["barriers"] =
         "The Agency will continue to examine the market in the future for alternative solutions or new sources before executing any subsequent acquisitions for the same requirements.";
     }
-    // A memorandum body is drafted from the record, section by section, so no
-    // numbered heading is ever exported empty.
-    const drafted = applyMemoDraft(filled, draftMemoBody(def.key, {
-      acquisitionId,
-      acq: q.data.acq,
-      missionName: q.data.missionName ?? "",
-      fileDocuments: q.data.fileDocuments ?? [],
-      evidence: researchEvidence,
-      findings: q.data.findings,
-    }));
+    // The JOFOC's statutory authority is one of the listed options; a longer
+    // note on the record is carried into item 5 instead of the picker.
+    if (def.key === "jofoc") {
+      const options = def.sections.find((x) => x.id === "item4")?.fields[0]?.options ?? [];
+      if (!options.includes(filled["authority"] ?? "")) filled["authority"] = jofocAuthorityDefault(q.data.acq);
+    }
+    // Every document is drafted from the record, section by section, so no
+    // field the record can fill is ever opened empty.
+    const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
+    const drafted = applyMemoDraft(filled, draft);
+    setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
-  }, [def, q.data, touched, acquisitionId, samFacts, researchEvidence]);
+  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.
@@ -579,7 +739,10 @@ function DocumentPage() {
       centerAddress: q.data.center?.address_line ?? "",
       routing,
       coName: String(q.data.acq["co_name"] ?? user.name),
-      enclosures: def.key === "packet-transmittal-memo" ? (q.data.fileDocuments ?? []) : [],
+      enclosures: def.key === "packet-transmittal-memo" ? enclosures : [],
+      concurrence: board
+        .filter((b) => b.reviewer_role)
+        .map((b) => ({ name: b.reviewer_name ?? "", title: b.reviewer_role })),
       today: todayISO(),
     });
     const storedHeader = saved?.memo_header;
@@ -587,7 +750,7 @@ function DocumentPage() {
     setMemoHeader(
       storedHeader && typeof storedHeader === "object" ? { ...built, ...(storedHeader as MemoHeader) } : built,
     );
-  }, [def, q.data, memoHeader, acquisitionId, user.name]);
+  }, [def, q.data, memoHeader, acquisitionId, user.name, enclosures, board]);
 
   const estimatedValue = q.data?.acq?.["estimated_value"] ? Number(q.data.acq["estimated_value"]) : null;
   const signature = useMemo(
@@ -603,7 +766,9 @@ function DocumentPage() {
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
   const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
-  const targetDate = q.data?.acq?.["target_award_date"] as string | null | undefined;
+  // The same fallback the file page uses: the forecast's anticipated award
+  // date stands in when the contracting officer has not entered a target.
+  const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
 
@@ -724,6 +889,14 @@ function DocumentPage() {
       lines.push(`Record fields used: ${meta.recordFields.map((r) => `${r.field} = ${r.value}`).join("; ")}`);
       lines.push(meta.intakeAnswersUsed ? "Intake answers were included in the draft." : "Intake answers were not included in this draft.");
       lines.push(meta.reviewed ? "Marked reviewed by the contracting officer." : "AI draft, not yet reviewed.");
+    } else if (draftedFields.has(f.key)) {
+      lines.push("Drafted from the record, confirm.");
+      if (f.bind) lines.push(`Record field: ${f.bind} = ${recordValue(f.bind)}`);
+      if (/market_research|research|findings|clause_note/.test(f.key) && researchLog.length) {
+        lines.push("Research log lines used:");
+        for (const l of researchLog) lines.push(`${l.source} · ${l.ranAt} · ${l.count ?? l.outcome}`);
+      }
+      lines.push(`Written into: ${s.title}`);
     } else if (f.bind) {
       lines.push(`Intake field: ${f.bind}`);
       lines.push(`Value on the record: ${recordValue(f.bind)}`);
@@ -733,7 +906,8 @@ function DocumentPage() {
       lines.push(`Typed on this template. Template revision: ${def.badge.revision}`);
       lines.push(`Item: ${s.title}`);
     }
-    if (s.citation) lines.push(`Authority citation: ${s.citation}`);
+    const cite = sectionCitation(s, values);
+    if (cite) lines.push(`Authority citation: ${cite}`);
     setSourcePanel({ title: f.label, lines });
   };
 
@@ -863,9 +1037,9 @@ function DocumentPage() {
         {visibleSections(def, values).map((s) => (
           <section key={s.id} className="mb-8">
             <h2 className="text-[18px] leading-6 font-medium">{s.title}</h2>
-            {s.citation ? (
+            {sectionCitation(s, values) ? (
               <p className="mb-2 text-[13px] text-muted-foreground">
-                {s.citation}
+                {sectionCitation(s, values)}
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}
