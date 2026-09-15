@@ -186,36 +186,58 @@ export async function runEngine(options: {
   const log: LogEntry[] = [];
   const record = (entry: LogEntry) => log.push(entry);
 
+  // The Entity Management API refuses a size above 10, so each search reads ten
+  // records a page and pages through until a short page comes back or twenty
+  // pages have been read. Registrants are de-duplicated by UEI across pages.
+  const ENTITY_PAGE_SIZE = 10;
+  const ENTITY_MAX_PAGES = 20;
   const samEntities = async (label: string, state: string | null): Promise<EngineEntity[]> => {
-    const url = new URL("https://api.sam.gov/entity-information/v3/entities");
-    url.searchParams.set("api_key", samKey ?? "");
-    url.searchParams.set("naicsCode", naics);
-    url.searchParams.set("registrationStatus", "A");
-    url.searchParams.set("size", "100");
-    if (state) url.searchParams.set("physicalAddressProvinceOrStateCode", state);
-    url.searchParams.set("includeSections", "entityRegistration,coreData,assertions");
-    const query = redact(url, samKey);
+    const buildUrl = (page: number) => {
+      const url = new URL("https://api.sam.gov/entity-information/v3/entities");
+      url.searchParams.set("api_key", samKey ?? "");
+      url.searchParams.set("naicsCode", naics);
+      url.searchParams.set("registrationStatus", "A");
+      url.searchParams.set("size", String(ENTITY_PAGE_SIZE));
+      url.searchParams.set("page", String(page));
+      if (state) url.searchParams.set("physicalAddressProvinceOrStateCode", state);
+      url.searchParams.set("includeSections", "entityRegistration,coreData,assertions");
+      return url;
+    };
+    const query = redact(buildUrl(0), samKey);
     if (!samKey) {
       record({ source: label, query, resultCount: null, outcome: "Not run. The SAM.gov key is not configured." });
       return [];
     }
+    const found = new Map<string, EngineEntity>();
+    let pagesRead = 0;
     try {
-      const rows = entitiesFromRaw(await getJson(url, samKey), naics);
+      for (let page = 0; page < ENTITY_MAX_PAGES; page += 1) {
+        const rows = entitiesFromRaw(await getJson(buildUrl(page), samKey), naics);
+        pagesRead += 1;
+        for (const row of rows) if (!found.has(row.uei)) found.set(row.uei, row);
+        if (rows.length < ENTITY_PAGE_SIZE) break;
+      }
+      const rows = [...found.values()];
       record({
         source: label,
         query,
         resultCount: rows.length,
-        outcome: rows.length ? "Returned registrants." : "Returned no registrants under this code.",
+        outcome: rows.length
+          ? `Returned registrants across ${pagesRead} page${pagesRead === 1 ? "" : "s"} of ten records.`
+          : "Returned no registrants under this code.",
       });
       return rows;
     } catch (error) {
+      const partial = [...found.values()];
       record({
         source: label,
         query,
         resultCount: null,
-        outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+        outcome: `The search failed after ${pagesRead} page${pagesRead === 1 ? "" : "s"}: ${
+          error instanceof Error ? error.message : "unknown error"
+        }`,
       });
-      return [];
+      return partial;
     }
   };
 
