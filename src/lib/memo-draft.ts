@@ -73,7 +73,7 @@ export type MemoDraftCtx = {
   /** Phases in the file's launch sequence, in order. */
   phases?: PhaseLine[];
   /** The people records, so a memorandum names a person by role and name. */
-  people?: { name: string; title?: string | null }[];
+  people?: { name: string; title?: string | null; aliases?: string[] }[];
 };
 
 export type AuditLine = {
@@ -574,13 +574,20 @@ function personPhrase(ctx: MemoDraftCtx, actor: string | null | undefined): stri
   const name = str(actor);
   if (!name) return "the contracting officer";
   const roster = ctx.people ?? [];
-  const row = roster.find((p) => p.name.trim().toLowerCase() === name.toLowerCase());
+  const row = roster.find(
+    (p) =>
+      p.name.trim().toLowerCase() === name.toLowerCase() ||
+      (p.aliases ?? []).some((alias) => alias.trim().toLowerCase() === name.toLowerCase()),
+  );
   const coName = str(ctx.acq["co_name"]);
   const title = str(row?.title);
-  if (title && /contracting/i.test(title)) {
-    return `${name === coName ? "the contracting officer" : "the specialist"}, ${row!.name}`;
-  }
-  if (title) return `the ${title.toLowerCase()}, ${row!.name}`;
+  const displayName = row?.name ?? name;
+  const narrativeTitle = /contracting specialist/i.test(title)
+    ? "contract specialist"
+    : /contracting officer/i.test(title)
+      ? "contracting officer"
+      : title.toLowerCase();
+  if (title) return `the ${narrativeTitle}, ${displayName}`;
   if (name === coName) return `the contracting officer, ${name}`;
   return `the specialist, ${name}`;
 }
@@ -588,8 +595,63 @@ function personPhrase(ctx: MemoDraftCtx, actor: string | null | undefined): stri
 /** "Legal review" from "Legal review (Center Chief Counsel)". */
 const seatName = (field: string | null) => str(field).replace(/\s*\(.*\)\s*$/, "") || "The review seat";
 
-/** The document a row is about. */
-const docName = (a: AuditLine) => str(a.field) || str(a.reason) || "a document";
+const cleanClause = (value: string | null | undefined) => str(value).replace(/[.!?]+\s*$/, "");
+
+/** A document title for narrative prose, never an implementation field code. */
+export function chronologyDocumentTitle(field: string | null, reason?: string | null): string {
+  const code = str(field).toLowerCase();
+  const recorded = cleanClause(reason);
+  if (code === "acquisition_forecast_verified" || /nf\s*1707|requester sections/i.test(recorded)) {
+    return "NF 1707 requester sections";
+  }
+  if (code === "igce_attached" || /independent government cost estimate|\bigce\b/i.test(recorded)) return "IGCE";
+  if (code === "sow_attached" || /statement of work|performance work statement|sow\/?pws/i.test(recorded)) {
+    return "SOW/PWS";
+  }
+  if (recorded && !/^[a-z][a-z0-9_]*$/i.test(recorded)) return recorded;
+  const raw = str(field);
+  if (/^nf[-_ ]?1787a?$/i.test(raw)) return raw.toUpperCase().replace(/[-_ ]/g, " ");
+  if (/^jofoc$/i.test(raw)) return "JOFOC";
+  return raw || recorded || "document";
+}
+
+const docName = (a: AuditLine) => chronologyDocumentTitle(a.field, a.reason);
+
+function researchSourceName(source: string): string {
+  if (/entity management/i.test(source)) return "SAM.gov Entity Management";
+  if (/opportunit/i.test(source)) return "SAM.gov Opportunities";
+  if (/usaspending/i.test(source)) return "USAspending";
+  if (/sba table|size standard/i.test(source)) return "the SBA size standards table";
+  if (/t-minus prior/i.test(source)) return "prior T-Minus actions";
+  if (/gsa calc/i.test(source)) return "GSA CALC";
+  if (/gsa elibrary/i.test(source)) return "GSA eLibrary";
+  return source.replace(/\s+(?:API|endpoint).*$/i, "").trim();
+}
+
+/** One complete chronology sentence for the latest market-research run. */
+export function chronologyResearchSentence(ctx: MemoDraftCtx): string | null {
+  const research = ctx.researchLog ?? [];
+  if (!research.length) return null;
+  const runDate = research.map((line) => onlyDate(line.ranAt)).filter(Boolean).sort().at(-1) ?? "";
+  const latest = research.filter((line) => onlyDate(line.ranAt) === runDate);
+  const sources = [
+    ...new Set(latest.filter((line) => line.count !== null).map((line) => researchSourceName(line.source)).filter(Boolean)),
+  ];
+  const counts = researchCounts(ctx);
+  const notices = latest
+    .filter((line) => /opportunit|notice/i.test(line.source))
+    .reduce((total, line) => total + (line.count ?? 0), 0);
+  const finding = ctx.findings?.["memo.findings"];
+  const confirmed = Boolean(finding?.confirmed || ctx.findings?.["memo.research"]?.confirmed);
+  const conclusion = isSoleSourceRecord(ctx.acq)
+    ? counts
+      ? `${counts.n} registrants were identified after de-duplication, and the research supported the sole-source finding on the record`
+      : "the research supported the sole-source finding on the record"
+    : counts
+      ? `${counts.n} registrants were identified after de-duplication, including ${counts.m} small businesses, so the Rule of Two was ${counts.m >= 2 ? "met" : "not met"}`
+      : cleanClause(finding?.value) || "the Rule of Two result was recorded on the file";
+  return `Market research was run on ${day(runDate)} using ${sources.join(", ") || "the sources recorded in the research log"}; ${conclusion}, and ${notices} notice${notices === 1 ? " was" : "s were"} found after de-duplication. The contracting officer ${confirmed ? "confirmed the finding" : "has not confirmed the finding"}.`;
+}
 
 /**
  * One narrative paragraph per phase, drafted from the audit trail. Each fact is
@@ -625,22 +687,8 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
     return d > (last?.exited ?? "") ? (last?.phase ?? "") : (windows[0]?.phase ?? "");
   };
 
-  const research = ctx.researchLog ?? [];
-  const researchDay = research.length ? onlyDate(research[0]!.ranAt) : "";
-  const registrants = research
-    .filter((l) => /entity|registrant/i.test(l.source))
-    .reduce((n, l) => n + (l.count ?? 0), 0);
-  const notices = research
-    .filter((l) => /opportunit|notice/i.test(l.source))
-    .reduce((n, l) => n + (l.count ?? 0), 0);
-  const researchSentence = (on: string) =>
-    research.length
-      ? `Market research was run on ${day(on)} against ${research.length} public ${
-          research.length === 1 ? "source" : "sources"
-        }, returning ${registrants} registrant${registrants === 1 ? "" : "s"} and ${notices} notice${
-          notices === 1 ? "" : "s"
-        } after duplicates were removed. ${ruleOfTwo(ctx)}`
-      : `Market research was run on ${day(on)}.`;
+  const researchSentence = chronologyResearchSentence(ctx);
+  const researchDay = (ctx.researchLog ?? []).map((line) => onlyDate(line.ranAt)).filter(Boolean).sort().at(-1) ?? "";
 
   const noise = /checked out|check-out released|reporting extract/i;
   const paragraphs: string[] = [];
@@ -687,18 +735,18 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         [...attaches].reverse().map((a) => str(a.newValue)).find((v) => /\.[a-z0-9]{2,5}$/i.test(v)) ?? "";
       if (attaches.length && removes.length) {
         push(
-          `The ${label.toLowerCase()} was attached, removed and re-attached on ${on}${
+          `The ${label} was attached, removed and re-attached on ${on}${
             version ? `; the version on file is ${version}` : ""
           }.`,
         );
       } else if (attaches.length) {
-        push(`The ${label.toLowerCase()} was attached on ${on}${version ? ` as ${version}` : ""}.`);
+        push(`The ${label} was attached on ${on}${version ? ` as ${version}` : ""}.`);
       } else if (removes.length) {
-        push(`The ${label.toLowerCase()} was removed from the file on ${on}.`);
+        push(`The ${label} was removed from the file on ${on}.`);
       }
       if (saves.length) {
         push(
-          `The ${label.toLowerCase()} was saved as a version on ${day(saves[saves.length - 1]!.at)} by ${personPhrase(
+          `The ${label} was saved as a version on ${day(saves[saves.length - 1]!.at)} by ${personPhrase(
             ctx,
             saves[saves.length - 1]!.actor,
           )}.`,
@@ -713,7 +761,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       handled.add(h);
       const clear = clears[i];
       if (clear) handled.add(clear);
-      const cause = str(h.reason);
+      const cause = cleanClause(h.reason);
       push(
         clear
           ? `The clock was held from ${day(h.at)} to ${day(clear.at)}${cause ? ` for ${cause.toLowerCase()}` : ""}.`
@@ -732,20 +780,20 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         push(`The go/no-go poll was opened on ${on}.`);
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
         const noGo = /no-go/i.test(a.action) || /no-go/i.test(str(a.newValue));
-        const reason = str(a.reason);
+        const reason = cleanClause(a.reason);
         push(
           noGo
             ? `${seatName(a.field)} returned no-go on ${on}${reason ? `, stating ${reason.toLowerCase()}` : ""}.`
             : `${seatName(a.field)} concurred on ${on}${reason ? `, ${reason.toLowerCase()}` : ""}.`,
         );
-      } else if (/market research run/i.test(a.action)) {
-        push(researchSentence(a.at));
+      } else if (/market research run|research finding confirmed/i.test(a.action)) {
+        if (w.phase === "Market Research" && researchSentence) push(researchSentence);
       } else if (/red flag|scan/i.test(a.action)) {
-        push(`A red-flag scan was run on ${on} and ${str(a.reason) || "recorded its findings on the file"}.`);
+        push(`A red-flag scan was run on ${on} and ${cleanClause(a.reason) || "recorded its findings on the file"}.`);
       } else if (/exclusions sweep/i.test(a.action)) {
-        push(`An exclusions sweep was run on ${on} and ${str(a.reason) || "returned no matching exclusion"}.`);
+        push(`An exclusions sweep was run on ${on} and ${cleanClause(a.reason) || "returned no matching exclusion"}.`);
       } else if (/set-aside evidence/i.test(a.action)) {
-        push(`Set-aside evidence was assembled on ${on}${str(a.reason) ? `, ${str(a.reason)}` : ""}.`);
+        push(`Set-aside evidence was assembled on ${on}${cleanClause(a.reason) ? `, ${cleanClause(a.reason)}` : ""}.`);
       } else if (/set-aside decision/i.test(a.action)) {
         push(`The set-aside decision was confirmed on ${on}${str(a.newValue) ? ` as ${str(a.newValue)}` : ""}.`);
       } else if (/sign-off/i.test(a.action)) {
@@ -755,13 +803,13 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       } else {
         push(
           `${a.action} was recorded on ${on} by ${personPhrase(ctx, a.actor)}${
-            str(a.reason) ? `, ${str(a.reason)}` : ""
+            cleanClause(a.reason) ? `, ${cleanClause(a.reason)}` : ""
           }.`,
         );
       }
     }
 
-    if (researchDay && researchDay >= w.entered && researchDay <= w.exited) push(researchSentence(researchDay));
+    if (w.phase === "Market Research" && researchDay && researchSentence) push(researchSentence);
 
     if (sentences.length === 1) sentences.push("No further activity was recorded against this phase.");
     // At most six sentences to a phase, so the memorandum stays a narrative.

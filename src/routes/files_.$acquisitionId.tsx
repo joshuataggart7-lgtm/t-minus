@@ -509,18 +509,15 @@ function FilePage() {
     if (!acq || !lifecycle || effectiveState === "launched" || effectiveState === "scrubbed") return null;
     const current = lifecycle.currentPhase;
     if (!current) return null;
-    const upTo: PhaseView[] = [];
-    for (const p of phases) {
-      upTo.push(p);
-      if (p.phase === current) break;
-    }
+    const currentPhase = phases.find((phase) => phase.phase === current);
+    if (!currentPhase) return null;
     // Research comes before the memorandum that reports it. Once a run exists,
     // the action follows the missing row instead.
     const hasResearch = (q.data?.researchRuns ?? []).length > 0;
     if (current === "Market Research" && !hasResearch) return { label: "Run market research" };
-    for (const p of upTo) {
-      for (const d of p.docs) {
-        if (d.optional || !d.field) continue;
+    for (const d of currentPhase.docs) {
+        const generator = generatorKey(d);
+        if (d.optional || (!d.field && !generator)) continue;
         const key = docKey(d.field, d.label);
         const state = docSatisfied(
           d,
@@ -529,11 +526,23 @@ function FilePage() {
           savedKeys,
         );
         if (state !== false) continue;
-        const generator = generatorKey(d);
         // A document T-Minus writes is opened, never asked for as an upload.
-        if (generator) return { label: `Write the ${d.label.toLowerCase()}`, generated: d };
-        return { label: `Attach ${d.label}`, doc: d };
-      }
+        if (generator) {
+          const label = generator === "market-research-memo"
+            ? "Write the memorandum"
+            : generator === "nf-1787"
+              ? "Write the NF 1787"
+              : generator === "nf-1787a"
+                ? "Write the NF 1787A"
+                : `Write the ${d.label}`;
+          return { label, generated: d };
+        }
+        const label = d.field === "igce_attached"
+          ? "Attach the IGCE"
+          : d.field === "sow_attached"
+            ? "Attach the SOW/PWS"
+            : `Attach the ${d.label}`;
+        return { label, doc: d };
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
     return { label: `Exit ${current}` };

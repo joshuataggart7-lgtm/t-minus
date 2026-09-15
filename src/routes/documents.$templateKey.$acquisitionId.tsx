@@ -746,12 +746,20 @@ function DocumentPage() {
         newValue: a.new_value,
       })),
       phases: filePhases.map((p) => ({ phase: p.phase, status: p.status })),
-      people: ((q.data?.users ?? []) as { name: string; title?: string | null }[]).map((u) => ({
-        name: u.name,
-        title: u.title ?? null,
-      })),
+      people: [
+        ...((q.data?.users ?? []) as { name: string; title?: string | null }[]).map((u) => ({
+          name: u.name,
+          title: u.title ?? null,
+          aliases: [] as string[],
+        })),
+        {
+          name: user.name,
+          title: hasRole("specialist") ? "contract specialist" : user.title,
+          aliases: user.email ? [user.email.split("@")[0] ?? ""] : [],
+        },
+      ],
     }),
-    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases],
+    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
   );
 
   // Pre-fill from the record, or from the latest saved version.
