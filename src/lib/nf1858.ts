@@ -173,10 +173,12 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
     salutation: "",
     signatureName: input.coName,
     signatureTitle: "Contracting Officer",
-    concurrence: input.approvals
-      .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map((a) => ({ name: a.name ?? "", title: a.role })),
+    // Concurrence on a memo comes only from the routing table's Thru chain
+    // for this document type. NF 1707 sign-offs are not memo concurrers. An
+    // empty chain means no concurrence block at all.
+    concurrence: (fileAddressed(input.templateKey) ? [] : (input.routing?.thru_chain ?? []).filter(Boolean)).map(
+      (t) => ({ name: "", title: t }),
+    ),
     enclosures: input.enclosures ?? [],
     distribution: [`Contract File ${pr || String(input.acquisition["acquisition_id"] ?? "")}`],
     cc: [],
