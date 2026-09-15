@@ -1552,8 +1552,33 @@ function FilePage() {
                     ))}
                   </ul>
                   <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-                    {q.data?.clauses.length ?? 0} clauses in the packet, read from the clause table.
+                    {q.isLoading
+                      ? "Loading the clause list."
+                      : `${packetClauses.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
+                  {packetClauses.length > 0 ? (
+                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                      <caption className="sr-only">Clauses in the packet and why each is included</caption>
+                      <thead>
+                        <tr className="border-y border-border text-left">
+                          <th scope="col" className="p-2">Clause</th>
+                          <th scope="col" className="p-2">Title</th>
+                          <th scope="col" className="p-2">Why it is included</th>
+                          <th scope="col" className="p-2">Matrix status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {packetClauses.map((c) => (
+                          <tr key={c.clause_number} className="border-b border-border align-top">
+                            <td className="p-2" data-numeric>{c.clause_number}</td>
+                            <td className="p-2">{c.title}</td>
+                            <td className="p-2">{c.reason}</td>
+                            <td className="p-2 text-muted-foreground">{c.status}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : null}
                   <button type="button" onClick={downloadPacket} className="mt-3 text-[15px] text-primary">
                     Download the handoff packet
                   </button>
