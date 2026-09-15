@@ -69,7 +69,7 @@ function WorkQueuePage() {
     enabled: authState === "signed-in",
     refetchInterval: 5000,
     queryFn: async () => {
-      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log] = await Promise.all([
+      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, users] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
