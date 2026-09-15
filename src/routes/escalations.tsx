@@ -12,6 +12,7 @@ import {
   type UserRow,
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
+import { holdFromRecord, attachedKeys as keysFrom } from "@/lib/hold";
 
 export const Route = createFileRoute("/escalations")({
   head: () => ({
