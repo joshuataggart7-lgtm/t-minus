@@ -43,7 +43,8 @@ import {
   uploadAttachment,
   type AttachmentRow,
 } from "@/lib/attachments";
-import { resolveHold, attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { TEMPLATES } from "@/lib/template-engine";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
@@ -482,7 +483,11 @@ function FilePage() {
 
   // The one action for the current blocker, shown in the hero. It does the same
   // thing as the matching row in the launch sequence.
-  const heroAction = useMemo((): { label: string; doc?: RequiredDoc } | null => {
+  const heroAction = useMemo((): {
+    label: string;
+    doc?: RequiredDoc;
+    generated?: RequiredDoc;
+  } | null => {
     if (!acq || !lifecycle || effectiveState === "launched" || effectiveState === "scrubbed") return null;
     const current = lifecycle.currentPhase;
     if (!current) return null;
@@ -495,14 +500,23 @@ function FilePage() {
       for (const d of p.docs) {
         if (d.optional || !d.field) continue;
         const key = docKey(d.field, d.label);
-        const state = docSatisfied(d, acq, Boolean(attachments.find((row) => row.doc_key === key)));
-        if (state === false) return { label: `Attach ${d.label}`, doc: d };
+        const state = docSatisfied(
+          d,
+          acq,
+          Boolean(attachments.find((row) => row.doc_key === key)),
+          savedKeys,
+        );
+        if (state !== false) continue;
+        const generator = generatorKey(d);
+        // A document T-Minus writes is opened, never asked for as an upload.
+        if (generator) return { label: `Write the ${d.label.toLowerCase()}`, generated: d };
+        return { label: `Attach ${d.label}`, doc: d };
       }
     }
     if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
     if (current === "Market Research") return { label: "Run market research" };
     return { label: `Exit ${current}` };
-  }, [acq, lifecycle, effectiveState, phases, attachments, boards]);
+  }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys]);
 
   const openLaunchSequence = () => {
     const el = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
@@ -1147,7 +1161,25 @@ function FilePage() {
             ) : null}
             {heroAction && canWrite ? (
               <div className="mt-4">
-                {heroAction.doc ? (
+                {heroAction.generated ? (
+                  heroAction.generated.templateKey ? (
+                    <Link
+                      to="/documents/$templateKey/$acquisitionId"
+                      params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
+                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                    >
+                      {heroAction.label}
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/forms/$formKey/$acquisitionId"
+                      params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
+                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                    >
+                      {heroAction.label}
+                    </Link>
+                  )
+                ) : heroAction.doc ? (
                   <label className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
                     {attachDoc.isPending ? "Attaching" : heroAction.label}
                     <input
