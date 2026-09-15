@@ -196,7 +196,7 @@ function DocumentPage() {
     // Votes and comments from other reviewers appear without a reload.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, thr, tpl, polls, rules, watchRows, refs, routing, approvals, fileDocs] = await Promise.all([
+      const [acq, thr, tpl, polls, rules, users, watchRows, refs, routing, approvals, fileDocs] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
@@ -309,6 +309,7 @@ function DocumentPage() {
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
         rules: (rules.data ?? []) as ReviewRuleRow[],
+        users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
         comments: (comments.data ?? []) as {
           comment_id: string;
           author: string | null;
@@ -353,6 +354,7 @@ function DocumentPage() {
       ref,
       null,
       phase,
+      q.data.users ?? [],
     );
   }, [q.data, phase]);
 
