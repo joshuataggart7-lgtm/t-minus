@@ -67,7 +67,14 @@ export function MarketResearchEngine({
     mutationFn: async () => run({ data: { acquisitionId } }),
     onSuccess: (result) => {
       setFindings(result.findings);
+      // A run replaces the previous values; the earlier run moves to history.
+      setPreviousRuns((runs) =>
+        log && log.length && latestRanAt
+          ? [{ runId: `${latestRanAt}`, ranAt: latestRanAt, log }, ...runs]
+          : runs,
+      );
       setLog(result.log);
+      setLatestRanAt(result.ranAt);
       setSuggested(result.suggestedSetAside);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
