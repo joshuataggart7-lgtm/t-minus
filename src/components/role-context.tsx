@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { userForRole, SEEDED_USERS, type RoleId, type SeededUser } from "@/lib/roles";
+import { hasAnyRole, hasRole, userForRole, SEEDED_USERS, type PersonaRole, type RoleId, type SeededUser } from "@/lib/roles";
 import { supabase } from "@/integrations/supabase/client";
 import { accountName } from "@/lib/account-name";
 import { AuthScreen } from "@/components/auth-screen";
@@ -27,10 +27,13 @@ type Profile = {
 
 type RoleContextValue = {
   role: RoleId;
+  roles: RoleId[];
+  hasRole: (role: RoleId) => boolean;
+  hasAnyRole: (roles: RoleId[]) => boolean;
   user: SeededUser;
   authState: AuthState;
   authMessage: string | null;
-  setRole: (r: RoleId) => void;
+  setRole: (r: PersonaRole) => void;
   isAnonymous: boolean;
   canSwitchPersona: boolean;
   profile: Profile | null;
@@ -49,8 +52,10 @@ function roleFromProfile(value: string | undefined | null): RoleId {
     case "requester":
       return "requester";
     case "hq":
-    case "admin":
       return "hq";
+    case "administrator":
+    case "admin":
+      return "administrator";
     default:
       return "specialist"; // 'co' and anything unknown work the contracting queue
   }
@@ -60,13 +65,18 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [personaRole, setPersonaRole] = useState<RoleId>("executive");
+  const [personaRole, setPersonaRole] = useState<PersonaRole>("executive");
+  const [assignedRoles, setAssignedRoles] = useState<RoleId[]>([]);
+  const [roleRevision, setRoleRevision] = useState(0);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
-      if (!next) setProfile(null);
+      if (!next) {
+        setProfile(null);
+        setAssignedRoles([]);
+      }
     });
     void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
@@ -77,7 +87,14 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const isAnonymous = Boolean(session?.user?.is_anonymous);
 
-  // Load defaults for every authenticated session, including an anonymous demo.
+  useEffect(() => {
+    const refreshRoles = () => setRoleRevision((revision) => revision + 1);
+    window.addEventListener("tminus:roles-changed", refreshRoles);
+    return () => window.removeEventListener("tminus:roles-changed", refreshRoles);
+  }, []);
+
+  // Load account defaults. Demo sessions keep their session-only persona and do
+  // not need a persisted role membership.
   useEffect(() => {
     let cancelled = false;
     if (!session) {
@@ -85,36 +102,41 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       return;
     }
     void (async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, email, display_name, role, is_admin, last_center_code, last_organization_code")
-        .eq("id", session.user.id)
-        .maybeSingle();
+      const [profileResult, rolesResult] = await Promise.all([
+        supabase.from("profiles").select("id, email, display_name, role, is_admin, last_center_code, last_organization_code").eq("id", session.user.id).maybeSingle(),
+        isAnonymous
+          ? Promise.resolve({ data: [], error: null })
+          : supabase.from("user_roles").select("role").eq("user_id", session.user.id),
+      ]);
       if (cancelled) return;
-      if (error) {
+      if (profileResult.error || rolesResult.error) {
         setAuthMessage("Your profile did not load. Sign out and back in to try again.");
       } else {
         setAuthMessage(null);
-        setProfile((data as Profile) ?? null);
+        setProfile((profileResult.data as Profile) ?? null);
+        setAssignedRoles(((rolesResult.data ?? []) as { role: RoleId }[]).map((row) => row.role));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [session]);
+  }, [session, isAnonymous, roleRevision]);
 
-  const canSwitchPersona = isAnonymous || Boolean(profile?.is_admin);
+  const canSwitchPersona = isAnonymous;
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setAssignedRoles([]);
     setPersonaRole("executive");
   }, []);
 
-  const role: RoleId = canSwitchPersona ? personaRole : roleFromProfile(profile?.role);
+  const legacyRole = profile?.is_admin ? "administrator" : roleFromProfile(profile?.role);
+  const roles: RoleId[] = isAnonymous ? [personaRole] : assignedRoles.length ? assignedRoles : [legacyRole];
+  const role: RoleId = isAnonymous ? personaRole : roles[0] ?? legacyRole;
 
   const value = useMemo<RoleContextValue>(() => {
-    const seeded = userForRole(role);
+    const seeded = userForRole(role === "administrator" ? "hq" : role);
     const user: SeededUser =
       canSwitchPersona || !session
         ? seeded
@@ -125,6 +147,9 @@ export function RoleProvider({ children }: { children: ReactNode }) {
           };
     return {
       role,
+      roles,
+      hasRole: (candidate) => hasRole(roles, candidate),
+      hasAnyRole: (candidates) => hasAnyRole(roles, candidates),
       user,
       authState: session ? "signed-in" : ready ? "signed-out" : "signing-in",
       authMessage,
@@ -136,7 +161,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       profile,
       signOut,
     };
-  }, [role, session, ready, authMessage, canSwitchPersona, isAnonymous, profile, signOut]);
+  }, [role, roles, session, ready, authMessage, canSwitchPersona, isAnonymous, profile, signOut]);
 
   return (
     <RoleContext.Provider value={value}>

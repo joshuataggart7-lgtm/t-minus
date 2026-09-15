@@ -156,7 +156,7 @@ function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
 
 function FilePage() {
   const { acquisitionId } = Route.useParams();
-  const { authState, user, role } = useRole();
+  const { authState, user, hasAnyRole } = useRole();
   const qc = useQueryClient();
   // Every audit row carries the real account name, never "Signed-in user".
   const [actorName, setActorName] = useState(user.name);
@@ -169,7 +169,7 @@ function FilePage() {
       live = false;
     };
   }, [user.name]);
-  const canWrite = role === "specialist" || role === "hq";
+  const canWrite = hasAnyRole(["specialist", "hq"]);
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
   const [banner, setBanner] = useState<string | null>(null);
@@ -990,7 +990,7 @@ function FilePage() {
         .select("acquisition_id");
       if (error) throw error;
       if (!data || data.length === 0)
-        throw new Error("Your role cannot change this file. Switch to the contracting specialist role");
+        throw new Error("Changing this file requires Contracting, HQ, or Administrator access.");
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
         actor: actorName,

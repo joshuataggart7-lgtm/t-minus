@@ -7,7 +7,7 @@ import type { SweepResult } from "@/lib/exclusions-sweep.server";
 export const runExclusionsSweepNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SweepResult> => {
-    const me = await requireRole(context, ["hq"], "The exclusions sweep is run by HQ.");
+    const me = await requireRole(context, ["hq"], "Running the exclusions sweep requires HQ or Administrator access.");
     const { runExclusionsSweep } = await import("@/lib/exclusions-sweep.server");
     return runExclusionsSweep(me.name);
   });

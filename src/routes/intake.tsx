@@ -137,7 +137,7 @@ const inputClass =
   "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground";
 
 function IntakePage() {
-  const { user, role, authState, profile } = useRole();
+  const { user, hasAnyRole, authState, profile } = useRole();
   const navigate = useNavigate();
   const data = useRefData(authState === "signed-in");
 
@@ -542,10 +542,10 @@ function IntakePage() {
     }
   }
 
-  if (role === "executive") {
+  if (!hasAnyRole(["specialist", "requester", "hq"])) {
     return (
       <AppShell>
-        <PageHeader title="Intake" lead="Executives have read-only access. Switch roles to submit an intake." />
+        <PageHeader title="Intake" lead="Submitting an intake requires Contracting, Requester, or HQ." />
       </AppShell>
     );
   }

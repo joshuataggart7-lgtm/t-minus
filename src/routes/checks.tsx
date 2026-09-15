@@ -24,7 +24,7 @@ export const Route = createFileRoute("/checks")({
 });
 
 function ChecksPage() {
-  const { authState, role } = useRole();
+  const { authState, hasAnyRole } = useRole();
   const [mode, setMode] = useState<"record" | "live">("record");
   const [acquisitionId, setAcquisitionId] = useState("A-2027-0102");
   const [uei, setUei] = useState("");
@@ -52,7 +52,7 @@ function ChecksPage() {
       }),
     onSuccess: setResult,
   });
-  const allowed = role === "specialist" || role === "reviewer" || role === "hq";
+  const allowed = hasAnyRole(["specialist", "reviewer", "hq"]);
 
   return (
     <AppShell>

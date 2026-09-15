@@ -1,6 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { navFor, ROLE_LABELS, SEEDED_USERS, type RoleId } from "@/lib/roles";
+import { navFor, ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
@@ -36,7 +36,7 @@ const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null 
 
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
 
-  const { role, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
+  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
   const [collapsed, setCollapsed] = useState(false);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
@@ -51,7 +51,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
     return next;
   });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const items = navFor(role);
+  const items = navFor(roles);
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
@@ -114,7 +114,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               <select
                 id="role-toggle"
                 value={role}
-                onChange={(e) => setRole(e.target.value as RoleId)}
+                 onChange={(e) => setRole(e.target.value as PersonaRole)}
                 className="max-w-64 rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
               >
                 {SEEDED_USERS.map((u) => (
@@ -125,9 +125,16 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               </select>
             </>
           ) : (
-            <span className="hidden max-w-52 truncate text-[13px] text-foreground lg:block">
-              {user.name} <span className="text-muted-foreground">· {ROLE_LABELS[role]}</span>
-            </span>
+            <div className="hidden min-w-0 items-center gap-2 lg:flex">
+              <span className="max-w-40 truncate text-[13px] text-foreground">{user.name}</span>
+              <span className="flex max-w-72 flex-wrap justify-end gap-1">
+                {roles.map((assignedRole) => (
+                  <span key={assignedRole} className="rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                    {ROLE_LABELS[assignedRole]}
+                  </span>
+                ))}
+              </span>
+            </div>
           )}
           <button
             type="button"

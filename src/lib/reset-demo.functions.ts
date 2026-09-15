@@ -8,7 +8,7 @@ export type ResetResult = { resetAt: string; counts: Record<string, number> };
 export const resetDemo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ResetResult> => {
-    const me = await requireRole(context, ["hq"], "Reset demo is available to HQ only.");
+    const me = await requireRole(context, ["hq"], "Resetting the demo requires HQ or Administrator access.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { reloadSeed, seededAcquisitionIds } = await import("./seed-load.server");

@@ -30,9 +30,9 @@ export const Route = createFileRoute("/center-config")({
 });
 
 function CenterConfigPage() {
-  const { authState, role, user } = useRole();
+  const { authState, hasRole, hasAnyRole, user } = useRole();
   const qc = useQueryClient();
-  const mayEdit = role === "hq" || role === "specialist";
+  const mayEdit = hasAnyRole(["hq", "specialist"]);
 
   const [center, setCenter] = useState("");
   const [kind, setKind] = useState<"threshold" | "review_trigger">("review_trigger");
@@ -185,7 +185,7 @@ function CenterConfigPage() {
       {q.isLoading ? <LoadingNote what="the Center configuration" /> : null}
       {q.error ? <ErrorNote message="The Center configuration could not be read. Refresh the page to try again." /> : null}
 
-      {role === "hq" ? <PeopleRoles actorName={user?.name ?? "Unknown"} /> : null}
+      {hasRole("administrator") ? <PeopleRoles actorName={user?.name ?? "Unknown"} /> : null}
       <PeopleContacts actorName={user?.name ?? "Unknown"} mayEdit={mayEdit} />
 
       {mayEdit ? (
@@ -283,7 +283,7 @@ function CenterConfigPage() {
         </form>
       ) : (
         <p className="mt-6 text-muted">
-          Center configuration is read-only for your role. HQ and Center procurement officers set these values.
+          This action requires Contracting, HQ, or Administrator.
         </p>
       )}
 

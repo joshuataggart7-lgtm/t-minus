@@ -34,7 +34,7 @@ export const Route = createFileRoute("/digest")({
 });
 
 function DigestPage() {
-  const { authState, user, role } = useRole();
+  const { authState, user, hasRole } = useRole();
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -192,7 +192,7 @@ function DigestPage() {
             >
               Export as PDF
             </button>
-            {role === "hq" ? (
+            {hasRole("hq") ? (
               <button
                 type="button"
                 className="rounded-lg border border-border px-3 py-2 text-[13px]"

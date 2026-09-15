@@ -48,9 +48,9 @@ export const Route = createFileRoute("/reg-intake")({
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function RegIntakePage() {
-  const { authState, role, user } = useRole();
+  const { authState, hasRole, user } = useRole();
   const qc = useQueryClient();
-  const isHq = role === "hq";
+  const isHq = hasRole("hq");
 
   const [datasetId, setDatasetId] = useState(DATASETS[0]!.id);
   const dataset = datasetById(datasetId);
@@ -190,7 +190,7 @@ function RegIntakePage() {
 
       {!isHq ? (
         <p className="max-w-[80ch] text-muted-foreground">
-          Regulatory data intake is read-only for your role. HQ loads new regulatory data.
+          This action requires HQ or Administrator.
         </p>
       ) : null}
 

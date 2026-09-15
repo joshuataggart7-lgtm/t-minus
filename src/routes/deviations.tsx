@@ -43,10 +43,10 @@ function statusColor(row: DeviationRow) {
 }
 
 function DeviationsPage() {
-  const { authState, user, role } = useRole();
+  const { authState, user, hasAnyRole } = useRole();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const canWrite = role === "specialist" || role === "hq";
+  const canWrite = hasAnyRole(["specialist", "hq"]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",

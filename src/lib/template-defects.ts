@@ -86,7 +86,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
     .select("defect_id");
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
-    throw new Error("Your role cannot work this queue. Switch to the contracting specialist or HQ role");
+    throw new Error("Working this queue requires HQ or Administrator access.");
   await supabase.from("audit_log").insert({
     acquisition_id: row.acquisition_id,
     actor,
@@ -107,7 +107,7 @@ export async function deleteDefect(row: DefectRow, actor: string): Promise<void>
     .select("defect_id");
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
-    throw new Error("Your role cannot work this queue. Switch to the contracting specialist or HQ role");
+    throw new Error("Working this queue requires HQ or Administrator access.");
   await supabase.from("audit_log").insert({
     acquisition_id: row.acquisition_id,
     actor,

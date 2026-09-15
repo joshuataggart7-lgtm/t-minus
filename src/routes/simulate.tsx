@@ -31,8 +31,8 @@ export const Route = createFileRoute("/simulate")({
 });
 
 function SimulatePage() {
-  const { authState, role } = useRole();
-  const mayUse = role === "executive" || role === "hq";
+  const { authState, hasAnyRole } = useRole();
+  const mayUse = hasAnyRole(["executive", "hq"]);
 
   const [kind, setKind] = useState<"threshold" | "review_trigger">("review_trigger");
   const [target, setTarget] = useState("");

@@ -1,7 +1,8 @@
-export type RoleId = "executive" | "specialist" | "reviewer" | "requester" | "hq";
+export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
+export type PersonaRole = Exclude<RoleId, "administrator">;
 
 export type SeededUser = {
-  role: RoleId;
+  role: PersonaRole;
   name: string;
   title: string;
   email: string;
@@ -79,6 +80,7 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
 
 // What each role is called on screen and in Center configuration.
 export const ROLE_LABELS: Record<RoleId, string> = {
+  administrator: "Administrator",
   executive: "Executive",
   specialist: "Contracting",
   reviewer: "Reviewer",
@@ -88,6 +90,7 @@ export const ROLE_LABELS: Record<RoleId, string> = {
 
 // The value stored on a profile for each role.
 export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
+  administrator: "administrator",
   executive: "executive",
   specialist: "contracting",
   reviewer: "reviewer",
@@ -96,9 +99,21 @@ export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
 };
 
 export function userForRole(role: RoleId): SeededUser {
-  return SEEDED_USERS.find((u) => u.role === role) ?? SEEDED_USERS[0]!;
+  const fallback = SEEDED_USERS[0];
+  const matched = SEEDED_USERS.find((u) => u.role === role);
+  if (matched) return matched;
+  if (fallback) return fallback;
+  throw new Error("The seeded demo personas are not available.");
 }
 
-export function navFor(role: RoleId) {
-  return NAV_ITEMS.filter((i) => i.roles === "all" || i.roles.includes(role));
+export function hasRole(roles: readonly RoleId[], role: RoleId): boolean {
+  return roles.includes("administrator") || roles.includes(role);
+}
+
+export function hasAnyRole(roles: readonly RoleId[], allowed: readonly RoleId[]): boolean {
+  return roles.includes("administrator") || allowed.some((role) => roles.includes(role));
+}
+
+export function navFor(roles: readonly RoleId[]) {
+  return NAV_ITEMS.filter((i) => i.roles === "all" || hasAnyRole(roles, i.roles));
 }
