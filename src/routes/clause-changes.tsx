@@ -72,11 +72,14 @@ function ClauseChangesPage() {
   const change: ClauseChange | null =
     changes.find((c) => c.id === selected) ?? changes[0] ?? null;
 
-  const rows = useMemo(
+  const allRows = useMemo(
     () =>
       change ? impactedContracts(change, contractsQ.data ?? [], tasksQ.data ?? []) : ([] as ImpactRow[]),
     [change, contractsQ.data, tasksQ.data],
   );
+  // Only a file with a recorded contract number is a contract that can be modified.
+  const rows = useMemo(() => allRows.filter((r) => r.hasContract), [allRows]);
+  const solicitationRows = useMemo(() => allRows.filter((r) => !r.hasContract), [allRows]);
 
   const canWrite = role === "specialist" || role === "hq";
 
