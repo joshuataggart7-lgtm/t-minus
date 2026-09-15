@@ -1871,6 +1871,7 @@ function FilePage() {
                       Download the SF 30 handoff packet
                     </button>
                   </div>
+                  )}
                 </div>
               ) : null}
 
