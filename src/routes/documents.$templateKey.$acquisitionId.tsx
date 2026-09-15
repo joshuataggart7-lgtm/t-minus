@@ -660,7 +660,7 @@ function DocumentPage() {
       missionName: q.data?.missionName ?? "",
       fileDocuments: q.data?.fileDocuments ?? [],
       evidence: researchEvidence,
-      findings: q.data?.findings,
+      findings: q.data?.findings ?? {},
       researchLog,
       clauses: packetClauses,
       notice: noticeFacts,
@@ -879,7 +879,7 @@ function DocumentPage() {
   };
 
   /** Where a filled field came from: the intake field, the template item, or the citation. */
-  const openSource = (s: { id: string; title: string; citation?: string }, f: { key: string; label: string; bind?: string }) => {
+  const openSource = (s: SectionDef, f: { key: string; label: string; bind?: string }) => {
     const meta = aiMeta[f.key];
     const lines: string[] = [];
     if (meta) {
