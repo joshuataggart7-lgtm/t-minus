@@ -18,6 +18,7 @@ import {
   buildPacket,
   buildSequence,
   docSatisfied,
+  generatorKey,
   NCMS_CHECKLIST,
   pollBoard,
   REVIEW_PHASES,
@@ -42,7 +43,7 @@ import {
   uploadAttachment,
   type AttachmentRow,
 } from "@/lib/attachments";
-import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { resolveHold, attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
@@ -396,6 +397,30 @@ function FilePage() {
   const attachmentFor = (key: string): AttachmentRow | null =>
     attachments.find((row) => row.doc_key === key) ?? null;
 
+  // Documents T-Minus writes itself: the latest saved version of each, by the
+  // generator key of the launch-sequence row it satisfies.
+  const savedDocs = useMemo(() => {
+    const byId = new Map<string, string>();
+    for (const t of q.data?.templates ?? []) {
+      const def = TEMPLATES.find((d) => d.name === t.name);
+      if (def) byId.set(t.template_id, def.key);
+    }
+    const out = new Map<string, { version: number; savedAt: string | null }>();
+    for (const d of (q.data?.documents ?? []) as {
+      template_id: string | null;
+      version: number | null;
+      saved_at: string | null;
+    }[]) {
+      const key = d.template_id ? byId.get(d.template_id) : undefined;
+      if (!key) continue;
+      const version = Number(d.version ?? 1);
+      const current = out.get(key);
+      if (!current || version >= current.version) out.set(key, { version, savedAt: d.saved_at });
+    }
+    return out;
+  }, [q.data?.documents, q.data?.templates]);
+  const savedKeys = useMemo(() => new Set(savedDocs.keys()), [savedDocs]);
+
   // NF 1098 contract file index: tabs present, and required tabs with no document.
   const fileIndex = useMemo(
     () =>
@@ -442,8 +467,9 @@ function FilePage() {
       holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
       awardDate: awardDateFor(acq.acquisition_id, q.data?.log ?? [], acq.target_award_date ?? null),
       attachedKeys: keysFrom(attachments),
+      savedKeys,
     });
-  }, [acq, q.data, ref, attachments]);
+  }, [acq, q.data, ref, attachments, savedKeys]);
 
   const phaseNames = useMemo(() => phases.map((p) => p.phase), [phases]);
   const sidebarPhase =
