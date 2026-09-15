@@ -204,7 +204,7 @@ function ClauseChangesPage() {
               <div>
                 <dt className="text-[13px] text-muted-foreground">Contracts affected</dt>
                 <dd className="text-[15px]" data-numeric>
-                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified
+                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified · {solicitationRows.length} solicitations to re-check
                 </dd>
               </div>
             </dl>
