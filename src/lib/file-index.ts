@@ -7,7 +7,7 @@
 // names come from the template definitions and the templates table.
 
 import { TEMPLATES } from "./template-engine";
-import { phaseForTemplate } from "./launch-sequence";
+import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
 
 /** Core tabbed records every file of that type is expected to hold. */
 const CORE_KEYS = [
@@ -63,9 +63,13 @@ export function tabRank(tab: string | null | undefined): number {
 const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 
 /** Tabs the acquisition type requires, from the phases in its sequence. */
-export function requiredTabs(phases: string[]): IndexTab[] {
+export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
   const inSequence = new Set(phases.map((p) => p.toLowerCase()));
   return TEMPLATES.filter((t) => (CORE_KEYS as readonly string[]).includes(t.key))
+    // The technical evaluation report is required only for a sole-source
+    // proposal above the simplified acquisition threshold; on a competed
+    // simplified acquisition it is offered, not required.
+    .filter((t) => t.key !== "technical-evaluation-report" || isTerRequired(acq))
     .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
     .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
@@ -85,6 +89,7 @@ export function buildFileIndex(
   templates: IndexTemplateRow[],
   phases: string[],
   attachments: IndexAttachmentRow[] = [],
+  acq?: AcqRow,
 ): FileIndex {
   const tplById = new Map(templates.map((t) => [t.template_id, t]));
   const present = new Map<string, IndexTab>();
@@ -137,7 +142,7 @@ export function buildFileIndex(
     .sort((a, b) => tabRank(a.tab) - tabRank(b.tab) || a.templateName.localeCompare(b.templateName));
 
   const presentTabs = new Set(presentList.map((t) => t.tab));
-  const missing = requiredTabs(phases)
+  const missing = requiredTabs(phases, acq)
     .filter((t) => !presentTabs.has(t.tab))
     .sort((a, b) => tabRank(a.tab) - tabRank(b.tab));
 

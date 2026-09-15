@@ -270,6 +270,8 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     })),
     templates.map((t) => ({ template_id: t.template_id, name: t.name, nf_1098_tab: t.nf_1098_tab })),
     phases,
+    [],
+    acq as never,
   );
   const indexBodyTabs =
     `<h2>NF 1098 contract file index</h2>` +
