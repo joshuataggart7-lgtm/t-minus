@@ -88,6 +88,8 @@ export type PhaseLine = {
   status: "complete" | "current" | "upcoming";
 };
 
+const onlyDate = (iso: string) => String(iso ?? "").slice(0, 10);
+
 const gap = (what: string) => `[Contracting officer to complete: ${what}]`;
 
 const str = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim());
@@ -111,12 +113,39 @@ export function priceAnalysisCitation(acq: Record<string, unknown>): string {
   return isSimplifiedCommercial(acq) ? "FAR 13.106-3 and FAR 12.209" : "FAR 15.404-1";
 }
 
-/** One line per source: source, query, date, count. */
+/**
+ * What a recorded search actually asked for, in plain words. The raw request
+ * URL stays in the research log; a document prints the parameters instead.
+ */
+export function searchedFor(line: ResearchLogLine): string {
+  const q = line.query ?? "";
+  const parts: string[] = [];
+  const param = (name: string) => {
+    const m = new RegExp(`[?&]${name}=([^&\\s]+)`, "i").exec(q);
+    return m ? decodeURIComponent(m[1]!) : "";
+  };
+  const naics = param("naicsCode") || param("ncode") || /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(q)?.[1] || /naics=(\d{2,6})/i.exec(q)?.[1] || "";
+  if (naics) parts.push(`NAICS ${naics}`);
+  const psc = param("pscCode") || /psc=([A-Z0-9]+)/i.exec(q)?.[1] || "";
+  if (psc) parts.push(`PSC ${psc}`);
+  const state = param("physicalAddressProvinceOrStateCode") || param("state");
+  parts.push(state ? `${state} place of performance` : /entities\?/i.test(q) ? "nationwide" : "");
+  const usDate = (v: string) => {
+    const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v);
+    return m ? `${m[3]}-${m[1]}-${m[2]}` : v;
+  };
+  const from = usDate(param("postedFrom")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[1] || "";
+  const to = usDate(param("postedTo")) || /(\d{4}-\d{2}-\d{2}) to (\d{4}-\d{2}-\d{2})/.exec(q)?.[2] || "";
+  if (from && to) parts.push(`posted ${from} to ${to}`);
+  const kept = parts.filter(Boolean);
+  return kept.length ? kept.join(", ") : "the parameters recorded in the research log";
+}
+
+/** One line per source: source, what was searched, date, count. */
 export function researchLogLines(log: ResearchLogLine[] | undefined): string[] {
   return (log ?? []).map((l) => {
-    const query = l.query.replace(/api_key=[^&\s]*/gi, "api_key=[redacted]");
     const count = l.count === null ? l.outcome : `${l.count} result${l.count === 1 ? "" : "s"}`;
-    return `${l.source} · ${query} · ${l.ranAt} · ${count}`;
+    return `${l.source} · ${searchedFor(l)} · ${onlyDate(l.ranAt)} · ${count}`;
   });
 }
 
@@ -400,8 +429,6 @@ function samNotice(ctx: MemoDraftCtx): Values {
 }
 
 // -------------------------------------------- memorandum for record (MFR)
-
-const onlyDate = (iso: string) => String(iso ?? "").slice(0, 10);
 
 /** Purpose as the memorandum states it, including the CO's own wording. */
 export function mfrPurposeLabel(values: Values | undefined): string {
