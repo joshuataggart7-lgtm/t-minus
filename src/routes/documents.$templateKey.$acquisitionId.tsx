@@ -299,9 +299,9 @@ function DocumentPage() {
       // and the phase plan for this acquisition type.
       const auditRows = await supabase
         .from("audit_log")
-        .select("action,field,actor,reason,phase,created_at,old_value,new_value")
+        .select("action,field,actor,reason,phase,logged_at,old_value,new_value")
         .eq("acquisition_id", acquisitionId)
-        .order("created_at", { ascending: true });
+        .order("logged_at", { ascending: true });
       const phasePlan = await supabase.from("phase_plan").select("*");
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
@@ -318,7 +318,7 @@ function DocumentPage() {
           actor: string | null;
           reason: string | null;
           phase: string | null;
-          created_at: string;
+          logged_at: string;
           old_value: string | null;
           new_value: string | null;
         }[],
@@ -706,7 +706,7 @@ function DocumentPage() {
         actor: a.actor,
         reason: a.reason,
         phase: a.phase,
-        at: a.created_at,
+        at: a.logged_at,
         oldValue: a.old_value,
         newValue: a.new_value,
       })),
