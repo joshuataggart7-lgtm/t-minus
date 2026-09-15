@@ -27,6 +27,7 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
