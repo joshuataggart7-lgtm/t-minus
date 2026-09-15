@@ -177,7 +177,16 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
   const evidence = ctx.evidenceLabel;
   const smallCount = ctx.respondents.filter((r) => has(r.category.toLowerCase(), "small")).length;
 
-  const researched = (target: string) => findingText(ctx.findings, target);
+  const sole = isSoleSourceRecord(a);
+  const soleSentence = soleSourceFindings(a, counts(ctx.findings), false);
+  // On a sole-source file the stored sentence is replaced by the sentence the
+  // rule calls for now, re-derived from the latest run.
+  const researched = (target: string) => {
+    const text = findingText(ctx.findings, target);
+    if (!sole || !text) return text;
+    const trimmed = withoutRuleOfTwo(text);
+    return `${trimmed}${trimmed ? " " : ""}${soleSentence}`;
+  };
   const researchedOn = (target: string) => Boolean(findingText(ctx.findings, target));
   const researchedRespondents = respondentsFromFinding(ctx.findings);
   const researchText = evidence
@@ -191,8 +200,8 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       ? `Two or more responsible small business concerns are expected to submit offers at fair market prices. The requirement is set aside for small business under FAR 19.502-2.`
       : row === "full-open"
         ? `Market research does not support a set-aside at this value; the requirement is solicited on a full and open basis.`
-        : row === "sole-source"
-          ? `Market research supports other than full and open competition; the justification is documented separately.`
+        : row === "sole-source" || sole
+          ? `${soleSentence} The justification for other than full and open competition is documented separately.`
           : setAside
             ? `Market research supports the ${setAside} approach recorded on this acquisition.`
             : TO_COMPLETE("record the set-aside determination");
