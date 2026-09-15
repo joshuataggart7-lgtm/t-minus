@@ -1108,6 +1108,18 @@ function FilePage() {
   });
 
 
+  // A demo copy: same intake facts, same requester package, fresh clock.
+  const copySample = useMutation({
+    mutationFn: async () => copyAsNewSample(acquisitionId, actorName),
+    onSuccess: (newId) => {
+      void navigate({ to: "/files/$acquisitionId", params: { acquisitionId: newId } });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The copy could not be made: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
+
   // The clause list is built from this record, not from a fixed set.
   const packetClauses = useMemo(
     () => selectPacketClauses(acq, q.data?.clauses ?? [], q.data?.thresholds ?? []),
