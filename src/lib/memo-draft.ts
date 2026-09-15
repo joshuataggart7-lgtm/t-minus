@@ -169,7 +169,40 @@ export function researchLogLines(log: ResearchLogLine[] | undefined): string[] {
   });
 }
 
-function ruleOfTwo(ctx: MemoDraftCtx): string {
+/**
+ * True where the record is not competed: a sole-source or brand-name buy. A
+ * Rule of Two conclusion is never printed on such a file.
+ */
+export function isSoleSourceRecord(acq: Record<string, unknown>): boolean {
+  const text = `${str(acq["competition"])} ${str(acq["acquisition_method"])} ${str(acq["set_aside"])}`;
+  if (/sole[- ]source|not competed|other than full and open|brand[- ]name|single source/i.test(text)) return true;
+  return Boolean(str(acq["jofoc_authority_citation"]));
+}
+
+/** Registrant and small business counts from the latest research run. */
+function researchCounts(ctx: MemoDraftCtx): { n: number; m: number } | null {
+  const engine = findingText(ctx.findings, "memo.findings") ?? "";
+  const match = /(\d[\d,]*)\s+(?:sources?|registrants?)[\s\S]{0,80}?of which\s+(\d[\d,]*)/i.exec(engine);
+  if (match) return { n: Number(match[1]!.replace(/,/g, "")), m: Number(match[2]!.replace(/,/g, "")) };
+  if (ctx.evidence) return { n: ctx.evidence.sources, m: ctx.evidence.smallBusinesses };
+  return null;
+}
+
+/** The findings sentence a sole-source or brand-name file carries. */
+export function soleSourceFindings(acq: Record<string, unknown>, counts: { n: number; m: number } | null, inJofoc: boolean): string {
+  if (!counts)
+    return gap(
+      "state the registrants under the NAICS code, how many are small business, and why none can meet the requirement",
+    );
+  const naics = str(acq["naics_code"]) || "the code on the record";
+  const where = inJofoc ? "as described in item 5" : "as stated in the requirement";
+  const basis = inJofoc ? "in item 5" : "in the justification";
+  return `${counts.n} registrants were identified under NAICS ${naics}, of which ${counts.m} are small business. None was identified as able to meet the requirement ${where} within the mission need date; the contracting officer's basis for that conclusion is recorded ${basis}. This finding will be revisited if a source responds to the notice of intent.`;
+}
+
+function ruleOfTwo(ctx: MemoDraftCtx, inJofoc = false): string {
+  // The findings sentence follows the record's competition.
+  if (isSoleSourceRecord(ctx.acq)) return soleSourceFindings(ctx.acq, researchCounts(ctx), inJofoc);
   const engine = findingText(ctx.findings, "memo.findings");
   if (engine) return engine;
   if (ctx.evidence) {
@@ -367,7 +400,7 @@ function jofoc(ctx: MemoDraftCtx): Values {
 
   const researchLines = researchLogLines(ctx.researchLog);
   const market = researchLines.length
-    ? ["Market research was conducted from public sources:", ...researchLines, ruleOfTwo(ctx)].join("\n")
+    ? ["Market research was conducted from public sources:", ...researchLines, ruleOfTwo(ctx, true)].join("\n")
     : gap("run market research on this file, or record the research and its results");
 
   return {
