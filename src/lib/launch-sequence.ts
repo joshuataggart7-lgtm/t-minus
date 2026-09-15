@@ -211,7 +211,6 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           field: "jofoc_authority_citation",
         },
       ];
-    case "Synopsis":
     case "Synopsis": {
       const sole = /sole/i.test(String(acq?.competition ?? ""));
       return [
