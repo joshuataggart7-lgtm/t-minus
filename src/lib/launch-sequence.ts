@@ -236,13 +236,21 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
       ];
     case "Technical Evaluation":
-      return [{ label: "NASA technical evaluation report", citation: "FAR 13.106-2", link: "templates" }];
+      return [
+        {
+          label: "NASA technical evaluation report",
+          citation: "FAR 13.106-2",
+          link: "templates",
+          templateKey: "technical-evaluation-report",
+        },
+      ];
     case "Price Reasonableness":
       return [
         {
           label: "Price negotiation memorandum (PNM)",
           citation: "FAR 12.204(b)(1)",
           link: "templates",
+          templateKey: "pnm",
           note: "The PNM is the price reasonableness determination of record. No separate determination is generated.",
         },
       ];
@@ -276,12 +284,33 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [{ label: "FPDS-NG contract action report", citation: "FAR 4.604" }];
     case "Administration":
       return [
-        { label: "CPARS past performance evaluation", citation: "RFO FAR Part 42", link: "templates" },
-        { label: "COR appointment letter", citation: "FAR 1.602-2(d)", link: "templates" },
         {
-          label: "Option exercise: preliminary notice and determination",
-          citation: "FAR 17.207(a) and (c)",
+          label: "CPARS past performance evaluation",
+          citation: "RFO FAR Part 42",
           link: "templates",
+          templateKey: "cpars-input",
+        },
+        {
+          label: "COR appointment letter",
+          citation: "FAR 1.602-2(d)",
+          link: "templates",
+          templateKey: "cor-appointment",
+        },
+        {
+          label: "Option exercise: preliminary notice to the contractor",
+          citation: "FAR 17.207(a)",
+          link: "templates",
+          templateKey: "option-exercise-notification",
+          optional: true,
+          note: "Applies when the contract includes option line items.",
+        },
+        {
+          label: "Option exercise: determination to exercise",
+          citation: "FAR 17.207(c)",
+          link: "templates",
+          templateKey: "option-exercise-determination",
+          optional: true,
+          note: "Applies when the contract includes option line items.",
         },
         {
           label: "SF 30 modification handoff packet",
@@ -292,8 +321,13 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       ];
     case "Closeout":
       return [
-        { label: "Closeout Transfer Checklist", citation: "FAR 4.804-5", link: "templates" },
-        { label: "Contract file complete and retained", citation: "FAR 4.801; FAR 4.805", link: "templates" },
+        {
+          label: "Closeout Transfer Checklist",
+          citation: "FAR 4.804-5",
+          link: "templates",
+          templateKey: "closeout-checklist",
+        },
+        { label: "Contract file complete and retained", citation: "FAR 4.801; FAR 4.805" },
       ];
     default:
       return [];
