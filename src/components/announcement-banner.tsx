@@ -97,14 +97,17 @@ export function AnnouncementBanner() {
         </div>
       ) : null}
 
-      {urgent ? (
-        <div role="alert" className="fixed left-0 right-0 top-14 z-30 grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
-          <p className="truncate"><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
-          <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
-            <X className="size-4" aria-hidden="true" />
-          </button>
-        </div>
-      ) : null}
+      {urgent && slot
+        ? createPortal(
+            <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
+              <p className="truncate"><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+              <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
+                <X className="size-4" aria-hidden="true" />
+              </button>
+            </div>,
+            slot,
+          )
+        : null}
     </div>
   );
 }
