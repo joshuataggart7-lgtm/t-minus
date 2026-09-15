@@ -881,7 +881,45 @@ function memorandumForRecord(ctx: MemoDraftCtx): Values {
   return out;
 }
 
+/**
+ * Evaluation of quotations record (FAR 13.106-2). The basis for award and the
+ * criteria come from the notice on the file; the rest is the officer's.
+ */
+function evaluationOfQuotations(ctx: MemoDraftCtx): Values {
+  const notice = ctx.noticeValues ?? {};
+  const basisText = str(notice["evaluation_basis"]);
+  const award = /best value|tradeoff/i.test(basisText)
+    ? "Best value tradeoff"
+    : basisText
+      ? "Lowest price technically acceptable"
+      : "";
+  const out: Values = {};
+  if (award) out["award_basis"] = award;
+  out["evaluation_criteria"] =
+    basisText ||
+    gap("state the evaluation criteria as the notice stated them, or save the notice first");
+  return out;
+}
+
+/** The recommended quoter on the evaluation record carries into the PNM. */
+function priceNegotiation(ctx: MemoDraftCtx): Values {
+  const evaluation = ctx.evaluationValues;
+  if (!evaluation) return {};
+  const out: Values = {};
+  const name = str(evaluation["recommended_quoter"]);
+  const uei = str(evaluation["recommended_uei"]);
+  const price = str(evaluation["recommended_price"]);
+  if (name) out["vendor_legal_name"] = name;
+  if (uei) out["vendor_uei"] = uei;
+  if (price) out["quoted_price"] = price;
+  const comparison = str(evaluation["price_comparison"]);
+  if (comparison) out["price_variance"] = comparison;
+  return out;
+}
+
 const DRAFTERS: Record<string, (ctx: MemoDraftCtx) => Values> = {
+  "evaluation-of-quotations": evaluationOfQuotations,
+  pnm: priceNegotiation,
   "memorandum-for-record": memorandumForRecord,
   "market-research-memo": marketResearch,
   commerciality,
