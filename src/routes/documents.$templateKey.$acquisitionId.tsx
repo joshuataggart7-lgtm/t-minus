@@ -729,6 +729,21 @@ function DocumentPage() {
           .find((row) => /justification|jofoc/i.test(row.templates?.name ?? ""))?.field_values as
           | Record<string, string>
           | undefined) ?? null,
+      // The SAM.gov notice and the evaluation of quotations record, so the
+      // basis for award, the criteria and the recommended quoter carry forward
+      // without being retyped.
+      noticeValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /notice|synopsis/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
+      evaluationValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /evaluation of quotations/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
       evidence: researchEvidence,
       findings: q.data?.findings ?? {},
       researchLog,
