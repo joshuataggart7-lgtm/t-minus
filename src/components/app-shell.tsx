@@ -192,7 +192,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           <main
             id="main-content"
             tabIndex={-1}
-            className={cn("mx-auto px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
+            key={pathname}
+            className={cn("page-fade mx-auto px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
           >
             {authMessage ? (
               <p

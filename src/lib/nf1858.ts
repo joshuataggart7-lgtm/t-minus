@@ -152,9 +152,10 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   const pr = String(input.acquisition["pr_number"] ?? "").trim();
   const title = String(input.acquisition["title"] ?? "").trim();
   const subject = `${input.templateName} — ${title}${pr ? ` — PR ${pr}` : ""}`;
+  const method = String(input.acquisition["acquisition_method"] ?? "");
   const refs = input.documentCitation
     .split(";")
-    .map((r) => r.trim())
+    .map((r) => oneCitation(r.trim(), method))
     .filter(Boolean);
   return {
     centerName: input.centerName,
