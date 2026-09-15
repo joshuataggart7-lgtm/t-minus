@@ -14,6 +14,7 @@ import { HQ4_TEMPLATES } from "@/lib/templates-hq4";
 import { HQ5_TEMPLATES } from "@/lib/templates-hq5";
 import { HQ6_TEMPLATES } from "@/lib/templates-hq6";
 import { HQ6B_TEMPLATES } from "@/lib/templates-hq6b";
+import { HQ6C_TEMPLATES } from "@/lib/templates-hq6c";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2747,6 +2748,7 @@ export const TEMPLATES: TemplateDef[] = [
   ...HQ5_TEMPLATES,
   ...HQ6_TEMPLATES,
   ...HQ6B_TEMPLATES,
+  ...HQ6C_TEMPLATES,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {

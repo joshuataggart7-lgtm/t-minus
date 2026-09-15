@@ -12,6 +12,7 @@ import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
 import { HQ5_PHASES, HQ5_TEMPLATE_KEYS } from "@/lib/templates-hq5";
 import { HQ6_PHASES } from "@/lib/templates-hq6";
 import { HQ6B_PHASES } from "@/lib/templates-hq6b";
+import { HQ6C_PHASES } from "@/lib/templates-hq6c";
 import {
   acquisitionProfile,
   exceptionLabel,
@@ -840,6 +841,7 @@ export function phaseForTemplate(templateKey: string): string {
   if (HQ5_PHASES[templateKey]) return HQ5_PHASES[templateKey] as string;
   if (HQ6_PHASES[templateKey]) return HQ6_PHASES[templateKey] as string;
   if (HQ6B_PHASES[templateKey]) return HQ6B_PHASES[templateKey] as string;
+  if (HQ6C_PHASES[templateKey]) return HQ6C_PHASES[templateKey] as string;
   if (HQ4_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
