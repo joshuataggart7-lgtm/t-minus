@@ -2315,6 +2315,11 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
       out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
     }
   }
+  if (def.key === "sam-notice") {
+    if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
+    out["response_period_basis"] =
+      "At least 15 days from posting, unless an exception in RFO FAR 5.203 applies.";
+  }
   return out;
 }
 
