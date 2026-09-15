@@ -2383,6 +2383,7 @@ const samNotice: TemplateDef = {
         "This is a notice of intent to award on a sole-source basis. It is not a request for competitive quotations. Responses showing an ability to meet the requirement will be considered.",
       fields: [
         { key: "intended_vendor", label: "Intended awardee", kind: "text", bind: "vendor_legal_name", required: true },
+        { key: "intended_vendor_uei", label: "Intended awardee UEI", kind: "text", bind: "vendor_uei" },
         { key: "sole_source_basis", label: "Why only this source can meet the need", kind: "textarea", required: true },
         {
           key: "authority",
