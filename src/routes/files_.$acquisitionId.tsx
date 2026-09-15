@@ -1585,10 +1585,13 @@ function FilePage() {
                 {p.docs.map((d) => {
                   const key = docKey(d.field, d.label);
                   const attached = attachmentFor(key);
+                  const generator = generatorKey(d);
+                  const saved = generator ? savedDocs.get(generator) : undefined;
                   const state = docSatisfied(
                     d,
                     acq ?? ({ acquisition_id: "" } as AcqRow),
-                    d.field ? Boolean(attached) : undefined,
+                    d.field || generator ? Boolean(attached) : undefined,
+                    savedKeys,
                   );
                   const busy = attachDoc.isPending || detachDoc.isPending;
                   return (
@@ -1597,7 +1600,76 @@ function FilePage() {
                       <span className="text-[13px] text-muted-foreground">
                         {d.optional ? "Offered" : "Required"}
                       </span>
-                      {state === null ? (
+                      {generator ? (
+                        <>
+                          <StatusMark
+                            color={saved ? "var(--ontrack)" : "var(--atrisk)"}
+                            className="text-[13px]"
+                          >
+                            {saved
+                              ? `Saved, version ${saved.version}${saved.savedAt ? `, ${formatDate(String(saved.savedAt).slice(0, 10))}` : ""}`
+                              : "Missing"}
+                          </StatusMark>
+                          {d.templateKey ? (
+                            <Link
+                              to="/documents/$templateKey/$acquisitionId"
+                              params={{ templateKey: d.templateKey, acquisitionId }}
+                              className="text-[13px] text-primary"
+                            >
+                              {saved ? "Open the saved document" : "Write the document for this file"}
+                            </Link>
+                          ) : (
+                            <Link
+                              to="/forms/$formKey/$acquisitionId"
+                              params={{ formKey: d.formKey ?? "nf-1787", acquisitionId }}
+                              className="text-[13px] text-primary"
+                            >
+                              {saved ? "Open the saved form" : "Write the form for this file"}
+                            </Link>
+                          )}
+                          {attached ? (
+                            <button
+                              type="button"
+                              onClick={() => void openAttachment(attached)}
+                              className="text-[13px] text-primary"
+                            >
+                              {attached.file_name}
+                            </button>
+                          ) : null}
+                          {canWrite ? (
+                            attached ? (
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => detachDoc.mutate(d)}
+                                className="text-[13px] text-primary disabled:opacity-60"
+                              >
+                                Remove the external copy
+                              </button>
+                            ) : (
+                              <label className="cursor-pointer text-[13px] text-primary">
+                                {busy ? "Attaching" : "Attach an external copy"}
+                                <input
+                                  type="file"
+                                  className="sr-only"
+                                  accept={ATTACHMENT_ACCEPT}
+                                  disabled={busy}
+                                  onChange={(event) => {
+                                    const file = event.target.files?.[0];
+                                    if (file) attachDoc.mutate({ doc: d, file });
+                                    event.target.value = "";
+                                  }}
+                                />
+                              </label>
+                            )
+                          ) : null}
+                          {!saved && !attached && !d.optional ? (
+                            <span className="block w-full">
+                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                            </span>
+                          ) : null}
+                        </>
+                      ) : state === null ? (
                         d.link === "packet" ? (
                           <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
                             Open the NCMS handoff packet
