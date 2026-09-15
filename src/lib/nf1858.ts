@@ -156,7 +156,7 @@ function oneCitation(ref: string, method: string): string {
   const pair = /^(.*?)\s*simplified,\s*(.*?)\s*part\s*15$/i.exec(ref);
   if (!pair) return ref;
   const simplified = /(^|[^\d.])13(\.5)?([^\d]|$)/.test(method) || /simplified/i.test(method);
-  return (simplified ? pair[1] : pair[2]).trim();
+  return String((simplified ? pair[1] : pair[2]) ?? ref).trim();
 }
 
 /** Prefilled header for a memorandum, before the CO edits it. */
