@@ -415,8 +415,9 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         </div>
 
         <div className="sm:text-right">
+           <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground sm:hidden">{driver.status}</p>
            {driver.clockState === "launched" ? (
-             <p className="clock-figure" data-numeric>{driver.daysSinceAward ?? 0}</p>
+             <p className="text-[28px] leading-8 font-semibold" data-numeric>{driver.daysSinceAward ?? 0}</p>
            ) : driver.clockState === "scrubbed" ? (
              <p className="text-[15px] leading-[22px] text-muted-foreground">Clock stopped</p>
            ) : driver.daysToAward === null ? (
