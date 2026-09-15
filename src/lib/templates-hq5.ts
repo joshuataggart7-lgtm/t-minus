@@ -1026,22 +1026,22 @@ const cbaNotification: TemplateDef = {
   tab: "030",
   layout: "memo",
   badge: {
-    citation: "FAR 22.1010; FAR 22.1010(a); FAR 22.1002-3(a); NFS 1822.1010",
+    citation: "FAR 22.1004-6(a); FAR 22.1010(a); FAR 22.1002-3(b)(2); FAR 22.1005-6; NFS 1822.1008-2(b)(2)",
     tier: "binding",
-    revision: "HQ 03/2025 revision",
-    effective: "2025-03-01",
-    note: "Sent to the incumbent prime contractor and to the collective bargaining agent.",
+    revision: "HQ 04/2026 revision",
+    effective: "2026-04-01",
+    note: "Given to the incumbent prime contractor and the collective bargaining agent at least 30 days in advance of the earliest applicable acquisition date. The contracting officer retains a copy in the contract file.",
   },
   lead: "Letter notifying the contractor and the bargaining agent of the acquisition dates.",
   sections: [
     {
       id: "letter_header",
       title: "Letter",
-      citation: "NPR 1450.10D",
-      tier: "guidance",
+      citation: "FAR 22.1004-6(a)",
+      tier: "binding",
       fields: [
         D("letter_date", "Date"),
-        X("reply_to", "Reply to attn. of", "requester_org_code"),
+        X("reply_to", "Reply to attn. of: procurement office name or organization code", "requester_org_code"),
         T("to_contractor", "TO: contractor addressee (name, title, company, address)"),
         T("to_bargaining_agent", "and TO: bargaining agent addressee (name, title, bargaining unit, address)"),
         X("from_line", "FROM", "co_name"),
@@ -1063,24 +1063,46 @@ const cbaNotification: TemplateDef = {
       ],
     },
     {
-      id: "dates",
-      title: "Acquisition dates",
-      citation: "FAR 22.1010",
+      id: "kind",
+      title: "Action covered",
+      citation: "FAR 22.1004-6(a)",
       tier: "binding",
       fields: [
         S("action_kind", "This notification covers", [
           "A forthcoming successor contract",
           "A forthcoming modification",
           "An option exercise",
+          "A multiple-year contract anniversary date",
         ], "A forthcoming successor contract"),
+      ],
+    },
+    {
+      id: "anniversary",
+      title: "Multiple-year contract anniversary date",
+      citation: "FAR 22.1004-6(a)",
+      tier: "binding",
+      standingText:
+        "The forthcoming multiple year contract anniversary date (annual anniversary date or biennial date) is shown below.",
+      fields: [D("anniversary_date", "Anniversary date")],
+      showIf: (v: Values) => v["action_kind"] === "A multiple-year contract anniversary date",
+    },
+    {
+      id: "dates",
+      title: "Acquisition dates",
+      citation: "FAR 22.1004-6(a)",
+      tier: "binding",
+      standingText:
+        "I hereby notify you that the applicable acquisition dates for the forthcoming action identified below are as follows.",
+      fields: [
         X("action_title", "Title of the follow-on contract or description of the modification"),
         D("date_solicitation", "Issuance of Solicitation: on or about"),
         D("date_proposals", "Proposals Due: on or about"),
         D("date_negotiations", "Commence Negotiations: on or about"),
-        D("date_award", "Award of Contract or issue of the modification: on or about"),
+        D("date_award", "Award of Contract, or issue of the definitization modification: on or about"),
         D("date_performance", "Start of Performance: on or about"),
       ],
-      showIf: (v: Values) => v["action_kind"] !== "An option exercise",
+      showIf: (v: Values) =>
+        v["action_kind"] === "A forthcoming successor contract" || v["action_kind"] === "A forthcoming modification",
     },
     {
       id: "option",
@@ -1088,7 +1110,7 @@ const cbaNotification: TemplateDef = {
       citation: "FAR 52.217-9",
       tier: "binding",
       standingText:
-        "In accordance with contract clause 52.217-9, Option to Extend the Term of the Contract (Mar 2000), this letter is to provide preliminary notice that the Government intends to exercise the option identified below for the period shown. This preliminary notice does not commit the Government to an extension, nor obligates the Government to acquire additional services under the contract.",
+        "In accordance with contract clause at FAR 52.217-9, Option to Extend the Term of the Contract (Mar 2000), this letter is to provide preliminary notice that the Government intends to exercise the option identified below for the period shown. This preliminary notice does not commit the Government to an extension, nor obligate the Government to acquire additional services under the contract.",
       fields: [
         X("option_number", "Option to be exercised, with contract year"),
         D("option_date", "Planned date for exercising the option"),
@@ -1102,7 +1124,7 @@ const cbaNotification: TemplateDef = {
       citation: "NPR 5200.1E",
       tier: "guidance",
       standingText:
-        "In support of the extension please review and distribute this letter and refer to Chapter 7 of NASA Procedural Requirements 5200.1E, \u201cProcedure for Admitting Labor Union Representatives to NASA Centers\u201d. Additionally, please note that all site access requests shall be coordinated through our Contractor Industrial Relations Officer.\n\nConfirmation of receipt of this notification is requested via reply e-mail.",
+        "In support of the extension please review and distribute this letter and refer to Chapter 7 of NASA Procedural Requirements 5200.1E, \u201cProcedure for Providing Admission of Labor Union Representatives to NASA Centers\u201d. Additionally, please note that all site access requests must be coordinated through the Center Industrial Relations Officer.\n\nConfirmation of receipt of this notification is requested via reply e-mail.",
       fields: [
         X("co_phone", "Contracting Officer phone number"),
         X("co_email", "Contracting Officer email address"),
