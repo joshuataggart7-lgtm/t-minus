@@ -70,6 +70,8 @@ export type MemoDraftCtx = {
   audit?: AuditLine[];
   /** Phases in the file's launch sequence, in order. */
   phases?: PhaseLine[];
+  /** The people records, so a memorandum names a person by role and name. */
+  people?: { name: string; title?: string | null }[];
 };
 
 export type AuditLine = {
