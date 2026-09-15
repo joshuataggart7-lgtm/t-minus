@@ -6,6 +6,7 @@ import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
 import { usePresenter, setPresenter } from "@/lib/presenter";
+import { useTriggerConfig } from "@/lib/use-trigger-config";
 
 import { cn } from "@/lib/utils";
 import {
@@ -38,6 +39,7 @@ const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null 
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
 
   const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
+  useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {

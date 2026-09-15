@@ -6,6 +6,7 @@
 
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
+import { jofocVariant, triggeredDocs } from "@/lib/scenario";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -98,6 +99,14 @@ export type RequiredDoc = {
    */
   optional?: boolean;
   note?: string;
+  /** stable key for a row switched on by the scenario trigger table */
+  docKey?: string;
+  /** NF 1098 tab an external copy is filed under */
+  tab?: string;
+  /** the template is still planned: the row takes an external copy only */
+  attachOnly?: boolean;
+  /** the document of record is produced outside T-Minus */
+  handoff?: boolean;
 };
 
 export function acquisitionType(acq: AcqRow) {
@@ -196,7 +205,55 @@ export function isTerRequired(acq?: AcqRow): boolean {
   return sole && value > SIMPLIFIED_ACQUISITION_THRESHOLD;
 }
 
+/** Templates T-Minus writes itself today; every other trigger row is attach-only. */
+const LIVE_TEMPLATE_KEYS = new Set([
+  "jofoc",
+  "consolidation-determination",
+  "bundling-determination",
+  "economy-act-determination",
+  "commercial-tm-lh-determination",
+]);
+
+/** Rows the scenario answers switch on for this phase. */
+function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
+  if (!acq) return [];
+  return triggeredDocs(acq as Record<string, unknown>)
+    .filter((d) => d.phase === phase && !d.replacesJofoc)
+    .map((d) => {
+      const live = d.templateKey && LIVE_TEMPLATE_KEYS.has(d.templateKey);
+      const row: RequiredDoc = {
+        label: d.label,
+        citation: d.citation,
+        docKey: d.doc_key,
+        ...(d.tab ? { tab: d.tab } : {}),
+        ...(d.state === "offered" ? { optional: true } : {}),
+        ...(d.note ? { note: d.note } : {}),
+        ...(d.handoff ? { handoff: true } : {}),
+      };
+      if (live && d.templateKey) {
+        row.templateKey = d.templateKey;
+        row.link = "templates";
+      } else {
+        row.attachOnly = true;
+      }
+      return row;
+    });
+}
+
 export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
+  const base = baseDocs(phase, acq);
+  const extra = scenarioRows(phase, acq);
+  const variant = acq ? jofocVariant(acq as Record<string, unknown>) : null;
+  const merged = extra.length ? [...base, ...extra] : base;
+  if (variant && phase === "JOFOC") {
+    return merged.map((d) =>
+      d.templateKey === "jofoc" ? { ...d, label: variant.label, citation: variant.citation } : d,
+    );
+  }
+  return merged;
+}
+
+function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
       return [
@@ -421,7 +478,7 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
 
 /** The key an attachment is stored under for a required-document row. */
 export function docRowKey(doc: RequiredDoc): string {
-  return doc.field ?? doc.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return doc.docKey ?? doc.field ?? doc.label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
 
 /**
@@ -446,6 +503,9 @@ export function docSatisfied(
     if (!savedKeys) return hasFile ? true : null;
     return savedKeys.has(generator) || Boolean(hasFile);
   }
+  // A row whose template is still planned, or whose document of record is
+  // produced elsewhere, reads from the external copy attached against it.
+  if (doc.attachOnly) return hasFile === undefined ? null : hasFile;
   if (!doc.field) return null;
   // The proposed price is a value on the record, not a file. It reads from the
   // record whatever the attachment state is.

@@ -36,6 +36,7 @@ import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } fro
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
+import { SCENARIO_DEFAULTS, performanceDays, type ScenarioAnswers } from "@/lib/scenario";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -148,6 +149,15 @@ function IntakePage() {
     center_name: CENTERS.find(([code]) => code === user.center_code)?.[1] ?? "Other",
   });
   const [answers, setAnswers] = useState<Answers>({});
+  // Scenario answers. Every question carries a default, so nothing here can
+  // stop the record being saved.
+  const [scenario, setScenario] = useState<ScenarioAnswers>(SCENARIO_DEFAULTS);
+  const popDays = performanceDays({
+    period_of_performance_start: facts.period_of_performance_start,
+    period_of_performance_end: facts.period_of_performance_end,
+  });
+  const setScen = <K extends keyof ScenarioAnswers>(key: K, value: ScenarioAnswers[K]) =>
+    setScenario((prev) => ({ ...prev, [key]: value }));
   
   const [touched, setTouched] = useState(false);
   const [scan, setScan] = useState<RedFlag[] | null>(null);
@@ -435,6 +445,11 @@ function IntakePage() {
           facts,
         ),
         intake_estimate: stored,
+        scenario: {
+          ...scenario,
+          contract_type: facts.contract_type || scenario.contract_type,
+          set_aside_type: scenario.set_aside_type || facts.set_aside || "",
+        },
       };
 
       // Two people submitting at once can land on the same number; take the
@@ -1000,6 +1015,239 @@ function IntakePage() {
             ) : null}
           </Field>
         </div>
+
+        <fieldset className="mt-2">
+          <legend className="mb-2 text-[13px] text-muted-foreground">
+            Conditions that decide which documents this file needs
+          </legend>
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            Every answer has a default, so none of these stops the record being saved. Each answer
+            switches document rows on in the launch sequence with the citation that requires them.
+          </p>
+          <div className="grid gap-x-8 md:grid-cols-2">
+            <Field label="Vehicle" htmlFor="scen-vehicle">
+              <select
+                id="scen-vehicle"
+                className={inputClass}
+                value={scenario.vehicle}
+                onChange={(e) => setScen("vehicle", e.target.value as ScenarioAnswers["vehicle"])}
+              >
+                <option value="new">New contract</option>
+                <option value="idiq_award">IDIQ award</option>
+                <option value="idiq_order">Order under an existing IDIQ</option>
+                <option value="bpa">BPA</option>
+                <option value="gsa_fss">GSA Federal Supply Schedule order</option>
+                <option value="other_agency">Other agency vehicle</option>
+              </select>
+            </Field>
+            {scenario.vehicle === "idiq_award" ? (
+              <Field label="Single award IDIQ" htmlFor="scen-idiq-single">
+                <select
+                  id="scen-idiq-single"
+                  className={inputClass}
+                  value={scenario.idiq_single_award ? "yes" : "no"}
+                  onChange={(e) => setScen("idiq_single_award", e.target.value === "yes")}
+                >
+                  <option value="no">No, multiple award</option>
+                  <option value="yes">Yes, single award</option>
+                </select>
+              </Field>
+            ) : null}
+            {scenario.vehicle === "idiq_order" ? (
+              <Field label="Parent contract number" htmlFor="scen-parent">
+                <input
+                  id="scen-parent"
+                  className={inputClass}
+                  value={scenario.parent_contract_number}
+                  onChange={(e) => setScen("parent_contract_number", e.target.value)}
+                />
+              </Field>
+            ) : null}
+            <Field label="Funding and servicing" htmlFor="scen-funding">
+              <select
+                id="scen-funding"
+                className={inputClass}
+                value={scenario.funding}
+                onChange={(e) => setScen("funding", e.target.value as ScenarioAnswers["funding"])}
+              >
+                <option value="nasa">NASA funds, NASA buys</option>
+                <option value="reimbursable">Another agency funds NASA, reimbursable</option>
+                <option value="assisted">NASA buys through another agency, assisted acquisition</option>
+              </select>
+            </Field>
+            {scenario.funding !== "nasa" ? (
+              <>
+                <Field label="Authority" htmlFor="scen-authority">
+                  <select
+                    id="scen-authority"
+                    className={inputClass}
+                    value={scenario.reimbursable_authority}
+                    onChange={(e) =>
+                      setScen(
+                        "reimbursable_authority",
+                        e.target.value as ScenarioAnswers["reimbursable_authority"],
+                      )
+                    }
+                  >
+                    <option value="economy_act">Economy Act</option>
+                    <option value="other">Other authority</option>
+                  </select>
+                </Field>
+                <Field label="Agreement number" htmlFor="scen-agreement">
+                  <input
+                    id="scen-agreement"
+                    className={inputClass}
+                    value={scenario.agreement_number}
+                    onChange={(e) => setScen("agreement_number", e.target.value)}
+                  />
+                </Field>
+              </>
+            ) : null}
+            <Field label="Vendor country" htmlFor="scen-vendor-country">
+              <input
+                id="scen-vendor-country"
+                className={inputClass}
+                value={scenario.vendor_country}
+                onChange={(e) => setScen("vendor_country", e.target.value)}
+              />
+            </Field>
+            <Field label="Place of performance country" htmlFor="scen-place-country">
+              <input
+                id="scen-place-country"
+                className={inputClass}
+                value={scenario.place_country}
+                onChange={(e) => setScen("place_country", e.target.value)}
+              />
+            </Field>
+            <Field label="Deliverable" htmlFor="scen-deliverable">
+              <select
+                id="scen-deliverable"
+                className={inputClass}
+                value={scenario.deliverable}
+                onChange={(e) =>
+                  setScen("deliverable", e.target.value as ScenarioAnswers["deliverable"])
+                }
+              >
+                <option value="services">Services</option>
+                <option value="supplies">Supplies</option>
+                <option value="construction">Construction</option>
+                <option value="rd">Research and development</option>
+              </select>
+            </Field>
+            {scenario.deliverable === "supplies" ? (
+              <Field label="Are all end products domestic?" htmlFor="scen-domestic">
+                <select
+                  id="scen-domestic"
+                  className={inputClass}
+                  value={scenario.end_products_domestic}
+                  onChange={(e) =>
+                    setScen(
+                      "end_products_domestic",
+                      e.target.value as ScenarioAnswers["end_products_domestic"],
+                    )
+                  }
+                >
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </Field>
+            ) : null}
+            <Field label="Commercial product or service" htmlFor="scen-commercial">
+              <select
+                id="scen-commercial"
+                className={inputClass}
+                value={scenario.commercial ? "yes" : "no"}
+                onChange={(e) => setScen("commercial", e.target.value === "yes")}
+              >
+                <option value="yes">Yes, commercial</option>
+                <option value="no">No, not commercial</option>
+              </select>
+            </Field>
+            <Field
+              label="Period of performance length"
+              htmlFor="scen-pop-length"
+              hint={
+                facts.period_of_performance_start && facts.period_of_performance_end
+                  ? popDays !== null && popDays > 1826
+                    ? `${popDays} days from the dates on this record. Longer than five years.`
+                    : `${popDays} days from the dates on this record.`
+                  : "Enter the period of performance dates above."
+              }
+            >
+              <input
+                id="scen-pop-length"
+                readOnly
+                className={inputClass}
+                value={popDays === null ? "Not yet computed" : `${popDays} days`}
+              />
+            </Field>
+            {(
+              [
+                ["combines_requirements", "Combines requirements previously under separate contracts"],
+                ["gfp", "Government-furnished property is provided"],
+                ["oci_advisory", "OCI: advisory or assistance services"],
+                ["oci_systems_engineering", "OCI: systems engineering"],
+                ["oci_proprietary_data", "OCI: access to other contractors' proprietary data"],
+                ["oci_incumbent", "OCI: incumbent"],
+                ["urgency", "Unusual and compelling urgency"],
+                ["precontract_costs", "Precontract costs requested"],
+                ["subcontracting_plan_applies", "A subcontracting plan applies"],
+                ["subcontracting_possibilities", "Subcontracting possibilities exist"],
+                ["approved_plan_exists", "An approved acquisition plan or PSM exists"],
+                ["approved_plan_changes", "This action changes the approved plan"],
+              ] as const
+            ).map(([key, label]) => (
+              <label key={key} className="mb-3 flex items-baseline gap-2 text-[15px]">
+                <input
+                  type="checkbox"
+                  checked={Boolean(scenario[key])}
+                  onChange={(e) => setScen(key, e.target.checked as never)}
+                />
+                <span>{label}</span>
+              </label>
+            ))}
+            {scenario.urgency ? (
+              <Field label="Date the need arose" htmlFor="scen-urgency-date">
+                <input
+                  id="scen-urgency-date"
+                  type="date"
+                  className={inputClass}
+                  value={scenario.urgency_need_arose}
+                  onChange={(e) => setScen("urgency_need_arose", e.target.value)}
+                />
+              </Field>
+            ) : null}
+            <Field label="Set-aside type" htmlFor="scen-setaside-type">
+              <select
+                id="scen-setaside-type"
+                className={inputClass}
+                value={scenario.set_aside_type}
+                onChange={(e) => setScen("set_aside_type", e.target.value)}
+              >
+                <option value="">Follow the set-aside above</option>
+                <option value="Total small business set-aside">Total small business set-aside</option>
+                <option value="8(a) sole source">8(a) sole source</option>
+                <option value="8(a) competitive">8(a) competitive</option>
+                <option value="HUBZone">HUBZone</option>
+                <option value="Service-disabled veteran-owned">Service-disabled veteran-owned</option>
+                <option value="Women-owned small business">Women-owned small business</option>
+              </select>
+            </Field>
+            <Field label="Collective bargaining agreement covers the incumbent workforce" htmlFor="scen-cba">
+              <select
+                id="scen-cba"
+                className={inputClass}
+                value={scenario.cba}
+                onChange={(e) => setScen("cba", e.target.value as ScenarioAnswers["cba"])}
+              >
+                <option value="unknown">Unknown</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </Field>
+          </div>
+        </fieldset>
 
         <fieldset className="mt-2">
           <legend className="mb-2 text-[13px] text-muted-foreground">Attachments and conditions</legend>

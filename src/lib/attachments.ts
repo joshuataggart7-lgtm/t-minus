@@ -72,8 +72,10 @@ export async function uploadAttachment(input: {
   file: File;
   actor: string;
   parsedTotal?: number | null;
+  tab?: string | undefined;
 }): Promise<AttachmentRow> {
   const actor = await signedInName(input.actor);
+  const tab = input.tab ?? tabFor(input.key);
   if (input.file.size > 20 * 1024 * 1024) throw new Error(`${input.file.name} is larger than 20 MB.`);
   const path = `${input.acquisitionId}/${input.key}/${Date.now()}-${safeName(input.file.name)}`;
   const upload = await supabase.storage.from("attachments").upload(path, input.file, {
@@ -88,7 +90,7 @@ export async function uploadAttachment(input: {
       acquisition_id: input.acquisitionId,
       doc_key: input.key,
       doc_label: input.label,
-      nf_1098_tab: tabFor(input.key),
+      nf_1098_tab: tab,
       file_name: input.file.name,
       storage_path: path,
       content_type: input.file.type || null,
@@ -112,7 +114,7 @@ export async function uploadAttachment(input: {
       doc_label: input.label,
       file_name: input.file.name,
       storage_path: path,
-      nf_1098_tab: tabFor(input.key),
+      nf_1098_tab: tab,
       kind: "attachment",
     },
     version: 1,
@@ -127,7 +129,7 @@ export async function uploadAttachment(input: {
     field: input.key,
     old_value: null,
     new_value: input.file.name,
-    reason: `${input.label} attached to the contract file, tab ${tabFor(input.key)}`,
+    reason: `${input.label} attached to the contract file, tab ${tab}`,
   } as never);
 
   return data as AttachmentRow;
