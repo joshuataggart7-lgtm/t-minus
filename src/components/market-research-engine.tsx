@@ -8,7 +8,17 @@ import {
   type ResearchLogEntry,
 } from "@/lib/market-research.functions";
 import { confirmSetAside } from "@/lib/set-aside-evidence.functions";
-import { PROVENANCE, type ResearchFinding } from "@/lib/research-findings";
+import { PROVENANCE, type ResearchFinding, type ResearchRespondent } from "@/lib/research-findings";
+
+/** The respondents value is stored as JSON; render it as a table, never raw. */
+function parseRespondents(value: string): ResearchRespondent[] {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? (parsed as ResearchRespondent[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Market research evidence engine.
