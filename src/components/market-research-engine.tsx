@@ -32,6 +32,10 @@ export function MarketResearchEngine({
   const [message, setMessage] = useState<string | null>(null);
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
+  const [latestRanAt, setLatestRanAt] = useState<string | null>(null);
+  const [previousRuns, setPreviousRuns] = useState<
+    { runId: string; ranAt: string; log: ResearchLogEntry[] }[]
+  >([]);
 
   const read = useServerFn(readMarketResearch);
   const run = useServerFn(runMarketResearch);
