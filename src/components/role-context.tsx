@@ -165,6 +165,8 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const roles: RoleId[] = isAnonymous ? [personaRole] : signedInRoles.length ? signedInRoles : [legacyRole];
   const role: RoleId = isAnonymous ? personaRole : roles[0] ?? legacyRole;
 
+  const rolesKey = roles.join(",");
+
   const value = useMemo<RoleContextValue>(() => {
     const seeded = userForRole(role === "administrator" ? "hq" : role);
     const metadata = (session?.user?.user_metadata ?? {}) as Record<string, unknown>;
@@ -193,7 +195,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       profile,
       signOut,
     };
-  }, [role, roles, session, ready, authMessage, canSwitchPersona, isAnonymous, profile, signOut]);
+  }, [role, rolesKey, roles, session, ready, authMessage, canSwitchPersona, isAnonymous, profile, signOut]);
 
   return (
     <RoleContext.Provider value={value}>
