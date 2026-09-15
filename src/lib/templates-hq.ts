@@ -1301,7 +1301,7 @@ const dandfOverFiveYears: TemplateDef = {
   badge: {
     citation: "FAR 17.204; NFS 1817.204(e)(5); NFS 1816.505-71; FAR 16.501-2(c); 10 U.S.C. 3206(c)",
     tier: "binding",
-    revision: "HQ 01/2026 issuance",
+    revision: "HQ 03/2026 revision",
     effective: "2026-01-26",
     note: "Used where a deviation is not required because no statutory limitation applies. Where a statute limits the period, use the deviation request instead.",
   },
@@ -1493,7 +1493,7 @@ const popDeviationRequest: TemplateDef = {
   badge: {
     citation: "FAR/RFO 1.303; FAR/RFO 16.501-2(c); 10 U.S.C. 3403; 10 U.S.C. 3405; 41 U.S.C. 6707(d)",
     tier: "binding",
-    revision: "HQ 01/2026 issuance",
+    revision: "HQ 06/2026 revision",
     effective: "2026-01-26",
     note: "Required where a statutory limitation applies. Approval authority: Assistant Administrator for Procurement.",
   },
