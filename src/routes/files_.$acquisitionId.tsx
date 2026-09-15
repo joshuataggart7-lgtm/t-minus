@@ -187,6 +187,9 @@ function FilePage() {
           .in("clause_number", PACKET_CLAUSE_NUMBERS),
         supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
       ]);
+      const { data: memoRouting } = await supabase
+        .from("memo_routing")
+        .select("center_code,document_key,approving_official_title");
       const { data: centers } = await supabase
         .from("centers")
         .select("center_code,aging_threshold_days");
@@ -233,6 +236,7 @@ function FilePage() {
         documents: fileDocs.data ?? [],
         templates: fileTemplates.data ?? [],
         nfApprovals: nfApprovals.data ?? [],
+        memoRouting: memoRouting ?? [],
       };
     },
   });
