@@ -210,13 +210,9 @@ export const readMarketResearch = createServerFn({ method: "POST" })
         confirmed: f.confirmed,
         confirmedBy: f.confirmed_by,
       })) as ResearchFinding[],
-      log: (log.data ?? []).map((l) => ({
-        source: l.source,
-        query: l.query,
-        resultCount: l.result_count,
-        outcome: l.outcome,
-        ranAt: l.ran_at,
-      })) as ResearchLogEntry[],
+      log: rows
+        .filter((l) => (latestRunId ? l.runId === latestRunId : true))
+        .map(({ runId: _runId, ...rest }) => rest) as ResearchLogEntry[],
     };
   });
 
