@@ -33,6 +33,28 @@ const TABLES = [
   "watch_items",
 ];
 
+/** The date the regulation rows in this build were checked against source. */
+const REGULATIONS_VERIFIED = "2026-09-11";
+
+async function seedDate(table: string): Promise<string | null> {
+  // Only some tables carry created_at; the rest simply show no date.
+  const { data, error } = await (supabase as never as {
+    from: (t: string) => {
+      select: (s: string) => {
+        order: (c: string, o: { ascending: boolean }) => {
+          limit: (n: number) => Promise<{ data: { created_at: string }[] | null; error: unknown }>;
+        };
+      };
+    };
+  })
+    .from(table)
+    .select("created_at")
+    .order("created_at", { ascending: true })
+    .limit(1);
+  if (error || !data?.[0]?.created_at) return null;
+  return String(data[0].created_at).slice(0, 10);
+}
+
 async function countRows() {
   const results = await Promise.all(
     TABLES.map(async (table) => {
@@ -41,7 +63,8 @@ async function countRows() {
       })
         .from(table)
         .select("*", { count: "exact", head: true });
-      return { table, count: count ?? 0, error: error?.message ?? null };
+      const seeded = error ? null : await seedDate(table);
+      return { table, count: count ?? 0, error: error?.message ?? null, seeded };
     }),
   );
   return results;
@@ -242,6 +265,7 @@ function SeedStatus() {
         <LoadingNote what="the row counts" />
 
       ) : (
+        <><p className="mb-3 text-[15px] leading-[22px]" data-numeric>Regulations verified {REGULATIONS_VERIFIED}</p>
         <table className="w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Seeded table row counts</caption>
           <thead>
@@ -251,6 +275,9 @@ function SeedStatus() {
               </th>
               <th scope="col" className="px-4 py-2 text-right font-medium">
                 Rows
+              </th>
+              <th scope="col" className="px-4 py-2 font-medium">
+                Seed date
               </th>
               <th scope="col" className="px-4 py-2 font-medium">
                 State
@@ -263,6 +290,9 @@ function SeedStatus() {
                 <td className="px-4 py-2">{r.table}</td>
                 <td className="px-4 py-2 text-right" data-numeric>
                   {r.error ? "—" : r.count}
+                </td>
+                <td className="px-4 py-2" data-numeric>
+                  {r.seeded ?? "—"}
                 </td>
                 <td className="px-4 py-2">
                   {r.error ? (
@@ -277,7 +307,7 @@ function SeedStatus() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></>
       )}
     </AppShell>
   );

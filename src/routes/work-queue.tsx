@@ -61,6 +61,7 @@ function WorkQueuePage() {
   const { authState, user } = useRole();
   const today = todayISO();
   const [view, setView] = useState<"board" | "list">("board");
+  const [sortBy, setSortBy] = useState<"owner" | "phase" | "days">("owner");
   const [scope, setScope] = useState<"all" | "mine" | "branch" | "center">("all");
   const [missionId, setMissionId] = useState<string>("all");
 
@@ -177,6 +178,18 @@ function WorkQueuePage() {
       }),
     [cards, missionId, scope, user, myBranch],
   );
+
+  // The list view sorts by owner, phase or days to award; the board keeps its order.
+  const sortedList = useMemo(() => {
+    const rows = [...filtered];
+    rows.sort((a, b) => {
+      if (sortBy === "owner") return a.owner.localeCompare(b.owner);
+      if (sortBy === "phase") return String(a.m.currentPhase ?? "").localeCompare(String(b.m.currentPhase ?? ""));
+      const value = (c: Card) => (typeof c.m.daysToAward === "number" ? c.m.daysToAward : Number.POSITIVE_INFINITY);
+      return value(a) - value(b);
+    });
+    return rows;
+  }, [filtered, sortBy]);
 
   return (
     <AppShell>
@@ -295,6 +308,20 @@ function WorkQueuePage() {
           })}
         </div>
       ) : (
+        <>
+        <div className="mb-4">
+          <label htmlFor="sort" className="block text-[13px] text-muted-foreground">Sort by</label>
+          <select
+            id="sort"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+          >
+            <option value="owner">Owner</option>
+            <option value="phase">Phase</option>
+            <option value="days">Days to award</option>
+          </select>
+        </div>
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -311,7 +338,7 @@ function WorkQueuePage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => (
+            {sortedList.map((c) => (
               <tr key={c.m.acq.acquisition_id} className="border-b border-border last:border-0">
                 <td className="p-2">
                   <Link
@@ -350,6 +377,7 @@ function WorkQueuePage() {
             ))}
           </tbody>
         </table>
+        </>
       )}
 
       <p className="mt-6 text-[13px] text-muted-foreground" data-numeric>

@@ -26,7 +26,7 @@ export function RegulationSidebar({
   onPhaseChange?: (phase: string) => void;
 }) {
   const { authState } = useRole();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false); // references start collapsed; thresholds stay open
 
   const q = useQuery({
     queryKey: ["regulation-sidebar"],
@@ -59,12 +59,11 @@ export function RegulationSidebar({
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
         >
-          {open ? "Hide" : "Show"}
+          {open ? "Hide references" : "Show references"}
         </button>
       </div>
 
-      {open ? (
-        <div className="border-t border-border px-4 py-4">
+      <div className="border-t border-border px-4 py-4">
           {phases && phases.length > 0 ? (
             <div className="mb-4">
               <label htmlFor="reg-phase" className="block text-[13px] text-muted-foreground">
@@ -120,9 +119,11 @@ export function RegulationSidebar({
             </ul>
           )}
 
-          <h3 className="mt-6 border-t border-border pt-4 text-[13px] font-medium">
-            References, newest first
-          </h3>
+        </div>
+
+      {open ? (
+        <div className="border-t border-border px-4 pb-4">
+          <h3 className="pt-4 text-[13px] font-medium">References, newest first</h3>
           {refs.length === 0 && !q.isPending ? (
             <p className="mt-1 text-[13px] text-muted-foreground">No references are recorded for this phase.</p>
           ) : (

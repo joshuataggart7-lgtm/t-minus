@@ -7,6 +7,8 @@
  * contracting queue, which is the default for the first user in an org.
  */
 
+import { accountName } from "@/lib/account-name";
+
 export type ActorRole = "executive" | "specialist" | "reviewer" | "requester" | "hq";
 
 export type Actor = { name: string; role: ActorRole };
@@ -53,10 +55,7 @@ export async function currentActor(context: Ctx): Promise<Actor> {
   if (!profile.data) throw new Error("Your account was not found. Sign out and back in to try again.");
 
   const role = profile.data.is_admin ? "hq" : normalizeRole(profile.data.role as string);
-  const name =
-    (profile.data.display_name as string | null) ||
-    (profile.data.email as string | null) ||
-    "Signed-in user";
+  const name = accountName(profile.data.display_name as string | null, profile.data.email as string | null);
   return { name, role };
 }
 

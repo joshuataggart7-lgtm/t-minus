@@ -101,6 +101,23 @@ export async function uploadAttachment(input: {
     throw new Error(error.message);
   }
 
+  // The contract file counts documents, so an attachment is a document record too.
+  await supabase.from("documents").insert({
+    acquisition_id: input.acquisitionId,
+    field_values: {
+      attachment_id: (data as AttachmentRow).attachment_id,
+      doc_key: input.key,
+      doc_label: input.label,
+      file_name: input.file.name,
+      storage_path: path,
+      nf_1098_tab: tabFor(input.key),
+      kind: "attachment",
+    },
+    version: 1,
+    saved_by: input.actor,
+    saved_at: new Date().toISOString(),
+  } as never);
+
   await supabase.from("audit_log").insert({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
@@ -121,6 +138,11 @@ export async function removeAttachment(row: AttachmentRow, actor: string): Promi
     .eq("attachment_id", row.attachment_id);
   if (error) throw new Error(error.message);
   await supabase.storage.from("attachments").remove([row.storage_path]);
+  await supabase
+    .from("documents")
+    .delete()
+    .eq("acquisition_id", row.acquisition_id)
+    .eq("field_values->>attachment_id", row.attachment_id);
   await supabase.from("audit_log").insert({
     acquisition_id: row.acquisition_id,
     actor,
