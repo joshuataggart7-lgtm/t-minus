@@ -79,9 +79,9 @@ export function Nf1707Signoffs({
       .concat([{ ...(existing ?? ({} as ApprovalRow)), ...base, ...next } as ApprovalRow]);
     const cells = signatureCells(after);
     if (Object.keys(cells).length || block.textField) {
-      const merged = { ...(storedAnswers ?? {}), ...cells };
+      const merged: Record<string, string> = { ...(Object.fromEntries(Object.entries(storedAnswers ?? {}).map(([k, v]) => [k, String(v ?? "")]))), ...cells };
       if (next.status !== "concurred" && block.textField) merged[block.textField] = "";
-      await supabase.from("acquisition_facts").update({ nf1707_answers: merged }).eq("acquisition_id", acquisitionId);
+      await supabase.from("acquisition_facts").update({ nf1707_answers: merged as Record<string, string> }).eq("acquisition_id", acquisitionId);
     }
     await supabase.from("audit_log").insert({
       acquisition_id: acquisitionId,
