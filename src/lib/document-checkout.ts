@@ -163,13 +163,14 @@ export async function releaseCheckout(args: {
     .eq("checkout_id", args.checkoutId)
     .is("released_at", null);
   if (error || !count) return;
+  const userName = await signedInName(args.userName);
   await logCheckout(
     args.acquisitionId,
     args.phase,
     userName,
     "Document check-out released",
     args.documentName,
-    `Released by ${args.userName}`,
+    `Released by ${userName}`,
     args.reason,
   );
 }
