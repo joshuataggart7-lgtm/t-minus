@@ -7,7 +7,7 @@
 // names come from the template definitions and the templates table.
 
 import { TEMPLATES } from "./template-engine";
-import { phaseForTemplate } from "./launch-sequence";
+import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
 
 /** Core tabbed records every file of that type is expected to hold. */
 const CORE_KEYS = [
