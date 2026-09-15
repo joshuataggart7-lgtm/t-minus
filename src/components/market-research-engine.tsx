@@ -32,6 +32,10 @@ export function MarketResearchEngine({
   const [message, setMessage] = useState<string | null>(null);
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
+  const [latestRanAt, setLatestRanAt] = useState<string | null>(null);
+  const [previousRuns, setPreviousRuns] = useState<
+    { runId: string; ranAt: string; log: ResearchLogEntry[] }[]
+  >([]);
 
   const read = useServerFn(readMarketResearch);
   const run = useServerFn(runMarketResearch);
@@ -45,6 +49,8 @@ export function MarketResearchEngine({
         if (!live) return;
         setFindings(result.findings);
         setLog(result.log);
+        setLatestRanAt(result.latestRanAt);
+        setPreviousRuns(result.previousRuns);
       })
       .catch(() => {
         if (live) {
@@ -61,7 +67,14 @@ export function MarketResearchEngine({
     mutationFn: async () => run({ data: { acquisitionId } }),
     onSuccess: (result) => {
       setFindings(result.findings);
+      // A run replaces the previous values; the earlier run moves to history.
+      setPreviousRuns((runs) =>
+        log && log.length && latestRanAt
+          ? [{ runId: `${latestRanAt}`, ranAt: latestRanAt, log }, ...runs]
+          : runs,
+      );
       setLog(result.log);
+      setLatestRanAt(result.ranAt);
       setSuggested(result.suggestedSetAside);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
@@ -132,7 +145,9 @@ export function MarketResearchEngine({
       ) : (
         <div className="mt-4 space-y-5">
           <div>
-            <h5 className="text-[15px] font-medium">Research log</h5>
+            <h5 className="text-[15px] font-medium">
+              Research log{latestRanAt ? `, most recent run ${latestRanAt.slice(0, 10)}` : ""}
+            </h5>
             {log.length ? (
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
@@ -165,6 +180,28 @@ export function MarketResearchEngine({
                 The research has not been run on this file yet.
               </p>
             )}
+            {previousRuns.length ? (
+              <details className="mt-3 border border-border p-3">
+                <summary className="cursor-pointer text-[15px]">
+                  Previous runs ({previousRuns.length})
+                </summary>
+                <div className="mt-3 space-y-4">
+                  {previousRuns.map((r) => (
+                    <div key={r.runId}>
+                      <p className="text-[13px] font-medium">Run of {r.ranAt.slice(0, 10)}</p>
+                      <ul className="mt-1 space-y-1 text-[13px] leading-[18px] text-muted-foreground">
+                        {r.log.map((l, i) => (
+                          <li key={`${r.runId}-${i}`}>
+                            {l.source}; {l.ranAt.slice(0, 10)};{" "}
+                            {l.resultCount === null ? l.outcome : `${l.resultCount} results`}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
 
           <div>
