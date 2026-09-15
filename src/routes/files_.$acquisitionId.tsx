@@ -565,6 +565,72 @@ function FilePage() {
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
 
+  // Attaching a required document: store the file, index it, audit it, and only
+  // then mark the row Attached. Cancelling the picker changes nothing.
+  const attachDoc = useMutation({
+    mutationFn: async ({ doc, file }: { doc: RequiredDoc; file: File }) => {
+      const key = docKey(doc.field, doc.label);
+      let total: number | null = null;
+      let clinCount = 0;
+      let readFailed = false;
+      if (key === "igce_attached") {
+        try {
+          const read = await igceFromFile(file);
+          if (read) {
+            total = read.total;
+            if (read.clins.length) {
+              await saveIgceClins(acquisitionId, read.clins);
+              clinCount = read.clins.length;
+            }
+          } else readFailed = true;
+        } catch {
+          readFailed = true;
+        }
+      }
+      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: user.name, parsedTotal: total });
+      const satisfies = key !== "igce_attached" || total !== null;
+      if (doc.field && satisfies) await setDoc.mutateAsync({ doc, attach: true });
+      return { fileName: file.name, label: doc.label, total, clinCount, satisfies, readFailed };
+    },
+    onSuccess: (result) => {
+      void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      if (!result) return;
+      const clins = result.clinCount ? ` ${result.clinCount} CLIN rows were read into the estimate builder.` : "";
+      if (result.satisfies) {
+        setBanner(
+          `${result.label} attached: ${result.fileName}.${clins}${result.total !== null ? ` Total read: ${result.total.toLocaleString()}.` : ""}`,
+        );
+      } else {
+        setBanner(
+          `${result.fileName} was stored, but no total was found${result.readFailed ? " and the file is not a readable spreadsheet" : ""}. The IGCE red flag stays until a total is found.`,
+        );
+      }
+    },
+    onError: (e: Error) => setBanner(`That file did not attach: ${e.message}. Try again.`),
+  });
+
+  const detachDoc = useMutation({
+    mutationFn: async (doc: RequiredDoc) => {
+      const key = docKey(doc.field, doc.label);
+      const row = attachmentFor(key);
+      if (row) await removeAttachment(row, user.name);
+      if (doc.field) await setDoc.mutateAsync({ doc, attach: false });
+      return doc.label;
+    },
+    onSuccess: (label) => {
+      void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
+      setBanner(`${label} removed. The row reads Missing again.`);
+    },
+    onError: (e: Error) => setBanner(`That file did not come off: ${e.message}. Try again.`),
+  });
+
+  async function openAttachment(row: AttachmentRow) {
+    const url = await downloadAttachment(row);
+    if (url) window.open(url, "_blank", "noopener");
+    else setBanner("That file could not be opened. Try attaching it again.");
+  }
+
   const finding = (acq?.["responsibility_finding"] as string | null) ?? null;
 
   // The responsibility finding decides whether a memorandum exists at all.
