@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
+import { usePresenter, setPresenter } from "@/lib/presenter";
 
 import { cn } from "@/lib/utils";
 import {
