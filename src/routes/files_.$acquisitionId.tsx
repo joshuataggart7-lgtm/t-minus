@@ -248,6 +248,7 @@ function FilePage() {
         centers: centers ?? [],
         overrides: overrides ?? [],
         people: people ?? [],
+        researchRuns: researchRuns ?? [],
         log: log.data ?? [],
         plan: plan.data ?? [],
         rules: rules.data ?? [],
