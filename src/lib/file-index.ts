@@ -13,6 +13,7 @@ import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence"
 const CORE_KEYS = [
   "jofoc",
   "technical-evaluation-report",
+  "evaluation-of-quotations",
   "pnm",
   "cor-appointment",
   "cpars-input",
