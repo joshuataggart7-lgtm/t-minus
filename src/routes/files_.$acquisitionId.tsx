@@ -195,6 +195,8 @@ function FilePage() {
   }, [user.name]);
   const canWrite = hasAnyRole(["specialist", "hq"]);
   const [mode, setMode] = useState<Mode>("veteran");
+  const presenter = usePresenter();
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [banner, setBanner] = useState<string | null>(null);
   // Edits in progress on the proposed price row, before they are saved.
