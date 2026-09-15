@@ -13,6 +13,7 @@ import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence"
 const CORE_KEYS = [
   "jofoc",
   "technical-evaluation-report",
+  "evaluation-of-quotations",
   "pnm",
   "cor-appointment",
   "cpars-input",
@@ -72,6 +73,9 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
     // proposal above the simplified acquisition threshold; on a competed
     // simplified acquisition it is offered, not required.
     .filter((t) => t.key !== "technical-evaluation-report" || isTerRequired(acq))
+    // The evaluation of quotations record is the requirement on a competed
+    // simplified acquisition, in place of the report.
+    .filter((t) => t.key !== "evaluation-of-quotations" || !isTerRequired(acq))
     .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
     .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
     .filter((t) => inSequence.has(t.phase.toLowerCase()));

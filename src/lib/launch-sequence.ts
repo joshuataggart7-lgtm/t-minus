@@ -309,6 +309,8 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               {
                 label: "Evaluation of quotations record",
                 citation: "FAR 13.106-2",
+                link: "templates",
+                templateKey: "evaluation-of-quotations",
                 note: "Judge each quote against the stated criteria and record who evaluated and why.",
               } as RequiredDoc,
             ]),
@@ -531,7 +533,11 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "jofoc") return "JOFOC";
   if (templateKey === "nf-1707") return "Intake";
   if (templateKey === "sam-notice") return "Synopsis";
-  if (templateKey === "tech-eval" || templateKey === "technical-evaluation-report")
+  if (
+    templateKey === "tech-eval" ||
+    templateKey === "technical-evaluation-report" ||
+    templateKey === "evaluation-of-quotations"
+  )
     return "Technical Evaluation";
   if (templateKey === "nonresponsibility") return "Responsibility Check";
   if (templateKey === "pnm") return "Price Reasonableness";

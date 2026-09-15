@@ -1272,7 +1272,11 @@ function FilePage() {
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground">
-              {effectiveState === "launched" ? "Days since award" : effectiveState === "scrubbed" ? "Countdown" : "Days to award"}
+              {effectiveState === "launched"
+                ? "Days since award"
+                : effectiveState === "scrubbed"
+                  ? "Countdown"
+                  : "Calendar days to target award date"}
             </p>
             <p className="mt-3 text-[15px] font-medium">
               {effectiveState === "running"
@@ -1287,7 +1291,16 @@ function FilePage() {
             <div className="min-w-0">
             <p className="text-[13px] text-muted-foreground">Current phase</p>
             <p className="mt-1 text-[18px] leading-6 font-medium">{lifecycle?.currentPhase ?? "Not started"}</p>
-            <p className="mt-3 text-[15px] leading-[22px]">{lifecycle?.blocker === "None" ? lifecycle.nextAction : lifecycle?.blocker ?? "Loading"}</p>
+            {/* Only a Required row reads as missing here. With none missing the
+                line says the phase is ready to exit. */}
+            <p className="mt-3 text-[15px] leading-[22px]">
+              {lifecycle?.blocker && lifecycle.blocker !== "None"
+                ? lifecycle.blocker
+                : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
+                    effectiveState !== "launched" && effectiveState !== "scrubbed"
+                  ? `Ready to exit ${currentPhase.phase}`
+                  : (lifecycle?.nextAction ?? "Loading")}
+            </p>
             <p className="mt-1 text-[13px] text-muted-foreground">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>

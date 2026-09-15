@@ -86,6 +86,9 @@ export async function claimCheckout(args: {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) return null;
+  // The check-out records the account display name, so a lapse row later reads
+  // "Check-out by Joshua Taggart lapsed", never a placeholder.
+  const userName = await signedInName(args.userName);
 
   const existing = await supabase
     .from("document_checkouts")
@@ -125,7 +128,7 @@ export async function claimCheckout(args: {
       acquisition_id: args.acquisitionId,
       template_key: args.templateKey,
       user_id: userId,
-      user_name: args.userName,
+      user_name: userName,
       checked_out_at: checkedOutAt,
     })
     .select("checkout_id,user_id,user_name,checked_out_at")
@@ -136,10 +139,10 @@ export async function claimCheckout(args: {
   await logCheckout(
     args.acquisitionId,
     args.phase,
-    args.userName,
+    userName,
     "Document checked out",
     args.documentName,
-    `Checked out by ${args.userName}`,
+    `Checked out by ${userName}`,
     "Opened for editing",
   );
   return data as Checkout;
@@ -160,13 +163,14 @@ export async function releaseCheckout(args: {
     .eq("checkout_id", args.checkoutId)
     .is("released_at", null);
   if (error || !count) return;
+  const userName = await signedInName(args.userName);
   await logCheckout(
     args.acquisitionId,
     args.phase,
-    args.userName,
+    userName,
     "Document check-out released",
     args.documentName,
-    `Released by ${args.userName}`,
+    `Released by ${userName}`,
     args.reason,
   );
 }

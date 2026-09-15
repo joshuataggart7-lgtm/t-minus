@@ -676,7 +676,10 @@ function DocumentPage() {
         r.name.toLowerCase() === user.name.toLowerCase(),
     );
     const named = rows.find((r) => r.name === String(q.data?.acq?.["co_name"] ?? ""));
-    const row = mine ?? named;
+    // The contracting officer named on the record is the point of contact a
+    // public notice prints; the signed-in officer stands in only when the
+    // record names nobody.
+    const row = named ?? mine;
     return row ? { name: row.name, email: row.email ?? null, phone: row.telephone ?? null } : null;
   }, [q.data, user]);
 
@@ -724,6 +727,21 @@ function DocumentPage() {
         ([...(q.data?.fileDocRows ?? [])]
           .reverse()
           .find((row) => /justification|jofoc/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
+      // The SAM.gov notice and the evaluation of quotations record, so the
+      // basis for award, the criteria and the recommended quoter carry forward
+      // without being retyped.
+      noticeValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /notice|synopsis/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
+      evaluationValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /evaluation of quotations/i.test(row.templates?.name ?? ""))?.field_values as
           | Record<string, string>
           | undefined) ?? null,
       evidence: researchEvidence,
@@ -965,6 +983,32 @@ function DocumentPage() {
         ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
+      // The recommended quoter on the evaluation record becomes the vendor on
+      // the record, so the price memorandum and the responsibility check read
+      // the same name and UEI without anyone retyping them.
+      if (def.key === "evaluation-of-quotations") {
+        const name = String(values["recommended_quoter"] ?? "").trim();
+        const uei = String(values["recommended_uei"] ?? "").trim();
+        if (name || uei) {
+          await supabase
+            .from("acquisition_facts")
+            .update({
+              ...(name ? { vendor_legal_name: name } : {}),
+              ...(uei ? { vendor_uei: uei } : {}),
+            })
+            .eq("acquisition_id", acquisitionId);
+          await supabase.from("audit_log").insert({
+            acquisition_id: acquisitionId,
+            actor: user.name,
+            action: "Recommended quoter carried to the record",
+            field: "vendor_legal_name",
+            old_value: String(q.data.acq?.["vendor_legal_name"] ?? ""),
+            new_value: [name, uei].filter(Boolean).join(" · "),
+            reason: "Recommended on the evaluation of quotations record",
+            phase,
+          });
+        }
+      }
       const { error: logError } = await supabase.from("audit_log").insert({
         acquisition_id: acquisitionId,
         actor: user.name,

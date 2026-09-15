@@ -66,6 +66,10 @@ export type MemoDraftCtx = {
   values?: Values;
   /** The JOFOC saved on this file, when there is one, so the notice can read item 5. */
   jofocValues?: Values | null;
+  /** The SAM.gov notice saved on this file, for the basis for award and criteria. */
+  noticeValues?: Values | null;
+  /** The evaluation of quotations record, so the recommendation carries forward. */
+  evaluationValues?: Values | null;
   /** Today, so a determination carries its date. */
   today?: string;
   /** Audit trail on this file, oldest first, for the chronology memorandum. */
@@ -217,10 +221,25 @@ function ruleOfTwo(ctx: MemoDraftCtx, inJofoc = false): string {
   return gap("state the number of sources, their small business capability and the Rule of Two result");
 }
 
-/** Paragraph 4: one line per source, drafted from the research log. */
+/** Paragraph 4: the sources searched, written as one prose paragraph. */
 function researchParagraph(ctx: MemoDraftCtx): string {
-  const lines = researchLogLines(ctx.researchLog);
-  if (lines.length) return ["Sources searched:", ...lines].join("\n");
+  const log = ctx.researchLog ?? [];
+  if (log.length) {
+    const seen = new Set<string>();
+    const clauses: string[] = [];
+    for (const l of log) {
+      const source = l.source.replace(/\s+(?:API|endpoint)$/i, "").trim();
+      const key = `${source}|${searchedFor(l)}|${onlyDate(l.ranAt)}`.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const outcome =
+        l.count === null
+          ? "which was not available"
+          : `which returned ${l.count} result${l.count === 1 ? "" : "s"}`;
+      clauses.push(`${source} was searched for ${searchedFor(l)} on ${onlyDate(l.ranAt)}, ${outcome}`);
+    }
+    return `${clauses.join("; ")}.`;
+  }
   const engineResearch = findingText(ctx.findings, "memo.research");
   if (engineResearch) return `Sources searched: ${engineResearch}`;
   if (ctx.evidence) {
@@ -569,6 +588,14 @@ function day(iso: string): string {
   return `${Number(m[3])} ${MONTHS[Number(m[2]) - 1] ?? ""}`.trim();
 }
 
+/** "14 Sep 2026", the way a hold or a vote is dated in a memorandum. */
+function stamp(iso: string): string {
+  const d = onlyDate(iso);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+  if (!m) return d;
+  return `${Number(m[3])} ${(MONTHS[Number(m[2]) - 1] ?? "").slice(0, 3)} ${m[1]}`.trim();
+}
+
 /** The person by role and name, never by account name. */
 function personPhrase(ctx: MemoDraftCtx, actor: string | null | undefined): string {
   const name = str(actor);
@@ -754,24 +781,33 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       }
     }
 
-    // Holds. Cause and clearance in one sentence.
-    const holds = rows.filter((a) => /on hold/i.test(a.action));
-    const clears = rows.filter((a) => /clock resumed|hold cleared/i.test(a.action));
+    // Holds. Cause and clearance in one sentence, never the stored field code.
+    const isHoldRow = (a: AuditLine) =>
+      /on hold|clock held/i.test(a.action) ||
+      (/clock_state|clock state/i.test(str(a.field)) && /hold/i.test(str(a.newValue)));
+    const isClearRow = (a: AuditLine) =>
+      /clock resumed|hold cleared/i.test(a.action) ||
+      (/clock_state|clock state/i.test(str(a.field)) && /running|resumed/i.test(str(a.newValue)));
+    const holds = rows.filter(isHoldRow);
+    const clears = rows.filter(isClearRow);
     holds.forEach((h, i) => {
       handled.add(h);
       const clear = clears[i];
       if (clear) handled.add(clear);
       const missing = /:\s*(.+?)\s+is missing\b/i.exec(str(h.reason))?.[1];
       const cause = chronologyDocumentTitle(missing ?? h.field, missing ?? h.reason);
+      const sameDay = clear ? onlyDate(clear.at) === onlyDate(h.at) : false;
       push(
         clear
-          ? `The clock was held on ${day(h.at)} until the ${cause} was attached.`
-          : `The clock was held on ${day(h.at)} for the missing ${cause}.`,
+          ? `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing; it resumed ${
+              sameDay ? "the same day" : `on ${stamp(clear.at)}`
+            } when the ${cause} was attached.`
+          : `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing.`,
       );
     });
     clears.filter((c) => !handled.has(c)).forEach((c) => {
       handled.add(c);
-      push(`The hold was cleared and the clock resumed on ${day(c.at)}.`);
+      push(`The hold was cleared and the clock resumed on ${stamp(c.at)}.`);
     });
 
     for (const a of rows) {
@@ -782,12 +818,12 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
         const noGo = /no-go/i.test(a.action) || /no-go/i.test(str(a.newValue));
         const recorded = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?::|;|$)/i.exec(str(a.reason));
-        const reviewer = recorded?.[2] ?? "reviewer not recorded";
-        const recorder = recorded?.[1] ?? (str(a.actor) || "the contracting officer");
+        const reviewer = recorded?.[2] ?? null;
+        const recorder = recorded?.[1] ?? str(a.actor);
         push(
-          noGo
-            ? `${seatName(a.field)} (${reviewer}) did not concur on ${on}; the vote was received by email and recorded by ${recorder}.`
-            : `${seatName(a.field)} (${reviewer}) concurred on ${on}; the vote was received by email and recorded by ${recorder}.`,
+          `${seatName(a.field)}: ${noGo ? "No-go" : "Go"} recorded ${stamp(a.at)} by ${
+            recorder ? personPhrase(ctx, recorder) : "the contracting officer"
+          }${reviewer ? ` on behalf of ${reviewer}` : ""}.`,
         );
       } else if (/market research run|research finding confirmed/i.test(a.action)) {
         if (w.phase === "Market Research" && researchSentence) push(researchSentence);
@@ -804,11 +840,13 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       } else if (/clock started|intake submitted/i.test(a.action)) {
         push(`The intake was submitted and the clock started on ${on}.`);
       } else {
-        push(
-          `${a.action} was recorded on ${on} by ${personPhrase(ctx, a.actor)}${
-            cleanClause(a.reason) ? `, ${cleanClause(a.reason)}` : ""
-          }.`,
-        );
+        // Stored field codes and engine notes never print in the narrative.
+        const note = cleanClause(a.reason)
+          .replace(/saved from the (?:template|form) engine/gi, "")
+          .replace(/\bclock_state\b/gi, "the clock state")
+          .trim();
+        const action = /^[a-z][a-z0-9_]*$/.test(a.action) ? a.action.replace(/_/g, " ") : a.action;
+        push(`${action} was recorded on ${on} by ${personPhrase(ctx, a.actor)}${note ? `, ${note}` : ""}.`);
       }
     }
 
@@ -843,7 +881,45 @@ function memorandumForRecord(ctx: MemoDraftCtx): Values {
   return out;
 }
 
+/**
+ * Evaluation of quotations record (FAR 13.106-2). The basis for award and the
+ * criteria come from the notice on the file; the rest is the officer's.
+ */
+function evaluationOfQuotations(ctx: MemoDraftCtx): Values {
+  const notice = ctx.noticeValues ?? {};
+  const basisText = str(notice["evaluation_basis"]);
+  const award = /best value|tradeoff/i.test(basisText)
+    ? "Best value tradeoff"
+    : basisText
+      ? "Lowest price technically acceptable"
+      : "";
+  const out: Values = {};
+  if (award) out["award_basis"] = award;
+  out["evaluation_criteria"] =
+    basisText ||
+    gap("state the evaluation criteria as the notice stated them, or save the notice first");
+  return out;
+}
+
+/** The recommended quoter on the evaluation record carries into the PNM. */
+function priceNegotiation(ctx: MemoDraftCtx): Values {
+  const evaluation = ctx.evaluationValues;
+  if (!evaluation) return {};
+  const out: Values = {};
+  const name = str(evaluation["recommended_quoter"]);
+  const uei = str(evaluation["recommended_uei"]);
+  const price = str(evaluation["recommended_price"]);
+  if (name) out["vendor_legal_name"] = name;
+  if (uei) out["vendor_uei"] = uei;
+  if (price) out["quoted_price"] = price;
+  const comparison = str(evaluation["price_comparison"]);
+  if (comparison) out["price_variance"] = comparison;
+  return out;
+}
+
 const DRAFTERS: Record<string, (ctx: MemoDraftCtx) => Values> = {
+  "evaluation-of-quotations": evaluationOfQuotations,
+  pnm: priceNegotiation,
   "memorandum-for-record": memorandumForRecord,
   "market-research-memo": marketResearch,
   commerciality,

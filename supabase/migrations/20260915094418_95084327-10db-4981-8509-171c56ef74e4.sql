@@ -1,0 +1,4 @@
+update public.audit_log set actor = 'Joshua Taggart' where actor in ('Signed-in user', 'joshuataggart7', 'joshuataggart7@gmail.com');
+update public.audit_log set new_value = replace(replace(new_value, 'Signed-in user', 'Joshua Taggart'), 'joshuataggart7', 'Joshua Taggart') where new_value like '%Signed-in user%' or new_value like '%joshuataggart7%';
+update public.audit_log set reason = replace(replace(reason, 'Signed-in user', 'Joshua Taggart'), 'joshuataggart7', 'Joshua Taggart') where reason like '%Signed-in user%' or reason like '%joshuataggart7%';
+update public.document_checkouts set user_name = 'Joshua Taggart' where user_name in ('Signed-in user', 'joshuataggart7', 'joshuataggart7@gmail.com');

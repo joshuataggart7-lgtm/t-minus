@@ -237,8 +237,10 @@ export function computeMetrics(
     blockerOwner = hold.owner;
   } else {
     const pending = board.find((b) => b.vote === "pending");
+    // Only a Required row blocks. An offered row never reads as missing.
     const missingDoc = current?.docs.find(
       (d) =>
+        !d.optional &&
         (d.field || generatorKey(d)) &&
         docSatisfied(
           d,
