@@ -12,6 +12,7 @@ import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { HQ_TEMPLATES } from "@/lib/templates-hq";
 import { HQ4_TEMPLATES } from "@/lib/templates-hq4";
 import { HQ5_TEMPLATES } from "@/lib/templates-hq5";
+import { HQ6_TEMPLATES } from "@/lib/templates-hq6";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2743,6 +2744,7 @@ export const TEMPLATES: TemplateDef[] = [
   ...HQ_TEMPLATES,
   ...HQ4_TEMPLATES,
   ...HQ5_TEMPLATES,
+  ...HQ6_TEMPLATES,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
