@@ -180,6 +180,28 @@ export function MarketResearchEngine({
                 The research has not been run on this file yet.
               </p>
             )}
+            {previousRuns.length ? (
+              <details className="mt-3 border border-border p-3">
+                <summary className="cursor-pointer text-[15px]">
+                  Previous runs ({previousRuns.length})
+                </summary>
+                <div className="mt-3 space-y-4">
+                  {previousRuns.map((r) => (
+                    <div key={r.runId}>
+                      <p className="text-[13px] font-medium">Run of {r.ranAt.slice(0, 10)}</p>
+                      <ul className="mt-1 space-y-1 text-[13px] leading-[18px] text-muted-foreground">
+                        {r.log.map((l, i) => (
+                          <li key={`${r.runId}-${i}`}>
+                            {l.source}; {l.ranAt.slice(0, 10)};{" "}
+                            {l.resultCount === null ? l.outcome : `${l.resultCount} results`}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </div>
 
           <div>
