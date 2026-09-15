@@ -1286,7 +1286,11 @@ function FilePage() {
               type="button"
               onClick={() => {
                 const reason = window.prompt("Why is this acquisition being scrubbed?");
-                if (reason?.trim()) scrub.mutate(reason.trim());
+                if (!reason?.trim()) return;
+                const sure = window.confirm(
+                  `Scrub ${acquisitionId}? The countdown stops and the file leaves the work queue and the clause change list. The audit history is kept. Reason: ${reason.trim()}`,
+                );
+                if (sure) scrub.mutate(reason.trim());
               }}
               className="rounded-lg border border-border px-3 py-2 text-[13px]"
               style={{ color: "var(--atrisk)" }}
