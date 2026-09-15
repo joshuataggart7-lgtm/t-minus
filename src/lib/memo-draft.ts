@@ -523,9 +523,26 @@ function samNotice(ctx: MemoDraftCtx): Values {
     evaluation_basis:
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
+    sole_source_basis:
+      str(ctx.jofocValues?.["authority_rationale"]) ||
+      gap("state why only this source can meet the need, or draft the JOFOC first"),
+    authority: samNoticeAuthority(a),
     poc_email: ctx.co?.email ?? "",
     poc_phone: ctx.co?.phone ?? "",
   };
+}
+
+/**
+ * Authority as the public notice prints it. A FAR 13.5 commercial file cites
+ * the statute with the procedures it is carried out under, never the internal
+ * picker note the record stores.
+ */
+export function samNoticeAuthority(acq: Record<string, unknown>): string {
+  const recorded = str(acq["jofoc_authority_citation"]);
+  if (isSimplifiedCommercial(acq) || /1901/.test(recorded)) {
+    return "41 U.S.C. 1901, commercial simplified procedures under RFO FAR 12.201-1";
+  }
+  return recorded;
 }
 
 // -------------------------------------------- memorandum for record (MFR)
