@@ -1809,7 +1809,7 @@ function FilePage() {
                   </div>
 
                   {/* A clause delta only exists once there is a contract to modify. */}
-                  {!String(acq?.contract_number ?? "").trim() ? (
+                  {!String(acq?.["contract_number"] ?? "").trim() ? (
                     <div className="border border-border p-4">
                       <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
                       <p className="mt-1 text-[13px] text-muted-foreground">
