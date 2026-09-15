@@ -527,6 +527,8 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "cor-appointment" || templateKey === "cor-cancellation" || templateKey === "cpars-input")
     return "Administration";
   if (templateKey === "closeout-checklist") return "Closeout";
+  // A memorandum for record belongs to the file, not to a phase.
+  if (templateKey === "memorandum-for-record") return "Intake";
   return "Go/No-go Poll";
 }
 

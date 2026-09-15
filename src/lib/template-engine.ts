@@ -2410,6 +2410,7 @@ export const TEMPLATES: TemplateDef[] = [
   waiverDeviation,
   coordinationMemo,
   packetTransmittal,
+  memorandumForRecord,
 ];
 
 export function templateByKey(key: string): TemplateDef | undefined {
