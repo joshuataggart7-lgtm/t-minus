@@ -61,6 +61,15 @@ function roleFromProfile(value: string | undefined | null): RoleId {
   }
 }
 
+// Administrator first, so a multi-role account always reads as the strongest
+// role it holds rather than whichever row the database returned first.
+const ROLE_ORDER: RoleId[] = ["administrator", "hq", "specialist", "executive", "reviewer", "requester"];
+
+function orderRoles(roles: RoleId[]): RoleId[] {
+  const unique = Array.from(new Set(roles));
+  return unique.sort((a, b) => ROLE_ORDER.indexOf(a) - ROLE_ORDER.indexOf(b));
+}
+
 export function RoleProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
@@ -71,15 +80,25 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const [authMessage, setAuthMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-      if (!next) {
+    // A signed-in session only ends on a definite sign-out. Token refreshes and
+    // client-side navigations must never drop the account back to the sign-in
+    // screen or to a blank profile.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      if (next) {
+        setSession(next);
+        setReady(true);
+        return;
+      }
+      if (event === "SIGNED_OUT") {
+        setSession(null);
         setProfile(null);
         setAssignedRoles([]);
+        setReady(true);
       }
     });
     void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+      if (data.session) setSession(data.session);
+      else setSession((current) => current);
       setReady(true);
     });
     return () => sub.subscription.unsubscribe();
