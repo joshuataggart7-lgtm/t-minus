@@ -1865,7 +1865,7 @@ function FilePage() {
                              className="text-[13px]"
                            >
                              {state
-                               ? `Recorded, ${formatUSD(Number(acq?.['proposed_price'] ?? 0))}${
+                               ? `Recorded, ${formatMoney(Number(acq?.["proposed_price"] ?? 0))}${
                                    acq?.['proposed_price_received']
                                      ? `, received ${formatDate(String(acq['proposed_price_received']).slice(0, 10))}`
                                      : ""
