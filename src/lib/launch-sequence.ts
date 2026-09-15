@@ -146,6 +146,8 @@ export const PHASE_GUIDANCE: Record<string, string> = {
 const MICRO_PURCHASE = 10_000;
 /** Value at which the NF 1787A becomes the market research document of record. */
 const MRR_THRESHOLD = 2_000_000;
+/** Simplified acquisition threshold, above which a sole-source proposal needs a TER. */
+const SIMPLIFIED_ACQUISITION_THRESHOLD = 350_000;
 
 export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
