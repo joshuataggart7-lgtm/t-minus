@@ -2313,10 +2313,10 @@ const samNotice: TemplateDef = {
   badge: {
     citation: "RFO FAR 5.203; FAR 12.603; RFO FAR 6.104",
     tier: "binding",
-    revision: "T-Minus form; posted in SAM.gov",
+    revision: "HQ Governmentwide Point of Entry templates 05/2026; posted in SAM.gov",
     note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",
   },
-  lead: "The notice posted to SAM.gov. The record picks the mode: combined synopsis/solicitation for a competitive commercial buy, notice of intent to sole source for a sole-source file, or sources sought when the contracting officer picks it.",
+  lead: "The notice posted to SAM.gov. The record picks the mode: combined synopsis/solicitation for a competitive commercial buy, notice of intent to sole source for a sole-source file, a presolicitation notice, a modification to a posted notice, a sources sought, or a request for information.",
   sections: [
     {
       id: "notice",
@@ -2328,7 +2328,15 @@ const samNotice: TemplateDef = {
           key: "notice_type",
           label: "Notice type",
           kind: "select",
-          options: ["Combined synopsis/solicitation", "Notice of intent to sole source", "Sources sought"],
+          options: [
+            "Combined synopsis/solicitation",
+            "Notice of intent to sole source",
+            ...PRESOL_MODES,
+            ...MOD_MODES,
+            "Sources sought",
+            ...RFI_MODES,
+          ],
+
           required: true,
           help: "Set from the record; change it when the contracting officer posts a sources sought instead.",
         },
