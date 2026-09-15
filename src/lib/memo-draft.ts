@@ -293,6 +293,20 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   };
 }
 
+/**
+ * The pricing arrangement the record states, taken from the requirement text.
+ * Returns "" when the record carries no pricing description.
+ */
+export function pricingArrangement(acq: Record<string, unknown>): string {
+  const text = str(acq["pricing_description"]) || str(acq["description_of_requirement"]);
+  if (!text) return "";
+  const m =
+    /((?:firm[- ]fixed[- ]price|fixed[- ]price|cost[- ]plus[^.,;]*|time[- ]and[- ]materials|labor[- ]hour|indefinite[- ]delivery)[^.;]*)/i.exec(
+      text,
+    );
+  return m ? m[1].trim().replace(/\s+/g, " ") : "";
+}
+
 function commerciality(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const determination = str(a["commercial_determination"]);
