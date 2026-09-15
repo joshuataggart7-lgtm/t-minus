@@ -158,6 +158,17 @@ function FilePage() {
   const { acquisitionId } = Route.useParams();
   const { authState, user, role } = useRole();
   const qc = useQueryClient();
+  // Every audit row carries the real account name, never "Signed-in user".
+  const [actorName, setActorName] = useState(user.name);
+  useEffect(() => {
+    let live = true;
+    void signedInName(user.name).then((n) => {
+      if (live) setActorName(n);
+    });
+    return () => {
+      live = false;
+    };
+  }, [user.name]);
   const canWrite = role === "specialist" || role === "hq";
   const [mode, setMode] = useState<Mode>("veteran");
   const [step, setStep] = useState(0);
@@ -300,7 +311,7 @@ function FilePage() {
       }
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Acquisition Forecast entry generated",
         field: "acquisition_forecast_verified",
         old_value: String(acq.acquisition_forecast_verified ?? "not recorded"),
@@ -310,7 +321,7 @@ function FilePage() {
       } as never);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     })();
-  }, [acq, forecast, canWrite, user.name, qc, acquisitionId]);
+  }, [acq, forecast, canWrite, actorName, qc, acquisitionId]);
 
   function exportForecastCsv() {
     if (!forecast || !acq) return;
@@ -323,7 +334,7 @@ function FilePage() {
     URL.revokeObjectURL(url);
     void supabase.from("audit_log").insert({
       acquisition_id: acq.acquisition_id,
-      actor: user.name,
+      actor: actorName,
       action: "Acquisition Forecast entry exported to CSV",
       field: "acquisition_forecast",
       old_value: null,
@@ -496,7 +507,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Poll opened",
         field: "polls",
         new_value: `${rows.length} reviewer${rows.length === 1 ? "" : "s"}`,
@@ -523,7 +534,7 @@ function FilePage() {
       if (!acq) return;
       if (!input.entry.poll_id) throw new Error("Open the poll for this phase first");
       if (input.choice === "no-go" && !input.note.trim()) throw new Error("A No-go needs a reason");
-      const who = await signedInName(user.name);
+      const who = await signedInName(actorName);
       const note = input.note.trim() || null;
       const { error } = await supabase
         .from("polls")
@@ -586,7 +597,7 @@ function FilePage() {
   const setDoc = useMutation({
     mutationFn: async ({ doc, attach }: { doc: RequiredDoc; attach: boolean }) => {
       if (!acq || !doc.field) return;
-      const who = await signedInName(user.name);
+      const who = await signedInName(actorName);
       const value = doc.field === "jofoc_authority_citation" ? (attach ? "RFO FAR 6.301(a)(1)" : "") : attach;
       const next: Record<string, unknown> = { [doc.field]: value, updated_at: new Date().toISOString() };
 
@@ -670,7 +681,7 @@ function FilePage() {
           readFailed = true;
         }
       }
-      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: user.name, parsedTotal: total });
+      await uploadAttachment({ acquisitionId, key, label: doc.label, file, actor: actorName, parsedTotal: total });
       const satisfies = key !== "igce_attached" || total !== null;
       if (doc.field && satisfies) await setDoc.mutateAsync({ doc, attach: true });
       return { fileName: file.name, label: doc.label, total, clinCount, satisfies, readFailed };
@@ -697,7 +708,7 @@ function FilePage() {
     mutationFn: async (doc: RequiredDoc) => {
       const key = docKey(doc.field, doc.label);
       const row = attachmentFor(key);
-      if (row) await removeAttachment(row, user.name);
+      if (row) await removeAttachment(row, actorName);
       if (doc.field) await setDoc.mutateAsync({ doc, attach: false });
       return doc.label;
     },
@@ -728,7 +739,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Responsibility finding recorded",
         field: "responsibility_finding",
         old_value: finding,
@@ -759,7 +770,7 @@ function FilePage() {
   const scrub = useMutation({
     mutationFn: async (reason: string) => {
       if (!acq) return;
-      const who = await signedInName(user.name);
+      const who = await signedInName(actorName);
       const { error } = await supabase
         .from("acquisition_facts")
         .update({
@@ -790,7 +801,7 @@ function FilePage() {
   const launch = useMutation({
     mutationFn: async () => {
       if (!acq) return;
-      const who = await signedInName(user.name);
+      const who = await signedInName(actorName);
       const currentIndex = phases.findIndex((phase) => phase.phase === acq.current_phase);
       const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
       const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
@@ -834,7 +845,7 @@ function FilePage() {
   });
 
   const nearExport = useMutation({
-    mutationFn: async () => exportNearBundle(acquisitionId, user.name),
+    mutationFn: async () => exportNearBundle(acquisitionId, actorName),
     onSuccess: (r) => {
       setBanner(`Export ready: ${r.fileName}.`);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
@@ -888,7 +899,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Debriefing date recorded",
         field: "debriefing_date",
         old_value: debriefingDate ?? "",
@@ -916,7 +927,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: "Period of performance end recorded",
         field: "period_of_performance_end",
         old_value: (acq.period_of_performance_end as string | null) ?? "",
@@ -951,7 +962,7 @@ function FilePage() {
         throw new Error("Your role cannot change this file. Switch to the contracting specialist role");
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: input.action,
         field: input.field,
         old_value: String((acq as Record<string, unknown>)[input.field] ?? ""),
@@ -988,7 +999,7 @@ function FilePage() {
       if (error) throw error;
       await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
-        actor: user.name,
+        actor: actorName,
         action: input.action,
         field: input.field,
         old_value: String((pa as Record<string, string | undefined>)[input.field] ?? ""),
@@ -1016,7 +1027,7 @@ function FilePage() {
     URL.revokeObjectURL(url);
     void supabase.from("audit_log").insert({
       acquisition_id: acq.acquisition_id,
-      actor: user.name,
+      actor: actorName,
       action: "SF 30 modification handoff packet built",
       field: "modification",
       old_value: null,
@@ -1329,7 +1340,7 @@ function FilePage() {
         rows={q.data?.nfApprovals ?? []}
         routing={q.data?.memoRouting ?? []}
         canWrite={canWrite}
-        actor={user.name}
+        actor={actorName}
         onBanner={setBanner}
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }}
       />
