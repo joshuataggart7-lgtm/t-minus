@@ -275,11 +275,22 @@ function DocumentPage() {
         .select("target,label,value,source,source_date,confirmed,confirmed_by")
         .eq("acquisition_id", acquisitionId);
       // Public-source searches the engine ran on this file, one line per source.
-      const researchLog = await supabase
-        .from("research_log")
-        .select("source,query,result_count,outcome,ran_at")
+      // Only the most recent run is printed; earlier runs stay on the file page.
+      const latestRun = await supabase
+        .from("research_runs")
+        .select("run_id")
         .eq("acquisition_id", acquisitionId)
-        .order("ran_at", { ascending: true });
+        .order("ran_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const researchLog = latestRun.data?.run_id
+        ? await supabase
+            .from("research_log")
+            .select("source,query,result_count,outcome,ran_at")
+            .eq("acquisition_id", acquisitionId)
+            .eq("run_id", latestRun.data.run_id)
+            .order("ran_at", { ascending: true })
+        : { data: [] };
       const naics = String((acq.data as Record<string, unknown> | null)?.["naics_code"] ?? "");
       const sizeStandard = naics
         ? await supabase
