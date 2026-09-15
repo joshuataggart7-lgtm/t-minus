@@ -387,8 +387,9 @@ function FilePage() {
         q.data?.templates ?? [],
         phases.map((p) => p.phase),
         attachments,
+        acq ?? undefined,
       ),
-    [q.data?.documents, q.data?.templates, phases, attachments],
+    [q.data?.documents, q.data?.templates, phases, attachments, acq],
   );
 
   const boards = useMemo(() => {
