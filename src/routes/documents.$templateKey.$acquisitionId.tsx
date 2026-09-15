@@ -27,8 +27,10 @@ import {
 } from "@/lib/watch";
 import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import {
+  buildSequence,
   phaseForTemplate,
   pollBoard,
+  type PhasePlanRow,
   type AcqRow,
   type PollRow,
   type ReviewRuleRow,
@@ -292,6 +294,14 @@ function DocumentPage() {
         .from("document_attachments")
         .select("doc_label,nf_1098_tab,file_name,created_at")
         .eq("acquisition_id", acquisitionId);
+      // The memorandum for record drafts its chronology from the audit trail
+      // and the phase plan for this acquisition type.
+      const auditRows = await supabase
+        .from("audit_log")
+        .select("action,field,actor,reason,phase,created_at,old_value,new_value")
+        .eq("acquisition_id", acquisitionId)
+        .order("created_at", { ascending: true });
+      const phasePlan = await supabase.from("phase_plan").select("*");
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
         ? await supabase
@@ -301,6 +311,17 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        auditRows: (auditRows.data ?? []) as {
+          action: string;
+          field: string | null;
+          actor: string | null;
+          reason: string | null;
+          phase: string | null;
+          created_at: string;
+          old_value: string | null;
+          new_value: string | null;
+        }[],
+        phasePlan: (phasePlan.data ?? []) as PhasePlanRow[],
         researchLog: (researchLog.data ?? []) as {
           source: string;
           query: string;
@@ -654,6 +675,15 @@ function DocumentPage() {
       .map((i) => (i.tab && i.tab !== "—" && i.tab !== "N/A" ? `Tab ${i.tab} — ${i.label}` : i.label));
   }, [q.data]);
 
+  // The file's own launch sequence, for the chronology memorandum.
+  const filePhases = useMemo(
+    () =>
+      q.data?.acq
+        ? buildSequence(q.data.acq as AcqRow, q.data.phasePlan ?? [], todayISO(), daysBetween)
+        : [],
+    [q.data?.acq, q.data?.phasePlan],
+  );
+
   const draftCtx = useMemo(
     () => ({
       acquisitionId,
@@ -669,8 +699,19 @@ function DocumentPage() {
       awardDate,
       co: coRecord,
       today: todayISO(),
+      audit: (q.data?.auditRows ?? []).map((a) => ({
+        action: a.action,
+        field: a.field,
+        actor: a.actor,
+        reason: a.reason,
+        phase: a.phase,
+        at: a.created_at,
+        oldValue: a.old_value,
+        newValue: a.new_value,
+      })),
+      phases: filePhases.map((p) => ({ phase: p.phase, status: p.status })),
     }),
-    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord],
+    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases],
   );
 
   // Pre-fill from the record, or from the latest saved version.
