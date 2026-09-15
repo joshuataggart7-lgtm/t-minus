@@ -133,7 +133,7 @@ export type BuildMemoInput = {
   centerAddress: string;
   routing?: MemoRoutingRow | undefined;
   coName: string;
-  approvals: ApprovalForMemo[];
+  approvals?: ApprovalForMemo[];
   enclosures?: string[];
   today: string;
 };
