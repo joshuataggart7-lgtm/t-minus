@@ -36,7 +36,7 @@ import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } fro
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
-import { SCENARIO_DEFAULTS, type ScenarioAnswers } from "@/lib/scenario";
+import { SCENARIO_DEFAULTS, performanceDays, type ScenarioAnswers } from "@/lib/scenario";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -152,6 +152,10 @@ function IntakePage() {
   // Scenario answers. Every question carries a default, so nothing here can
   // stop the record being saved.
   const [scenario, setScenario] = useState<ScenarioAnswers>(SCENARIO_DEFAULTS);
+  const popDays = performanceDays({
+    period_of_performance_start: facts.period_of_performance_start,
+    period_of_performance_end: facts.period_of_performance_end,
+  });
   const setScen = <K extends keyof ScenarioAnswers>(key: K, value: ScenarioAnswers[K]) =>
     setScenario((prev) => ({ ...prev, [key]: value }));
   
