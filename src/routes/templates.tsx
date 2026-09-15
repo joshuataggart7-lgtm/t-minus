@@ -16,7 +16,13 @@ type TemplateRow = {
   citation_tier: string | null;
 };
 
-const liveKeyFor = (name: string) => TEMPLATES.find((t) => t.name === name)?.key ?? null;
+/** Register rows built as a mode of another live template rather than a page of their own. */
+const TEMPLATE_ALIASES: Record<string, string> = {
+  "Governmentwide Point of Entry (GPE) Templates": "n",
+};
+
+const liveKeyFor = (name: string) =>
+  TEMPLATES.find((t) => t.name === name)?.key ?? TEMPLATE_ALIASES[name] ?? null;
 
 function statusLabel(status: string | null) {
   if (!status) return "Planned";

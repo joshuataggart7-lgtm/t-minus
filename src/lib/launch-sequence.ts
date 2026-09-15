@@ -8,6 +8,7 @@ import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
+import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
 import {
   acquisitionProfile,
   exceptionLabel,
@@ -228,6 +229,7 @@ const LIVE_TEMPLATE_KEYS = new Set([
   "economy-act-determination",
   "commercial-tm-lh-determination",
   ...HQ_TEMPLATE_KEYS,
+  ...HQ4_TEMPLATE_KEYS,
 ]);
 
 /** Rows the scenario answers switch on for this phase. */
@@ -270,7 +272,14 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   const merged = extra.length ? [...base, ...extra] : base;
   if (variant && phase === "JOFOC") {
     return merged.map((d) =>
-      d.templateKey === "jofoc" ? { ...d, label: variant.label, citation: variant.citation } : d,
+      d.templateKey === "jofoc"
+        ? {
+            ...d,
+            label: variant.label,
+            citation: variant.citation,
+            ...(variant.templateKey ? { templateKey: variant.templateKey } : {}),
+          }
+        : d,
     );
   }
   return merged;
@@ -815,6 +824,16 @@ export function phaseForTemplate(templateKey: string): string {
     templateKey === "asm-not-conducted" || templateKey === "rdt-request-appointment")
     return "Intake";
   if (HQ_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
+  if (templateKey === "npa-notification") return "Intake";
+  if (templateKey === "jofoc-8a-over-30m" || templateKey === "jofoc-urgency" || templateKey === "limited-sources-justification")
+    return "JOFOC";
+  if (
+    templateKey === "gfp-determination" ||
+    templateKey === "uca-letter-contract" ||
+    templateKey === "precontract-costs-approval"
+  )
+    return "Solicitation/Quote";
+  if (HQ4_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
     return "Administration";
