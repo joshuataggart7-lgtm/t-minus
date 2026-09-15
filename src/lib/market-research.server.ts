@@ -135,7 +135,7 @@ function entitiesFromRaw(raw: unknown, naics: string): EngineEntity[] {
 
 function noticesFromRaw(raw: unknown): EngineNotice[] {
   const rows = array(object(raw)["opportunitiesData"] ?? object(raw)["data"]).map(object);
-  return rows.slice(0, 15).map((row) => ({
+  return rows.slice(0, 100).map((row) => ({
     title: text(row["title"]) || "Not reported",
     noticeType: text(row["type"], row["baseType"]) || "Not reported",
     posted: text(row["postedDate"]) || "Not reported",
