@@ -179,7 +179,8 @@ export function RequesterPackageDraft({
         <div role="tabpanel" className="mt-4 rounded-lg border border-border p-3">
           <label className="block text-[14px]">
             <span className="mb-2 flex items-center gap-2 font-medium"><Upload aria-hidden="true" />Upload {pasteKind}</span>
-            <input className="block w-full text-[13px]" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, pasteKind); event.target.value = ""; }} />
+            <input className="block w-full text-[13px]" type="file" onChange={(event) => { const file = event.target.files?.[0]; if (file) void addFile(file, pasteKind); event.target.value = ""; }} />
+            <span className="mt-1 block text-[13px] text-muted-foreground">PDF, Word, text, Excel or CSV.</span>
           </label>
           <div className="mt-4 grid gap-2 sm:grid-cols-[1fr_auto]">
             <textarea aria-label={`Paste ${pasteKind} text`} rows={2} className={inputClass} placeholder={`Paste ${pasteKind} text`} value={paste} onChange={(event) => setPaste(event.target.value)} />
