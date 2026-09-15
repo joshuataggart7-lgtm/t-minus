@@ -1,14 +1,13 @@
-// NF 1707 signature and concurrence blocks, read from the current form in
-// t-minus-seed/nf1707_fields_full.csv (field_kind = signature), kept in the
-// order they are printed on the form, with the block name exactly as printed.
+// NF 1707 (03/23) signature and concurrence blocks, in the order the form
+// prints them, with the block name exactly as printed.
 //
-// A block is only listed when the record makes that review apply: the funds
-// certification always applies, every other block applies when the gate
-// section that triggers it is answered yes (and, where the form prints the
-// block only for one Center, when the record is at that Center).
+// Visibility follows the form's own visibility scripts. Every block is hidden
+// unless its trigger is met; hidden blocks are still listed on the file under
+// "Not applicable to this action" with the reason, so nothing is dropped
+// silently.
 //
-// Blocks whose trigger is not stated by the form or a cited regulation are
-// listed in UNMAPPED_BLOCKS. They are never routed on a guess.
+// Funds certification is not a block on the NF 1707 — it is on the PR in SAP —
+// so it is not listed here.
 
 export type SignoffStatus = "not_sent" | "sent" | "concurred" | "non_concurred";
 
@@ -18,6 +17,8 @@ export const SIGNOFF_STATUS_LABEL: Record<SignoffStatus, string> = {
   concurred: "Concurred",
   non_concurred: "Non-concurred with comment",
 };
+
+export type SignoffAnswers = Record<string, string>;
 
 export type SignoffBlock = {
   /** Exactly as printed on the form. */
@@ -31,26 +32,93 @@ export type SignoffBlock = {
   /** Intake section the reviewer is reviewing. */
   sectionKey: string;
   sectionTitle: string;
-  /** Gate answer that makes the block apply; null means it always applies. */
-  gate: "services" | "it" | "hardware" | "space" | "aviation" | "hazards" | null;
-  /** Extra condition on the stored answers. */
-  requiresAnswer?: { key: string; equals: string[] };
-  /** Only printed for this Center. */
-  center: string | null;
+  /** Default reviewer title when the Center routing table has no entry. */
+  defaultTitle: string;
   citation: string;
+  /** Plain reason shown when the block is hidden. */
+  hiddenReason: string;
+  /** Form visibility rule. */
+  applies: (a: SignoffAnswers, center: string) => boolean;
 };
+
+const on = (a: SignoffAnswers, ...keys: string[]) =>
+  keys.some((k) => a[k] === "true" || a[k] === "1" || a[k] === "yes");
+
+/** Section 6-I exclusions: NPR 8735.2C does not apply, so no Quality POC. */
+const QUALITY_EXCLUSIONS = [
+  "s6_exempt_it_infra",
+  "s6_exempt_it_services",
+  "s6_exempt_software",
+  "s6_exempt_facilities",
+  "s6_exempt_agreement",
+  "Section6s1.Section6s1.S6In2",
+  "Section6s1.Section6s1.S6In3",
+  "Section6s1.Section6s1.S6In4",
+  "Section6s1.Section6s1.S6In6",
+  "Section6s1.Section6s1.S6In9",
+];
+
+/** Any Green Procurement Compilation waiver reason checked at ARC. */
+const ARC_WAIVER_REASONS = [
+  "s3_waiver1",
+  "s3_waiver2",
+  "s3_waiver3",
+  "s3_waiver4",
+  "Section3Old.ARC1.Waiver",
+  "Section3Old.ARC1.Waiver1",
+  "Section3Old.ARC1.Waiver2",
+  "Section3Old.ARC1.Waiver3",
+  "Section3Old.ARC1.Waiver4",
+];
 
 export const SIGNOFF_BLOCKS: SignoffBlock[] = [
   {
-    blockName: "Funds certification",
-    formSection: "Record",
-    sigField: "",
-    textField: null,
+    blockName: "Approver Approval",
+    formSection: "Header",
+    sigField: "HeaderWrapper.ApproverApproval.ApproverApprovalConcurrenceSig",
+    textField: "HeaderWrapper.ApproverApproval.ApproverApprovalConcurrence",
     sectionKey: "record",
-    sectionTitle: "Funding on the record",
-    gate: null,
-    center: null,
-    citation: "FAR 32.702; NFS 1832.702",
+    sectionTitle: "Requirement record",
+    defaultTitle: "Requisition approver",
+    citation: "NF 1707 (03/23) header",
+    hiddenReason: "",
+    applies: () => true,
+  },
+  {
+    blockName: "Requisitioner Approval",
+    formSection: "Header",
+    sigField: "HeaderWrapper.GRC1Approval.GRC1ConcurrenceSig",
+    textField: "HeaderWrapper.GRC1Approval.GRC1Concurrence",
+    sectionKey: "record",
+    sectionTitle: "Requirement record",
+    defaultTitle: "Requisitioner",
+    citation: "NF 1707 (03/23) header, GRC",
+    hiddenReason: "Printed only at GRC.",
+    applies: (_a, center) => center === "GRC",
+  },
+  {
+    blockName: "KSC Environmental Management Branch Approval",
+    formSection: "Section 3",
+    sigField: "Section3Old.KSC2Approval.KSC2ConcurrenceSig",
+    textField: "Section3Old.KSC2Approval.KSC2Concurrence",
+    sectionKey: "3",
+    sectionTitle: "Environmental",
+    defaultTitle: "Environmental Management Branch",
+    citation: "NF 1707 Section 3, KSC waiver for sustainable acquisition",
+    hiddenReason: "Printed only at KSC.",
+    applies: (_a, center) => center === "KSC",
+  },
+  {
+    blockName: "Environmental Management Branch Approval",
+    formSection: "Section 3",
+    sigField: "Section3Old.ARC1Approval.ARC1ConcurrenceSig",
+    textField: "Section3Old.ARC1Approval.ARC1Concurrence",
+    sectionKey: "3",
+    sectionTitle: "Environmental",
+    defaultTitle: "Environmental Management Branch",
+    citation: "NF 1707 Section 3, ARC waiver for sustainable acquisition",
+    hiddenReason: "Printed at ARC only when a waiver from the Green Procurement Compilation requirement is requested.",
+    applies: (a, center) => center === "ARC" && on(a, ...ARC_WAIVER_REASONS),
   },
   {
     blockName: "Quality Point of Contact Signature",
@@ -59,9 +127,10 @@ export const SIGNOFF_BLOCKS: SignoffBlock[] = [
     textField: "Section6s5.Section6s5.QualityPOCTxt",
     sectionKey: "6",
     sectionTitle: "Quality assurance",
-    gate: "hardware",
-    center: null,
-    citation: "NPR 8735.2C; FAR 46.202-4",
+    defaultTitle: "Quality point of contact",
+    citation: "NPR 8735.2C; NF 1707 Section 6-I",
+    hiddenReason: "Hidden when a Section 6-I exclusion is checked, and at SSC.",
+    applies: (a, center) => center !== "SSC" && !on(a, ...QUALITY_EXCLUSIONS),
   },
   {
     blockName: "Center GIDEP Coordinator Signature",
@@ -70,10 +139,10 @@ export const SIGNOFF_BLOCKS: SignoffBlock[] = [
     textField: "Section6s7.Section6s7.CenterGIDEPTxt",
     sectionKey: "6",
     sectionTitle: "Quality assurance",
-    gate: "hardware",
-    requiresAnswer: { key: "s6_gidep", equals: ["yes"] },
-    center: null,
-    citation: "NPD 8730.2; NF 1707 Section 6",
+    defaultTitle: "Center GIDEP coordinator",
+    citation: "NPR 8735.1; NF 1707 Section 6-IV",
+    hiddenReason: "Printed only when the procurement is for safety critical items.",
+    applies: (a) => on(a, "s6_gidep", "Section6s6.Section6s6.S6VIn1"),
   },
   {
     blockName: "Health & Safety Signature",
@@ -82,37 +151,49 @@ export const SIGNOFF_BLOCKS: SignoffBlock[] = [
     textField: "Section7.HnS.HnSTxt",
     sectionKey: "7",
     sectionTitle: "Safety and health",
-    gate: "hazards",
-    center: null,
+    defaultTitle: "Health and safety official",
     citation: "NPR 8715.3; NF 1707 Section 7",
+    hiddenReason: "",
+    applies: () => true,
   },
+  {
+    blockName: "KSC PSM Approval",
+    formSection: "Section 7",
+    sigField: "PSMSigS5.PSMSigS5.PSMApprovalSig",
+    textField: "PSMSigS5.PSMSigS5.PSMApproval",
+    sectionKey: "7",
+    sectionTitle: "Safety and health",
+    defaultTitle: "KSC Pressure Systems Manager",
+    citation: "NPD 8710.5; NF 1707 Section 6-IV, KSC",
+    hiddenReason: "Printed at KSC only when pressure vessels or systems are checked.",
+    applies: (a, center) =>
+      center === "KSC" && on(a, "s7_pressure", "Section6s7.KSC4s1.KSC4c2"),
+  },
+  ...(["Radiation", "ESO", "BSO", "Safety", "SHRB"] as const).map((k) => ({
+    blockName: `KSC-DL-1707-${k}@mail.nasa.gov Approval`,
+    formSection: "Section 7",
+    sigField: `Section7.${k === "Radiation" ? "HealthApprove.HealthApprovalSig" : k === "ESO" ? "SafetyApprove.SafetyApprovalSig" : k === "BSO" ? "BSOApprove.BSOApprovalSig" : k === "Safety" ? "Safety2Approve.Safety2ApprovalSig" : "SHRBApprove.SHRBApprovalSig"}`,
+    textField: null,
+    sectionKey: "7",
+    sectionTitle: "Safety and health",
+    defaultTitle: `KSC ${k} routing`,
+    citation: "NF 1707 Section 7, KSC routing",
+    hiddenReason: "Printed only at KSC, by the Section 7 hazard boxes checked.",
+    applies: (_a: SignoffAnswers, center: string) => center === "KSC",
+  })),
 ];
 
-/** Printed blocks whose trigger the form does not state. Never routed on a guess. */
-export const UNMAPPED_BLOCKS: { blockName: string; formSection: string; center: string | null }[] = [
-  { blockName: "Approver Approval", formSection: "Header", center: null },
-  { blockName: "Requisitioner Approval", formSection: "Header", center: "GRC" },
-  { blockName: "KSC Environmental Management Branch Approval", formSection: "Section 3", center: "KSC" },
-  { blockName: "Environmental Management Branch Approval", formSection: "Section 3", center: "ARC" },
-  { blockName: "KSC PSM Approval", formSection: "Section 7", center: "KSC" },
-  { blockName: "KSC-DL-1707-Radiation@mail.nasa.gov Approval", formSection: "Section 7", center: "KSC" },
-  { blockName: "KSC-DL-1707-ESO@mail.nasa.gov Approval", formSection: "Section 7", center: "KSC" },
-  { blockName: "KSC-DL-1707-BSO@mail.nasa.gov Approval", formSection: "Section 7", center: "KSC" },
-  { blockName: "KSC-DL-1707-Safety@mail.nasa.gov Approval", formSection: "Section 7", center: "KSC" },
-  { blockName: "KSC-DL-1707-SHRB@mail.nasa.gov Approval", formSection: "Section 7", center: "KSC" },
-];
-
-/** Which blocks the record makes apply, in form order. */
-export function applicableBlocks(answers: Record<string, string>, centerCode: string | null): SignoffBlock[] {
-  return SIGNOFF_BLOCKS.filter((block) => {
-    if (block.center && block.center !== (centerCode ?? "")) return false;
-    if (block.gate && answers[`gate.${block.gate}`] !== "yes") return false;
-    if (block.requiresAnswer && !block.requiresAnswer.equals.includes(answers[block.requiresAnswer.key] ?? "")) return false;
-    return true;
-  });
+/** Which blocks the form shows for this record, in form order. */
+export function applicableBlocks(answers: SignoffAnswers, centerCode: string | null): SignoffBlock[] {
+  return SIGNOFF_BLOCKS.filter((b) => b.applies(answers, centerCode ?? ""));
 }
 
-/** Reviewer title from the Center routing table, falling back to the block name. */
+/** Blocks the form hides for this record, in form order. */
+export function hiddenBlocks(answers: SignoffAnswers, centerCode: string | null): SignoffBlock[] {
+  return SIGNOFF_BLOCKS.filter((b) => !b.applies(answers, centerCode ?? ""));
+}
+
+/** Reviewer title from the Center routing table, falling back to the form's own title. */
 export function reviewerTitle(
   block: SignoffBlock,
   routing: { center_code: string; document_key: string; approving_official_title: string }[],
@@ -122,7 +203,7 @@ export function reviewerTitle(
   const match =
     routing.find((r) => r.document_key === key && r.center_code === (centerCode ?? "")) ??
     routing.find((r) => r.document_key === key);
-  return match?.approving_official_title ?? block.blockName;
+  return match?.approving_official_title ?? block.defaultTitle;
 }
 
 /**
@@ -139,7 +220,7 @@ export function signatureCells(
     if (block.sigField) out[block.sigField] = "";
     if (block.textField) {
       const date = (row.completed_at ?? "").slice(0, 10);
-      out[block.textField] = [row.owner_name ?? "", row.approval_role ?? block.blockName, date].filter(Boolean).join(", ");
+      out[block.textField] = [row.owner_name ?? "", row.approval_role ?? block.defaultTitle, date].filter(Boolean).join(", ");
     }
   }
   return out;
