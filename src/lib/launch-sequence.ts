@@ -419,17 +419,41 @@ export type BoardEntry = {
   note: string | null;
 };
 
+export type ReviewerPerson = { name: string; title?: string | null; center_code?: string | null };
+
 /**
- * The reviewer who holds a review when no poll row names one. Names come from
- * the five seeded users, so no owner ever reads "Not yet assigned".
+ * The office that holds each review. A review belongs to a role, never to a
+ * person by default; the person is whoever holds that role at the Center.
  */
-export function reviewerNameForRole(role: string): string {
+export function reviewerTitleForRole(role: string): string {
   const r = role.toLowerCase();
-  if (/legal|counsel|pricing|small business|quality|aviation|flight|508|cio|it\b|security/.test(r))
-    return "P. Osei (fictional counsel)";
-  if (/anosca|npa|announcement|enterprise strategy|procurement strategy|notification/.test(r))
-    return "R. Calder (fictional)";
-  return "J. Rivera (fictional CO)";
+  if (/legal|counsel/.test(r)) return "Center Chief Counsel";
+  if (/small business/.test(r)) return "Center Small Business Specialist";
+  if (/flight operations|aviation/.test(r)) return "Flight Operations Office";
+  if (/enterprise strategy/.test(r)) return "OP enterprise strategy owner";
+  if (/pricing/.test(r)) return "Center Pricing Officer";
+  if (/quality/.test(r)) return "Center Quality Assurance Officer";
+  if (/508|cio|ocio|it authorization|security/.test(r)) return "Center Chief Information Officer";
+  if (/anosca|npa|announcement|notification|sources sought/.test(r)) return "Center Procurement Officer";
+  if (/procurement strategy|acquisition plan/.test(r)) return "Center Procurement Officer";
+  return role;
+}
+
+/**
+ * The person holding a review, looked up by role from the Center's reviewer
+ * table. When nobody holds the role the row names the role, never a person who
+ * happens to be a reviewer elsewhere.
+ */
+export function reviewerNameForRole(
+  role: string,
+  center: string | null = null,
+  roster: ReviewerPerson[] = [],
+): string {
+  const title = reviewerTitleForRole(role).toLowerCase();
+  const match = (p: ReviewerPerson) => (p.title ?? "").trim().toLowerCase() === title;
+  const atCenter = roster.find((p) => match(p) && (p.center_code ?? "") === (center ?? ""));
+  const anywhere = atCenter ?? roster.find((p) => match(p) && (p.center_code ?? "") === "HQ");
+  return anywhere?.name ?? `Unassigned, role: ${reviewerTitleForRole(role)}`;
 }
 
 export function pollBoard(
@@ -439,16 +463,22 @@ export function pollBoard(
   ref: RefData,
   dueDate: string | null,
   phase = "Go/No-go Poll",
+  roster: ReviewerPerson[] = [],
 ): BoardEntry[] {
   const forPhase = polls.filter((p) => (p.phase ?? "Go/No-go Poll") === phase);
+  const center = (acq['center_code'] ?? null) as string | null;
   return reviewRulesForPhase(phase, acq, rules, ref).map((r) => {
     const row = forPhase.find((p) => (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase());
     const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
+    // The role decides the person. A name stored on a cast vote stands, because
+    // that person actually voted; an unvoted row always reads from the roster.
+    const byRole = reviewerNameForRole(r.reviewer_role, center, roster);
+    const voted = vote === "go" || vote === "no-go";
     return {
       poll_id: row?.poll_id ?? null,
       phase,
       reviewer_role: r.reviewer_role,
-      reviewer_name: row?.reviewer_name ?? reviewerNameForRole(r.reviewer_role),
+      reviewer_name: (voted ? row?.reviewer_name : null) ?? byRole,
       vote: vote === "go" || vote === "no-go" ? vote : "pending",
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,

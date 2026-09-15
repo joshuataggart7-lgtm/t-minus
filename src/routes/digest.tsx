@@ -56,7 +56,7 @@ function DigestPage() {
           .order("logged_at", { ascending: false })
           .limit(500),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
-        supabase.from("users").select("name,role,center_code,supervisor_name,supervisor_email"),
+        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
       ]);
       return {
         missions: (missions.data ?? []) as unknown as MissionRow[],
@@ -103,6 +103,7 @@ function DigestPage() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
+        roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,
         polls: q.data.polls,
