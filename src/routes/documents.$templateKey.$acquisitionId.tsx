@@ -720,6 +720,12 @@ function DocumentPage() {
       acq: q.data?.acq ?? {},
       missionName: q.data?.missionName ?? "",
       fileDocuments: q.data?.fileDocuments ?? [],
+      jofocValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /justification|jofoc/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
       evidence: researchEvidence,
       findings: q.data?.findings ?? {},
       researchLog,
