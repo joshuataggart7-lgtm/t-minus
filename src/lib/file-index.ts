@@ -63,9 +63,13 @@ export function tabRank(tab: string | null | undefined): number {
 const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 
 /** Tabs the acquisition type requires, from the phases in its sequence. */
-export function requiredTabs(phases: string[]): IndexTab[] {
+export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
   const inSequence = new Set(phases.map((p) => p.toLowerCase()));
   return TEMPLATES.filter((t) => (CORE_KEYS as readonly string[]).includes(t.key))
+    // The technical evaluation report is required only for a sole-source
+    // proposal above the simplified acquisition threshold; on a competed
+    // simplified acquisition it is offered, not required.
+    .filter((t) => t.key !== "technical-evaluation-report" || isTerRequired(acq))
     .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
     .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
