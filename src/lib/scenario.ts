@@ -126,6 +126,8 @@ export type TriggerDoc = {
   phase: string;
   state: TriggerState;
   templateKey?: string;
+  /** Template chosen from the record, where the row has variants. */
+  templateKeyFor?: (c: ScenarioContext) => string | null;
   formKey?: string;
   /** NF 1098 tab an attached external copy is filed under. */
   tab?: string;
@@ -187,11 +189,11 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value at or above $10,000,000",
     when: (c) => c.value >= 10_000_000,
     docs: [
-      { doc_key: "written-acquisition-plan", label: "Written acquisition plan", citation: "NFS CG 1807.11", phase: "Intake", state: "required", tab: "005" },
-      { doc_key: "psm-signature-page", label: "PSM signature page", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", tab: "005" },
-      { doc_key: "rdt-request-appointment", label: "RDT request and appointment letters", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", tab: "005" },
-      { doc_key: "psm-executive-presentation", label: "PSM executive presentation", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", tab: "005" },
-      { doc_key: "asm-not-conducted", label: "ASM not conducted memorandum", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", tab: "005" },
+      { doc_key: "written-acquisition-plan", label: "Written acquisition plan", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "written-acquisition-plan", tab: "005", note: "The PSM chart package supersedes the written acquisition plan unless the Senior Procurement Executive asks for one." },
+      { doc_key: "psm-signature-page", label: "PSM signature page", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "psm-signature-page", tab: "005" },
+      { doc_key: "rdt-request-appointment", label: "RDT request and appointment letters", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "rdt-request-appointment", tab: "005" },
+      { doc_key: "psm-executive-presentation", label: "PSM executive presentation", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "psm-executive-presentation", tab: "005" },
+      { doc_key: "asm-not-conducted", label: "ASM not conducted memorandum", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "asm-not-conducted", tab: "005" },
     ],
   },
   {
