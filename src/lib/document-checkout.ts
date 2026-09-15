@@ -86,6 +86,9 @@ export async function claimCheckout(args: {
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) return null;
+  // The check-out records the account display name, so a lapse row later reads
+  // "Check-out by Joshua Taggart lapsed", never a placeholder.
+  const userName = await signedInName(args.userName);
 
   const existing = await supabase
     .from("document_checkouts")
