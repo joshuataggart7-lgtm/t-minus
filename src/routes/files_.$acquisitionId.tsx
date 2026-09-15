@@ -1808,6 +1808,17 @@ function FilePage() {
                     </div>
                   </div>
 
+                  {/* A clause delta only exists once there is a contract to modify. */}
+                  {!String(acq?.contract_number ?? "").trim() ? (
+                    <div className="border border-border p-4">
+                      <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
+                      <p className="mt-1 text-[13px] text-muted-foreground">
+                        No contract number is recorded on this file yet. The clause delta appears after award, when
+                        there is a contract to modify. Until then, clause changes are re-checked against the
+                        solicitation.
+                      </p>
+                    </div>
+                  ) : (
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
