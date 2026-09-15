@@ -113,9 +113,8 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
 
 type Mode = "novice" | "veteran";
 
-/** The prototype has one seeded reviewer account; every review seat is
- *  assigned to it so the demo path can vote. */
-const REVIEWER_NAME = userForRole("reviewer").name;
+/* Reviewer names come from the Center reviewer table at the moment the poll
+ * opens, the same source the poll board reads. */
 
 function statusColor(state: string | null | undefined) {
   if (state === "hold") return "var(--atrisk)";
