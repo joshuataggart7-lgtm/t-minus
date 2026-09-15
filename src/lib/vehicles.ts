@@ -82,7 +82,9 @@ export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label
   { key: "brand_name", label: "Brand name", citation: "FAR 16.505(a)(4)" },
 ];
 
-export function exceptionLabel(key: string): { label: string; citation: string } | null {
+export function exceptionLabel(
+  key: string,
+): { key: FairOpportunityException; label: string; citation: string } | null {
   return FAIR_OPPORTUNITY_EXCEPTIONS.find((e) => e.key === key) ?? null;
 }
 
