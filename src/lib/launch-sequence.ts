@@ -272,7 +272,14 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   const merged = extra.length ? [...base, ...extra] : base;
   if (variant && phase === "JOFOC") {
     return merged.map((d) =>
-      d.templateKey === "jofoc" ? { ...d, label: variant.label, citation: variant.citation } : d,
+      d.templateKey === "jofoc"
+        ? {
+            ...d,
+            label: variant.label,
+            citation: variant.citation,
+            ...(variant.templateKey ? { templateKey: variant.templateKey } : {}),
+          }
+        : d,
     );
   }
   return merged;
@@ -817,6 +824,16 @@ export function phaseForTemplate(templateKey: string): string {
     templateKey === "asm-not-conducted" || templateKey === "rdt-request-appointment")
     return "Intake";
   if (HQ_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
+  if (templateKey === "npa-notification") return "Intake";
+  if (templateKey === "jofoc-8a-over-30m" || templateKey === "jofoc-urgency" || templateKey === "limited-sources-justification")
+    return "JOFOC";
+  if (
+    templateKey === "gfp-determination" ||
+    templateKey === "uca-letter-contract" ||
+    templateKey === "precontract-costs-approval"
+  )
+    return "Solicitation/Quote";
+  if (HQ4_TEMPLATE_KEYS.includes(templateKey)) return "Market Research";
   if (templateKey === "option-justification") return "Solicitation/Quote";
   if (templateKey === "option-exercise-determination" || templateKey === "option-exercise-notification")
     return "Administration";
