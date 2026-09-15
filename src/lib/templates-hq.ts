@@ -135,8 +135,8 @@ const generalDescription = (typeLabel: string): SectionDef => ({
 // ------------------------------------------------------------------ 1. WAP
 const writtenAcquisitionPlan: TemplateDef = {
   key: "written-acquisition-plan",
-  name: "Written Acquisition Plan",
-  tab: "005",
+  name: "Written Acquisition Plan Template for Contracts",
+  tab: "002",
   layout: "plan",
   badge: {
     citation: "FAR Subpart 7.1; NFS Subpart 1807.1; NFS 1807.103",
@@ -419,7 +419,7 @@ const backupChart = (title: string, citation: string, fields: FieldDef[]): Secti
 const psm: TemplateDef = {
   key: "psm-executive-presentation",
   name: "Procurement Strategy Meeting Executive Presentation",
-  tab: "005",
+  tab: "002",
   layout: "plan",
   badge: {
     citation: "FAR Subpart 7.1; NFS Subpart 1807.1; PIC 25-03A; PIC 24-04A",
@@ -586,8 +586,8 @@ const psm: TemplateDef = {
 // ------------------------------------------------------- 3. PSM signature page
 const psmSignaturePage: TemplateDef = {
   key: "psm-signature-page",
-  name: "Procurement Strategy Meeting Signature Page",
-  tab: "005",
+  name: "Procurement Strategy Meeting Signature Page Template for Contracts",
+  tab: "002",
   layout: "plan",
   badge: {
     citation: "NFS 1807.103; PIC 24-06",
@@ -632,8 +632,8 @@ const psmSignaturePage: TemplateDef = {
 // ------------------------------------------------------------ 4. PSM addendum
 const psmAddendum: TemplateDef = {
   key: "psm-addendum",
-  name: "Addendum Outlining Significant Changes to an Approved PSM or Written Acquisition Plan",
-  tab: "005",
+  name: "Addendum Outlining Significant Changes to Approved PSMs / Written Acquisition Plans Template",
+  tab: "002",
   layout: "memo",
   badge: {
     citation: "NFS 1807.103(j)(vii); NFS 1802.101",
@@ -695,8 +695,8 @@ const psmAddendum: TemplateDef = {
 // --------------------------------------------------------- 5. ASM not conducted
 const asmNotConducted: TemplateDef = {
   key: "asm-not-conducted",
-  name: "Determination That an Acquisition Strategy Meeting Is Not Conducted",
-  tab: "005",
+  name: "Determination ASM Not Conducted Memorandum",
+  tab: "002",
   layout: "memo",
   badge: {
     citation: "NPD 1000.5; NPD 1000.3, Chapter 6.1; NAII 1000.1; PIC 24-06",
@@ -784,8 +784,8 @@ const RDT_CHECKLIST = [
 
 const rdtLetters: TemplateDef = {
   key: "rdt-request-appointment",
-  name: "Requirements Development Team Request and Appointment Letters",
-  tab: "005",
+  name: "Requirements Development Team Request & Appointment Letters",
+  tab: "002",
   layout: "memo",
   badge: {
     citation: "FAR Part 7; FAR 3.104; NFS 1803.104; NFS 1804.7103",
@@ -873,7 +873,7 @@ function contractTypeDandF(opts: {
   return {
     key: opts.key,
     name: opts.name,
-    tab: "010",
+    tab: "003",
     layout: "dandf",
     badge: opts.badge,
     lead: `Determination and findings supporting a ${opts.typeLabel} contract.`,
@@ -1228,7 +1228,7 @@ function tmLhDandF(opts: {
   return {
     key: opts.key,
     name: opts.name,
-    tab: "010",
+    tab: "003",
     layout: "dandf",
     badge: opts.badge,
     lead: "Determination and findings supporting a time-and-materials or labor-hour action.",
@@ -1238,7 +1238,7 @@ function tmLhDandF(opts: {
 
 const dandfTmLhNoncommercial = tmLhDandF({
   key: "dandf-tm-lh-noncommercial",
-  name: "Determination and Findings Noncommercial Time and Materials or Labor Hour Contract or Order",
+  name: "Determination and Findings Noncommercial Time and Materials or Labor Hour Contract / Order",
   instrumentOptions: ["Contract", "Order"],
   titleLine: "Authority to enter into a Time and Materials (T&M) or Labor Hour Contract/Order.",
   authoritySentence:
@@ -1295,8 +1295,8 @@ const dandfGsaTmLh = tmLhDandF({
 // ----------------------------------------------- 13. Over five years D&F
 const dandfOverFiveYears: TemplateDef = {
   key: "dandf-pop-over-five-years",
-  name: "Determination and Findings Period of Performance or Ordering Period Exceeding 5 Years",
-  tab: "010",
+  name: "Determination and Findings POP or Ordering Period Over 5 years",
+  tab: "003",
   layout: "dandf",
   badge: {
     citation: "FAR 17.204; NFS 1817.204(e)(5); NFS 1816.505-71; FAR 16.501-2(c); 10 U.S.C. 3206(c)",
@@ -1387,8 +1387,8 @@ const dandfOverFiveYears: TemplateDef = {
 // ------------------------------------------- 14. Single award IDIQ over $150M
 const dandfSingleAwardIdiq: TemplateDef = {
   key: "dandf-single-award-idiq",
-  name: "Determination and Findings Single Award IDIQ Contract Over $150 Million",
-  tab: "010",
+  name: "Determination and Findings Single Award IDIQ Contract Over $150M",
+  tab: "011",
   layout: "dandf",
   badge: {
     citation: "FAR 16.504-3(a)(4)(i); NFS 1816.504(c)(1)(ii)(D)(1)",
@@ -1487,8 +1487,8 @@ const dandfSingleAwardIdiq: TemplateDef = {
 // ------------------------------------------------ 15. Five-year deviation request
 const popDeviationRequest: TemplateDef = {
   key: "pop-deviation-request",
-  name: "FAR Period of Performance and Ordering Period Duration Deviation Request",
-  tab: "010",
+  name: "FAR Period of Performance-Ordering Period Deviation",
+  tab: "033",
   layout: "memo",
   badge: {
     citation: "FAR/RFO 1.303; FAR/RFO 16.501-2(c); 10 U.S.C. 3403; 10 U.S.C. 3405; 41 U.S.C. 6707(d)",
