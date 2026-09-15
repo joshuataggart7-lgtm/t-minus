@@ -15,6 +15,8 @@ export type CenterRow = {
 export type UserRow = {
   name: string;
   role?: string | null;
+  /** The office the person holds, which is what assigns them a review. */
+  title?: string | null;
   center_code?: string | null;
   supervisor_name?: string | null;
   supervisor_email?: string | null;
