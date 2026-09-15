@@ -8,6 +8,7 @@ import { matchStrategy, type RefData } from "@/lib/intake";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
+import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
 import {
   acquisitionProfile,
   exceptionLabel,
@@ -228,6 +229,7 @@ const LIVE_TEMPLATE_KEYS = new Set([
   "economy-act-determination",
   "commercial-tm-lh-determination",
   ...HQ_TEMPLATE_KEYS,
+  ...HQ4_TEMPLATE_KEYS,
 ]);
 
 /** Rows the scenario answers switch on for this phase. */
