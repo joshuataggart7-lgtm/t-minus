@@ -9,6 +9,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole } from "@/lib/actor";
 import { templateByKey } from "@/lib/template-engine";
 
 /** The only fields a model may write. */
@@ -87,16 +88,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       throw new Error("Only Items 5, 8, 9 and 11 are drafted. The other items bind to the record.");
     }
 
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me || !["specialist", "hq"].includes(me.role)) {
-      throw new Error("Drafting is available to the contracting specialist and HQ roles.");
-    }
-
+    const me = await requireRole(context, ["specialist", "hq"], "Drafting is available to the contracting specialist and HQ roles.");
     const rawKey = process.env["ANTHROPIC_API_KEY"]?.trim();
     console.log(`[Claude] key present: ${Boolean(rawKey)}; length: ${rawKey?.length ?? 0}`);
     if (!rawKey) throw new Error("The Claude API key has not been configured. Enter it in the secret dialog.");

@@ -76,6 +76,24 @@ export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; no
   { to: "/estimate", label: "Estimate", roles: ["specialist", "hq"] },
 ];
 
+// What each role is called on screen and in Center configuration.
+export const ROLE_LABELS: Record<RoleId, string> = {
+  executive: "Executive",
+  specialist: "Contracting",
+  reviewer: "Reviewer",
+  requester: "Requester",
+  hq: "HQ",
+};
+
+// The value stored on a profile for each role.
+export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
+  executive: "executive",
+  specialist: "contracting",
+  reviewer: "reviewer",
+  requester: "requester",
+  hq: "hq",
+};
+
 export function userForRole(role: RoleId): SeededUser {
   return SEEDED_USERS.find((u) => u.role === role) ?? SEEDED_USERS[0]!;
 }

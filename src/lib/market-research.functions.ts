@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireRole } from "@/lib/actor";
 import type { ResearchFinding } from "@/lib/research-findings";
 
 /**
@@ -42,16 +43,7 @@ export const runMarketResearch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => runSchema.parse(input))
   .handler(async ({ data, context }): Promise<ResearchRunView> => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me || !["specialist", "reviewer", "hq"].includes(me.role)) {
-      throw new Error("Market research is run by the contracting, reviewer and HQ roles.");
-    }
-
+    const me = await requireRole(context, ["specialist", "reviewer", "hq"], "Market research is run by the contracting, reviewer and HQ roles.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { runEngine, draftFindings } = await import("@/lib/market-research.server");
 
@@ -204,15 +196,7 @@ export const confirmResearchFindings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => confirmSchema.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: me, error: meError } = await context.supabase
-      .from("users")
-      .select("name,role")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    if (meError) throw new Error(meError.message);
-    if (!me || !["specialist", "hq"].includes(me.role)) {
-      throw new Error("Only the contracting officer or specialist confirms a researched value.");
-    }
+    const me = await requireRole(context, ["specialist", "hq"], "Only the contracting officer or specialist confirms a researched value.");
     const now = new Date().toISOString();
     const { error } = await context.supabase
       .from("research_findings")
