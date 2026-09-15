@@ -427,7 +427,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
               {Math.abs(driver.daysToAward)} days overdue
             </p>
           ) : (
-            <p className="clock-figure" data-numeric>
+            <p className="text-[28px] leading-8 font-semibold" data-numeric>
               {driver.daysToAward}
             </p>
           )}
@@ -438,7 +438,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
 
         <div className="min-w-0 sm:col-span-2 xl:col-span-3 border-t border-border pt-3">
           <p
-            className="text-[18px] leading-6 font-semibold"
+            className="text-[12px] font-medium uppercase tracking-wide"
             style={atRisk ? { color: "var(--atrisk)" } : undefined}
           >
             {driver.status}
