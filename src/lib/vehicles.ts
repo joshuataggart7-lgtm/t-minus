@@ -195,7 +195,7 @@ export function modRows(
       templateKey: "pnm",
     });
   }
-  if (opts.outOfScope) {
+  if (outOfScope) {
     rows.push({
       label: "Justification for other than full and open competition, out-of-scope modification",
       citation: "FAR 6.104",

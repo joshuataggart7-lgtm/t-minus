@@ -69,7 +69,7 @@ export function ModificationsPanel({
         value_change: valueChange.trim() ? Number(valueChange) : null,
         period_change_end: periodEnd || null,
         funds_line: fundsLine.trim() || null,
-        clause_delta: [],
+        clause_delta: outOfScope ? [{ key: "out_of_scope", value: true }] : [],
         state: "draft",
       };
       const { error } = await supabase.from("contract_modifications").insert(payload as never);
