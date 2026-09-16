@@ -810,6 +810,22 @@ function DocumentPage() {
     [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
   );
 
+  // The quoters on the evaluation record, so the unsuccessful letter names the
+  // company on each slot rather than "Offeror 2", and never the awardee.
+  const quoterSlots = useMemo(() => {
+    const e = draftCtx.evaluationValues ?? {};
+    const awarded = String(e["recommended_quoter"] ?? "").trim().toLowerCase();
+    const rows: { slot: string; name: string; awarded: boolean }[] = [];
+    for (let i = 1; i <= 4; i += 1) {
+      const name = String(e[`quoter_${i}_name`] ?? "").trim();
+      if (!name) continue;
+      rows.push({ slot: `Offeror ${i}`, name, awarded: name.toLowerCase() === awarded });
+    }
+    return rows;
+  }, [draftCtx.evaluationValues]);
+
+
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
