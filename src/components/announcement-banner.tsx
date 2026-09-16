@@ -61,6 +61,7 @@ export function AnnouncementBanner() {
     }
   };
 
+  if (presenter) return null;
   return (
     <div className="relative shrink-0">
       <button
