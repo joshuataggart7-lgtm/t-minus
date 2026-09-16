@@ -2876,6 +2876,18 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <SolicitationKlmPanel
+                    acquisitionId={acquisitionId}
+                    shell={shell}
+                    clauses={packetSelection}
+                    simplifiedCommercial={Boolean(acq && isSimplifiedCommercial(acq as Record<string, unknown>))}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
+                  <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                    {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
+                  </p>
                   <FormatScaffoldPanel scaffold={formatScaffold} />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">
