@@ -39,6 +39,10 @@ export function MarketResearchEngine({
   const [findings, setFindings] = useState<ResearchFinding[] | null>(null);
   const [log, setLog] = useState<ResearchLogEntry[] | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
+  // Sources Sought notices from the latest run, named as their own group.
+  const [sourcesSought, setSourcesSought] = useState<
+    { title: string; posted: string; setAside: string }[] | null
+  >(null);
   const [message, setMessage] = useState<string | null>(null);
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
