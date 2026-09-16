@@ -1844,3 +1844,19 @@ Regulation change banner stub (`src/components/clause-change-banner.tsx`):
 Unchanged: A-2026-0090 SF 30 clause delta stays hard hidden, no NCMS write-back,
 no FedRAMP claim, no invented FAR or NFS body text, no Adobe forms QA claim.
 Security findings remain deferred.
+
+## Walk — factory panels visible at Price Reasonableness
+
+The NCMS handoff / factory block on the file page (CLIN schedule, Solicitation
+K/L/M, SEB evaluation cockpit, Section J, CDRL, payment milestones, Award
+handoff, read receipts, clause packet) was gated only to Solicitation/Quote and
+Award. Sample 1 (A-2027-0101) sits at Price Reasonableness, so the factory was
+invisible during the walk. Widened that single phase check in
+`src/routes/files_.$acquisitionId.tsx` to also render for Technical Evaluation and
+Price Reasonableness. Visibility change only — the panels remain advisory, are
+not required docs, and do not gate phase exit, hold, or clock. Samples untouched:
+A-2027-0101 and A-2027-0102 still read co_name Joshua Taggart and clock_state
+running; no acquisition_facts were written. A-2026-0090 clause-delta stays
+hard-hidden. Verified via signed-in browser: Sample 1 body now contains the
+factory block ("NCMS is the system of record", CLIN, Evaluation cockpit, Read
+receipts, Award handoff) at Price Reasonableness; Sample 2 unchanged.

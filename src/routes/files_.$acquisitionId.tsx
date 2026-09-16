@@ -2874,7 +2874,10 @@ function FilePage() {
               ) : null}
 
 
-              {(p.phase === "Solicitation/Quote" || p.phase === "Award") && (
+              {(p.phase === "Solicitation/Quote" ||
+                p.phase === "Technical Evaluation" ||
+                p.phase === "Price Reasonableness" ||
+                p.phase === "Award") && (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.
