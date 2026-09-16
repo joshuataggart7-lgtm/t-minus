@@ -1,5 +1,7 @@
 export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
-export type PersonaRole = Exclude<RoleId, "administrator">;
+// The administrator persona is selectable in the Try-the-demo switcher so a
+// demo user can land on Today with full privileges without a password.
+export type PersonaRole = RoleId;
 
 export type SeededUser = {
   role: PersonaRole;
@@ -10,8 +12,18 @@ export type SeededUser = {
   landing: string;
 };
 
-// Five seeded Supabase Auth users, one per role. Fictional people.
+// Six demo personas, one per role. Fictional people. Joshua Taggart leads so
+// the administrator is the first option in the Try-the-demo switcher. Christina
+// and Roger remain email/password-only and never appear in this list.
 export const SEEDED_USERS: SeededUser[] = [
+  {
+    role: "administrator",
+    name: "Joshua Taggart (fictional)",
+    title: "Administrator",
+    email: "administrator@t-minus.demo",
+    center_code: "ARC",
+    landing: "/today",
+  },
   {
     role: "executive",
     name: "A. Whitfield (fictional)",
