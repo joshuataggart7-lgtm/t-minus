@@ -591,14 +591,19 @@ function samNotice(ctx: MemoDraftCtx): Values {
   const fifteen = posting ? plusDays(posting, 15) : "";
   const entered = str(ctx.values?.["response_date"]);
   const response = entered && fifteen ? (entered > fifteen ? entered : fifteen) : fifteen || entered;
+  // A sole-source notice of intent is not a combined synopsis/solicitation, so
+  // it carries the notice authority, never FAR 12.603(c).
+  const ruleCite = isSoleSourceRecord(a)
+    ? "RFO FAR 5.203; RFO FAR 6.104."
+    : "RFO FAR 5.203; FAR 12.603(c).";
   return {
     period_of_performance: start && end ? `${start} to ${end}` : start || end,
     response_date: response,
     response_rule: posting
       ? `Later of 15 calendar days after posting (${fifteen}) and the date the contracting officer enters. Posted ${
           ctx.notice?.postedOn ? ctx.notice.postedOn : `${posting}, not yet posted`
-        }. RFO FAR 5.203; FAR 12.603(c).`
-      : "Later of 15 calendar days after posting and the date the contracting officer enters. RFO FAR 5.203; FAR 12.603(c).",
+        }. ${ruleCite}`
+      : `Later of 15 calendar days after posting and the date the contracting officer enters. ${ruleCite}`,
     evaluation_basis:
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
