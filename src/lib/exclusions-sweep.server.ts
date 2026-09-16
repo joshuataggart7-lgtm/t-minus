@@ -3,15 +3,18 @@ import type { Json } from "@/integrations/supabase/types";
 /**
  * exclusions_sweep
  *
- * Checks every vendor of record on every open file against SAM.gov exclusions.
- * Fictional demo vendors (UEIs beginning DEMO) get a clearly labeled sample
- * result so the sweep never depends on the network. Every vendor checked gets a
- * sam_checks row. A file whose vendor is excluded goes on hold with the reason
- * "vendor excluded; CO review" and the contracting officer as owner.
+ * Checks every vendor of record on every open file against SAM.gov exclusions,
+ * by exact UEI and never by legal name. Fictional demo vendors (UEIs beginning
+ * DEMO) get a clearly labeled sample result so the sweep never depends on the
+ * network. Every vendor checked gets a sam_checks row.
+ *
+ * The sweep never changes a clock. An exclusion record raises a flag for the
+ * contracting officer to review; only a person places a file on hold. A clean
+ * live check on the same UEI clears the flag.
  */
 
 export const SWEEP_CHECK_TYPE = "Exclusions sweep";
-export const EXCLUSION_HOLD_REASON = "vendor excluded; CO review";
+export const EXCLUSION_REVIEW_FLAG = "vendor exclusion flagged; CO review";
 
 type JsonRecord = Record<string, unknown>;
 const object = (value: unknown): JsonRecord =>
