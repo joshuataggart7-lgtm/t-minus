@@ -279,6 +279,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
         }
       : null,
     lm_note: scaffold.lm?.chip ?? null,
+    // Section J is the list of attachments on the record, for either format.
+    section_j:
+      scaffold.attachments.length === 0
+        ? { attachments: [], empty_note: SECTION_J_EMPTY }
+        : { attachments: scaffold.attachments },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
