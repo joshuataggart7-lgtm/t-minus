@@ -156,15 +156,26 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       } catch (error) {
         providerError = error instanceof Error ? error.message : "The exclusions lookup failed.";
         console.error(`[Exclusions sweep] ${providerError}`);
+        // Only a prior exclusions answer for this exact UEI may stand in. An
+        // entity registration response is a different question and must never
+        // be read as an exclusion.
         const cached = await supabaseAdmin
           .from("sam_checks")
-          .select("response_json,checked_at")
+          .select("response_json,checked_at,check_type,vendor_uei")
           .eq("vendor_uei", uei)
+          .eq("check_type", SWEEP_CHECK_TYPE)
           .order("checked_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        const envelope = object(cached.data?.response_json);
-        raw = envelope["raw"] ?? cached.data?.response_json ?? null;
+          .limit(5);
+        let reuse: unknown = null;
+        for (const row of cached.data ?? []) {
+          const envelope = object(row.response_json);
+          const body = envelope["raw"] ?? row.response_json ?? null;
+          if (body && isExclusionsPayload(body)) {
+            reuse = body;
+            break;
+          }
+        }
+        raw = reuse;
         source = raw ? "cached" : "sample";
         if (!raw) raw = sampleExclusion(legalName, uei);
       }
