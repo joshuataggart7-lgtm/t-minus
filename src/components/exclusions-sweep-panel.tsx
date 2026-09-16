@@ -110,7 +110,7 @@ export function ExclusionsSweepPanel() {
                     </td>
                     <td className="p-2">
                       {row.exclusionLabel}
-                      {row.placedOnHold ? " · placed on hold" : ""}
+                      {row.flaggedForReview ? " · flagged for CO review" : ""}
                     </td>
                     <td className="p-2">{row.sourceLabel}</td>
                   </tr>
