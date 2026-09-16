@@ -381,7 +381,21 @@ function FormPage() {
             </button>
             <button
               type="button"
+              className="rounded-lg border border-primary px-3 py-2 text-[15px] text-primary"
+              onClick={() => {
+                const el = document.getElementById("export-preview");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  el.focus({ preventScroll: true });
+                }
+              }}
+            >
+              View filled preview
+            </button>
+            <button
+              type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="Open in Adobe Acrobat or Reader on the desktop — Chrome and Edge show a blank face."
               onClick={() => void exportPopulated()}
             >
               Export form PDF
@@ -401,6 +415,9 @@ function FormPage() {
               Export data file for Import Data
             </button>
           </div>
+          <p className="mb-4 text-[13px] text-muted-foreground">
+            Prefer the preview below in the browser; open the form PDF in Adobe desktop.
+          </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
             <p>
               Export preview below is the filled view in the browser. Export form PDF writes the official
@@ -423,7 +440,13 @@ function FormPage() {
             </p>
           ) : null}
 
-          <h2 className="mb-3 text-[18px] leading-6 font-medium">Export preview</h2>
+          <h2
+            id="export-preview"
+            tabIndex={-1}
+            className="mb-3 scroll-mt-4 text-[18px] leading-6 font-medium outline-none"
+          >
+            Export preview
+          </h2>
           {form.sections.map((section) => (
             <section key={section.title} className="mb-6 max-w-[80ch] border border-border bg-background p-4">
               <h3 className="text-[18px] leading-6 font-medium">{section.title}</h3>
