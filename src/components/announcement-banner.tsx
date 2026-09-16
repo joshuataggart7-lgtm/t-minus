@@ -18,6 +18,7 @@ import {
 
 /** Compact header notification control plus one dismissible urgent line. */
 export function AnnouncementBanner() {
+  const presenter = usePresenter();
   const { role, roles, user, authState } = useRole();
   const [items, setItems] = useState<Announcement[]>([]);
   const [ackedIds, setAckedIds] = useState<string[]>([]);
