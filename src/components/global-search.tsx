@@ -22,6 +22,7 @@ type Row = {
   status: string | null;
   hold_reason: string | null;
   target_award_date: string | null;
+  contract_clauses?: unknown;
   missions?: { mission_id: string; name: string | null } | null;
 };
 
@@ -37,6 +38,28 @@ function clockLine(r: Row) {
   return parts.join(" · ");
 }
 
+type AuditRow = {
+  acquisition_id: string | null;
+  action: string | null;
+  field: string | null;
+  reason: string | null;
+  new_value: string | null;
+  logged_at: string;
+};
+
+/** Clause numbers stored on the file, if the record holds a readable list. */
+function clauseNumbers(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => (typeof v === "string" ? v : typeof v === "object" && v ? String((v as Record<string, unknown>)["clause_number"] ?? "") : ""))
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value.split(/[,;\s]+/).filter(Boolean);
+  }
+  return [];
+}
+
 function haystack(r: Row) {
   return [
     r.acquisition_id,
@@ -49,6 +72,7 @@ function haystack(r: Row) {
     r.mission_id,
     r.missions?.name,
     r.contract_number,
+    ...clauseNumbers(r.contract_clauses),
   ]
     .filter(Boolean)
     .join(" ")
@@ -85,7 +109,7 @@ export function GlobalSearch() {
       const { data, error } = await supabase
         .from("acquisition_facts")
         .select(
-          "acquisition_id,title,pr_number,requester_name,vendor_legal_name,vendor_uei,vendor_cage,mission_id,contract_number,source_tag,current_phase,clock_state,status,hold_reason,target_award_date,missions(mission_id,name)",
+          "acquisition_id,title,pr_number,requester_name,vendor_legal_name,vendor_uei,vendor_cage,mission_id,contract_number,contract_clauses,source_tag,current_phase,clock_state,status,hold_reason,target_award_date,missions(mission_id,name)",
         )
         .order("acquisition_id");
       if (error) throw error;
@@ -93,11 +117,49 @@ export function GlobalSearch() {
     },
   });
 
+  // Prototype: a bounded slice of recent audit rows, not the whole trail.
+  const AUDIT_LIMIT = 600;
+  const audit = useQuery({
+    queryKey: ["global-search-audit", AUDIT_LIMIT],
+    enabled: authState === "signed-in" && open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audit_log")
+        .select("acquisition_id,action,field,reason,new_value,logged_at")
+        .order("logged_at", { ascending: false })
+        .limit(AUDIT_LIMIT);
+      if (error) throw error;
+      return (data ?? []) as AuditRow[];
+    },
+  });
+
   const results = useMemo(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) return [];
-    return (rows.data ?? []).filter((r) => haystack(r).includes(needle)).slice(0, 20);
-  }, [q, rows.data]);
+
+    const auditHit = new Map<string, string>();
+    for (const a of audit.data ?? []) {
+      if (!a.acquisition_id || auditHit.has(a.acquisition_id)) continue;
+      const text = [a.action, a.field, a.reason, a.new_value].filter(Boolean).join(" ");
+      if (text.toLowerCase().includes(needle)) auditHit.set(a.acquisition_id, text);
+    }
+
+    const hits: { row: Row; hint: string | null }[] = [];
+    for (const r of rows.data ?? []) {
+      const clause = clauseNumbers(r.contract_clauses).find((c) => c.toLowerCase().includes(needle));
+      const fieldMatch = haystack(r).includes(needle);
+      const auditText = auditHit.get(r.acquisition_id) ?? null;
+      if (!fieldMatch && !auditText) continue;
+      let hint: string | null = null;
+      if (clause) hint = `matched clause ${clause}`;
+      else if (r.vendor_uei && r.vendor_uei.toLowerCase().includes(needle)) hint = "matched vendor UEI";
+      else if (r.vendor_cage && r.vendor_cage.toLowerCase().includes(needle)) hint = "matched vendor CAGE";
+      else if (!fieldMatch && auditText) hint = `matched audit: ${auditText.slice(0, 90)}`;
+      hits.push({ row: r, hint });
+      if (hits.length >= 20) break;
+    }
+    return hits;
+  }, [q, rows.data, audit.data]);
 
   function openFile(id: string) {
     setOpen(false);
@@ -131,7 +193,9 @@ export function GlobalSearch() {
           >
             <div className="border-b border-border p-4">
               <label htmlFor="global-search-input" className="mb-2 block text-[13px] text-muted-foreground">
-                Search by PR number, acquisition ID, title, requester, vendor, contract number, or mission
+                Prototype search. It reads titles, acquisition IDs, PR numbers, requesters, vendors,
+                UEI and CAGE, contract numbers, missions, clause numbers on the file, and a capped
+                slice of recent audit text.
               </label>
               <input
                 id="global-search-input"
@@ -141,7 +205,7 @@ export function GlobalSearch() {
                 onKeyDown={(e) => {
                   // Enter opens a matched acquisition only; a query with no
                   // match never opens a blank file page.
-                  if (e.key === "Enter" && q.trim() && results[0]) openFile(results[0].acquisition_id);
+                  if (e.key === "Enter" && q.trim() && results[0]) openFile(results[0].row.acquisition_id);
                 }}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground"
                 placeholder="4200999102"
@@ -169,7 +233,7 @@ export function GlobalSearch() {
               ) : null}
 
               <ul>
-                {results.map((r) => (
+                {results.map(({ row: r, hint }) => (
                   <li key={r.acquisition_id}>
                     <button
                       type="button"
@@ -194,6 +258,9 @@ export function GlobalSearch() {
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
+                      {hint ? (
+                        <span className="block text-[13px] leading-[18px] text-muted-foreground">{hint}</span>
+                      ) : null}
                     </button>
                   </li>
                 ))}
