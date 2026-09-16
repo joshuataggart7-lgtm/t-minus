@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { storedClauseList } from "@/lib/clause-impact";
 import {
+  RFO_RESERVED_212_NOTE,
   removedClauseNumbers,
   sanitizeClauseSelection,
   type ClauseRow,
@@ -186,6 +187,13 @@ export function ClausePicker({
               {removed.length > 8 ? ` and ${removed.length - 8} more` : ""}.
             </p>
           ) : null}
+
+          <details className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">
+            <summary className="cursor-pointer text-primary underline-offset-2 hover:underline">
+              Why FAR 52.212-3 and 52.212-5 are not on the packet
+            </summary>
+            <p className="mt-2">{RFO_RESERVED_212_NOTE}</p>
+          </details>
 
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <button

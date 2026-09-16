@@ -1232,6 +1232,7 @@ export function buildPacket(
   return {
     generated: new Date().toISOString(),
     note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS 1804.171). This packet is not the solicitation or the contract.",
+    clause_policy_note: "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B; commercial clause content is prescribed via FAR Tables 12-2 and 12-3 and each clause's own prescription. Offeror reps/certs are made in SAM (with FAR 52.204-7), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able.",
     acquisition: acq,
     clauses,
     checklist: NCMS_CHECKLIST,

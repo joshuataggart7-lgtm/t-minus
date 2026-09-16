@@ -7,6 +7,17 @@
 // the PCD 26-03B and NFS 1852 matrices in the clauses table; a clause the
 // matrices show as removed is never carried into a new document, and FAR
 // 52.212-5 is Reserved and never included.
+//
+// Under the RFO / PCD 26-03B, neither FAR 52.212-3 nor FAR 52.212-5 is
+// recommended, offered, or apply-able on the commercial SF 1449 packet:
+//   - 52.212-5 is Reserved; its old checkbox paragraph no longer carries
+//     commercial clause content.
+//   - Commercial clause content is prescribed via FAR Tables 12-2 and 12-3
+//     (and each clause's own prescription), so formerly bundled clauses are
+//     listed on their own, not through a 52.212-5 block.
+//   - Offeror representations and certifications for commercial buys are made
+//     in SAM (with FAR 52.204-7 on the packet), not by packing 52.212-3.
+// The single reason note surfaced to the officer lives in RFO_RESERVED_212_NOTE.
 
 export type ClauseRow = {
   clause_number: string | null;
@@ -462,8 +473,9 @@ export function removedClauseNumbers(clauseRows: ClauseRow[]): string[] {
 
 /**
  * The only clause numbers that may be written onto a record: a clause the
- * record recommends, never a removed clause, and never FAR 52.212-5, which is
- * Reserved under the RFO.
+ * record recommends, never a removed clause, never FAR 52.212-5 (Reserved
+ * under the RFO), and never FAR 52.212-3 (offeror reps/certs are made in SAM,
+ * not packed on the commercial SF 1449).
  */
 export function sanitizeClauseSelection(
   selected: readonly string[],
@@ -476,10 +488,21 @@ export function sanitizeClauseSelection(
   for (const raw of selected) {
     const n = String(raw ?? "").trim();
     if (!n) continue;
-    if (n === "52.212-5") continue;
+    if (n === "52.212-5") continue; // Reserved under the RFO / PCD 26-03B.
+    if (n === "52.212-3") continue; // Reps/certs are made in SAM, not packed here.
     if (removed.has(n)) continue;
     if (!allowed.has(n)) continue;
     out.add(n);
   }
   return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
 }
+
+/**
+ * The single reason note surfaced to the contracting officer near the
+ * RFO-removed line, explaining why neither FAR 52.212-3 nor FAR 52.212-5 is
+ * recommended, offered, or apply-able on the commercial SF 1449 packet.
+ * Surfaced once (progressive disclosure) from the clause picker / handoff
+ * block; keep the wording calm and citation-backed.
+ */
+export const RFO_RESERVED_212_NOTE =
+  "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause content is prescribed through FAR Tables 12-2 and 12-3 and each clause's own prescription rather than the old 52.212-5 checkbox paragraph. Offeror representations and certifications for commercial buys are made in SAM (with FAR 52.204-7 on the packet), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able here.";
