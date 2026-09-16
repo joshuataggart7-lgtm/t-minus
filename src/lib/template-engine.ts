@@ -2788,7 +2788,10 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   const out: Values = {};
   for (const s of def.sections) {
     for (const f of s.fields) {
-      const raw = f.bind ? acq[f.bind] : undefined;
+      // A bind may name more than one column, best first: "co_code|requester_org_code"
+      // takes the contracting office code when the record carries one.
+      const columns = f.bind ? f.bind.split("|") : [];
+      const raw = columns.map((c) => acq[c]).find((v) => v !== null && v !== undefined && v !== "");
       if (raw === null || raw === undefined || raw === "") {
         out[f.key] = f.default ?? "";
         continue;
