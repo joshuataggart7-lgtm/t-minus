@@ -199,16 +199,11 @@ const postawardUnsuccessful: TemplateDef = {
         T("awardees", "3. Name and address of each offeror receiving an award"),
         M("contract_value", "4. Maximum contract value including options", "estimated_value"),
         T("value_period", "4. Period of performance covered by that value"),
-        {
-          key: "selection_rationale",
-          label: "5. Evaluation factors considered and the selected offeror",
-          kind: "textarea",
-          help: "In making the selection decision, all evaluation factors were considered. The rationale is delineated in the enclosed source selection statement.",
-          helpFor: noticeCitation(
-            "In making the selection decision, all evaluation factors were considered. The rationale is delineated in the enclosed source selection statement.",
-            "State the factors considered and the quoter selected. A simplified acquisition has no source selection statement; the record is the price negotiation memorandum.",
-          ),
-        },
+        T(
+          "selection_rationale",
+          "5. Evaluation factors considered and the selected offeror",
+          "State the factors considered and the offeror selected. On a negotiated acquisition the rationale is in the enclosed source selection statement; on a simplified acquisition the price negotiation memorandum is the record.",
+        ),
       ],
     },
     {
@@ -241,16 +236,11 @@ const postawardUnsuccessful: TemplateDef = {
       ),
       fields: [
         ...coContact,
-        {
-          key: "enclosures",
-          label: "Enclosure",
-          kind: "textarea",
-          help: "Source Selection Statement.",
-          helpFor: noticeCitation(
-            "Source Selection Statement.",
-            "A simplified acquisition has no source selection statement. Leave this blank unless the Center encloses something with the letter.",
-          ),
-        },
+        T(
+          "enclosures",
+          "Enclosure",
+          "On a negotiated acquisition, the Source Selection Statement. A simplified acquisition has none; leave this blank unless the Center encloses something with the letter.",
+        ),
       ],
     },
   ],
