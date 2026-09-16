@@ -979,9 +979,8 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
       }${price ? ` at ${dollars(price) || price}` : ""} is carried forward at the quoted price. No negotiation has been recorded on this file.`;
     out["determination"] =
       "Draft, confirm. The price is supported by the comparison of quotations received and the independent Government cost estimate on the file. The contracting officer's determination of price reasonableness is pending review.";
-    out["comparables_summary"] = (ctx.comparables ?? []).length
-      ? gap("state what the comparable awards loaded below show about this price")
-      : "Draft, confirm. No comparable awards are loaded on this file. Run comparables, or state the basis relied on instead.";
+    out["comparables_summary"] =
+      "Draft, confirm. No comparable awards are loaded on this file. Run comparables below, or state the basis relied on instead. No prior award is assumed here.";
   }
   return out;
 }
