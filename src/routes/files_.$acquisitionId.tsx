@@ -1183,9 +1183,23 @@ function FilePage() {
     [acq, q.data?.clauses, q.data?.thresholds],
   );
 
+  // Clauses the officer has applied to the file. Until Apply is used, the
+  // packet carries every recommended clause.
+  const appliedClauseNumbers = useMemo(
+    () => storedClauseList(acq?.["contract_clauses"]),
+    [acq],
+  );
+  const packetSelection = useMemo(
+    () =>
+      appliedClauseNumbers && appliedClauseNumbers.length > 0
+        ? packetClauses.filter((c) => appliedClauseNumbers.includes(c.clause_number))
+        : packetClauses,
+    [packetClauses, appliedClauseNumbers],
+  );
+
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, packetClauses, phases, board);
+    const packet = buildPacket(acq, packetSelection, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
