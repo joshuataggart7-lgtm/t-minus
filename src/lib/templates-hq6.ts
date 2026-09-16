@@ -11,6 +11,12 @@
  */
 
 import type { FieldDef, SectionDef, TemplateDef, Values } from "@/lib/template-engine";
+import { simplifiedValues } from "@/lib/template-engine";
+
+/** On a FAR 13.5 or Part 12 commercial file the notice is made under the
+ *  commercial simplified procedures, not under the Part 15 negotiated rules. */
+const noticeCitation = (part15: string, simplified: string) => (v: Values) =>
+  simplifiedValues(v) ? simplified : part15;
 
 const T = (key: string, label: string, help?: string): FieldDef => ({
   key,
@@ -82,6 +88,10 @@ const postawardSuccessful: TemplateDef = {
   layout: "memo",
   badge: {
     citation: "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
+    citationFor: noticeCitation(
+      "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
+      "RFO FAR 12.201-1 (commercial simplified procedures); FAR 13.106-3(d)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revision 02/2025",
     effective: "2025-02-01",
@@ -210,6 +220,10 @@ const setAsidePreaward: TemplateDef = {
   badge: {
     citation:
       "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+    citationFor: noticeCitation(
+      "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+      "FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 01/2021",
     effective: "2021-01-04",
