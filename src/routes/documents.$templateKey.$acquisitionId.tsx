@@ -2102,6 +2102,50 @@ function DocumentPage() {
         </div>
       </section>
 
+      <section aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
+        <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
+        {latest ? (
+          (() => {
+            const meta = officialMeta(latest.field_values);
+            const outstanding = board.filter((b) => !b.vote || /pending/i.test(String(b.vote))).length;
+            return (
+              <>
+                <p className="mt-2 text-[15px] leading-[22px]">
+                  {meta.official
+                    ? `Version ${latest.version} is the official copy${
+                        meta.filedBy ? `, filed by ${meta.filedBy}` : ""
+                      }${meta.filedAt ? ` on ${meta.filedAt.slice(0, 10)}` : ""}.`
+                    : `Version ${latest.version} is a draft. No official copy is filed for this document yet.`}
+                </p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
+                  Reviewed by {latest.reviewed_by ?? "no one yet"}.{" "}
+                  {board.length
+                    ? `${board.length - outstanding} of ${board.length} reviewers have recorded a vote for ${phase}.`
+                    : "No review poll is open for this phase."}
+                </p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{FILE_IT_NOTE}</p>
+                {canWrite && !meta.official ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => fileOfficial.mutate()}
+                    disabled={fileOfficial.isPending}
+                  >
+                    {FILE_IT_LABEL}
+                  </Button>
+                ) : null}
+              </>
+            );
+          })()
+        ) : (
+          <p className="mt-2 text-[15px] leading-[22px] text-muted-foreground">
+            Save a version first. The contracting officer can then file one version as the official copy.
+          </p>
+        )}
+      </section>
+
       <section aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Go/No-go for {phase}</h2>
         {board.length ? (
