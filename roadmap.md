@@ -1,6 +1,15 @@
-# Roadmap
+# Phase exit
+- [ ] Exclude Offered rows from blockers, holds, hero actions, and exit gates
+- [ ] Add validated phase exit with linked missing requirements and audit entry
+- [ ] Replace Exit, Scrub, Remove, Record vote, and Open poll confirmations with in-page dialogs
+- [ ] Rewrite memorandum hold, vote, and saved-version sentences
+- [ ] Verify A-2027-0101, refusal links, audit output, and desktop/mobile dialogs
 
-- [x] Implement Sample 1/2 cold-path UX polish across file overview and document entry.
-- [x] Add the dated BUILD_NOTES shipped/deferred summary.
-- [x] Verify A-2027-0101, A-2027-0102, and one document from each at desktop/mobile widths.
-- [x] Publish the verified frontend to production and report the resulting revision.
+# Market research persistence
+- [x] Prevent incomplete research runs from becoming the latest run
+- [x] Parse CALC+ v3 results and use a short service keyword
+- [x] Remove A-2027-0101 orphan runs and verify the completed-run display
+- [ ] Publish the verified fix
+
+# UX polish
+- [x] Sample 1/2 cold-path UX polish shipped — see BUILD_NOTES section "Sample 1/2 cold-path UX polish"
