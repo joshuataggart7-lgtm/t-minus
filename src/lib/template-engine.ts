@@ -371,14 +371,15 @@ const jofoc: TemplateDef = {
           label: "Notice on this file",
           kind: "readonly",
           showIf: (v) => !isUrgency(v),
-          help: "Read from the notice of intent to sole source saved in the Synopsis phase.",
+          help: "Read from the notice of intent to sole source on this file. A saved notice reads as a draft until a publication date is entered below.",
         },
         {
           key: "notice_date",
           label: "Date the notice was published to the Government Point of Entry",
           kind: "date",
-          // Fills from the notice of intent once it is posted; required to
-          // exit the Synopsis phase, not to save a version.
+          // Saving a notice is not publishing it: this date is entered when
+          // the notice is published. Required to exit the Synopsis phase, not
+          // to save a version.
           requiredAtExit: true,
           showIf: (v) => !isUrgency(v),
         },
