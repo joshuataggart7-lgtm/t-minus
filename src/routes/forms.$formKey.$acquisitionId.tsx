@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
+import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
