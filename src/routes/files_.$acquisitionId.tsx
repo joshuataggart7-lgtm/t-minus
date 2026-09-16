@@ -1942,6 +1942,17 @@ function FilePage() {
     return <Button className="max-w-full whitespace-normal text-left" onClick={openLaunchSequence}>{label}</Button>;
   };
 
+  // Print opens the launch sequence and the file index so the handout is whole.
+  useEffect(() => {
+    const onBeforePrint = () => {
+      document.querySelectorAll<HTMLDetailsElement>("details[data-print]").forEach((d) => {
+        d.open = true;
+      });
+    };
+    window.addEventListener("beforeprint", onBeforePrint);
+    return () => window.removeEventListener("beforeprint", onBeforePrint);
+  }, []);
+
   return (
     <AppShell>
       {/* Quiet print-only header: the record's id and title on the handout. */}
