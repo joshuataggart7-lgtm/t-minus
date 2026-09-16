@@ -2942,6 +2942,7 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <ReadReceiptsPanel acquisitionId={acquisitionId} />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
                   <PaymentMilestonesPanel
                     acquisitionId={acquisitionId}
