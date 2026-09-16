@@ -1759,3 +1759,15 @@ evaluation and UEI facts.
   RFO or NFS body text is generated. Wired into Explain this and the document
   version badge.
 - Not published this turn, by instruction.
+
+## AC-W4.5 — Official forms stretch: SF 33, SF 26, OF 347
+
+- Blanks added byte for byte: `public/forms/SF33.pdf`, `public/forms/SF26.pdf`, `public/forms/OF347.pdf`. Field maps kept at `docs/forms/*_FIELD_MAP.md`.
+- `src/lib/sf-forms.ts`: `buildSf33`, `buildSf26`, `buildOf347` on the same generator path as SF 1449 and SF 30 (`xfaDatasets` + `exportXfaIncremental` / `exportXdp`). Part 53 prescriptions shown as FAR 53.214(c), FAR 53.214(a) and FAR 53.213(f), each with "Confirm RFO Part 53 if adopted." No FAR or NFS cite invented.
+- `src/lib/nf1787.ts`: `FormKey`, `FORM_NAMES`, `GENERATED_FORM_KEYS` and `buildForm` extended; `FormCtx.clins` added as `FormClin[]`.
+- `src/routes/forms.$formKey.$acquisitionId.tsx`: the three keys allow-listed; the schedule loads through `ensureClinScheduleFromIgce` / `loadClinSchedule`, never re-typed and never estimated. SF 26 prints rows 1 to 5, OF 347 rows 1 to 13, SF 33 has no face grid.
+- Suggested form (`recommendedOfficialForm`): streamlined commercial 1449 files stay on SF 1449 (Sample 1 unchanged, never forced to SF 33); Part 15 uniform format goes to SF 33 (A-2027-0103); an order under an existing contract or a simplified purchase goes to OF 347 with the purchase vs delivery box set from the record; a recorded modification goes to SF 30. Shown as a link on the Award handoff; all other form links stay.
+- SF 33: only the primary `LIABILITY1` is filled; `LIABILITY1[1]` is left alone. Offeror blocks 12 to 18 and every signature block stay empty.
+- OF 347: page 2 stays empty, `QUANTACCEPTn` stays empty (filled on receipt). WOSB and EDWOSB are left unchecked — the duplicate `WOMEN` / `DISADVANTAGE` instances are ambiguous and the XFA instance binding is a recorded gap. More than thirteen lines: continuation noted in the packet, OF 348 is not generated.
+- SF 26: effective date binds `EFECTDATE3`; contractor block 19 and signatures stay empty; total is `F15TOTAL` only when every line carries a recorded amount.
+- No NCMS write-back, no FedRAMP claim, no live FPDS. Sample 1 and Sample 2 facts untouched; A-2026-0090 clause delta stays hidden. SF 18 and Wave 5 SEB out of scope. Security findings still deferred.
