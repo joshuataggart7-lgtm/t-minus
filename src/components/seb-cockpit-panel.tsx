@@ -198,19 +198,20 @@ export function SebCockpitPanel({
         </span>
       </div>
 
-      {/* Board-ready strip — counts only, never a gate. */}
-      <section className="mt-3" aria-label="Board readiness snapshot">
-        <h5 className="text-[15px] font-medium">Board readiness snapshot</h5>
-        <dl className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {/* Board brief — one scannable strip, counts only, never a gate. */}
+      <section className="mt-3 break-inside-avoid" aria-label="Board brief">
+        <h5 className="text-[15px] font-medium">Board brief</h5>
+        <dl className="mt-1 max-w-[80ch] divide-y divide-border border-y border-border text-[13px] leading-[18px]">
           {readinessItems.map((item) => (
-            <div key={item.label} className="border border-border px-3 py-2 text-[13px] leading-[18px]">
+            <div key={item.label} className="flex flex-wrap items-baseline justify-between gap-4 py-1">
               <dt className="text-muted-foreground">{item.label}</dt>
-              <dd className="mt-[2px] font-medium" data-numeric>{item.value}</dd>
+              <dd className="font-medium" data-numeric>{item.value}</dd>
             </div>
           ))}
         </dl>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-          A snapshot only. Counts are advisory; nothing here gates the board, the file or a phase exit.
+          A brief only. Every count is advisory; nothing here gates the board, the file or a phase
+          exit. The detail behind each line sits below.
         </p>
       </section>
 
