@@ -9,6 +9,7 @@
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
+import { isSoleSourceRecord } from "@/lib/memo-draft";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -23,6 +24,14 @@ export type ScaffoldClin = {
 };
 export type ScaffoldLine = { text: string; citation: string | null };
 export type UcfSection = { section: string; title: string; clauses: PacketClause[] };
+/** One clause as the scaffold prints it: the reason and fill-in stay attached. */
+export type ScaffoldClause = {
+  clause_number: string;
+  title: string;
+  section: string;
+  reason: string;
+  fillIns: string | null;
+};
 
 export type FormatScaffold = {
   /** "sf1449" when the record carries the commercial streamlined format. */
@@ -34,7 +43,10 @@ export type FormatScaffold = {
   instructions: ScaffoldLine[];
   evaluation: { mode: "competitive" | "sole-source"; lines: ScaffoldLine[] };
   ucfSections: UcfSection[];
+  /** Every clause the engine selected, with the reason it is on this file. */
+  clauses: ScaffoldClause[];
 };
+
 
 const UCF_SECTIONS: { section: string; title: string }[] = [
   { section: "A", title: "Solicitation/contract form" },
