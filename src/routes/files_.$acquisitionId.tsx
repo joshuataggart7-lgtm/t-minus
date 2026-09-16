@@ -2254,11 +2254,10 @@ function FilePage() {
                                </button>
                              </span>
                            ) : null}
-                           {state === false ? (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                           </span>
+
                          </>
                        ) : d.attachOnly ? (
                          <>
