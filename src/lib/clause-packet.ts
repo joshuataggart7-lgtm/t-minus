@@ -167,7 +167,12 @@ const RULES: Rule[] = [
   {
     number: "52.212-4",
     title: "Contract Terms and Conditions—Commercial Products and Commercial Services",
-    applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 12.301(b)(3))." : null),
+    applies: (c) =>
+      c.commercial
+        ? /alternate i|alt\.? i\b/i.test(c.clauseSet)
+          ? `Commercial determination on the record (FAR 12.301(b)(3)); the vehicle records the clause set as "${c.clauseSet}", so confirm Alternate I in NCMS.`
+          : "Commercial determination on the record (FAR 12.301(b)(3))."
+        : null,
   },
   {
     number: "52.213-4",
