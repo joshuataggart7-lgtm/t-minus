@@ -5,7 +5,7 @@ import type { FormatScaffold } from "@/lib/format-scaffold";
  * The contract format scaffold an officer carries into NCMS. SF 1449
  * streamlined blocks on a commercial file, Uniform Contract Format sections
  * otherwise. Nothing here is a signed form; NCMS remains the system of record
- * (NFS CG 1804.11) and T-Minus does not write to it.
+ * (NFS 1804.171) and T-Minus does not write to it.
  */
 export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | null }) {
   const [open, setOpen] = useState(false);

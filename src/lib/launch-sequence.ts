@@ -186,12 +186,12 @@ export const PHASE_CITATIONS: Record<string, string> = {
   JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
   Synopsis: "RFO FAR 5.203; FAR 12.603 (combined synopsis/solicitation)",
   "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
-  "Solicitation/Quote": "FAR 12.603; NFS CG 1804.11 (NCMS is the system of record)",
+  "Solicitation/Quote": "FAR 12.603; NFS 1804.171 (NCMS is the system of record)",
   "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
   "Price Reasonableness": "FAR 12.204(b)(1); FAR 13.106-3",
   "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
   "Go/No-go Poll": "NFS 1801.770 legal review; Center policy for the review chain",
-  Award: "FAR 13.302-3; NFS CG 1804.11 (award written in NCMS)",
+  Award: "FAR 13.302-3; NFS 1804.171 (award written in NCMS)",
   "FPDS-NG Report": "FAR 4.604 (contract action reporting)",
   Administration: "FAR Part 42; FAR 4.801 (contract file)",
   Closeout: "FAR 4.804 (closeout of contract files)",
@@ -200,10 +200,10 @@ export const PHASE_CITATIONS: Record<string, string> = {
 /** Negotiated Part 15 citations, used where the simplified ones do not apply. */
 const PART_15_PHASE_CITATIONS: Record<string, string> = {
   Synopsis: "RFO FAR 5.203 (presolicitation notice)",
-  "Solicitation/Quote": "FAR 15.203; NFS CG 1804.11 (NCMS is the system of record)",
+  "Solicitation/Quote": "FAR 15.203; NFS 1804.171 (NCMS is the system of record)",
   "Technical Evaluation": "FAR 15.305 (proposal evaluation)",
   "Price Reasonableness": "FAR 15.406-3 (price negotiation memorandum); FAR 15.404-1",
-  Award: "FAR 15.504; NFS CG 1804.11 (award written in NCMS)",
+  Award: "FAR 15.504; NFS 1804.171 (award written in NCMS)",
 };
 
 /** The citation a phase carries on this record's path. */
@@ -415,7 +415,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
     case "Solicitation/Quote": {
       const sole = /sole/i.test(String(acq?.competition ?? ""));
       return [
-        { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+        { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
         { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
         ...(sole
           ? [
@@ -567,7 +567,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         return [
           {
             label: "NCMS handoff packet in order form",
-            citation: "NFS CG 1804.11",
+            citation: "NFS 1804.171",
             link: "packet",
             note: "The order document of record is written in NCMS from this packet.",
           },
@@ -579,11 +579,11 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         ];
       if (profile === "bpa")
         return [
-          { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+          { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
           { label: "Blanket purchase agreement signed (written in NCMS)", citation: "FAR 13.303-3", link: "packet" },
         ];
       return [
-        { label: "NCMS handoff packet", citation: "NFS CG 1804.11", link: "packet" },
+        { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
         { label: "SF 1449 award document (written in NCMS)", citation: "FAR 12.204", link: "packet" },
       ];
     }
@@ -633,7 +633,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : []),
         {
           label: "SF 30 modification handoff packet",
-          citation: "FAR 43.301; NFS CG 1804.11",
+          citation: "FAR 43.301; NFS 1804.171",
           link: "packet",
           note: "The modification of record is written in NCMS. T-Minus hands over the facts and the clause delta.",
         },
@@ -1218,7 +1218,7 @@ export function buildPacket(
 ) {
   return {
     generated: new Date().toISOString(),
-    note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS CG 1804.11). This packet is not the solicitation or the contract.",
+    note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS 1804.171). This packet is not the solicitation or the contract.",
     acquisition: acq,
     clauses,
     checklist: NCMS_CHECKLIST,

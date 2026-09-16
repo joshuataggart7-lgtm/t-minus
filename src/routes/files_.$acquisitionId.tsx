@@ -2763,7 +2763,7 @@ function FilePage() {
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                      The modification of record is written in NCMS (NFS CG 1804.11). The clause delta below is read
+                      The modification of record is written in NCMS (NFS 1804.171). The clause delta below is read
                       from the clause matrices; removed clauses are struck and never carried forward.
                     </p>
                     <p className="mt-2 text-[13px]" data-numeric>

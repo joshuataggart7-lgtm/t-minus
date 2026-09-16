@@ -223,7 +223,7 @@ export function buildModificationPacket(
 ) {
   return {
     generated: new Date().toISOString(),
-    note: "T-Minus handoff packet for an SF 30 modification. NCMS is the contract writing system of record (NFS CG 1804.11). This packet is not the modification.",
+    note: "T-Minus handoff packet for an SF 30 modification. NCMS is the contract writing system of record (NFS 1804.171). This packet is not the modification.",
     form: "SF 30, Amendment of Solicitation/Modification of Contract",
     modification_kind: kind,
     modification_authority: authority,
