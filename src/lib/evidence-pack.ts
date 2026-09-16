@@ -136,6 +136,15 @@ export async function exportEvidencePack(
     return (a.version ?? 0) - (b.version ?? 0);
   });
 
+  // Where a contracting officer has filed an official copy for a template, the
+  // pack carries that version only; drafts stay in the record, out of the pack.
+  const officialTemplates = new Set(
+    ordered.filter((d) => isOfficialFinal(d.field_values)).map((d) => String(d.template_id ?? "")),
+  );
+  const packed = ordered.filter(
+    (d) => !officialTemplates.has(String(d.template_id ?? "")) || isOfficialFinal(d.field_values),
+  );
+
   const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
   let entries = 0;
