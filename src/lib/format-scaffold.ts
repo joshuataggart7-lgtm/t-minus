@@ -114,6 +114,8 @@ export function buildFormatScaffold(
   lm?: ScaffoldLmOverride | null,
   /** Section J: the attachments on the record. */
   attachments?: SectionJAttachment[],
+  /** Data requirements recorded on the file. */
+  cdrl?: PacketCdrlItem[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
