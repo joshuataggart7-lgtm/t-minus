@@ -76,6 +76,12 @@ import {
 } from "@/lib/nf1858";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
+  // An unsuccessful-offeror letter can be opened straight onto one quoter on
+  // the evaluation record: /documents/postaward-letter-unsuccessful/ID?offeror=2
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(String(search["offeror"] ?? "").replace(/\D+/g, ""));
+    return raw >= 1 && raw <= 4 ? { offeror: raw } : {};
+  },
   head: () => ({
     meta: [
       { title: "Document — T-Minus" },
