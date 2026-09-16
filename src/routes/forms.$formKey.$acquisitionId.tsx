@@ -381,7 +381,21 @@ function FormPage() {
             </button>
             <button
               type="button"
+              className="rounded-lg border border-primary px-3 py-2 text-[15px] text-primary"
+              onClick={() => {
+                const el = document.getElementById("export-preview");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  el.focus({ preventScroll: true });
+                }
+              }}
+            >
+              View filled preview
+            </button>
+            <button
+              type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="Open in Adobe Acrobat or Reader on the desktop — Chrome and Edge show a blank face."
               onClick={() => void exportPopulated()}
             >
               Export form PDF
@@ -401,6 +415,9 @@ function FormPage() {
               Export data file for Import Data
             </button>
           </div>
+          <p className="mb-4 text-[13px] text-muted-foreground">
+            Prefer the preview below in the browser; open the form PDF in Adobe desktop.
+          </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
             <p>
               Export preview below is the filled view in the browser. Export form PDF writes the official
