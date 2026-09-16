@@ -1860,3 +1860,19 @@ running; no acquisition_facts were written. A-2026-0090 clause-delta stays
 hard-hidden. Verified via signed-in browser: Sample 1 body now contains the
 factory block ("NCMS is the system of record", CLIN, Evaluation cockpit, Read
 receipts, Award handoff) at Price Reasonableness; Sample 2 unchanged.
+
+## UX — Mission Clock craft
+
+Visual-only polish of the Overview Mission Clock navy band:
+- Status words now render in sentence case on the navy band and the quiet
+  status summary below it ("At risk", "On track", "Needs attention",
+  "Launched"). Color+word pairing and StatusMark/statusColor are unchanged.
+- Lightened `--panel-muted` from #b8c4de to #ccd6f0 so the secondary lines on
+  navy read a little brighter, still calm — not white-on-navy.
+- Modest row breathing: each priority row on the Mission Clock moved from
+  py-5 to py-6 (first/last trimmed) for a bit more gap between the five rows.
+  Day figures unchanged at ~48/600 feel. Navy stays the one bold element;
+  no seals, rockets, or chrome added.
+No logic changes: urgency ranking, metrics, clocks, holds, and Walk paths are
+untouched. Samples unchanged (Joshua Taggart, running); factory panels stay
+visible at Price Reasonableness. Verified via signed-in browser on the Overview.

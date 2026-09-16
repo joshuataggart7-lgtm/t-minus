@@ -201,9 +201,9 @@ export function ExecutiveOverview() {
         m.awardDate <= today,
     ).length;
     return [
-      { label: "At Risk", count: count("At Risk"), color: "var(--atrisk)" },
-      { label: "Needs Attention", count: count("Needs Attention"), color: "var(--attention)" },
-      { label: "On Track", count: count("On Track"), color: "var(--ontrack)" },
+      { label: "At risk", count: count("At Risk"), color: "var(--atrisk)" },
+      { label: "Needs attention", count: count("Needs Attention"), color: "var(--attention)" },
+      { label: "On track", count: count("On Track"), color: "var(--ontrack)" },
       { label: "Launched this quarter", count: launchedThisQuarter, color: "var(--panel-muted)" },
     ];
   }, [metrics]);
@@ -267,7 +267,7 @@ export function ExecutiveOverview() {
         {q.isLoading ? (
           <LoadingNote what="the leadership callouts" />
         ) : callouts.length === 0 ? (
-          <p className="mt-3 text-muted-foreground">Every priority project is On Track.</p>
+          <p className="mt-3 text-muted-foreground">Every priority project is On track.</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {callouts.map((c) => (
@@ -338,6 +338,20 @@ function panelStatusColor(status: AcqMetrics["status"]) {
   return statusColor(status);
 }
 
+/** Sentence-case wording for the status word on the navy band. */
+function statusWord(status: AcqMetrics["status"]) {
+  switch (status) {
+    case "At Risk":
+      return "At risk";
+    case "Needs Attention":
+      return "Needs attention";
+    case "On Track":
+      return "On track";
+    case "Launched":
+      return "Launched";
+  }
+}
+
 /** Short, always-fitting wording for a blocker or next decision. */
 function shortReason(text: string) {
   // Drop parentheticals and section prefixes; they never fit on one line.
@@ -398,7 +412,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
 
   return (
-    <li className="py-5 first:pt-0 last:pb-0">
+    <li className="py-6 first:pt-1 last:pb-1">
       <div className="grid items-end gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="min-w-0">
           {driver.clockState === "launched" ? (
@@ -428,7 +442,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             </p>
           ) : null}
           <p className="mt-1 text-[15px] leading-[22px] font-medium" style={{ color }}>
-            {driver.status}
+            {statusWord(driver.status)}
           </p>
         </div>
 
