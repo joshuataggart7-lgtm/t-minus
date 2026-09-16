@@ -74,6 +74,21 @@ export function formatDate(iso: string | null) {
   return dayFmt(iso);
 }
 
+/** A date or a timestamp, shown as a real date and time. Never "Invalid Date". */
+export function formatStamp(value: string | null | undefined) {
+  if (!value) return "no date";
+  const raw = value.length === 10 ? `${value}T00:00:00Z` : value;
+  const when = new Date(raw);
+  if (Number.isNaN(when.getTime())) return "no date";
+  return when.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export function statusColor(status: StatusWord) {
   if (status === "At Risk") return "var(--atrisk)";
   if (status === "Needs Attention") return "var(--attention)";
