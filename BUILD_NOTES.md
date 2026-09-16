@@ -964,3 +964,11 @@ for order **A-2027-0104** already has `funds_certified = true`,
 **Seed.** `t-minus-seed/acquisitions.json` now contains the parent IDIQ A-2026-0090 (launched, Administration, multiple-award vehicle profile, $50M ceiling, three DEMO* awardees, fictional). `t-minus-seed/phase_plan.csv` gained the `idiq_parent`, `order_under_idiq`, `bpa` and `fss_order` rows copied from the live `phase_plan` table so a demo reset no longer drops vehicle plans.
 
 **Not in scope / not claimed.** A-2027-0104 Exit Confirm reason gating unchanged. Samples 1 and 2 untouched except through the shared sequence logic. No NCMS write-back, no FedRAMP, no FPDS integration. Security findings deferred.
+
+## Sample 1/2 cold-path UX polish (15 Sep 2026 CT)
+
+**Shipped.** The acquisition file now presents one primary next action, with status explanation, memo, export, sample copy, view switch, scrub, and manual launch in a quiet More menu. The clock line has a clearer days/status/phase/next hierarchy. Holds use a restrained left-border banner with one reason, owner and aging context, a direct Fix action, and FAR/Center-policy detail behind Why?. The launch sequence opens to past/now/next in both views, with the complete sequence behind Show full sequence. Required rows use “Needs …” language, and blocked phase exit points to the first required item or vote.
+
+**Documents.** Save version remains the primary action; Word and PDF are grouped under Export. Provenance is summarized as Live, Sample, Draft, and Reviewed indicators with model/timestamp details disclosed on request. Required fields show inline “Needs …” guidance after interaction, and record/AI-drafted text carries a quiet confirmation hint.
+
+**Deferred.** No lifecycle, gate, Sample 3/IDIQ, seed, work-queue, regulation-sidebar, or security/RLS changes. No NCMS write-back, FedRAMP, or FPDS capability is claimed. Security remains deferred.
