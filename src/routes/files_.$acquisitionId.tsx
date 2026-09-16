@@ -2445,6 +2445,27 @@ function FilePage() {
                       </tbody>
                     </table>
                   ) : null}
+                  <FormatScaffoldPanel scaffold={formatScaffold} />
+                  {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
+                    <div className="mt-3 border border-border p-4">
+                      <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
+                      <p className="mt-1 text-[13px] text-muted-foreground">
+                        Read from the clause matrices. The officer sets each value before the award is written in NCMS.
+                      </p>
+                      <ul className="mt-2 space-y-1 text-[13px]">
+                        {packetSelection
+                          .filter((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0)
+                          .map((c) => (
+                            <li key={c.clause_number}>
+                              <span data-numeric>{c.clause_number}</span>{" "}
+                              <span className="text-muted-foreground">
+                                {(c.fill_ins as unknown[]).map((v) => String(v)).join("; ")}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   <button type="button" onClick={downloadPacket} className="mt-3 text-[15px] text-primary">
                     Download the handoff packet
                   </button>
