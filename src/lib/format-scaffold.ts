@@ -11,6 +11,7 @@
 import type { PacketClause } from "@/lib/clause-packet";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
+import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -65,6 +66,8 @@ export type FormatScaffold = {
   lm: ScaffoldLmOverride | null;
   /** Section J: the attachments on the record, not a clause bucket. */
   attachments: SectionJAttachment[];
+  /** Data requirements recorded on the file. Empty unless the office added some. */
+  cdrl: PacketCdrlItem[];
 };
 
 
@@ -112,6 +115,8 @@ export function buildFormatScaffold(
   lm?: ScaffoldLmOverride | null,
   /** Section J: the attachments on the record. */
   attachments?: SectionJAttachment[],
+  /** Data requirements recorded on the file. */
+  cdrl?: PacketCdrlItem[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -248,6 +253,7 @@ export function buildFormatScaffold(
     clauses: scaffoldClauses,
     lm: lm ?? null,
     attachments: attachments ?? [],
+    cdrl: cdrl ?? [],
   };
 }
 
@@ -284,6 +290,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       scaffold.attachments.length === 0
         ? { attachments: [], empty_note: SECTION_J_EMPTY }
         : { attachments: scaffold.attachments },
+    // Data requirements sit beside the attachments. Empty unless recorded.
+    cdrl:
+      scaffold.cdrl.length === 0
+        ? { items: [], empty_note: CDRL_EMPTY }
+        : { items: scaffold.cdrl },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:

@@ -14,6 +14,79 @@ export type Database = {
   }
   public: {
     Tables: {
+      acquisition_cdrl: {
+        Row: {
+          acquisition_id: string
+          as_of: string | null
+          cdrl_id: string
+          created_at: string
+          created_by: string | null
+          distribution: string | null
+          drd_ref: string | null
+          frequency: string | null
+          is_seed: boolean
+          item_number: string
+          notes: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          as_of?: string | null
+          cdrl_id?: string
+          created_at?: string
+          created_by?: string | null
+          distribution?: string | null
+          drd_ref?: string | null
+          frequency?: string | null
+          is_seed?: boolean
+          item_number: string
+          notes?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          as_of?: string | null
+          cdrl_id?: string
+          created_at?: string
+          created_by?: string | null
+          distribution?: string | null
+          drd_ref?: string | null
+          frequency?: string | null
+          is_seed?: boolean
+          item_number?: string
+          notes?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_cdrl_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_cdrl_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_cdrl_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       acquisition_clins: {
         Row: {
           acquisition_id: string

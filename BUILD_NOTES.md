@@ -1696,3 +1696,11 @@ evaluation and UEI facts.
 - NCMS handoff packet JSON carries `section_j: { attachments: [...] }`, with `empty_note: "None attached."` only when there are none. Same content as the panel.
 - Sample 1 (A-2027-0101) shows its existing attachments (IGCE, SOW, NF 1707, funds certification) with their labels, file names and NF 1098 tab. No attachments invented, no clock or hold change, no NCMS write-back.
 - AC-W4-CDRL deferred: not shipped this turn.
+
+## AC-W4-CDRL — CDRL / data requirements (Wave 4)
+- New table `acquisition_cdrl`: item number, title, frequency, as-of, distribution, DRD reference, note, order. Signed-in users read; specialists, officers and administrators write. RLS mirrors `acquisition_clins`.
+- New `CdrlPanel` sits immediately under the Section J attachments panel on Solicitation/quote and Award, visually distinct (tinted block, heading "CDRL / data requirements"). Add, edit and delete with the specialist write gate; blanks print "Not recorded".
+- Empty state reads "No CDRL items on this file." — never clause wording. Section J attachments list is untouched.
+- Audit trail: "CDRL item added", "CDRL item edited", "CDRL item deleted" (insert-only audit_log, same pattern as CLINs).
+- NCMS handoff packet carries `cdrl: { items: [...] }` beside `section_j`, with `empty_note: "No CDRL items on this file."` only when empty. The format scaffold prints the count under the attachments block.
+- Samples 1 and 2 (A-2027-0101, A-2027-0102) have no CDRL rows: nothing seeded, no deliverables, DRD text or citations invented anywhere. No clock or hold change, no NCMS write-back.

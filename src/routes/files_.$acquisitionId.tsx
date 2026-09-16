@@ -55,6 +55,8 @@ import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
+import { CdrlPanel } from "@/components/cdrl-panel";
+import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import {
   LM_AUTHORED_CHIP,
   LM_STUB_CHIP,
@@ -523,6 +525,14 @@ function FilePage() {
     () => scheduleToScaffoldClins(clinQ.data ?? []),
     [clinQ.data],
   );
+
+  // Data requirements. Optional, and empty unless the office recorded some.
+  const cdrlQ = useQuery({
+    queryKey: ["cdrl", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadCdrl(acquisitionId),
+  });
+  const cdrlItems = useMemo(() => cdrlForPacket(cdrlQ.data ?? []), [cdrlQ.data]);
 
   // Sections L and M as the officer saved them. The workspace, the scaffold and
   // the handoff packet all read these rows, so they cannot disagree.
@@ -1541,8 +1551,9 @@ function FilePage() {
         scheduleClins,
         lmOverride,
         sectionJ,
+        cdrlItems,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride, sectionJ],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
@@ -2892,6 +2903,12 @@ function FilePage() {
                     onBanner={setBanner}
                   />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
+                  <CdrlPanel
+                    acquisitionId={acquisitionId}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
