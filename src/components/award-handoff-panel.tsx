@@ -131,18 +131,25 @@ export function AwardHandoffPanel({
 
       {open ? (
         <div className="mt-4 space-y-6">
-          <ul className="max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
-            {readiness.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-            {allEnclosuresEmpty ? (
+          <section aria-label="Packet completeness" className="break-inside-avoid">
+            <h5 className="text-[15px] font-medium">Packet completeness — advisory</h5>
+            <ul className="mt-1 max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
+              {readiness.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+              {allEnclosuresEmpty ? (
+                <li>
+                  No line items, attachments, data requirements or payment milestones are
+                  recorded yet — the packet prints the cover blocks only.
+                </li>
+              ) : null}
+              <li>Advisory only — nothing here holds the file or blocks a phase.</li>
               <li>
-                No line items, attachments, data requirements or payment milestones are
-                recorded yet — the packet prints the cover blocks only.
+                Counts read the record as it stands. No form on this file is Adobe verified; a
+                person checks the fields in desktop Adobe Acrobat Reader.
               </li>
-            ) : null}
-            <li>Advisory only — nothing here holds the file or blocks a phase.</li>
-          </ul>
+            </ul>
+          </section>
 
           <section>
             <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format — cover blocks"}</Head>
