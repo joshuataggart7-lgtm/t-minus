@@ -2031,3 +2031,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - P1-D: humanMemoProse also removes JSON, endpoint and remaining bracketed source tags, reads "query" as "search", "engine" as T-Minus, and "record row" as "record". The research log keeps its source detail unchanged.
 - P1-B: NF 1707 and NF 1098 have no official blank in public/forms, so no overlay is shipped and no re-typed lookalike is offered; recorded in docs/PILOT_KNOWN_GAPS.md.
 - Official file copy: a saved document version can be filed as the official copy (stored in field_values, one per template per file, audit line). File index, Who signed / saved what, evidence pack and NEAR export prefer the official copy; drafts stay on the record.
+- Official file loop: document page shows Route (memo_routing / memo header), concurrence ("Record concurrence" sets reviewed_by/at) and "This is the final version — file it"; filing marks one version per template per file, clears any earlier mark, audits, and offers a soft Unfile. Never holds a file or blocks a phase exit.
+- NF 1707 and NF 1098 still have no public blank; the pilot known gaps note stands.
