@@ -2065,9 +2065,15 @@ function FilePage() {
                          </>
                        ) : state === null ? (
                         d.link === "packet" ? (
-                          <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
-                            Open the NCMS handoff packet
-                          </button>
+                          <span className="block">
+                            <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
+                              Download the handoff packet
+                            </button>
+                            <span className="block text-[13px] text-muted-foreground">
+                              Downloads a local file. Writing the record into NCMS is planned and not available
+                              in this prototype.
+                            </span>
+                          </span>
                         ) : d.link === "checks" ? (
                           <Link to="/checks" className="text-[13px] text-primary">
                             Open Checks
