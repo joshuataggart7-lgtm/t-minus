@@ -6,11 +6,14 @@
 // regulation text is ever generated here.
 
 import { useId, useState } from "react";
-import { citationTokens, useCiteCorpus } from "@/lib/cite-stub";
+import { citationHasCompanionGuide, citationTokens, useCiteCorpus } from "@/lib/cite-stub";
 import { formatRefDate, tierLabel, type RegRefRow } from "@/lib/regulation-sidebar";
 
 const NO_BODY_NOTE =
   "The full regulation paragraph is not loaded in this prototype. Read the authority at its official source before relying on it.";
+
+const NFS_CG_NOTE =
+  "NFS Companion Guide text is not loaded in this prototype.";
 
 function normalise(value: string): string {
   return value.replace(/\s+/g, " ").trim().toUpperCase();
