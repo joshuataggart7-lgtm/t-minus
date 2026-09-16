@@ -2511,7 +2511,8 @@ function FilePage() {
           </thead>
           <tbody>
             {fileIndex.present.map((t) => {
-              const latest = t.documents.at(-1);
+              const officialDoc = t.documents.find((d) => d.official);
+              const latest = officialDoc ?? t.documents.at(-1);
               return (
                 <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
                   <td className="px-3 py-2" data-numeric>{t.tab}</td>
