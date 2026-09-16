@@ -346,8 +346,9 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     requirement: `${str(a["description_of_requirement"]) || gap("add the description of the requirement to the record")} The requirement supports ${
       ctx.missionName || gap("name the mission")
     }${start && end ? `, with performance from ${start} through ${end}` : ""}${value ? `, at an estimated value of ${value}` : ""}.`,
-    research: research.join("\n"),
-    findings: ruleOfTwo(ctx),
+    // The signed page reads as prose. Source detail stays in the research log.
+    research: humanMemoProse(research.join("\n")),
+    findings: humanMemoProse(ruleOfTwo(ctx)),
     commercial: commercialDetermination
       ? `The requirement is a ${commercialDetermination.toLowerCase()} within FAR 2.101, so the procedures of FAR Part 12 apply.${
           commercialityOnFile ? " The commerciality determination on this file states the basis in full." : ""
