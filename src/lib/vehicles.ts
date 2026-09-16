@@ -148,6 +148,10 @@ export const MOD_TYPES: {
   { key: "termination", label: "Termination", block: "13D", authority: "The Termination clause of the contract" },
 ];
 
+export function modTypeInfo(type: string) {
+  return MOD_TYPES.find((m) => m.key === type) ?? MOD_TYPES[0]!;
+}
+
 /** Printed when the instrument clause cannot be read from the record. */
 export const AUTHORITY_PENDING = "authority from record / RFO-pending";
 
@@ -296,4 +300,87 @@ export function retentionDate(finalPayment: string | null): string | null {
   if (Number.isNaN(d.getTime())) return null;
   d.setUTCFullYear(d.getUTCFullYear() + 6);
   return d.toISOString().slice(0, 10);
+}
+
+// ------------------------------------------------- closeout autopilot (W3.2)
+
+export type CloseoutItem = { label: string; citation: string; done: boolean; note?: string };
+
+/**
+ * The closeout checklist reads from the record. Nothing here writes anywhere
+ * outside T-Minus, and nothing is marked complete that the record does not
+ * already show.
+ */
+export function closeoutChecklist(
+  record: CloseoutRecord,
+  opts: { cparsRecorded: boolean },
+): CloseoutItem[] {
+  return [
+    {
+      label: "Final invoice received",
+      citation: "FAR 4.804-5(b)",
+      done: Boolean(record.final_invoice_date),
+      ...(record.final_invoice_date ? { note: `Received ${record.final_invoice_date}.` } : {}),
+    },
+    {
+      label: "Final payment recorded",
+      citation: "FAR 4.804-5(b)",
+      done: Boolean(record.final_payment_date),
+      ...(record.final_payment_date ? { note: `Paid ${record.final_payment_date}.` } : {}),
+    },
+    {
+      label: "Final CPARS evaluation entered",
+      citation: "FAR 42.1502(a)",
+      done: opts.cparsRecorded,
+    },
+    {
+      label: "Government property cleared",
+      citation: "FAR 4.804-5(a)(12)",
+      done: Boolean(record.property_cleared),
+    },
+    {
+      label: "Release of claims received",
+      citation: "FAR 4.804-5(a)(14)",
+      done: Boolean(record.release_of_claims),
+    },
+    {
+      label: "Excess funds deobligated",
+      citation: "FAR 4.804-5(a)(15)",
+      done: Boolean(record.deobligation_date),
+      ...(record.deobligation_date ? { note: `Deobligated ${record.deobligation_date}.` } : {}),
+    },
+  ];
+}
+
+/** A file is ready for transfer when every checklist item reads done. */
+export function closeoutReady(items: CloseoutItem[]): boolean {
+  return items.length > 0 && items.every((i) => i.done);
+}
+
+/** Memorandum to file: what closeout still owes, in plain sentences. */
+export function closeoutMemo(
+  acquisitionId: string,
+  items: CloseoutItem[],
+  record: CloseoutRecord,
+): string {
+  const open = items.filter((i) => !i.done);
+  const retention = retentionDate(record.final_payment_date);
+  const lines = [
+    `Memorandum to file: closeout status, ${acquisitionId}.`,
+    "",
+    record.final_payment_date
+      ? `Final payment is recorded as ${record.final_payment_date}.`
+      : "Final payment is not recorded yet, so the retention clock has not started.",
+    retention
+      ? `The contract file is retained until ${retention}, six years after final payment (FAR 4.805).`
+      : "The retention date computes once the final payment date is on the record (FAR 4.805).",
+    "",
+    open.length === 0
+      ? "Every closeout item reads complete on the record. The file is ready for transfer."
+      : "The following closeout items are still open:",
+    ...open.map((i) => `- ${i.label} (${i.citation})`),
+    "",
+    "This memorandum is generated from the T-Minus record. T-Minus does not write to any external system.",
+  ];
+  return lines.join("\n");
 }
