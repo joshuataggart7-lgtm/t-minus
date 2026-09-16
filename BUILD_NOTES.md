@@ -1254,3 +1254,20 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
 - The unsuccessful letter now names each company in the chooser, accepts ?offeror=N on the URL, opens on the first unsuccessful quoter, and reports the awarded value from the evaluation record rather than the intake estimate.
 - Click path: file A-2027-0101 → Award phase → "Postaward notification letters to the unsuccessful offerors", or directly /documents/postaward-letter-unsuccessful/A-2027-0101?offeror=2 and ?offeror=3; successful letter at /documents/postaward-letter-successful/A-2027-0101.
 - Citation stays FAR 13.106-3(d) on this commercial simplified file. No seed edits, no new holds, no NCMS/FedRAMP/live FPDS claims.
+
+## Tier-1 #4 — "Why this row" on the launch sequence (16 Sep 2026)
+
+Every launch-sequence row now carries a rationale, satisfied or not. `explainDocRow`
+in `src/lib/explain.ts` pairs each row with its purpose in the contract file
+(intake facts, IGCE, SOW/PWS, market research, NF 1787, JOFOC, notices, NCMS
+handoff packet, funds certification, proposed price, evaluation record, PNM,
+SAM/exclusions, SF 1449 signature, votes, FPDS, CPARS, COR, options, SF 30,
+closeout, file retention), states whether the phase requires or merely offers it,
+and says whether the record shows it. `explainMissingDoc` now delegates to the
+same builder, so hero and row wording stay identical. Rows show "Why this row"
+when satisfied and "Why?" when outstanding. Citations are unchanged and come from
+the row (FAR/RFO binding, Interim NFS, NFS CG process-only). Presentation only:
+no seed edits, no new auto-holds, no change to exits, clause packet, or claims.
+
+Verify: sign in, open `/files/A-2027-0101` or `/files/A-2027-0102`, expand the
+launch sequence and click "Why this row" / "Why?" on any row.
