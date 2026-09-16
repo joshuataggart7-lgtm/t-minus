@@ -227,26 +227,29 @@ export function ExecutiveOverview() {
           <p className="text-muted-foreground">No priority projects are loaded yet.</p>
         ) : (
           <>
-            <ul aria-label="Status summary" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {/* The one bold element: deep navy Mission Clock band, large still figures. */}
+            <div className="rounded-xl bg-panel px-6 py-6 text-panel-foreground sm:px-8">
+              <div className="flex items-baseline justify-between gap-4">
+                <p className="text-[13px] text-panel-muted" data-numeric>
+                  Across {metrics.length} acquisitions
+                </p>
+              </div>
+              <ul className="mt-2 divide-y divide-panel-muted/25">
+                {missionRows.map(({ mission, driver }) => (
+                  <MissionClockRow key={mission.mission_id} mission={mission} driver={driver} />
+                ))}
+              </ul>
+            </div>
+            {/* Quiet status summary below the hero — no competing card chrome. */}
+            <ul aria-label="Status summary" className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
               {summary.map((s) => (
-                <li key={s.label} className="rounded-xl border border-border bg-background px-5 py-4">
-                  <span className="block text-[32px] leading-10 font-semibold" data-numeric>
+                <li key={s.label} className="flex items-baseline gap-2 text-[13px] text-muted-foreground">
+                  <span aria-hidden="true" className="size-2 self-center rounded-[2px]" style={{ background: s.color }} />
+                  <span data-numeric className="text-[15px] font-semibold text-foreground">
                     {s.count}
                   </span>
-                  <span className="mt-1 flex items-center gap-2 text-[13px] text-muted-foreground">
-                    <span aria-hidden="true" className="size-2 rounded-[2px]" style={{ background: s.color }} />
-                    {s.label}
-                  </span>
+                  {s.label}
                 </li>
-              ))}
-            </ul>
-            <div className="mt-8 flex items-baseline justify-between gap-4">
-              <h2 className="text-[18px] font-medium">Priority projects</h2>
-              <p className="text-[13px] text-muted-foreground">Across {metrics.length} acquisitions</p>
-            </div>
-            <ul className="mt-4 grid gap-4 xl:grid-cols-2">
-              {missionRows.map(({ mission, driver }) => (
-                <MissionClockRow key={mission.mission_id} mission={mission} driver={driver} />
               ))}
             </ul>
           </>
