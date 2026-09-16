@@ -9,6 +9,7 @@
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
+import { clauseFillinText } from "@/lib/clause-fillins";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
