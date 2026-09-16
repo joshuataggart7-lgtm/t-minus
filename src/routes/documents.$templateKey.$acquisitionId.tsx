@@ -1185,6 +1185,17 @@ function DocumentPage() {
     }
   };
 
+  // Citations follow the method on the record, whether or not the values
+  // carry it yet.
+  const citationValues = {
+    ...values,
+    __method:
+      values["__method"] ||
+      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
+        q.data?.acq?.["contract_format"] ?? "",
+      )}`.trim(),
+  };
+
   const set = (key: string, v: string) => {
     setTouched(true);
     setValues((prev) => {
