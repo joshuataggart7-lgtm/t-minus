@@ -236,7 +236,8 @@ export const fetchSubawards = createServerFn({ method: "POST" })
         const url = new URL(path);
         url.searchParams.set("api_key", apiKey);
         url.searchParams.set("pageNumber", "0");
-        url.searchParams.set("pageSize", "25");
+        url.searchParams.set("pageSize", "100");
+        url.searchParams.set("status", "Published");
         url.searchParams.set("fromDate", iso(fiveYearsAgo));
         url.searchParams.set("toDate", iso(today));
         const redacted = url
