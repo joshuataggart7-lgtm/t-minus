@@ -1062,3 +1062,10 @@ Companion gate evidence
 - `src/lib/companion-gates.ts`: gates that have a document of their own now read a saved or attached copy as evidence, the same way a recorded vote is. Notification of procurement action reads `npa-notification`, ANOSCA reads `anosca`, and the procurement strategy meeting reads the signature page, addendum, executive presentation or written acquisition plan. Gates without a document of their own (CIO/IT, Section 508, aviation safety) still read only the poll. Gates remain a checklist and still never place a hold.
 
 Deferred: the fuller validated phase exit with linked requirements and audit beyond the offered-row rule, the confirmation-dialog rewrite, order-specific IDIQ/BPA screens, the SEB suite, SAM Awards entitlement, FOUO hierarchy, and the open security finding.
+
+## 16 Sep 2026 — Validated phase exit
+
+- Exit still runs only when every Required (non-Offered) row for the current phase is satisfied and every open review seat has voted. Offered rows continue to be excluded everywhere; the rule reuses `requiredDocs` and `docSatisfied`, so nothing new is invented.
+- A refused exit now lists every missing Required row, not just the first, each linked to the document, form or launch-sequence row that satisfies it, with its citation underneath. Pending reviewer seats are listed the same way and link to the poll board.
+- When exit is allowed, the dialog says how many required items are complete, and the successful exit audit row records them by name alongside who exited, the phase left and the phase entered.
+- No new holds, no seed changes, and the Sample 2 JOFOC No-go hold path is untouched. No NCMS write-back, FedRAMP or SAM publish claims; security remains deferred.
