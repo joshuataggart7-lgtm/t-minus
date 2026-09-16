@@ -87,6 +87,7 @@ export function MarketResearchEngine({
       setLatestRanAt(result.ranAt);
       setLatestIncompleteRanAt(null);
       setSuggested(result.suggestedSetAside);
+      setSourcesSought(result.noticesSearched ? result.sourcesSought : []);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
           result.ruleOfTwoMet ? "met" : "not met"
