@@ -153,8 +153,9 @@ function ReviewerInbox() {
         <>
           {matchMode === "all-pending" ? (
             <p className="mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-              No open review names {user.name}, so every open review on the prototype is listed. The
-              reviewer of record on each row is shown beside it.
+              No open review names you as the reviewer of record, so every open review on the prototype is
+              listed for the walk. The reviewer of record on each row is shown beside it. The hero document
+              still follows that office.
             </p>
           ) : null}
 
