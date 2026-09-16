@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
+import { usePresenter } from "@/lib/presenter";
 import {
   acknowledge,
   currentUserId,
@@ -17,6 +18,7 @@ import {
 
 /** Compact header notification control plus one dismissible urgent line. */
 export function AnnouncementBanner() {
+  const presenter = usePresenter();
   const { role, roles, user, authState } = useRole();
   const [items, setItems] = useState<Announcement[]>([]);
   const [ackedIds, setAckedIds] = useState<string[]>([]);
@@ -59,6 +61,7 @@ export function AnnouncementBanner() {
     }
   };
 
+  if (presenter) return null;
   return (
     <div className="relative shrink-0">
       <button

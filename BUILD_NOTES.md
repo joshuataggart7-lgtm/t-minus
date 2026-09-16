@@ -1459,3 +1459,7 @@ the live SAM path, the PNM citations RFO FAR 12.204(a) and FAR 13.106-3(b)(3),
 the P0.3 Reserved 52.212-3 / 52.212-5 note, and the hidden A-2026-0090
 SF30 clause delta. No seed facts were rewritten, no holds added and no
 NCMS, SAM, FPDS or email write was introduced.
+
+## UX Presenter declutter (CoS green light)
+- When Presenter mode is ON, AnnouncementBanner is not rendered in the header (bell control and urgent portal both hidden); urgent-announcement-slot stays empty so no "Urgent: ..." line appears under the header. Non-Presenter behavior unchanged.
+- Click path: Admin toggle Presenter on -> no bell/urgent banner under header; Presenter off -> banner and urgent line work as before.
