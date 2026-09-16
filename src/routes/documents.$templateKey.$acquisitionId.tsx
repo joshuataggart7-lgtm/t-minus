@@ -126,6 +126,7 @@ function DocumentPage() {
   const search = Route.useSearch() as { offeror?: number };
   const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
+  const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
   const canWrite = hasAnyRole(["specialist", "hq"]);
 
