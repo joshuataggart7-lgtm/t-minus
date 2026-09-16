@@ -112,22 +112,28 @@ export function buildFormatScaffold(
     { label: "Competition", value: s(facts, "competition") || "Not recorded" },
     { label: "Set-aside", value: s(facts, "set_aside") || "None recorded" },
     { label: "Contract type", value: s(facts, "contract_type") || "Not recorded" },
-    { label: "Delivery/acceptance", value: "Carried from the statement of work on this file" },
+    {
+      label: "Delivery/acceptance",
+      value:
+        facts["sow_attached"] === true
+          ? "Carried from the statement of work on this file"
+          : "Not recorded; set from the statement of work when it is on the file",
+    },
   ];
 
   // One primary line item drawn from the record. A catalogue of line items is
-  // not invented here; anything beyond this line is written by the officer.
-  const unit = /firm.fixed|ffp/i.test(s(facts, "contract_type")) ? "Lot" : "Each";
+  // not invented here; quantity, unit and price are the officer's to set.
   const clins: ScaffoldClin[] = [
     {
       clin: "0001",
       description: s(facts, "title") || s(facts, "description_of_requirement") || "Requirement on this file",
-      quantity: "1",
-      unit,
+      quantity: "Not recorded",
+      unit: "Not recorded",
       amount: dollars(value),
-      note: "Drawn from the record; the officer sets the final line items and prices.",
+      note: "Description and estimated value from the record; quantity, unit and price are set by the officer.",
     },
   ];
+
   const igceNote = facts["igce_attached"] === true;
   if (igceNote) {
     clins.push({
