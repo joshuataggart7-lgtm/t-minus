@@ -25,7 +25,7 @@ export function PresenterScreensBeat() {
       } catch {
         /* session storage is optional */
       }
-      setDismissed(!done ? false : true);
+      setDismissed(done);
       return;
     }
     if (presenter && !wasPresenter.current) {
