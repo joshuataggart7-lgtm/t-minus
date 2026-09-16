@@ -1229,7 +1229,7 @@ function DocumentPage() {
           {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
         </p>
         <p className="mt-1 text-[13px] text-muted-foreground">
-          {badgeCitation(def, values)} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
+          {badgeCitation(def, citationValues)} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
