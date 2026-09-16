@@ -102,7 +102,7 @@ async function getJson(url: URL, key?: string, timeoutMs?: number): Promise<unkn
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
-      signal: timeoutMs ? controller.signal : undefined,
+      signal: timeoutMs ? controller.signal : null,
     });
     if (!response.ok) {
       const body = (await response.text()).slice(0, 200);
