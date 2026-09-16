@@ -10,6 +10,20 @@ import { useEffect, useState } from "react";
 import { signedInName } from "@/lib/account-name";
 import { RFO_RESERVED_212_NOTE, type PacketClause } from "@/lib/clause-packet";
 import {
+  K_EMPTY_NOTE,
+  K_HANDOFF_CHIP,
+  K_SAM_PATH_NOTE,
+  K_SAM_STATUS_OPTIONS,
+  K_STATUS_LABELS,
+  K_UCF_PATH_NOTE,
+  kAuthored,
+  loadSectionK,
+  mergeKItems,
+  saveSectionK,
+  type KItemStatus,
+  type SectionKItem,
+} from "@/lib/solicitation-k";
+import {
   awardBasisHint,
   createFactor,
   deleteFactor,
@@ -81,6 +95,9 @@ export function SolicitationKlmPanel({
     submission_instructions: "",
     response_due_note: "",
   });
+  const [kSam, setKSam] = useState("Not recorded");
+  const [kNotes, setKNotes] = useState("");
+  const [kItems, setKItems] = useState<SectionKItem[]>([]);
   const [lpta, setLpta] = useState(false);
   const [mNotes, setMNotes] = useState("");
   const [adding, setAdding] = useState(false);
