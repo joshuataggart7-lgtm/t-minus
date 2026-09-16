@@ -193,6 +193,7 @@ export function ExecutiveOverview() {
     const today = todayISO();
     const qStart = quarterStart(today);
     const count = (s: AcqMetrics["status"]) => metrics.filter((m) => m.status === s).length;
+    const launchedTotal = count("Launched");
     const launchedThisQuarter = metrics.filter(
       (m) =>
         m.clockState === "launched" &&
@@ -204,6 +205,7 @@ export function ExecutiveOverview() {
       { label: "At risk", count: count("At Risk"), color: "var(--atrisk)" },
       { label: "Needs attention", count: count("Needs Attention"), color: "var(--attention)" },
       { label: "On track", count: count("On Track"), color: "var(--ontrack)" },
+      { label: "Launched", count: launchedTotal, color: "var(--ontrack)" },
       { label: "Launched this quarter", count: launchedThisQuarter, color: "var(--panel-muted)" },
     ];
   }, [metrics]);
