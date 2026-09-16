@@ -1300,6 +1300,9 @@ function DocumentPage() {
         <p className="mt-1 text-[13px] text-muted-foreground">
           {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
+        {badgeCiteStatus.kind === "stub" ? (
+          <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
+        ) : null}
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
             <p>{def.badge.note}</p>
