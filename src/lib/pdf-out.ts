@@ -17,6 +17,12 @@ export type PdfBlock = {
   gap?: number;
   center?: boolean;
   pageBreakBefore?: boolean;
+  /**
+   * Points of room that must remain below this block. A signature block, a
+   * certification block or the opening line of a numbered paragraph is never
+   * left alone at the foot of a page.
+   */
+  keepWith?: number;
 };
 
 export type PdfOptions = {
@@ -24,6 +30,13 @@ export type PdfOptions = {
   footer?: string[];
   prototype?: boolean;
   margins?: { top: number; right: number; bottom: number; left: number };
+  /**
+   * Agency insignia on the first page only, as the official blank places it.
+   * Continuation pages carry no letterhead.
+   */
+  insignia?: { url: string; width: number; height: number };
+  /** Running head printed at the top of page 2 onward. */
+  runningHead?: string;
 };
 
 const PAGE = { width: 612, height: 792, margin: 72 };
