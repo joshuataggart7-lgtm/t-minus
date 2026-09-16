@@ -130,6 +130,9 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
             <h5 className="text-[15px] font-medium">
               {scaffold.evaluation.mode === "competitive" ? "Evaluation factors" : "Evaluation on a sole-source file"}
             </h5>
+            <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
+              L/M are handoff stubs — not the solicitation of record
+            </p>
             <ul className="mt-2 space-y-1 text-[13px]">
               {scaffold.evaluation.lines.map((line) => (
                 <li key={line.text}>
