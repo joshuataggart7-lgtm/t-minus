@@ -408,7 +408,7 @@ function FormPage() {
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Open in Adobe Acrobat or Reader on the desktop — Chrome and Edge show a blank face."
+              title="Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
               onClick={() => void exportPopulated()}
             >
               Export form PDF
