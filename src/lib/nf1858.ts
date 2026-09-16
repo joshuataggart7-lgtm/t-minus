@@ -13,6 +13,7 @@
 
 import { TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
+import { humanMemoProse } from "@/lib/memo-prose";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
