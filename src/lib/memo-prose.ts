@@ -20,7 +20,7 @@ const SOURCE_NAMES: [RegExp, string][] = [
 
 /** True where a line still carries machine detail a memorandum should not print. */
 export function hasSourceJargon(text: string): boolean {
-  return /\bAPI\b|\bendpoint\b|https?:\/\/|\[from public data[^\]]*\]|[?&][a-z]+=/i.test(text);
+  return /\bAPI\b|\bendpoint\b|\bJSON\b|\brecord row\b|https?:\/\/|\[from public data[^\]]*\]|[?&][a-z]+=/i.test(text);
 }
 
 /** One line of a memorandum body, in human prose. */
