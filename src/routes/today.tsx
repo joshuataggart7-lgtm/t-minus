@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
 import { statusColor, urgencyRank } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
+import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -69,6 +70,7 @@ function Section({ title, lead, children }: { title: string; lead?: string; chil
 function TodayPage() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
+  const rowsRef = useRowKeysContainer<HTMLUListElement>();
 
   const mine = useMemo(() => {
     if (!desk) return [];
