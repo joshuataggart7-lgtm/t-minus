@@ -52,6 +52,18 @@ import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } 
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
+import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
+import {
+  LM_AUTHORED_CHIP,
+  LM_STUB_CHIP,
+  lmAuthored,
+  loadFactors,
+  loadSectionL,
+  loadSectionM,
+  methodShell,
+  sectionLLines,
+  sectionMLines,
+} from "@/lib/solicitation-lm";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
@@ -509,6 +521,24 @@ function FilePage() {
     () => scheduleToScaffoldClins(clinQ.data ?? []),
     [clinQ.data],
   );
+
+  // Sections L and M as the officer saved them. The workspace, the scaffold and
+  // the handoff packet all read these rows, so they cannot disagree.
+  const sectionLQ = useQuery({
+    queryKey: ["section-l", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadSectionL(acquisitionId),
+  });
+  const sectionMQ = useQuery({
+    queryKey: ["section-m", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadSectionM(acquisitionId),
+  });
+  const factorsQ = useQuery({
+    queryKey: ["section-m-factors", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadFactors(acquisitionId),
+  });
 
   // The most recent recorded check on this file, read only. Running a check
   // stays where it already lives; this is a stamp and a link.
