@@ -1069,3 +1069,11 @@ Deferred: the fuller validated phase exit with linked requirements and audit bey
 - A refused exit now lists every missing Required row, not just the first, each linked to the document, form or launch-sequence row that satisfies it, with its citation underneath. Pending reviewer seats are listed the same way and link to the poll board.
 - When exit is allowed, the dialog says how many required items are complete, and the successful exit audit row records them by name alongside who exited, the phase left and the phase entered.
 - No new holds, no seed changes, and the Sample 2 JOFOC No-go hold path is untouched. No NCMS write-back, FedRAMP or SAM publish claims; security remains deferred.
+
+## 16 Sep 2026 — In-page confirmations for every file action
+
+- Audited the file page and the rest of the app for native browser confirmations: none remain. Exit, Scrub, Remove, Record vote and Open poll all run through the one in-page `actionDialog` pattern already on the file page; no new modal system was introduced.
+- The confirm button now names the action it performs ("Exit Solicitation/Quote", "Scrub the acquisition", "Remove the file", "Record Go", "Record No-go", "Open the poll") instead of a generic Confirm, and reads as destructive for Scrub, Remove and a No-go vote.
+- Reason fields say they are required and carry `required` / `aria-required`, so keyboard and screen-reader users learn the rule before the button refuses.
+- Memorandum hold, vote and saved-version sentences were read again at these touch points and were already correct prose; nothing was rewritten, so that roadmap item stays open.
+- Verification: TypeScript clean, Sample 1 and Sample 2 cold load with no console errors, and the validated-exit refusal links are unchanged. The exit dialog itself could not be opened under the read-only demo persona; the signed-in path is unchanged code. Sample 2's JOFOC No-go hold path, seeds and audit writes untouched.

@@ -3343,26 +3343,43 @@ function FilePage() {
                 <input id="vote-received" type="date" value={voteReceived} onChange={(e) => setVoteReceived(e.target.value)} className="mt-1 block h-9 w-full rounded-lg border border-input bg-background px-3" />
               </label>
               <label className="block text-[13px]" htmlFor="vote-note">
-                {voteChoice === "no-go" ? "Reason" : "Note (optional)"}
-                <textarea id="vote-note" value={voteNote} onChange={(e) => setVoteNote(e.target.value)} className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2" />
+                {voteChoice === "no-go" ? "Reason (required)" : "Note (optional)"}
+                <textarea
+                  id="vote-note"
+                  value={voteNote}
+                  onChange={(e) => setVoteNote(e.target.value)}
+                  required={voteChoice === "no-go"}
+                  aria-required={voteChoice === "no-go"}
+                  className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2"
+                />
               </label>
             </div>
           ) : actionDialog?.kind === "exit" || actionDialog?.kind === "scrub" || actionDialog?.kind === "remove" ? (
             <label className="block text-[13px]" htmlFor="action-reason">
-              Reason
+              Reason (required)
               <textarea
                 id="action-reason"
                 value={actionReason}
                 onChange={(e) => setActionReason(e.target.value)}
+                required
+                aria-required="true"
                 className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2"
               />
             </label>
+
           ) : null}
 
           {actionError ? <p role="alert" className="text-[13px] text-destructive">{actionError}</p> : null}
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionDialog(null)}>Cancel</Button>
             <Button
+              variant={
+                actionDialog?.kind === "scrub" ||
+                actionDialog?.kind === "remove" ||
+                (actionDialog?.kind === "vote" && voteChoice === "no-go")
+                  ? "destructive"
+                  : "default"
+              }
               disabled={
                 !actionDialog ||
                 ((actionDialog.kind === "exit" || actionDialog.kind === "scrub" || actionDialog.kind === "remove") && !actionReason.trim()) ||
@@ -3385,8 +3402,21 @@ function FilePage() {
                 }
               }}
             >
-              Confirm
+              {actionDialog?.kind === "exit"
+                ? `Exit ${actionDialog.phase}`
+                : actionDialog?.kind === "scrub"
+                  ? "Scrub the acquisition"
+                  : actionDialog?.kind === "remove"
+                    ? "Remove the file"
+                    : actionDialog?.kind === "vote"
+                      ? voteChoice === "no-go"
+                        ? "Record No-go"
+                        : "Record Go"
+                      : actionDialog?.kind === "open-poll"
+                        ? "Open the poll"
+                        : "Confirm"}
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>
