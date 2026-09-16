@@ -44,6 +44,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
               <th scope="col" className="py-2 font-medium">Saved</th>
               <th scope="col" className="py-2 font-medium">Reviewed by</th>
               <th scope="col" className="py-2 font-medium">Reviewed</th>
+              <th scope="col" className="py-2 font-medium">Official</th>
             </tr>
           </thead>
           <tbody>
