@@ -165,7 +165,9 @@ export async function loadSectionK(acquisitionId: string): Promise<SectionKRow |
     acquisition_id: row.acquisition_id,
     sam_status: row.sam_status,
     notes: row.notes,
-    items: mergeKItems(null, row.items).length > 0 ? (mergeKItems(null, row.items) as SectionKItem[]) : [],
+    // The shell merge happens where the shell is known; here the stored rows
+    // are only normalised.
+    items: mergeKItems(null, row.items),
   };
 }
 
