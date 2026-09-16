@@ -1661,3 +1661,28 @@ evaluation and UEI facts.
 - Format scaffold and NCMS handoff packet `format_scaffold.clins` now read the same schedule — one source of truth.
 - Sample 1 (A-2027-0101) and Sample 2 (A-2027-0102): first open seeds the schedule from their existing IGCE lines, so the scaffold shows the real lines and quantities and narrative-only lines keep blank quantity, unit and price. No invented quantities, no clock or hold changes, no NCMS write-back.
 - Cheap W3 polish: "L/M are handoff stubs — not the solicitation of record" chip above Instructions and Evaluation. No authorable L/M.
+
+## AC-W4-LM + AC-W4-METHOD — authorable Section L/M and the method split (Wave 4 P0 #2–3)
+
+- New `solicitation_l`, `solicitation_m`, `solicitation_m_factors` tables: signed-in read,
+  specialist write, audit entries "Section L saved", "Section M saved",
+  "Evaluation factor added/edited/deleted".
+- `src/lib/solicitation-lm.ts` reads the method shell from the record:
+  SF 1449 / FAR Parts 12 and 13, or Uniform Contract Format / FAR Part 15.
+- `SolicitationKlmPanel` is a first-class workspace on the file in Solicitation/Quote and
+  Award — visible without opening the scaffold. K is thin (reps/certs bucket from the
+  selected clauses; the Reserved 52.212-5 note stays honest on commercial, no checkbox
+  block). L is authorable (volumes, page limit, submission instructions, response note;
+  blanks print "Not recorded"). M is authorable (LPTA flag, notes, factors with relative
+  importance).
+- Sample 1 (A-2027-0101, FAR 13.5 / SF 1449): Part 12/13 voice; the award basis already on
+  the file is offered as an LPTA suggestion the officer confirms — nothing is set for them.
+- Sample 2 (A-2027-0102, sole source): competitive Section M suppressed in the workspace,
+  the scaffold and the packet; the sole-source evaluation path stays.
+- Sample 3 (A-2027-0103, FAR 15): UCF and Part 15 voice (FAR 15.203 / 15.304 / 15.305);
+  no FAR 13.106-2(b)(3) best-value line on a Part 15 file.
+- One source of truth: the scaffold and `format_scaffold` in the handoff packet read the
+  saved L/M. The packet now carries `method_label`, `part_family`, `format_source`,
+  `section_l` and `section_m`. The chip upgrades to "L/M drafted in T-Minus for handoff —
+  NCMS remains the solicitation of record" once anything is saved.
+- No clock or hold writes, no invented quantities/awards/rates, no NCMS write-back.
