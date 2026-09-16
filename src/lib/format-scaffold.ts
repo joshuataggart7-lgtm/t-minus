@@ -304,6 +304,9 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
     part_family: scaffold.lm?.partFamily ?? null,
     blocks: scaffold.blocks,
     clins: scaffold.clins,
+    // Section K carries exactly what the panel shows: the SAM or UCF path, the
+    // checklist as recorded, and the K clauses the matrices placed there.
+    section_k: scaffold.sectionK,
     section_l: scaffold.lm ? { fields: scaffold.lm.sectionL, lines: scaffold.instructions } : null,
     section_m: scaffold.lm
       ? {
