@@ -93,6 +93,12 @@ export function AwardHandoffPanel({
       : "Payment milestones: empty",
     "Signatures: blank on purpose — signed in NCMS",
   ];
+  if (assemblyCounts) {
+    readiness.push(
+      `NF 1098: ${assemblyCounts.presentTabs} tabs present · ${assemblyCounts.missingTabs} required tabs missing`,
+      `Enclosures: ${assemblyCounts.recorded} recorded · ${assemblyCounts.notRecorded} not recorded`,
+    );
+  }
   const allEnclosuresEmpty =
     clins.length === 0 && attachments.length === 0 && cdrl.length === 0 && payments.length === 0;
 
