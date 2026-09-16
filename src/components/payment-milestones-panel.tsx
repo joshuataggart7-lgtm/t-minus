@@ -13,6 +13,9 @@ import {
   deletePaymentMilestone,
   loadPaymentMilestones,
   payAmount,
+  paymentClinHint,
+  paymentOrphanNote,
+  paymentUnlinkedNote,
   payPercent,
   payText,
   payValueMissing,
@@ -20,6 +23,7 @@ import {
   type PaymentMilestoneInput,
   type PaymentMilestoneRow,
 } from "@/lib/payment-milestones";
+
 
 type Draft = {
   event: string;
