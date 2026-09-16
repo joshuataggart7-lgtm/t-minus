@@ -2532,7 +2532,7 @@ function FilePage() {
                       <button
                         type="button"
                         className="text-primary underline-offset-2 hover:underline"
-                        onClick={() => void openIndexAttachment(t.open!.kind === "attachment" ? t.open.attachmentId : "")}
+                        onClick={() => void openIndexAttachment(attachmentIdOf(t.open))}
                       >
                         {t.templateName}
                       </button>
