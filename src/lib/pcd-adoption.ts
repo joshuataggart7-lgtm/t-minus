@@ -20,8 +20,12 @@ export const RFO_ADOPTION_NOT_RECORDED =
  * FAR 52.212-3 / 52.212-5 handling already used in T-Minus. This is not a
  * claim that every Interim NFS part is adopted.
  */
+/** There is no per-file RFO Part adoption overlay in T-Minus. Say so plainly. */
+export const RFO_PART_OVERLAY_NOT_LOADED =
+  "RFO Part overlay: not loaded. T-Minus carries no per-file record of which RFO Parts apply, so none is shown here.";
+
 export const PCD_2603B_NOTE =
-  "Interim NFS PCD 26-03B is the clause-matrix and Reserved-clause source T-Minus already reads. That is the clause list only; it is not a record that every Interim NFS part applies to this file.";
+  "Interim NFS PCD 26-03B is the clause-matrix and Reserved-clause source T-Minus already reads, at the matrix date Jul 23 2026. That is the source of the clause list only; it is not a record that every Interim NFS part applies to this file.";
 
 export type DeviationSummary = {
   deviation_id: string;

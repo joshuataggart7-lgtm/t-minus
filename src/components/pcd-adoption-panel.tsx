@@ -1,6 +1,7 @@
 import {
   PCD_2603B_NOTE,
   RFO_ADOPTION_NOT_RECORDED,
+  RFO_PART_OVERLAY_NOT_LOADED,
   RFO_SOURCE_URL,
   deviationStatusLine,
   type DeviationSummary,
@@ -62,6 +63,7 @@ export function PcdAdoptionPanel({
           </a>
           .
         </p>
+        <p className="mt-1">{RFO_PART_OVERLAY_NOT_LOADED}</p>
         <p className="mt-1">{PCD_2603B_NOTE}</p>
       </div>
     </section>

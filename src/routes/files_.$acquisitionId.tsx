@@ -95,6 +95,8 @@ import { evaluateCompanionGates } from "@/lib/companion-gates";
 import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import { loadDeviationsForAcquisition } from "@/lib/pcd-adoption";
 import { PcdAdoptionPanel } from "@/components/pcd-adoption-panel";
+import { BlackoutNoticePanel } from "@/components/blackout-notice-panel";
+import { DraftRfpAlertPanel } from "@/components/draft-rfp-alert-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
@@ -2534,6 +2536,10 @@ function FilePage() {
         baselineDate={(acq?.regulatory_baseline_date as string | null | undefined) ?? null}
         deviations={deviationsQ.data ?? []}
       />
+
+      <BlackoutNoticePanel acq={acq as Record<string, unknown> | null} onBanner={setBanner} />
+
+      <DraftRfpAlertPanel acq={acq as Record<string, unknown> | null} />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
