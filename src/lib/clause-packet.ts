@@ -448,15 +448,20 @@ export function selectPacketClauses(
     setAside: str(facts, "set_aside"),
     type,
     place,
-    commercial: /commercial/i.test(commercialText) || /sf 1449/i.test(str(facts, "contract_format")),
+    commercial:
+      /commercial/i.test(commercialText) ||
+      /sf 1449/i.test(str(facts, "contract_format")) ||
+      /commercial/i.test(clauseSet),
     hardware: bool(facts, "hardware_deliverable"),
     services: !bool(facts, "hardware_deliverable"),
     it: bool(facts, "includes_it"),
     costReimbursement: /\bcp(ff|if|af)\b|cost/i.test(type),
-    idiq: /idiq|indefinite/i.test(type),
+    idiq,
+    idiqSource,
     soleSource: /sole source|limited source|brand name/i.test(`${str(facts, "competition")} ${str(facts, "acquisition_method")}`),
     options: Array.isArray(optionList) && optionList.length > 0,
     onInstallation: INSTALLATION_HINTS.some((h) => place.toLowerCase().includes(h)),
+    clauseSet,
     money,
   };
 
