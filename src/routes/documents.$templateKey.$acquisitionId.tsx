@@ -42,6 +42,7 @@ import {
   type PollRow,
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
+import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import {
   exportDocx,
   exportPdf,
