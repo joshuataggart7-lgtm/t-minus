@@ -2470,9 +2470,9 @@ function FilePage() {
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          This is the NF 1098 checklist for the file: every tab, whether it is required for this
-          record, whether it is present, and the version and date of the latest document. Built from
-          the documents already on the file. FAR 4.801 contract file.
+          Every document on this file, drafted or uploaded: its NF 1098 tab, version, who saved or
+          uploaded it and when. Each row opens the official version. Required tabs with no document
+          are listed at the end. FAR 4.801 contract file.
         </p>
         <button
           type="button"
