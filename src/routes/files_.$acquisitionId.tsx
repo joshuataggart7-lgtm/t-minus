@@ -1449,8 +1449,13 @@ function FilePage() {
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
   const formatScaffold = useMemo(
-    () => buildFormatScaffold(acq as unknown as Record<string, unknown> | null, packetSelection),
-    [acq, packetSelection],
+    () =>
+      buildFormatScaffold(
+        acq as unknown as Record<string, unknown> | null,
+        packetSelection,
+        scheduleClins,
+      ),
+    [acq, packetSelection, scheduleClins],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
