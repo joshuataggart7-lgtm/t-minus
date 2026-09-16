@@ -141,9 +141,13 @@ const RULES: Rule[] = [
         : null,
   },
   {
+    // Not packed under the RFO. Representations and certifications are made in
+    // SAM under FAR 52.204-7, and 52.212-3 is not carried forward into the
+    // recommended commercial SF 1449 packet on the strength of the reserved
+    // 52.212-5 paragraph list.
     number: "52.212-3",
-    title: "Offeror Representations and Certifications—Commercial Products and Commercial Services",
-    applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 12.301(b)(2))." : null),
+    title: "Offeror Representations and Certifications\u2014Commercial Products and Commercial Services",
+    applies: () => null,
   },
   {
     number: "52.212-4",
