@@ -188,7 +188,9 @@ export function buildEmailDrafts(input: {
           "",
           outcome.successful
             ? ""
-            : "You may request a brief explanation of the basis for the award decision within three days of this notice (FAR 13.106-3(d)).",
+            : simplified(acq)
+              ? `You may request a brief explanation of the basis for the award decision within three days of this notice (${cites.unsuccessful}).`
+              : `You may request a debriefing within three days of this notice (${cites.unsuccessful}).`,
           "",
           "This is a prototype record and not an official NASA notice.",
           "",
@@ -201,5 +203,8 @@ export function buildEmailDrafts(input: {
     unavailableNote: "The evaluation record does not yet name a successful and unsuccessful quoter.",
   };
 
-  return [requesterDraft, reviewerDraft, vendorDraft];
+  return igceOwed
+    ? [igceDraft, requesterDraft, reviewerDraft, vendorDraft]
+    : [requesterDraft, igceDraft, reviewerDraft, vendorDraft];
+
 }
