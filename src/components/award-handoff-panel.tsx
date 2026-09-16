@@ -167,7 +167,57 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={3}>{sf ? "Instructions and evaluation" : "Sections L and M"}</Head>
+            <Head n={3}>{scaffold.sectionK?.heading ?? "Representations and certifications"}</Head>
+            {scaffold.sectionK ? (
+              <>
+                <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+                  {scaffold.sectionK.path_note}
+                </p>
+                <p className="mt-1 text-[13px]">
+                  SAM representations: {scaffold.sectionK.sam_status}
+                </p>
+                <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+                  {scaffold.sectionK.checklist.map((row) => (
+                    <li key={row.label}>
+                      {row.label} — {row.status}
+                      {row.note ? <span className="text-muted-foreground"> {row.note}</span> : null}
+                    </li>
+                  ))}
+                </ul>
+                {scaffold.sectionK.clauses.length > 0 ? (
+                  <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+                    {scaffold.sectionK.clauses.map((c) => (
+                      <li key={c.clause_number}>
+                        <span data-numeric>{c.clause_number}</span> {c.title}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-[13px] text-muted-foreground">
+                    {scaffold.sectionK.clauses_empty_note}
+                  </p>
+                )}
+                {scaffold.sectionK.notes ? (
+                  <p className="mt-2 text-[13px]">{scaffold.sectionK.notes}</p>
+                ) : null}
+                {scaffold.sectionK.empty_note ? (
+                  <p className="mt-2 text-[13px] text-muted-foreground">
+                    {scaffold.sectionK.empty_note}
+                  </p>
+                ) : null}
+                <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                  {scaffold.sectionK.note}
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                Representations and certifications are not recorded on this file.
+              </p>
+            )}
+          </section>
+
+          <section>
+            <Head n={4}>{sf ? "Instructions and evaluation" : "Sections L and M"}</Head>
             <p className="mt-1 text-[13px] text-muted-foreground">
               {scaffold.lm?.chip ?? "L/M are handoff stubs — not the solicitation of record"}
             </p>
@@ -199,7 +249,7 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={4}>Clauses in order, with fill-ins</Head>
+            <Head n={5}>Clauses in order, with fill-ins</Head>
             {scaffold.clauses.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 No clauses selected for this file yet.
@@ -235,7 +285,7 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={5}>{jTitle}</Head>
+            <Head n={6}>{jTitle}</Head>
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
             ) : (
@@ -265,7 +315,7 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={6}>CDRL / data requirements</Head>
+            <Head n={7}>CDRL / data requirements</Head>
             {scaffold.cdrl.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{CDRL_EMPTY}</p>
             ) : (
@@ -298,7 +348,7 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={7}>Payment milestones</Head>
+            <Head n={8}>Payment milestones</Head>
             {scaffold.paymentMilestones.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 {PAYMENT_MILESTONES_EMPTY}
@@ -342,7 +392,7 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={8}>Signatures</Head>
+            <Head n={9}>Signatures</Head>
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
               Left blank on purpose. The contracting officer signs the award in NCMS; T-Minus
               records no signature and produces no signed form.

@@ -74,6 +74,22 @@ export type FormatScaffold = {
   cdrl: PacketCdrlItem[];
   /** Payment milestones recorded on the file. Empty unless the office added some. */
   paymentMilestones: PacketPaymentMilestone[];
+  /** Section K as recorded on the file. Null where the shell is unknown. */
+  sectionK: ScaffoldSectionK | null;
+};
+
+/** Section K as the panel and the packet both print it. */
+export type ScaffoldSectionK = {
+  path: string;
+  heading: string;
+  path_note: string;
+  sam_status: string;
+  notes: string | null;
+  checklist: { label: string; status: string; note: string | null }[];
+  clauses: { clause_number: string; title: string }[];
+  clauses_empty_note: string | null;
+  empty_note: string | null;
+  note: string;
 };
 
 
@@ -125,6 +141,8 @@ export function buildFormatScaffold(
   cdrl?: PacketCdrlItem[],
   /** Payment milestones recorded on the file. */
   paymentMilestones?: PacketPaymentMilestone[],
+  /** Section K as the officer recorded it, already shaped for the packet. */
+  sectionK?: ScaffoldSectionK | null,
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -263,6 +281,7 @@ export function buildFormatScaffold(
     attachments: attachments ?? [],
     cdrl: cdrl ?? [],
     paymentMilestones: paymentMilestones ?? [],
+    sectionK: sectionK ?? null,
   };
 }
 
@@ -285,6 +304,9 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
     part_family: scaffold.lm?.partFamily ?? null,
     blocks: scaffold.blocks,
     clins: scaffold.clins,
+    // Section K carries exactly what the panel shows: the SAM or UCF path, the
+    // checklist as recorded, and the K clauses the matrices placed there.
+    section_k: scaffold.sectionK,
     section_l: scaffold.lm ? { fields: scaffold.lm.sectionL, lines: scaffold.instructions } : null,
     section_m: scaffold.lm
       ? {

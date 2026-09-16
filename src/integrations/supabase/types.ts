@@ -2395,6 +2395,61 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitation_k: {
+        Row: {
+          acquisition_id: string
+          created_at: string
+          created_by: string | null
+          is_seed: boolean
+          items: Json
+          notes: string | null
+          sam_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          items?: Json
+          notes?: string | null
+          sam_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          items?: Json
+          notes?: string | null
+          sam_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitation_k_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_k_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_k_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       solicitation_l: {
         Row: {
           acquisition_id: string
