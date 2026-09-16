@@ -706,6 +706,9 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
 export function buildForm(key: FormKey, ctx: FormCtx): GeneratedForm {
   if (key === "sf-1449") return buildSf1449(ctx);
   if (key === "sf-30") return buildSf30(ctx);
+  if (key === "sf-33") return buildSf33(ctx);
+  if (key === "sf-26") return buildSf26(ctx);
+  if (key === "of-347") return buildOf347(ctx);
   return key === "nf-1787" ? buildNf1787(ctx) : buildNf1787A(ctx);
 }
 
