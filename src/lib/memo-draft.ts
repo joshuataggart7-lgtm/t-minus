@@ -15,6 +15,7 @@
 import type { Values } from "@/lib/template-engine";
 import { MFR_SITUATION_PURPOSE } from "@/lib/template-engine";
 import { findingText, type FindingMap } from "@/lib/research-findings";
+import { humanMemoProse } from "@/lib/memo-prose";
 
 export type ResearchLogLine = {
   source: string;
