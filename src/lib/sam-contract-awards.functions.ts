@@ -138,7 +138,9 @@ function awardsFromRaw(raw: unknown): ComparableAward[] {
         row["extentCompetedDescription"],
       ),
       obligatedAmount: numberOrNull(
-        details["totalActionObligation"] ??
+        dollars["actionObligation"] ??
+          totalDollars["totalActionObligation"] ??
+          details["totalActionObligation"] ??
           details["actionObligation"] ??
           core["totalActionObligation"] ??
           core["actionObligation"] ??
