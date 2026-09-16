@@ -1977,3 +1977,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Verified A-2027-0101 and A-2027-0102 unchanged (0101 M1 / need 2027-03-01, 0102 M2); no clock, phase, CO or mission edits.
 - Verified RFO_RESERVED_212_NOTE still renders on the Sample 1 commercial Part 12 / SF 1449 path (file page Reserved clause note and handoff clause list). No checkbox block; 52.212-3 and 52.212-5 stay off the packet.
 - Auth untouched. Note for the record: a Lovable publish can drop signed-in sessions; that is a publish side effect, not a Wave 4 change.
+
+## Claude #18 — email drafts from the record, deepened
+- New "Requester — missing IGCE" draft, written from the record (id, title, phase, need date, target award date, the Required row's own citation) and offered first when the estimate is outstanding. Unavailable with an honest note when the file already carries an IGCE (A-2027-0101 and A-2027-0102); available on A-2027-0103, where igce_attached is false.
+- Added `emailCiteForMethod(acq)` so draft citations stay method-correct in one place: simplified/commercial files use FAR 13.106-3(d) and FAR 13.106-3; negotiated files use FAR 15.506(a) and FAR 15.404-1. No Part 15 citation ever lands on a simplified file.
+- Requester nudge now orders the IGCE row first; vendor notice uses the method-correct unsuccessful line, and the successful line stays a courtesy with NCMS as the document of record.
+- Copy only — no send, no NCMS/FPDS write, advisory only and never holds a phase exit. Sample clocks, COs, phases and seeds untouched.
