@@ -85,8 +85,8 @@ export function ExclusionsSweepPanel() {
         <div className="mt-4">
           <p className="text-[13px] text-muted-foreground">
             {result.vendorsChecked} vendor check{result.vendorsChecked === 1 ? "" : "s"} across {result.filesChecked}{" "}
-            open file{result.filesChecked === 1 ? "" : "s"} · {result.excludedFound} excluded · {result.placedOnHold}{" "}
-            placed on hold
+            open file{result.filesChecked === 1 ? "" : "s"} · {result.excludedFound} exclusion record(s) ·{" "}
+            {result.flaggedForReview} flagged for CO review · no clock changed
           </p>
           {result.results.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No open file has a vendor of record.</p>
