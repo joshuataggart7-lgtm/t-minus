@@ -1869,11 +1869,18 @@ function FilePage() {
               Checks
             </Link>
             <span className="text-muted-foreground" data-numeric>
-              {lastCheckQ.data
-                ? `Last check: ${lastCheckQ.data.check_type ?? "Check"} · ${formatDate(lastCheckQ.data.checked_at)}`
+              {lastCheck
+                ? `Last check: ${lastCheck.check_type ?? "Check"} · ${formatStamp(lastCheck.checked_at)}`
                 : "No check recorded on this file yet."}
             </span>
           </div>
+          {sweepFlag ? (
+            <p className="mt-3 max-w-[80ch] border-l-2 border-destructive pl-3 text-[13px]">
+              Flagged for contracting officer review: {sweepFlag.why} Checked{" "}
+              {formatStamp(sweepFlag.checkedAt)}. The clock was not changed. Run a record check on this UEI; a clean
+              result clears the flag.
+            </p>
+          ) : null}
           <p className="mt-2 text-[13px] text-muted-foreground">
             Both exports are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
           </p>
