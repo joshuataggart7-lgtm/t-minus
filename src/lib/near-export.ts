@@ -9,6 +9,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { isOfficialFinal } from "@/lib/official-file";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
 import { buildFileIndex } from "@/lib/file-index";
 import { buildSequence } from "@/lib/launch-sequence";
@@ -124,7 +125,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   };
 
   // ------------------------------------------------------------- documents
-  ordered.forEach((d, i) => {
+  packed.forEach((d, i) => {
     const tpl = tplById.get(d.template_id ?? "");
     const name = tpl?.name ?? "Document";
     const tab = tpl?.nf_1098_tab ?? "";
@@ -338,7 +339,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     action: "NEAR export",
     field: "export",
     new_value: fileName,
-    reason: `${ordered.length} document versions, ${samChecks.length} SAM.gov checks, ${comments.length} comments, ${polls.length} poll votes, ${audit.length} audit entries`,
+    reason: `${packed.length} document versions, ${samChecks.length} SAM.gov checks, ${comments.length} comments, ${polls.length} poll votes, ${audit.length} audit entries`,
   });
 
   return { fileName, entries };
