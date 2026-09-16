@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/intake";
+import { CITE_STUB_NOTE } from "@/lib/cite-stub";
 import {
   formatRefDate,
   loadRegulationRefs,
