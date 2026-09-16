@@ -2581,7 +2581,7 @@ function FilePage() {
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={9}>
                   No documents are saved or uploaded on this file yet.
                 </td>
               </tr>
