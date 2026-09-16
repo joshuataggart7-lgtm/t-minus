@@ -6,6 +6,7 @@
  * fields stay empty; nothing is invented and nothing holds a file.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { officialMeta } from "@/lib/official-file";
 
 export type DocVersionRow = {
   document_id: string;
