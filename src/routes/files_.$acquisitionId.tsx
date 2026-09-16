@@ -2558,6 +2558,14 @@ function FilePage() {
 
       <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
 
+      <OfficeInvitePanel
+        acquisitionId={acquisitionId}
+        acq={acq as Record<string, unknown> | null}
+        onBanner={setBanner}
+      />
+
+      <DocumentVersionsPanel acquisitionId={acquisitionId} />
+
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
           <p className="text-[15px] leading-[22px]">
