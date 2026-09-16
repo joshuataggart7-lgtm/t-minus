@@ -56,6 +56,7 @@ import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
 import { CdrlPanel } from "@/components/cdrl-panel";
+import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import {
   LM_AUTHORED_CHIP,
