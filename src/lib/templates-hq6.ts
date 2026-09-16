@@ -186,6 +186,12 @@ const postawardUnsuccessful: TemplateDef = {
       tier: "binding",
       standingText:
         "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
+      // On a FAR 13.5 or Part 12 commercial file the notice is made under the
+      // simplified rules; the Part 15 negotiated sentence does not apply.
+      standingTextFor: noticeCitation(
+        "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
+        "This notification is to inform the quoter named above that the National Aeronautics and Space Administration (NASA) has made an award under the subject solicitation and your quotation was not selected. Pursuant to Federal Acquisition Regulation (FAR) 13.106-3(d), the following information is provided:",
+      ),
       fields: [
         X("center_name", "Center or installation", "center_name"),
         X("offerors_solicited", "1. Number of offerors solicited"),
