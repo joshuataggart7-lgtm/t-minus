@@ -574,7 +574,7 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
       <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
         Method: the period of performance end date less the summed planned days in the phase plan for
         that acquisition type, plus a 30-day transition allowance. A file is flagged once that date has passed with no successor file
-        linked to it.
+        linked to it. Advisory only — it never places a hold, and no successor file is created automatically.
       </p>
       {rows.length === 0 ? (
         <p className="mt-2 text-muted-foreground">No launched file records a period of performance end.</p>

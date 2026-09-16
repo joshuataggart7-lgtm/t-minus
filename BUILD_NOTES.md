@@ -1966,3 +1966,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Option exercise: SF 30 block 13 authority now reads from modAuthorityText("option_exercise") instead of the administrative FAR 43.103(b)(1) string; Administration block adds the advisory FAR 17.207 checklist (notice, determination, FPDS, SF 30 handoff) with status read only from recorded dates, an honest exercise-window line, and a pointer to Modifications > New modification > Option exercise. Soft only; no phase gate, no NCMS or FPDS write.
 
 - Comparables fallback: local rows label "from T-Minus prior actions — live feed unavailable"; PNM drafts comparables_summary from the recorded check or, when none, prior T-Minus actions on the same NAICS/PSC (draft only, no writes, no invented figures).
+
+## Successor-clock polish (#24)
+- Launched files with a PoP end and no linked successor now state the follow-on must start by the computed date (same phase-plan formula) with a pointer to Intake; Overview method copy and the file section both state the clock is advisory only — no holds, no auto-created files.
