@@ -1513,3 +1513,21 @@ organization code reads `co_code` first (JAZ on the sample files) and the
 contracting officer e-mail and telephone continue to come from the users row
 matching the record's `co_name`. Exclusions sweep behaviour (SHA cce3fec) and
 the hidden A-2026-0090 clause delta are untouched.
+
+## Wave 2 exit polish
+
+The clause packet on a Part 12 commercial file now states the Reserved
+position in plain sight, above the picker: FAR 52.212-5 is Reserved under the
+RFO / PCD 26-03B, so clause content is prescribed through FAR Tables 12-2 and
+12-3 and representations are made in SAM, and neither 52.212-3 nor 52.212-5 is
+recommended or apply-able. The same note now rides in the NCMS handoff packet
+as `reserved_52_212_5_note` for commercial files. Nothing was invented: the
+wording is the existing RFO_RESERVED_212_NOTE, surfaced rather than collapsed.
+
+Regression checks this turn: /requester, /reviewer-inbox and /today all render;
+the peer-link strip's "Last check" runs through formatStamp, which prints
+"no date" and never "Invalid Date"; what-if remains an unsaved sandbox and the
+email drafts remain copy-only. The A-2026-0090 clause delta stays withheld on
+IDIQ vehicle and order profiles, the exclusions sweep still writes no
+clock_state or hold fields, and the postaward unsuccessful letter cites only
+FAR 13.106-3(d) on a FAR 13.5 or Part 12 file.

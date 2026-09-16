@@ -48,9 +48,10 @@ import {
 } from "@/lib/launch-sequence";
 import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { awardConfidence, historyFrom } from "@/lib/confidence";
-import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
+import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
+import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
@@ -2683,6 +2684,12 @@ function FilePage() {
                       ? "Loading the clause list."
                       : `${packetSelection.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
+                  {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
+                    <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px]">
+                      <span className="font-medium">FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
+                      {RFO_RESERVED_212_NOTE}
+                    </p>
+                  ) : null}
                   {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
                     <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
                       Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don’t open the clause
