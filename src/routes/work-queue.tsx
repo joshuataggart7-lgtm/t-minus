@@ -407,6 +407,11 @@ function WorkQueuePage() {
                     : c.m.clockState === "scrubbed"
                       ? "Clock stopped"
                       : (c.days ?? "Clock not started")}
+                  {c.m.clockState === "launched" || c.m.clockState === "scrubbed" ? null : (
+                    <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
+                      {c.confidence.sentence}
+                    </span>
+                  )}
                 </td>
                 <td className="p-2">
                   <span
