@@ -57,9 +57,25 @@ export function AwardHandoffPanel({
 
   // Soft readiness strip: advisory only, never holds a phase or blocks exit.
   const notRecorded = blocks.filter((b) => b.value === "Not recorded").length;
+  const clauses = scaffold.clauses ?? [];
+  // Derive blanks defensively from the fill-in string already on each clause.
+  const clausesWithBlanks = clauses.filter((c) =>
+    (c.fillIns ?? "").includes("Not recorded"),
+  ).length;
+  const lmLines = (scaffold.instructions ?? []).length + (scaffold.evaluation?.lines ?? []).length;
+  const kRows = scaffold.sectionK?.checklist?.length ?? 0;
   const readiness = [
     `Cover: ${notRecorded} of ${blocks.length} fields not recorded`,
     clins.length > 0 ? `Schedule: ${clins.length} line items` : "Schedule: no line items",
+    clauses.length > 0
+      ? `Clauses: ${clauses.length} selected — ${clausesWithBlanks} with a Not recorded fill-in`
+      : "Clauses: none selected yet",
+    lmLines > 0
+      ? `${sf ? "Instructions and evaluation" : "Sections L and M"}: ${lmLines} lines recorded`
+      : `${sf ? "Instructions and evaluation" : "Sections L and M"}: nothing recorded`,
+    scaffold.sectionK
+      ? `Representations and certifications: ${kRows} checklist rows · SAM ${scaffold.sectionK.sam_status}`
+      : "Representations and certifications: not recorded",
     attachments.length > 0
       ? `Attachments: ${attachments.length}`
       : `Attachments: ${SECTION_J_EMPTY}`,
