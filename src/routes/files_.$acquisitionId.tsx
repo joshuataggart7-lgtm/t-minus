@@ -1931,7 +1931,11 @@ function FilePage() {
                 ? "Days since award"
                 : effectiveState === "scrubbed"
                   ? "Countdown"
-                  : "Calendar days to target award date"}
+                  : days === null
+                    ? "No target award date recorded"
+                    : hasTargetAward
+                      ? "Calendar days to target award date"
+                      : "Calendar days to the forecast award date. No target award date recorded."}
             </p>
             {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
               <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
