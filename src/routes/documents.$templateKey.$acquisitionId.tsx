@@ -54,7 +54,7 @@ import {
   technicalRepresentative,
   approvingOfficialTitle,
 } from "@/lib/template-engine";
-import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
+import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
 import type { FindingMap } from "@/lib/research-findings";
@@ -655,14 +655,20 @@ function DocumentPage() {
     }));
   }, [q.data]);
 
-  // The SAM.gov notice saved on this file, when there is one.
+  // The SAM.gov notice saved on this file, when there is one. Saving a notice
+  // is not publishing it, so the posting date comes only from a publication
+  // date carried on the notice itself.
   const noticeFacts = useMemo(() => {
     const rows = (q.data?.fileDocRows ?? []).filter((d) => d.templates?.name === "SAM.gov notice");
     const last = rows[rows.length - 1];
-    if (!last) return { postedOn: null, closesOn: null, noticeType: null, quotesReceived: null };
+    if (!last)
+      return { postedOn: null, saved: false, savedAt: null, closesOn: null, noticeType: null, quotesReceived: null };
     const fv = (last.field_values ?? {}) as Record<string, string>;
+    const published = fv["publication_date"] ?? fv["posted_date"] ?? fv["original_posted_date"] ?? null;
     return {
-      postedOn: last.saved_at ? String(last.saved_at).slice(0, 10) : null,
+      postedOn: published ? String(published).slice(0, 10) : null,
+      saved: true,
+      savedAt: last.saved_at ? String(last.saved_at).slice(0, 10) : null,
       closesOn: fv["response_date"] ?? null,
       noticeType: fv["notice_type"] ?? null,
       quotesReceived: null,
@@ -807,6 +813,22 @@ function DocumentPage() {
           setAiMeta({});
         }
       }
+      // Item 6 of the justification reports the state of the notice of intent
+      // now, not when the version was saved. A stored status line is refreshed
+      // against the notice on the file and the publication date on this form.
+      if (def.key === "jofoc") {
+        const soleSource = /sole/i.test(String(q.data.acq["competition"] ?? ""));
+        const fresh = jofocNoticeStatus({
+          soleSource,
+          notice: noticeFacts,
+          publicationDate: stored["notice_date"] ?? "",
+        });
+        const previous = stored["notice_status"] ?? "";
+        stored["notice_status"] = fresh;
+        if (!stored["interested_sources"] || stored["interested_sources"].trim() === previous.trim()) {
+          stored["interested_sources"] = fresh;
+        }
+      }
       setValues(stored);
       return;
     }
@@ -853,7 +875,7 @@ function DocumentPage() {
     const drafted = applyMemoDraft(filled, draft);
     setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
-  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx]);
+  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.

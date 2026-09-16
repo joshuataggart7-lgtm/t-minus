@@ -31,14 +31,43 @@ export type PacketClauseLine = {
 };
 
 export type NoticeFacts = {
-  /** Date the notice document was saved, taken as the posting date. */
+  /**
+   * Date the notice was published to the Government Point of Entry. A save is
+   * not a publication, so this stays null until a real publication date is
+   * carried on the notice or entered on the justification.
+   */
   postedOn: string | null;
+  /** True when a notice document has been saved on this file. */
+  saved?: boolean;
+  /** Date the notice document was last saved. */
+  savedAt?: string | null;
   /** Response or closing date carried on the saved notice. */
   closesOn: string | null;
   noticeType: string | null;
   /** Quotations received, when the record carries a count. */
   quotesReceived: number | null;
 };
+
+/**
+ * The one sentence item 6 and item 10 of the justification carry about the
+ * notice of intent. Saved is not posted: a file with a saved notice and no
+ * publication date reads as a draft.
+ */
+export function jofocNoticeStatus(opts: {
+  soleSource: boolean;
+  notice?: NoticeFacts | null;
+  publicationDate?: string | null;
+}): string {
+  if (!opts.soleSource) return "Not applicable — competitive acquisition.";
+  const posted = (opts.publicationDate || opts.notice?.postedOn || "").trim();
+  if (posted) {
+    return `A notice of intent to sole source was posted to SAM.gov on ${posted}${
+      opts.notice?.closesOn ? `, closing ${opts.notice.closesOn}` : ""
+    }.`;
+  }
+  if (opts.notice?.saved) return "Notice of intent saved as a draft; not yet posted to SAM.gov.";
+  return "Notice of intent not yet posted.";
+}
 
 export type MemoDraftCtx = {
   acquisitionId: string;
@@ -468,13 +497,9 @@ function jofoc(ctx: MemoDraftCtx): Values {
     ? `The authority cited is ${authority}. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : gap("choose the statutory authority in item 4, then draft this item against it");
 
-  const noticeLine = !soleSource
-    ? "Not applicable — competitive acquisition."
-    : ctx.notice?.postedOn
-      ? `A notice of intent to sole source was posted to SAM.gov on ${ctx.notice.postedOn}${
-          ctx.notice.closesOn ? `, closing ${ctx.notice.closesOn}` : ""
-        }.`
-      : "Notice of intent not yet posted (Synopsis phase).";
+  const publicationDate = str(ctx.values?.["notice_date"]);
+  const noticeLine = jofocNoticeStatus({ soleSource, notice: ctx.notice ?? null, publicationDate });
+  const isPosted = Boolean(publicationDate || ctx.notice?.postedOn);
 
   const researchLines = researchLogLines(ctx.researchLog);
   const market = researchLines.length
@@ -484,16 +509,17 @@ function jofoc(ctx: MemoDraftCtx): Values {
   return {
     authority,
     authority_rationale: rationale,
-    // Items 6 and 10 read the posting and closing dates back from the notice
-    // of intent once it has been saved in the Synopsis phase. A competed file
-    // has no notice of intent, so the date stays empty.
-    notice_date: soleSource ? (ctx.notice?.postedOn ?? "") : "",
+    // Items 6 and 10 read the publication date of the notice of intent, not
+    // the date a draft was saved. A competed file has no notice of intent, so
+    // the date stays empty, and a saved but unpublished notice leaves it for
+    // the contracting officer to enter.
+    notice_date: soleSource ? (ctx.notice?.postedOn ?? publicationDate ?? "") : "",
     price_analysis_plan: `Price reasonableness will be determined under ${priceAnalysisCitation(
       a,
     )} before award, using the quotation received, the independent Government cost estimate and prior prices for the same service. Drafted from the record, confirm.`,
     market_research: market,
     notice_status: noticeLine,
-    interested_sources: soleSource && ctx.notice?.postedOn
+    interested_sources: soleSource && isPosted
       ? `${noticeLine} Responses received and their disposition are recorded in the contract file. Drafted from the record, confirm.`
       : noticeLine,
     
