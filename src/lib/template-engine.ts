@@ -62,6 +62,11 @@ export function sectionCitation(s: SectionDef, v: Values): string | undefined {
   return s.citationFor ? s.citationFor(v) : s.citation;
 }
 
+/** The standing body printed for a section on this record. */
+export function sectionStandingText(s: SectionDef, v: Values): string | undefined {
+  return s.standingTextFor ? s.standingTextFor(v) : s.standingText;
+}
+
 /** The citation printed on the template badge for this record. */
 export function badgeCitation(def: { badge: { citation: string; citationFor?: (v: Values) => string } }, v: Values): string {
   return def.badge.citationFor ? def.badge.citationFor(v) : def.badge.citation;
