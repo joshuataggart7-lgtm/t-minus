@@ -3029,8 +3029,9 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
   };
   for (const section of visibleSections(def, v)) {
     const lines: string[] = [];
-    if (section.standingText)
-      lines.push(...section.standingText.split("\n").filter(Boolean).filter((line) => !repeatsTitle(line)));
+    const standing = sectionStandingText(section, v);
+    if (standing)
+      lines.push(...standing.split("\n").filter(Boolean).filter((line) => !repeatsTitle(line)));
     for (const field of visibleFields(section, v)) {
       const raw = (v[field.key] ?? "").trim();
       const value =
