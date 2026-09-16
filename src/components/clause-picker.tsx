@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { storedClauseList } from "@/lib/clause-impact";
 import {
+  RFO_RESERVED_212_NOTE,
   removedClauseNumbers,
   sanitizeClauseSelection,
   type ClauseRow,
