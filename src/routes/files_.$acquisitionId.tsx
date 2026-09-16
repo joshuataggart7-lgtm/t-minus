@@ -1261,6 +1261,33 @@ function FilePage() {
       ),
   });
 
+  // A printable aid for the person keying FPDS. T-Minus does not connect to
+  // FPDS: every line is read from the record, and blanks stay blank.
+  const fpdsExport = useMutation({
+    mutationFn: async () => {
+      if (!acq) throw new Error("The record is still loading");
+      const who = await signedInName(actorName);
+      return exportFpdsFillingSheet(
+        {
+          acq: acq as unknown as Record<string, unknown>,
+          awardDate: lifecycle?.awardDate ?? null,
+          centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
+        },
+        who,
+      );
+    },
+    onSuccess: (fileName) => {
+      setBanner(
+        `The FPDS filling sheet downloaded as ${fileName}. It is a fill aid, not a live FPDS submission; confirm every line against the signed award.`,
+      );
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The FPDS filling sheet could not be built: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
+
   // A demo copy: same intake facts, same requester package, fresh clock.
   const copySample = useMutation({
     mutationFn: async () => copyAsNewSample(acquisitionId, actorName),
