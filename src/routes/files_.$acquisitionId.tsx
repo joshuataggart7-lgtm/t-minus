@@ -65,6 +65,7 @@ import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
 import { Table12FillinsPanel } from "@/components/table-12-fillins-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { Nf1098AssemblyPanel } from "@/components/nf1098-assembly-panel";
+import { FpdsFillAidSummary } from "@/components/fpds-fill-aid-summary";
 import { buildNf1098Assembly } from "@/lib/nf1098-assembly";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
