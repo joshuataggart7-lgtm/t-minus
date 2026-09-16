@@ -210,7 +210,11 @@ export function PaymentMilestonesPanel({
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
           {PAYMENT_MILESTONES_EMPTY} Nothing is written here for you; the contracting office
           records each milestone when the requirement calls for one.
+          {paymentClinHint(clins.length) ? (
+            <span className="block">{paymentClinHint(clins.length)}</span>
+          ) : null}
         </p>
+
       ) : (
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Payment milestones recorded on this file</caption>
