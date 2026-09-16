@@ -698,8 +698,8 @@ export function docSatisfied(
   // a stored file. It reads from the record whatever the attachment state is,
   // and accepts the answer however the record carries it.
   if (doc.field === "funds_certified") {
-    const raw = acq['funds_certified'];
-    return raw === true || raw === 1 || /^(true|yes|1)$/i.test(String(raw ?? ""));
+    const raw: unknown = acq['funds_certified'];
+    return raw === true || /^(true|yes|1)$/i.test(String(raw ?? ""));
   }
   // A stored file is the only thing that makes a row read Attached. When the
   // caller knows whether a file exists, that answer decides.
