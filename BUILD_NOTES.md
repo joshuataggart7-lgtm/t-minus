@@ -2033,3 +2033,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Official file copy: a saved document version can be filed as the official copy (stored in field_values, one per template per file, audit line). File index, Who signed / saved what, evidence pack and NEAR export prefer the official copy; drafts stay on the record.
 - Official file loop: document page shows Route (memo_routing / memo header), concurrence ("Record concurrence" sets reviewed_by/at) and "This is the final version — file it"; filing marks one version per template per file, clears any earlier mark, audits, and offers a soft Unfile. Never holds a file or blocks a phase exit.
 - NF 1707 and NF 1098 still have no public blank; the pilot known gaps note stands.
+
+## 2026-09-16
+- Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
+
+## 2026-09-16
+- Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
