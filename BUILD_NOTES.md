@@ -1951,3 +1951,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Added `src/lib/nf1098-assembly.ts` and `Nf1098AssemblyPanel`: NF 1098 tabs present (version/date) and required tabs with nothing filed, plus advisory enclosure rows from the record (line items, Section K, L/M, Section J, CDRL, payment milestones, clauses applied of recommended, signatures blank on purpose — signed in NCMS).
 - Evidence pack now carries `assembly/nf1098-assembly-checklist.html` and `.csv` from the same builder, and the cover `index.html` gained a Contract-file assembly section with counts and a pointer.
 - Advisory only: missing tabs never hold phase exit, no documents or enclosures invented on Samples, no NCMS write-back.
+
+- 2026-09-16: Briefing book now carries a Contract-file assembly counts block (present/missing tabs, recorded/not recorded enclosures) from the same buildNf1098Assembly input as the file page; Award handoff pointer mentions the NF 1098 assembly checklist beside Section K and L/M. Advisory only — NCMS is SoR, no write-back, no gates. Sample clocks/seeds unchanged.
