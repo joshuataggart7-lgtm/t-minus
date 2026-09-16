@@ -28,6 +28,10 @@ export type IndexDocument = {
   /** Issued on NASA Form 1858 letterhead, and the official it is addressed to. */
   memo: boolean;
   memoTo: string | null;
+  /** Filed by the contracting officer as the official copy on this file. */
+  official?: boolean;
+  officialAt?: string | null;
+  officialBy?: string | null;
 };
 
 /**
