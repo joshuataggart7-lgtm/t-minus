@@ -16,6 +16,10 @@ export type DocVersionRow = {
   saved_at: string | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
+  /** Filed as the official copy for this template on the file. */
+  official: boolean;
+  filedAt: string | null;
+  filedBy: string | null;
 };
 
 export const NO_VERSIONS_NOTE = "No saved document versions are on this file.";
