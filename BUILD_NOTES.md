@@ -1411,3 +1411,51 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
   "J. Rivera (fictional CO)". The one record was aligned; no other facts changed.
 - No external writes, no new auto-holds, no seed rewrites on Sample 1/2. P0.1 UEI, P0.2 PNM
   citations, P0.3 Reserved note and the QA batch 2 IDIQ clause-delta hide are unchanged.
+
+## Wave 2 W2.1–W2.3 multi-role desk
+
+Three role desks ship together. Each reads the record only; nothing is
+inferred and no external system is written.
+
+- `src/lib/desk-data.ts` — one shared loader over missions, acquisition
+  facts, phase plan, review rules, Center overrides, thresholds, enterprise
+  strategies, polls, audit log, users, Centers, attachments, saved documents
+  and open clause change tasks. Derives each card through the existing
+  `computeMetrics`, so phase, clock, status, blocker and next action match
+  the Overview, the Work Queue and the file page exactly. Helpers:
+  `daysSince`, `daysUntil`, `heroDocForPhase` (the required generated
+  document for the phase, falling back to the last document the file
+  produced before a review phase opened) and `pollMatchesReviewer`.
+- `/requester` (W2.1, requester portal) — lists only files whose
+  `requester_name` matches the signed-in persona. Panels: Your file, What
+  you owe (PR number, NF 1707 answers, SOW, IGCE, present vs missing from
+  the record flags), Days costing (days since the file opened, days on
+  hold, days to award), What happens next (next action or blocker with the
+  phase authority beside it). Links into the file and the NF 1707 intake.
+- `/reviewer-inbox` (W2.2) — open polls matched to the reviewer by name or
+  roster title. Where the persona is not named on any open poll the list is
+  every open review with the reviewer of record shown on each row, stated
+  on screen. Each row links to the one document to read and records the
+  vote into the same `polls` row and `audit_log` entry the file page uses.
+  A No-go without a reason is refused.
+- `/today` (W2.3, CO landing) — Waiting on me, Waiting on someone else,
+  Reviews due, Regulation changes touching my files (only rows in
+  `clause_mod_tasks`; otherwise an honest empty state linking to Clause
+  changes) and Three things to do next, ranked by the Overview urgency.
+  The Work Queue board is unchanged and still available.
+- `src/lib/roles.ts` — landings: specialist `/today`, reviewer
+  `/reviewer-inbox`, requester `/requester`. Work Queue nav is now
+  specialist and HQ; a requester or reviewer opening `/work-queue`
+  is redirected to their own desk. Administrator sees all desks.
+
+Click paths (Try the demo, then the role toggle in the header):
+- Requester: role toggle → Requester → left rail → Requester portal.
+- Reviewer: role toggle → Reviewer → left rail → Reviewer inbox →
+  Vote on this review → Go or No-go with a note.
+- CO: role toggle → Contracting specialist / officer → left rail → Today.
+
+Protected and unchanged: Sample 1 A-2027-0101 Corsair UEI HCH5G9HLMVZ5 and
+the live SAM path, the PNM citations RFO FAR 12.204(a) and FAR 13.106-3(b)(3),
+the P0.3 Reserved 52.212-3 / 52.212-5 note, and the hidden A-2026-0090
+SF30 clause delta. No seed facts were rewritten, no holds added and no
+NCMS, SAM, FPDS or email write was introduced.
