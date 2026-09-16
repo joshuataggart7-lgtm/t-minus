@@ -294,7 +294,13 @@ export function AwardHandoffPanel({
                         ) : null}
                       </td>
                       <td className="p-2">{m.due_logic}</td>
-                      <td className="p-2" data-numeric>{m.clin_number}</td>
+                      <td className="p-2" data-numeric>
+                        {m.clin_number}
+                        {m.clin_note ? (
+                          <span className="block text-muted-foreground">{m.clin_note}</span>
+                        ) : null}
+                      </td>
+
                       <td className="p-2" data-numeric>{m.amount}</td>
                       <td className="p-2" data-numeric>{m.percent}</td>
                     </tr>
