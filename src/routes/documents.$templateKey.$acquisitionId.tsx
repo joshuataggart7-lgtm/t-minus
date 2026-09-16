@@ -123,6 +123,28 @@ export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   component: DocumentPage,
 });
 
+/** The comparables paragraph, written only from what the check returned. */
+function comparablesSummary(view: ComparablesView): string {
+  const stamp = view.checkedAt ? ` Checked ${new Date(view.checkedAt).toLocaleString("en-US")}.` : "";
+  if (!view.awards.length) {
+    return [
+      `The comparables check ran for NAICS ${view.naicsCode} and PSC ${view.pscCode} and returned no prior awards.${stamp}`,
+      view.providerNote ?? "",
+      "No comparable award is assumed here. State the basis relied on instead.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+  const lines = view.awards.map(
+    (a) => `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
+  );
+  const lead =
+    view.source === "local"
+      ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.${stamp}`
+      : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).${stamp}`;
+  return [lead, ...lines].join("\n");
+}
+
 /** Plain-language summary of the answers stored on the intake record. */
 function answersSummary(answers: unknown): string {
   if (!answers || typeof answers !== "object") return "";
