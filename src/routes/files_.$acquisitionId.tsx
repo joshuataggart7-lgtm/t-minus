@@ -1571,6 +1571,13 @@ function FilePage() {
     [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems, paymentItems],
   );
 
+  // The official form the method on the record points at. A suggestion only:
+  // every other official form stays reachable from this file.
+  const suggestedOfficialForm = useMemo(() => {
+    const rec = recommendedOfficialForm(acq as unknown as Record<string, unknown> | null);
+    return rec ? { key: rec.key, name: FORM_NAMES[rec.key], why: rec.why } : null;
+  }, [acq]);
+
   // Companion gates: exits read from the seeded review rules and this record.
   const companionGates = useMemo(
     () =>
