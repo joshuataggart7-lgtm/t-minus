@@ -1183,7 +1183,7 @@ function DocumentPage() {
   // method-dependent citation is never guessed from empty values.
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
-  const sectionCite = (s: SectionDef) => (methodKnown ? sectionCite(s) : s.citation);
+  const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
