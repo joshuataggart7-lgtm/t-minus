@@ -9,6 +9,7 @@
 // record (NFS 1804.171). T-Minus does not write to NCMS.
 
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
@@ -63,6 +64,20 @@ export function AwardHandoffPanel({
         {scaffold.lm?.methodLabel ?? "Acquisition method not recorded"}. The downloaded packet
         carries the same content.
       </p>
+      {suggestedForm && acquisitionId ? (
+        <p className="mt-2 max-w-[80ch] text-[13px]">
+          <Link
+            to="/forms/$formKey/$acquisitionId"
+            params={{ formKey: suggestedForm.key, acquisitionId }}
+            className="text-primary underline-offset-2 hover:underline"
+          >
+            Fill the {suggestedForm.name}
+          </Link>{" "}
+          <span className="text-muted-foreground">
+            {suggestedForm.why} Other official forms stay open on this file.
+          </span>
+        </p>
+      ) : null}
       <p className="mt-2 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
         {NCMS_CHIP}
       </p>
