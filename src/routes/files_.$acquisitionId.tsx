@@ -610,6 +610,19 @@ function FilePage() {
     });
   }, [acq, currentPhase, attachments, savedKeys]);
 
+  // The Required rows this phase has already satisfied. Named on the audit row
+  // so the record says what was complete when the phase was exited.
+  const completeCurrentRequirements = useMemo(() => {
+    if (!acq || !currentPhase) return [];
+    return currentPhase.docs.filter((doc) => {
+      if (doc.optional) return false;
+      const key = doc.docKey ?? docKey(doc.field, doc.label);
+      return docSatisfied(doc, acq, Boolean(attachmentFor(key)), savedKeys) !== false;
+    });
+  }, [acq, currentPhase, attachments, savedKeys]);
+
+
+
   const pendingCurrentReviews = useMemo(
     () =>
       currentPhase
