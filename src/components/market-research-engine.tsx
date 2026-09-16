@@ -153,6 +153,32 @@ export function MarketResearchEngine({
         </p>
       ) : null}
 
+      {sourcesSought ? (
+        <section aria-label="Sources Sought" className="mt-4 border-t border-border pt-3">
+          <h5 className="text-[15px] font-medium">Sources Sought</h5>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Sources Sought notices found in the same read-only SAM.gov search. T-Minus reads
+            notices; it never posts one to SAM.gov.
+          </p>
+          {sourcesSought.length === 0 ? (
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              No Sources Sought notices loaded for this NAICS and place-of-performance window.
+            </p>
+          ) : (
+            <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+              {sourcesSought.map((n) => (
+                <li key={`${n.title}-${n.posted}`}>
+                  {n.title}
+                  <span className="block text-muted-foreground">
+                    Posted {n.posted || "date not reported"} · {n.setAside || "set-aside not reported"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
+
       {findings === null || log === null ? (
         <p className="mt-4 text-[13px] text-muted-foreground">Loading</p>
       ) : (
