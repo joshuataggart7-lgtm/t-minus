@@ -84,13 +84,38 @@ export function RequesterLoe({
         {est.hours.cs.toLocaleString("en-US")} to the contracting specialist.
       </p>
 
-      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
-        {byPhase.map(([phase, hours]) => (
-          <div key={phase} className="contents">
-            <dt className="text-muted-foreground">{phase}</dt>
-            <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
-          </div>
-        ))}
+      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+        <dt className="text-muted-foreground">Planned calendar days</dt>
+        <dd data-numeric>
+          {hasPlan ? `${totalPlannedDays} days across the phase plan` : "Phase-plan days are not loaded for this file"}
+        </dd>
+        {awardRange ? (
+          <>
+            <dt className="text-muted-foreground">Days to award</dt>
+            <dd>{awardRange}</dd>
+          </>
+        ) : null}
+        {missingCount != null ? (
+          <>
+            <dt className="text-muted-foreground">Items you still owe</dt>
+            <dd data-numeric>{missingCount}</dd>
+          </>
+        ) : null}
+      </dl>
+
+      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+        {byPhase.map(([phase, hours]) => {
+          const days = plannedByPhase.get(phase.toLowerCase());
+          return (
+            <div key={phase} className="contents">
+              <dt className="text-muted-foreground">{phase}</dt>
+              <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
+              <dd className="text-muted-foreground" data-numeric>
+                {days != null ? `${days} planned days` : "Planned days not loaded"}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
 
       <h4 className="mt-4 text-[15px] font-medium">What drives it on this file</h4>
