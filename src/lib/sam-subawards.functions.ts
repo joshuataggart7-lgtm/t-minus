@@ -66,10 +66,16 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
   ).map(object);
   const mapped = rows.map((row) => {
     const prime = object(row["primeAward"] ?? row["primeContract"] ?? row["prime"]);
+    const primeOrg = object(row["primeOrganizationInfo"] ?? prime["organizationInfo"]);
     const primeEntity = object(prime["awardee"] ?? prime["entity"] ?? row["primeAwardee"]);
     const sub = object(row["subAward"] ?? row["subcontract"] ?? row["subAwardee"] ?? row["subEntity"]);
-    const subAddress = object(sub["address"] ?? sub["physicalAddress"] ?? row["subAwardeeAddress"]);
+    const subAddress = object(
+      row["entityPhysicalAddress"] ?? sub["address"] ?? sub["physicalAddress"] ?? row["subAwardeeAddress"],
+    );
     const naics = text(
+      object(row["subContractorNaics"])["code"],
+      row["subContractorNaicsCode"],
+      object(primeOrg["naics"])["code"],
       prime["naicsCode"],
       row["naicsCode"],
       object(prime["naics"])["code"],
@@ -86,15 +92,18 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
       naics,
       row: {
         primeName: text(
+          row["primeEntityName"],
+          row["primeEntityLegalBusinessName"],
           primeEntity["legalBusinessName"],
           primeEntity["name"],
           prime["awardeeName"],
           row["primeAwardeeName"],
-          row["primeEntityName"],
           row["primeName"],
           row["awardeeName"],
         ),
         primeAgency: text(
+          object(primeOrg["fundingAgency"])["name"],
+          object(primeOrg["contractingAgency"])["name"],
           prime["fundingAgencyName"],
           prime["awardingAgencyName"],
           object(prime["fundingAgency"])["name"],
@@ -104,10 +113,11 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
           row["agency"],
         ),
         subName: text(
+          row["subEntityLegalBusinessName"],
+          row["subEntityName"],
           sub["legalBusinessName"],
           sub["name"],
           row["subAwardeeName"],
-          row["subEntityName"],
           row["subawardeeName"],
           row["subName"],
         ),
