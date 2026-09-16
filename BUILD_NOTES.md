@@ -880,3 +880,22 @@ role check using the existing `private.*` helpers.
   funds_certified true, proposed_price 812400 received 2026-09-10, hold fields null.
 - No NCMS write-back. No FedRAMP claim. Demo persona list untouched. Security
   findings deferred.
+
+## 16 Sep 2026 — JOFOC item 6 notice status (A-2027-0102)
+
+- Item 6 of the justification now derives its notice line from the live state
+  of the Synopsis SAM.gov notice plus the publication date on the form
+  (`notice_date`), through one shared helper `jofocNoticeStatus`.
+- Saving a notice is no longer treated as posting it. `NoticeFacts` carries
+  `saved`/`savedAt` separately, and `postedOn` is read only from a real
+  publication date on the saved notice's values.
+- Three-way status: competitive reads not applicable; a publication date reads
+  posted with the closing date; a saved notice with no publication date reads
+  "Notice of intent saved as a draft; not yet posted to SAM.gov."; nothing on
+  file reads "Notice of intent not yet posted." The stale "(Synopsis phase)"
+  wording is gone.
+- A stored JOFOC version no longer keeps a stale status line: the status (and
+  the notice part of item 10) is recomputed when the document opens. No
+  publication date is invented; a blank `notice_date` stays blank.
+- The printed justification follows the same distinction.
+- No NCMS write-back. No FedRAMP claim. Security deferred. Sample 3 unchanged.
