@@ -219,6 +219,49 @@
   tr {
     break-inside: avoid;
   }
+
+  /*
+   * Contract file handout: when a page marks print sections with data-print,
+   * only those print. Story and launch sequence make page one, the contract
+   * file index page two. Buttons and other screen chrome stay off the paper.
+   */
+  main:has([data-print]) > *:not([data-print]) {
+    display: none !important;
+  }
+
+  [data-print] {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 0 18pt 0 !important;
+    break-inside: auto;
+  }
+
+  [data-print] button,
+  [data-print] [role="button"],
+  [data-print] input,
+  [data-print] select,
+  [data-print] textarea {
+    display: none !important;
+  }
+
+  [data-print] summary {
+    list-style: none;
+    font-weight: 600;
+  }
+
+  [data-print] details > *:not(summary) {
+    display: block !important;
+  }
+
+  [data-print="header"] {
+    display: block !important;
+    margin-bottom: 12pt !important;
+  }
+
+  [data-print="index"] {
+    break-before: page;
+  }
 }
 
 
