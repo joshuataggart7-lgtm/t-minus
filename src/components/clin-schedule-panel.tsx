@@ -300,7 +300,14 @@ export function ClinSchedulePanel({
                   </td>
                   <td className="p-2">{r.unit_of_issue?.trim() || "Not recorded"}</td>
                   <td className="p-2" data-numeric>{money(r.unit_price)}</td>
-                  <td className="p-2" data-numeric>{money(r.extended_price)}</td>
+                  <td className="p-2" data-numeric>
+                    {displayAmount(r).text}
+                    {displayAmount(r).derived ? (
+                      <span className="block text-muted-foreground">
+                        Quantity times unit price
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="p-2 text-muted-foreground">{sourceLabel(r.source)}</td>
                   {canWrite ? (
                     <td className="p-2">
