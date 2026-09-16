@@ -721,6 +721,21 @@ export function buildForm(key: FormKey, ctx: FormCtx): GeneratedForm {
  * XFA data document for the populated export. Each field path becomes a
  * nested element so the original form binds the value when it is opened.
  */
+/**
+ * Yes/no fields live in two layers on the GSA blanks. Reader's Import Data
+ * binds the XFA datasets layer, which carries "1" or "0". The AcroForm widget
+ * layer on the same blanks uses the states "/1" and "/Off". Only the datasets
+ * layer is written today; a widget fill path, if one is ever added, uses
+ * checkboxAcroValue so the two never drift apart.
+ */
+export function checkboxXfaValue(on: boolean): "1" | "0" {
+  return on ? "1" : "0";
+}
+
+export function checkboxAcroValue(on: boolean): "/1" | "/Off" {
+  return on ? "/1" : "/Off";
+}
+
 export function xfaDatasets(form: GeneratedForm): string {
   type Node = { children: Map<string, Node>; value?: string };
   const root: Node = { children: new Map() };
