@@ -172,6 +172,8 @@ const postawardUnsuccessful: TemplateDef = {
           "Offeror 4",
         ]),
         X("company_name", "Unsuccessful offeror company name"),
+        X("offeror_uei", "Unsuccessful offeror UEI"),
+        T("quotation_summary", "The quotation as evaluated", "Price quoted and the rating recorded on the evaluation of quotations."),
       ],
     },
     letterHeader("The unsuccessful offeror's point of contact."),
