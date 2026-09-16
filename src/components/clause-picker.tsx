@@ -26,6 +26,7 @@ export function ClausePicker({
   applied,
   actorName,
   phase,
+  facts,
   onApplied,
 }: {
   acquisitionId: string;
@@ -34,6 +35,8 @@ export function ClausePicker({
   applied: string[] | null;
   actorName: string;
   phase: string;
+  /** The record, so each clause can show the fill-ins this file already carries. */
+  facts?: Record<string, unknown> | null;
   onApplied?: () => void;
 }) {
   const qc = useQueryClient();
