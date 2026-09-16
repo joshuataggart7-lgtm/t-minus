@@ -33,6 +33,30 @@ export type PaymentMilestoneInput = {
 
 export const PAYMENT_MILESTONES_EMPTY = "No payment milestones on this file.";
 export const PAYMENT_AMOUNT_BLANK = "Neither an amount nor a percentage is recorded.";
+export const PAYMENT_CLIN_ORPHAN = "Linked CLIN missing from schedule.";
+
+/** Soft hint under the empty state when a schedule already exists. */
+export const paymentClinHint = (clinCount: number): string | null =>
+  clinCount > 0
+    ? "CLIN schedule is on this file; link a CLIN when you add a milestone."
+    : null;
+
+/** Advisory only: the schedule has line items but this row links none. */
+export const paymentUnlinkedNote = (
+  row: { clin_id: string | null },
+  clinCount: number,
+): string | null =>
+  !row.clin_id && clinCount > 0
+    ? `CLIN not linked — schedule has ${clinCount} line ${clinCount === 1 ? "item" : "items"} on this file.`
+    : null;
+
+/** Advisory only: the stored link points at a CLIN no longer on the schedule. */
+export const paymentOrphanNote = (
+  row: { clin_id: string | null },
+  clinIds: string[],
+): string | null =>
+  row.clin_id && !clinIds.includes(row.clin_id) ? PAYMENT_CLIN_ORPHAN : null;
+
 
 /** Blank fields read plainly rather than pretending to a value. */
 export const payText = (v: string | null | undefined): string =>
