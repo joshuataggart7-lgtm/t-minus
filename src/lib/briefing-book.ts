@@ -24,6 +24,22 @@ export type BriefingClause = {
   ucf_section?: string | null;
 };
 
+export type BriefingFormat = {
+  formatLabel: string;
+  mode: "sf1449" | "ucf";
+  clins: { clin: string; description: string; amount: string; note: string }[];
+  instructions: { text: string; citation: string | null }[];
+  evaluation: { mode: "competitive" | "sole-source"; lines: { text: string; citation: string | null }[] };
+};
+
+export type BriefingGate = {
+  name: string;
+  status: string;
+  citation: string;
+  trigger: string;
+  evidence: string;
+};
+
 export type BriefingInput = {
   acquisitionId: string;
   title: string;
@@ -41,7 +57,12 @@ export type BriefingInput = {
   recommendedClauseCount: number;
   appliedClauseCount: number | null;
   exampleClauses: BriefingClause[];
+  /** The contract format scaffold, from the same helper the file page uses. */
+  format?: BriefingFormat | null;
+  /** Companion gates that apply to this record. */
+  gates?: BriefingGate[];
 };
+
 
 const money = (n: number) =>
   `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
@@ -64,6 +85,61 @@ export function briefingFacts(acq: Record<string, unknown>): { label: string; va
 function markPage(input: BriefingInput, stamp: string): string {
   const sample = input.isSample ? " · Sample data" : "";
   return `<div class="mark"><span>${esc(input.acquisitionId)} · ${esc(stamp)}${esc(sample)}</span><span>Synthetic / Prototype — not an official NASA system</span></div>`;
+}
+
+const line = (l: { text: string; citation: string | null }) =>
+  `<li>${esc(l.text)}${l.citation ? ` <span class="sub" style="font-size:13px">${esc(l.citation)}</span>` : ""}</li>`;
+
+/** Contract format, line items, instructions and evaluation — same helper as the file page. */
+function formatPage(input: BriefingInput, mark: string): string {
+  const f = input.format;
+  if (!f) return "";
+  const clinRows = f.clins.length
+    ? f.clins
+        .map(
+          (c) =>
+            `<tr><td>${esc(c.clin)}</td><td>${esc(c.description)}<br><span class="sub" style="font-size:13px">${esc(c.note)}</span></td><td>${esc(c.amount)}</td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="3">No line items drawn from this record yet.</td></tr>`;
+  return `<section class="page">
+  <div>
+    <h2>Format and solicitation</h2>
+    <p class="sub">${esc(f.mode === "sf1449" ? "SF 1449 streamlined" : "Uniform Contract Format")} · ${esc(f.formatLabel)}. Read from the record; this is scaffolding, not a signed form.</p>
+    <table class="clauses" style="margin-top:20px"><thead><tr><th>CLIN</th><th>Description</th><th>Amount</th></tr></thead><tbody>${clinRows}</tbody></table>
+    <div class="grid" style="margin-top:24px;grid-template-columns:repeat(2,minmax(0,1fr))">
+      <div>
+        <p class="sub">Instructions to offerors</p>
+        <ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${f.instructions.map(line).join("")}</ul>
+      </div>
+      <div>
+        <p class="sub">${esc(f.evaluation.mode === "competitive" ? "Evaluation factors" : "Evaluation on a sole-source file")}</p>
+        <ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${f.evaluation.lines.map(line).join("")}</ul>
+      </div>
+    </div>
+  </div>
+  ${mark}
+</section>`;
+}
+
+/** Companion gates that apply, with the status the file can honestly show. */
+function gatesPage(input: BriefingInput, mark: string): string {
+  const gates = input.gates ?? [];
+  if (gates.length === 0) return "";
+  const rows = gates
+    .map(
+      (g) =>
+        `<tr><td>${esc(g.name)}</td><td>${esc(g.status)}</td><td>${esc(g.trigger)}<br><span class="sub" style="font-size:13px">${esc(g.citation)}</span></td><td>${esc(g.evidence)}</td></tr>`,
+    )
+    .join("");
+  return `<section class="page">
+  <div>
+    <h2>Companion gates</h2>
+    <p class="sub">Gates that apply to this record, read from the seeded review rules. A gate is a checklist for the officer; it does not place the file on hold.</p>
+    <table class="clauses" style="margin-top:20px"><thead><tr><th>Gate</th><th>Status</th><th>What triggers it</th><th>What the file shows</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  ${mark}
+</section>`;
 }
 
 export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
@@ -161,6 +237,10 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   </div>
   ${mark}
 </section>
+
+${formatPage(input, mark)}
+${gatesPage(input, mark)}
+
 
 </body></html>`;
 }

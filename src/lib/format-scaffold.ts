@@ -9,6 +9,7 @@
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
+import { isSoleSourceRecord } from "@/lib/memo-draft";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -23,6 +24,14 @@ export type ScaffoldClin = {
 };
 export type ScaffoldLine = { text: string; citation: string | null };
 export type UcfSection = { section: string; title: string; clauses: PacketClause[] };
+/** One clause as the scaffold prints it: the reason and fill-in stay attached. */
+export type ScaffoldClause = {
+  clause_number: string;
+  title: string;
+  section: string;
+  reason: string;
+  fillIns: string | null;
+};
 
 export type FormatScaffold = {
   /** "sf1449" when the record carries the commercial streamlined format. */
@@ -34,7 +43,10 @@ export type FormatScaffold = {
   instructions: ScaffoldLine[];
   evaluation: { mode: "competitive" | "sole-source"; lines: ScaffoldLine[] };
   ucfSections: UcfSection[];
+  /** Every clause the engine selected, with the reason it is on this file. */
+  clauses: ScaffoldClause[];
 };
+
 
 const UCF_SECTIONS: { section: string; title: string }[] = [
   { section: "A", title: "Solicitation/contract form" },
@@ -78,9 +90,9 @@ export function buildFormatScaffold(
   if (!facts) return null;
   const format = s(facts, "contract_format");
   const mode: "sf1449" | "ucf" = isStreamlined(facts) ? "sf1449" : "ucf";
-  const soleSource = /sole|limited source|brand name/i.test(
-    `${s(facts, "competition")} ${s(facts, "acquisition_method")}`,
-  );
+  // Sole source is read the same way every other page on the file reads it.
+  const soleSource = isSoleSourceRecord(facts);
+
   const value = n(facts, "estimated_value");
   const pop = [s(facts, "period_of_performance_start"), s(facts, "period_of_performance_end")]
     .filter(Boolean)
@@ -100,22 +112,28 @@ export function buildFormatScaffold(
     { label: "Competition", value: s(facts, "competition") || "Not recorded" },
     { label: "Set-aside", value: s(facts, "set_aside") || "None recorded" },
     { label: "Contract type", value: s(facts, "contract_type") || "Not recorded" },
-    { label: "Delivery/acceptance", value: "Carried from the statement of work on this file" },
+    {
+      label: "Delivery/acceptance",
+      value:
+        facts["sow_attached"] === true
+          ? "Carried from the statement of work on this file"
+          : "Not recorded; set from the statement of work when it is on the file",
+    },
   ];
 
   // One primary line item drawn from the record. A catalogue of line items is
-  // not invented here; anything beyond this line is written by the officer.
-  const unit = /firm.fixed|ffp/i.test(s(facts, "contract_type")) ? "Lot" : "Each";
+  // not invented here; quantity, unit and price are the officer's to set.
   const clins: ScaffoldClin[] = [
     {
       clin: "0001",
       description: s(facts, "title") || s(facts, "description_of_requirement") || "Requirement on this file",
-      quantity: "1",
-      unit,
+      quantity: "Not recorded",
+      unit: "Not recorded",
       amount: dollars(value),
-      note: "Drawn from the record; the officer sets the final line items and prices.",
+      note: "Description and estimated value from the record; quantity, unit and price are set by the officer.",
     },
   ];
+
   const igceNote = facts["igce_attached"] === true;
   if (igceNote) {
     clins.push({
@@ -198,6 +216,17 @@ export function buildFormatScaffold(
     ucfSections.push({ section: "—", title: "Section not recorded in the matrices", clauses: unplaced });
   }
 
+  // Every clause keeps the reason the engine gave it and the fill-in the
+  // matrices carry. Where the matrices carry no fill-in, the scaffold says so
+  // rather than offering a value.
+  const scaffoldClauses: ScaffoldClause[] = clauses.map((c) => ({
+    clause_number: c.clause_number,
+    title: c.title,
+    section: (c.ucf_section ?? "").trim() || "Not recorded in the matrices",
+    reason: c.reason,
+    fillIns: fillInText(c.fill_ins),
+  }));
+
   return {
     mode,
     formatLabel: format || (mode === "sf1449" ? "SF 1449 streamlined (from the commercial determination)" : "Uniform Contract Format"),
@@ -209,8 +238,17 @@ export function buildFormatScaffold(
     instructions,
     evaluation,
     ucfSections,
+    clauses: scaffoldClauses,
   };
 }
+
+/** The fill-in text the matrices carry for a clause, or null where there is none. */
+export function fillInText(fills: unknown): string | null {
+  if (!Array.isArray(fills)) return null;
+  const parts = fills.map((v) => String(v ?? "").trim()).filter(Boolean);
+  return parts.length > 0 ? parts.join("; ") : null;
+}
+
 
 /** The scaffold as it rides in the local handoff packet. */
 export function scaffoldForPacket(scaffold: FormatScaffold | null) {
@@ -230,6 +268,15 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
             clauses: sec.clauses.map((c) => c.clause_number),
           }))
         : null,
+    // The same clause list, reasons and fill-ins the panel shows.
+    clauses: scaffold.clauses.map((c) => ({
+      clause_number: c.clause_number,
+      title: c.title,
+      section: c.section,
+      reason: c.reason,
+      fill_ins: c.fillIns ?? "No fill-in recorded in the matrices",
+    })),
     note: "Local scaffolding for the handoff packet. NCMS is the system of record; T-Minus does not write to NCMS.",
+
   };
 }

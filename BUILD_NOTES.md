@@ -1032,3 +1032,19 @@ Shipped in one chunk on top of D1+D2. No seed changes to A-2027-0101 or A-2027-0
 - D6 — `src/lib/companion-gates.ts` evaluates gates from the seeded `review_rules` rows through `reviewApplies`, plus TER (`isTerRequired`) and NF 1787 above the micro-purchase threshold. Each gate shows applies yes/no, the trigger and citation from the row, and an honest status of Satisfied / Open / Not applicable; with no evidence it reads "Not yet evidenced on this file." Gates are a checklist, never a hold engine.
 - Verified in the demo: A-2027-0101 reads "2 gates apply, 1 open" (NF 1787 satisfied, aviation safety open; TER, CIO, NPA and ANOSCA correctly not applicable) and its SF 1449 scaffold fills from the record. A-2027-0102 reads "3 gates apply, 2 open" and shows the sole-source evaluation messaging. The clause picker, Apply path and JOFOC path are untouched.
 - No NCMS write-back, no FedRAMP, no FPDS, no real SAM publish. Fictional/sample data only; security deferred.
+
+## 16 Sep 2026 — Clause/solicitation writing accuracy and briefing book substance
+
+Accuracy pass on the D3–D5 scaffolds plus a two-page briefing book extension. No seed changes to A-2027-0101 or A-2027-0102, no new holds, D1/D2 sanitize rules untouched.
+
+Shipped
+- `src/lib/format-scaffold.ts` now reads sole source through the shared `isSoleSourceRecord` helper instead of its own regex, so the scaffold agrees with the memo, NF 1787 and research paths.
+- CLIN 0001 no longer invents a quantity or unit of issue ("1 Lot"/"Each"); it carries the record's description and estimated value and says the officer sets quantity, unit and price. The IGCE placeholder line is unchanged and still labelled.
+- The SF 1449 "Delivery/acceptance" block only claims the statement of work carries it when a SOW is on the file; otherwise it reads "Not recorded".
+- New clause table in the scaffold (both SF 1449 and UCF modes): clause number, title, UCF section, the engine's reason, and the matrix fill-in. Where the matrices carry no fill-in it reads "No fill-in recorded in the matrices." — no fabricated values. `fillInText` is the shared helper.
+- The handoff JSON `format_scaffold` now carries the same clause list with reasons and fill-ins, so the local packet and the UI agree.
+- `src/lib/briefing-book.ts` gained two pages: "Format and solicitation" (format, CLIN summary, instructions and evaluation lines with citations, from the same scaffold helper) and "Companion gates" (applicable gates only, with status, trigger, citation, and what the file shows). Six pages total, every one keeping the Synthetic / Prototype footer and the Sample mark; the export audit row is unchanged.
+
+Verified in the demo: A-2027-0101 shows the competitive 52.212-1 / 52.212-2 path with reasons and no sole-source wording; A-2027-0102 keeps the sole-source evaluation wording with no 52.212-2 line. The exported pack is six marked pages with both new sections. FAR 52.212-5 appears only in the sentence saying it is Reserved.
+
+Deferred: order-specific IDIQ/BPA writing screens, SEB suite / slide theater, SAM Awards entitlement, NCMS write-back, FedRAMP, security RLS finding.
