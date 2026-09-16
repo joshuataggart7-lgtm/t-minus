@@ -63,5 +63,18 @@
     "leadership_note": "",
     "mission_directorate_code": "RTMD",
     "mission_directorate_name": "Research and Technology Mission Directorate"
+  },
+  {
+    "mission_id": "M6",
+    "name": "NOAA Airborne Lidar Support FY27–FY31",
+    "program": "NOAA reimbursable airborne lidar payload integration (fictional project)",
+    "center_code": "ARC",
+    "milestone": "First lidar science flight under the reimbursable agreement",
+    "milestone_date": "2026-12-15",
+    "priority": 6,
+    "program_owner": "D. Ferraro",
+    "leadership_note": "NOAA-funded airborne lidar buy. Not the Arctic Snow Depth Campaign.",
+    "mission_directorate_code": null,
+    "mission_directorate_name": "Science Mission Directorate"
   }
 ]
