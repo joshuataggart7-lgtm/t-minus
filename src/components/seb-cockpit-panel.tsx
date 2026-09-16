@@ -163,24 +163,29 @@ export function SebCockpitPanel({
   const evidenceNoted = factors.filter((f) => factorHasEvidence(f)).length;
   const readinessItems: { label: string; value: string }[] = [
     {
-      label: "Clarifications on the fairness ledger",
-      value: clarifications.length === 0 ? "None recorded" : `${clarifications.length}`,
+      label: "L↔M consistency",
+      value:
+        lamp.status === "ok"
+          ? "Consistent — no findings"
+          : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
     },
     {
-      label: "Factors with evidence notes",
+      label: "Clarifications",
+      value: clarifications.length === 0 ? "No clarifications recorded" : `${clarifications.length} recorded`,
+    },
+    {
+      label: "Evaluation factors with evidence",
       value: !shell.competitive
         ? "Sole-source path"
         : factors.length === 0
-          ? "No factors recorded"
-          : `${evidenceNoted} of ${factors.length}`,
+          ? "No evaluation factors recorded"
+          : evidenceNoted === 0
+            ? `No evidence linked — 0 of ${factors.length}`
+            : `${evidenceNoted} of ${factors.length}`,
     },
     {
-      label: "L↔M consistency lamp",
-      value: lamp.status === "ok" ? "Consistent" : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
-    },
-    {
-      label: "Read receipts on documents",
-      value: "Tracked quietly on each document",
+      label: "Read receipts",
+      value: "Per-document status below",
     },
   ];
 
