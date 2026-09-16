@@ -1674,6 +1674,9 @@ function DocumentPage() {
                   {money(comparables.maxValue)}
                 </span>
               </p>
+              {comparables.source !== "live" && comparables.providerNote ? (
+                <p className="mt-1 text-[13px] text-muted-foreground">{comparables.providerNote}</p>
+              ) : null}
               {comparables.awards.length ? (
                 <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
                   <thead>
