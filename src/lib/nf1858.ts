@@ -17,6 +17,13 @@ import { humanMemoProse } from "@/lib/memo-prose";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
+/**
+ * The agency insignia taken from the official blank NF 1858. It is used on
+ * memorandum letterhead exports only: never in app chrome, and never on an
+ * official form overlay, which carries its own insignia.
+ */
+export const INSIGNIA_URL = "/letterhead/nasa-insignia.png";
+
 export const CUI_BANNER = "CUI";
 
 export const CUI_SHEET_TEXT = [
