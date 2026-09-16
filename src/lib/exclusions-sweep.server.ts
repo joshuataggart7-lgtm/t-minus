@@ -33,7 +33,9 @@ export type SweepVendorResult = {
   exclusionLabel: string;
   source: "live" | "cached" | "sample";
   sourceLabel: string;
-  placedOnHold: boolean;
+  /** Raised for the contracting officer to review. No clock is ever changed. */
+  flaggedForReview: boolean;
+  checkedAt: string;
   providerError?: string;
 };
 
@@ -43,7 +45,7 @@ export type SweepResult = {
   filesChecked: number;
   vendorsChecked: number;
   excludedFound: number;
-  placedOnHold: number;
+  flaggedForReview: number;
   results: SweepVendorResult[];
 };
 
