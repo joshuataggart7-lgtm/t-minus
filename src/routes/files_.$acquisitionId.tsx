@@ -48,6 +48,10 @@ import {
 } from "@/lib/launch-sequence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
 import { ClausePicker } from "@/components/clause-picker";
+import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
+import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
+import { evaluateCompanionGates } from "@/lib/companion-gates";
+import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
