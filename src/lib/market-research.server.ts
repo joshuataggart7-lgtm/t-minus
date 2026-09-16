@@ -492,14 +492,14 @@ export async function runEngine(options: {
       calcNote = rows.length
         ? `GSA CALC+ returned ${rows.length} ceiling labor rates for “${keyword}”${
             reported !== null && reported > rows.length ? ` of ${reported} matching rates` : ""
-          }.`
+          }. These are awarded ceiling hourly rates on GSA schedule contracts, a comparison point for hourly labor only. They are not a price for this requirement and do not cover materials, travel or other direct costs.`
         : "";
       record({
-        source: "GSA CALC+ ceiling labor rates",
+        source: "GSA CALC+ ceiling labor rates (GSA schedule hourly rates; comparison only)",
         query,
         resultCount: count,
         outcome: rows.length
-          ? `Returned ceiling labor rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
+          ? `Returned ceiling labor rates${calcKey ? "" : " without an API key, which CALC+ does not require"}. Scope: awarded hourly ceiling rates on GSA schedule contracts, used as a labor comparison point, not as a price for this buy.`
           : "Returned no comparable ceiling rates for this keyword.",
       });
     } catch (error) {
