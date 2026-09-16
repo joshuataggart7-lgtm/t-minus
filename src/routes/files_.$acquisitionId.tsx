@@ -50,6 +50,7 @@ import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-pack
 import { ClausePicker } from "@/components/clause-picker";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
+import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
 import { buildFileIndex } from "@/lib/file-index";
 import {
   ATTACHMENT_ACCEPT,
