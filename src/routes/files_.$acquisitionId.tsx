@@ -2145,6 +2145,16 @@ function FilePage() {
         </>
       ) : null}
 
+      {acq ? (
+        <CorToRequestPanel
+          acq={acq as unknown as Record<string, unknown>}
+          profile={acquisitionProfile(acq)}
+          actorName={actorName}
+          canWrite={canWrite}
+          onSaved={() => void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] })}
+        />
+      ) : null}
+
       {acq && canWrite ? (
         <EmailDraftsPanel
           drafts={buildEmailDrafts({
