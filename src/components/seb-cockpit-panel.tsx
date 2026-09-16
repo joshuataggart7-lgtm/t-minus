@@ -251,7 +251,12 @@ export function SebCockpitPanel({
         </div>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLARIFICATIONS_CHIP}</p>
         {clarifications.length === 0 ? (
-          <p className="mt-2 text-[13px] text-muted-foreground">{CLARIFICATIONS_EMPTY}</p>
+          <div className="mt-2">
+            <p className="text-[13px] text-muted-foreground">{CLARIFICATIONS_EMPTY}</p>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              Fairness ledger is empty until the office records a clarification.
+            </p>
+          </div>
         ) : (
           <table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
