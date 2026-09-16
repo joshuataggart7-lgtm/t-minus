@@ -93,6 +93,8 @@ import {
 } from "@/lib/clin-schedule";
 import { evaluateCompanionGates } from "@/lib/companion-gates";
 import { CompanionGatesPanel } from "@/components/companion-gates-panel";
+import { loadDeviationsForAcquisition } from "@/lib/pcd-adoption";
+import { PcdAdoptionPanel } from "@/components/pcd-adoption-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
@@ -584,6 +586,20 @@ function FilePage() {
     queryKey: ["section-m-factors", acquisitionId],
     enabled: authState === "signed-in",
     queryFn: () => loadFactors(acquisitionId),
+  });
+
+  // Deviation requests linked to this file, read only, for the advisory
+  // regulatory baseline & deviations panel.
+  const deviationsQ = useQuery({
+    queryKey: ["file-deviations", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      try {
+        return await loadDeviationsForAcquisition(acquisitionId);
+      } catch {
+        return [];
+      }
+    },
   });
 
   // The most recent recorded check on this file, read only. Running a check
@@ -2513,6 +2529,11 @@ function FilePage() {
       <ClauseChangeBanner acquisitionId={acquisitionId} />
 
       <CompanionGatesPanel gates={companionGates} />
+
+      <PcdAdoptionPanel
+        baselineDate={(acq?.regulatory_baseline_date as string | null | undefined) ?? null}
+        deviations={deviationsQ.data ?? []}
+      />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">

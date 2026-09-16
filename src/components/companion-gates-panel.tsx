@@ -30,6 +30,7 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
       </div>
       <p className="mt-2 text-[13px] text-muted-foreground">
         Read from the seeded review rules and this record. A gate is a checklist for the officer, not a hold.
+        Companion Guide citations are process guidance, not binding NFS.
       </p>
       {open ? (
         <table className="mt-3 w-full text-[13px] leading-[18px]">
