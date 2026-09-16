@@ -293,10 +293,11 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
     entries[at + 6] = 0;
   });
   const index = rows.map((r) => `${r.num} 1`).join(" ");
+  const root = hasPerms ? `${catalogNumber} 0 R` : `${rootRef.objectNumber} ${rootRef.generationNumber} R`;
   const dict =
-    `<< /Type /XRef /Size ${xrefNumber + 1} /Index [${index}] /W [1 4 2] /Root ${rootRef.objectNumber} ${rootRef.generationNumber} R` +
+    `<< /Type /XRef /Size ${xrefNumber + 1} /Index [${index}] /W [1 4 2] /Root ${root}` +
     (infoRef ? ` /Info ${infoRef.objectNumber} ${infoRef.generationNumber} R` : "") +
-    (id ? ` /ID ${id}` : "") +
+    (id ? ` /ID${id}` : "") +
     ` /Prev ${prev} /Length ${entries.length} >>`;
   parts.push(ascii(`${xrefNumber} 0 obj\n${dict}\nstream\n`), entries, ascii("\nendstream\nendobj\n"));
   parts.push(ascii(`startxref\n${xrefOffset}\n%%EOF\n`));
