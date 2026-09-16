@@ -78,6 +78,7 @@ import {
 } from "@/lib/solicitation-lm";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
+import { loadSectionK, sectionKForPacket } from "@/lib/solicitation-k";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
 import { ClinSchedulePanel } from "@/components/clin-schedule-panel";
 import {
@@ -562,6 +563,11 @@ function FilePage() {
     queryKey: ["section-l", acquisitionId],
     enabled: authState === "signed-in",
     queryFn: () => loadSectionL(acquisitionId),
+  });
+  const sectionKQ = useQuery({
+    queryKey: ["section-k", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadSectionK(acquisitionId),
   });
   const sectionMQ = useQuery({
     queryKey: ["section-m", acquisitionId],
@@ -1574,6 +1580,18 @@ function FilePage() {
     };
   }, [acq, shell, sectionLQ.data, sectionMQ.data, factorsQ.data, packetSelection]);
 
+  // Section K as recorded, in the shell the method calls for. The panel and
+  // the packet read the same rows, so they cannot disagree.
+  const sectionK = useMemo(
+    () =>
+      sectionKForPacket(
+        sectionKQ.data ?? null,
+        shell,
+        packetSelection.filter((c) => (c.ucf_section ?? "").trim().toUpperCase() === "K"),
+      ),
+    [sectionKQ.data, shell, packetSelection],
+  );
+
   // Section J is the attachments on the record, for either format.
   const sectionJ = useMemo(() => attachmentsForSectionJ(attachments), [attachments]);
 
@@ -1587,8 +1605,9 @@ function FilePage() {
         sectionJ,
         cdrlItems,
         paymentItems,
+        sectionK,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems, paymentItems],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems, paymentItems, sectionK],
   );
 
   // The official form the method on the record points at. A suggestion only:
