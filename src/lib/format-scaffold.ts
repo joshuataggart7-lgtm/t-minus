@@ -262,6 +262,7 @@ export function buildFormatScaffold(
     lm: lm ?? null,
     attachments: attachments ?? [],
     cdrl: cdrl ?? [],
+    paymentMilestones: paymentMilestones ?? [],
   };
 }
 
