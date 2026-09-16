@@ -38,7 +38,26 @@ export type GeneratedForm = {
   sections: FormSection[];
 };
 
-export type FormKey = "nf-1787" | "nf-1787a" | "sf-1449" | "sf-30";
+export type FormKey =
+  | "nf-1787"
+  | "nf-1787a"
+  | "sf-1449"
+  | "sf-30"
+  | "sf-33"
+  | "sf-26"
+  | "of-347";
+
+/** A line on the schedule, as the official forms print it. */
+export type FormClin = {
+  clinNumber: string;
+  description: string;
+  quantity: number | null;
+  unit: string | null;
+  unitPrice: number | null;
+  extendedPrice: number | null;
+  /** Where the line came from: the officer, the record or the estimate. */
+  source: string;
+};
 
 import {
   findingText,
