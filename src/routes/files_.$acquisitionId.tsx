@@ -1534,6 +1534,9 @@ function FilePage() {
                   <DropdownMenuItem disabled={nearExport.isPending} onSelect={() => nearExport.mutate()}>
                     {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
                   </DropdownMenuItem>
+                  <DropdownMenuItem disabled={briefingExport.isPending} onSelect={() => briefingExport.mutate()}>
+                    {briefingExport.isPending ? "Building the briefing book" : "Export briefing book"}
+                  </DropdownMenuItem>
                   {canWrite ? (
                     <DropdownMenuItem disabled={copySample.isPending} onSelect={() => copySample.mutate()}>
                       {copySample.isPending ? "Copying the file" : "Copy as new sample"}
