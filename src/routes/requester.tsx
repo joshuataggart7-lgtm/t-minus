@@ -8,6 +8,9 @@ import { statusColor } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RequesterLoe } from "@/components/requester-loe";
 
+/** The two files walked in the demo, used only as a soft fallback view. */
+const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
+
 export const Route = createFileRoute("/requester")({
   head: () => ({
     meta: [
