@@ -564,7 +564,9 @@ function DocumentPage() {
       setValues((prev) => ({
         ...prev,
         comparables_summary: [
-          `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
+          view.source === "local"
+            ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.`
+            : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
           ...lines,
         ].join("\n"),
       }));
