@@ -136,6 +136,7 @@ import { WhatIfPanel } from "@/components/what-if-panel";
 import { VehiclePanel } from "@/components/vehicle-panel";
 import { ModificationsPanel } from "@/components/modifications-panel";
 import { CloseoutPanel } from "@/components/closeout-panel";
+import { SituationMemoPanel } from "@/components/situation-memo-panel";
 import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
@@ -2293,6 +2294,12 @@ function FilePage() {
       <ModificationsPanel
         acq={acq as Record<string, unknown> | null}
         canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+      />
+
+      <SituationMemoPanel
+        acq={acq as Record<string, unknown> | null}
         actor={actorName}
         onBanner={setBanner}
       />

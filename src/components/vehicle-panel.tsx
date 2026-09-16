@@ -45,6 +45,14 @@ export function VehiclePanel({
 
   if (profile === "order_under_idiq" || profile === "fss_order") {
     const parent = String(acq["parent_contract_number"] ?? scenarioOf(acq).parent_contract_number ?? "").trim();
+    const raw = (acq["vehicle"] ?? {}) as Record<string, unknown>;
+    const fair = String(raw["fair_opportunity"] ?? "").trim();
+    const fairLine = !fair
+      ? "Not recorded. Enter the fair opportunity decision or the exception relied on before the order is placed."
+      : fair === "competed"
+        ? "Fair opportunity given to every awardee under the vehicle, FAR 16.505(b)(1)."
+        : `Exception recorded on this file: ${fair.replace(/_/g, " ")}, FAR 16.505(b)(2).`;
+    const method = String(acq["acquisition_method"] ?? "").trim();
     return (
       <section aria-label="Parent vehicle" className="mb-10 max-w-[80ch] border-t border-border pt-4">
         <h2 className="text-[18px] leading-6 font-medium">Parent vehicle</h2>
@@ -52,6 +60,27 @@ export function VehiclePanel({
           {parent
             ? `This order is placed under ${parent}. The contract type options, clause set, NAICS and ordering period come from the parent.`
             : "No parent contract number is on this record yet. Enter it on the intake so the order can inherit the vehicle terms."}
+        </p>
+        <p className="mt-3 inline-block border border-border px-2 py-1 text-[13px] leading-[18px]">
+          Order under an existing vehicle, not a stand-alone Part 15 award.
+        </p>
+        <dl className="mt-3 grid gap-x-8 gap-y-2 text-[15px] leading-[22px] sm:grid-cols-2">
+          <div>
+            <dt className="text-[13px] text-muted-foreground">Parent contract number</dt>
+            <dd>{parent || "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt className="text-[13px] text-muted-foreground">Fair opportunity</dt>
+            <dd>{fairLine}</dd>
+          </div>
+          <div>
+            <dt className="text-[13px] text-muted-foreground">Format and method</dt>
+            <dd>{method || "Not recorded"}</dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-[13px] leading-[18px] text-muted-foreground">
+          The order line items are order specific. The parent ceiling is not an order line item and
+          is never carried onto the order schedule. Advisory only; nothing here holds the file.
         </p>
       </section>
     );
