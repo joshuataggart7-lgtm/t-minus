@@ -1,5 +1,5 @@
 # Phase exit
-- [ ] Exclude Offered rows from blockers, holds, hero actions, and exit gates
+- [x] Exclude Offered rows from blockers, holds, hero actions, and exit gates
 - [ ] Add validated phase exit with linked missing requirements and audit entry
 - [ ] Replace Exit, Scrub, Remove, Record vote, and Open poll confirmations with in-page dialogs
 - [ ] Rewrite memorandum hold, vote, and saved-version sentences
@@ -9,7 +9,7 @@
 - [x] Prevent incomplete research runs from becoming the latest run
 - [x] Parse CALC+ v3 results and use a short service keyword
 - [x] Remove A-2027-0101 orphan runs and verify the completed-run display
-- [ ] Publish the verified fix
+- [x] Publish the verified fix (CALC+ logged on the latest A-2027-0101 run, 16 Sep)
 
 # UX polish
 - [x] Sample 1/2 cold-path UX polish shipped — see BUILD_NOTES section "Sample 1/2 cold-path UX polish"

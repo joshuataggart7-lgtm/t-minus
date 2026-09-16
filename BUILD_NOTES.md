@@ -1048,3 +1048,17 @@ Shipped
 Verified in the demo: A-2027-0101 shows the competitive 52.212-1 / 52.212-2 path with reasons and no sole-source wording; A-2027-0102 keeps the sole-source evaluation wording with no 52.212-2 line. The exported pack is six marked pages with both new sections. FAR 52.212-5 appears only in the sentence saying it is Reserved.
 
 Deferred: order-specific IDIQ/BPA writing screens, SEB suite / slide theater, SAM Awards entitlement, NCMS write-back, FedRAMP, security RLS finding.
+
+## 16 Sep 2026 — Offered rows verified non-binding, research fix confirmed live, gate evidence from documents
+
+Offered (optional) rows
+- Audited every path that could make an offered row behave like a required one: the hero next action, the blocker on the metrics record, the hold cause, the phase-completion test that decides the current phase, the exit gate, and the exit dialog's missing list. All six already skip `optional` rows, so no behaviour change was needed; this round is the verification that closes the roadmap item rather than new code.
+- Verified in the demo: A-2027-0101 shows two Offered rows and its blocker is the required price negotiation memorandum, not an offered row; A-2027-0102 shows two Offered rows and reads "Ready to exit Solicitation/Quote". Neither file gained a hold, and the No-go hold path on Sample 2 is untouched.
+
+Market research persistence
+- Confirmed the shipped fix is live rather than re-opening the architecture: the latest A-2027-0101 run (16 Sep 2026) carries ten log rows including "GSA CALC+ ceiling labour rates", alongside the SAM entity, SAM opportunities, SBA size standard, prior-actions and USAspending sources. Earlier runs retain their logs. No residual display bug was found, so nothing was changed.
+
+Companion gate evidence
+- `src/lib/companion-gates.ts`: gates that have a document of their own now read a saved or attached copy as evidence, the same way a recorded vote is. Notification of procurement action reads `npa-notification`, ANOSCA reads `anosca`, and the procurement strategy meeting reads the signature page, addendum, executive presentation or written acquisition plan. Gates without a document of their own (CIO/IT, Section 508, aviation safety) still read only the poll. Gates remain a checklist and still never place a hold.
+
+Deferred: the fuller validated phase exit with linked requirements and audit beyond the offered-row rule, the confirmation-dialog rewrite, order-specific IDIQ/BPA screens, the SEB suite, SAM Awards entitlement, FOUO hierarchy, and the open security finding.
