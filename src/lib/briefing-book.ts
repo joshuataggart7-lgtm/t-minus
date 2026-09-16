@@ -9,6 +9,8 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
+import type { ScaffoldSectionK } from "@/lib/format-scaffold";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -31,6 +33,9 @@ export type BriefingFormat = {
   instructions: { text: string; citation: string | null }[];
   evaluation: { mode: "competitive" | "sole-source"; lines: { text: string; citation: string | null }[] };
 };
+
+/** Section K exactly as the file page and the Award handoff already print it. */
+export type BriefingSectionK = ScaffoldSectionK;
 
 export type BriefingGate = {
   name: string;
@@ -69,10 +74,12 @@ export type BriefingInput = {
   competitive?: boolean | null;
   /** Attachments eligible for Section J on the record. */
   sectionJCount?: number | null;
+  /** Section K from the same scaffold the Award handoff view reads. */
+  sectionK?: BriefingSectionK | null;
 };
 
 export const AWARD_HANDOFF_POINTER =
-  "Award handoff: open the file's Award handoff view for CLIN, Sections L and M, clauses, Section J and the signature blanks. NCMS remains the system of record.";
+  "Award handoff: open the file's Award handoff view for CLIN, Section K, Sections L and M, clauses, Section J and the signature blanks. NCMS remains the system of record.";
 
 
 const money = (n: number) =>
@@ -101,6 +108,39 @@ function markPage(input: BriefingInput, stamp: string): string {
 const line = (l: { text: string; citation: string | null }) =>
   `<li>${esc(l.text)}${l.citation ? ` <span class="sub" style="font-size:13px">${esc(l.citation)}</span>` : ""}</li>`;
 
+/** Section K as recorded, in the voice the method calls for. Soft: it gates nothing. */
+function sectionKBlock(input: BriefingInput): string {
+  const k = input.sectionK;
+  if (!k) return "";
+  const rows = k.checklist.length
+    ? k.checklist
+        .map(
+          (r) =>
+            `<li>${esc(r.label)} — ${esc(r.status)}${r.note ? ` <span class="sub" style="font-size:13px">${esc(r.note)}</span>` : ""}</li>`,
+        )
+        .join("")
+    : `<li>No representations are recorded on this file.</li>`;
+  const clauses = k.clauses.length
+    ? `<p class="sub" style="margin-top:8px">Clauses placed in Section K: ${esc(k.clauses.map((c) => c.clause_number).join(", "))}</p>`
+    : `<p class="sub" style="margin-top:8px">${esc(k.clauses_empty_note ?? "")}</p>`;
+  // Commercial files carry the Reserved note so the board is not told a
+  // 52.212-5 block exists. The note is quoted, never paraphrased.
+  const reserved =
+    input.format?.mode === "sf1449"
+      ? `<p class="sub" style="margin-top:8px">${esc(RFO_RESERVED_212_NOTE)}</p>`
+      : "";
+  return `<div style="margin-top:24px">
+    <p class="sub">Representations and certifications (Section K)</p>
+    <p class="sub" style="margin-top:6px">${esc(k.path_note)}</p>
+    <p style="margin:6px 0 0;font-size:14px">SAM representations: ${esc(k.sam_status)}</p>
+    <ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${rows}</ul>
+    ${k.notes ? `<p style="margin:6px 0 0;font-size:14px">${esc(k.notes)}</p>` : ""}
+    ${k.empty_note ? `<p class="sub" style="margin-top:8px">${esc(k.empty_note)}</p>` : ""}
+    ${clauses}
+    ${reserved}
+  </div>`;
+}
+
 /** Contract format, line items, instructions and evaluation — same helper as the file page. */
 function formatPage(input: BriefingInput, mark: string): string {
   const f = input.format;
@@ -128,6 +168,7 @@ function formatPage(input: BriefingInput, mark: string): string {
         <ul style="margin:6px 0 0;padding-left:18px;font-size:14px">${f.evaluation.lines.map(line).join("")}</ul>
       </div>
     </div>
+    ${sectionKBlock(input)}
   </div>
   ${mark}
 </section>`;

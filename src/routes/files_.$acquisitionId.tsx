@@ -1400,6 +1400,8 @@ function FilePage() {
                 evaluation: formatScaffold.evaluation,
               }
             : null,
+          // Same Section K object the Award handoff view prints — no second source.
+          sectionK: formatScaffold?.sectionK ?? null,
           clins: scheduleClins.map((c) => ({
             clin: c.clin,
             description: c.description,
