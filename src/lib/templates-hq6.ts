@@ -199,30 +199,59 @@ const postawardUnsuccessful: TemplateDef = {
         T("awardees", "3. Name and address of each offeror receiving an award"),
         M("contract_value", "4. Maximum contract value including options", "estimated_value"),
         T("value_period", "4. Period of performance covered by that value"),
-        T(
-          "selection_rationale",
-          "5. Evaluation factors considered and the selected offeror",
-          "In making the selection decision, all evaluation factors were considered. The rationale is delineated in the enclosed source selection statement.",
-        ),
+        {
+          key: "selection_rationale",
+          label: "5. Evaluation factors considered and the selected offeror",
+          kind: "textarea",
+          help: "In making the selection decision, all evaluation factors were considered. The rationale is delineated in the enclosed source selection statement.",
+          helpFor: noticeCitation(
+            "In making the selection decision, all evaluation factors were considered. The rationale is delineated in the enclosed source selection statement.",
+            "State the factors considered and the quoter selected. A simplified acquisition has no source selection statement; the record is the price negotiation memorandum.",
+          ),
+        },
       ],
     },
     {
       id: "debriefing",
       title: "Debriefing and proposal disposition",
       citation: "FAR 15.301-1",
+      citationFor: noticeCitation("FAR 15.301-1", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
+      // Part 15 debriefing rights do not run on a simplified acquisition. The
+      // quoter may ask why the quotation was not selected, under FAR 13.106-3(d).
+      standingTextFor: noticeCitation(
+        "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
+        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On written request, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d). One copy of your quotation will be retained in the contract file and the remaining copies destroyed.",
+      ),
       fields: [],
     },
     {
       id: "closing",
       title: "Closing and signature",
       citation: "FAR 15.502-7",
+      citationFor: noticeCitation("FAR 15.502-7", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",
-      fields: [...coContact, T("enclosures", "Enclosure", "Source Selection Statement.")],
+      standingTextFor: noticeCitation(
+        "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",
+        "NASA appreciates your quotation and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",
+      ),
+      fields: [
+        ...coContact,
+        {
+          key: "enclosures",
+          label: "Enclosure",
+          kind: "textarea",
+          help: "Source Selection Statement.",
+          helpFor: noticeCitation(
+            "Source Selection Statement.",
+            "A simplified acquisition has no source selection statement. Leave this blank unless the Center encloses something with the letter.",
+          ),
+        },
+      ],
     },
   ],
 };
