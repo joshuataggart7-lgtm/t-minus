@@ -952,3 +952,15 @@ for order **A-2027-0104** already has `funds_certified = true`,
   Opportunity / further Solicitation docs / PNM / NCMS handoff — those are
   **not** claimed done.
 - Security findings deferred to the security triage pass.
+
+## 16 Sep 2026 (America/Chicago) — Launched files can no longer display a pre-award current phase
+
+**Bug.** Parent IDIQ A-2026-0090 (`clock_state=launched`, `current_phase=Administration`, status Awarded) showed a contradictory header: "Launched / 0 days since award" and "Complete Administration" alongside **Current phase — Intake**.
+
+**Root cause.** `buildSequence` in `src/lib/launch-sequence.ts` pulled the displayed phase back to the earliest phase with an unfinished required row (`earliestOpen`). A-2026-0090 has no `igce_attached`/`sow_attached` and no NF 1707 answers, so Intake read as unfinished and overrode the recorded post-award phase. `computeMetrics` reads `currentPhase` from that sequence, so hero, strip and overview all inherited it.
+
+**Fix (shared logic, one place).** When `clock_state` is `launched` or `scrubbed`, `buildSequence` no longer applies the `earliestOpen` pullback. It trusts `current_phase`; if that is missing, unmatched, or still a pre-Administration phase, it coerces the effective index to Administration (Closeout when that is the recorded phase). Pre-award files are unchanged. No change to `metrics.ts` was needed since it derives `currentPhase` from the sequence.
+
+**Seed.** `t-minus-seed/acquisitions.json` now contains the parent IDIQ A-2026-0090 (launched, Administration, multiple-award vehicle profile, $50M ceiling, three DEMO* awardees, fictional). `t-minus-seed/phase_plan.csv` gained the `idiq_parent`, `order_under_idiq`, `bpa` and `fss_order` rows copied from the live `phase_plan` table so a demo reset no longer drops vehicle plans.
+
+**Not in scope / not claimed.** A-2027-0104 Exit Confirm reason gating unchanged. Samples 1 and 2 untouched except through the shared sequence logic. No NCMS write-back, no FedRAMP, no FPDS integration. Security findings deferred.

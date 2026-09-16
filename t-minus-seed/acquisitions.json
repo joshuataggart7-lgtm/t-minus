@@ -1,5 +1,74 @@
 [
  {
+  "acquisition_id": "A-2026-0090",
+  "mission_id": "M1",
+  "is_critical_path": false,
+  "title": "Commercial aviation services IDIQ, multiple award",
+  "contract_number": "80ARC26D0090",
+  "center_code": "ARC",
+  "branch_code": "JAZ",
+  "center_name": "Ames Research Center",
+  "requester_name": "Dr. Elena Marsh (fictional)",
+  "estimated_value": 50000000,
+  "naics_code": "481219",
+  "psc_code": "V1A1",
+  "contract_type": "FFP",
+  "acquisition_method": "FAR 15",
+  "competition": "competitive",
+  "period_of_performance_start": "2026-10-01",
+  "period_of_performance_end": "2031-09-30",
+  "place_of_performance": "Moffett Field, California",
+  "regulatory_baseline_date": "2026-03-01",
+  "need_date": "2026-09-15",
+  "target_award_date": "2026-09-30",
+  "current_phase": "Administration",
+  "clock_state": "launched",
+  "status": "Awarded",
+  "hold_reason": "",
+  "hold_owner": "",
+  "funds_certified": true,
+  "acquisition_forecast_verified": true,
+  "co_name": "J. Rivera (fictional CO)",
+  "vendor_legal_name": "University of Mississippi (public SAM UEI for exclusions smoke test — not a DEMO vendor)",
+  "vendor_uei": "G1THVER8BNL4",
+  "mission_directorate_code": "SMD",
+  "mission_directorate_name": "Science Mission Directorate",
+  "is_reimbursable": false,
+  "is_package_complete": true,
+  "scenario": {
+   "vehicle": "idiq_award",
+   "idiq_single_award": false
+  },
+  "vehicle": {
+   "award_type": "multiple",
+   "ceiling": 50000000,
+   "minimum_guarantee": 25000,
+   "ordering_start": "2026-10-01",
+   "ordering_end": "2031-09-30",
+   "order_types": [
+    "FFP",
+    "T&M"
+   ],
+   "fair_opportunity": "competed",
+   "clause_set": "Commercial items clause set at award, FAR 52.212-4 with Alternate I",
+   "awardees": [
+    {
+     "name": "Meridian Flight Sciences LLC",
+     "uei": "DEMOMFS00001"
+    },
+    {
+     "name": "Cascade Airborne Research Inc",
+     "uei": "DEMOCAR00002"
+    },
+    {
+     "name": "Northstar Survey Aviation LLC",
+     "uei": "DEMONSA00003"
+    }
+   ]
+  },
+  "note": "Launched parent IDIQ seed: post-award Administration, not Intake. Fictional multiple-award vehicle; child order A-2027-0104 is placed under 80ARC26D0090. Vendor UEI G1THVER8BNL4 is a public SAM UEI used only for the exclusions smoke test. No FPDS, no NCMS write-back."
+ },
+ {
   "acquisition_id": "A-2027-0101",
   "mission_id": "M1",
   "is_critical_path": true,
