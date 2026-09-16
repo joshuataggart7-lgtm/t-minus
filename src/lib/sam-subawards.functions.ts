@@ -137,9 +137,10 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
           row["dateSigned"],
         ).slice(0, 10),
         description: text(
+          row["subAwardDescription"],
+          row["descriptionOfRequirement"],
           sub["descriptionOfWork"],
           sub["description"],
-          row["subAwardDescription"],
           row["subawardDescription"],
           row["descriptionOfWork"],
         ),
