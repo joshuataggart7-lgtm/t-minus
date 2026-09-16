@@ -93,6 +93,10 @@ export function PresenterScreensBeat() {
       <p className="mt-2 text-[13px] text-muted-foreground">
         See the Peer systems strip under any file header for the local packet and NEAR export.
       </p>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        Pilot known gaps (Adobe human-only, no NCMS write-back, FPDS fill aid, advisories never hold exit) are listed on{" "}
+        <a href="/about" className="text-primary underline-offset-2 hover:underline">About this prototype</a>.
+      </p>
       <p className="mt-3 border-t border-border pt-3 text-[13px] text-muted-foreground">
         Prototype. Local packet only — T-Minus writes nothing to NCMS, NEAR, or SAM.gov.
       </p>
