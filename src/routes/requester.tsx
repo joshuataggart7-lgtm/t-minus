@@ -108,10 +108,14 @@ function RequesterPortal() {
         />
       ) : (
         <div className="space-y-10">
-          {showingAll ? (
+          {fallback === "all" ? (
             <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
               No file lists {user.name} as the requester, so all prototype files are shown. The requester of
               record is shown on each file.
+            </p>
+          ) : fallback === "samples" ? (
+            <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+              Demo files — you are not the requester of record. The requester of record is shown on each file.
             </p>
           ) : null}
           {mine.map((c) => {
