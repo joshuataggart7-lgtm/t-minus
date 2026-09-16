@@ -1363,3 +1363,5 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
   signature blocks, requisition 4200999101) and A-2026-0090 (SF 1449 plus
   SF 30 screen order, contract number 80ARC26D0090).
 - Click path: open /files/A-2027-0101 → "Download the handoff packet".
+
+- UX P1 (CoS green light): button className merged via cn(buttonVariants({variant,size}),className) so hero CTAs wrap; heroAction maps PNM to "Write the PNM"; Overview MissionClockRow status now sentence case (no uppercase tracking-wide). CSS/copy only.
