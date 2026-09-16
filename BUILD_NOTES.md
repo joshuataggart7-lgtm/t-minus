@@ -1971,3 +1971,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Launched files with a PoP end and no linked successor now state the follow-on must start by the computed date (same phase-plan formula) with a pointer to Intake; Overview method copy and the file section both state the clock is advisory only — no holds, no auto-created files.
 - Clause fill-ins now read from the record (CO, period of performance, place, ordering period, 52.217-9 notice lead) via src/lib/clause-fillins.ts; shown in the clause picker, format scaffold, handoff packet and Award handoff, with honest "Not recorded" blanks. 52.212-3 / 52.212-5 stay off. Advisory only; NCMS remains the system of record.
 - COR / task order request scaffold on awarded, IDIQ and launched Administration files: requester and appointed COR read from the record, short ask plus narrative saved under post_award.cor_to_request with an audit line, copyable memo to file. Advisory only; no NCMS write-back.
+
+## Claude 07:30 P1 — seed persistence for Sample 3, Reserved note verify
+- Seed fixtures now carry mission M6 "NOAA Airborne Lidar Support FY27–FY31" and A-2027-0103 retargeted to M6 with need_date 2026-11-01, PoP 2026-11-01/2031-12-31, reimbursable IAA-NOAA-27-0114 scenario. A reseed no longer puts 0103 back on M1 / Arctic Snow Depth / 2027-03-15.
+- Verified A-2027-0101 and A-2027-0102 unchanged (0101 M1 / need 2027-03-01, 0102 M2); no clock, phase, CO or mission edits.
+- Verified RFO_RESERVED_212_NOTE still renders on the Sample 1 commercial Part 12 / SF 1449 path (file page Reserved clause note and handoff clause list). No checkbox block; 52.212-3 and 52.212-5 stay off the packet.
+- Auth untouched. Note for the record: a Lovable publish can drop signed-in sessions; that is a publish side effect, not a Wave 4 change.
