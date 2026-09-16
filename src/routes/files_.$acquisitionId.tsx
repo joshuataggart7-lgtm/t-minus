@@ -3264,12 +3264,16 @@ function FilePage() {
 
           {actionDialog?.kind === "exit" && (missingCurrentRequirements.length || pendingCurrentReviews.length) ? (
             <div className="border-l-2 border-atrisk pl-3 text-[13px]">
-              <p className="font-medium">This phase needs one more step before it can exit.</p>
-              <div className="mt-2">
-                {missingCurrentRequirements.slice(0, 1).map((doc) => {
+              <p className="font-medium">
+                {missingCurrentRequirements.length + pendingCurrentReviews.length === 1
+                  ? "This phase needs one more step before it can exit."
+                  : `This phase needs ${missingCurrentRequirements.length + pendingCurrentReviews.length} more steps before it can exit.`}
+              </p>
+              <ul className="mt-2 space-y-2">
+                {missingCurrentRequirements.map((doc) => {
                   const generator = generatorKey(doc);
                   return (
-                    <p key={doc.label}>
+                    <li key={doc.label}>
                       Needs{" "}
                       {generator && doc.templateKey ? (
                         <Link
@@ -3296,20 +3300,30 @@ function FilePage() {
                           {doc.label}
                         </a>
                       )}
-                    </p>
+                      {doc.citation ? (
+                        <span className="block text-muted-foreground">{doc.citation}</span>
+                      ) : null}
+                    </li>
                   );
                 })}
-                {missingCurrentRequirements.length === 0 ? pendingCurrentReviews.slice(0, 1).map((entry) => (
-                  <p key={entry.reviewer_role}>
+                {pendingCurrentReviews.map((entry) => (
+                  <li key={entry.reviewer_role}>
                     Needs{" "}
                     <a href={`#poll-${actionDialog.phase}`} onClick={() => setActionDialog(null)} className="text-primary underline">
                       the {entry.reviewer_role} vote
                     </a>
-                  </p>
-                )) : null}
-              </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : actionDialog?.kind === "exit" && completeCurrentRequirements.length ? (
+            <div className="border-l-2 border-border pl-3 text-[13px] text-muted-foreground">
+              {completeCurrentRequirements.length === 1
+                ? "One required item is complete and will be named in the record."
+                : `${completeCurrentRequirements.length} required items are complete and will be named in the record.`}
             </div>
           ) : null}
+
 
           {actionDialog?.kind === "vote" ? (
             <div className="space-y-4">
