@@ -20,6 +20,44 @@ function str(f: Facts | null, key: string) {
   return v === null || v === undefined ? "" : String(v);
 }
 
+/** Is this record on the simplified / commercial path? Same rule the memos use. */
+function simplified(acq: Facts | null): boolean {
+  const method = `${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`;
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
+  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+}
+
+/**
+ * The citations an email from this file may carry, kept honest in one place.
+ * Simplified and commercial files never borrow Part 15 negotiated citations.
+ */
+export function emailCiteForMethod(acq: Facts | null): {
+  unsuccessful: string;
+  priceReasonableness: string;
+  methodLabel: string;
+} {
+  return simplified(acq)
+    ? {
+        unsuccessful: "FAR 13.106-3(d)",
+        priceReasonableness: "FAR 13.106-3",
+        methodLabel: "simplified commercial procedures",
+      }
+      : {
+        unsuccessful: "FAR 15.506(a)",
+        priceReasonableness: "FAR 15.404-1",
+        methodLabel: "negotiated procedures",
+      };
+}
+
+
+/** Does the record show an independent government cost estimate on the file? */
+function igceOutstanding(acq: Facts | null, missing: { label: string }[]): boolean {
+  if (acq?.["igce_attached"] === true) return false;
+  if (acq?.["igce_attached"] === false) return true;
+  return missing.some((m) => /igce|independent government (cost )?estimate/i.test(m.label));
+}
+
+
 export function buildEmailDrafts(input: {
   acq: Facts | null;
   coName: string;
@@ -35,11 +73,54 @@ export function buildEmailDrafts(input: {
   const requester = str(acq, "requester_name") || "the requester";
   const need = str(acq, "need_date");
   const target = str(acq, "target_award_date");
+  const cites = emailCiteForMethod(acq);
   const signOff = `${coName}\nContracting Officer\nT-Minus prototype record ${id}`;
 
-  const owed = input.missingLabels
+  // The estimate leads the list when it is the row holding the file up.
+  const igceFirst = [...input.missingLabels].sort((a, b) => {
+    const ia = /igce|independent government (cost )?estimate/i.test(a.label) ? 0 : 1;
+    const ib = /igce|independent government (cost )?estimate/i.test(b.label) ? 0 : 1;
+    return ia - ib;
+  });
+
+  const owed = igceFirst
     .map((m) => `  - ${m.label}${m.citation ? ` (${m.citation})` : ""}`)
     .join("\n");
+
+  const igceRow = input.missingLabels.find((m) =>
+    /igce|independent government (cost )?estimate/i.test(m.label),
+  );
+  const igceOwed = igceOutstanding(acq, input.missingLabels);
+
+  const igceDraft: EmailDraft = {
+    key: "requester-igce",
+    label: "Requester — missing IGCE",
+    to: requester,
+    subject: `${id} — independent government cost estimate still needed`,
+    body: [
+      `${requester},`,
+      "",
+      `${id}, ${title}, is in ${phase} and the file does not carry an independent government cost estimate.`,
+      "I cannot record a price reasonableness determination without it.",
+      "",
+      need ? `Recorded need date: ${need}.` : "Need date: not recorded on the file.",
+      target ? `Target award date on the record: ${target}.` : "Target award date: not recorded on the file.",
+      `This buy is being run under ${cites.methodLabel}; price reasonableness is determined under ${cites.priceReasonableness}.`,
+      igceRow?.citation ? `The Required row on the file cites ${igceRow.citation}.` : "",
+      "",
+      "Please send the estimate with the basis you used, or tell me what is holding it up so I can record the reason.",
+      "",
+      signOff,
+    ]
+      .filter((line) => line !== "")
+      .join("\n"),
+    available: igceOwed,
+    unavailableNote:
+      acq?.["igce_attached"] === true
+        ? "The record already shows an independent government cost estimate on this file, so there is nothing to ask for."
+        : "No outstanding IGCE row is recorded on this phase.",
+  };
+
 
   const requesterDraft: EmailDraft = {
     key: "requester-nudge",
@@ -110,7 +191,9 @@ export function buildEmailDrafts(input: {
           "",
           outcome.successful
             ? ""
-            : "You may request a brief explanation of the basis for the award decision within three days of this notice (FAR 13.106-3(d)).",
+            : simplified(acq)
+              ? `You may request a brief explanation of the basis for the award decision within three days of this notice (${cites.unsuccessful}).`
+              : `You may request a debriefing within three days of this notice (${cites.unsuccessful}).`,
           "",
           "This is a prototype record and not an official NASA notice.",
           "",
@@ -123,5 +206,8 @@ export function buildEmailDrafts(input: {
     unavailableNote: "The evaluation record does not yet name a successful and unsuccessful quoter.",
   };
 
-  return [requesterDraft, reviewerDraft, vendorDraft];
+  return igceOwed
+    ? [igceDraft, requesterDraft, reviewerDraft, vendorDraft]
+    : [requesterDraft, igceDraft, reviewerDraft, vendorDraft];
+
 }
