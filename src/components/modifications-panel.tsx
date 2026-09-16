@@ -8,9 +8,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import {
   MOD_TYPES,
+  modAuthorityText,
   modRows,
   modTypeInfo,
   sf30Blocks,
+  acquisitionProfile,
   type ModificationRow,
 } from "@/lib/vehicles";
 
@@ -38,6 +40,9 @@ export function ModificationsPanel({
   const [periodEnd, setPeriodEnd] = useState("");
   const [fundsLine, setFundsLine] = useState("");
   const [outOfScope, setOutOfScope] = useState(false);
+  const [reason, setReason] = useState("");
+  const [requestedBy, setRequestedBy] = useState("");
+  const [funded, setFunded] = useState<"yes" | "no">("yes");
 
   const q = useQuery({
     queryKey: ["modifications", acquisitionId],
@@ -58,18 +63,24 @@ export function ModificationsPanel({
       const name = await signedInName(actor);
       const count = (q.data ?? []).length;
       const info = modTypeInfo(type);
+      const authorityText = modAuthorityText(type, acq ?? null);
       const modNumber = `P${String(count + 1).padStart(5, "0")}`;
       const payload = {
         acquisition_id: acquisitionId,
         mod_number: modNumber,
         mod_type: type,
         ...sf30Blocks(type),
-        authority_text: info.authority,
+        authority_text: authorityText,
         description: description.trim() || null,
         value_change: valueChange.trim() ? Number(valueChange) : null,
         period_change_end: periodEnd || null,
         funds_line: fundsLine.trim() || null,
-        clause_delta: outOfScope ? [{ key: "out_of_scope", value: true }] : [],
+        clause_delta: [
+          ...(outOfScope ? [{ key: "out_of_scope", value: true }] : []),
+          ...(reason.trim() ? [{ key: "reason", value: reason.trim() }] : []),
+          ...(requestedBy.trim() ? [{ key: "requested_by", value: requestedBy.trim() }] : []),
+          { key: "funded", value: funded === "yes" },
+        ],
         state: "draft",
       };
       const { error } = await supabase.from("contract_modifications").insert(payload as never);
@@ -81,7 +92,7 @@ export function ModificationsPanel({
         field: modNumber,
         old_value: null,
         new_value: info.label,
-        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}${outOfScope ? "; adds out-of-scope work, justification required" : ""}`,
+        reason: `${info.label} created as ${modNumber}, SF 30 block ${info.block}, authority ${authorityText}${outOfScope ? "; adds out-of-scope work, justification required" : ""}`,
       } as never);
       return modNumber;
     },
@@ -93,6 +104,9 @@ export function ModificationsPanel({
       setPeriodEnd("");
       setFundsLine("");
       setOutOfScope(false);
+      setReason("");
+      setRequestedBy("");
+      setFunded("yes");
       void qc.invalidateQueries({ queryKey: ["modifications", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
