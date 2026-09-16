@@ -17,4 +17,8 @@
 # Clause engine (D1-D6)
 - [x] D1 clause picker with Apply to file feeding the handoff packet
 - [x] D2 hard rules: no RFO-removed clauses, 52.212-5 Reserved, formerly bundled clauses prescribed independently
-- [ ] D3-D6 deferred: UCF/SF 1449 format, solicitation builder, award/mod scaffolding, NFS Companion gates
+- [x] D3 contract format scaffold: SF 1449 streamlined blocks or UCF sections from `contract_format`
+- [x] D4 solicitation basics: CLIN from the record, instructions to offerors, evaluation factors with citations
+- [x] D5 award and modification scaffolding with matrix fill-ins
+- [x] D6 NFS Companion gates panel read from review_rules and the record
+- [ ] Order-specific writing scaffolding (IDIQ/BPA orders) beyond the shared format scaffold
