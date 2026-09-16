@@ -875,7 +875,7 @@ function DocumentPage() {
     const drafted = applyMemoDraft(filled, draft);
     setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
-  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx]);
+  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.
