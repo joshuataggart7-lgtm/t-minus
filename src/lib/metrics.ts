@@ -274,6 +274,7 @@ export function computeMetrics(
       blocker = `${missingDoc.label} is missing`;
       blockerOwner = (acq.co_name as string) ?? null;
     }
+    if (missingDoc) heroLabel = heroActionLabel(missingDoc);
   }
 
   return {
@@ -297,7 +298,7 @@ export function computeMetrics(
     blocker,
     blockerOwner,
     blockerSince: opts.holdSince ?? null as string | null,
-    nextAction: nextDecision,
+    nextAction: heroLabel ?? nextDecision,
     deadline: nextDecisionDate ?? null,
   };
 }
