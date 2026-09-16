@@ -281,7 +281,7 @@ export function ModificationsPanel({
                   {m.mod_number} · {info.label} · {m.state === "draft" ? "Draft" : "Issued"}
                 </p>
                 <p className="mt-1 text-[13px] text-muted-foreground">
-                  SF 30 block {info.block}: {m.authority_text ?? info.authority}.
+                  SF 30 block {info.block}: {m.authority_text ?? modAuthorityText(m.mod_type, acq)}.
                   {change ? ` Value change ${money(change)}.` : ""}
                   {m.period_change_end ? ` Period runs to ${m.period_change_end}.` : ""}
                   {m.funds_line ? ` Funds line ${m.funds_line}.` : ""}
