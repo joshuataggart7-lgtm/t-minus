@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell, PageHeader, ErrorNote, LoadingNote } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { PilotKnownGaps } from "@/components/pilot-known-gaps";
 import { reportDefect } from "@/lib/template-defects";
 import {
   buildStamp,
