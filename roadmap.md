@@ -13,3 +13,8 @@
 
 # UX polish
 - [x] Sample 1/2 cold-path UX polish shipped — see BUILD_NOTES section "Sample 1/2 cold-path UX polish"
+
+# Clause engine (D1-D6)
+- [x] D1 clause picker with Apply to file feeding the handoff packet
+- [x] D2 hard rules: no RFO-removed clauses, 52.212-5 Reserved, formerly bundled clauses prescribed independently
+- [ ] D3-D6 deferred: UCF/SF 1449 format, solicitation builder, award/mod scaffolding, NFS Companion gates
