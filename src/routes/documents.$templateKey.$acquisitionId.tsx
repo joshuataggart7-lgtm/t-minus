@@ -308,6 +308,16 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      // The price negotiation memorandum reads the comparables check that has
+      // already run on this file, so the table is not asked for twice.
+      const comparablesCheck = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .eq("check_type", "Contract awards comparables")
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       const missionId = String((acq.data as Record<string, unknown> | null)?.["mission_id"] ?? "");
       const mission = missionId
         ? await supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
@@ -442,6 +452,7 @@ function DocumentPage() {
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
         samCheck: samCheck.data ?? null,
+        comparablesCheck: comparablesCheck.data ?? null,
         hqRevision: tpl.data?.hq_revision_date ?? null,
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
