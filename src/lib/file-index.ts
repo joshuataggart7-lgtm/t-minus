@@ -77,6 +77,16 @@ export function tabRank(tab: string | null | undefined): number {
 
 const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 
+/** A document with no tab of its own is listed under an honest "N/A". */
+const displayTab = (tab: string) => (tab === "" || tab === "—" || tab === "NA" ? "N/A" : tab);
+
+/** The route that opens the official version of a generated document. */
+function openFor(templateName: string, templateKey: string | undefined): IndexOpen | null {
+  const formKey = (Object.keys(FORM_NAMES) as FormKey[]).find((k) => FORM_NAMES[k] === templateName);
+  if (formKey) return { kind: "form", formKey };
+  return templateKey ? { kind: "document", templateKey } : null;
+}
+
 /** Tabs the acquisition type requires, from the phases in its sequence. */
 export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
   const inSequence = new Set(phases.map((p) => p.toLowerCase()));
