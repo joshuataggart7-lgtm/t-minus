@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { loadModTasks } from "@/lib/clause-impact";
+import { loadModTasks, storedClauseList } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { Nf1707Signoffs } from "@/components/nf1707-signoffs";
@@ -47,6 +47,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
+import { ClausePicker } from "@/components/clause-picker";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
@@ -1183,9 +1184,23 @@ function FilePage() {
     [acq, q.data?.clauses, q.data?.thresholds],
   );
 
+  // Clauses the officer has applied to the file. Until Apply is used, the
+  // packet carries every recommended clause.
+  const appliedClauseNumbers = useMemo(
+    () => storedClauseList(acq?.["contract_clauses"]),
+    [acq],
+  );
+  const packetSelection = useMemo(
+    () =>
+      appliedClauseNumbers && appliedClauseNumbers.length > 0
+        ? packetClauses.filter((c) => appliedClauseNumbers.includes(c.clause_number))
+        : packetClauses,
+    [packetClauses, appliedClauseNumbers],
+  );
+
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, packetClauses, phases, board);
+    const packet = buildPacket(acq, packetSelection, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
@@ -2315,9 +2330,19 @@ function FilePage() {
                   <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
                     {q.isLoading
                       ? "Loading the clause list."
-                      : `${packetClauses.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
+                      : `${packetSelection.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
-                  {packetClauses.length > 0 ? (
+                  {acq ? (
+                    <ClausePicker
+                      acquisitionId={acquisitionId}
+                      recommended={packetClauses}
+                      clauseRows={q.data?.clauses ?? []}
+                      applied={appliedClauseNumbers}
+                      actorName={actorName}
+                      phase={p.phase}
+                    />
+                  ) : null}
+                  {packetSelection.length > 0 ? (
                     <table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Clauses in the packet and why each is included</caption>
                       <thead>
@@ -2329,7 +2354,7 @@ function FilePage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {packetClauses.map((c) => (
+                        {packetSelection.map((c) => (
                           <tr key={c.clause_number} className="border-b border-border align-top">
                             <td className="p-2" data-numeric>{c.clause_number}</td>
                             <td className="p-2">{c.title}</td>

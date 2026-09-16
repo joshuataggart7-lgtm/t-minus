@@ -978,3 +978,38 @@ for order **A-2027-0104** already has `funds_certified = true`,
 **Shipped.** The file clock line now uses fluid columns and a wrapping Next/More action row so actions remain visible without page overflow. A missing current required document shows Why? beside its action when its own row carries a citation. On A-2027-0101 and A-2027-0102 only, Regulations, Thresholds, and Audit trail start collapsed with phase or entry counts while preserving their full content on disclosure.
 
 **Deferred.** No D1–D6 or clause-engine work, lifecycle changes, Sample 3/IDIQ behavior changes, seed changes, or security work. No NCMS write-back, FedRAMP, or FPDS capability is claimed.
+
+## 16 Sep 2026 — D1 + D2 clause engine picker and hard rules
+
+Shipped (D1): a clause picker on the file page's NCMS handoff block
+(Solicitation/Quote and Award). It lists the clauses `selectPacketClauses`
+derives from the record with the reason, UCF section, source, matrix status,
+effective date, and fill-ins where the matrices carry them. "Apply to file"
+writes the selected clause numbers to `acquisition_facts.contract_clauses`
+and logs an `audit_log` entry (action "Clause list applied to the file",
+field `contract_clauses`, old and new lists, phase). Once a list is applied,
+the packet table and the downloaded handoff JSON show only the applied
+clauses, so Apply feeds generation rather than ending in a list.
+
+Shipped (D2): `sanitizeClauseSelection` in `src/lib/clause-packet.ts` is the
+single write gate — a clause may be applied only if the record recommends it,
+the PCD 26-03B / NFS 1852 matrices do not show it removed or deleted, and it
+is not FAR 52.212-5. Removed clauses are not offered in the picker and are
+named in a short "Removed under the RFO and not available" line.
+FAR 52.212-5 is Reserved under the RFO and is never offered, recommended, or
+applied. Clauses that formerly rode inside 52.212-5 now carry
+`formerly_bundled` on the rule and are shown with "Prescribed on its own;
+52.212-5 is Reserved" so the material is prescribed independently rather than
+smuggled back under the reserved paragraph.
+
+Deferred, unchanged this turn: D3 UCF and SF 1449 streamlined format builder
+from `contract_format`; D4 solicitation builder (CLINs, instructions,
+evaluation factors); D5 award / modification / order writing scaffolding with
+matrix fill-ins beyond the existing packet and mod delta tables; D6 NFS
+Companion gates as first-class exits.
+
+No NCMS write-back, no FedRAMP claim, no FPDS. The packet stays a local file
+and NCMS remains the contract writing system of record (NFS CG 1804.11).
+Sample 3 / IDIQ logic untouched. Security findings remain deferred.
+Verified on A-2027-0102: picker opens, Apply writes 22 clauses with no
+52.212-5 and no removed rows. TypeScript clean.

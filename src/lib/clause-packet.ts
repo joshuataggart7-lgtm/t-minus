@@ -48,11 +48,19 @@ export type PacketClause = {
   status: string | null;
   effective_date: string | null;
   fill_ins: unknown;
+  /**
+   * True where the clause used to ride along inside FAR 52.212-5. That
+   * paragraph is Reserved under the RFO, so the clause carries its own
+   * prescription and is listed on its own.
+   */
+  formerly_bundled: boolean;
 };
 
 type Rule = {
   number: string;
   title: string;
+  /** The clause was formerly carried inside the 52.212-5 paragraph list. */
+  formerlyBundled?: boolean;
   /** Returns the reason the record includes this clause, or null to leave it out. */
   applies: (f: Ctx) => string | null;
 };
@@ -114,6 +122,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.209-6",
+    formerlyBundled: true,
     title: "Protecting the Government's Interest When Subcontracting with Contractors Debarred, Suspended, or Proposed for Debarment",
     applies: (c) =>
       c.value > c.micro ? `Value ${c.money(c.value)} exceeds the micro-purchase threshold (FAR 9.409).` : null,
@@ -159,6 +168,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-6",
+    formerlyBundled: true,
     title: "Notice of Total Small Business Set-Aside",
     applies: (c) =>
       /total small business/i.test(c.setAside)
@@ -167,6 +177,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-9",
+    formerlyBundled: true,
     title: "Small Business Subcontracting Plan",
     applies: (c) =>
       c.value >= c.subPlan && !/small business/i.test(c.setAside)
@@ -175,27 +186,32 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-28",
+    formerlyBundled: true,
     title: "Post-Award Small Business Program Rerepresentation",
     applies: (c) =>
       c.value > c.micro ? "Award above the micro-purchase threshold (FAR 19.309(c))." : null,
   },
   {
     number: "52.222-3",
+    formerlyBundled: true,
     title: "Convict Labor",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.202)." : null),
   },
   {
     number: "52.222-21",
+    formerlyBundled: true,
     title: "Prohibition of Segregated Facilities",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
   },
   {
     number: "52.222-26",
+    formerlyBundled: true,
     title: "Equal Opportunity",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
   },
   {
     number: "52.222-41",
+    formerlyBundled: true,
     title: "Service Contract Labor Standards",
     applies: (c) =>
       c.services && c.value > 2500
@@ -204,26 +220,31 @@ const RULES: Rule[] = [
   },
   {
     number: "52.223-18",
+    formerlyBundled: true,
     title: "Encouraging Contractor Policies to Ban Text Messaging While Driving",
     applies: () => "Required in every solicitation and contract (FAR 23.1105).",
   },
   {
     number: "52.225-13",
+    formerlyBundled: true,
     title: "Restrictions on Certain Foreign Purchases",
     applies: () => "Required in every solicitation and contract (FAR 25.1103(a)).",
   },
   {
     number: "52.232-33",
+    formerlyBundled: true,
     title: "Payment by Electronic Funds Transfer—System for Award Management",
     applies: () => "Payment runs through the vendor's SAM registration (FAR 32.1110(a)(1)(i)).",
   },
   {
     number: "52.232-40",
+    formerlyBundled: true,
     title: "Providing Accelerated Payments to Small Business Subcontractors",
     applies: () => "Required in every solicitation and contract (FAR 32.009-2).",
   },
   {
     number: "52.233-3",
+    formerlyBundled: true,
     title: "Protest After Award",
     applies: () => "Required in every solicitation and contract (FAR 33.106(a)).",
   },
@@ -274,6 +295,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.244-6",
+    formerlyBundled: true,
     title: "Subcontracts for Commercial Products and Commercial Services",
     applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 44.403)." : null),
   },
@@ -417,7 +439,43 @@ export function selectPacketClauses(
       status: row?.status ?? "not in the loaded matrices (verify in NCMS)",
       effective_date: row?.effective_date ?? null,
       fill_ins: row?.fill_ins ?? null,
+      formerly_bundled: rule.formerlyBundled === true,
     });
   }
   return out.sort((a, b) => a.clause_number.localeCompare(b.clause_number, "en", { numeric: true }));
+}
+
+/** Clause numbers the matrices show as removed under the RFO. */
+export function removedClauseNumbers(clauseRows: ClauseRow[]): string[] {
+  const out = new Set<string>();
+  for (const row of clauseRows) {
+    const n = row.clause_number?.trim();
+    if (!n) continue;
+    if (/remov|delet/i.test(`${row.status ?? ""} ${row.disposition ?? ""}`)) out.add(n);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
+}
+
+/**
+ * The only clause numbers that may be written onto a record: a clause the
+ * record recommends, never a removed clause, and never FAR 52.212-5, which is
+ * Reserved under the RFO.
+ */
+export function sanitizeClauseSelection(
+  selected: readonly string[],
+  recommended: readonly PacketClause[],
+  clauseRows: ClauseRow[],
+): string[] {
+  const allowed = new Set(recommended.map((c) => c.clause_number));
+  const removed = new Set(removedClauseNumbers(clauseRows));
+  const out = new Set<string>();
+  for (const raw of selected) {
+    const n = String(raw ?? "").trim();
+    if (!n) continue;
+    if (n === "52.212-5") continue;
+    if (removed.has(n)) continue;
+    if (!allowed.has(n)) continue;
+    out.add(n);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
 }
