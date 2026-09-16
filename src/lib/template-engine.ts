@@ -2784,10 +2784,27 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   }
   // Carried so a section citation can follow the record's acquisition method.
   out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
-  if (def.key === "jofoc" && !out["action_type"]) {
-    // A sole-source record opens on the action it is: the CO can change it.
+  if (def.key === "jofoc") {
     const competition = String(acq["competition"] ?? "").toLowerCase();
-    if (competition.includes("sole") || competition.includes("brand")) out["action_type"] = "Sole-source contract";
+    const soleSource = competition.includes("sole") || competition.includes("brand");
+    // A sole-source record opens on the action it is: the CO can change it.
+    if (!out["action_type"] && soleSource) out["action_type"] = "Sole-source contract";
+    if (soleSource) {
+      // The stored citation only stands if it is one of the offered options;
+      // otherwise the field opens on the only-one-responsible-source option
+      // that matches the acquisition method.
+      const options =
+        def.sections.flatMap((s) => s.fields).find((f) => f.key === "authority")?.options ?? [];
+      const stored = String(out["authority"] ?? "").trim();
+      if (!stored || !options.includes(stored)) {
+        const method = String(acq["acquisition_method"] ?? "").toLowerCase();
+        const commercial = /12\.102|13\.5|commercial simplified/.test(method);
+        out["authority"] =
+          options.find((o) =>
+            commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
+          ) ?? stored;
+      }
+    }
   }
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
