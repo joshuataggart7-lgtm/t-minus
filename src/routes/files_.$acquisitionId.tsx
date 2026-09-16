@@ -52,6 +52,18 @@ import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } 
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
+import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
+import {
+  LM_AUTHORED_CHIP,
+  LM_STUB_CHIP,
+  lmAuthored,
+  loadFactors,
+  loadSectionL,
+  loadSectionM,
+  methodShell,
+  sectionLLines,
+  sectionMLines,
+} from "@/lib/solicitation-lm";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
@@ -509,6 +521,24 @@ function FilePage() {
     () => scheduleToScaffoldClins(clinQ.data ?? []),
     [clinQ.data],
   );
+
+  // Sections L and M as the officer saved them. The workspace, the scaffold and
+  // the handoff packet all read these rows, so they cannot disagree.
+  const sectionLQ = useQuery({
+    queryKey: ["section-l", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadSectionL(acquisitionId),
+  });
+  const sectionMQ = useQuery({
+    queryKey: ["section-m", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadSectionM(acquisitionId),
+  });
+  const factorsQ = useQuery({
+    queryKey: ["section-m-factors", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadFactors(acquisitionId),
+  });
 
   // The most recent recorded check on this file, read only. Running a check
   // stays where it already lives; this is a stamp and a link.
@@ -1448,14 +1478,65 @@ function FilePage() {
 
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
+  // The method on the record drives the shell: SF 1449 with Part 12/13 voice,
+  // or the Uniform Contract Format with Part 15 voice.
+  const shell = useMemo(
+    () => methodShell(acq as unknown as Record<string, unknown> | null),
+    [acq],
+  );
+
+  const lmOverride = useMemo(() => {
+    if (!acq || !shell) return null;
+    const facts = acq as unknown as Record<string, unknown>;
+    const l = sectionLQ.data ?? null;
+    const m = sectionMQ.data ?? null;
+    const factors = factorsQ.data ?? [];
+    const authored = lmAuthored(l, m, factors);
+    return {
+      methodLabel: shell.methodLabel,
+      partFamily: shell.partFamily,
+      authored,
+      chip: authored ? LM_AUTHORED_CHIP : LM_STUB_CHIP,
+      instructions: sectionLLines(
+        facts,
+        shell,
+        l,
+        packetSelection.some((c) => c.clause_number === "52.212-1"),
+      ),
+      evaluation: sectionMLines(
+        shell,
+        m,
+        factors,
+        packetSelection.some((c) => c.clause_number === "52.212-2"),
+      ),
+      sectionL: {
+        volumes: l?.volumes ?? null,
+        page_limit: l?.page_limit ?? null,
+        submission_instructions: l?.submission_instructions ?? null,
+        response_due_note: l?.response_due_note ?? null,
+      },
+      sectionM: {
+        lpta: m?.lpta ?? false,
+        notes: m?.notes ?? null,
+        suppressed_sole_source: !shell.competitive,
+        factors: factors.map((f) => ({
+          name: f.name,
+          relative_importance: f.relative_importance ?? "Not recorded",
+          description: f.description ?? null,
+        })),
+      },
+    };
+  }, [acq, shell, sectionLQ.data, sectionMQ.data, factorsQ.data, packetSelection]);
+
   const formatScaffold = useMemo(
     () =>
       buildFormatScaffold(
         acq as unknown as Record<string, unknown> | null,
         packetSelection,
         scheduleClins,
+        lmOverride,
       ),
-    [acq, packetSelection, scheduleClins],
+    [acq, packetSelection, scheduleClins, lmOverride],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
@@ -2795,6 +2876,18 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <SolicitationKlmPanel
+                    acquisitionId={acquisitionId}
+                    shell={shell}
+                    clauses={packetSelection}
+                    simplifiedCommercial={Boolean(acq && isSimplifiedCommercial(acq as Record<string, unknown>))}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
+                  <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                    {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
+                  </p>
                   <FormatScaffoldPanel scaffold={formatScaffold} />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">

@@ -2117,6 +2117,177 @@ export type Database = {
         }
         Relationships: []
       }
+      solicitation_l: {
+        Row: {
+          acquisition_id: string
+          created_at: string
+          created_by: string | null
+          is_seed: boolean
+          page_limit: string | null
+          response_due_note: string | null
+          submission_instructions: string | null
+          updated_at: string
+          volumes: string | null
+        }
+        Insert: {
+          acquisition_id: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          page_limit?: string | null
+          response_due_note?: string | null
+          submission_instructions?: string | null
+          updated_at?: string
+          volumes?: string | null
+        }
+        Update: {
+          acquisition_id?: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          page_limit?: string | null
+          response_due_note?: string | null
+          submission_instructions?: string | null
+          updated_at?: string
+          volumes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitation_l_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_l_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_l_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
+      solicitation_m: {
+        Row: {
+          acquisition_id: string
+          created_at: string
+          created_by: string | null
+          is_seed: boolean
+          lpta: boolean
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          lpta?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          lpta?: boolean
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitation_m_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_m_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_m_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: true
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
+      solicitation_m_factors: {
+        Row: {
+          acquisition_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          factor_id: string
+          is_seed: boolean
+          name: string
+          relative_importance: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          factor_id?: string
+          is_seed?: boolean
+          name: string
+          relative_importance?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          factor_id?: string
+          is_seed?: boolean
+          name?: string
+          relative_importance?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitation_m_factors_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_m_factors_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "solicitation_m_factors_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       template_defects: {
         Row: {
           acquisition_id: string | null

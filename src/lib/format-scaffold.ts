@@ -33,6 +33,22 @@ export type ScaffoldClause = {
   fillIns: string | null;
 };
 
+/**
+ * Sections L and M as the officer saved them, with the method label the record
+ * carries. When this is given it is the only source for the instructions and
+ * the evaluation lines, so the panel, the scaffold and the packet agree.
+ */
+export type ScaffoldLmOverride = {
+  methodLabel: string;
+  partFamily: "12_13" | "15";
+  authored: boolean;
+  chip: string;
+  instructions: ScaffoldLine[];
+  evaluation: { mode: "competitive" | "sole-source"; lines: ScaffoldLine[] };
+  sectionL: Record<string, string | null>;
+  sectionM: Record<string, unknown>;
+};
+
 export type FormatScaffold = {
   /** "sf1449" when the record carries the commercial streamlined format. */
   mode: "sf1449" | "ucf";
@@ -45,6 +61,7 @@ export type FormatScaffold = {
   ucfSections: UcfSection[];
   /** Every clause the engine selected, with the reason it is on this file. */
   clauses: ScaffoldClause[];
+  lm: ScaffoldLmOverride | null;
 };
 
 
@@ -88,6 +105,8 @@ export function buildFormatScaffold(
   clauses: PacketClause[],
   /** The schedule on the file. When given, it is the only source of line items. */
   scheduleClins?: ScaffoldClin[],
+  /** Sections L and M from the file. When given they replace the default lines. */
+  lm?: ScaffoldLmOverride | null,
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -216,10 +235,13 @@ export function buildFormatScaffold(
       : "No contract format recorded; the format is read from the commercial determination.",
     blocks,
     clins,
-    instructions,
-    evaluation,
+    // Sections L and M on the file win over the default lines, so the
+    // workspace, the scaffold and the handoff packet always say the same thing.
+    instructions: lm ? lm.instructions : instructions,
+    evaluation: lm ? lm.evaluation : evaluation,
     ucfSections,
     clauses: scaffoldClauses,
+    lm: lm ?? null,
   };
 }
 
@@ -237,8 +259,20 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
   return {
     mode: scaffold.mode,
     format: scaffold.formatLabel,
+    format_source: scaffold.formatSource,
+    method_label: scaffold.lm?.methodLabel ?? "Acquisition method not recorded",
+    part_family: scaffold.lm?.partFamily ?? null,
     blocks: scaffold.blocks,
     clins: scaffold.clins,
+    section_l: scaffold.lm ? { fields: scaffold.lm.sectionL, lines: scaffold.instructions } : null,
+    section_m: scaffold.lm
+      ? {
+          ...scaffold.lm.sectionM,
+          mode: scaffold.evaluation.mode,
+          lines: scaffold.evaluation.lines,
+        }
+      : null,
+    lm_note: scaffold.lm?.chip ?? null,
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
