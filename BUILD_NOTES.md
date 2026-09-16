@@ -1193,3 +1193,23 @@ and NF 1787 small business coordination) with no false TER, CIO or NPA gate;
 Sample 2 shows three with the sole-source TER applying. No console errors, no
 seed edits, no new holds, no NCMS write-back / FedRAMP / live FPDS claims.
 Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
+
+## P0.3 — RFO reserved-clause reason note (no 52.212-3/5)
+
+- Added `RFO_RESERVED_212_NOTE` to `src/lib/clause-packet.ts`: a single
+  citation-backed reason surfaced to the contracting officer stating that
+  FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, commercial clause
+  content is prescribed via FAR Tables 12-2 and 12-3 (and each clause's own
+  prescription) rather than the old 52.212-5 checkbox paragraph, and offeror
+  reps/certs for commercial buys are made in SAM (with FAR 52.204-7 on the
+  packet) rather than by packing FAR 52.212-3.
+- `sanitizeClauseSelection` now blocks both 52.212-5 (Reserved) and 52.212-3
+  (reps/certs made in SAM) explicitly, so neither can be applied even if
+  somehow selected. `selectPacketClauses` already skips 52.212-5 and 52.212-3
+  `applies: () => null`, so neither is recommended or offered.
+- Surfaced the note once via a progressive-disclosure `<details>` ("Why FAR
+  52.212-3 and 52.212-5 are not on the packet") in the clause picker, visible
+  on Sample 1/2. Added a `clause_policy_note` field to the NCMS handoff packet
+  JSON for the same reason.
+- No seed edits, no new holds, no NCMS write-back / FedRAMP / live FPDS
+  claims, no Track D forms, no 52.212-3/5 packed anywhere.
