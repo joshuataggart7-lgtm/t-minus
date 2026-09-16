@@ -50,6 +50,7 @@ import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { awardConfidence, historyFrom } from "@/lib/confidence";
 import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
+import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
 import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
@@ -2143,6 +2144,16 @@ function FilePage() {
           </Link>
         </p>
         </>
+      ) : null}
+
+      {acq ? (
+        <CorToRequestPanel
+          acq={acq as unknown as Record<string, unknown>}
+          profile={acquisitionProfile(acq)}
+          actorName={actorName}
+          canWrite={canWrite}
+          onSaved={() => void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] })}
+        />
       ) : null}
 
       {acq && canWrite ? (
