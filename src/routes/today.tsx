@@ -319,9 +319,11 @@ function TodayPage() {
                     </span>{" "}
                     {c.m.nextAction} — <FileLink card={c} />
                     <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-                      {c.m.daysToAward === null
-                        ? "No target award date recorded."
-                        : `${c.m.daysToAward} calendar days to award. `}
+                      {c.m.daysToAward !== null
+                        ? `${c.m.daysToAward} calendar days to the target award date. `
+                        : c.m.forecastAwardDate
+                          ? `${daysUntil(c.m.forecastAwardDate) ?? 0} calendar days to the forecast award date; no target award date recorded. `
+                          : "No target award date recorded."}
                       {desk
                         ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
                         : ""}
