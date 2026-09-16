@@ -30,9 +30,14 @@ function Head({ n, children }: { n: number; children: React.ReactNode }) {
 export function AwardHandoffPanel({
   scaffold,
   defaultOpen = false,
+  acquisitionId,
+  suggestedForm,
 }: {
   scaffold: FormatScaffold | null;
   defaultOpen?: boolean;
+  acquisitionId?: string;
+  /** The official form the record points at. A suggestion, never a lock. */
+  suggestedForm?: { key: string; name: string; why: string } | null;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   if (!scaffold) return null;
