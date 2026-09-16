@@ -51,6 +51,28 @@ export function RequesterLoe({
     return [...out.entries()];
   }, [est]);
 
+  // Planned calendar days from the seeded phase plan for this file's type.
+  // Display only: nothing here recomputes a clock or writes to the record.
+  const planRows = useMemo(() => {
+    const type = acquisitionType(acq as unknown as AcqRow);
+    return plan.filter((p) => p.acquisition_type === type && p.phase);
+  }, [plan, acq]);
+
+  const plannedByPhase = useMemo(() => {
+    const out = new Map<string, number>();
+    for (const r of planRows) {
+      const key = (r.phase ?? "").toLowerCase();
+      if (r.planned_days != null) out.set(key, (out.get(key) ?? 0) + r.planned_days);
+    }
+    return out;
+  }, [planRows]);
+
+  const totalPlannedDays = useMemo(
+    () => planRows.reduce((sum, r) => sum + (r.planned_days ?? 0), 0),
+    [planRows],
+  );
+  const hasPlan = planRows.length > 0 && totalPlannedDays > 0;
+
   return (
     <div>
       <h3 className="text-[15px] font-medium">What this buy costs in contracting work</h3>
