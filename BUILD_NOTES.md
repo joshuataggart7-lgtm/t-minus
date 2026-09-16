@@ -815,3 +815,23 @@ role check using the existing `private.*` helpers.
   is intentional: the fictional demo roster is the Center contact list the
   reviewer routing, poll boards and Center configuration read on every page.
   The remaining linter warning is the pre-existing anonymous-access notice.
+
+## CoS refinement follow-up (16 September 2026)
+
+- **Handoff packet download still works.** The control builds the packet from
+  the record, downloads it as `ncms-handoff-<acquisition id>.json`, and then
+  confirms the file name in the page banner. It is a real local file, not an
+  aspirational control. NCMS write-back remains planned and not implemented,
+  and no FedRAMP status is claimed.
+- **Share links are no longer readable by everyone.** A document share row,
+  including its link token and the recipient address, is readable only by the
+  person who issued it and by contracting or administrator accounts.
+- **Self-service privilege escalation closed.** Triggers on `profiles` and
+  `users` hold `role`, `is_admin` and `warrant_limit` at their stored values
+  unless the change is made by an administrator (HQ on profiles, contracting
+  or administrator on users). Editing one's own name or telephone still works.
+- **Left as intentional.** The broad authenticated read on `users` stays: the
+  fictional roster is the Center contact list the poll boards, reviewer routing
+  and Center configuration read. Attachment storage reads are already scoped to
+  files linked to a document record; the remaining notice on that bucket is the
+  pre-existing anonymous-access warning.
