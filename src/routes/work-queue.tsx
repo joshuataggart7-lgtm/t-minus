@@ -50,6 +50,8 @@ type Card = {
   daysInPhase: number | null;
   /** Days to award, with the need date standing in when no target is set. */
   days: number | null;
+  /** Planned working days and the range prior files of this profile took. */
+  confidence: AwardConfidence;
 };
 
 function columnFor(m: AcqMetrics): Column {
