@@ -1884,3 +1884,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## UX — panel-muted contrast bump
 - src/styles.css `--panel-muted` `#ccd6f0` → `#dce4f7` for clearer secondary lines on navy `#0f2a5b`, still calm. Visual only; no logic, Walk, or Sample changes.
+
+## Innovator leftover #4 — peer-link strip polish
+- `src/routes/files_.$acquisitionId.tsx` Related actions section: `aria-label` "Peer systems" + quiet "Peer systems" lead in muted 13px; NCMS button label "NCMS packet (local — planned write-back)"; footer honesty line "NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov." NEAR export, Checks link, last-check stamp kept. Strip not hidden in Presenter mode. Walk, Samples, holds, clocks unchanged.
