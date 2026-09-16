@@ -2805,6 +2805,13 @@ function FilePage() {
                       The modification of record is written in NCMS (NFS 1804.171). The clause delta below is read
                       from the clause matrices; removed clauses are struck and never carried forward.
                     </p>
+                    {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
+                      <p className="mt-2 border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
+                        Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don’t open the
+                        clause delta on this file during the walkthrough — the delta below is illustrative, not
+                        the reconciled vehicle clause set.
+                      </p>
+                    ) : null}
                     <p className="mt-2 text-[13px]" data-numeric>
                       {delta.updated.length} updated · {delta.removed.length} removed · {delta.unchanged.length}{" "}
                       unchanged
