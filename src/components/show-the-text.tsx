@@ -35,6 +35,7 @@ export function ShowTheText({ citation }: { citation: string | null | undefined 
   const { rows, state } = useCiteCorpus();
   if (!String(citation ?? "").trim()) return null;
   const matches = corpusRowsFor(citation, rows);
+  const isCompanionGuide = citationHasCompanionGuide(citation);
   return (
     <span className="inline-block align-baseline">
       <button
