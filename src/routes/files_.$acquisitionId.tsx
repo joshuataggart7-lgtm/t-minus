@@ -1944,6 +1944,12 @@ function FilePage() {
 
   return (
     <AppShell>
+      {/* Quiet print-only header: the record's id and title on the handout. */}
+      <div data-print="header" className="hidden">
+        <p className="text-[13px]">{acquisitionId}</p>
+        <p className="text-[15px] font-medium">{acq?.title ?? acquisitionId}</p>
+      </div>
+
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
       {banner ? (
