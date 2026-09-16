@@ -1959,3 +1959,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Award handoff reads every scaffold list defensively (blocks, CLINs, attachments, CDRL, payment) so a partial record renders instead of throwing, and adds one soft line when no enclosures are recorded: the packet prints cover blocks only. Advisory, never gates a phase.
 - The Adobe honesty line now shows whether or not a form is suggested — one quiet line, no duplicate, no Adobe verification claim and no field-binding work reopened.
 - New `PilotKnownGaps` card on About plus `docs/PILOT_KNOWN_GAPS.md`: human-only Adobe field QA, no NCMS write-back (NFS 1804.171 SoR), FPDS sheet is a fill aid not a submission, staff-PII finding deferred and open, advisories never hold a phase exit.
+
+## Wave 6 follow-on — Pilot known gaps on file walk
+- File page Peer systems strip now carries a quiet muted 13px Pilot known gaps line + link to /about (Adobe human-only · no NCMS write-back · FPDS fill aid · advisories never hold exit); PresenterScreensBeat adds one bullet pointing at About. Presenter mode keeps it visible.
