@@ -332,9 +332,15 @@ function FormPage() {
   const exportPopulated = async () => {
     if (!form) return;
     try {
-      await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
+      const withCompanion = await exportXfaIncremental(
+        form.pdf,
+        xfaDatasets(form),
+        `${form.key}-${acquisitionId}`,
+      );
       setMessage(
-        "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
+        withCompanion
+          ? "Form PDF exported, with a data file alongside it. The blank carried usage rights, so this export leaves them off and free Adobe Reader can open it to view and print. If Reader still refuses it, open the blank form from this app and use Import Data with the data file."
+          : "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
@@ -344,7 +350,9 @@ function FormPage() {
   const exportData = () => {
     if (!form) return;
     exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
-    setMessage("Data file exported. In Adobe Reader open the blank form, then choose Import Data and pick this file.");
+    setMessage(
+      `Data file exported. In free Adobe Reader open the blank form from this app (${form.pdf}), then choose Forms or Manage Form Data, Import Data, and pick this file.`,
+    );
   };
 
   return (
