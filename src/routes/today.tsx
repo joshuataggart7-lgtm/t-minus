@@ -26,9 +26,21 @@ export const Route = createFileRoute("/today")({
   component: TodayPage,
 });
 
+function plain(name: string): string {
+  return name.replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 function surname(name: string): string {
-  const parts = name.replace(/\(.*?\)/g, "").trim().split(/\s+/);
-  return (parts[parts.length - 1] ?? "").toLowerCase();
+  const parts = plain(name).split(" ");
+  return parts[parts.length - 1] ?? "";
+}
+
+/** The same person, written either as the full name or just the surname. */
+function samePerson(owner: string, me: string): boolean {
+  const a = plain(owner);
+  const b = plain(me);
+  if (!a || !b) return false;
+  return a === b || surname(owner) === surname(me);
 }
 
 function FileLink({ card }: { card: DeskCard }) {
@@ -60,25 +72,24 @@ function TodayPage() {
 
   const mine = useMemo(() => {
     if (!desk) return [];
-    const me = surname(user.name);
-    const owned = desk.cards.filter((c) => surname(c.owner) === me);
+    const owned = desk.cards.filter((c) => samePerson(c.owner, user.name));
     if (owned.length > 0) return owned;
     // A requester who owns no files as CO still sees the files they asked for.
     if (roles.includes("requester")) {
       const mine2 = desk.cards.filter((c) => c.requester.toLowerCase() === user.name.toLowerCase());
       if (mine2.length > 0) return mine2;
     }
-    // An account with no files of its own sees the Center's files, labelled.
+    // An administrator who is on no file as CO sees every prototype file.
+    if (roles.includes("administrator")) return desk.cards;
+    // Any other account with no files of its own sees the Center's files, and
+    // every prototype file when the Center holds none, so the page is never bare.
     const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
-    // An administrator at a Center with no files sees every prototype file.
-    if (atCenter.length === 0 && roles.includes("administrator")) return desk.cards;
-    return atCenter;
+    return atCenter.length > 0 ? atCenter : desk.cards;
   }, [desk, user.name, user.center_code, roles]);
 
   const ownsMine = useMemo(() => {
     if (!desk) return true;
-    const me = surname(user.name);
-    return desk.cards.some((c) => surname(c.owner) === me);
+    return desk.cards.some((c) => samePerson(c.owner, user.name));
   }, [desk, user.name]);
 
   const isRequesterFallback = useMemo(() => {
@@ -88,8 +99,8 @@ function TodayPage() {
 
   const isAdminAll = useMemo(() => {
     if (!desk) return false;
-    return roles.includes("administrator") && mine.length === desk.cards.length && !ownsMine;
-  }, [desk, roles, mine, ownsMine]);
+    return mine.length === desk.cards.length && !ownsMine;
+  }, [desk, mine, ownsMine]);
 
   const live = useMemo(
     () => mine.filter((c) => c.m.clockState !== "launched" && c.m.clockState !== "scrubbed"),
@@ -99,9 +110,19 @@ function TodayPage() {
   const waitingOnMe = useMemo(
     () =>
       live.filter((c) => {
+        // Writing or attaching a required document is the officer's own work,
+        // whoever the blocker names.
+        const action = c.m.nextAction ?? "";
+        if (/^(write|attach)\b/i.test(action)) return true;
+        if (/ is missing$/i.test(c.m.blocker ?? "")) return true;
         const owner = (c.m.blockerOwner ?? "").toLowerCase();
         if (!owner) return c.m.clockState !== "hold";
-        return owner.includes("contracting") || owner.includes(surname(user.name));
+        return (
+          owner.includes("contracting") ||
+          owner.includes(surname(user.name)) ||
+          samePerson(c.m.blockerOwner ?? "", user.name) ||
+          samePerson(c.owner, user.name)
+        );
       }),
     [live, user.name],
   );
