@@ -2501,6 +2501,7 @@ function FilePage() {
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
               <th scope="col" className="px-3 py-2 font-medium">Source</th>
+              <th scope="col" className="px-3 py-2 font-medium">Official</th>
               <th scope="col" className="px-3 py-2 font-medium">Version</th>
               <th scope="col" className="px-3 py-2 font-medium">Saved</th>
               <th scope="col" className="px-3 py-2 font-medium">By</th>
