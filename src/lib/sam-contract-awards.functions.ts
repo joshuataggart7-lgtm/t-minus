@@ -37,7 +37,28 @@ export type ComparablesView = {
   sourceLabel: string;
   checkedAt: string;
   providerError?: string;
+  /** Short contracting-officer-facing reason the live lookup was not used. */
+  providerNote?: string;
 };
+
+/** Turns a raw provider failure into one plain sentence for the file. */
+function providerNoteFrom(message: string): string {
+  const status = message.match(/responded (\d{3})/)?.[1] ?? "";
+  const prefix = "Live SAM.gov contract awards were not available";
+  if (status === "401")
+    return `${prefix}: HTTP 401 — SAM.gov did not accept the API key. Ask the key holder to check it.`;
+  if (status === "403")
+    return `${prefix}: HTTP 403 — the API key is not entitled to the Contract Awards API. Request that entitlement in SAM.gov.`;
+  if (status === "404")
+    return `${prefix}: HTTP 404 — SAM.gov did not recognise the Contract Awards address for this key.`;
+  if (status === "429") return `${prefix}: HTTP 429 — the SAM.gov rate limit was reached. Try again later.`;
+  if (status) return `${prefix}: HTTP ${status} from SAM.gov.`;
+  if (/has not been configured/i.test(message))
+    return `${prefix}: the SAM.gov API key has not been configured for this environment.`;
+  if (/no prior awards/i.test(message))
+    return `${prefix}: SAM.gov returned no prior awards for this product and service code and NAICS.`;
+  return `${prefix}: ${message}`;
+}
 
 type JsonRecord = Record<string, unknown>;
 const object = (value: unknown): JsonRecord =>
