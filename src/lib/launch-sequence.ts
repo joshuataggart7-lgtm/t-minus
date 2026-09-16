@@ -197,6 +197,18 @@ export const PHASE_CITATIONS: Record<string, string> = {
   Closeout: "FAR 4.804 (closeout of contract files)",
 };
 
+/** Commercial Part 12 simplified citations. A FAR 13.5 or Part 12 commercial
+ *  buy runs under the commercial simplified procedures and their ceiling, not
+ *  under Part 15 and not on the simplified acquisition threshold story. */
+const COMMERCIAL_PHASE_CITATIONS: Record<string, string> = {
+  "Solicitation/Quote":
+    "FAR 12.603; RFO FAR 12.201-1 (commercial simplified procedures); NFS 1804.171 (NCMS is the system of record)",
+  "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
+  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3",
+  Award:
+    "RFO FAR 12.201-1 (commercial simplified procedures, within the commercial simplified ceiling); NFS 1804.171 (award written in NCMS)",
+};
+
 /** Negotiated Part 15 citations, used where the simplified ones do not apply. */
 const PART_15_PHASE_CITATIONS: Record<string, string> = {
   Synopsis: "RFO FAR 5.203 (presolicitation notice)",
@@ -211,6 +223,8 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   const method = String(((acq ?? {}) as Record<string, unknown>)["acquisition_method"] ?? "");
   const negotiated = /15/.test(method) || (!/13|12|8\.4/.test(method) && !isCommercialBuy(acq));
   if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
+  if (!negotiated && isCommercialBuy(acq) && COMMERCIAL_PHASE_CITATIONS[phase])
+    return COMMERCIAL_PHASE_CITATIONS[phase]!;
   return PHASE_CITATIONS[phase] ?? "";
 }
 
