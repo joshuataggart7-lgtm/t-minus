@@ -100,8 +100,13 @@ export function ClausePicker({
         <h4 className="text-[15px] font-medium">Clauses on this file</h4>
         <span className="text-[13px] text-muted-foreground" data-numeric>
           {applied && applied.length > 0
-            ? `${applied.length} applied of ${recommended.length} recommended`
-            : `${recommended.length} recommended, none applied yet`}
+            ? `${applied.length} on the file of ${recommended.length} recommended`
+            : `${recommended.length} recommended, none put on the file yet`}
+        </span>
+        <span className="basis-full text-[13px] text-muted-foreground">
+          {applied && applied.length > 0
+            ? "On the file means the clause is recorded on this acquisition and carries into the handoff packet. The solicitation and contract of record are still written in NCMS."
+            : "Choosing clauses records them on this acquisition and carries them into the handoff packet. The solicitation and contract of record are still written in NCMS."}
         </span>
         <button
           type="button"
