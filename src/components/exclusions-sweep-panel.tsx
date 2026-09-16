@@ -52,8 +52,9 @@ export function ExclusionsSweepPanel() {
         Vendor exclusions sweep
       </h3>
       <p className="mt-1 text-[13px] text-muted-foreground">
-        Every vendor of record on every open file is checked against SAM.gov exclusions each night. A file whose vendor
-        is excluded goes on hold with the reason “vendor excluded; CO review” and the contracting officer as owner.
+        Every vendor of record on every open file is checked against SAM.gov exclusions each night, by exact UEI. The
+        sweep never changes a clock. Where an exclusion record is found, the file is flagged for the contracting
+        officer to review, and a clean live check on the same UEI clears the flag.
       </p>
       <p className="mt-3 text-[15px]">
         {last.isLoading
@@ -84,8 +85,8 @@ export function ExclusionsSweepPanel() {
         <div className="mt-4">
           <p className="text-[13px] text-muted-foreground">
             {result.vendorsChecked} vendor check{result.vendorsChecked === 1 ? "" : "s"} across {result.filesChecked}{" "}
-            open file{result.filesChecked === 1 ? "" : "s"} · {result.excludedFound} excluded · {result.placedOnHold}{" "}
-            placed on hold
+            open file{result.filesChecked === 1 ? "" : "s"} · {result.excludedFound} exclusion record(s) ·{" "}
+            {result.flaggedForReview} flagged for CO review · no clock changed
           </p>
           {result.results.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No open file has a vendor of record.</p>
@@ -109,7 +110,7 @@ export function ExclusionsSweepPanel() {
                     </td>
                     <td className="p-2">
                       {row.exclusionLabel}
-                      {row.placedOnHold ? " · placed on hold" : ""}
+                      {row.flaggedForReview ? " · flagged for CO review" : ""}
                     </td>
                     <td className="p-2">{row.sourceLabel}</td>
                   </tr>

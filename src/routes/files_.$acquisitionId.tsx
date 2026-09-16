@@ -105,7 +105,8 @@ import { VehiclePanel } from "@/components/vehicle-panel";
 import { ModificationsPanel } from "@/components/modifications-panel";
 import { CloseoutPanel } from "@/components/closeout-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
-import { awardDateFor, computeMetrics, formatDate, holdSince } from "@/lib/metrics";
+import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
+import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
   buildModificationPacket,
   clauseDelta,
@@ -490,14 +491,20 @@ function FilePage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("sam_checks")
-        .select("check_type,checked_at,checked_by")
+        .select("check_type,checked_at,checked_by,vendor_uei,response_json")
         .eq("acquisition_id", acquisitionId)
         .order("checked_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data ?? null;
+        .limit(20);
+      return data ?? [];
     },
   });
+  const lastCheck = (lastCheckQ.data ?? [])[0] ?? null;
+  // A sweep flag is a question for the contracting officer, not a hold. A newer
+  // clean check on the same UEI answers it, so the flag clears itself.
+  const sweepFlag = useMemo(
+    () => exclusionFlagFrom((lastCheckQ.data ?? []) as SweepCheckRow[]),
+    [lastCheckQ.data],
+  );
   const attachmentFor = (key: string): AttachmentRow | null =>
     attachments.find((row) => row.doc_key === key) ?? null;
 
@@ -1862,11 +1869,18 @@ function FilePage() {
               Checks
             </Link>
             <span className="text-muted-foreground" data-numeric>
-              {lastCheckQ.data
-                ? `Last check: ${lastCheckQ.data.check_type ?? "Check"} · ${formatDate(lastCheckQ.data.checked_at)}`
+              {lastCheck
+                ? `Last check: ${lastCheck.check_type ?? "Check"} · ${formatStamp(lastCheck.checked_at)}`
                 : "No check recorded on this file yet."}
             </span>
           </div>
+          {sweepFlag ? (
+            <p className="mt-3 max-w-[80ch] border-l-2 border-destructive pl-3 text-[13px]">
+              Flagged for contracting officer review: {sweepFlag.why} Checked{" "}
+              {formatStamp(sweepFlag.checkedAt)}. The clock was not changed. Run a record check on this UEI; a clean
+              result clears the flag.
+            </p>
+          ) : null}
           <p className="mt-2 text-[13px] text-muted-foreground">
             Both exports are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
           </p>

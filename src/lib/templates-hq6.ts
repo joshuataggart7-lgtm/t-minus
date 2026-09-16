@@ -161,6 +161,7 @@ const postawardUnsuccessful: TemplateDef = {
       id: "recipient",
       title: "Recipient",
       citation: "FAR 15.207-2",
+      citationFor: noticeCitation("FAR 15.207-2", "FAR 13.106-3(d)"),
       tier: "binding",
       fields: [
         // Left empty so the letter opens on the first unsuccessful offeror on
@@ -181,6 +182,7 @@ const postawardUnsuccessful: TemplateDef = {
       id: "notification",
       title: "Notification",
       citation: "FAR 15.207-2(b)",
+      citationFor: noticeCitation("FAR 15.207-2(b)", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",

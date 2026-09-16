@@ -3,15 +3,18 @@ import type { Json } from "@/integrations/supabase/types";
 /**
  * exclusions_sweep
  *
- * Checks every vendor of record on every open file against SAM.gov exclusions.
- * Fictional demo vendors (UEIs beginning DEMO) get a clearly labeled sample
- * result so the sweep never depends on the network. Every vendor checked gets a
- * sam_checks row. A file whose vendor is excluded goes on hold with the reason
- * "vendor excluded; CO review" and the contracting officer as owner.
+ * Checks every vendor of record on every open file against SAM.gov exclusions,
+ * by exact UEI and never by legal name. Fictional demo vendors (UEIs beginning
+ * DEMO) get a clearly labeled sample result so the sweep never depends on the
+ * network. Every vendor checked gets a sam_checks row.
+ *
+ * The sweep never changes a clock. An exclusion record raises a flag for the
+ * contracting officer to review; only a person places a file on hold. A clean
+ * live check on the same UEI clears the flag.
  */
 
 export const SWEEP_CHECK_TYPE = "Exclusions sweep";
-export const EXCLUSION_HOLD_REASON = "vendor excluded; CO review";
+export const EXCLUSION_REVIEW_FLAG = "vendor exclusion flagged; CO review";
 
 type JsonRecord = Record<string, unknown>;
 const object = (value: unknown): JsonRecord =>
@@ -30,7 +33,9 @@ export type SweepVendorResult = {
   exclusionLabel: string;
   source: "live" | "cached" | "sample";
   sourceLabel: string;
-  placedOnHold: boolean;
+  /** Raised for the contracting officer to review. No clock is ever changed. */
+  flaggedForReview: boolean;
+  checkedAt: string;
   providerError?: string;
 };
 
@@ -40,7 +45,7 @@ export type SweepResult = {
   filesChecked: number;
   vendorsChecked: number;
   excludedFound: number;
-  placedOnHold: number;
+  flaggedForReview: number;
   results: SweepVendorResult[];
 };
 
@@ -61,17 +66,38 @@ function sampleExclusion(legalName: string | null, uei: string) {
   };
 }
 
-function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
+/**
+ * Reads an exclusions payload only.
+ *
+ * A registration record is not an exclusion: an entity response carries
+ * totalRecords for the registration itself, so counting it as an exclusion
+ * turns a clean, active vendor into a false positive. Only exclusion records,
+ * or an exclusion flag of Y on the entity, mean excluded. An empty exclusions
+ * list means the vendor is not excluded.
+ */
+export function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
   const root = object(raw);
-  const exclusions = array(root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"]);
+  const exclusions = array(
+    root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"] ?? root["exclusionDetails"],
+  );
   if (exclusions.length > 0) return { excluded: true, label: `Exclusion found (${exclusions.length} record(s))` };
-  const total = Number(root["totalRecords"] ?? object(root["_meta"])["totalRecords"]);
-  if (Number.isFinite(total) && total > 0) return { excluded: true, label: `Exclusion found (${total} record(s))` };
   const entity = object(array(root["entityData"])[0] ?? root["entityData"] ?? root);
   const registration = object(entity["entityRegistration"]);
   const flag = text(registration["exclusionStatusFlag"], object(entity["coreData"])["exclusionStatusFlag"]);
   if (flag.toUpperCase() === "Y") return { excluded: true, label: "Exclusion found" };
   return { excluded: false, label: "No active exclusion" };
+}
+
+/** Does this stored payload come from the exclusions endpoint at all? */
+export function isExclusionsPayload(raw: unknown): boolean {
+  const root = object(raw);
+  if (root["sample"] === true) return true;
+  return (
+    "excludedEntity" in root ||
+    "excludedEntityData" in root ||
+    "exclusionData" in root ||
+    "exclusionDetails" in root
+  );
 }
 
 /** Reads the dedicated SAM.gov exclusions record for one UEI. */
@@ -111,7 +137,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
   );
 
   const results: SweepVendorResult[] = [];
-  let placedOnHold = 0;
+  let flaggedForReview = 0;
 
   for (const file of files) {
     const uei = String(file.vendor_uei).trim().toUpperCase();
@@ -130,15 +156,26 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       } catch (error) {
         providerError = error instanceof Error ? error.message : "The exclusions lookup failed.";
         console.error(`[Exclusions sweep] ${providerError}`);
+        // Only a prior exclusions answer for this exact UEI may stand in. An
+        // entity registration response is a different question and must never
+        // be read as an exclusion.
         const cached = await supabaseAdmin
           .from("sam_checks")
-          .select("response_json,checked_at")
+          .select("response_json,checked_at,check_type,vendor_uei")
           .eq("vendor_uei", uei)
+          .eq("check_type", SWEEP_CHECK_TYPE)
           .order("checked_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        const envelope = object(cached.data?.response_json);
-        raw = envelope["raw"] ?? cached.data?.response_json ?? null;
+          .limit(5);
+        let reuse: unknown = null;
+        for (const row of cached.data ?? []) {
+          const envelope = object(row.response_json);
+          const body = envelope["raw"] ?? row.response_json ?? null;
+          if (body && isExclusionsPayload(body)) {
+            reuse = body;
+            break;
+          }
+        }
+        raw = reuse;
         source = raw ? "cached" : "sample";
         if (!raw) raw = sampleExclusion(legalName, uei);
       }
@@ -160,7 +197,8 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       exclusionLabel: label,
       source,
       sourceLabel,
-      placedOnHold: false,
+      flaggedForReview: excluded,
+      checkedAt: ranAt,
     };
     if (providerError) result.providerError = providerError;
 
@@ -174,30 +212,20 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     });
     if (saveError) throw new Error(saveError.message);
 
-    if (excluded && file.clock_state !== "hold") {
-      const owner = file.co_name ? `Contracting officer: ${file.co_name}` : "Contracting officer";
-      const { error: holdError } = await supabaseAdmin
-        .from("acquisition_facts")
-        .update({
-          clock_state: "hold",
-          hold_reason: EXCLUSION_HOLD_REASON,
-          hold_owner: owner,
-          hold_started_at: new Date().toISOString(),
-        })
-        .eq("acquisition_id", file.acquisition_id);
-      if (holdError) throw new Error(holdError.message);
+    // The sweep never touches the clock. It records what it saw and, where an
+    // exclusion record exists, asks the contracting officer to look.
+    if (excluded) {
+      flaggedForReview += 1;
       await supabaseAdmin.from("audit_log").insert({
         acquisition_id: file.acquisition_id,
         actor,
-        action: "Clock placed on hold",
-        field: "clock_state",
-        old_value: String(file.clock_state ?? ""),
-        new_value: "hold",
-        reason: `${EXCLUSION_HOLD_REASON} — ${label} for ${legalName ?? uei} (${uei})`,
+        action: "Vendor exclusion flagged",
+        field: "vendor exclusions",
+        old_value: null,
+        new_value: EXCLUSION_REVIEW_FLAG,
+        reason: `${label} for ${legalName ?? uei} (UEI ${uei}); ${sourceLabel}; checked ${ranAt}`,
         logged_at: ranAt,
       });
-      result.placedOnHold = true;
-      placedOnHold += 1;
     }
 
     results.push(result);
@@ -215,7 +243,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     reason:
       excludedFound === 0
         ? "No vendor of record is excluded"
-        : `${excludedFound} excluded; ${placedOnHold} placed on hold`,
+        : `${excludedFound} exclusion record(s) found; ${flaggedForReview} flagged for CO review; no clock changed`,
     logged_at: ranAt,
   });
   if (auditError) throw new Error(auditError.message);
@@ -226,7 +254,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     filesChecked: files.length,
     vendorsChecked: results.length,
     excludedFound,
-    placedOnHold,
+    flaggedForReview,
     results,
   };
 }
