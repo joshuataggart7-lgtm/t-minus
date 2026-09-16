@@ -7,6 +7,7 @@
 // names come from the template definitions and the templates table.
 
 import { TEMPLATES } from "./template-engine";
+import { FORM_NAMES, type FormKey } from "./nf1787";
 import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
 
 /** Core tabbed records every file of that type is expected to hold. */
@@ -29,10 +30,22 @@ export type IndexDocument = {
   memoTo: string | null;
 };
 
+/**
+ * Where a row opens the official version: the document route for a drafted
+ * template, the form route for a generated form, or the stored upload itself.
+ */
+export type IndexOpen =
+  | { kind: "document"; templateKey: string }
+  | { kind: "form"; formKey: string }
+  | { kind: "attachment"; attachmentId: string };
+
 export type IndexTab = {
   tab: string;
   templateName: string;
   phase: string;
+  /** "Generated" for a drafted document or form, "Uploaded" for an attachment. */
+  origin: "generated" | "uploaded";
+  open: IndexOpen | null;
   documents: IndexDocument[];
 };
 
@@ -65,6 +78,16 @@ export function tabRank(tab: string | null | undefined): number {
 
 const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 
+/** A document with no tab of its own is listed under an honest "N/A". */
+const displayTab = (tab: string) => (tab === "" || tab === "—" || tab === "NA" ? "N/A" : tab);
+
+/** The route that opens the official version of a generated document. */
+function openFor(templateName: string, templateKey: string | undefined): IndexOpen | null {
+  const formKey = (Object.keys(FORM_NAMES) as FormKey[]).find((k) => FORM_NAMES[k] === templateName);
+  if (formKey) return { kind: "form", formKey };
+  return templateKey ? { kind: "document", templateKey } : null;
+}
+
 /** Tabs the acquisition type requires, from the phases in its sequence. */
 export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
   const inSequence = new Set(phases.map((p) => p.toLowerCase()));
@@ -76,19 +99,29 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
     // The evaluation of quotations record is the requirement on a competed
     // simplified acquisition, in place of the report.
     .filter((t) => t.key !== "evaluation-of-quotations" || !isTerRequired(acq))
-    .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
+    .map((t) => ({
+      tab: normTab(t.tab),
+      templateName: t.name,
+      phase: phaseForTemplate(t.key),
+      origin: "generated" as const,
+      open: { kind: "document" as const, templateKey: t.key },
+      documents: [],
+    }))
     .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
 }
 
 /** An uploaded file on the record, indexed by the tab it belongs under. */
 export type IndexAttachmentRow = {
+  attachment_id?: string;
   doc_label: string;
   nf_1098_tab: string | null;
   file_name: string;
   uploaded_by_name: string | null;
   created_at: string;
+  storage_path?: string;
 };
+
 
 export function buildFileIndex(
   documents: IndexDocRow[],
@@ -101,11 +134,20 @@ export function buildFileIndex(
   const present = new Map<string, IndexTab>();
 
   for (const a of attachments) {
-    const tab = normTab(a.nf_1098_tab);
-    if (tab === "" || tab === "—") continue;
+    // An upload with no tab is still on the file. It is listed under an honest
+    // "N/A" rather than dropped out of the index.
+    const tab = displayTab(normTab(a.nf_1098_tab));
     const key = `${tab}|${a.doc_label}`;
     const entry =
-      present.get(key) ?? ({ tab, templateName: a.doc_label, phase: "Intake", documents: [] } satisfies IndexTab);
+      present.get(key) ??
+      ({
+        tab,
+        templateName: a.doc_label,
+        phase: "Intake",
+        origin: "uploaded" as const,
+        open: a.attachment_id ? ({ kind: "attachment" as const, attachmentId: a.attachment_id }) : null,
+        documents: [],
+      } satisfies IndexTab);
     entry.documents.push({
       templateName: a.file_name,
       version: entry.documents.length + 1,
@@ -114,6 +156,7 @@ export function buildFileIndex(
       memo: false,
       memoTo: null,
     });
+    if (a.attachment_id) entry.open = { kind: "attachment", attachmentId: a.attachment_id };
     present.set(key, entry);
   }
 
@@ -121,10 +164,10 @@ export function buildFileIndex(
     const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
     if (!tpl) continue;
     // A memorandum for record is filed under the tab the contracting officer
-    // picked when saving it, not under the template's own tab.
+    // picked when saving it, not under the template's own tab. A template with
+    // no tab of its own is still listed, under "N/A".
     const picked = normTab(d.field_values?.__tab);
-    const tab = picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab);
-    if (tab === "" || tab === "—") continue;
+    const tab = displayTab(picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
     const def = TEMPLATES.find((t) => t.name === tpl.name);
     const key = `${tab}|${tpl.name}`;
     const entry =
@@ -133,6 +176,8 @@ export function buildFileIndex(
         tab,
         templateName: tpl.name,
         phase: def ? phaseForTemplate(def.key) : "—",
+        origin: "generated" as const,
+        open: openFor(tpl.name, def?.key),
         documents: [],
       } satisfies IndexTab);
     entry.documents.push({

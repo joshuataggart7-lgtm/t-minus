@@ -109,7 +109,10 @@ import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
 import { exportFpdsFillingSheet } from "@/lib/fpds-filling-sheet";
 import { exportEvidencePack } from "@/lib/evidence-pack";
-import { requiredTabs, buildFileIndex } from "@/lib/file-index";
+import { requiredTabs, buildFileIndex, type IndexOpen } from "@/lib/file-index";
+
+/** The stored upload behind an index row, when the row is an upload. */
+const attachmentIdOf = (open: IndexOpen | null) => (open?.kind === "attachment" ? open.attachmentId : "");
 import {
   ATTACHMENT_ACCEPT,
   docKey,
@@ -1191,6 +1194,16 @@ function FilePage() {
     const url = await downloadAttachment(row);
     if (url) window.open(url, "_blank", "noopener");
     else setBanner("That file could not be opened. Try attaching it again.");
+  }
+
+  /** The contract file index opens an upload by its stored row. */
+  async function openIndexAttachment(attachmentId: string) {
+    const row = attachments.find((a) => a.attachment_id === attachmentId);
+    if (!row) {
+      setBanner("That file could not be opened. Try attaching it again.");
+      return;
+    }
+    await openAttachment(row);
   }
 
   const finding = (acq?.["responsibility_finding"] as string | null) ?? null;
@@ -2470,9 +2483,9 @@ function FilePage() {
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          This is the NF 1098 checklist for the file: every tab, whether it is required for this
-          record, whether it is present, and the version and date of the latest document. Built from
-          the documents already on the file. FAR 4.801 contract file.
+          Every document on this file, drafted or uploaded: its NF 1098 tab, version, who saved or
+          uploaded it and when. Each row opens the official version. Required tabs with no document
+          are listed at the end. FAR 4.801 contract file.
         </p>
         <button
           type="button"
@@ -2487,46 +2500,83 @@ function FilePage() {
             <tr className="border-b border-border bg-canvas text-left">
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
+              <th scope="col" className="px-3 py-2 font-medium">Source</th>
+              <th scope="col" className="px-3 py-2 font-medium">Version</th>
+              <th scope="col" className="px-3 py-2 font-medium">Saved</th>
+              <th scope="col" className="px-3 py-2 font-medium">By</th>
               <th scope="col" className="px-3 py-2 font-medium">Required here</th>
-              <th scope="col" className="px-3 py-2 font-medium">Phase</th>
               <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
-              <th scope="col" className="px-3 py-2 font-medium">State</th>
             </tr>
           </thead>
           <tbody>
-            {fileIndex.present.map((t) => (
-              <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
-                <td className="px-3 py-2" data-numeric>{t.tab}</td>
-                <td className="px-3 py-2">{t.templateName}</td>
-                <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
-                <td className="px-3 py-2">{t.phase}</td>
-                <td className="px-3 py-2">
-                  {t.documents.at(-1)?.memo
-                    ? `Yes, to ${t.documents.at(-1)?.memoTo ?? "addressee not set"}`
-                    : "No"}
-                </td>
-                <td className="px-3 py-2">
-                  Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
-                  {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(String(t.documents.at(-1)!.savedAt).slice(0, 10))}` : ""}
-                </td>
-              </tr>
-            ))}
+            {fileIndex.present.map((t) => {
+              const latest = t.documents.at(-1);
+              return (
+                <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
+                  <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                  <td className="px-3 py-2">
+                    {t.open?.kind === "document" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: t.open.templateKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "form" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/forms/$formKey/$acquisitionId"
+                        params={{ formKey: t.open.formKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "attachment" ? (
+                      <button
+                        type="button"
+                        className="text-primary underline-offset-2 hover:underline"
+                        onClick={() => void openIndexAttachment(attachmentIdOf(t.open))}
+                      >
+                        {t.templateName}
+                      </button>
+                    ) : (
+                      t.templateName
+                    )}
+                    {latest && t.origin === "uploaded" ? (
+                      <span className="block text-muted-foreground">{latest.templateName}</span>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
+                  <td className="px-3 py-2" data-numeric>{latest?.version ?? "—"}</td>
+                  <td className="px-3 py-2" data-numeric>
+                    {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
+                  </td>
+                  <td className="px-3 py-2">{latest?.savedBy ?? "Not recorded"}</td>
+                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
+                  <td className="px-3 py-2">
+                    {latest?.memo ? `Yes, to ${latest.memoTo ?? "addressee not set"}` : "No"}
+                  </td>
+                </tr>
+              );
+            })}
             {fileIndex.missing.map((t) => (
               <tr key={`m-${t.tab}`} className="border-b border-border">
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
-                <td className="px-3 py-2">Required</td>
-                <td className="px-3 py-2">{t.phase}</td>
                 <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">Required</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
-                  Required for this acquisition type, no document
+                  No document on this tab
                 </td>
               </tr>
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
-                  No tabbed documents are saved on this file yet.
+                <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
+                  No documents are saved or uploaded on this file yet.
                 </td>
               </tr>
             ) : null}
