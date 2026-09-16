@@ -425,7 +425,43 @@ export function selectPacketClauses(
       status: row?.status ?? "not in the loaded matrices (verify in NCMS)",
       effective_date: row?.effective_date ?? null,
       fill_ins: row?.fill_ins ?? null,
+      formerly_bundled: rule.formerlyBundled === true,
     });
   }
   return out.sort((a, b) => a.clause_number.localeCompare(b.clause_number, "en", { numeric: true }));
+}
+
+/** Clause numbers the matrices show as removed under the RFO. */
+export function removedClauseNumbers(clauseRows: ClauseRow[]): string[] {
+  const out = new Set<string>();
+  for (const row of clauseRows) {
+    const n = row.clause_number?.trim();
+    if (!n) continue;
+    if (/remov|delet/i.test(`${row.status ?? ""} ${row.disposition ?? ""}`)) out.add(n);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
+}
+
+/**
+ * The only clause numbers that may be written onto a record: a clause the
+ * record recommends, never a removed clause, and never FAR 52.212-5, which is
+ * Reserved under the RFO.
+ */
+export function sanitizeClauseSelection(
+  selected: readonly string[],
+  recommended: readonly PacketClause[],
+  clauseRows: ClauseRow[],
+): string[] {
+  const allowed = new Set(recommended.map((c) => c.clause_number));
+  const removed = new Set(removedClauseNumbers(clauseRows));
+  const out = new Set<string>();
+  for (const raw of selected) {
+    const n = String(raw ?? "").trim();
+    if (!n) continue;
+    if (n === "52.212-5") continue;
+    if (removed.has(n)) continue;
+    if (!allowed.has(n)) continue;
+    out.add(n);
+  }
+  return [...out].sort((a, b) => a.localeCompare(b, "en", { numeric: true }));
 }
