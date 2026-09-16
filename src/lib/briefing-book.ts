@@ -106,6 +106,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   table { border-collapse: collapse; width: 100%; font-size: 14px; }
   th, td { border-bottom: 1px solid #D9DEE8; text-align: left; padding: 8px 12px 8px 0; vertical-align: top; }
   th[scope="row"] { width: 34%; font-weight: 500; color: #5B6478; }
+  .clauses th:first-child, .clauses td:first-child { width: 15%; white-space: nowrap; }
   .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
   @media print { body { background: #fff; } .page { margin: 0; border: 0; page-break-after: always; } }
 </style></head><body>
@@ -155,7 +156,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
     <p class="sub">${esc(input.recommendedClauseCount)} clauses recommended from this record${
       input.appliedClauseCount === null ? "" : `; ${esc(input.appliedClauseCount)} applied to the file`
     }. Clauses removed under the RFO are never offered, and FAR 52.212-5 is Reserved.</p>
-    <table style="margin-top:20px"><thead><tr><th>Clause</th><th>Title</th><th>Section</th><th>Why it applies</th></tr></thead><tbody>${clauseRows}</tbody></table>
+    <table class="clauses" style="margin-top:20px"><thead><tr><th>Clause</th><th>Title</th><th>Section</th><th>Why it applies</th></tr></thead><tbody>${clauseRows}</tbody></table>
     <p class="sub" style="margin-top:24px">NCMS remains the system of record. The handoff packet is a local file; T-Minus does not write to NCMS.</p>
   </div>
   ${mark}
