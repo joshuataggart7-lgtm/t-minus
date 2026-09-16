@@ -1420,9 +1420,7 @@ function DocumentPage() {
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}
-            {sectionStandingText(s, values) ? (
-              <p className="mb-3 text-[15px] leading-[22px]">{sectionStandingText(s, values)}</p>
-            ) : null}
+            {sectionBody(s) ? <p className="mb-3 text-[15px] leading-[22px]">{sectionBody(s)}</p> : null}
             {visibleFields(s, values).map((f) => {
               const id = `${s.id}-${f.key}`;
               const err = touched ? errors[f.key] : undefined;
