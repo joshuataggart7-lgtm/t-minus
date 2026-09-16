@@ -1251,9 +1251,31 @@ function FilePage() {
     [packetClauses, appliedClauseNumbers],
   );
 
+  // The contract format the record carries decides the scaffold the officer
+  // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
+  const formatScaffold = useMemo(
+    () => buildFormatScaffold(acq as unknown as Record<string, unknown> | null, packetSelection),
+    [acq, packetSelection],
+  );
+
+  // Companion gates: exits read from the seeded review rules and this record.
+  const companionGates = useMemo(
+    () =>
+      evaluateCompanionGates(acq, q.data?.rules ?? [], ref, {
+        savedKeys,
+        attachedKeys: keysFrom(attachments),
+        board,
+      }),
+    [acq, q.data?.rules, ref, savedKeys, attachments, board],
+  );
+
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, packetSelection, phases, board);
+    const packet = {
+      ...buildPacket(acq, packetSelection, phases, board),
+      contract_format: (acq as Record<string, unknown>)["contract_format"] ?? null,
+      format_scaffold: scaffoldForPacket(formatScaffold),
+    };
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
