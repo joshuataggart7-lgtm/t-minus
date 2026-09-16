@@ -131,7 +131,7 @@ function answersSummary(answers: unknown): string {
 
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
-  const search = Route.useSearch() as { offeror?: number };
+  const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
   const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
   const citeCorpus = useCiteCorpus();
