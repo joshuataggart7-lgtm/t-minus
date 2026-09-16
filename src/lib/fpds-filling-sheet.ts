@@ -9,7 +9,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
-import { vehicleOf } from "@/lib/vehicles";
+import { acquisitionProfile, vehicleOf } from "@/lib/vehicles";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -79,6 +79,8 @@ export type FpdsInput = {
 export function buildFpdsSheet(input: FpdsInput): FpdsSheet {
   const a = input.acq;
   const vehicle = vehicleOf(a);
+  const profile = acquisitionProfile(a);
+  const underVehicle = profile === "order_under_idiq" || profile === "bpa" || profile === "fss_order";
   const launched = str(a["clock_state"]) === "launched";
 
   const sections: FpdsSection[] = [
@@ -117,7 +119,9 @@ export function buildFpdsSheet(input: FpdsInput): FpdsSheet {
         f("Extent competed", "Competition on the record", str(a["competition"])),
         f("Set-aside", "Set-aside on the record", str(a["set_aside"]), "Blank means no set-aside is recorded, not that none applies."),
         f("Authority for other than full and open competition", "JOFOC authority on the record", str(a["jofoc_authority_citation"])),
-        f("Fair opportunity (orders under an IDV)", "Vehicle profile on the record", vehicle.fair_opportunity ? String(vehicle.fair_opportunity) : null),
+        f("Fair opportunity (orders under an IDV)", "Vehicle profile on the record", underVehicle && vehicle.fair_opportunity ? String(vehicle.fair_opportunity) : null,
+          underVehicle ? undefined : "This file is not an order under an existing vehicle.",
+        ),
       ],
     },
     {
@@ -128,7 +132,7 @@ export function buildFpdsSheet(input: FpdsInput): FpdsSheet {
         uncertain(
           "Action obligation",
           "Derived from the recorded price",
-          money(a["proposed_price"]) ?? money(a["estimated_value"]),
+          money(a["proposed_price"]),
           "T-Minus does not hold the obligated amount; take it from the signed award.",
         ),
       ],
