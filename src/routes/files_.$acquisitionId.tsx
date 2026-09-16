@@ -1145,11 +1145,17 @@ function FilePage() {
     const packet = buildPacket(acq, packetClauses, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
+    const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ncms-handoff-${acq.acquisition_id}.json`;
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
+    // The packet is a local file the officer carries into NCMS by hand.
+    // T-Minus does not write to NCMS, and this prototype makes no claim to.
+    setBanner(
+      `The handoff packet downloaded as ${fileName}. It is a local file for this prototype; writing the record into NCMS is planned and not available here.`,
+    );
   }
 
   const value = acq?.estimated_value ? Number(acq.estimated_value) : null;
