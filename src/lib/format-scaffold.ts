@@ -10,6 +10,7 @@
 
 import type { PacketClause } from "@/lib/clause-packet";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
+import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
