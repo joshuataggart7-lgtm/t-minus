@@ -1712,3 +1712,12 @@ evaluation and UEI facts.
 - Reads the same `formatScaffold` object the download uses, so the view and the downloaded packet cannot disagree. No new packet key was added.
 - No SF 33 / SF 26 / OF 347 fill, no payment milestones, no clock or hold change, no Sample 1/2 fact change. Method citations unchanged (FAR 12/13 on simplified, Part 15 voice only on Part 15 files).
 - Verify: Files → A-2027-0101 → Award → Award handoff → Open the Award handoff; compare with Download the handoff packet.
+
+## AC-W4-PAY — payment milestones tied to CLINs
+- New table `payment_milestones` (event required; due_logic, clin_id/clin_number, amount, percent, notes, sort_order optional). RLS mirrors `acquisition_clins`: authenticated read, specialist/administrator write. Origin + updated_at triggers.
+- `src/lib/payment-milestones.ts`: load/create/update/delete, blank fields print "Not recorded", rows with neither amount nor percent are flagged "Neither an amount nor a percentage is recorded."
+- `PaymentMilestonesPanel` sits above the CDRL panel on the solicitation/quote and award area; CLIN picker offers only line items already on the schedule — no CLIN is invented.
+- One source of truth: the same rows feed the format scaffold count line, the Award handoff panel (new section after CDRL, before signatures), and the packet key `payment_milestones: { items, empty_note? }`.
+- Audit: "Payment milestone added/edited/deleted" (insert-only audit_log).
+- Walk protection: no milestones seeded on A-2027-0101 or A-2027-0102 — both read "No payment milestones on this file." No clock/hold changes, no invented amounts or rates, no NCMS write-back, no SF33/26/OF347 work.
+- Verify: Files → A-2027-0101 → Documents/handoff area → Payment milestones; Open the Award handoff → Payment milestones section.
