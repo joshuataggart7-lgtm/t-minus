@@ -52,6 +52,7 @@ import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } 
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
+import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
@@ -2930,6 +2931,13 @@ function FilePage() {
                     shell={shell}
                     clauses={packetSelection}
                     simplifiedCommercial={Boolean(acq && isSimplifiedCommercial(acq as Record<string, unknown>))}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
+                  <SebCockpitPanel
+                    acquisitionId={acquisitionId}
+                    shell={shell}
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
