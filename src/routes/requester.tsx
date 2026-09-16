@@ -62,14 +62,22 @@ function owedRows(card: DeskCard): Owed[] {
 }
 
 function RequesterPortal() {
-  const { authState, user } = useRole();
+  const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
 
   const mine = useMemo(() => {
     if (!desk) return [];
     const me = user.name.toLowerCase();
-    return desk.cards.filter((c) => c.requester.toLowerCase() === me);
-  }, [desk, user.name]);
+    const own = desk.cards.filter((c) => c.requester.toLowerCase() === me);
+    // An administrator named on no request sees every prototype file instead.
+    if (own.length === 0 && roles.includes("administrator")) return desk.cards;
+    return own;
+  }, [desk, user.name, roles]);
+
+  const showingAll = useMemo(
+    () => Boolean(desk) && mine.length > 0 && !desk!.cards.some((c) => c.requester.toLowerCase() === user.name.toLowerCase()),
+    [desk, mine, user.name],
+  );
 
   return (
     <AppShell>
@@ -93,6 +101,12 @@ function RequesterPortal() {
         />
       ) : (
         <div className="space-y-10">
+          {showingAll ? (
+            <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+              No file lists {user.name} as the requester, so all prototype files are shown. The requester of
+              record is shown on each file.
+            </p>
+          ) : null}
           {mine.map((c) => {
             const acq = c.m.acq as Record<string, unknown>;
             const id = c.m.acq.acquisition_id;
