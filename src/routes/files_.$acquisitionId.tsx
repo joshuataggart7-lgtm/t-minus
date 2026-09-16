@@ -1695,6 +1695,9 @@ function FilePage() {
                   <DropdownMenuItem disabled={briefingExport.isPending} onSelect={() => briefingExport.mutate()}>
                     {briefingExport.isPending ? "Building the briefing book" : "Export briefing book"}
                   </DropdownMenuItem>
+                  <DropdownMenuItem disabled={fpdsExport.isPending} onSelect={() => fpdsExport.mutate()}>
+                    {fpdsExport.isPending ? "Building the FPDS filling sheet" : "FPDS filling sheet (fill aid)"}
+                  </DropdownMenuItem>
                   {canWrite ? (
                     <DropdownMenuItem disabled={copySample.isPending} onSelect={() => copySample.mutate()}>
                       {copySample.isPending ? "Copying the file" : "Copy as new sample"}
