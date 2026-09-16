@@ -2354,7 +2354,7 @@ function FilePage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {packetClauses.map((c) => (
+                        {packetSelection.map((c) => (
                           <tr key={c.clause_number} className="border-b border-border align-top">
                             <td className="p-2" data-numeric>{c.clause_number}</td>
                             <td className="p-2">{c.title}</td>
