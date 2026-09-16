@@ -1704,3 +1704,11 @@ evaluation and UEI facts.
 - Audit trail: "CDRL item added", "CDRL item edited", "CDRL item deleted" (insert-only audit_log, same pattern as CLINs).
 - NCMS handoff packet carries `cdrl: { items: [...] }` beside `section_j`, with `empty_note: "No CDRL items on this file."` only when empty. The format scaffold prints the count under the attachments block.
 - Samples 1 and 2 (A-2027-0101, A-2027-0102) have no CDRL rows: nothing seeded, no deliverables, DRD text or citations invented anywhere. No clock or hold change, no NCMS write-back.
+
+## AC-W4-AWARD — Award handoff view (Wave 4)
+- New `AwardHandoffPanel` on the Solicitation/quote and Award phases, sitting between the format scaffold and the "Download the handoff packet" link. Collapsed by default on Solicitation/quote, open by default on Award.
+- Assembles, in the same order as the local NCMS handoff packet, from the existing sources only: (1) SF 1449 blocks or UCF cover blocks with the format source and method label, (2) line items from `acquisition_clins`, (3) Sections L and M from `solicitation_l` / `solicitation_m` / `solicitation_m_factors` with the sole-source suppression already in place, (4) the ordered clause selection with each reason and matrix fill-in, (5) Section J attachments from `document_attachments`, (6) CDRL rows from `acquisition_cdrl`, (7) an unsigned signature block.
+- Nothing is invented: empty schedule, attachments and CDRL print their honest empty wording; signature rows read "Signed in NCMS" and carry no name or date. Chip on the panel: NCMS is the system of record, T-Minus does not write to NCMS.
+- Reads the same `formatScaffold` object the download uses, so the view and the downloaded packet cannot disagree. No new packet key was added.
+- No SF 33 / SF 26 / OF 347 fill, no payment milestones, no clock or hold change, no Sample 1/2 fact change. Method citations unchanged (FAR 12/13 on simplified, Part 15 voice only on Part 15 files).
+- Verify: Files → A-2027-0101 → Award → Award handoff → Open the Award handoff; compare with Download the handoff packet.
