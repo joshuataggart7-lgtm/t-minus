@@ -912,6 +912,11 @@ function DocumentPage() {
       }
     }
     const drafted = applyMemoDraft(filled, draft);
+    // The unsuccessful letter reports the value awarded on the evaluation
+    // record, not the estimate carried on the intake.
+    if (def.key === "postaward-letter-unsuccessful" && draft["contract_value"]) {
+      drafted["contract_value"] = draft["contract_value"];
+    }
     setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
   }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts, search.offeror, quoterSlots]);
