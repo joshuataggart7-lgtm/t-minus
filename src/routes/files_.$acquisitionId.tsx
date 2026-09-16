@@ -2145,11 +2145,10 @@ function FilePage() {
                               </label>
                             )
                           ) : null}
-                          {!saved && !attached && !d.optional ? (
-                            <span className="block w-full">
-                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                            </span>
-                          ) : null}
+                          <span className="block w-full">
+                            <ExplainThis explanation={explainDocRow(d, p.phase, saved || attached)} label={saved || attached ? "Why this row" : "Why?"} />
+                          </span>
+
                         </>
                        ) : d.field === "funds_certified" ? (
                          <>
