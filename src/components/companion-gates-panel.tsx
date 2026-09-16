@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StatusMark } from "@/components/status-mark";
+import { StatusMark } from "@/components/app-shell";
 import { gateSummary, type CompanionGate } from "@/lib/companion-gates";
 
 /**
