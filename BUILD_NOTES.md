@@ -1926,3 +1926,8 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## Wave 4 depth #2 — Award handoff polish (2026-09-16)
 - Soft readiness strip on open: cover "K of N not recorded", schedule/attachments/CDRL/payment counts or honest empties, "Signatures: blank on purpose — signed in NCMS"; advisory only, never holds or gates.
 - Honest human Adobe Reader field-check sentence beside the suggested-form link; blank XFA in Chrome/PDF.js expected; no Adobe-verified or Roger-ready claim. NCMS chip kept; no invented rows, no clock/seed changes.
+
+## Wave 4 P1 pair — IDIQ order scaffold + situation memo
+- Order profiles (order_under_idiq / fss_order) now show an order scaffold: parent contract number or "Not recorded", fair opportunity or recorded exception with FAR 16.505(b) cite (never invented), format/method from the record, a soft "not a stand-alone Part 15 award" chip, and a note that order line items are order specific and the parent ceiling is never an order CLIN. Advisory only; no clause delta surfaced, 0090 delta stays hidden.
+- New `src/lib/situation-memo.ts` + `SituationMemoPanel` on the file page: five fixed events, memo shell from record facts only (id, title, CO, center, phase, vendor), blank narrative lines, RFO-pending citation placeholders, copy to clipboard with an optional audit_log entry. Honest "No situation memo started." before a pick.
+- No sample clock_state/phase/seed changes, no invented CLINs or payments, no external writes.
