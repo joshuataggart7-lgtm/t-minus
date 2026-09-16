@@ -248,7 +248,6 @@ export async function exportEvidencePack(
   // ----------------------------------------------- contract-file assembly
   const assembly = input.assembly ? buildNf1098Assembly(input.assembly) : null;
   if (assembly) {
-    const assemblyRows = [...assembly.tabs, ...assembly.enclosures].map((r) => [r.slot, r.item, r.status, r.note]);
     add(
       "assembly/nf1098-assembly-checklist.html",
       page(
@@ -264,7 +263,6 @@ export async function exportEvidencePack(
       ),
     );
     add("assembly/nf1098-assembly-checklist.csv", assemblyToCsv(assembly));
-    void assemblyRows;
   }
 
   // ---------------------------------------------------------------- cover
