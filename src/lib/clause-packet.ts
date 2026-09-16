@@ -286,17 +286,17 @@ const RULES: Rule[] = [
   {
     number: "52.216-18",
     title: "Ordering",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(a)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(a)).` : null),
   },
   {
     number: "52.216-19",
     title: "Order Limitations",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(b)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(b)).` : null),
   },
   {
     number: "52.216-22",
     title: "Indefinite Quantity",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(e)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(e)).` : null),
   },
   {
     number: "52.217-8",
