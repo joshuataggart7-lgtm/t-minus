@@ -50,6 +50,9 @@ export function ShowTheText({ citation }: { citation: string | null | undefined 
       {open ? (
         <div id={id} className="mt-2 max-w-[70ch] border border-border bg-background p-4 text-[13px] leading-[18px]">
           <p className="font-medium">{citation}</p>
+          {isCompanionGuide ? (
+            <p className="mt-1 text-muted-foreground">{NFS_CG_NOTE}</p>
+          ) : null}
           {state.loading ? (
             <p className="mt-2 text-muted-foreground">Loading the reference list.</p>
           ) : state.failed || !rows || rows.length === 0 ? (
