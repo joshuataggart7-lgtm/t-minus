@@ -2891,6 +2891,7 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
