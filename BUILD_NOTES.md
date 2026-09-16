@@ -899,3 +899,35 @@ role check using the existing `private.*` helpers.
   publication date is invented; a blank `notice_date` stays blank.
 - The printed justification follows the same distinction.
 - No NCMS write-back. No FedRAMP claim. Security deferred. Sample 3 unchanged.
+
+## 16 Sep 2026 — A-2027-0104 IDIQ order Intake/FO seed
+
+Fictional demo seed on order **A-2027-0104** (Snow depth flights, second
+campaign, $640,000) under parent IDIQ **A-2026-0090** / contract
+**80ARC26D0090**, applied directly to the live database:
+
+- **Intake.** NF 1707 answers seeded, with attachment keys
+  `acquisition_forecast_verified`, `igce_attached`, and `sow_attached` set
+  true against stored demo attachment rows (reusing the Sample 1 demo files;
+  fictional). Hold cleared, clock running, phase Intake. This is the one case
+  where `igce_attached`/`sow_attached` are true in the seed: they are treated
+  as satisfied only because the corresponding files exist as stored
+  `document_attachments` rows — a demo reset that drops those rows would
+  re-stick Intake, so the attachments must be preserved alongside this seed.
+- **Scenario/vehicle.** `scenario.vehicle = idiq_order`,
+  `scenario.parent_contract_number = 80ARC26D0090`,
+  `vehicle.fair_opportunity = competed`.
+- **Fair Opportunity.** Attach-only `fair-opportunity-record` stub plus a
+  saved NF 1787 naming the three fictional parent awardees already on
+  A-2026-0090 (DEMO* UEIs). No FPDS pull, no real market rates.
+- **Progress.** Intake deps clear so Fair Opportunity can start. The furthest
+  honest gate is Solicitation/Quote funds certification; PNM and the NCMS
+  handoff remain ahead and are **not** claimed done. No NCMS write-back, no
+  FedRAMP claims, no end-to-end modification flow implied.
+- **Parent.** A-2026-0090 ceiling unchanged ($50M); order obligated $640,000.
+  No parent ceiling math touched.
+- **Seed file.** `t-minus-seed/acquisitions.json` A-2027-0104 row realigned to
+  the live record (it previously still carried the stale lidar calibration row
+  from before the ID collision fix), so a future demo reset restores this
+  order rather than re-sticking Intake.
+- Security findings deferred to the security triage pass.
