@@ -2110,6 +2110,12 @@ function FilePage() {
             1804.171; writing into NCMS from here is planned and not available in this prototype.
           </p>
         </section>
+        <p className="mb-8 max-w-[80ch] border-t border-border pt-3 text-[13px] leading-[18px] text-muted-foreground">
+          Pilot known gaps: Adobe human-only · no NCMS write-back · FPDS fill aid · advisories never hold exit.{" "}
+          <Link to="/about" className="text-primary underline-offset-2 hover:underline">
+            About this prototype
+          </Link>
+        </p>
       ) : null}
 
       {acq && canWrite ? (
