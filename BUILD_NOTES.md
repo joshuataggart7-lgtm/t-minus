@@ -1721,3 +1721,12 @@ evaluation and UEI facts.
 - Audit: "Payment milestone added/edited/deleted" (insert-only audit_log).
 - Walk protection: no milestones seeded on A-2027-0101 or A-2027-0102 — both read "No payment milestones on this file." No clock/hold changes, no invented amounts or rates, no NCMS write-back, no SF33/26/OF347 work.
 - Verify: Files → A-2027-0101 → Documents/handoff area → Payment milestones; Open the Award handoff → Payment milestones section.
+
+## WALK 99 P1 — identity, portal redirect, reviewer hero doc
+- `t-minus-seed/acquisitions.json`: `co_name` = Joshua Taggart on A-2027-0101 and A-2027-0102 only. Rivera unchanged on 0090/0104 and the rest. No phase, clock_state, hold, or requester change.
+- `src/routes/requester-portal.tsx` (new): `/requester-portal` redirects to `/requester`. The working route is unchanged.
+- `src/routes/today.tsx`: administrator with no CO-owned files and no files at their Center now sees all prototype files, with a muted note; owner of record stays visible on each row.
+- `src/routes/requester.tsx`: same administrator fallback in place of the empty state, with a muted note.
+- `src/lib/desk-data.ts`: `heroDocForReviewer(m, reviewerRole, phase)` picks the document of the reviewer's own office across phases — small business → NF 1787, flight operations / aviation → Statement of work, legal → JOFOC/justification, pricing → PNM — else falls back to `heroDocForPhase`. Attachment-only rows return kind `file` and link to the file page.
+- `src/routes/reviewer-inbox.tsx`: uses `heroDocForReviewer`, so rows no longer all show the PNM.
+- Untouched: A-2026-0090 clause set and hidden clause delta, CDRL/Award/payment work, holds and clock states, NCMS write-back, rates.
