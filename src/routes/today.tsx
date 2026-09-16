@@ -108,9 +108,19 @@ function TodayPage() {
   const waitingOnMe = useMemo(
     () =>
       live.filter((c) => {
+        // Writing or attaching a required document is the officer's own work,
+        // whoever the blocker names.
+        const action = c.m.nextAction ?? "";
+        if (/^(write|attach)\b/i.test(action)) return true;
+        if (/ is missing$/i.test(c.m.blocker ?? "")) return true;
         const owner = (c.m.blockerOwner ?? "").toLowerCase();
         if (!owner) return c.m.clockState !== "hold";
-        return owner.includes("contracting") || owner.includes(surname(user.name));
+        return (
+          owner.includes("contracting") ||
+          owner.includes(surname(user.name)) ||
+          samePerson(c.m.blockerOwner ?? "", user.name) ||
+          samePerson(c.owner, user.name)
+        );
       }),
     [live, user.name],
   );
