@@ -947,6 +947,42 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
   return paragraphs.join("\n\n");
 }
 
+/**
+ * Situation-memo starter. An unexpected event is written onto the file as a
+ * memorandum for record: what the file was doing when the event happened, the
+ * dates already on the record, and blanks the officer fills. Nothing here is a
+ * new award requirement, and no citation is asserted beyond FAR 4.801/4.803,
+ * which the template badge already carries.
+ */
+function situationScaffold(ctx: MemoDraftCtx): string {
+  const a = ctx.acq;
+  const phase = str(a["current_phase"]) || "the current phase";
+  const state = str(a["clock_state"]);
+  const holdReason = str(a["hold_reason"]);
+  const holdOwner = str(a["hold_owner"]);
+  const target = str(a["target_award_date"]) || str(ctx.awardDate);
+  const mission = ctx.missionName;
+  const lines: string[] = [];
+  lines.push(
+    `1. Event. ${gap("state what happened, when it was learned, and who reported it")}`,
+  );
+  lines.push(
+    `2. Status of the file when the event occurred. The file stood in the ${phase} phase${
+      state ? `, clock ${state}` : ""
+    }${
+      holdReason ? `, on hold because ${holdReason.charAt(0).toLowerCase()}${holdReason.slice(1)}${holdOwner ? ` (owner: ${holdOwner})` : ""}` : ""
+    }.${mission ? ` The acquisition supports ${mission}.` : ""}`,
+  );
+  lines.push(
+    `3. Dates on the record. ${
+      target ? `Target award date ${target}.` : "No target award date is recorded."
+    }${ctx.today ? ` This memorandum is dated ${ctx.today}.` : ""}`,
+  );
+  lines.push(`4. Effect on the schedule. ${gap("state the effect on the award date and on the mission date")}`);
+  lines.push(`5. Action taken or planned. ${gap("state the action, the owner and the date it is due")}`);
+  return lines.join("\n\n");
+}
+
 function memorandumForRecord(ctx: MemoDraftCtx): Values {
   const purpose = mfrPurposeLabel(ctx.values);
   const pr = str(ctx.acq["pr_number"]);
