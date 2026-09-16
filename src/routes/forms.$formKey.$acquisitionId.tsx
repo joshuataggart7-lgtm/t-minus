@@ -332,7 +332,7 @@ function FormPage() {
     try {
       await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
       setMessage(
-        "Form PDF exported. Open it in Adobe Reader; the answers are already in the fields. If your reader will not open it, use the data file with Import Data on the blank form.",
+        "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
