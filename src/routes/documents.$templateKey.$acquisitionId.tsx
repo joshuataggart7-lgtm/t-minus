@@ -2071,6 +2071,9 @@ function DocumentPage() {
             <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Draft</span>
           ) : null}
           {latest?.reviewed_by ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Reviewed</span> : null}
+          {latest && isOfficialFinal(latest.field_values) ? (
+            <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Official</span>
+          ) : null}
           <details className="ml-1">
             <summary className="cursor-pointer text-primary">Details</summary>
             <div className="mt-3 max-w-[70ch] text-muted-foreground">
