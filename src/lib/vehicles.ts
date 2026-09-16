@@ -123,25 +123,81 @@ export type ModificationRow = {
 };
 
 /**
- * SF 30 block 13 by modification type. 13A is the contract-change authority,
- * 13B the administrative change, 13C the supplemental agreement, 13D other.
+ * SF 30 block 13 by modification type. Block 13 names the authority already in
+ * the instrument, or the administrative form cite. It never carries paperwork
+ * citations: a price negotiation memorandum or a justification is a document
+ * the change may trigger, not the authority for the change.
+ *
+ * Form use RFO 43.401; modification types RFO 43.203. Administrative changes
+ * take the form cite at FAR 43.103(b). NASA Interim NFS 1843 is not general
+ * block 13 text and the NFS Companion Guide is process only, so neither is
+ * printed in the block 13 blank.
  */
 export const MOD_TYPES: {
   key: ModType;
   label: string;
   block: "13A" | "13B" | "13C" | "13D";
+  /** Plain description of where the authority comes from. */
   authority: string;
 }[] = [
-  { key: "administrative", label: "Administrative change", block: "13B", authority: "FAR 43.101 administrative change" },
-  { key: "funding", label: "Funding modification", block: "13D", authority: "Mutual agreement of the parties; funds added under the contract terms" },
-  { key: "option_exercise", label: "Option exercise", block: "13D", authority: "FAR 17.207; the option clause of the contract" },
-  { key: "change_order", label: "Change order", block: "13A", authority: "FAR 43.201; the Changes clause of the contract" },
-  { key: "supplemental", label: "Bilateral supplemental agreement", block: "13C", authority: "FAR 43.103(a) supplemental agreement, mutual agreement of the parties" },
-  { key: "termination", label: "Termination", block: "13D", authority: "FAR 49; the Termination clause of the contract" },
+  { key: "administrative", label: "Administrative change", block: "13B", authority: "FAR 43.103(b) administrative change" },
+  { key: "funding", label: "Funding modification", block: "13D", authority: "The clause of the contract that authorizes the change" },
+  { key: "option_exercise", label: "Option exercise", block: "13D", authority: "The option clause of the contract" },
+  { key: "change_order", label: "Change order", block: "13A", authority: "The Changes clause of the contract" },
+  { key: "supplemental", label: "Bilateral supplemental agreement", block: "13C", authority: "The covering clause of the contract" },
+  { key: "termination", label: "Termination", block: "13D", authority: "The Termination clause of the contract" },
 ];
 
-export function modTypeInfo(type: string) {
-  return MOD_TYPES.find((m) => m.key === type) ?? MOD_TYPES[0]!;
+/** Printed when the instrument clause cannot be read from the record. */
+export const AUTHORITY_PENDING = "authority from record / RFO-pending";
+
+/** A commercial file carries FAR 52.212-4 Changes, not the 52.243 series. */
+export function isCommercialInstrument(acq: Record<string, unknown> | null | undefined): boolean {
+  const method = String(acq?.["acquisition_method"] ?? "");
+  const format = String(acq?.["contract_format"] ?? "");
+  return /commercial/i.test(method) || /12/.test(method.replace(/[^0-9]/g, " ")) || /1449/.test(format);
+}
+
+/**
+ * The block 13 authority text for one modification, read from the instrument.
+ * Where the covering clause cannot be read from the record, the placeholder is
+ * printed rather than a citation nobody can stand behind.
+ */
+export function modAuthorityText(
+  type: string,
+  acq: Record<string, unknown> | null | undefined,
+  opts?: { instrumentClauses?: string[] },
+): string {
+  const commercial = isCommercialInstrument(acq);
+  const clauses = (opts?.instrumentClauses ?? []).map((c) => c.trim());
+  const has = (n: string) => clauses.some((c) => c.startsWith(n));
+  const profile = acquisitionProfile(acq);
+  const ordered = profile === "order_under_idiq" || profile === "fss_order";
+
+  switch (type) {
+    case "administrative":
+      // The only block 13 entry that is a form cite rather than a clause.
+      return "FAR 43.103(b), administrative change signed by the contracting officer alone";
+    case "change_order":
+      if (commercial) return "FAR 52.212-4(c) Changes, the Changes clause of this contract";
+      if (has("52.243")) return `${clauses.find((c) => c.startsWith("52.243"))} Changes, as awarded in this contract`;
+      return `The Changes clause of the contract as awarded (${AUTHORITY_PENDING})`;
+    case "option_exercise": {
+      const option = clauses.find((c) => c.startsWith("52.217"));
+      if (option) return `${option}, the option clause of this contract`;
+      return `The option clause of the contract as awarded (${AUTHORITY_PENDING})`;
+    }
+    case "termination":
+      if (commercial) return "FAR 52.212-4(l) or (m), the termination clause of this contract, as applicable";
+      return `The termination clause of the contract as awarded (${AUTHORITY_PENDING})`;
+    case "funding":
+      if (ordered) return `The clause of the parent vehicle or order that authorizes the change, within scope (${AUTHORITY_PENDING})`;
+      return `The clause of the contract that authorizes the added funds (${AUTHORITY_PENDING})`;
+    case "supplemental":
+    default:
+      if (ordered) return `The covering clause of the parent vehicle or order; last resort mutual agreement of the parties (${AUTHORITY_PENDING})`;
+      return `The covering clause of this contract; last resort mutual agreement of the parties (${AUTHORITY_PENDING})`;
+  }
 }
 
 export function sf30Blocks(type: string): { sf30_13a: boolean; sf30_13b: boolean; sf30_13c: boolean; sf30_13d: boolean } {
