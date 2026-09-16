@@ -119,6 +119,26 @@ export function awardDateFor(
   return row?.logged_at ? String(row.logged_at).slice(0, 10) : fallback;
 }
 
+/** The words the file page hero uses for a missing Required row. */
+export function heroActionLabel(doc: {
+  label: string;
+  field?: string | null;
+  templateKey?: string | null;
+  formKey?: string | null;
+}): string {
+  const generator = generatorKey(doc as never);
+  if (generator) {
+    if (generator === "market-research-memo") return "Write the memorandum";
+    if (generator === "nf-1787") return "Write the NF 1787";
+    if (generator === "nf-1787a") return "Write the NF 1787A";
+    if (generator === "pnm") return "Write the PNM";
+    return `Write the ${doc.label}`;
+  }
+  if (doc.field === "igce_attached") return "Attach the IGCE";
+  if (doc.field === "sow_attached") return "Attach the SOW/PWS";
+  return `Attach the ${doc.label}`;
+}
+
 export function computeMetrics(
   acq: AcqRow,
   opts: {
@@ -245,6 +265,9 @@ export function computeMetrics(
 
   let blocker = "None";
   let blockerOwner: string | null = null;
+  // The next step says the same thing the file page hero says: write or attach
+  // the Required document that is missing, in the same words.
+  let heroLabel: string | null = null;
   if (launched || scrubbed) {
     blocker = "None";
   } else if (hold) {
@@ -271,6 +294,7 @@ export function computeMetrics(
       blocker = `${missingDoc.label} is missing`;
       blockerOwner = (acq.co_name as string) ?? null;
     }
+    if (missingDoc) heroLabel = heroActionLabel(missingDoc);
   }
 
   return {
@@ -294,7 +318,7 @@ export function computeMetrics(
     blocker,
     blockerOwner,
     blockerSince: opts.holdSince ?? null as string | null,
-    nextAction: nextDecision,
+    nextAction: heroLabel ?? nextDecision,
     deadline: nextDecisionDate ?? null,
   };
 }

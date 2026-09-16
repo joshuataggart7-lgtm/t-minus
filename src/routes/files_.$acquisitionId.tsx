@@ -926,7 +926,8 @@ function FilePage() {
   );
 
   // When the CO has not entered a target award date, the forecast's anticipated
-  // award date stands in, so a running clock always shows days to award.
+  // award date stands in — and it is labelled a forecast, never a target.
+  const hasTargetAward = Boolean(acq?.target_award_date);
   const effectiveTargetAward =
     (acq?.target_award_date as string | null) ??
     (forecast && /^\d{4}-\d{2}-\d{2}$/.test(forecast.anticipated_award_date)
@@ -1930,7 +1931,11 @@ function FilePage() {
                 ? "Days since award"
                 : effectiveState === "scrubbed"
                   ? "Countdown"
-                  : "Calendar days to target award date"}
+                  : days === null
+                    ? "No target award date recorded"
+                    : hasTargetAward
+                      ? "Calendar days to target award date"
+                      : "Calendar days to the forecast award date. No target award date recorded."}
             </p>
             {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
               <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
@@ -2878,7 +2883,10 @@ function FilePage() {
               {(p.phase === "Solicitation/Quote" ||
                 p.phase === "Technical Evaluation" ||
                 p.phase === "Price Reasonableness" ||
-                p.phase === "Award") && (
+                p.phase === "Award" ||
+                // An awarded vehicle still shows the clauses it carries, so the
+                // packet can be read on a file already in administration.
+                p.phase === "Administration") && (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.

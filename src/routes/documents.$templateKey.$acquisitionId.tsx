@@ -123,6 +123,28 @@ export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   component: DocumentPage,
 });
 
+/** The comparables paragraph, written only from what the check returned. */
+function comparablesSummary(view: ComparablesView): string {
+  const stamp = view.checkedAt ? ` Checked ${new Date(view.checkedAt).toLocaleString("en-US")}.` : "";
+  if (!view.awards.length) {
+    return [
+      `The comparables check ran for NAICS ${view.naicsCode} and PSC ${view.pscCode} and returned no prior awards.${stamp}`,
+      view.providerNote ?? "",
+      "No comparable award is assumed here. State the basis relied on instead.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+  const lines = view.awards.map(
+    (a) => `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
+  );
+  const lead =
+    view.source === "local"
+      ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.${stamp}`
+      : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).${stamp}`;
+  return [lead, ...lines].join("\n");
+}
+
 /** Plain-language summary of the answers stored on the intake record. */
 function answersSummary(answers: unknown): string {
   if (!answers || typeof answers !== "object") return "";
@@ -308,6 +330,16 @@ function DocumentPage() {
         .order("checked_at", { ascending: false })
         .limit(1)
         .maybeSingle();
+      // The price negotiation memorandum reads the comparables check that has
+      // already run on this file, so the table is not asked for twice.
+      const comparablesCheck = await supabase
+        .from("sam_checks")
+        .select("response_json,checked_at")
+        .eq("acquisition_id", acquisitionId)
+        .eq("check_type", "Contract awards comparables")
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       const missionId = String((acq.data as Record<string, unknown> | null)?.["mission_id"] ?? "");
       const mission = missionId
         ? await supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
@@ -442,6 +474,7 @@ function DocumentPage() {
         thresholds: (thr.data ?? []) as ThresholdRow[],
         templateId,
         samCheck: samCheck.data ?? null,
+        comparablesCheck: comparablesCheck.data ?? null,
         hqRevision: tpl.data?.hq_revision_date ?? null,
         watchItems: [...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)],
         polls: (polls.data ?? []) as PollRow[],
@@ -592,19 +625,7 @@ function DocumentPage() {
     onSuccess: (view) => {
       setComparables(view);
       setTouched(true);
-      const lines = view.awards.map(
-        (a) =>
-          `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
-      );
-      setValues((prev) => ({
-        ...prev,
-        comparables_summary: [
-          view.source === "local"
-            ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.`
-            : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
-          ...lines,
-        ].join("\n"),
-      }));
+      setValues((prev) => ({ ...prev, comparables_summary: comparablesSummary(view) }));
       setMessage(
         view.source !== "live" && view.providerNote
           ? `Comparables loaded. ${view.sourceLabel}. ${view.providerNote}`
@@ -615,6 +636,31 @@ function DocumentPage() {
   });
 
 
+
+  // The comparables check already recorded on this file. The memorandum shows
+  // what that check returned; it never stands in for one that has not run.
+  const storedComparables = useMemo((): ComparablesView | null => {
+    const envelope = (q.data?.comparablesCheck?.response_json ?? null) as Record<string, unknown> | null;
+    const view = (envelope?.["normalized"] ?? null) as ComparablesView | null;
+    return view && Array.isArray(view.awards) ? view : null;
+  }, [q.data?.comparablesCheck]);
+
+  useEffect(() => {
+    if (!storedComparables) return;
+    setComparables((prev) => prev ?? storedComparables);
+  }, [storedComparables]);
+
+  // The drafted paragraph reports the recorded check rather than opening with
+  // "no comparable awards are loaded" when one has already run.
+  useEffect(() => {
+    if (!storedComparables || touched) return;
+    const text = comparablesSummary(storedComparables);
+    setValues((prev) =>
+      prev["comparables_summary"] === undefined || prev["comparables_summary"] === text
+        ? prev
+        : { ...prev, comparables_summary: text },
+    );
+  }, [storedComparables, touched, values]);
 
   // Vendor facts from the stored SAM.gov entity check, offered to the
   // nonresponsibility memo as pre-fill values.
