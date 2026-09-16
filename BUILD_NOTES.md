@@ -779,3 +779,39 @@ role check using the existing `private.*` helpers.
   CALC+ v3 Elasticsearch `hits` are parsed directly, service searches use a
   short matched keyword such as “aviation,” and public-source calls stop after
   18 seconds so a stalled source can be recorded as a failure.
+
+## Sample 1 walk fixes, A-2027-0101 (16 September 2026)
+
+- **Work Queue reads the same source of truth as the file.** `savedDocKeys`
+  now recognises the generated forms (NF 1787, NF 1787A) the same way the file
+  page does, so a saved form clears its Required row on the queue, the
+  overview, the digest and the escalations list. Every state change on the file
+  page (phase exit, launch, hold, scrub, research confirmation, document save,
+  attachment) invalidates the `work-queue` query as well. The queue clock falls
+  back to the need date when no target award date is recorded, so a running
+  clock no longer reads "Clock not started".
+- **JOFOC opens honestly on a competed file.** `jofocAuthorityDefault` returns
+  nothing unless the record is sole source or brand name. On a competed file
+  the authority rationale is a gap for the officer, the notice date stays
+  empty, and the notice status reads "Not applicable — competitive
+  acquisition". No notice of intent is invented.
+- **Unsuccessful offeror letters map Offeror N to quoter N** on the evaluation
+  of quotations record, so the label and the body name the same company. The
+  letter opens on the first unsuccessful offeror instead of defaulting to
+  Offeror 1. The successful letter also carries the contract number and the
+  requisition already on the file; nothing is invented.
+- **Handoff packet confirms its download.** The control reads "Download the
+  handoff packet", states that this is a local file, and confirms the file name
+  after the download. NCMS write-back is planned and not available in this
+  prototype; no write-back is implemented or implied.
+- **PNM draft/demo completeness.** On a competed file the negotiated price,
+  technique, negotiation summary, determination and comparables summary open as
+  clearly labelled draft text derived only from the recommended quotation and
+  the estimate on the file. The draft states that no negotiation has been
+  recorded, the determination date stays blank, and no award or rate is
+  invented.
+- **Security.** Storage reads on the attachments bucket are now scoped to files
+  that belong to a document record. The broad authenticated SELECT on `users`
+  is intentional: the fictional demo roster is the Center contact list the
+  reviewer routing, poll boards and Center configuration read on every page.
+  The remaining linter warning is the pre-existing anonymous-access notice.

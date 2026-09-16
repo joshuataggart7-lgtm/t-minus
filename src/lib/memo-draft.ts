@@ -439,8 +439,12 @@ function waiverDeviation(ctx: MemoDraftCtx): Values {
   };
 }
 
-/** The statutory authority the record calls for, before the CO changes it. */
+/**
+ * The statutory authority the record calls for, before the CO changes it. A
+ * competed file carries no sole-source authority, so nothing is filled in.
+ */
 export function jofocAuthorityDefault(acq: Record<string, unknown>): string {
+  if (!isSoleSourceRecord(acq)) return "";
   if (isSimplifiedCommercial(acq)) return "41 U.S.C. 1901 (FAR 12.102 procedures)";
   return "";
 }
@@ -448,10 +452,15 @@ export function jofocAuthorityDefault(acq: Record<string, unknown>): string {
 function jofoc(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const v = ctx.values ?? {};
+  const soleSource = isSoleSourceRecord(a);
   const authority = str(v["authority"]) || jofocAuthorityDefault(a);
   const vendor = str(a["vendor_legal_name"]) || "the intended source";
   const value = dollars(a["estimated_value"]);
-  const rationale = authority.includes("1901")
+  const rationale = !soleSource
+    ? gap(
+        "state the authority for other than full and open competition and the basis for it; this file is recorded as competed",
+      )
+    : authority.includes("1901")
     ? `The authority cited is 41 U.S.C. 1901, carried out through the procedures of FAR 12.102 as applied by RFO FAR 12.201-1. The requirement is a commercial service with an estimated value of ${
         value || "the amount on the record"
       }, within the ceiling for simplified procedures for commercial products and services, so the acquisition is conducted under those procedures rather than full and open competition. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
@@ -459,11 +468,13 @@ function jofoc(ctx: MemoDraftCtx): Values {
     ? `The authority cited is ${authority}. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : gap("choose the statutory authority in item 4, then draft this item against it");
 
-  const noticeLine = ctx.notice?.postedOn
-    ? `A notice of intent to sole source was posted to SAM.gov on ${ctx.notice.postedOn}${
-        ctx.notice.closesOn ? `, closing ${ctx.notice.closesOn}` : ""
-      }.`
-    : "Notice of intent not yet posted (Synopsis phase).";
+  const noticeLine = !soleSource
+    ? "Not applicable — competitive acquisition."
+    : ctx.notice?.postedOn
+      ? `A notice of intent to sole source was posted to SAM.gov on ${ctx.notice.postedOn}${
+          ctx.notice.closesOn ? `, closing ${ctx.notice.closesOn}` : ""
+        }.`
+      : "Notice of intent not yet posted (Synopsis phase).";
 
   const researchLines = researchLogLines(ctx.researchLog);
   const market = researchLines.length
@@ -474,14 +485,15 @@ function jofoc(ctx: MemoDraftCtx): Values {
     authority,
     authority_rationale: rationale,
     // Items 6 and 10 read the posting and closing dates back from the notice
-    // of intent once it has been saved in the Synopsis phase.
-    notice_date: ctx.notice?.postedOn ?? "",
+    // of intent once it has been saved in the Synopsis phase. A competed file
+    // has no notice of intent, so the date stays empty.
+    notice_date: soleSource ? (ctx.notice?.postedOn ?? "") : "",
     price_analysis_plan: `Price reasonableness will be determined under ${priceAnalysisCitation(
       a,
     )} before award, using the quotation received, the independent Government cost estimate and prior prices for the same service. Drafted from the record, confirm.`,
     market_research: market,
     notice_status: noticeLine,
-    interested_sources: ctx.notice?.postedOn
+    interested_sources: soleSource && ctx.notice?.postedOn
       ? `${noticeLine} Responses received and their disposition are recorded in the contract file. Drafted from the record, confirm.`
       : noticeLine,
     
@@ -954,6 +966,22 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
   if (price) out["quoted_price"] = price;
   const comparison = str(evaluation["price_comparison"]);
   if (comparison) out["price_variance"] = comparison;
+
+  // Competed file: the remaining blanks open as clearly labelled draft text
+  // taken only from the recommended quotation and the estimate already on the
+  // file. No negotiation is claimed and no award or rate is invented.
+  if (!/sole/i.test(str(a["competition"]))) {
+    if (price) out["negotiated_price"] = price;
+    out["technique"] = "Comparison of proposed prices received in response to the solicitation";
+    out["negotiation_summary"] =
+      `Draft, confirm. Quotations received in response to the solicitation were compared with one another and with the independent Government cost estimate on the file. The recommended quotation${
+        name ? ` from ${name}` : ""
+      }${price ? ` at ${dollars(price) || price}` : ""} is carried forward at the quoted price. No negotiation has been recorded on this file.`;
+    out["determination"] =
+      "Draft, confirm. The price is supported by the comparison of quotations received and the independent Government cost estimate on the file. The contracting officer's determination of price reasonableness is pending review.";
+    out["comparables_summary"] =
+      "Draft, confirm. No comparable awards are loaded on this file. Run comparables below, or state the basis relied on instead. No prior award is assumed here.";
+  }
   return out;
 }
 
@@ -991,20 +1019,37 @@ function postawardSuccessful(ctx: MemoDraftCtx): Values {
     out["company_name"] = selected;
     out["addressee"] = selected;
   }
+  // Identifiers already on the file or on the saved notice; nothing invented.
+  const contract = str(a["contract_number"]);
+  if (contract) out["contract_number"] = contract;
+  if (!out["solicitation_number"]) {
+    const pr = str(a["pr_number"]);
+    if (pr) out["solicitation_number"] = pr;
+  }
   out["enclosures"] = "Source Selection Statement";
   return out;
 }
 
-/** One postaward letter per unsuccessful offeror on the evaluation record. */
+/**
+ * One postaward letter per unsuccessful offeror. "Offeror N" is the quoter in
+ * slot N of the evaluation record, so the label and the body name the same
+ * company.
+ */
 function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const selected = str(ctx.evaluationValues?.["recommended_quoter"]) || str(a["vendor_legal_name"]);
   const all = quoters(ctx);
-  const losers = all.filter((q) => q.name.toLowerCase() !== selected.toLowerCase());
-  const slot = Number(String(ctx.values?.["offeror_slot"] ?? "Offeror 1").replace(/\D+/g, "")) || 1;
-  const chosen = losers[slot - 1];
+  const isAwardee = (name: string) => Boolean(selected) && name.toLowerCase() === selected.toLowerCase();
+  const firstUnsuccessful = all.findIndex((q) => !isAwardee(q.name));
+  const asked = Number(String(ctx.values?.["offeror_slot"] ?? "").replace(/\D+/g, ""));
+  // Offeror N maps to quoter N. When no offeror is chosen yet, or the chosen
+  // one is the awardee, the letter opens on the first unsuccessful offeror.
+  let index = asked ? asked - 1 : firstUnsuccessful;
+  if (index < 0 || !all[index] || isAwardee(all[index]!.name)) index = firstUnsuccessful;
+  const chosen = index >= 0 ? all[index] : undefined;
   const out: Values = { ...letterContact(ctx) };
   if (chosen) {
+    out["offeror_slot"] = `Offeror ${index + 1}`;
     out["company_name"] = chosen.name;
     out["addressee"] = chosen.name;
   }

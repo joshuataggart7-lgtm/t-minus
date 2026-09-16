@@ -361,6 +361,7 @@ function FilePage() {
         phase: null,
       } as never);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     })();
   }, [acq, forecast, canWrite, actorName, qc, acquisitionId]);
 
@@ -686,6 +687,7 @@ function FilePage() {
       setActionDialog(null);
       setBanner("The poll is open. Reviewers can vote on the documents for that phase.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
   });
@@ -730,6 +732,7 @@ function FilePage() {
       setActionDialog(null);
       setBanner("The vote is recorded with the date it was received.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`The vote did not save: ${e.message}. Try again.`),
   });
@@ -824,6 +827,7 @@ function FilePage() {
     onSuccess: (cause) => {
       setBanner(cause ? `On hold: ${cause.reason}` : "Cause cleared. The clock is running again.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
@@ -859,6 +863,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("The proposed price is on the record.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
@@ -893,6 +898,7 @@ function FilePage() {
     onSuccess: (result) => {
       void qc.invalidateQueries({ queryKey: ["file-attachments", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
       if (!result) return;
       const clins = result.clinCount ? ` ${result.clinCount} CLIN rows were read into the estimate builder.` : "";
       if (result.satisfies) {
@@ -968,6 +974,7 @@ function FilePage() {
             : "The finding is cleared.",
       );
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`The finding did not save: ${e.message}. Try again.`),
   });
@@ -1001,6 +1008,7 @@ function FilePage() {
       setActionDialog(null);
       setBanner("The acquisition is scrubbed and the reason is in the record.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setActionError(`The acquisition was not scrubbed: ${e.message}. Try again.`),
   });
@@ -1048,6 +1056,7 @@ function FilePage() {
       setActionDialog(null);
       setBanner(`The ${next} phase has started and its clock is running.`);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setActionError(`${e.message}.`),
   });
@@ -1094,6 +1103,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("Launched.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`${e.message}.`),
   });
@@ -1103,6 +1113,7 @@ function FilePage() {
     onSuccess: (r) => {
       setBanner(`Export ready: ${r.fileName}.`);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: unknown) =>
       setBanner(
@@ -1134,11 +1145,17 @@ function FilePage() {
     const packet = buildPacket(acq, packetClauses, phases, board);
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
+    const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = `ncms-handoff-${acq.acquisition_id}.json`;
+    a.download = fileName;
     a.click();
     URL.revokeObjectURL(url);
+    // The packet is a local file the officer carries into NCMS by hand.
+    // T-Minus does not write to NCMS, and this prototype makes no claim to.
+    setBanner(
+      `The handoff packet downloaded as ${fileName}. It is a local file for this prototype; writing the record into NCMS is planned and not available here.`,
+    );
   }
 
   const value = acq?.estimated_value ? Number(acq.estimated_value) : null;
@@ -1177,6 +1194,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("The debriefing date is recorded and the protest deadlines are recomputed.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`The debriefing date did not save: ${e.message}. Try again.`),
   });
@@ -1205,6 +1223,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("The period of performance end is recorded and the successor clock is recomputed.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`The end date did not save: ${e.message}. Try again.`),
   });
@@ -1240,6 +1259,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("Recorded. Directive compliance is updated.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
   });
@@ -1277,6 +1297,7 @@ function FilePage() {
     onSuccess: () => {
       setBanner("Recorded.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
     onError: (e: Error) => setBanner(`That did not save: ${e.message}. Try again.`),
   });
@@ -1698,7 +1719,7 @@ function FilePage() {
         canWrite={canWrite}
         actor={actorName}
         onBanner={setBanner}
-        onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); }}
+        onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); void qc.invalidateQueries({ queryKey: ["work-queue"] }); }}
       />
 
       <details aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
@@ -2044,9 +2065,15 @@ function FilePage() {
                          </>
                        ) : state === null ? (
                         d.link === "packet" ? (
-                          <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
-                            Open the NCMS handoff packet
-                          </button>
+                          <span className="block">
+                            <button type="button" onClick={downloadPacket} className="text-[13px] text-primary">
+                              Download the handoff packet
+                            </button>
+                            <span className="block text-[13px] text-muted-foreground">
+                              Downloads a local file. Writing the record into NCMS is planned and not available
+                              in this prototype.
+                            </span>
+                          </span>
                         ) : d.link === "checks" ? (
                           <Link to="/checks" className="text-[13px] text-primary">
                             Open Checks

@@ -48,6 +48,8 @@ type Card = {
   nextTask: string;
   dependency: string;
   daysInPhase: number | null;
+  /** Days to award, with the need date standing in when no target is set. */
+  days: number | null;
 };
 
 function columnFor(m: AcqMetrics): Column {
@@ -158,6 +160,11 @@ function WorkQueuePage() {
         const dependency = m.blocker === "None"
           ? "None"
           : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
+        // The file page falls back to the need date when no target award date
+        // is recorded, so a running clock never reads "Clock not started".
+        const running = m.clockState !== "launched" && m.clockState !== "scrubbed";
+        const target =
+          (acq.target_award_date as string | null) ?? ((acq as Record<string, unknown>)["need_date"] as string | null) ?? null;
         return {
           m,
           column: columnFor(m),
@@ -166,6 +173,7 @@ function WorkQueuePage() {
           nextTask,
           dependency,
           daysInPhase: current?.actual_days ?? null,
+          days: m.daysToAward ?? (running && target ? daysBetween(today, target) : null),
         };
       });
   }, [q.data, ref]);
@@ -196,7 +204,7 @@ function WorkQueuePage() {
     rows.sort((a, b) => {
       if (sortBy === "owner") return a.owner.localeCompare(b.owner);
       if (sortBy === "phase") return String(a.m.currentPhase ?? "").localeCompare(String(b.m.currentPhase ?? ""));
-      const value = (c: Card) => (typeof c.m.daysToAward === "number" ? c.m.daysToAward : Number.POSITIVE_INFINITY);
+      const value = (c: Card) => (typeof c.days === "number" ? c.days : Number.POSITIVE_INFINITY);
       return value(a) - value(b);
     });
     return rows;
@@ -379,7 +387,7 @@ function WorkQueuePage() {
                     ? `${c.m.daysSinceAward ?? 0} since award`
                     : c.m.clockState === "scrubbed"
                       ? "Clock stopped"
-                      : (c.m.daysToAward ?? "Clock not started")}
+                      : (c.days ?? "Clock not started")}
                 </td>
                 <td className="p-2">
                   <span
@@ -424,7 +432,7 @@ function CardView({ c }: { c: Card }) {
               ? (c.m.daysSinceAward ?? 0)
               : c.m.clockState === "scrubbed"
                 ? "—"
-                : (c.m.daysToAward ?? "—")}
+                : (c.days ?? "—")}
           </p>
           <p className="text-[12px] text-muted-foreground">
             {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}

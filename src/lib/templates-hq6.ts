@@ -147,12 +147,14 @@ const postawardUnsuccessful: TemplateDef = {
       citation: "FAR 15.207-2",
       tier: "binding",
       fields: [
-        S(
-          "offeror_slot",
-          "Which offeror this letter goes to",
-          ["Offeror 1", "Offeror 2", "Offeror 3", "Offeror 4"],
+        // Left empty so the letter opens on the first unsuccessful offeror on
+        // the evaluation record. Offeror N is quoter N on that record.
+        S("offeror_slot", "Which offeror this letter goes to", [
           "Offeror 1",
-        ),
+          "Offeror 2",
+          "Offeror 3",
+          "Offeror 4",
+        ]),
         X("company_name", "Unsuccessful offeror company name"),
       ],
     },
