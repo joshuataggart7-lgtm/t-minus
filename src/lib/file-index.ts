@@ -113,7 +113,7 @@ function nearFields(templateKey: string | undefined, tab: string): {
       nearTitle: el.title,
       nearUid: el.uid,
       // Crosswalk WSC "NEAR FE Notes" (What to File Here), shown verbatim.
-      nearNotes: el.notes || undefined,
+      ...(el.notes ? { nearNotes: el.notes } : {}),
     },
   };
 }
