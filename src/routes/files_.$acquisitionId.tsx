@@ -1101,6 +1101,10 @@ function FilePage() {
         .select("acquisition_id");
       if (error) throw new Error(error.message);
       if (!data?.length) throw new Error("The phase changed before this action finished. Refresh and try again");
+      const completed = completeCurrentRequirements.map((doc) => doc.label);
+      const completeNote = completed.length
+        ? ` Required for ${phase}, complete: ${completed.join("; ")}.`
+        : "";
       const { error: auditError } = await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
         actor: who,
@@ -1108,7 +1112,7 @@ function FilePage() {
         field: "current_phase",
         old_value: phase,
         new_value: next.phase,
-        reason: reason.trim(),
+        reason: `${reason.trim()}${completeNote}`,
         phase,
       });
       if (auditError) throw new Error(auditError.message);
