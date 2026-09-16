@@ -1876,3 +1876,8 @@ Visual-only polish of the Overview Mission Clock navy band:
 No logic changes: urgency ranking, metrics, clocks, holds, and Walk paths are
 untouched. Samples unchanged (Joshua Taggart, running); factory panels stay
 visible at Price Reasonableness. Verified via signed-in browser on the Overview.
+
+## Walk polish — desk demo fixtures
+- Today desk: after CO-owned matching, a signed-in requester sees files where they are the requester of record, labelled "Showing files where you are the requester of record." Marsh → Sample 1 only. Specialist/Admin paths unchanged; Joshua Taggart stays CO.
+- Reviewer inbox: all-pending fallback copy softened ("No open review names you as the reviewer of record … listed for the walk. The reviewer of record on each row is shown beside it. The hero document still follows that office."). No poll seeds rewritten; heroDocForReviewer and read-receipts unchanged.
+- Requester portal own-file match for Dr. Elena Marsh (fictional) → A-2027-0101 verified as already correct; no seed or record changes. Advisories remain non-gating.

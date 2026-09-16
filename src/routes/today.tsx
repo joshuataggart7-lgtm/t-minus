@@ -63,6 +63,11 @@ function TodayPage() {
     const me = surname(user.name);
     const owned = desk.cards.filter((c) => surname(c.owner) === me);
     if (owned.length > 0) return owned;
+    // A requester who owns no files as CO still sees the files they asked for.
+    if (roles.includes("requester")) {
+      const mine2 = desk.cards.filter((c) => c.requester.toLowerCase() === user.name.toLowerCase());
+      if (mine2.length > 0) return mine2;
+    }
     // An account with no files of its own sees the Center's files, labelled.
     const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
     // An administrator at a Center with no files sees every prototype file.
@@ -75,6 +80,11 @@ function TodayPage() {
     const me = surname(user.name);
     return desk.cards.some((c) => surname(c.owner) === me);
   }, [desk, user.name]);
+
+  const isRequesterFallback = useMemo(() => {
+    if (!desk || ownsMine || !roles.includes("requester")) return false;
+    return desk.cards.some((c) => c.requester.toLowerCase() === user.name.toLowerCase());
+  }, [desk, ownsMine, roles, user.name]);
 
   const isAdminAll = useMemo(() => {
     if (!desk) return false;
@@ -135,9 +145,11 @@ function TodayPage() {
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
           {!ownsMine ? (
             <p className="text-[13px] leading-[18px] text-muted-foreground">
-              No file lists {user.name} as the contracting officer, so{" "}
-              {isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`}. The
-              owner of record is shown on each file.
+              {isRequesterFallback
+                ? "Showing files where you are the requester of record."
+                : `No file lists ${user.name} as the contracting officer, so ${
+                    isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`
+                  }. The owner of record is shown on each file.`}
             </p>
           ) : null}
 
