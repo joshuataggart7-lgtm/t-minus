@@ -63,6 +63,8 @@ export type FormatScaffold = {
   /** Every clause the engine selected, with the reason it is on this file. */
   clauses: ScaffoldClause[];
   lm: ScaffoldLmOverride | null;
+  /** Section J: the attachments on the record, not a clause bucket. */
+  attachments: SectionJAttachment[];
 };
 
 
