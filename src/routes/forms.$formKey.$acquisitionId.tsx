@@ -434,14 +434,18 @@ function FormPage() {
           </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
             <p>
-              Export preview below is the filled view in the browser. Export form PDF writes the official
-              blank with its data replaced; open that file in Adobe Acrobat or Adobe Reader on the desktop
-              to see the values in the form fields.
+              The recommended route in free Adobe Reader is the data file. Open the blank form from this
+              app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data, Import Data,
+              and pick the exported data file. The blank keeps its own rights, so Reader accepts it.
+            </p>
+            <p className="mt-2">
+              Export form PDF writes the official blank with its data replaced. Free Reader used to close
+              this kind of fill because the blank is rights-enabled; this build leaves those usage rights
+              off the export so Reader can open it to view and print. Signatures stay empty either way.
             </p>
             <p className="mt-2">
               Chrome, Edge, and other built-in viewers often show a blank face for this kind of form. That
-              is expected, not a failed fill. If desktop Reader will not accept the edited file, use Export
-              data file for Import Data and import it onto the blank form from this app.
+              is expected, not a failed fill.
             </p>
             <p className="mt-2">
               The flattened PDF prints every answer as text for the contract file. Signatures stay empty on
