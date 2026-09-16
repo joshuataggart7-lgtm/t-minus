@@ -188,7 +188,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
   "Solicitation/Quote": "FAR 12.603; NFS 1804.171 (NCMS is the system of record)",
   "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
-  "Price Reasonableness": "FAR 12.204(b)(1); FAR 13.106-3",
+  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3 where simplified procedures apply",
   "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
   "Go/No-go Poll": "NFS 1801.770 legal review; Center policy for the review chain",
   Award: "FAR 13.302-3; NFS 1804.171 (award written in NCMS)",
@@ -531,7 +531,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "Price negotiation memorandum (PNM)",
-          citation: order ? "FAR 16.505(b)(3)" : "FAR 12.204(b)(1)",
+          citation: order ? "FAR 16.505(b)(3)" : "RFO FAR 12.204(a)",
           link: "templates",
           templateKey: "pnm",
           note: order

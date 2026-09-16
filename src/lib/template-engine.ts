@@ -802,22 +802,22 @@ const nonresponsibility: TemplateDef = {
 };
 
 // ------------------------------------------- Price Negotiation Memorandum
-// The PNM is the price reasonableness determination of record for simplified
-// commercial procedures (FAR 12.204(b)(1)); no separate determination is made.
+// The PNM records the price reasonableness the contracting officer reaches
+// under RFO FAR 12.204(a); FAR 13.106-3 applies where simplified procedures do.
 const pnm: TemplateDef = {
   key: "pnm",
   name: "Price Negotiation Memorandum (PNM)",
   tab: "065",
   badge: {
-    citation: "FAR 12.204(b)(1); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
+    citation: "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
     citationFor: (v) =>
       simplifiedValues(v)
-        ? "FAR 12.204(b)(1); FAR 13.106-3(b)(3)"
+        ? "RFO FAR 12.204(a); FAR 13.106-3(b)(3)"
         : "FAR 15.406-3",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
-    note: "The PNM is the price reasonableness determination of record. No separate price reasonableness determination is generated.",
+    note: "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated.",
   },
   lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
   sections: [
@@ -919,10 +919,10 @@ const pnm: TemplateDef = {
     {
       id: "determination",
       title: "Determination of price reasonableness",
-      citation: "FAR 12.204(b)(1)",
+      citation: "RFO FAR 12.204(a); FAR 13.106-3",
       tier: "binding",
       standingText:
-        "For simplified commercial procedures this memorandum is the determination of record. No separate price reasonableness determination is written.",
+        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written.",
       fields: [
         {
           key: "determination",

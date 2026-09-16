@@ -2403,7 +2403,7 @@ function FilePage() {
                     Open the price negotiation memorandum
                   </Link>
                   <span className="ml-2 text-muted-foreground">
-                    FAR 12.204(b)(1) · the determination of record for price reasonableness
+                    RFO FAR 12.204(a) · where the price reasonableness finding is recorded
                   </span>
                 </p>
               ) : null}

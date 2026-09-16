@@ -181,7 +181,7 @@ export function buildFormatScaffold(
           },
           {
             text: "Price reasonableness is determined in the price negotiation memorandum.",
-            citation: "FAR 12.204(b)(1)",
+            citation: "RFO FAR 12.204(a); FAR 13.106-3",
           },
           {
             text: "The justification on this file states why only one source can meet the need.",
