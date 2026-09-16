@@ -1531,3 +1531,49 @@ email drafts remain copy-only. The A-2026-0090 clause delta stays withheld on
 IDIQ vehicle and order profiles, the exclusions sweep still writes no
 clock_state or hold fields, and the postaward unsuccessful letter cites only
 FAR 13.106-3(d) on a FAR 13.5 or Part 12 file.
+
+## Wave 3.1–3.4
+
+**W3.1 modification wizard → SF 30 block 13.** The modification form is now five
+questions — what changes, why, who asked, funded or not, within scope or not —
+and it prints the SF 30 block 13A–D choice with the authority read from the
+clause already in the instrument. Administrative changes take the form cite at
+FAR 43.103(b); form use is RFO 43.401 and the types are RFO 43.203. A
+commercial SF 1449 file takes FAR 52.212-4(c) Changes and never the 52.243
+series; a noncommercial file takes the 52.243 clause as awarded; an option
+takes the 52.217 clause in the instrument; a bilateral supplemental agreement
+takes the covering clause, with mutual agreement of the parties as the last
+resort. Where the covering clause cannot be read from the record the wizard
+prints "authority from record / RFO-pending" rather than a citation nobody can
+stand behind. A negotiation memorandum or a justification is a triggered row,
+never block 13 authority, and the simplified path cites FAR 13.106-3 rather
+than 15.406-3. NASA Interim NFS 1843 and the Companion Guide are process only
+and are not printed in the block 13 blank. The wizard also offers an FPDS fill
+sheet to copy; T-Minus does not write to FPDS. The clause delta stays withheld
+on IDIQ vehicle and order profiles, so A-2026-0090 is unchanged.
+
+**W3.2 closeout autopilot.** The closeout panel now builds its checklist from
+the record — final invoice, final payment, CPARS, property, release of claims,
+deobligation — each with its FAR 4.804-5 cite, says plainly whether the file is
+ready for transfer, and offers a memorandum to file listing what is still open
+with the FAR 4.805 six-year retention date. Nothing is marked complete that the
+record does not show, and the panel still appears only on a launched or
+Closeout file.
+
+**W3.3 deadline calculus.** A new "Dates this file owes" panel computes the
+synopsis response date, size protest window (FAR 19.302(d)(1), five business
+days), both CICA stay windows (FAR 33.104(c)(1); 31 U.S.C. 3553(d)(4)), the
+option preliminary notice (FAR 52.217-9 as filled in), the CPARS due date and
+the retention date, each with calendar or business day counting shown. The
+synopsis response period is labelled honestly as a stub because the minimum
+period for this method is not verified against the seeded RFO text.
+
+**W3.4 NF 1098 checklist as cover sheet.** The contract file index now reads as
+the NF 1098 checklist: every tab, whether it is required for this record,
+whether it is present, and the version and date of the latest document, with a
+print action for the cover sheet. Missing tabs are still shown as missing;
+nothing absent is shown as present.
+
+No external writes were added. Sample 1 and Sample 2 facts, UEIs and evaluation
+rows are unchanged, the exclusions sweep still never writes clock or hold
+fields, and the Mission Clock Overview was not touched.
