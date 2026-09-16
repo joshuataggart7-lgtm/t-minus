@@ -889,6 +889,13 @@ function DocumentPage() {
     if (def.key === "sam-notice") {
       filled["authority"] = samNoticeAuthority(q.data.acq);
     }
+    // One letter per unsuccessful quoter: the link carries the slot, and
+    // otherwise the first quoter who was not awarded is opened.
+    if (def.key === "postaward-letter-unsuccessful" && !filled["offeror_slot"]) {
+      const asked = search.offeror ? `Offeror ${search.offeror}` : "";
+      const fallback = quoterSlots.find((r) => !r.awarded)?.slot ?? "";
+      filled["offeror_slot"] = asked || fallback;
+    }
     // Every document is drafted from the record, section by section, so no
     // field the record can fill is ever opened empty.
     const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
