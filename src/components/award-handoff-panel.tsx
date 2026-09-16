@@ -287,7 +287,7 @@ export function AwardHandoffPanel({
                       </td>
                       <td className="p-2">{c.section}</td>
                       <td className="p-2 text-muted-foreground">
-                        {c.fillIns ?? "No fill-in recorded in the matrices"}
+                        {c.fillIns ?? "No fill-in recorded on the file or in the matrices"}
                       </td>
                     </tr>
                   ))}

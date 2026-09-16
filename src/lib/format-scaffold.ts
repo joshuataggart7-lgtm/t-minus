@@ -350,7 +350,7 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       title: c.title,
       section: c.section,
       reason: c.reason,
-      fill_ins: c.fillIns ?? "No fill-in recorded in the matrices",
+      fill_ins: c.fillIns ?? "No fill-in recorded on the file or in the matrices",
     })),
     note: "Local scaffolding for the handoff packet. NCMS is the system of record; T-Minus does not write to NCMS.",
 
