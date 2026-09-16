@@ -603,19 +603,7 @@ function DocumentPage() {
     onSuccess: (view) => {
       setComparables(view);
       setTouched(true);
-      const lines = view.awards.map(
-        (a) =>
-          `${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${money(a.obligatedAmount)}`,
-      );
-      setValues((prev) => ({
-        ...prev,
-        comparables_summary: [
-          view.source === "local"
-            ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.`
-            : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).`,
-          ...lines,
-        ].join("\n"),
-      }));
+      setValues((prev) => ({ ...prev, comparables_summary: comparablesSummary(view) }));
       setMessage(
         view.source !== "live" && view.providerNote
           ? `Comparables loaded. ${view.sourceLabel}. ${view.providerNote}`
