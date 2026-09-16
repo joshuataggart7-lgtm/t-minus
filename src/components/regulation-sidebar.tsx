@@ -20,10 +20,12 @@ export function RegulationSidebar({
   phase,
   phases,
   onPhaseChange,
+  compact = false,
 }: {
   phase: string;
   phases?: string[];
   onPhaseChange?: (phase: string) => void;
+  compact?: boolean;
 }) {
   const { authState } = useRole();
   const [open, setOpen] = useState(false); // references start collapsed; thresholds stay open
@@ -51,6 +53,11 @@ export function RegulationSidebar({
     >
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
         Regulations
+        {compact ? (
+          <span className="ml-2 text-[13px] font-normal text-muted-foreground">
+            {phase} · {refs.length} {refs.length === 1 ? "reference" : "references"} · {thresholds.length} {thresholds.length === 1 ? "threshold" : "thresholds"}
+          </span>
+        ) : null}
       </summary>
       <div className="border-t border-border px-5 pt-4">
         <button

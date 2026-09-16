@@ -972,3 +972,9 @@ for order **A-2027-0104** already has `funds_certified = true`,
 **Documents.** Save version remains the primary action; Word and PDF are grouped under Export. Provenance is summarized as Live, Sample, Draft, and Reviewed indicators with model/timestamp details disclosed on request. Required fields show inline “Needs …” guidance after interaction, and record/AI-drafted text carries a quiet confirmation hint.
 
 **Deferred.** No lifecycle, gate, Sample 3/IDIQ, seed, work-queue, regulation-sidebar, or security/RLS changes. No NCMS write-back, FedRAMP, or FPDS capability is claimed. Security remains deferred.
+
+## Part A follow-up — Sample 1/2 file overview (16 Sep 2026)
+
+**Shipped.** The file clock line now uses fluid columns and a wrapping Next/More action row so actions remain visible without page overflow. A missing current required document shows Why? beside its action when its own row carries a citation. On A-2027-0101 and A-2027-0102 only, Regulations, Thresholds, and Audit trail start collapsed with phase or entry counts while preserving their full content on disclosure.
+
+**Deferred.** No D1–D6 or clause-engine work, lifecycle changes, Sample 3/IDIQ behavior changes, seed changes, or security work. No NCMS write-back, FedRAMP, or FPDS capability is claimed.

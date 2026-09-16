@@ -190,6 +190,7 @@ function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
 
 function FilePage() {
   const { acquisitionId } = Route.useParams();
+  const coldPathSample = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
   const { authState, user, hasAnyRole } = useRole();
   const qc = useQueryClient();
   // Every audit row carries the real account name, never "Signed-in user".
@@ -1375,7 +1376,7 @@ function FilePage() {
     if (!heroAction || !canWrite) return null;
     if (heroAction.generated) {
       return heroAction.generated.templateKey ? (
-        <Button asChild>
+        <Button asChild className="max-w-full whitespace-normal text-left">
           <Link
             to="/documents/$templateKey/$acquisitionId"
             params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
@@ -1384,7 +1385,7 @@ function FilePage() {
           </Link>
         </Button>
       ) : (
-        <Button asChild>
+        <Button asChild className="max-w-full whitespace-normal text-left">
           <Link
             to="/forms/$formKey/$acquisitionId"
             params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
@@ -1396,7 +1397,7 @@ function FilePage() {
     }
     if (heroAction.doc) {
       return (
-        <Button asChild disabled={attachDoc.isPending}>
+        <Button asChild disabled={attachDoc.isPending} className="max-w-full whitespace-normal text-left">
           <label className="cursor-pointer">
             {attachDoc.isPending ? "Attaching" : label}
             <input
@@ -1415,12 +1416,12 @@ function FilePage() {
       );
     }
     if (heroAction.label.startsWith("Exit ") && currentPhase) {
-      return <Button onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
+      return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
     }
     if (heroAction.label === "Open the poll" && currentPhase) {
-      return <Button onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
+      return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
     }
-    return <Button onClick={openLaunchSequence}>{label}</Button>;
+    return <Button className="max-w-full whitespace-normal text-left" onClick={openLaunchSequence}>{label}</Button>;
   };
 
   return (
@@ -1455,8 +1456,8 @@ function FilePage() {
         </section>
       ) : null}
 
-      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-xl border border-border bg-background p-7 lg:p-10">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(380px,1fr)] lg:items-start lg:gap-12">
+      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
+        <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
@@ -1464,8 +1465,8 @@ function FilePage() {
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
             </p>
           </div>
-          <div className="grid gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-            <div className="min-w-32">
+          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <div className="min-w-0 sm:min-w-32">
             <p className={presenter ? "text-[48px] leading-[52px] font-semibold" : "text-[40px] leading-[44px] font-semibold"} data-numeric>
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
@@ -1502,8 +1503,8 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-muted-foreground">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
-            {heroAction && canWrite ? <div className="mt-5">{primaryAction()}</div> : null}
-            <div className="mt-5">
+            <div className="mt-5 flex min-w-0 flex-wrap items-center gap-2">
+              {heroAction && canWrite ? primaryAction() : null}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="text-muted-foreground">More</Button>
@@ -1537,6 +1538,12 @@ function FilePage() {
                   ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
+              {heroAction && (heroAction.doc?.citation || heroAction.generated?.citation) ? (
+                <ExplainThis
+                  explanation={explainMissingDoc(heroAction.doc ?? heroAction.generated as RequiredDoc, currentPhase?.phase ?? "Current phase")}
+                  label="Why?"
+                />
+              ) : null}
             </div>
             </div>
           </div>
@@ -1689,7 +1696,7 @@ function FilePage() {
       </details>
 
       {phaseNames.length ? (
-        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} />
+        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} compact={coldPathSample} />
       ) : null}
 
       {intakeEstimate ? (
@@ -2954,8 +2961,12 @@ function FilePage() {
         ) : null}
       </section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
+      {coldPathSample ? (
+      <details aria-label="Thresholds" className="mb-12 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
+          Thresholds <span className="ml-2 text-[13px] font-normal text-muted-foreground">{q.data?.thresholds?.length ?? 0} entries</span>
+        </summary>
+        <div className="overflow-x-auto border-t border-border px-5 py-4">
         <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
           Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
         </p>
@@ -3000,7 +3011,24 @@ function FilePage() {
             })}
           </tbody>
         </table>
+        </div>
+      </details>
+      ) : (
+      <section className="mb-12">
+        <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
+        <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
+          Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
+        </p>
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+          <thead>
+            <tr className="border-b border-border text-left">
+              <th scope="col" className="p-2">Threshold</th><th scope="col" className="p-2">Value</th><th scope="col" className="p-2">This acquisition</th><th scope="col" className="p-2">Tier</th><th scope="col" className="p-2">Effective</th><th scope="col" className="p-2">Citation and note</th>
+            </tr>
+          </thead>
+          <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "—" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "—"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{t.note}</span> : null}</td></tr>; })}</tbody>
+        </table>
       </section>
+      )}
 
       <Dialog
         open={actionDialog !== null}
@@ -3191,10 +3219,14 @@ function FilePage() {
         </dl>
       </section>
 
-      <section className="mb-10 min-w-0">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
+      {coldPathSample ? (
+      <details aria-label="Audit trail" className="mb-10 min-w-0 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
+          Audit trail <span className="ml-2 text-[13px] font-normal text-muted-foreground">{q.data?.log.length ?? 0} entries</span>
+        </summary>
+        <div className="min-w-0 border-t border-border px-5 py-4">
         {q.data?.log.length ? (
-          <div className="w-full min-w-0 max-w-[calc(100vw-6.5rem)] overflow-x-auto sm:max-w-full">
+          <div className="w-full min-w-0 overflow-x-auto">
           <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -3223,7 +3255,14 @@ function FilePage() {
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
         )}
+        </div>
+      </details>
+      ) : (
+      <section className="mb-10 min-w-0">
+        <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
+        {q.data?.log.length ? <div className="w-full min-w-0 overflow-x-auto"><table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]"><thead><tr className="border-b border-border text-left"><th scope="col" className="p-2">Logged</th><th scope="col" className="p-2">Actor</th><th scope="col" className="p-2">Action</th><th scope="col" className="p-2">Field</th><th scope="col" className="p-2">New value</th><th scope="col" className="p-2">Reason</th></tr></thead><tbody>{q.data.log.map((row) => <tr key={row.log_id} className="border-b border-border align-top"><td className="p-2">{new Date(row.logged_at).toLocaleString()}</td><td className="p-2">{row.actor}</td><td className="p-2">{row.action}</td><td className="p-2">{row.field}</td><td className="p-2">{row.new_value}</td><td className="p-2">{row.reason}</td></tr>)}</tbody></table></div> : <p className="text-muted-foreground">No entries yet for this file.</p>}
       </section>
+      )}
 
       <Link to="/files" className="text-primary underline underline-offset-2">
         Back to Files
