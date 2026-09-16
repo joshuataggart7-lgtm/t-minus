@@ -16,7 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import { fileAsOfficialFinal, isOfficialFinal, officialMeta, FILE_IT_LABEL, FILE_IT_NOTE } from "@/lib/official-file";
+import {
+  fileAsOfficialFinal,
+  unfileOfficialFinal,
+  isOfficialFinal,
+  officialMeta,
+  FILE_IT_LABEL,
+  FILE_IT_NOTE,
+} from "@/lib/official-file";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import { draftJofocItem, DRAFTABLE_JOFOC_FIELDS, type DraftProvenance } from "@/lib/ai-draft.functions";
 import {
