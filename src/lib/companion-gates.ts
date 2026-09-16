@@ -113,30 +113,53 @@ export function evaluateCompanionGates(
 
   // Gates carried by the seeded review rules: CIO/IT, Section 508, aviation
   // safety, NPA, ANOSCA and any other row the Center has seeded.
-  const rowGates: { key: string; match: RegExp; name: string }[] = [
+  // Where a gate has a document of its own, a saved or attached copy is
+  // evidence in the same way a recorded vote is.
+  const rowGates: { key: string; match: RegExp; name: string; docKeys?: string[]; docEvidence?: string }[] = [
     { key: "cio", match: /^cio authorization/i, name: "CIO / IT authorization" },
     { key: "section-508", match: /^section 508/i, name: "Section 508 accessibility" },
     { key: "aviation", match: /^aviation safety/i, name: "Aviation safety review" },
-    { key: "npa", match: /notification of procurement action/i, name: "Notification of procurement action" },
-    { key: "anosca", match: /^anosca/i, name: "ANOSCA announcement" },
-    { key: "psm", match: /^procurement strategy meeting/i, name: "Procurement strategy meeting" },
+    {
+      key: "npa",
+      match: /notification of procurement action/i,
+      name: "Notification of procurement action",
+      docKeys: ["npa-notification"],
+      docEvidence: "A notification of procurement action is on the file.",
+    },
+    {
+      key: "anosca",
+      match: /^anosca/i,
+      name: "ANOSCA announcement",
+      docKeys: ["anosca"],
+      docEvidence: "An ANOSCA announcement is on the file.",
+    },
+    {
+      key: "psm",
+      match: /^procurement strategy meeting/i,
+      name: "Procurement strategy meeting",
+      docKeys: ["psm-signature-page", "psm-addendum", "psm-executive-presentation", "written-acquisition-plan"],
+      docEvidence: "A procurement strategy meeting record is on the file.",
+    },
   ];
   for (const g of rowGates) {
     const rule = rules.find((r) => g.match.test(r.reviewer_role));
     const applies = rule ? reviewApplies(rule, acq, ref) : false;
     const board = applies ? fromBoard(evidence.board, g.match) : null;
+    const docSat = applies && g.docKeys ? hasKey(evidence, g.docKeys) : false;
     gates.push({
       key: g.key,
       name: rule?.reviewer_role ?? g.name,
       applies,
       trigger: rule?.trigger ?? "No trigger recorded on the review rule.",
       citation: rule?.citation ?? "Center policy",
-      status: !applies ? "Not applicable" : (board?.status ?? "Open"),
+      status: !applies ? "Not applicable" : docSat ? "Satisfied" : (board?.status ?? "Open"),
       evidence: !applies
         ? rule
           ? "The record does not meet this trigger."
           : "No review rule seeded for this gate."
-        : (board?.evidence ?? NOT_EVIDENCED),
+        : docSat
+          ? (g.docEvidence ?? "A document for this gate is on the file.")
+          : (board?.evidence ?? NOT_EVIDENCED),
     });
   }
 
