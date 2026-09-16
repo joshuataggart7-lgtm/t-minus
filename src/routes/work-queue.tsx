@@ -48,6 +48,8 @@ type Card = {
   nextTask: string;
   dependency: string;
   daysInPhase: number | null;
+  /** Days to award, with the need date standing in when no target is set. */
+  days: number | null;
 };
 
 function columnFor(m: AcqMetrics): Column {
