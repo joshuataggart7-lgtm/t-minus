@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
+import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
@@ -329,12 +330,20 @@ function FormPage() {
     setMessage("Flattened PDF exported.");
   };
 
+  // The data written out uses the field paths of the blank itself, page
+  // subform included, so Import Data binds every value.
+  const boundDatasets = async () => {
+    if (!form) return "";
+    const map = await blankPagePaths(form.pdf);
+    return xfaDatasets(withPagePaths(form, map));
+  };
+
   const exportPopulated = async () => {
     if (!form) return;
     try {
       const withCompanion = await exportXfaIncremental(
         form.pdf,
-        xfaDatasets(form),
+        await boundDatasets(),
         `${form.key}-${acquisitionId}`,
       );
       setMessage(
@@ -347,9 +356,9 @@ function FormPage() {
     }
   };
 
-  const exportData = () => {
+  const exportData = async () => {
     if (!form) return;
-    exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
+    exportXdp(await boundDatasets(), `${form.key}-${acquisitionId}`);
     setMessage(
       `Data file exported. In free Adobe Reader open the blank form from this app (${form.pdf}), then choose Forms or Manage Form Data, Import Data, and pick this file.`,
     );
