@@ -76,10 +76,16 @@ export type BriefingInput = {
   sectionJCount?: number | null;
   /** Section K from the same scaffold the Award handoff view reads. */
   sectionK?: BriefingSectionK | null;
+  /**
+   * Contract-file assembly counts from the same buildNf1098Assembly call the
+   * file page makes. Counts only — the full checklist lives on the file.
+   */
+  assemblyCounts?: { presentTabs: number; missingTabs: number; recorded: number; notRecorded: number } | null;
 };
 
 export const AWARD_HANDOFF_POINTER =
-  "Award handoff: open the file's Award handoff view for CLIN, Section K, Sections L and M, clauses, Section J and the signature blanks. NCMS remains the system of record.";
+  "Award handoff: open the file's Award handoff view for CLIN, Section K, Sections L and M, clauses, Section J and the signature blanks, " +
+  "with the NF 1098 assembly checklist beside them. NCMS remains the system of record.";
 
 
 const money = (n: number) =>
@@ -216,6 +222,14 @@ function schedulePage(input: BriefingInput, mark: string): string {
       }`
     : "Method not recorded on this file.";
   const jCount = input.sectionJCount ?? 0;
+  const a = input.assemblyCounts ?? null;
+  const assemblyBlock = a
+    ? `<div style="margin-top:24px">
+        <p class="sub">Contract-file assembly (NF 1098)</p>
+        <p style="margin:6px 0 0;font-size:14px">${esc(a.presentTabs)} tabs present · ${esc(a.missingTabs)} required tabs missing · ${esc(a.recorded)} enclosures recorded · ${esc(a.notRecorded)} not recorded.</p>
+        <p class="sub" style="margin-top:6px">Advisory only. NCMS is the system of record; T-Minus does not write to NCMS and this checklist does not hold phase exit.</p>
+      </div>`
+    : "";
   return `<section class="page">
   <div>
     <h2>Schedule and handoff</h2>
@@ -223,6 +237,7 @@ function schedulePage(input: BriefingInput, mark: string): string {
     <table class="clauses" style="margin-top:20px"><thead><tr><th>CLIN</th><th>Description</th><th>Amount</th></tr></thead><tbody>${body}</tbody></table>
     <p class="sub" style="margin-top:24px">Method: ${esc(method)}</p>
     <p class="sub" style="margin-top:8px">Section J attachments on the record: ${esc(jCount)}</p>
+    ${assemblyBlock}
     <p class="sub" style="margin-top:8px">${esc(AWARD_HANDOFF_POINTER)}</p>
   </div>
   ${mark}
