@@ -36,6 +36,7 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
           <p className="mt-1">{explanation.rule ?? "Not recorded"}</p>
           <p className="mt-2 font-medium">Citation</p>
           <p className="mt-1 text-muted-foreground">{explanation.citation ?? "Not recorded"}</p>
+          {cite.kind === "stub" ? <p className="mt-1 text-muted-foreground">{cite.note}</p> : null}
           {explanation.note ? <p className="mt-1 text-muted-foreground">{explanation.note}</p> : null}
           <p className="mt-2 font-medium">What would clear it</p>
           <ul className="mt-1 list-disc pl-5">
