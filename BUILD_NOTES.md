@@ -1893,3 +1893,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Copy names NCMS · NEAR · email · spreadsheet vs one T-Minus file; honesty footer: local packet only, T-Minus writes nothing to NCMS, NEAR, or SAM.gov. No write-back claim; Peer systems strip untouched.
 - Dismiss remembered via sessionStorage `tminus-presenter-screens-beat`; resets on Presenter OFF→ON so each demo pass shows the beat again.
 - No changes to Samples, clocks, phases, holds, factory gate, or 0090 clause delta.
+
+- P1 (2026-09-16): Today next step now speaks the file hero words ("Write the PNM") when a Required document is missing; file header labels the forecast award date honestly when no target_award_date is recorded (A-2027-0101 has none); A-2026-0090 clause packet made visible in Administration so 52.216-18/19/22 and commercial 52.212-4 read on screen, clause delta stays hidden; PNM comparables field now drafts from the recorded comparables check (local prior actions, honestly labelled) instead of "No comparable awards are loaded."
