@@ -1122,3 +1122,42 @@ Verified
   UEI DEMOMFS00001 and CAGE DEMO1 all read from the record.
 - Sample 1 (A-2027-0101): 19 recorded, 0 to confirm, 10 blank — vendor, PIID,
   proposed price, obligation and award date all print as blanks honestly.
+
+## 16 Sep 2026 — Memorandum sentence rewrite and Sample 1/2 exit-path verification
+
+Copy only; no seed edits, no new automatic holds, no NCMS write-back / FedRAMP /
+live FPDS / real SAM publish. RFO citation fixes (NFS 1804.171, FAR 12.204(a),
+52.212-5 blocked, 52.212-3 not packed, Part 12 framing on Sample 1) untouched.
+
+Rewritten (`src/lib/memo-draft.ts`, `src/lib/explain.ts`):
+- Saved versions: a save with no recorded version number now reads "A new
+  version of the X was saved on <date> by <person>" instead of "saved as version
+  not recorded".
+- Holds in the chronology: cause is stated as prose — missing document ("was not
+  yet on the file"), a recorded No-go, or the reason a person typed — and the
+  clearance reads "and resumed on ...". The stored field code is never printed.
+- Votes in the chronology: "K. Bramwell recorded a No-go for the legal review
+  seat on <date>, recorded by J. Rivera, noting that ..." replaces the
+  "Seat: No-go recorded ..." label form. No-go reason is carried when present.
+- Hold banner "Why?": "Intake: IGCE is missing" is restated as a sentence
+  ("The IGCE is not yet on the file for the intake phase."); No-go and unvoted
+  seats get their own sentence. Banner reason text itself is unchanged.
+
+Verified on A-2027-0101 and A-2027-0102 (demo mode, 1440px, no console errors):
+- Both files load clean; A-0101 shows the PNM as the current blocker, A-0102
+  shows "Ready to exit Solicitation/Quote". Neither is on hold.
+- Validated exit refusal list, exit audit of completed requirements, and the
+  in-page dialogs for Exit / Scrub / Remove / Record vote / Open poll are all
+  still in place in `files_.$acquisitionId.tsx`; they render only for a
+  write-capable account, and the demo personas are read-only, so this pass was
+  code-level plus read-only UI. No authenticated browser session could be minted
+  in this environment (`auth-session --user` needs approval), so interactive
+  exit/vote clicks remain unverified since the last authenticated pass.
+- FPDS filling sheet (fill aid) still present in the quiet More menu on both
+  samples, alongside NEAR export and briefing book.
+- Companion gates still read "A gate is a checklist for the officer, not a
+  hold" on both samples.
+
+No regressions found, so nothing beyond the copy above was changed. Security
+(staff-profile read finding), IDIQ/BPA order screens, SEB suite, SAM Awards
+entitlement, FOUO hierarchy, live FPDS and PDF-native FPDS remain deferred.

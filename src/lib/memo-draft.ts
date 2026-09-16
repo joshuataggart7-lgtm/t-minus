@@ -838,8 +838,11 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       if (saves.length) {
         const saved = saves[saves.length - 1]!;
         const versionMatch = /version\s+(\d+)/i.exec(str(saved.newValue));
+        const versionNumber = versionMatch?.[1] ?? str(saved.newValue).replace(/^version\s*/i, "").trim();
         push(
-          `The ${label} was saved as version ${versionMatch?.[1] ?? (str(saved.newValue).replace(/^version\s*/i, "") || "not recorded")} on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`,
+          /^\d+$/.test(versionNumber)
+            ? `The ${label} was saved as version ${versionNumber} on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`
+            : `A new version of the ${label} was saved on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`,
         );
       }
     }
@@ -857,20 +860,31 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       handled.add(h);
       const clear = clears[i];
       if (clear) handled.add(clear);
+      const rawReason = cleanClause(h.reason);
       const missing = /:\s*(.+?)\s+is missing\b/i.exec(str(h.reason))?.[1];
+      const isMissingDoc = Boolean(missing) || /is missing\b/i.test(rawReason);
+      const noGoHold = /no-?go/i.test(rawReason);
       const cause = chronologyDocumentTitle(missing ?? h.field, missing ?? h.reason);
       const sameDay = clear ? onlyDate(clear.at) === onlyDate(h.at) : false;
+      const resumed = clear ? (sameDay ? "the same day" : `on ${stamp(clear.at)}`) : "";
+      // The cause is stated as prose: a missing document, a recorded No-go, or
+      // the reason a person typed. The stored field code is never printed.
+      const because = isMissingDoc
+        ? `because the ${cause} was not yet on the file`
+        : noGoHold
+          ? "because a reviewer recorded a No-go"
+          : rawReason
+            ? `because ${rawReason.charAt(0).toLowerCase()}${rawReason.slice(1)}`
+            : "while the file was being completed";
       push(
         clear
-          ? `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing; it resumed ${
-              sameDay ? "the same day" : `on ${stamp(clear.at)}`
-            } when the ${cause} was attached.`
-          : `The clock went on hold on ${stamp(h.at)} because the ${cause} was missing.`,
+          ? `The clock went on hold on ${stamp(h.at)} ${because}, and resumed ${resumed}.`
+          : `The clock went on hold on ${stamp(h.at)} ${because}.`,
       );
     });
     clears.filter((c) => !handled.has(c)).forEach((c) => {
       handled.add(c);
-      push(`The hold was cleared and the clock resumed on ${stamp(c.at)}.`);
+      push(`The hold was lifted and the clock resumed on ${stamp(c.at)}.`);
     });
 
     for (const a of rows) {
@@ -883,10 +897,15 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         const recorded = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?::|;|$)/i.exec(str(a.reason));
         const reviewer = recorded?.[2] ?? null;
         const recorder = recorded?.[1] ?? str(a.actor);
+        const voter = reviewer ? reviewer : recorder ? personPhrase(ctx, recorder) : "the contracting officer";
+        const onBehalf = reviewer && recorder ? `, recorded by ${personPhrase(ctx, recorder)}` : "";
+        const seat = seatName(a.field);
+        const seatPhrase = seat === "The review seat" ? "" : ` for the ${seat.toLowerCase()} seat`;
+        const noGoReason = noGo ? cleanClause(str(a.reason).replace(/^.*?on behalf of[^:;]+[:;]\s*/i, "")) : "";
         push(
-          `${seatName(a.field)}: ${noGo ? "No-go" : "Go"} recorded ${stamp(a.at)} by ${
-            recorder ? personPhrase(ctx, recorder) : "the contracting officer"
-          }${reviewer ? ` on behalf of ${reviewer}` : ""}.`,
+          `${voter} recorded ${noGo ? "a No-go" : "a Go"}${seatPhrase} on ${stamp(a.at)}${onBehalf}${
+            noGo && noGoReason && !/recorded by/i.test(noGoReason) ? `, noting that ${noGoReason.charAt(0).toLowerCase()}${noGoReason.slice(1)}` : ""
+          }.`,
         );
       } else if (/market research run|research finding confirmed/i.test(a.action)) {
         if (w.phase === "Market Research" && researchSentence) push(researchSentence);
