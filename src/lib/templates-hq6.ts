@@ -11,12 +11,13 @@
  */
 
 import type { FieldDef, SectionDef, TemplateDef, Values } from "@/lib/template-engine";
-import { simplifiedValues } from "@/lib/template-engine";
-
 /** On a FAR 13.5 or Part 12 commercial file the notice is made under the
  *  commercial simplified procedures, not under the Part 15 negotiated rules. */
-const noticeCitation = (part15: string, simplified: string) => (v: Values) =>
-  simplifiedValues(v) ? simplified : part15;
+const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
+  const method = v["__method"] ?? "";
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
+  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
+};
 
 const T = (key: string, label: string, help?: string): FieldDef => ({
   key,
