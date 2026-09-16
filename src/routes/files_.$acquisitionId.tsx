@@ -1193,6 +1193,16 @@ function FilePage() {
     else setBanner("That file could not be opened. Try attaching it again.");
   }
 
+  /** The contract file index opens an upload by its stored row. */
+  async function openIndexAttachment(attachmentId: string) {
+    const row = attachments.find((a) => a.attachment_id === attachmentId);
+    if (!row) {
+      setBanner("That file could not be opened. Try attaching it again.");
+      return;
+    }
+    await openAttachment(row);
+  }
+
   const finding = (acq?.["responsibility_finding"] as string | null) ?? null;
 
   // The responsibility finding decides whether a memorandum exists at all.
