@@ -13,6 +13,7 @@
  */
 
 import type { Values } from "@/lib/template-engine";
+import { MFR_SITUATION_PURPOSE } from "@/lib/template-engine";
 import { findingText, type FindingMap } from "@/lib/research-findings";
 
 export type ResearchLogLine = {
