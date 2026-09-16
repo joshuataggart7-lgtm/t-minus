@@ -2549,6 +2549,9 @@ function FilePage() {
                     ) : null}
                   </td>
                   <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
+                  <td className="px-3 py-2">
+                    {t.origin === "uploaded" ? "—" : officialDoc ? "Official" : "Draft"}
+                  </td>
                   <td className="px-3 py-2" data-numeric>{latest?.version ?? "—"}</td>
                   <td className="px-3 py-2" data-numeric>
                     {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
