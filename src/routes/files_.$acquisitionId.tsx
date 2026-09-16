@@ -2883,7 +2883,10 @@ function FilePage() {
               {(p.phase === "Solicitation/Quote" ||
                 p.phase === "Technical Evaluation" ||
                 p.phase === "Price Reasonableness" ||
-                p.phase === "Award") && (
+                p.phase === "Award" ||
+                // An awarded vehicle still shows the clauses it carries, so the
+                // packet can be read on a file already in administration.
+                p.phase === "Administration") && (
                 <div className="mt-3 max-w-[80ch] border border-border p-4">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.
