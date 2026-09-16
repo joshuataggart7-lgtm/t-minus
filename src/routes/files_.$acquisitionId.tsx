@@ -1205,6 +1205,30 @@ function FilePage() {
             reason: c.reason ?? null,
             ucf_section: c.ucf_section ?? null,
           })),
+          format: formatScaffold
+            ? {
+                formatLabel: formatScaffold.formatLabel,
+                mode: formatScaffold.mode,
+                clins: formatScaffold.clins.map((c) => ({
+                  clin: c.clin,
+                  description: c.description,
+                  amount: c.amount,
+                  note: c.note,
+                })),
+                instructions: formatScaffold.instructions,
+                evaluation: formatScaffold.evaluation,
+              }
+            : null,
+          gates: companionGates
+            .filter((g) => g.applies)
+            .map((g) => ({
+              name: g.name,
+              status: g.status,
+              citation: g.citation,
+              trigger: g.trigger,
+              evidence: g.evidence,
+            })),
+
         },
         who,
       );
