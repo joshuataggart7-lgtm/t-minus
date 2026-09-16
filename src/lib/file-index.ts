@@ -29,10 +29,22 @@ export type IndexDocument = {
   memoTo: string | null;
 };
 
+/**
+ * Where a row opens the official version: the document route for a drafted
+ * template, the form route for a generated form, or the stored upload itself.
+ */
+export type IndexOpen =
+  | { kind: "document"; templateKey: string }
+  | { kind: "form"; formKey: string }
+  | { kind: "attachment"; attachmentId: string };
+
 export type IndexTab = {
   tab: string;
   templateName: string;
   phase: string;
+  /** "Generated" for a drafted document or form, "Uploaded" for an attachment. */
+  origin: "generated" | "uploaded";
+  open: IndexOpen | null;
   documents: IndexDocument[];
 };
 
