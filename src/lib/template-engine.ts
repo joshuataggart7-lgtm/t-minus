@@ -2798,7 +2798,11 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
         out[f.key] = f.default ?? "";
         continue;
       }
-      out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
+      const text = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
+      // A letterhead prints the procurement office code, so a full contracting
+      // office code such as ARC-JAZ-01 reads as JAZ.
+      out[f.key] =
+        f.key === "org_code" ? (/^[A-Z]{2,4}-([A-Z]{2,4})-\d+$/.exec(text)?.[1] ?? text) : text;
     }
   }
   // Carried so a section citation can follow the record's acquisition method.

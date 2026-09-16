@@ -1403,7 +1403,7 @@ function DocumentPage() {
         templateKey={templateKey}
         templateName={def.name}
         revision={def.badge.revision}
-        defaultCitation={def.badge.citation}
+        defaultCitation={badgeCite}
         acquisitionId={acquisitionId}
       />
 
