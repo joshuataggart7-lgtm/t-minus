@@ -66,10 +66,16 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
   ).map(object);
   const mapped = rows.map((row) => {
     const prime = object(row["primeAward"] ?? row["primeContract"] ?? row["prime"]);
+    const primeOrg = object(row["primeOrganizationInfo"] ?? prime["organizationInfo"]);
     const primeEntity = object(prime["awardee"] ?? prime["entity"] ?? row["primeAwardee"]);
     const sub = object(row["subAward"] ?? row["subcontract"] ?? row["subAwardee"] ?? row["subEntity"]);
-    const subAddress = object(sub["address"] ?? sub["physicalAddress"] ?? row["subAwardeeAddress"]);
+    const subAddress = object(
+      row["entityPhysicalAddress"] ?? sub["address"] ?? sub["physicalAddress"] ?? row["subAwardeeAddress"],
+    );
     const naics = text(
+      object(row["subContractorNaics"])["code"],
+      row["subContractorNaicsCode"],
+      object(primeOrg["naics"])["code"],
       prime["naicsCode"],
       row["naicsCode"],
       object(prime["naics"])["code"],
@@ -86,15 +92,18 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
       naics,
       row: {
         primeName: text(
+          row["primeEntityName"],
+          row["primeEntityLegalBusinessName"],
           primeEntity["legalBusinessName"],
           primeEntity["name"],
           prime["awardeeName"],
           row["primeAwardeeName"],
-          row["primeEntityName"],
           row["primeName"],
           row["awardeeName"],
         ),
         primeAgency: text(
+          object(primeOrg["fundingAgency"])["name"],
+          object(primeOrg["contractingAgency"])["name"],
           prime["fundingAgencyName"],
           prime["awardingAgencyName"],
           object(prime["fundingAgency"])["name"],
@@ -104,10 +113,11 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
           row["agency"],
         ),
         subName: text(
+          row["subEntityLegalBusinessName"],
+          row["subEntityName"],
           sub["legalBusinessName"],
           sub["name"],
           row["subAwardeeName"],
-          row["subEntityName"],
           row["subawardeeName"],
           row["subName"],
         ),
@@ -127,9 +137,10 @@ function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
           row["dateSigned"],
         ).slice(0, 10),
         description: text(
+          row["subAwardDescription"],
+          row["descriptionOfRequirement"],
           sub["descriptionOfWork"],
           sub["description"],
-          row["subAwardDescription"],
           row["subawardDescription"],
           row["descriptionOfWork"],
         ),
@@ -209,18 +220,45 @@ export const fetchSubawards = createServerFn({ method: "POST" })
       const apiKey = process.env['SAM_GOV_API_KEY']?.trim();
       console.log(`[SAM.gov subawards] key present: ${Boolean(apiKey)}; length: ${apiKey?.length ?? 0}`);
       if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
-      const url = new URL("https://api.sam.gov/prod/contract/v1/subcontracts/search");
-      url.searchParams.set("api_key", apiKey);
-      url.searchParams.set("pageSize", "25");
-      url.searchParams.set("pageNumber", "0");
-      url.searchParams.set("status", "Published");
-      const redacted = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
-      const response = await fetch(url, { headers: { Accept: "application/json" } });
-      if (!response.ok) {
-        const body = (await response.text()).slice(0, 300);
-        throw new Error(`api.sam.gov responded ${response.status} for GET ${redacted}. Body: ${body || "(empty)"}`);
+      // The subaward reporting API is documented at two production paths. The
+      // first is tried, and a 404 falls through to the second.
+      const paths = [
+        "https://api.sam.gov/prod/contract/v1/subcontracts/search",
+        "https://api.sam.gov/contract/v1/subcontracts/search",
+      ];
+      const today = new Date();
+      const fiveYearsAgo = new Date(today);
+      fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      let lastError = "";
+      let fetched: unknown = null;
+      for (const path of paths) {
+        const url = new URL(path);
+        url.searchParams.set("api_key", apiKey);
+        url.searchParams.set("pageNumber", "0");
+        url.searchParams.set("pageSize", "25");
+        url.searchParams.set("fromDate", iso(fiveYearsAgo));
+        url.searchParams.set("toDate", iso(today));
+        const redacted = url
+          .toString()
+          .replace(encodeURIComponent(apiKey), "REDACTED")
+          .replace(apiKey, "REDACTED");
+        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        if (response.status === 404) {
+          lastError = `api.sam.gov responded 404 for GET ${redacted}`;
+          continue;
+        }
+        if (!response.ok) {
+          const body = (await response.text()).slice(0, 300);
+          lastError = `api.sam.gov responded ${response.status} for GET ${redacted}. Body: ${body || "(empty)"}`;
+          break;
+        }
+        fetched = await response.json();
+        lastError = "";
+        break;
       }
-      raw = await response.json();
+      if (lastError) throw new Error(lastError);
+      raw = fetched;
       if (!rowsFromRaw(raw, naics).length) throw new Error(`SAM.gov returned no subawards for NAICS ${naics}.`);
       source = "live";
     } catch (error) {

@@ -348,30 +348,40 @@ export async function runEngine(options: {
       subawards: false,
     };
     const query = `POST ${endpoint} naics=${naics || "none"} psc=${psc || "none"} ${yearsAgo(5)} to ${today}`;
-    // USAspending has been returning intermittent 5xx responses, so the search
-    // is retried twice with a short backoff before it is recorded as failed.
-    const BACKOFF_MS = [500, 1500];
+    // USAspending returns intermittent 525, 502, 503 and 504 responses, so the
+    // search is retried up to three times with a growing backoff. A 4xx other
+    // than 429 is a real answer and is never retried.
+    const BACKOFF_MS = [500, 1500, 3500];
+    const RETRY_STATUS = new Set([429, 502, 503, 504, 520, 521, 522, 523, 525]);
     let attempts = 0;
     let lastError = "";
-    for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt += 1) {
+    let rateLimited = false;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       attempts = attempt + 1;
+      let retryable = true;
       try {
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify(body),
         });
-        if (response.status >= 500)
-          throw new Error(`api.usaspending.gov responded ${response.status}`);
-        if (!response.ok) throw new Error(`api.usaspending.gov responded ${response.status}`);
+        if (!response.ok) {
+          const note = response.status === 525 ? " (TLS/origin)" : "";
+          retryable = RETRY_STATUS.has(response.status) || response.status >= 500;
+          if (response.status === 429) {
+            if (rateLimited) retryable = false;
+            rateLimited = true;
+          }
+          throw new Error(`api.usaspending.gov responded ${response.status}${note}`);
+        }
         awards = awardsFromRaw(await response.json());
         lastError = "";
         break;
       } catch (error) {
-        lastError = error instanceof Error ? error.message : "unknown error";
+        lastError = error instanceof Error ? error.message : "unknown network error";
         const wait = BACKOFF_MS[attempt];
-        if (wait === undefined) break;
-        await new Promise((resolve) => setTimeout(resolve, wait));
+        if (!retryable || wait === undefined) break;
+        await new Promise((resolve) => setTimeout(resolve, wait + Math.round(Math.random() * 250)));
       }
     }
     if (lastError) {
@@ -382,16 +392,14 @@ export async function runEngine(options: {
         source: "USAspending API, awards in the last five years",
         query,
         resultCount: null,
-        outcome: `The search failed after ${attempts} attempt${attempts === 1 ? "" : "s"}: ${lastError}`,
+        outcome: `Failed after ${attempts} attempt${attempts === 1 ? "" : "s"}: ${lastError}. Using empty awards for this run.`,
       });
     } else {
       record({
         source: "USAspending API, awards in the last five years",
         query,
         resultCount: awards.length,
-        outcome: awards.length
-          ? `Returned awards on attempt ${attempts}.`
-          : "Returned no awards under this code.",
+        outcome: awards.length ? "Returned awards." : "Returned no awards under this code.",
       });
     }
   }

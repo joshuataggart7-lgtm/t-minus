@@ -70,18 +70,43 @@ function awardsFromRaw(raw: unknown): ComparableAward[] {
     const core = object(row["coreData"]);
     const details = object(row["awardDetails"]);
     const dates = object(details["dates"]);
+    const dollars = object(details["dollars"]);
+    const totalDollars = object(details["totalContractDollars"]);
+    // Documented nesting: coreData.federalOrganization.contractingInformation.*
+    const contractingInfo = object(
+      object(core["federalOrganization"])["contractingInformation"] ??
+        core["contractingInformation"],
+    );
     const contracting = object(core["contractingOfficeAddress"] ?? core["contractingOffice"]);
-    const department = object(core["department"] ?? contracting["department"]);
-    const subtier = object(core["subTier"] ?? core["agency"] ?? contracting["subTier"]);
-    const pricing = object(details["typeOfContractPricing"] ?? core["typeOfContractPricing"]);
+    const department = object(
+      contractingInfo["contractingDepartment"] ?? core["department"] ?? contracting["department"],
+    );
+    const subtier = object(
+      contractingInfo["contractingSubTier"] ??
+        contractingInfo["contractingSubtier"] ??
+        core["subTier"] ??
+        core["agency"] ??
+        contracting["subTier"],
+    );
+    const office = object(contractingInfo["contractingOffice"]);
+    const acquisitionData = object(core["acquisitionData"]);
+    const pricing = object(
+      acquisitionData["typeOfContractPricing"] ??
+        details["typeOfContractPricing"] ??
+        core["typeOfContractPricing"],
+    );
     const competition = object(
-      details["competitionInformation"] ?? core["competitionInformation"] ?? row["competitionInformation"],
+      core["competitionInformation"] ??
+        details["competitionInformation"] ??
+        acquisitionData["competitionInformation"] ??
+        row["competitionInformation"],
     );
     const extent = object(competition["extentCompeted"]);
     return {
       agency: text(
-        subtier["name"],
         department["name"],
+        subtier["name"],
+        office["name"],
         core["departmentName"],
         core["subTierName"],
         row["awardingAgencyName"],
@@ -113,7 +138,9 @@ function awardsFromRaw(raw: unknown): ComparableAward[] {
         row["extentCompetedDescription"],
       ),
       obligatedAmount: numberOrNull(
-        details["totalActionObligation"] ??
+        dollars["actionObligation"] ??
+          totalDollars["totalActionObligation"] ??
+          details["totalActionObligation"] ??
           details["actionObligation"] ??
           core["totalActionObligation"] ??
           core["actionObligation"] ??
