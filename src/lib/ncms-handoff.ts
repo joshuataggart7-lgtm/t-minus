@@ -73,7 +73,7 @@ export function sf30ScreenOrder(acq: Record<string, unknown>): PacketSection[] {
 export function hasModificationPath(acq: Record<string, unknown>): boolean {
   const mods = acq["modifications"];
   if (Array.isArray(mods) && mods.length) return true;
-  const profile = String(acq["vehicle_profile"] ?? "");
+  const profile = acquisitionProfile(acq);
   return profile === "idiq_parent" || profile === "order_under_idiq";
 }
 
