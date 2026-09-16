@@ -897,7 +897,15 @@ function DocumentPage() {
     const built = buildMemoHeader({
       templateKey: def.key,
       templateName: def.name,
-      documentCitation: badgeCitation(def, values),
+      // The Ref line follows the method on the record. The header can be built
+      // before the prefill has carried the method into the values, so it is
+      // seeded here the same way the prefill seeds it.
+      documentCitation: badgeCitation(def, {
+        ...values,
+        __method:
+          values["__method"] ||
+          `${String(q.data.acq["acquisition_method"] ?? "")} ${String(q.data.acq["contract_format"] ?? "")}`.trim(),
+      }),
       acquisition: { ...q.data.acq, acquisition_id: acquisitionId },
       centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
       centerAddress: q.data.center?.address_line ?? "",
