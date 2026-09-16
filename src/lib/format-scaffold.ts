@@ -247,6 +247,7 @@ export function buildFormatScaffold(
     ucfSections,
     clauses: scaffoldClauses,
     lm: lm ?? null,
+    attachments: attachments ?? [],
   };
 }
 
