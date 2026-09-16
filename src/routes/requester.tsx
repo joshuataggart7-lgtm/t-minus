@@ -8,6 +8,9 @@ import { statusColor } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RequesterLoe } from "@/components/requester-loe";
 
+/** The two files walked in the demo, used only as a soft fallback view. */
+const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
+
 export const Route = createFileRoute("/requester")({
   head: () => ({
     meta: [
@@ -65,19 +68,23 @@ function RequesterPortal() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
 
-  const mine = useMemo(() => {
-    if (!desk) return [];
+  // Soft fallbacks only. Nothing here changes the record: the requester of
+  // record on the samples is left exactly as seeded.
+  const { mine, fallback } = useMemo(() => {
+    if (!desk) return { mine: [] as DeskCard[], fallback: "none" as "none" | "all" | "samples" };
     const me = user.name.toLowerCase();
     const own = desk.cards.filter((c) => c.requester.toLowerCase() === me);
+    if (own.length > 0) return { mine: own, fallback: "none" as const };
     // An administrator named on no request sees every prototype file instead.
-    if (own.length === 0 && roles.includes("administrator")) return desk.cards;
-    return own;
+    if (roles.includes("administrator")) return { mine: desk.cards, fallback: "all" as const };
+    // A signed-in requester or specialist named on no request sees the two demo
+    // files, so the portal is never a dead end during the pilot.
+    if (roles.includes("requester") || roles.includes("specialist")) {
+      const samples = desk.cards.filter((c) => SAMPLE_IDS.includes(c.m.acq.acquisition_id));
+      if (samples.length > 0) return { mine: samples, fallback: "samples" as const };
+    }
+    return { mine: own, fallback: "none" as const };
   }, [desk, user.name, roles]);
-
-  const showingAll = useMemo(
-    () => Boolean(desk) && mine.length > 0 && !desk!.cards.some((c) => c.requester.toLowerCase() === user.name.toLowerCase()),
-    [desk, mine, user.name],
-  );
 
   return (
     <AppShell>
@@ -101,10 +108,14 @@ function RequesterPortal() {
         />
       ) : (
         <div className="space-y-10">
-          {showingAll ? (
+          {fallback === "all" ? (
             <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
               No file lists {user.name} as the requester, so all prototype files are shown. The requester of
               record is shown on each file.
+            </p>
+          ) : fallback === "samples" ? (
+            <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+              Demo files — you are not the requester of record. The requester of record is shown on each file.
             </p>
           ) : null}
           {mine.map((c) => {

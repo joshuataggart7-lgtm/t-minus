@@ -54,6 +54,7 @@ import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
+import { ClauseChangeBanner } from "@/components/clause-change-banner";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
@@ -2371,6 +2372,8 @@ function FilePage() {
         </table>
         </div>
       </details>
+
+      <ClauseChangeBanner acquisitionId={acquisitionId} />
 
       <CompanionGatesPanel gates={companionGates} />
 
