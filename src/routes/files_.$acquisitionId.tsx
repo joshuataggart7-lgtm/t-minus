@@ -868,6 +868,37 @@ function FilePage() {
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
 
+  // Funds certified for the period of performance: a certification the CO
+  // records on the file under 31 U.S.C. 1502, not a stored document.
+  const setFundsCertified = useMutation({
+    mutationFn: async (certified: boolean) => {
+      if (!acq) return;
+      const who = await signedInName(actorName);
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ funds_certified: certified, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert([
+        {
+          acquisition_id: acq.acquisition_id,
+          actor: who,
+          action: certified ? "Funds certified for the period" : "Funds certification withdrawn",
+          field: "funds_certified",
+          old_value: String(acq['funds_certified'] ?? ""),
+          new_value: String(certified),
+          reason: "Certification recorded on the file for the period of performance",
+        },
+      ]);
+    },
+    onSuccess: () => {
+      setBanner("The funds certification is on the record.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
+    },
+    onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
+  });
+
   // Attaching a required document: store the file, index it, audit it, and only
   // then mark the row Attached. Cancelling the picker changes nothing.
   const attachDoc = useMutation({
