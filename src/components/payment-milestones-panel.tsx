@@ -342,10 +342,11 @@ export function PaymentMilestonesPanel({
               <option value="">No CLIN linked</option>
               {clins.map((c) => (
                 <option key={c.clin_id} value={c.clin_id}>
-                  {c.clin_number}
+                  {clinOptionLabel(c)}
                 </option>
               ))}
             </select>
+
           </div>
           <div>
             <label className="block text-[13px] text-muted-foreground" htmlFor="new-pay-amount">
