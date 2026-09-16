@@ -823,27 +823,23 @@ function DocumentPage() {
     };
   }, [q.data?.fileDocRows]);
 
-  // The contracting officer's own user record, for the notice point of contact.
-  // The signed-in officer's record comes first; the record's named officer is
-  // the fallback when someone else opens the document.
+  // One contracting officer per file. The officer named on the record is the
+  // contracting officer everywhere a document prints one. When no user row
+  // matches that name, the name still prints from the record and the contact
+  // details stay blank; the signed-in person is never substituted as the CO.
   const coRecord = useMemo(() => {
     const rows = (q.data?.users ?? []) as {
       name: string;
       email?: string | null;
       telephone?: string | null;
     }[];
-    const mine = rows.find(
-      (r) =>
-        (user.email && (r.email ?? "").toLowerCase() === user.email.toLowerCase()) ||
-        r.name.toLowerCase() === user.name.toLowerCase(),
-    );
-    const named = rows.find((r) => r.name === String(q.data?.acq?.["co_name"] ?? ""));
-    // The contracting officer named on the record is the point of contact a
-    // public notice prints; the signed-in officer stands in only when the
-    // record names nobody.
-    const row = named ?? mine;
-    return row ? { name: row.name, email: row.email ?? null, phone: row.telephone ?? null } : null;
-  }, [q.data, user]);
+    const recordName = String(q.data?.acq?.["co_name"] ?? "").trim();
+    if (!recordName) return null;
+    const named = rows.find((r) => r.name === recordName);
+    return named
+      ? { name: named.name, email: named.email ?? null, phone: named.telephone ?? null }
+      : { name: recordName, email: null, phone: null };
+  }, [q.data]);
 
   // The clock's award date: the target date, or the forecast date behind it.
   const awardDate = useMemo(() => {

@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
 import { statusColor, urgencyRank } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
+import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -69,6 +70,7 @@ function Section({ title, lead, children }: { title: string; lead?: string; chil
 function TodayPage() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
+  const rowsRef = useRowKeysContainer<HTMLUListElement>();
 
   const mine = useMemo(() => {
     if (!desk) return [];
@@ -178,26 +180,53 @@ function TodayPage() {
             {waitingOnMe.length === 0 ? (
               <EmptyState sentence="Nothing is waiting on you right now." />
             ) : (
-              <ul className="divide-y divide-border border-y border-border">
-                {waitingOnMe.map((c) => (
-                  <li key={c.m.acq.acquisition_id} className="py-3">
-                    <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                      <p className="text-[15px]">
-                        <FileLink card={c} />{" "}
-                        <span className="text-muted-foreground" data-numeric>
-                          {c.m.acq.acquisition_id}
-                        </span>
+              <>
+                <RowKeysHint />
+                <ul ref={rowsRef} className="mt-3 divide-y divide-border border-y border-border">
+                  {waitingOnMe.map((c) => (
+                    <li
+                      key={c.m.acq.acquisition_id}
+                      data-row-nav
+                      tabIndex={0}
+                      className="py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                        <p className="text-[15px]">
+                          <FileLink card={c} />{" "}
+                          <span className="text-muted-foreground" data-numeric>
+                            {c.m.acq.acquisition_id}
+                          </span>
+                        </p>
+                        <StatusMark color={statusColor(c.m.status)} className="text-[13px]">
+                          {c.m.status}
+                        </StatusMark>
+                      </div>
+                      <p className="text-[13px] leading-[18px] text-muted-foreground">
+                        {c.m.currentPhase ?? "Not started"} · {c.m.nextAction}
                       </p>
-                      <StatusMark color={statusColor(c.m.status)} className="text-[13px]">
-                        {c.m.status}
-                      </StatusMark>
-                    </div>
-                    <p className="text-[13px] leading-[18px] text-muted-foreground">
-                      {c.m.currentPhase ?? "Not started"} · {c.m.nextAction}
-                    </p>
-                  </li>
-                ))}
-              </ul>
+                      <Link
+                        to="/files/$acquisitionId"
+                        params={{ acquisitionId: c.m.acq.acquisition_id }}
+                        hash="launch-sequence"
+                        data-row-action="exit"
+                        className="sr-only"
+                      >
+                        Open the launch sequence for {c.m.acq.acquisition_id}
+                      </Link>
+                      {/^write\b/i.test(c.m.nextAction ?? "") ? (
+                        <Link
+                          to="/files/$acquisitionId"
+                          params={{ acquisitionId: c.m.acq.acquisition_id }}
+                          data-row-action="write"
+                          className="sr-only"
+                        >
+                          {c.m.nextAction} on {c.m.acq.acquisition_id}
+                        </Link>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </Section>
 

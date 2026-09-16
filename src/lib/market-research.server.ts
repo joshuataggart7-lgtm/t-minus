@@ -456,19 +456,20 @@ export async function runEngine(options: {
     }
   }
 
-  // CALC+ ceiling rates. Run for FAR 8.4 buys and for any requirement that
-  // reads as services or labor. The endpoint needs no key; a key is sent when
-  // one is configured.
+  // CALC+ ceiling rates. These are hourly ceiling rates on GSA schedule
+  // contracts, so they only compare against a schedule buy or a labor-hour
+  // priced requirement. A service product code or the word "services" in a
+  // title is not enough: a commercial aviation charter is not priced by the
+  // hour. The endpoint needs no key; a key is sent when one is configured.
   let calcNote = "";
   const titleText = String(acq["title"] ?? "");
   const requirementText = `${titleText} ${String(acq["description_of_requirement"] ?? "")}`.toLowerCase();
-  const servicePsc = /^[A-Za-z]/.test(psc);
-  const laborWords =
-    /\b(services?|servicing|support|labou?r|maintenance|repair|engineering|analys|technical|operations?|operating|staffing|studies|study|training|aviation|aircraft|flight|flights|charter|survey|surveys|inspection|consult\w*|professional|research)\b/.test(
-      requirementText,
-    );
-  const isSchedule = /8\.4/.test(method);
-  const runCalc = isSchedule || servicePsc || laborWords;
+  const contractType = String(acq["contract_type"] ?? "").toLowerCase();
+  const isSchedule = /8\.4|federal supply schedule|\bfss\b|gsa schedule|multiple award schedule|\bmas\b/i.test(method);
+  const laborHour =
+    /labor[- ]hour|\blh\b|time[- ]and[- ]materials|time and material|\bt&m\b/.test(contractType) ||
+    /labor[- ]hour|time[- ]and[- ]materials|\bt&m\b/.test(`${method.toLowerCase()} ${requirementText}`);
+  const runCalc = isSchedule || laborHour;
   if (runCalc) {
     const keywordMatch = requirementText.match(
       /\b(aviation|aircraft|flights?|pilot|engineering|maintenance|repair|technical|operations?|training|inspection|research|analysis|support|services?|labou?r)\b/,
@@ -516,7 +517,7 @@ export async function runEngine(options: {
       query: "https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/ (not called)",
       resultCount: null,
       outcome:
-        "Skipped: the requirement does not read as services or labor, the product and service code is not a service code, and the method is not FAR 8.4.",
+        "Skipped: CALC+ publishes hourly ceiling rates on GSA schedule contracts, and this buy is neither a schedule buy nor priced by the labor hour, so those rates are not a comparison point for it.",
     });
   }
   if (isSchedule) {
