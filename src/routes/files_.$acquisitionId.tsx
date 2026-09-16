@@ -1991,7 +1991,7 @@ function FilePage() {
         </section>
       ) : null}
 
-      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
+      {!q.isLoading ? <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
         <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
@@ -2440,7 +2440,7 @@ function FilePage() {
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); void qc.invalidateQueries({ queryKey: ["work-queue"] }); }}
       />
 
-      <details aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
+      <details data-print="index" aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
@@ -2522,7 +2522,7 @@ function FilePage() {
         </section>
       ) : null}
 
-      <details id="launch-sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
+      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
