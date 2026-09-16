@@ -49,6 +49,8 @@ export type SectionDef = {
   citationFor?: (v: Values) => string;
   tier?: "binding" | "guidance";
   standingText?: string;
+  /** Standing body that depends on the record's acquisition method. */
+  standingTextFor?: (v: Values) => string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
   /** Back-up material: shown collapsed on the form, printed in full. */
