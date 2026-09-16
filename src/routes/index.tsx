@@ -201,9 +201,9 @@ export function ExecutiveOverview() {
         m.awardDate <= today,
     ).length;
     return [
-      { label: "At Risk", count: count("At Risk"), color: "var(--atrisk)" },
-      { label: "Needs Attention", count: count("Needs Attention"), color: "var(--attention)" },
-      { label: "On Track", count: count("On Track"), color: "var(--ontrack)" },
+      { label: "At risk", count: count("At Risk"), color: "var(--atrisk)" },
+      { label: "Needs attention", count: count("Needs Attention"), color: "var(--attention)" },
+      { label: "On track", count: count("On Track"), color: "var(--ontrack)" },
       { label: "Launched this quarter", count: launchedThisQuarter, color: "var(--panel-muted)" },
     ];
   }, [metrics]);
