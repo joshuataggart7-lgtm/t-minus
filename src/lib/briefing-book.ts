@@ -76,10 +76,16 @@ export type BriefingInput = {
   sectionJCount?: number | null;
   /** Section K from the same scaffold the Award handoff view reads. */
   sectionK?: BriefingSectionK | null;
+  /**
+   * Contract-file assembly counts from the same buildNf1098Assembly call the
+   * file page makes. Counts only — the full checklist lives on the file.
+   */
+  assemblyCounts?: { presentTabs: number; missingTabs: number; recorded: number; notRecorded: number } | null;
 };
 
 export const AWARD_HANDOFF_POINTER =
-  "Award handoff: open the file's Award handoff view for CLIN, Section K, Sections L and M, clauses, Section J and the signature blanks. NCMS remains the system of record.";
+  "Award handoff: open the file's Award handoff view for CLIN, Section K, Sections L and M, clauses, Section J and the signature blanks, " +
+  "with the NF 1098 assembly checklist beside them. NCMS remains the system of record.";
 
 
 const money = (n: number) =>
