@@ -103,13 +103,11 @@ export function AwardHandoffPanel({
           </span>
         </p>
       ) : null}
-      {suggestedForm && acquisitionId ? (
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-          The filled preview and PDF export are for a human field check in desktop Adobe
-          Acrobat Reader; a blank form in Chrome or PDF.js is expected for XFA files.
-          This is guidance, not an Adobe verification.
-        </p>
-      ) : null}
+      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+        {suggestedForm && acquisitionId
+          ? "The filled preview and PDF export are for a human field check in desktop Adobe Acrobat Reader; a blank form in Chrome or PDF.js is expected for XFA files. This is guidance, not an Adobe verification."
+          : "No official form is suggested from this record. Any form you open here exports for a human field check in desktop Adobe Acrobat Reader; a blank form in Chrome or PDF.js is expected for XFA files. This is guidance, not an Adobe verification."}
+      </p>
       <p className="mt-2 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
         {NCMS_CHIP}
       </p>
