@@ -3155,7 +3155,7 @@ function FilePage() {
         </DialogContent>
       </Dialog>
 
-      <section className="mb-10">
+      <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>
         <dl className="grid max-w-[80ch] gap-x-8 md:grid-cols-2">
           {(
@@ -3194,7 +3194,7 @@ function FilePage() {
       <section className="mb-10">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
-          <div className="max-w-full overflow-x-auto">
+          <div className="w-full min-w-0 overflow-x-auto">
           <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
