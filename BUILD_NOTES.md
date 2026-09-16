@@ -1489,3 +1489,5 @@ NCMS, SAM, FPDS or email write was introduced.
   set-aside and see phases, clause count, and thresholds that would change. Never writes
   acquisition_facts; Reset restores the record.
   Click path: Files → any file → What-if sandbox.
+
+- Executive Overview: navy Mission Clock hero — full-width navy band with large still day figures, status word paired with its color, mission links and blocker lines on the panel; status summary counts quieted to an inline strip below. No other routes touched.
