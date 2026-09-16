@@ -444,3 +444,34 @@ export async function awardBasisHint(acquisitionId: string): Promise<string | nu
 
 export const isLptaBasis = (basis: string | null | undefined): boolean =>
   /lowest price technically acceptable|\blpta\b/i.test(String(basis ?? ""));
+
+/* --------------------- evaluation factor evidence (soft) --------------------- */
+
+export const FACTOR_EVIDENCE_ADVISORY =
+  "Advisory: no evidence linked to this factor yet — does not hold the file.";
+
+/** True where the officer has recorded where the evidence for a factor sits. */
+export const factorHasEvidence = (row: FactorRow): boolean =>
+  Boolean((row.evidence_note ?? "").trim());
+
+/** Save only the evidence note on a factor. Nothing else on the row moves. */
+export async function saveFactorEvidence(
+  row: FactorRow,
+  evidenceNote: string,
+  actor: string,
+): Promise<void> {
+  const value = evidenceNote.trim() || null;
+  const { error } = await supabase
+    .from("solicitation_m_factors")
+    .update({ evidence_note: value } as never)
+    .eq("factor_id", row.factor_id);
+  if (error) throw new Error(error.message);
+  await audit(
+    row.acquisition_id,
+    actor,
+    value ? "Factor evidence recorded" : "Factor evidence cleared",
+    row.name,
+    value,
+    "Evidence note recorded against an evaluation factor. Advisory only.",
+  );
+}
