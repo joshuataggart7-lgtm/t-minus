@@ -224,7 +224,22 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   const rootRef = trailer.Root;
   if (!(rootRef instanceof PDFRef)) throw new Error("This form does not name a document root.");
   const infoRef = trailer.Info instanceof PDFRef ? trailer.Info : null;
-  const id = trailer.ID ? String(trailer.ID) : "";
+  // The blank writes its file identifier as /ID[<hex><hex>] with no spaces
+  // inside the brackets; the update keeps that exact shape.
+  const idArray = trailer.ID instanceof PDFArray ? trailer.ID : null;
+  const id = idArray
+    ? `[${idArray.asArray().map((entry) => entry.toString()).join("")}]`
+    : trailer.ID
+      ? String(trailer.ID)
+      : "";
+
+  // A Reader-extended blank carries usage rights (/Perms → /UR3). Appending an
+  // update leaves those rights pointing at bytes that have changed, and free
+  // Adobe Reader treats the file as tampered: it closes the document or shows a
+  // blank face. The update therefore writes a fresh catalog with every key of
+  // the original except /Perms, and points the trailer root at it. Values are
+  // copied raw, so nested references stay references.
+  const hasPerms = doc.catalog.has(PDFName.of("Perms"));
 
   const xml = new TextEncoder().encode(datasetsXml);
   const parts: Uint8Array[] = [original, ascii("\n")];
@@ -244,12 +259,28 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   // objects the previous cross-reference stream reports.
   const prevDict = new TextDecoder("latin1").decode(original.slice(prev, prev + 600));
   const prevSize = Number.parseInt(/\/Size\s+(\d+)/.exec(prevDict)?.[1] ?? "0", 10);
-  const xrefNumber = Math.max(doc.context.largestObjectNumber + 1, Number.isFinite(prevSize) ? prevSize : 0);
+  const nextNumber = Math.max(doc.context.largestObjectNumber + 1, Number.isFinite(prevSize) ? prevSize : 0);
+
+  const rows = [{ num: datasetsRef.objectNumber, at: dataOffset }];
+
+  let catalogNumber = 0;
+  if (hasPerms) {
+    const body = doc.catalog
+      .entries()
+      .filter(([key]) => key.asString() !== "/Perms")
+      .map(([key, value]) => `${key.asString()} ${value.toString()}`)
+      .join("\n");
+    catalogNumber = nextNumber;
+    const catalogBytes = ascii(`${catalogNumber} 0 obj\n<<\n${body}\n>>\nendobj\n`);
+    rows.push({ num: catalogNumber, at: offset });
+    parts.push(catalogBytes);
+    offset += catalogBytes.length;
+  }
+
+  const xrefNumber = hasPerms ? nextNumber + 1 : nextNumber;
   const xrefOffset = offset;
-  const rows = [
-    { num: datasetsRef.objectNumber, at: dataOffset },
-    { num: xrefNumber, at: xrefOffset },
-  ].sort((a, b) => a.num - b.num);
+  rows.push({ num: xrefNumber, at: xrefOffset });
+  rows.sort((a, b) => a.num - b.num);
   const entries = new Uint8Array(rows.length * 7);
   rows.forEach((row, i) => {
     const at = i * 7;
@@ -262,10 +293,11 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
     entries[at + 6] = 0;
   });
   const index = rows.map((r) => `${r.num} 1`).join(" ");
+  const root = hasPerms ? `${catalogNumber} 0 R` : `${rootRef.objectNumber} ${rootRef.generationNumber} R`;
   const dict =
-    `<< /Type /XRef /Size ${xrefNumber + 1} /Index [${index}] /W [1 4 2] /Root ${rootRef.objectNumber} ${rootRef.generationNumber} R` +
+    `<< /Type /XRef /Size ${xrefNumber + 1} /Index [${index}] /W [1 4 2] /Root ${root}` +
     (infoRef ? ` /Info ${infoRef.objectNumber} ${infoRef.generationNumber} R` : "") +
-    (id ? ` /ID ${id}` : "") +
+    (id ? ` /ID${id}` : "") +
     ` /Prev ${prev} /Length ${entries.length} >>`;
   parts.push(ascii(`${xrefNumber} 0 obj\n${dict}\nstream\n`), entries, ascii("\nendstream\nendobj\n"));
   parts.push(ascii(`startxref\n${xrefOffset}\n%%EOF\n`));
@@ -273,15 +305,30 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   return concat(parts);
 }
 
+/** Was the blank Reader-extended (usage rights, /Perms → /UR3)? */
+export function hasUsageRights(original: Uint8Array): boolean {
+  return new TextDecoder("latin1").decode(original).includes("/Perms");
+}
+
+/**
+ * Writes the filled form. Where the blank was Reader-extended, a companion
+ * .xdp is written with the same values, so Import Data always has a file even
+ * if a reader still refuses the filled PDF. Returns true when the companion
+ * was written.
+ */
 export async function exportXfaIncremental(
   pdfUrl: string,
   datasetsXml: string,
   fileName: string,
-): Promise<void> {
+): Promise<boolean> {
   const response = await fetch(pdfUrl);
   if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
-  const bytes = await buildXfaIncremental(new Uint8Array(await response.arrayBuffer()), datasetsXml);
+  const original = new Uint8Array(await response.arrayBuffer());
+  const extended = hasUsageRights(original);
+  const bytes = await buildXfaIncremental(original, datasetsXml);
   download(bytes, fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`, "application/pdf");
+  if (extended) exportXdp(datasetsXml, fileName.replace(/\.pdf$/i, ""));
+  return extended;
 }
 
 /**

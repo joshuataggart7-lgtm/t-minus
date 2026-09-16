@@ -332,9 +332,15 @@ function FormPage() {
   const exportPopulated = async () => {
     if (!form) return;
     try {
-      await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
+      const withCompanion = await exportXfaIncremental(
+        form.pdf,
+        xfaDatasets(form),
+        `${form.key}-${acquisitionId}`,
+      );
       setMessage(
-        "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
+        withCompanion
+          ? "Form PDF exported, with a data file alongside it. The blank carried usage rights, so this export leaves them off and free Adobe Reader can open it to view and print. If Reader still refuses it, open the blank form from this app and use Import Data with the data file."
+          : "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
@@ -344,7 +350,9 @@ function FormPage() {
   const exportData = () => {
     if (!form) return;
     exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
-    setMessage("Data file exported. In Adobe Reader open the blank form, then choose Import Data and pick this file.");
+    setMessage(
+      `Data file exported. In free Adobe Reader open the blank form from this app (${form.pdf}), then choose Forms or Manage Form Data, Import Data, and pick this file.`,
+    );
   };
 
   return (
@@ -400,7 +408,7 @@ function FormPage() {
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Open in Adobe Acrobat or Reader on the desktop — Chrome and Edge show a blank face."
+              title="Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
               onClick={() => void exportPopulated()}
             >
               Export form PDF
@@ -415,6 +423,7 @@ function FormPage() {
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="Recommended route for free Adobe Reader: open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file. The blank keeps its own rights."
               onClick={exportData}
             >
               Export data file for Import Data
@@ -425,14 +434,18 @@ function FormPage() {
           </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
             <p>
-              Export preview below is the filled view in the browser. Export form PDF writes the official
-              blank with its data replaced; open that file in Adobe Acrobat or Adobe Reader on the desktop
-              to see the values in the form fields.
+              The recommended route in free Adobe Reader is the data file. Open the blank form from this
+              app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data, Import Data,
+              and pick the exported data file. The blank keeps its own rights, so Reader accepts it.
+            </p>
+            <p className="mt-2">
+              Export form PDF writes the official blank with its data replaced. Free Reader used to close
+              this kind of fill because the blank is rights-enabled; this build leaves those usage rights
+              off the export so Reader can open it to view and print. Signatures stay empty either way.
             </p>
             <p className="mt-2">
               Chrome, Edge, and other built-in viewers often show a blank face for this kind of form. That
-              is expected, not a failed fill. If desktop Reader will not accept the edited file, use Export
-              data file for Import Data and import it onto the blank form from this app.
+              is expected, not a failed fill.
             </p>
             <p className="mt-2">
               The flattened PDF prints every answer as text for the contract file. Signatures stay empty on
