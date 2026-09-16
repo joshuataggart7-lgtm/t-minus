@@ -56,8 +56,15 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
   // NEAR file element; unmapped rows read as the tab alone.
   const slotFor = (t: { tab: string; nearOrder?: number }) =>
     t.nearOrder ? `Tab ${t.tab} · NEAR order ${t.nearOrder}` : `Tab ${t.tab}`;
-  const nearNote = (t: { nearTitle?: string; nearUid?: string }) =>
-    t.nearTitle ? `NEAR file element ${t.nearUid ?? ""}, ${t.nearTitle}.`.replace(" , ", " ") : "";
+  const nearNote = (t: { nearTitle?: string; nearUid?: string; nearNotes?: string }) => {
+    const base = t.nearTitle
+      ? `NEAR file element ${t.nearUid ?? ""}, ${t.nearTitle}.`.replace(" , ", " ")
+      : "";
+    const what = t.nearNotes
+      ? `What to file here: ${t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}`
+      : "";
+    return [base, what].filter(Boolean).join(" ");
+  };
 
   for (const t of fileIndex.present) {
     const latest = t.documents[t.documents.length - 1];

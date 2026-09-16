@@ -2547,6 +2547,16 @@ function FilePage() {
                     {latest && t.origin === "uploaded" ? (
                       <span className="block text-muted-foreground">{latest.templateName}</span>
                     ) : null}
+                    {t.nearOrder ? (
+                      <span className="block text-muted-foreground">
+                        NEAR order {t.nearOrder} · {t.nearTitle}
+                      </span>
+                    ) : null}
+                    {t.nearNotes ? (
+                      <span className="block text-muted-foreground">
+                        What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
                   <td className="px-3 py-2">
@@ -2567,7 +2577,19 @@ function FilePage() {
             {fileIndex.missing.map((t) => (
               <tr key={`m-${t.tab}`} className="border-b border-border">
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
-                <td className="px-3 py-2">{t.templateName}</td>
+                <td className="px-3 py-2">
+                  {t.templateName}
+                  {t.nearOrder ? (
+                    <span className="block text-muted-foreground">
+                      NEAR order {t.nearOrder} · {t.nearTitle}
+                    </span>
+                  ) : null}
+                  {t.nearNotes ? (
+                    <span className="block text-muted-foreground">
+                      What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
+                    </span>
+                  ) : null}
+                </td>
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">—</td>
