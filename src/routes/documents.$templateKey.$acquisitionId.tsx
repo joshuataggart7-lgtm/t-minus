@@ -646,6 +646,28 @@ function DocumentPage() {
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
+  // Taking the official mark off. The version stays on the file as a draft.
+  const unfileOfficial = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      await unfileOfficialFinal({
+        acquisitionId,
+        documentId: latest.document_id,
+        version: latest.version,
+        templateName: def?.name ?? "document",
+        actor: user.name,
+        phase,
+      });
+    },
+    onSuccess: async () => {
+      setMessage("The official mark was removed. The version stays on the file as a draft.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["document-versions", acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
+  });
+
   // Prior awards for this NAICS and PSC, half to double the estimated value.
   const runComparables = useMutation({
     mutationFn: async () => runComparablesFn({ data: { acquisitionId } }),
