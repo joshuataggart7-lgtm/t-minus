@@ -1164,9 +1164,20 @@ function DocumentPage() {
       lines.push(`Typed on this template. Template revision: ${def.badge.revision}`);
       lines.push(`Item: ${s.title}`);
     }
-    const cite = sectionCitation(s, values);
+    const cite = sectionCitation(s, citationValues);
     if (cite) lines.push(`Authority citation: ${cite}`);
     setSourcePanel({ title: f.label, lines });
+  };
+
+  // Citations follow the method on the record, whether or not the values
+  // carry it yet.
+  const citationValues = {
+    ...values,
+    __method:
+      values["__method"] ||
+      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
+        q.data?.acq?.["contract_format"] ?? "",
+      )}`.trim(),
   };
 
   const runDraft = async (key: string) => {
@@ -1183,17 +1194,6 @@ function DocumentPage() {
     } finally {
       setDraftingKey(null);
     }
-  };
-
-  // Citations follow the method on the record, whether or not the values
-  // carry it yet.
-  const citationValues = {
-    ...values,
-    __method:
-      values["__method"] ||
-      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
-        q.data?.acq?.["contract_format"] ?? "",
-      )}`.trim(),
   };
 
   const set = (key: string, v: string) => {
@@ -1319,9 +1319,9 @@ function DocumentPage() {
         {visibleSections(def, values).map((s) => {
           const body = (
             <>
-            {sectionCitation(s, values) ? (
+            {sectionCitation(s, citationValues) ? (
               <p className="mb-2 text-[13px] text-muted-foreground">
-                {sectionCitation(s, values)}
+                {sectionCitation(s, citationValues)}
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}
