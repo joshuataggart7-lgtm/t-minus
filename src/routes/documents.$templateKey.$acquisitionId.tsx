@@ -1289,6 +1289,18 @@ function DocumentPage() {
         }`}
       />
 
+      {/* A standalone draft is taken outside the launch sequence. It saves and
+          exports like any document and adds no required row to the file. */}
+      {search.standalone ? (
+        <p className="mb-4 max-w-[80ch] border-l-2 border-border pl-3 text-[13px] text-muted-foreground">
+          Standalone draft. This document was started outside the launch sequence for {acquisitionId}.
+          It is not a required beat, and saving it does not add a requirement to the file.
+          {search.situation ? " Situation memo starter: the scaffold is drafted from the record; confirm every line." : ""}
+        </p>
+      ) : null}
+
+
+
       {/* The sidebar follows the file's own phase, not the template's home phase. */}
       <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
 
