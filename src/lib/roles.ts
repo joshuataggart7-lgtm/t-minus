@@ -26,7 +26,7 @@ export const SEEDED_USERS: SeededUser[] = [
     title: "Contracting specialist / officer",
     email: "specialist@t-minus.demo",
     center_code: "ARC",
-    landing: "/work-queue",
+    landing: "/today",
   },
   {
     role: "reviewer",
@@ -34,7 +34,7 @@ export const SEEDED_USERS: SeededUser[] = [
     title: "Reviewer",
     email: "reviewer@t-minus.demo",
     center_code: "GSFC",
-    landing: "/work-queue",
+    landing: "/reviewer-inbox",
   },
   {
     role: "requester",
@@ -42,7 +42,7 @@ export const SEEDED_USERS: SeededUser[] = [
     title: "Requester",
     email: "requester@t-minus.demo",
     center_code: "ARC",
-    landing: "/work-queue",
+    landing: "/requester",
   },
   {
     role: "hq",
@@ -56,7 +56,10 @@ export const SEEDED_USERS: SeededUser[] = [
 
 export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; note?: string }[] = [
   { to: "/overview", label: "Executive Overview", roles: "all" },
-  { to: "/work-queue", label: "Work Queue", roles: ["specialist", "reviewer", "requester", "hq"] },
+  { to: "/today", label: "Today", roles: ["specialist"] },
+  { to: "/reviewer-inbox", label: "Reviewer inbox", roles: ["reviewer"] },
+  { to: "/requester", label: "Requester portal", roles: ["requester"] },
+  { to: "/work-queue", label: "Work Queue", roles: ["specialist", "hq"] },
   { to: "/files", label: "Files", roles: "all" },
   { to: "/templates", label: "Templates", roles: ["specialist", "reviewer", "hq"] },
   { to: "/checks", label: "Checks", roles: ["specialist", "reviewer", "hq"] },

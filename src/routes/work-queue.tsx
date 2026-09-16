@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
@@ -61,8 +61,20 @@ function columnFor(m: AcqMetrics): Column {
 }
 
 function WorkQueuePage() {
-  const { authState, user } = useRole();
+  const { authState, user, roles } = useRole();
   const today = todayISO();
+  // A requester and a reviewer each have their own desk. The board is the
+  // contracting queue and is not their home.
+  const isAdministrator = roles.includes("administrator");
+  const deskInstead =
+    isAdministrator || roles.includes("specialist")
+      ? null
+      : roles.includes("requester")
+        ? ("/requester" as const)
+        : roles.includes("reviewer")
+          ? ("/reviewer-inbox" as const)
+          : null;
+
   const [view, setView] = useState<"board" | "list">("board");
   const [sortBy, setSortBy] = useState<"owner" | "phase" | "days">("owner");
   const [scope, setScope] = useState<"all" | "mine" | "branch" | "center">("all");
@@ -209,6 +221,8 @@ function WorkQueuePage() {
     });
     return rows;
   }, [filtered, sortBy]);
+
+  if (deskInstead) return <Navigate to={deskInstead} replace />;
 
   return (
     <AppShell>

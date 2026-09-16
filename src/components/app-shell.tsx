@@ -17,14 +17,15 @@ import {
 } from "lucide-react";
 
 const NAV_GROUPS = [
-  { label: "Work", items: ["Executive Overview", "Work Queue", "Files", "Intake", "Estimate"] },
+  { label: "Work", items: ["Executive Overview", "Today", "Reviewer inbox", "Requester portal", "Work Queue", "Files", "Intake", "Estimate"] },
   { label: "Documents", items: ["Templates", "Checks", "Deviations"] },
   { label: "Oversight", items: ["Audit Log", "Watch", "Directive compliance", "Clause changes", "Escalations", "Leadership digest", "Reporting views", "Simulate", "Regulatory data intake", "PGPD queue"] },
   { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
 ] as const;
 
 const NAV_ICONS: Record<string, LucideIcon> = {
-  "Executive Overview": LayoutDashboard, "Work Queue": BriefcaseBusiness, Files, Intake: FileInput,
+  "Executive Overview": LayoutDashboard, Today: Gauge, "Reviewer inbox": ClipboardCheck,
+  "Requester portal": FileInput, "Work Queue": BriefcaseBusiness, Files, Intake: FileInput,
   Estimate: Calculator, Templates: ScrollText, Checks: SearchCheck, Deviations: ShieldCheck,
   "Audit Log": FileClock, Watch: Radio, "Directive compliance": ClipboardCheck,
   "Clause changes": BookOpenCheck, Escalations: TriangleAlert, "Leadership digest": Gauge,
