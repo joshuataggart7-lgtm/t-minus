@@ -164,6 +164,13 @@ export const runMarketResearch = createServerFn({ method: "POST" })
         : "No set-aside; proceed unrestricted and document the market research",
       entityCount: new Set([...result.stateEntities, ...result.nationalEntities].map((e) => e.uei)).size,
       noticeCount: result.notices.length,
+      // Sources Sought notices already in the search results, named as their own
+      // group. Read-only: T-Minus never posts a notice to SAM.gov.
+      sourcesSought: result.notices
+        .filter((n) => /sources\s*sought/i.test(n.noticeType) || /sources\s*sought/i.test(n.title))
+        .slice(0, 10)
+        .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
+      noticesSearched: result.noticesSearched,
       awardCount: result.awards.length,
     };
   });
