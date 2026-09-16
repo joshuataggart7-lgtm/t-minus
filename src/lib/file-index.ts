@@ -9,6 +9,7 @@
 import { TEMPLATES } from "./template-engine";
 import { FORM_NAMES, type FormKey } from "./nf1787";
 import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
+import { isOfficialFinal } from "./official-file";
 
 /** Core tabbed records every file of that type is expected to hold. */
 const CORE_KEYS = [
@@ -28,6 +29,10 @@ export type IndexDocument = {
   /** Issued on NASA Form 1858 letterhead, and the official it is addressed to. */
   memo: boolean;
   memoTo: string | null;
+  /** Filed by the contracting officer as the official copy on this file. */
+  official?: boolean;
+  officialAt?: string | null;
+  officialBy?: string | null;
 };
 
 /**
@@ -62,7 +67,7 @@ export type IndexDocRow = {
   issue_on_nf1858?: boolean | null;
   memo_header?: { to?: string } | null;
   /** Saved values; a memorandum for record carries the tab the CO picked. */
-  field_values?: { __tab?: string } | null;
+  field_values?: { __tab?: string; __official_final?: boolean; __official_filed_at?: string; __official_filed_by?: string } | null;
 };
 
 export type IndexTemplateRow = {
@@ -187,6 +192,9 @@ export function buildFileIndex(
       savedAt: d.saved_at,
       memo: d.issue_on_nf1858 === true,
       memoTo: d.memo_header?.to ?? null,
+      official: isOfficialFinal(d.field_values),
+      officialAt: d.field_values?.__official_filed_at ?? null,
+      officialBy: d.field_values?.__official_filed_by ?? null,
     });
     present.set(key, entry);
   }

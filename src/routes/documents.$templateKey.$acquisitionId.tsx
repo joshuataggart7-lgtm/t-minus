@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { fileAsOfficialFinal, isOfficialFinal, officialMeta, FILE_IT_LABEL, FILE_IT_NOTE } from "@/lib/official-file";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import { draftJofocItem, DRAFTABLE_JOFOC_FIELDS, type DraftProvenance } from "@/lib/ai-draft.functions";
 import {
@@ -616,6 +617,31 @@ function DocumentPage() {
     onSuccess: async () => {
       setMessage("Marked reviewed. The provenance block shows your name and the time.");
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
+  });
+
+  // The contracting officer files one saved version as the official copy for
+  // this document on this file. Soft: no clock, no hold, nothing is sent.
+  const fileOfficial = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      if (!q.data?.templateId) throw new Error("This document has no template record yet.");
+      await fileAsOfficialFinal({
+        acquisitionId,
+        templateId: q.data.templateId,
+        documentId: latest.document_id,
+        version: latest.version,
+        templateName: def?.name ?? "document",
+        actor: user.name,
+        phase,
+      });
+    },
+    onSuccess: async () => {
+      setMessage("Filed as the official copy. Earlier versions stay on the record as drafts.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["document-versions", acquisitionId] });
     },
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
@@ -2045,6 +2071,9 @@ function DocumentPage() {
             <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Draft</span>
           ) : null}
           {latest?.reviewed_by ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Reviewed</span> : null}
+          {latest && isOfficialFinal(latest.field_values) ? (
+            <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Official</span>
+          ) : null}
           <details className="ml-1">
             <summary className="cursor-pointer text-primary">Details</summary>
             <div className="mt-3 max-w-[70ch] text-muted-foreground">
@@ -2071,6 +2100,50 @@ function DocumentPage() {
             </div>
           </details>
         </div>
+      </section>
+
+      <section aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
+        <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
+        {latest ? (
+          (() => {
+            const meta = officialMeta(latest.field_values);
+            const outstanding = board.filter((b) => !b.vote || /pending/i.test(String(b.vote))).length;
+            return (
+              <>
+                <p className="mt-2 text-[15px] leading-[22px]">
+                  {meta.official
+                    ? `Version ${latest.version} is the official copy${
+                        meta.filedBy ? `, filed by ${meta.filedBy}` : ""
+                      }${meta.filedAt ? ` on ${meta.filedAt.slice(0, 10)}` : ""}.`
+                    : `Version ${latest.version} is a draft. No official copy is filed for this document yet.`}
+                </p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
+                  Reviewed by {latest.reviewed_by ?? "no one yet"}.{" "}
+                  {board.length
+                    ? `${board.length - outstanding} of ${board.length} reviewers have recorded a vote for ${phase}.`
+                    : "No review poll is open for this phase."}
+                </p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{FILE_IT_NOTE}</p>
+                {canWrite && !meta.official ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => fileOfficial.mutate()}
+                    disabled={fileOfficial.isPending}
+                  >
+                    {FILE_IT_LABEL}
+                  </Button>
+                ) : null}
+              </>
+            );
+          })()
+        ) : (
+          <p className="mt-2 text-[15px] leading-[22px] text-muted-foreground">
+            Save a version first. The contracting officer can then file one version as the official copy.
+          </p>
+        )}
       </section>
 
       <section aria-label="Go/No-go" className="mb-10 max-w-[80ch]">

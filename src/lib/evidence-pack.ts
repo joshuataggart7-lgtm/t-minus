@@ -9,6 +9,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { isOfficialFinal } from "@/lib/official-file";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
 import { buildFpdsSheet, buildFpdsHtml, type FpdsInput } from "@/lib/fpds-filling-sheet";
 import { RFO_RESERVED_212_NOTE, type PacketClause } from "@/lib/clause-packet";
@@ -136,6 +137,15 @@ export async function exportEvidencePack(
     return (a.version ?? 0) - (b.version ?? 0);
   });
 
+  // Where a contracting officer has filed an official copy for a template, the
+  // pack carries that version only; drafts stay in the record, out of the pack.
+  const officialTemplates = new Set(
+    ordered.filter((d) => isOfficialFinal(d.field_values)).map((d) => String(d.template_id ?? "")),
+  );
+  const packed = ordered.filter(
+    (d) => !officialTemplates.has(String(d.template_id ?? "")) || isOfficialFinal(d.field_values),
+  );
+
   const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
   let entries = 0;
@@ -146,7 +156,7 @@ export async function exportEvidencePack(
 
   // ------------------------------------------------------------- documents
   const indexRows: (string | number | null)[][] = [];
-  ordered.forEach((d, i) => {
+  packed.forEach((d, i) => {
     const tpl = tplById.get(d.template_id ?? "");
     const name = tpl?.name ?? (d.template_id ? String(d.template_id) : "Document");
     const tab = tpl?.nf_1098_tab ?? "";
@@ -184,6 +194,7 @@ export async function exportEvidencePack(
         ["Saved at", d.saved_at ?? null],
         ["Reviewed by", d.reviewed_by ?? null],
         ["Reviewed at", d.reviewed_at ?? null],
+        ["Official copy", isOfficialFinal(d.field_values) ? "Filed as the official copy" : "Draft — not filed as official"],
       ],
     );
     const fileName = `documents/${String(i + 1).padStart(2, "0")}-${slug(tab) || "no-tab"}-${slug(name)}-v${d.version ?? 1}.html`;
@@ -325,7 +336,7 @@ export async function exportEvidencePack(
     field: "evidence_pack",
     old_value: "",
     new_value: fileName,
-    reason: `Local zip with ${ordered.length} document versions in NF 1098 order, ${findings.length} research findings, ${logRows.length} research log rows, ${audit.length} audit rows, ${clauses.length} clauses and the FPDS filling sheet. Nothing was sent to an external system.`,
+    reason: `Local zip with ${packed.length} document versions in NF 1098 order, ${findings.length} research findings, ${logRows.length} research log rows, ${audit.length} audit rows, ${clauses.length} clauses and the FPDS filling sheet. Nothing was sent to an external system.`,
   });
 
   return { fileName, entries };

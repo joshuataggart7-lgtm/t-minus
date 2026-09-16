@@ -6,6 +6,7 @@
  * fields stay empty; nothing is invented and nothing holds a file.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { officialMeta } from "@/lib/official-file";
 
 export type DocVersionRow = {
   document_id: string;
@@ -15,6 +16,10 @@ export type DocVersionRow = {
   saved_at: string | null;
   reviewed_by: string | null;
   reviewed_at: string | null;
+  /** Filed as the official copy for this template on the file. */
+  official: boolean;
+  filedAt: string | null;
+  filedBy: string | null;
 };
 
 export const NO_VERSIONS_NOTE = "No saved document versions are on this file.";
@@ -28,7 +33,7 @@ export async function loadDocumentVersions(acquisitionId: string): Promise<{
   const [docsRes, tplRes, auditRes] = await Promise.all([
     supabase
       .from("documents")
-      .select("document_id,template_id,version,saved_by,saved_at,reviewed_by,reviewed_at")
+      .select("document_id,template_id,version,saved_by,saved_at,reviewed_by,reviewed_at,field_values")
       .eq("acquisition_id", acquisitionId),
     supabase.from("templates").select("template_id,name"),
     supabase
@@ -52,6 +57,7 @@ export async function loadDocumentVersions(acquisitionId: string): Promise<{
     saved_at: d.saved_at ?? null,
     reviewed_by: d.reviewed_by ?? null,
     reviewed_at: d.reviewed_at ?? null,
+    ...officialMeta(d.field_values),
   }));
 
   const key = all.filter((r) => KEY_WORDS.some((w) => r.name.toLowerCase().includes(w)));

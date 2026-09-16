@@ -2501,6 +2501,7 @@ function FilePage() {
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
               <th scope="col" className="px-3 py-2 font-medium">Source</th>
+              <th scope="col" className="px-3 py-2 font-medium">Official</th>
               <th scope="col" className="px-3 py-2 font-medium">Version</th>
               <th scope="col" className="px-3 py-2 font-medium">Saved</th>
               <th scope="col" className="px-3 py-2 font-medium">By</th>
@@ -2510,7 +2511,8 @@ function FilePage() {
           </thead>
           <tbody>
             {fileIndex.present.map((t) => {
-              const latest = t.documents.at(-1);
+              const officialDoc = t.documents.find((d) => d.official);
+              const latest = officialDoc ?? t.documents.at(-1);
               return (
                 <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
                   <td className="px-3 py-2" data-numeric>{t.tab}</td>
@@ -2547,6 +2549,9 @@ function FilePage() {
                     ) : null}
                   </td>
                   <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
+                  <td className="px-3 py-2">
+                    {t.origin === "uploaded" ? "—" : officialDoc ? "Official" : "Draft"}
+                  </td>
                   <td className="px-3 py-2" data-numeric>{latest?.version ?? "—"}</td>
                   <td className="px-3 py-2" data-numeric>
                     {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
@@ -2567,6 +2572,7 @@ function FilePage() {
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">Required</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
                   No document on this tab
@@ -2575,7 +2581,7 @@ function FilePage() {
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={9}>
                   No documents are saved or uploaded on this file yet.
                 </td>
               </tr>

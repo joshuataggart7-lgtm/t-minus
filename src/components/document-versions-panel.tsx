@@ -44,6 +44,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
               <th scope="col" className="py-2 font-medium">Saved</th>
               <th scope="col" className="py-2 font-medium">Reviewed by</th>
               <th scope="col" className="py-2 font-medium">Reviewed</th>
+              <th scope="col" className="py-2 font-medium">Official</th>
             </tr>
           </thead>
           <tbody>
@@ -58,8 +59,13 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
                   {stampOrBlank(r.saved_at)}
                 </td>
                 <td className="py-2 pr-3 text-muted-foreground">{textOrBlank(r.reviewed_by)}</td>
-                <td className="py-2 text-muted-foreground" data-numeric>
+                <td className="py-2 pr-3 text-muted-foreground" data-numeric>
                   {stampOrBlank(r.reviewed_at)}
+                </td>
+                <td className="py-2 text-muted-foreground">
+                  {r.official
+                    ? `Yes — ${stampOrBlank(r.filedAt)}${r.filedBy ? ` by ${r.filedBy}` : ""}`
+                    : "Draft"}
                 </td>
               </tr>
             ))}
