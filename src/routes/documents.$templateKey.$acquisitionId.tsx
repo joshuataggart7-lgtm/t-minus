@@ -16,7 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import { fileAsOfficialFinal, isOfficialFinal, officialMeta, FILE_IT_LABEL, FILE_IT_NOTE } from "@/lib/official-file";
+import {
+  fileAsOfficialFinal,
+  unfileOfficialFinal,
+  isOfficialFinal,
+  officialMeta,
+  FILE_IT_LABEL,
+  FILE_IT_NOTE,
+} from "@/lib/official-file";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import { draftJofocItem, DRAFTABLE_JOFOC_FIELDS, type DraftProvenance } from "@/lib/ai-draft.functions";
 import {
@@ -639,6 +646,28 @@ function DocumentPage() {
     },
     onSuccess: async () => {
       setMessage("Filed as the official copy. Earlier versions stay on the record as drafts.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["document-versions", acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
+  });
+
+  // Taking the official mark off. The version stays on the file as a draft.
+  const unfileOfficial = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      await unfileOfficialFinal({
+        acquisitionId,
+        documentId: latest.document_id,
+        version: latest.version,
+        templateName: def?.name ?? "document",
+        actor: user.name,
+        phase,
+      });
+    },
+    onSuccess: async () => {
+      setMessage("The official mark was removed. The version stays on the file as a draft.");
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
       await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       await queryClient.invalidateQueries({ queryKey: ["document-versions", acquisitionId] });
@@ -2104,37 +2133,95 @@ function DocumentPage() {
 
       <section aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
         <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
+        <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
+          Advisory — filing a version never holds the file or blocks a phase exit.
+        </p>
+
+        <h3 className="mt-4 text-[15px] leading-[22px] font-medium">Route</h3>
+        {memoHeader?.to || q.data?.routing ? (
+          <dl className="mt-1 text-[13px] leading-[18px]">
+            <div className="flex gap-2">
+              <dt className="text-muted-foreground">To</dt>
+              <dd>{memoHeader?.to || q.data?.routing?.approving_official_title || "Not recorded"}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="text-muted-foreground">Thru</dt>
+              <dd>
+                {(memoHeader?.thru?.length ? memoHeader.thru : (q.data?.routing?.thru_chain ?? [])).join(" · ") ||
+                  "Not recorded"}
+              </dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="text-muted-foreground">From</dt>
+              <dd>{memoHeader?.from || "Not recorded"}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
+            No routing recorded for this document type at this Center.
+          </p>
+        )}
+
+        <h3 className="mt-4 text-[15px] leading-[22px] font-medium">Concurrence and approval</h3>
         {latest ? (
           (() => {
             const meta = officialMeta(latest.field_values);
             const outstanding = board.filter((b) => !b.vote || /pending/i.test(String(b.vote))).length;
             return (
               <>
-                <p className="mt-2 text-[15px] leading-[22px]">
-                  {meta.official
-                    ? `Version ${latest.version} is the official copy${
-                        meta.filedBy ? `, filed by ${meta.filedBy}` : ""
-                      }${meta.filedAt ? ` on ${meta.filedAt.slice(0, 10)}` : ""}.`
-                    : `Version ${latest.version} is a draft. No official copy is filed for this document yet.`}
-                </p>
                 <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
-                  Reviewed by {latest.reviewed_by ?? "no one yet"}.{" "}
+                  Reviewed by {latest.reviewed_by ?? "no one yet"}
+                  {latest.reviewed_at ? ` on ${String(latest.reviewed_at).slice(0, 10)}` : ""}.{" "}
                   {board.length
-                    ? `${board.length - outstanding} of ${board.length} reviewers have recorded a vote for ${phase}.`
+                    ? `${board.length - outstanding} of ${board.length} reviewers have recorded a vote for ${phase}. Votes are shown below.`
                     : "No review poll is open for this phase."}
                 </p>
-                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{FILE_IT_NOTE}</p>
-                {canWrite && !meta.official ? (
+                {canWrite && !latest.reviewed_by ? (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="mt-3"
-                    onClick={() => fileOfficial.mutate()}
-                    disabled={fileOfficial.isPending}
+                    className="mt-2"
+                    onClick={() => markReviewed.mutate()}
+                    disabled={markReviewed.isPending}
                   >
-                    {FILE_IT_LABEL}
+                    Record concurrence
                   </Button>
+                ) : null}
+
+                <h3 className="mt-4 text-[15px] leading-[22px] font-medium">File it</h3>
+                <p className="mt-1 text-[15px] leading-[22px]">
+                  {meta.official
+                    ? `Official final · filed ${meta.filedAt ? meta.filedAt.slice(0, 10) : "date not recorded"}${
+                        meta.filedBy ? ` by ${meta.filedBy}` : ""
+                      } — version ${latest.version}.`
+                    : `Version ${latest.version} is a draft. No official final is filed for this document yet.`}
+                </p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{FILE_IT_NOTE}</p>
+                {canWrite ? (
+                  meta.official ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => unfileOfficial.mutate()}
+                      disabled={unfileOfficial.isPending}
+                    >
+                      Unfile
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => fileOfficial.mutate()}
+                      disabled={fileOfficial.isPending}
+                    >
+                      {FILE_IT_LABEL}
+                    </Button>
+                  )
                 ) : null}
               </>
             );
