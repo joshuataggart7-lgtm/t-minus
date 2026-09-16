@@ -226,6 +226,10 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   // synopsis/solicitation, so FAR 12.603 has no part in it.
   const soleSource = /sole|brand/i.test(String(((acq ?? {}) as Record<string, unknown>)["competition"] ?? ""));
   if (soleSource && phase === "Synopsis") return "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source)";
+  // A sole source never runs a combined synopsis/solicitation, so the
+  // commercial FAR 12.603 citation has no part in its Solicitation/Quote row.
+  if (soleSource && phase === "Solicitation/Quote")
+    return "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source); NFS 1804.171 (NCMS is the system of record)";
   if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
   if (!negotiated && isCommercialBuy(acq) && COMMERCIAL_PHASE_CITATIONS[phase])
     return COMMERCIAL_PHASE_CITATIONS[phase]!;

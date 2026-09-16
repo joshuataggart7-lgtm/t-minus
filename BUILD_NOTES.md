@@ -1463,3 +1463,29 @@ NCMS, SAM, FPDS or email write was introduced.
 ## UX Presenter declutter (CoS green light)
 - When Presenter mode is ON, AnnouncementBanner is not rendered in the header (bell control and urgent portal both hidden); urgent-announcement-slot stays empty so no "Urgent: ..." line appears under the header. Non-Presenter behavior unchanged.
 - Click path: Admin toggle Presenter on -> no bell/urgent banner under header; Presenter off -> banner and urgent line work as before.
+
+## Wave 2 polish + W2.4 email drafts + W2.5 what-if sandbox
+
+- Comparables fallback (W2.7): when SAM.gov contract awards and the cached run are
+  both unavailable, the comparables run now falls back to prior T-Minus actions on the
+  same NAICS or PSC before any fictional sample. The screen and the PNM summary read
+  "USAspending unavailable; showing prior T-Minus actions on NAICS X / PSC Y." and say
+  the rows are files in this system, not external awards. Nothing is invented.
+  Click path: Files → A-2027-0101 → Documents → Price Negotiation Memorandum → Run comparables.
+- Market research prior actions now match NAICS or PSC and label the source honestly on
+  NF 1787A procurement history when USAspending returned nothing.
+- Peer-link strip (A2): file page, under the clock hero — NEAR export, NCMS handoff packet,
+  Checks link, and the last recorded check stamp from sam_checks. Local downloads only;
+  no NEAR, NCMS, or SAM write.
+  Click path: Files → any file → strip under the hero.
+- Sole-source synopsis residual (A3): phaseCitation now returns RFO FAR 5.203 / RFO FAR 6.104
+  for the Solicitation/Quote row on a sole-source file, so FAR 12.603 and combined
+  synopsis wording no longer appear on A-2027-0102. Competitive combined-synopsis paths unchanged.
+- W2.4 Email drafts: file page, "Draft an email" — requester nudge from the owed Required rows,
+  reviewer nudge from pending polls, vendor notice stub when the record supports it. Copy button
+  only; T-Minus sends no mail and there is no server send.
+  Click path: Files → any file → Draft an email → Copy the draft.
+- W2.5 What-if sandbox: file page, "What-if sandbox — not saved" — change estimated value or
+  set-aside and see phases, clause count, and thresholds that would change. Never writes
+  acquisition_facts; Reset restores the record.
+  Click path: Files → any file → What-if sandbox.

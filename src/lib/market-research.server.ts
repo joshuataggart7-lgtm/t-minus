@@ -528,11 +528,16 @@ export async function runEngine(options: {
     });
   }
 
-  // T-Minus's own prior actions under the same NAICS.
+  // T-Minus's own prior actions under the same NAICS or PSC. These are records
+  // in this system, never external awards.
   const prior = await options.supabaseAdmin
     .from("acquisition_facts")
-    .select("acquisition_id,title,current_phase,set_aside,naics_code")
-    .eq("naics_code", naics)
+    .select("acquisition_id,title,current_phase,set_aside,naics_code,psc_code,estimated_value,target_award_date")
+    .or(
+      [naics ? `naics_code.eq.${naics}` : null, psc ? `psc_code.eq.${psc}` : null]
+        .filter(Boolean)
+        .join(",") || `naics_code.eq.${naics}`,
+    )
     .neq("acquisition_id", String(acq["acquisition_id"] ?? ""))
     .limit(10);
   const priorRows = ((prior.data ?? []) as Record<string, unknown>[]).map((r) => ({
@@ -542,8 +547,8 @@ export async function runEngine(options: {
     setAside: String(r["set_aside"] ?? "Not recorded"),
   }));
   record({
-    source: "T-Minus prior actions under the same NAICS",
-    query: `acquisition_facts where naics_code = ${naics}`,
+    source: "T-Minus prior actions under the same NAICS or PSC",
+    query: `acquisition_facts where naics_code = ${naics} or psc_code = ${psc || "—"}`,
     resultCount: priorRows.length,
     outcome: priorRows.length ? "Returned prior actions on this code." : "No prior action on this code is on file.",
   });
@@ -678,18 +683,30 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
     );
   }
   if (result.awards.length || result.priorActions.length) {
-    add("nf1787a.ckHistory", "NF 1787A, procurement history", "Yes", "USAspending API");
+    add(
+      "nf1787a.ckHistory",
+      "NF 1787A, procurement history",
+      "Yes",
+      result.awards.length ? "USAspending API" : "T-Minus prior actions",
+    );
     const history = [
       result.awards.length
         ? `${result.awards.length} federal awards under this code in the last five years, largest ${money(result.awards[0]?.amount ?? null)} to ${result.awards[0]?.vendor ?? "not reported"} (${result.awards[0]?.competition ?? "extent of competition not reported"}).`
         : "",
       result.priorActions.length
-        ? `Prior T-Minus actions on this code: ${result.priorActions.map((p) => `${p.acquisitionId} ${p.title}`).join("; ")}.`
+        ? `${
+            result.awards.length ? "" : `USAspending unavailable; showing prior T-Minus actions on NAICS ${result.naics} / PSC ${result.psc || "—"}. `
+          }Prior T-Minus actions on this code: ${result.priorActions.map((p) => `${p.acquisitionId} ${p.title}`).join("; ")}.`
         : "",
     ]
       .filter(Boolean)
       .join(" ");
-    add("nf1787a.ProcurementHistory", "NF 1787A, procurement history detail", history, "USAspending API and T-Minus");
+    add(
+      "nf1787a.ProcurementHistory",
+      "NF 1787A, procurement history detail",
+      history,
+      result.awards.length ? "USAspending API and T-Minus" : "T-Minus prior actions",
+    );
   }
   if (result.sizeStandardText) {
     add("nf1787a.ckSBA", "NF 1787A, SBA size standard reviewed", "Yes", "SBA size standards table");

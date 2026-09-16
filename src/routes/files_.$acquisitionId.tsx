@@ -96,6 +96,9 @@ import {
   explainWarrant,
 } from "@/lib/explain";
 import { successorFor } from "@/lib/successor";
+import { buildEmailDrafts } from "@/lib/email-drafts";
+import { EmailDraftsPanel } from "@/components/email-drafts-panel";
+import { WhatIfPanel } from "@/components/what-if-panel";
 import { VehiclePanel } from "@/components/vehicle-panel";
 import { ModificationsPanel } from "@/components/modifications-panel";
 import { CloseoutPanel } from "@/components/closeout-panel";
@@ -452,6 +455,23 @@ function FilePage() {
     queryFn: () => loadAttachments(acquisitionId),
   });
   const attachments = useMemo(() => attachQ.data ?? [], [attachQ.data]);
+
+  // The most recent recorded check on this file, read only. Running a check
+  // stays where it already lives; this is a stamp and a link.
+  const lastCheckQ = useQuery({
+    queryKey: ["file-last-check", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("sam_checks")
+        .select("check_type,checked_at,checked_by")
+        .eq("acquisition_id", acquisitionId)
+        .order("checked_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data ?? null;
+    },
+  });
   const attachmentFor = (key: string): AttachmentRow | null =>
     attachments.find((row) => row.doc_key === key) ?? null;
 
@@ -1788,6 +1808,70 @@ function FilePage() {
           </div>
         </div>
       </section> : null}
+
+      {acq ? (
+        <section aria-label="Related actions" className="mb-8 max-w-[80ch] border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] leading-[18px]">
+            <button
+              type="button"
+              className="text-primary underline-offset-2 hover:underline disabled:text-muted-foreground"
+              disabled={nearExport.isPending}
+              onClick={() => nearExport.mutate()}
+            >
+              {nearExport.isPending ? "Building the NEAR export" : "NEAR export"}
+            </button>
+            <button
+              type="button"
+              className="text-primary underline-offset-2 hover:underline"
+              onClick={() => downloadPacket()}
+            >
+              NCMS handoff packet
+            </button>
+            <Link to="/checks" className="text-primary underline-offset-2 hover:underline">
+              Checks
+            </Link>
+            <span className="text-muted-foreground" data-numeric>
+              {lastCheckQ.data
+                ? `Last check: ${lastCheckQ.data.check_type ?? "Check"} · ${formatDate(lastCheckQ.data.checked_at)}`
+                : "No check recorded on this file yet."}
+            </span>
+          </div>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            Both exports are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
+          </p>
+        </section>
+      ) : null}
+
+      {acq && canWrite ? (
+        <EmailDraftsPanel
+          drafts={buildEmailDrafts({
+            acq: acq as unknown as Record<string, unknown>,
+            coName: String(acq.co_name ?? actorName),
+            phase: lifecycle?.currentPhase ?? "the current phase",
+            citation: currentPhase?.citation ?? "",
+            missingLabels: missingCurrentRequirements.map((d) => ({ label: d.label, citation: d.citation })),
+            pendingReviewers: pendingCurrentReviews.map((e) => ({
+              role: e.reviewer_role,
+              name: e.reviewer_name,
+              due: e.due_date,
+            })),
+            vendorOutcome:
+              acq.clock_state === "launched" && acq.vendor_legal_name
+                ? { vendor: String(acq.vendor_legal_name), successful: true }
+                : null,
+          })}
+          onCopied={(label) => setBanner(`${label} copied. Paste it into your mail client; T-Minus sends no mail.`)}
+        />
+      ) : null}
+
+      {acq ? (
+        <WhatIfPanel
+          acq={acq}
+          plan={(q.data?.plan ?? []) as never}
+          thresholds={(q.data?.thresholds ?? []) as never}
+          clauseRows={q.data?.clauses ?? []}
+        />
+      ) : null}
 
       {warrant ? (
         <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
