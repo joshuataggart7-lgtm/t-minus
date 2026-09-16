@@ -88,7 +88,14 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
     // The evaluation of quotations record is the requirement on a competed
     // simplified acquisition, in place of the report.
     .filter((t) => t.key !== "evaluation-of-quotations" || !isTerRequired(acq))
-    .map((t) => ({ tab: normTab(t.tab), templateName: t.name, phase: phaseForTemplate(t.key), documents: [] }))
+    .map((t) => ({
+      tab: normTab(t.tab),
+      templateName: t.name,
+      phase: phaseForTemplate(t.key),
+      origin: "generated" as const,
+      open: { kind: "document" as const, templateKey: t.key },
+      documents: [],
+    }))
     .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
 }
