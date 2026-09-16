@@ -45,6 +45,7 @@ import {
 import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
+import { DocReadCount } from "@/components/doc-read-count";
 import {
   exportDocx,
   exportPdf,
@@ -1369,6 +1370,9 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
+      <p className="mb-4 text-[13px] text-muted-foreground">
+        <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
+      </p>
 
       {/* A standalone draft is taken outside the launch sequence. It saves and
           exports like any document and adds no required row to the file. */}

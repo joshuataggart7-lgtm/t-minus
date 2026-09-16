@@ -12,6 +12,7 @@ import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
+import { DocReadCount } from "@/components/doc-read-count";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
@@ -351,6 +352,9 @@ function FormPage() {
         title={FORM_NAMES[formKey]}
         lead={`Filled from the record of ${acquisitionId}. Signatures and concurrence come from the Approvals step.`}
       />
+      <p className="mb-2 text-[13px] text-muted-foreground">
+        <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
+      </p>
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}

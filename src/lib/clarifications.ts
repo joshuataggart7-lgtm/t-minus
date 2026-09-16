@@ -100,3 +100,33 @@ export async function deleteClarification(row: ClarificationRow, actor: string):
     "Clarification removed from the fairness ledger on this file.",
   );
 }
+
+/**
+ * Edit a row already on the ledger. Advisory data only: nothing here holds the
+ * file, and the change is logged like every other edit.
+ */
+export async function updateClarification(
+  row: ClarificationRow,
+  input: ClarificationInput,
+  actor: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("clarifications")
+    .update({
+      sent_on: clean(input.sent_on),
+      topic: input.topic.trim(),
+      recipients: clean(input.recipients),
+      notes: clean(input.notes),
+      updated_at: new Date().toISOString(),
+    } as never)
+    .eq("clarification_id", row.clarification_id);
+  if (error) throw new Error(error.message);
+  await audit(
+    row.acquisition_id,
+    actor,
+    "Clarification edited",
+    row.topic,
+    input.topic.trim(),
+    "Clarification edited on the fairness ledger for this file.",
+  );
+}

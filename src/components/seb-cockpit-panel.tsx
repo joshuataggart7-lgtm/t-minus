@@ -15,6 +15,7 @@ import {
   createClarification,
   deleteClarification,
   loadClarifications,
+  updateClarification,
   type ClarificationRow,
 } from "@/lib/clarifications";
 import { LM_LAMP_LABEL, LM_LAMP_OK, lmConsistencyCheck } from "@/lib/lm-consistency";
@@ -72,6 +73,8 @@ export function SebCockpitPanel({
 
   const [draft, setDraft] = useState<ClarificationDraft>(emptyClarification);
   const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<ClarificationDraft>(emptyClarification);
   const [evidenceId, setEvidenceId] = useState<string | null>(null);
   const [evidenceDraft, setEvidenceDraft] = useState("");
 
@@ -108,6 +111,28 @@ export function SebCockpitPanel({
     onError: (e: Error) => onBanner(`The clarification was not recorded: ${e.message}. Try again.`),
   });
 
+  const editClarification = useMutation({
+    mutationFn: async (row: ClarificationRow) => {
+      const name = await signedInName(actor);
+      await updateClarification(
+        row,
+        {
+          sent_on: editDraft.sent_on.trim() || null,
+          topic: editDraft.topic,
+          recipients: editDraft.recipients.trim() || null,
+          notes: editDraft.notes.trim() || null,
+        },
+        name,
+      );
+    },
+    onSuccess: () => {
+      onBanner("The clarification was saved.");
+      setEditingId(null);
+      void qc.invalidateQueries({ queryKey: ["clarifications", acquisitionId] });
+    },
+    onError: (e: Error) => onBanner(`The clarification was not saved: ${e.message}. Try again.`),
+  });
+
   const removeClarification = useMutation({
     mutationFn: async (row: ClarificationRow) => {
       const name = await signedInName(actor);
@@ -139,7 +164,9 @@ export function SebCockpitPanel({
     <div className="mt-3 border border-border p-4">
       <div className="flex flex-wrap items-baseline gap-2">
         <h4 className="text-[15px] font-medium">Evaluation cockpit</h4>
-        <span className="text-[13px] text-muted-foreground">{LM_LAMP_LABEL}</span>
+        <span className="text-[13px] text-muted-foreground">
+          Advisory and soft. Nothing on this panel holds a phase exit, a hold or a required document.
+        </span>
       </div>
 
       {/* 1 — L to M consistency lamp. */}
@@ -209,11 +236,26 @@ export function SebCockpitPanel({
                       <button
                         type="button"
                         onClick={() => {
+                          setEditingId(editingId === row.clarification_id ? null : row.clarification_id);
+                          setEditDraft({
+                            sent_on: row.sent_on ?? "",
+                            topic: row.topic,
+                            recipients: row.recipients ?? "",
+                            notes: row.notes ?? "",
+                          });
+                        }}
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        {editingId === row.clarification_id ? "Cancel" : "Edit"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
                           if (window.confirm(`Remove the clarification “${row.topic}”?`)) {
                             removeClarification.mutate(row);
                           }
                         }}
-                        className="text-destructive underline-offset-2 hover:underline"
+                        className="ml-3 text-destructive underline-offset-2 hover:underline"
                       >
                         Delete
                       </button>
@@ -221,6 +263,61 @@ export function SebCockpitPanel({
                   ) : null}
                 </tr>
               ))}
+              {canWrite && editingId
+                ? clarifications
+                    .filter((r) => r.clarification_id === editingId)
+                    .map((row) => (
+                      <tr key={`edit-${row.clarification_id}`} className="border-b border-border">
+                        <td className="p-2">
+                          <label className="sr-only" htmlFor="clar-edit-date">Date sent</label>
+                          <input
+                            id="clar-edit-date"
+                            type="date"
+                            className={field}
+                            value={editDraft.sent_on}
+                            onChange={(e) => setEditDraft({ ...editDraft, sent_on: e.target.value })}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <label className="sr-only" htmlFor="clar-edit-topic">Topic</label>
+                          <input
+                            id="clar-edit-topic"
+                            className={field}
+                            value={editDraft.topic}
+                            onChange={(e) => setEditDraft({ ...editDraft, topic: e.target.value })}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <label className="sr-only" htmlFor="clar-edit-recipients">Recipients</label>
+                          <input
+                            id="clar-edit-recipients"
+                            className={field}
+                            value={editDraft.recipients}
+                            onChange={(e) => setEditDraft({ ...editDraft, recipients: e.target.value })}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <label className="sr-only" htmlFor="clar-edit-notes">Notes</label>
+                          <input
+                            id="clar-edit-notes"
+                            className={field}
+                            value={editDraft.notes}
+                            onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })}
+                          />
+                        </td>
+                        <td className="p-2">
+                          <button
+                            type="button"
+                            disabled={!editDraft.topic.trim() || editClarification.isPending}
+                            onClick={() => editClarification.mutate(row)}
+                            className="border border-border px-3 py-1 disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                : null}
             </tbody>
           </table>
         )}
