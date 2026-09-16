@@ -1922,3 +1922,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Wave 4 depth #1: payment milestone CLIN picker now shows "number — description"; advisory-only notes for unlinked-when-CLINs-exist and orphaned links appear in the panel, the packet and the handoff table.
 - These notes never hold a file or block a phase exit; Samples 0101/0102 keep zero payment rows and an honest empty state with a soft CLIN-schedule hint.
+
+## Wave 4 depth #2 — Award handoff polish (2026-09-16)
+- Soft readiness strip on open: cover "K of N not recorded", schedule/attachments/CDRL/payment counts or honest empties, "Signatures: blank on purpose — signed in NCMS"; advisory only, never holds or gates.
+- Honest human Adobe Reader field-check sentence beside the suggested-form link; blank XFA in Chrome/PDF.js expected; no Adobe-verified or Roger-ready claim. NCMS chip kept; no invented rows, no clock/seed changes.

@@ -46,6 +46,23 @@ export function AwardHandoffPanel({
   const sf = scaffold.mode === "sf1449";
   const jTitle = sf ? "Attachments" : "Section J — List of attachments";
 
+  // Soft readiness strip: advisory only, never holds a phase or blocks exit.
+  const notRecorded = scaffold.blocks.filter((b) => b.value === "Not recorded").length;
+  const readiness = [
+    `Cover: ${notRecorded} of ${scaffold.blocks.length} fields not recorded`,
+    scaffold.clins.length > 0
+      ? `Schedule: ${scaffold.clins.length} line items`
+      : "Schedule: no line items",
+    scaffold.attachments.length > 0
+      ? `Attachments: ${scaffold.attachments.length}`
+      : `Attachments: ${SECTION_J_EMPTY}`,
+    scaffold.cdrl.length > 0 ? `CDRL: ${scaffold.cdrl.length} items` : "CDRL: empty",
+    scaffold.paymentMilestones.length > 0
+      ? `Payment milestones: ${scaffold.paymentMilestones.length}`
+      : "Payment milestones: empty",
+    "Signatures: blank on purpose — signed in NCMS",
+  ];
+
   return (
     <div className="mt-4 border border-border p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -78,12 +95,26 @@ export function AwardHandoffPanel({
           </span>
         </p>
       ) : null}
+      {suggestedForm && acquisitionId ? (
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          The filled preview and PDF export are for a human field check in desktop Adobe
+          Acrobat Reader; a blank form in Chrome or PDF.js is expected for XFA files.
+          This is guidance, not an Adobe verification.
+        </p>
+      ) : null}
       <p className="mt-2 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
         {NCMS_CHIP}
       </p>
 
       {open ? (
         <div className="mt-4 space-y-6">
+          <ul className="max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
+            {readiness.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+            <li>Advisory only — nothing here holds the file or blocks a phase.</li>
+          </ul>
+
           <section>
             <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format — cover blocks"}</Head>
             <p className="mt-1 text-[13px] text-muted-foreground">{scaffold.formatSource}</p>
