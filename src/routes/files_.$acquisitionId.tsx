@@ -1292,6 +1292,40 @@ function FilePage() {
       ),
   });
 
+  // One zip built locally from the record: documents in NF 1098 order, the
+  // research and audit CSVs, the clause packet and the FPDS filling sheet.
+  const evidencePack = useMutation({
+    mutationFn: async () => {
+      if (!acq) throw new Error("The record is still loading");
+      const who = await signedInName(actorName);
+      return exportEvidencePack(
+        {
+          acquisitionId: acq.acquisition_id,
+          title: String(acq.title ?? acq.acquisition_id),
+          isSample: Boolean(acq["is_seed"]),
+          clauses: packetSelection,
+          appliedClauseNumbers: appliedClauseNumbers ?? null,
+          fpds: {
+            acq: acq as unknown as Record<string, unknown>,
+            awardDate: lifecycle?.awardDate ?? null,
+            centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
+          },
+        },
+        who,
+      );
+    },
+    onSuccess: (r) => {
+      setBanner(
+        `The evidence pack downloaded as ${r.fileName} with ${r.entries} files. It is built from this record only; nothing was sent anywhere.`,
+      );
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The evidence pack could not be built: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
+
   // A demo copy: same intake facts, same requester package, fresh clock.
   const copySample = useMutation({
     mutationFn: async () => copyAsNewSample(acquisitionId, actorName),
