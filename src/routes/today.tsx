@@ -26,9 +26,21 @@ export const Route = createFileRoute("/today")({
   component: TodayPage,
 });
 
+function plain(name: string): string {
+  return name.replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 function surname(name: string): string {
-  const parts = name.replace(/\(.*?\)/g, "").trim().split(/\s+/);
-  return (parts[parts.length - 1] ?? "").toLowerCase();
+  const parts = plain(name).split(" ");
+  return parts[parts.length - 1] ?? "";
+}
+
+/** The same person, written either as the full name or just the surname. */
+function samePerson(owner: string, me: string): boolean {
+  const a = plain(owner);
+  const b = plain(me);
+  if (!a || !b) return false;
+  return a === b || surname(owner) === surname(me);
 }
 
 function FileLink({ card }: { card: DeskCard }) {
