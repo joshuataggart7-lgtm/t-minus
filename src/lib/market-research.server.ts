@@ -683,18 +683,30 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
     );
   }
   if (result.awards.length || result.priorActions.length) {
-    add("nf1787a.ckHistory", "NF 1787A, procurement history", "Yes", "USAspending API");
+    add(
+      "nf1787a.ckHistory",
+      "NF 1787A, procurement history",
+      "Yes",
+      result.awards.length ? "USAspending API" : "T-Minus prior actions",
+    );
     const history = [
       result.awards.length
         ? `${result.awards.length} federal awards under this code in the last five years, largest ${money(result.awards[0]?.amount ?? null)} to ${result.awards[0]?.vendor ?? "not reported"} (${result.awards[0]?.competition ?? "extent of competition not reported"}).`
         : "",
       result.priorActions.length
-        ? `Prior T-Minus actions on this code: ${result.priorActions.map((p) => `${p.acquisitionId} ${p.title}`).join("; ")}.`
+        ? `${
+            result.awards.length ? "" : `USAspending unavailable; showing prior T-Minus actions on NAICS ${result.naics} / PSC ${result.psc || "—"}. `
+          }Prior T-Minus actions on this code: ${result.priorActions.map((p) => `${p.acquisitionId} ${p.title}`).join("; ")}.`
         : "",
     ]
       .filter(Boolean)
       .join(" ");
-    add("nf1787a.ProcurementHistory", "NF 1787A, procurement history detail", history, "USAspending API and T-Minus");
+    add(
+      "nf1787a.ProcurementHistory",
+      "NF 1787A, procurement history detail",
+      history,
+      result.awards.length ? "USAspending API and T-Minus" : "T-Minus prior actions",
+    );
   }
   if (result.sizeStandardText) {
     add("nf1787a.ckSBA", "NF 1787A, SBA size standard reviewed", "Yes", "SBA size standards table");
