@@ -96,6 +96,8 @@ export type TemplateDef = {
     corrections?: string[];
   };
   lead: string;
+  /** Lead line that depends on the record's acquisition method. */
+  leadFor?: (v: Values) => string;
   /**
    * Printed form. "memo" and "dandf" use the NF 1858 memorandum page; "dandf"
    * prints Findings, then Determination, then the signature page. "plan" is a
