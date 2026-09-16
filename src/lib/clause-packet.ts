@@ -93,9 +93,13 @@ type Ctx = {
   it: boolean;
   costReimbursement: boolean;
   idiq: boolean;
+  /** Plain words for why the vehicle reads as indefinite delivery, from the record. */
+  idiqSource: string;
   soleSource: boolean;
   options: boolean;
   onInstallation: boolean;
+  /** The clause set recorded on the vehicle, verbatim. */
+  clauseSet: string;
   money: (n: number) => string;
 };
 
@@ -163,7 +167,12 @@ const RULES: Rule[] = [
   {
     number: "52.212-4",
     title: "Contract Terms and Conditions—Commercial Products and Commercial Services",
-    applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 12.301(b)(3))." : null),
+    applies: (c) =>
+      c.commercial
+        ? /alternate i|alt\.? i\b/i.test(c.clauseSet)
+          ? `Commercial determination on the record (FAR 12.301(b)(3)); the vehicle records the clause set as "${c.clauseSet}", so confirm Alternate I in NCMS.`
+          : "Commercial determination on the record (FAR 12.301(b)(3))."
+        : null,
   },
   {
     number: "52.213-4",
@@ -277,17 +286,17 @@ const RULES: Rule[] = [
   {
     number: "52.216-18",
     title: "Ordering",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(a)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(a)).` : null),
   },
   {
     number: "52.216-19",
     title: "Order Limitations",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(b)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(b)).` : null),
   },
   {
     number: "52.216-22",
     title: "Indefinite Quantity",
-    applies: (c) => (c.idiq ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.506(e)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(e)).` : null),
   },
   {
     number: "52.217-8",
@@ -399,9 +408,39 @@ export function selectPacketClauses(
   const value = num(facts, "estimated_value");
   const type = `${str(facts, "contract_type")} ${str(facts, "hybrid_contract_type")}`;
   const place = str(facts, "place_of_performance_standardized") || str(facts, "place_of_performance");
-  const commercialText = `${str(facts, "commercial_determination")} ${str(facts, "contract_format")} ${str(facts, "acquisition_method")}`;
   const post = facts["post_award"] as { option_periods?: unknown[]; options?: unknown[] } | null | undefined;
   const optionList = (post?.option_periods ?? post?.options) as unknown[] | undefined;
+
+  // The vehicle and the scenario answered at intake carry facts the contract
+  // type alone does not: a parent IDIQ can be FFP-priced, and a commercial
+  // clause set can be recorded on the vehicle rather than on the determination.
+  const vehicle = (facts["vehicle"] ?? {}) as Record<string, unknown>;
+  const scenario = (facts["scenario"] ?? {}) as Record<string, unknown>;
+  const clauseSet = typeof vehicle["clause_set"] === "string" ? (vehicle["clause_set"] as string) : "";
+  const scenarioVehicle = typeof scenario["vehicle"] === "string" ? (scenario["vehicle"] as string) : "";
+  const parentNumber = str(facts, "parent_contract_number");
+  const vehicleText = `${clauseSet} ${str(facts, "title")} ${str(facts, "vehicle_type")}`;
+
+  const commercialText = `${str(facts, "commercial_determination")} ${str(facts, "contract_format")} ${str(facts, "acquisition_method")}`;
+
+  let idiq = false;
+  let idiqSource = "";
+  if (/idiq|indefinite/i.test(type)) {
+    idiq = true;
+    idiqSource = `Contract type on the record: ${str(facts, "contract_type")}`;
+  } else if (/^idiq_(award|order)$/.test(scenarioVehicle) || /order_under/i.test(scenarioVehicle)) {
+    idiq = true;
+    idiqSource =
+      scenarioVehicle === "idiq_award"
+        ? "The record answers this file as a parent indefinite-delivery vehicle"
+        : "The record answers this file as an order under an indefinite-delivery vehicle";
+  } else if (parentNumber.trim()) {
+    idiq = true;
+    idiqSource = `The record names a parent contract: ${parentNumber}`;
+  } else if (/idiq|indefinite quantity|indefinite delivery/i.test(vehicleText)) {
+    idiq = true;
+    idiqSource = "The vehicle recorded on this file reads as indefinite delivery";
+  }
 
   const ctx: Ctx = {
     f: facts,
@@ -414,15 +453,20 @@ export function selectPacketClauses(
     setAside: str(facts, "set_aside"),
     type,
     place,
-    commercial: /commercial/i.test(commercialText) || /sf 1449/i.test(str(facts, "contract_format")),
+    commercial:
+      /commercial/i.test(commercialText) ||
+      /sf 1449/i.test(str(facts, "contract_format")) ||
+      /commercial/i.test(clauseSet),
     hardware: bool(facts, "hardware_deliverable"),
     services: !bool(facts, "hardware_deliverable"),
     it: bool(facts, "includes_it"),
     costReimbursement: /\bcp(ff|if|af)\b|cost/i.test(type),
-    idiq: /idiq|indefinite/i.test(type),
+    idiq,
+    idiqSource,
     soleSource: /sole source|limited source|brand name/i.test(`${str(facts, "competition")} ${str(facts, "acquisition_method")}`),
     options: Array.isArray(optionList) && optionList.length > 0,
     onInstallation: INSTALLATION_HINTS.some((h) => place.toLowerCase().includes(h)),
+    clauseSet,
     money,
   };
 

@@ -7,6 +7,7 @@
 
 import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } from "@/lib/launch-sequence";
 import type { RedFlag } from "@/lib/intake";
+import { acquisitionProfile } from "@/lib/vehicles";
 
 /** One calm sentence under the file header: what this file is and why it
  *  exists, assembled from the recorded facts (method, competition, mission,
@@ -19,9 +20,15 @@ export function fileStory(
   state: string | null,
 ): string {
   const words = acquisitionTypeWords(acq);
-  const mission = missionName
-    ? ` in support of ${missionName}${milestoneDate ? ` (mission date ${milestoneDate})` : ""}`
-    : "";
+  // A parent indefinite-delivery vehicle is not bought for one mission; orders
+  // placed under it carry the mission. Saying otherwise would misread the record.
+  const parentVehicle = acquisitionProfile(acq as unknown as Record<string, unknown>) === "idiq_parent";
+  const mission =
+    missionName && !parentVehicle
+      ? ` in support of ${missionName}${milestoneDate ? ` (mission date ${milestoneDate})` : ""}`
+      : parentVehicle
+        ? ", a parent vehicle that orders are placed against"
+        : "";
   const where =
     state === "launched"
       ? "awarded and in administration"

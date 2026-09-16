@@ -1730,3 +1730,32 @@ evaluation and UEI facts.
 - `src/lib/desk-data.ts`: `heroDocForReviewer(m, reviewerRole, phase)` picks the document of the reviewer's own office across phases — small business → NF 1787, flight operations / aviation → Statement of work, legal → JOFOC/justification, pricing → PNM — else falls back to `heroDocForPhase`. Attachment-only rows return kind `file` and link to the file page.
 - `src/routes/reviewer-inbox.tsx`: uses `heroDocForReviewer`, so rows no longer all show the PNM.
 - Untouched: A-2026-0090 clause set and hidden clause delta, CDRL/Award/payment work, holds and clock states, NCMS write-back, rates.
+
+## WALK 99 check-in 2 — IDIQ clause packet, Reserved note, Show me the text
+
+- `src/lib/clause-packet.ts`: the vehicle now reaches clause selection. Indefinite
+  delivery is read from `scenario.vehicle` (`idiq_award` / `idiq_order` / order
+  under), from a recorded parent contract number, or from vehicle/title text —
+  not from `contract_type` alone. Commercial is also read from
+  `vehicle.clause_set`. A-2026-0090 (FFP, `idiq_award`) now recommends
+  52.216-18, 52.216-19, 52.216-22 and the commercial 52.212-* set, with the
+  reason naming the source from the record. 52.212-4's reason repeats the
+  recorded clause set when it mentions Alternate I; no Alt I clause row was
+  invented. 52.212-5 stays excluded (Reserved) and 52.212-3 stays excluded.
+  52.216-7 stays cost-reimbursement only. SF 30 clause delta remains hard-hidden
+  for IDIQ parent and order profiles.
+- `src/lib/explain.ts`: a parent indefinite-delivery vehicle no longer claims a
+  single mission. A-2026-0090 reads as a parent vehicle that orders are placed
+  against; child orders keep their mission support line.
+- `t-minus-seed/acquisitions.json`: A-2026-0090 only — `commercial_determination:
+  "commercial service"`, matching the vehicle panel. Samples 1 and 2 untouched.
+- `src/routes/files_.$acquisitionId.tsx`: the FAR 52.212-5 Reserved note now
+  shows on every simplified commercial file regardless of phase, above the launch
+  sequence. Sample 1 shows it at Price Reasonableness. The note inside the NCMS
+  handoff block is unchanged.
+- `src/components/show-the-text.tsx` (new): "Show me the text" shows the
+  reference row the prototype holds — citation, tier, source, effective date,
+  official link — and states that the regulation paragraph is not loaded. No FAR,
+  RFO or NFS body text is generated. Wired into Explain this and the document
+  version badge.
+- Not published this turn, by instruction.

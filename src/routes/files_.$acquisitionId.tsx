@@ -2353,6 +2353,15 @@ function FilePage() {
 
       <CompanionGatesPanel gates={companionGates} />
 
+      {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
+        <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
+          <p className="text-[15px] leading-[22px]">
+            <span className="font-medium">FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
+            {RFO_RESERVED_212_NOTE}
+          </p>
+        </section>
+      ) : null}
+
       <details id="launch-sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
