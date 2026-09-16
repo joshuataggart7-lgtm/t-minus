@@ -2070,6 +2070,7 @@ function FilePage() {
       </section> : null}
 
       {acq ? (
+        <>
         <section aria-label="Peer systems" className="mb-8 max-w-[80ch] border-t border-border pt-3">
           <p className="mb-1 text-[13px] text-muted-foreground">Peer systems</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] leading-[18px]">
