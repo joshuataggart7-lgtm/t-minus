@@ -1031,14 +1031,27 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
 }
 
 /** Quoters on the evaluation record, in the order they were recorded. */
-function quoters(ctx: MemoDraftCtx): { name: string; price: string }[] {
+function quoters(ctx: MemoDraftCtx): { name: string; price: string; uei: string; rating: string }[] {
   const e = ctx.evaluationValues ?? {};
-  const out: { name: string; price: string }[] = [];
+  const out: { name: string; price: string; uei: string; rating: string }[] = [];
   for (let n = 1; n <= 4; n += 1) {
     const name = str(e[`quoter_${n}_name`]);
-    if (name) out.push({ name, price: str(e[`quoter_${n}_price`]) });
+    if (name)
+      out.push({
+        name,
+        price: str(e[`quoter_${n}_price`]),
+        uei: str(e[`quoter_${n}_uei`]),
+        rating: str(e[`quoter_${n}_rating`]),
+      });
   }
   return out;
+}
+
+/** A price on the record, written the way a letter reads it. */
+function money(value: string): string {
+  const n = Number(String(value).replace(/[^\d.]/g, ""));
+  if (!value || Number.isNaN(n) || n <= 0) return "";
+  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 }
 
 /** Contact block every award letter carries. */
@@ -1071,6 +1084,12 @@ function postawardSuccessful(ctx: MemoDraftCtx): Values {
     const pr = str(a["pr_number"]);
     if (pr) out["solicitation_number"] = pr;
   }
+  // The amount awarded is the price recommended on the evaluation record.
+  const awarded =
+    str(ctx.evaluationValues?.["recommended_price"]) ||
+    quoters(ctx).find((q) => selected && q.name.toLowerCase() === selected.toLowerCase())?.price ||
+    "";
+  if (awarded) out["award_amount"] = awarded;
   out["enclosures"] = "Source Selection Statement";
   return out;
 }
@@ -1097,7 +1116,16 @@ function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
     out["offeror_slot"] = `Offeror ${index + 1}`;
     out["company_name"] = chosen.name;
     out["addressee"] = chosen.name;
+    if (chosen.uei) out["offeror_uei"] = chosen.uei;
+    const priced = money(chosen.price);
+    const parts: string[] = [];
+    if (priced) parts.push(`The quotation was received at ${priced}.`);
+    if (chosen.rating) parts.push(`It was rated ${chosen.rating.toLowerCase()} on the evaluation of quotations.`);
+    if (parts.length) out["quotation_summary"] = parts.join(" ");
   }
+  // Item 4 reports the value awarded, which is the recommended price.
+  const awarded = str(ctx.evaluationValues?.["recommended_price"]);
+  if (awarded) out["contract_value"] = awarded;
   if (all.length) out["proposals_received"] = String(all.length);
   out["offerors_solicited"] = "Solicited through the government point of entry accessed at www.SAM.gov.";
   if (selected) out["awardees"] = selected;

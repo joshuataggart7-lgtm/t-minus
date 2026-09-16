@@ -897,7 +897,15 @@ function DocumentPage() {
     const built = buildMemoHeader({
       templateKey: def.key,
       templateName: def.name,
-      documentCitation: badgeCitation(def, values),
+      // The Ref line follows the method on the record. The header can be built
+      // before the prefill has carried the method into the values, so it is
+      // seeded here the same way the prefill seeds it.
+      documentCitation: badgeCitation(def, {
+        ...values,
+        __method:
+          values["__method"] ||
+          `${String(q.data.acq["acquisition_method"] ?? "")} ${String(q.data.acq["contract_format"] ?? "")}`.trim(),
+      }),
       acquisition: { ...q.data.acq, acquisition_id: acquisitionId },
       centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
       centerAddress: q.data.center?.address_line ?? "",
@@ -1156,10 +1164,26 @@ function DocumentPage() {
       lines.push(`Typed on this template. Template revision: ${def.badge.revision}`);
       lines.push(`Item: ${s.title}`);
     }
-    const cite = sectionCitation(s, values);
+    const cite = sectionCite(s);
     if (cite) lines.push(`Authority citation: ${cite}`);
     setSourcePanel({ title: f.label, lines });
   };
+
+  // Citations follow the method on the record, whether or not the values
+  // carry it yet.
+  const citationValues = {
+    ...values,
+    __method:
+      values["__method"] ||
+      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
+        q.data?.acq?.["contract_format"] ?? "",
+      )}`.trim(),
+  };
+  // Until the record has loaded, the template's own citation stands; a
+  // method-dependent citation is never guessed from empty values.
+  const methodKnown = Boolean(citationValues["__method"]);
+  const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
+  const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
@@ -1179,7 +1203,17 @@ function DocumentPage() {
 
   const set = (key: string, v: string) => {
     setTouched(true);
-    setValues((prev) => ({ ...prev, [key]: v }));
+    setValues((prev) => {
+      const next = { ...prev, [key]: v };
+      // Choosing the offeror rewrites the letter for that quoter, so one row
+      // yields one letter per unsuccessful offeror on the evaluation record.
+      if (key === "offeror_slot" && def && def.key === "postaward-letter-unsuccessful" && q.data?.acq) {
+        for (const field of ["company_name", "addressee", "offeror_uei", "quotation_summary"]) next[field] = "";
+        const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: next });
+        return applyMemoDraft(next, draft);
+      }
+      return next;
+    });
   };
 
   return (
@@ -1200,7 +1234,7 @@ function DocumentPage() {
           {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
         </p>
         <p className="mt-1 text-[13px] text-muted-foreground">
-          {badgeCitation(def, values)} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
+          {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
@@ -1290,9 +1324,9 @@ function DocumentPage() {
         {visibleSections(def, values).map((s) => {
           const body = (
             <>
-            {sectionCitation(s, values) ? (
+            {sectionCite(s) ? (
               <p className="mb-2 text-[13px] text-muted-foreground">
-                {sectionCitation(s, values)}
+                {sectionCite(s)}
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}

@@ -2886,6 +2886,8 @@ const cleanExportText = (text: string) =>
   text
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
+    // On-screen draft flags never print in an exported document.
+    .replace(/(?:^|\s)Draft,\s*confirm\.\s*/gi, " ")
     .replace(/\s*Source:.*$/gi, "")
     .replace(/^\s*[—–-]\s*$/, "")
     .replace(/\.\s*\.$/g, ".")

@@ -1213,3 +1213,26 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
   JSON for the same reason.
 - No seed edits, no new holds, no NCMS write-back / FedRAMP / live FPDS
   claims, no Track D forms, no 52.212-3/5 packed anywhere.
+
+## 2026-09-16 — P0.2 PNM Ref, export cleanliness, P0.4 demo note, Tier-1 #3 postaward letters
+
+- **P0.2 memo Ref.** `documents.$templateKey.$acquisitionId.tsx` now seeds `__method`
+  from `acquisition_method` + `contract_format` when building the memorandum header,
+  so `badgeCitation` resolves before the prefill runs. On A-2027-0101 the PNM Ref
+  reads RFO FAR 12.204(a); FAR 13.106-3(b)(3), never bare FAR 15.406-3.
+- **Export cleanliness.** `cleanExportText` (template-engine) and `memoParagraphs`
+  (nf1858) strip the literal "Draft, confirm." from exported Word/PDF/NF 1858 bodies.
+  The on-screen "Drafted from the record — confirm." flag is unchanged.
+- **P0.1** vendor/quoter data (CORSAIR AVIATION, LLC HCH5G9HLMVZ5 / CAGE 7K7J6;
+  Strategic SK4DHMRD7M13; SciFly R7LBZTAG8N98) is already in the database; no seed edits.
+- **P0.3** `RFO_RESERVED_212_NOTE`, picker disclosure and sanitize blocks on
+  52.212-3 / 52.212-5 are untouched.
+- **P0.4 demo note.** Do not open the clause delta on A-2026-0090 (IDIQ vehicle):
+  the seeded clause set is contradictory. No IDIQ rewrite in this chunk.
+- **Tier-1 #3 postaward letters (A-2027-0101).** Successful letter carries an
+  award amount field filled from the evaluation record's recommended price
+  ($1,385,000 to CORSAIR AVIATION, LLC). The unsuccessful-offeror row now yields one
+  letter per unsuccessful quoter: choosing Offeror 1..4 redrafts the letter for that
+  quoter, filling company name, UEI and a quotation summary (price quoted and rating)
+  from the evaluation record, with item 4 reporting the value awarded. Citation stays
+  FAR 13.106-3(d) on the commercial simplified file. No vendors invented.
