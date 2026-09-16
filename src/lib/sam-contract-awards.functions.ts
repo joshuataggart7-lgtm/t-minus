@@ -300,8 +300,33 @@ export const samContractAwards = createServerFn({ method: "POST" })
         raw = cachedRaw;
         source = "cached";
       } else {
-        raw = sampleAwards(naics || "—", psc || "—", estimated);
-        source = "sample";
+        // Before falling back to fictional sample rows, use prior T-Minus
+        // actions on the same NAICS or PSC. These are records already in this
+        // system, not external awards.
+        const priors = await supabaseAdmin
+          .from("acquisition_facts")
+          .select(
+            "acquisition_id,title,estimated_value,naics_code,psc_code,contract_type,competition,target_award_date,need_date,clock_state",
+          )
+          .or(
+            [naics ? `naics_code.eq.${naics}` : null, psc ? `psc_code.eq.${psc}` : null]
+              .filter(Boolean)
+              .join(",") || "acquisition_id.eq.__none__",
+          )
+          .in("clock_state", ["launched", "scrubbed", "running", "hold"])
+          .limit(20);
+        const rows = localPriorActions(
+          (priors.data ?? []) as unknown as Record<string, unknown>[],
+          data.acquisitionId,
+        );
+        if (rows.length) {
+          localAwards = rows;
+          raw = { local: true, priorActions: rows };
+          source = "local";
+        } else {
+          raw = sampleAwards(naics || "—", psc || "—", estimated);
+          source = "sample";
+        }
       }
     }
 
