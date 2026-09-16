@@ -549,9 +549,10 @@ function FilePage() {
     queryFn: () => loadPaymentMilestones(acquisitionId),
   });
   const paymentItems = useMemo(
-    () => paymentMilestonesForPacket(paymentQ.data ?? []),
-    [paymentQ.data],
+    () => paymentMilestonesForPacket(paymentQ.data ?? [], clinQ.data ?? []),
+    [paymentQ.data, clinQ.data],
   );
+
 
   // Sections L and M as the officer saved them. The workspace, the scaffold and
   // the handoff packet all read these rows, so they cannot disagree.
