@@ -15,8 +15,9 @@ import type { FileIndex } from "@/lib/file-index";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 
 export const NF1098_ASSEMBLY_CHIP =
-  "Local assembly checklist for handoff. NCMS is the system of record (NFS 1804.171). " +
-  "T-Minus does not write to NCMS. Does not hold phase exit.";
+  "Local assembly checklist for handoff. Tabs and order follow the NEAR File Structure " +
+  "Checklist, Crosswalk WSC (v3.3, Apr 24) where a document is mapped. NCMS is the system " +
+  "of record (NFS 1804.171). T-Minus does not write to NCMS. Does not hold phase exit.";
 
 export type AssemblyStatus = "Present" | "Missing" | "Recorded" | "Not recorded" | "Not required";
 
