@@ -40,6 +40,8 @@ export type FactorRow = {
   name: string;
   relative_importance: string | null;
   description: string | null;
+  /** Officer-entered note on where the evidence for this factor sits. Advisory. */
+  evidence_note: string | null;
   sort_order: number;
 };
 
@@ -47,6 +49,7 @@ export type FactorInput = {
   name: string;
   relative_importance: string | null;
   description: string | null;
+  evidence_note?: string | null;
 };
 
 const str = (f: ScaffoldFacts, key: string): string => {
