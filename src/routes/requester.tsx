@@ -125,6 +125,7 @@ function RequesterPortal() {
             const missing = owed.filter((o) => !o.present).length;
             const openDays = daysSince((acq['created_at'] as string | null) ?? null);
             const holdDays = daysSince((acq['hold_started_at'] as string | null) ?? null);
+            const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
             const waitingOnMe =
               c.m.clockState === "hold" &&
               (c.m.blockerOwner ?? "").toLowerCase().includes(user.name.split(" ")[1]?.toLowerCase() ?? "@@");
@@ -220,7 +221,7 @@ function RequesterPortal() {
                     </p>
                     {desk ? (
                       <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
-                        {awardConfidence(c.m.acq, desk.history, desk.plan).sentence}
+                        {conf?.sentence}
                       </p>
                     ) : null}
                   </div>
@@ -244,7 +245,7 @@ function RequesterPortal() {
                   <RequesterLoe
                     acq={acq}
                     plan={desk?.plan ?? []}
-                    awardRange={desk ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence : null}
+                    awardRange={conf?.sentence ?? null}
                   />
                 </div>
               </section>

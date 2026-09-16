@@ -148,7 +148,8 @@ export function CdrlPanel({
       <div className="flex flex-wrap items-center gap-2">
         <h4 className="text-[15px] font-medium">CDRL / data requirements</h4>
         <span className="text-[13px] text-muted-foreground">
-          Separate from the attachments on the record.
+          Optional. Separate from the document attachments on the record. Blanks print "Not recorded" and no
+          Word sidecar is needed.
         </span>
         {canWrite ? (
           <button
