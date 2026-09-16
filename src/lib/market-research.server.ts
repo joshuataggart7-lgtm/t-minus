@@ -491,6 +491,14 @@ export async function runEngine(options: {
         outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
       });
     }
+  } else {
+    record({
+      source: "GSA CALC+ ceiling labour rates",
+      query: "https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/ (not called)",
+      resultCount: null,
+      outcome:
+        "Skipped: the requirement does not read as services or labour, the product and service code is not a service code, and the method is not FAR 8.4.",
+    });
   }
   if (isSchedule) {
     record({
