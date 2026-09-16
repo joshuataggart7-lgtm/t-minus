@@ -149,6 +149,26 @@ export function SolicitationKlmPanel({
     void qc.invalidateQueries({ queryKey: ["section-m-factors", acquisitionId] });
   };
 
+  const saveK = useMutation({
+    mutationFn: async () => {
+      const name = await signedInName(actor);
+      await saveSectionK(
+        acquisitionId,
+        {
+          sam_status: kSam.trim() && kSam !== "Not recorded" ? kSam.trim() : null,
+          notes: kNotes.trim() || null,
+          items: kItems.map((i) => ({ ...i, note: (i.note ?? "").trim() || null })),
+        },
+        name,
+      );
+    },
+    onSuccess: () => {
+      onBanner("Section K was saved.");
+      invalidate();
+    },
+    onError: (e: Error) => onBanner(`Section K was not saved: ${e.message}. Try again.`),
+  });
+
   const saveL = useMutation({
     mutationFn: async () => {
       const name = await signedInName(actor);
