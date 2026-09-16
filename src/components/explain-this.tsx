@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { Explanation } from "@/lib/explain";
+import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 
 /**
  * "Explain this": a small disclosure that shows why a flag, hold, or status
