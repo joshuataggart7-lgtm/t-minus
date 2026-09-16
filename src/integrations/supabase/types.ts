@@ -14,6 +14,79 @@ export type Database = {
   }
   public: {
     Tables: {
+      acquisition_clins: {
+        Row: {
+          acquisition_id: string
+          clin_id: string
+          clin_number: string
+          created_at: string
+          created_by: string | null
+          description: string
+          extended_price: number | null
+          is_seed: boolean
+          quantity: number | null
+          sort_order: number
+          source: string
+          unit_of_issue: string | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          clin_id?: string
+          clin_number: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          extended_price?: number | null
+          is_seed?: boolean
+          quantity?: number | null
+          sort_order?: number
+          source?: string
+          unit_of_issue?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          clin_id?: string
+          clin_number?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          extended_price?: number | null
+          is_seed?: boolean
+          quantity?: number | null
+          sort_order?: number
+          source?: string
+          unit_of_issue?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acquisition_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "acquisition_clins_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       acquisition_facts: {
         Row: {
           acquisition_forecast_verified: boolean | null
