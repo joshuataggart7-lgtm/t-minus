@@ -1258,6 +1258,35 @@ function DocumentPage() {
       {/* The sidebar follows the file's own phase, not the template's home phase. */}
       <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
 
+      {def.key === "postaward-letter-unsuccessful" && quoterSlots.some((r) => !r.awarded) ? (
+        <section aria-label="Letter for each unsuccessful quoter" className="mb-4 max-w-[80ch]">
+          <p className="text-[13px] text-muted-foreground">
+            One letter per unsuccessful quoter on the evaluation record. Choose a company to write its
+            letter; the letter is saved as its own version.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {quoterSlots
+              .filter((r) => !r.awarded)
+              .map((r) => {
+                const current = (values["offeror_slot"] ?? "") === r.slot;
+                return (
+                  <button
+                    key={r.slot}
+                    type="button"
+                    aria-pressed={current}
+                    onClick={() => set("offeror_slot", r.slot)}
+                    className={`rounded-lg border px-3 py-1 text-[13px] ${
+                      current ? "border-primary text-primary" : "border-border text-foreground"
+                    }`}
+                  >
+                    {r.name}
+                  </button>
+                );
+              })}
+          </div>
+        </section>
+      ) : null}
+
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
           {def.badge.revision}
