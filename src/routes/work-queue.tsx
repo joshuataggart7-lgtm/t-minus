@@ -154,6 +154,7 @@ function WorkQueuePage() {
 
   const cards: Card[] = useMemo(() => {
     if (!q.data) return [];
+    const history = historyFrom(q.data.acqs as unknown as AcqRow[], q.data.log);
     return q.data.acqs
       .filter((a) => String(a.clock_state ?? "") !== "scrubbed")
       .map((acq) => {
