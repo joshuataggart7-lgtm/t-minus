@@ -105,6 +105,8 @@ export function buildFormatScaffold(
   clauses: PacketClause[],
   /** The schedule on the file. When given, it is the only source of line items. */
   scheduleClins?: ScaffoldClin[],
+  /** Sections L and M from the file. When given they replace the default lines. */
+  lm?: ScaffoldLmOverride | null,
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -233,10 +235,13 @@ export function buildFormatScaffold(
       : "No contract format recorded; the format is read from the commercial determination.",
     blocks,
     clins,
-    instructions,
-    evaluation,
+    // Sections L and M on the file win over the default lines, so the
+    // workspace, the scaffold and the handoff packet always say the same thing.
+    instructions: lm ? lm.instructions : instructions,
+    evaluation: lm ? lm.evaluation : evaluation,
     ucfSections,
     clauses: scaffoldClauses,
+    lm: lm ?? null,
   };
 }
 
