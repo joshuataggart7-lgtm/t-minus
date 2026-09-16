@@ -65,6 +65,8 @@ export type FormatScaffold = {
   lm: ScaffoldLmOverride | null;
   /** Section J: the attachments on the record, not a clause bucket. */
   attachments: SectionJAttachment[];
+  /** Data requirements recorded on the file. Empty unless the office added some. */
+  cdrl: PacketCdrlItem[];
 };
 
 
