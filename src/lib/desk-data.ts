@@ -10,6 +10,7 @@ import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow, RequiredDoc } from "@/lib/launch-sequence";
 import { generatorKey } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { historyFrom, type HistoryFile } from "@/lib/confidence";
 import {
   computeMetrics,
   awardDateFor,
@@ -28,6 +29,9 @@ export type DeskCard = {
 
 export type DeskData = {
   cards: DeskCard[];
+  plan: PhasePlanRow[];
+  /** launched files with their recorded award dates, for the confidence range */
+  history: HistoryFile[];
   polls: PollRow[];
   centers: { center_code: string; aging_threshold_days?: number | null }[];
   modTasks: {
@@ -142,7 +146,14 @@ export function useDeskData(enabled: boolean) {
           requester: String(acq['requester_name'] ?? ""),
         };
       });
-    return { cards, polls: d.polls, centers: d.centers, modTasks: d.modTasks };
+    return {
+      cards,
+      polls: d.polls,
+      centers: d.centers,
+      modTasks: d.modTasks,
+      plan: d.plan,
+      history: historyFrom(d.acqs, d.log),
+    };
   }, [q.data]);
 
   return { ...q, desk: data };

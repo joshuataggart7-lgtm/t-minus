@@ -46,6 +46,8 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import type { PhasePlanRow } from "@/lib/launch-sequence";
+import { awardConfidence, historyFrom } from "@/lib/confidence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
@@ -411,6 +413,30 @@ function FilePage() {
     setBanner("The forecast entry downloaded as a CSV file in the forecast's format.");
   }
 
+
+  // Prior files of the same profile, for the honest days-to-award range. Read
+  // only: the public fields of every record and the recorded launch events.
+  const historyQ = useQuery({
+    queryKey: ["award-history"],
+    enabled: authState === "signed-in",
+    staleTime: 300_000,
+    queryFn: async () => {
+      const [acqs, launched] = await Promise.all([
+        supabase.from("acquisition_facts").select("*"),
+        supabase.from("audit_log").select("acquisition_id,action,logged_at").eq("action", "Launched"),
+      ]);
+      return { acqs: acqs.data ?? [], launched: launched.data ?? [] };
+    },
+  });
+
+  const confidence = useMemo(() => {
+    if (!acq || !q.data?.plan) return null;
+    const history = historyFrom(
+      (historyQ.data?.acqs ?? []) as unknown as AcqRow[],
+      historyQ.data?.launched ?? [],
+    );
+    return awardConfidence(acq as AcqRow, history, q.data.plan as PhasePlanRow[]);
+  }, [acq, q.data?.plan, historyQ.data]);
 
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
@@ -1727,6 +1753,11 @@ function FilePage() {
                   ? "Countdown"
                   : "Calendar days to target award date"}
             </p>
+            {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
+              <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
+                {confidence.sentence}
+              </p>
+            ) : null}
             <p className="mt-4 text-[15px] font-medium">
               {effectiveState === "running"
                 ? "Clock running"

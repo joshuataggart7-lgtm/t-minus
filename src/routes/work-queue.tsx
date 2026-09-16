@@ -8,6 +8,7 @@ import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
 import {
   computeMetrics,
   awardDateFor,
@@ -50,6 +51,8 @@ type Card = {
   daysInPhase: number | null;
   /** Days to award, with the need date standing in when no target is set. */
   days: number | null;
+  /** Planned working days and the range prior files of this profile took. */
+  confidence: AwardConfidence;
 };
 
 function columnFor(m: AcqMetrics): Column {
@@ -151,6 +154,7 @@ function WorkQueuePage() {
 
   const cards: Card[] = useMemo(() => {
     if (!q.data) return [];
+    const history = historyFrom(q.data.acqs as unknown as AcqRow[], q.data.log);
     return q.data.acqs
       .filter((a) => String(a.clock_state ?? "") !== "scrubbed")
       .map((acq) => {
@@ -186,6 +190,7 @@ function WorkQueuePage() {
           dependency,
           daysInPhase: current?.actual_days ?? null,
           days: m.daysToAward ?? (running && target ? daysBetween(today, target) : null),
+          confidence: awardConfidence(acq as unknown as AcqRow, history, q.data.plan as PhasePlanRow[]),
         };
       });
   }, [q.data, ref]);
@@ -402,6 +407,11 @@ function WorkQueuePage() {
                     : c.m.clockState === "scrubbed"
                       ? "Clock stopped"
                       : (c.days ?? "Clock not started")}
+                  {c.m.clockState === "launched" || c.m.clockState === "scrubbed" ? null : (
+                    <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
+                      {c.confidence.sentence}
+                    </span>
+                  )}
                 </td>
                 <td className="p-2">
                   <span

@@ -9,6 +9,7 @@ import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/cent
 import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
 import { PeopleRoles } from "@/components/people-roles";
 import { PeopleContacts } from "@/components/people-contacts";
+import { RoutingCsvImport } from "@/components/routing-csv-import";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
@@ -423,6 +424,15 @@ function CenterConfigPage() {
           </form>
         ) : null}
       </section>
+
+      {mayEdit ? (
+        <RoutingCsvImport
+          actorName={user?.name ?? "Unknown"}
+          centers={(q.data?.centers ?? []).map((c) => c.center_code)}
+          documentKeys={MEMO_DOCUMENT_KEYS.map((k) => k.key)}
+          onApplied={() => void qc.invalidateQueries({ queryKey: ["center-config"] })}
+        />
+      ) : null}
 
       <TriggerTableEditor mayEdit={hasAnyRole(["hq"]) || hasRole("administrator")} actor={user.name} />
     </AppShell>
