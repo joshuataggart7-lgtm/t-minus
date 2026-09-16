@@ -1316,3 +1316,28 @@ FPDS claims. Sample 1 and Sample 2 seeds untouched.
   untouched; no new auto-holds; no FedRAMP, live FPDS or SAM publish claims.
 - Known limits: SF 1449 continuation lines beyond item 0001 and the SF 30
   block 14 continuation page are not populated; the CO completes them.
+
+## Wave 1 W1.3 — evidence pack zip (16 Sep 2026)
+
+Added a one-click evidence pack export on the file page (More → "Export evidence
+pack (zip)"), built entirely from the record in the browser:
+
+- `index.html` cover listing the documents in NF 1098 name order (tab, then
+  document name, then version) with a synthetic-prototype caveat.
+- `documents/` every saved document version rendered from the template engine,
+  each with its provenance block (tab, citation, tier, HQ revision, saved by/at).
+- `research/research-findings.csv` and `research/research-log.csv` from the
+  recorded findings and run log (run id, run start, source, query, count, outcome).
+- `audit/audit-log.csv` full audit trail for the acquisition.
+- `clauses/clauses.csv` the recommended packet with reason, UCF section, status,
+  effective date and whether the clause is applied on the file, plus
+  `clauses/reserved-52-212-5-note.txt` carrying RFO_RESERVED_212_NOTE.
+- `fpds/fpds-filling-sheet.html` the existing fill aid, honest blanks retained.
+
+Implementation: `src/lib/evidence-pack.ts` (jszip, already a dependency), wired
+in `src/routes/files_.$acquisitionId.tsx`. The export writes one audit row
+("Evidence pack exported") with the counts. No external writes, no NCMS
+write-back, no FedRAMP or live FPDS claims. No seed edits, no new auto-holds.
+
+Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
+19 entries, documents ordered by NF 1098 tab, CSVs populated, no console errors.
