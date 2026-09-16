@@ -696,11 +696,20 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
       out.push(row);
     }
   }
-  // The postaward notice citation follows the method the award is made under.
+  // The notice citations follow the method the award is made under. A FAR 13.5
+  // or Part 12 commercial file never carries a Part 15 negotiated notice cite.
   const simplified = /\b13\b/.test(context.method);
+  const commercialSimplified = /13\.5|\b12\b|commercial simplified/i.test(context.method);
   for (const d of out) {
     if (d.doc_key === "postaward-notification-letters" && simplified)
       d.citation = "FAR 13.106-3(d)";
+    if (!commercialSimplified) continue;
+    if (d.doc_key === "postaward-letter-successful")
+      d.citation = "RFO FAR 12.201-1 (commercial simplified procedures); FAR 13.106-3(d)";
+    if (d.doc_key === "postaward-letter-unsuccessful")
+      d.citation = "FAR 13.106-3(d) (notification to unsuccessful quoters)";
+    if (d.doc_key === "preaward-apparent-successful")
+      d.citation = "FAR 19.302 (size status protest period)";
   }
   // A consolidation determination and a bundling determination never both
   // stand: the value decides which one the record needs.

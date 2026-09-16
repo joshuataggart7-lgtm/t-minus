@@ -204,7 +204,7 @@ export function modRows(
     });
   }
   rows.push({ label: "FPDS-NG modification report", citation: "FAR 4.604", state: "required" });
-  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "FAR 43.301; NFS CG 1804.11", state: "required" });
+  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "FAR 43.301; NFS 1804.171", state: "required" });
   return rows;
 }
 

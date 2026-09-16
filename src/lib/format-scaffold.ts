@@ -5,7 +5,7 @@
 // anything else is laid out in Uniform Contract Format sections. Clauses are
 // the ones already selected for this file by the clause engine, each keeping
 // the reason it is there. Nothing here is a signed form and nothing is written
-// to NCMS; NCMS stays the system of record (NFS CG 1804.11) and this is the
+// to NCMS; NCMS stays the system of record (NFS 1804.171) and this is the
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
@@ -181,7 +181,7 @@ export function buildFormatScaffold(
           },
           {
             text: "Price reasonableness is determined in the price negotiation memorandum.",
-            citation: "FAR 12.204(b)(1)",
+            citation: "RFO FAR 12.204(a); FAR 13.106-3",
           },
           {
             text: "The justification on this file states why only one source can meet the need.",

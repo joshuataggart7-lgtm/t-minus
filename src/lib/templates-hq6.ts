@@ -11,6 +11,13 @@
  */
 
 import type { FieldDef, SectionDef, TemplateDef, Values } from "@/lib/template-engine";
+/** On a FAR 13.5 or Part 12 commercial file the notice is made under the
+ *  commercial simplified procedures, not under the Part 15 negotiated rules. */
+const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
+  const method = v["__method"] ?? "";
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
+  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
+};
 
 const T = (key: string, label: string, help?: string): FieldDef => ({
   key,
@@ -82,6 +89,10 @@ const postawardSuccessful: TemplateDef = {
   layout: "memo",
   badge: {
     citation: "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
+    citationFor: noticeCitation(
+      "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
+      "RFO FAR 12.201-1 (commercial simplified procedures); FAR 13.106-3(d)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revision 02/2025",
     effective: "2025-02-01",
@@ -134,6 +145,10 @@ const postawardUnsuccessful: TemplateDef = {
   layout: "memo",
   badge: {
     citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+    citationFor: noticeCitation(
+      "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+      "FAR 13.106-3(d) (notification to unsuccessful quoters)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revisions 02/2025 and 03/2026",
     effective: "2026-03-01",
@@ -210,6 +225,10 @@ const setAsidePreaward: TemplateDef = {
   badge: {
     citation:
       "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+    citationFor: noticeCitation(
+      "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+      "FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 01/2021",
     effective: "2021-01-04",

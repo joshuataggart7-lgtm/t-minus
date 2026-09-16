@@ -5,6 +5,9 @@
 - [ ] Rewrite memorandum hold, vote, and saved-version sentences
 - [ ] Verify A-2027-0101, refusal links, audit output, and desktop/mobile dialogs
 
+# Accuracy
+- [x] RFO citation punch list: NFS 1804.171, FAR 12.204(a), 52.212-3 pack logic, Sample 1 Part 12 notices
+
 # Market research persistence
 - [x] Prevent incomplete research runs from becoming the latest run
 - [x] Parse CALC+ v3 results and use a short service keyword
