@@ -1936,3 +1936,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - New `src/lib/table-12-fillins.ts` + `Table12FillinsPanel` under the clause packet: for commercial / SF 1449 / Part 12 files only, rows are a strict subset of the matrix-backed recommended clauses (52.212-3 and Reserved 52.212-5 excluded), tagged Table 12-2 (provision), Table 12-3 (clause), or "Table not confirmed — verify in RFO Part 12" when placement is not settled. NFS clauses carry Interim NFS matrix wording and an "NFS matrix: fill-in required" flag read from `nfs_clause_matrix.fill_in = 'X'`.
 - Fill-in slots read from the record only (period of performance, place, CO, value, NAICS, set-aside, contract type, parent contract number, ordering period); anything missing reads "Not recorded". No FAR or NFS body is written.
 - Confirm writes audit only (`Table 12 fill-ins confirmed`, field `table_12_fillins`) with a blanks summary; it never applies clauses, never writes to NCMS, and never holds phase exit. Non-commercial files show the honest empty line. No sample clock/phase/seed changes.
+
+## Wave 5 SEB/board light deepen (2026-09-16)
+- Evaluation cockpit gains an advisory board-readiness snapshot: clarifications count, evidence-note coverage, L↔M lamp state, and quiet read-receipt note. Counts only; never gates board, file, hold, or phase exit.
+- Empty fairness ledger adds a soft line: "Fairness ledger is empty until the office records a clarification." No clarifications, evidence, or scores invented on Samples; clocks, phases, seeds unchanged.
