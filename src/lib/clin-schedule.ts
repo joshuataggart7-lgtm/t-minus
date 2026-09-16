@@ -41,6 +41,23 @@ const num = (v: unknown): number | null => {
 export const money = (v: number | null): string =>
   v === null ? "Not recorded" : `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
+/**
+ * The amount as the schedule shows it. Display only: when the extended price is
+ * blank but quantity and unit price are both recorded, the amount shown is
+ * quantity times unit price. Nothing is written back to the record.
+ */
+export function displayAmount(r: {
+  quantity: number | null;
+  unit_price: number | null;
+  extended_price: number | null;
+}): { text: string; derived: boolean } {
+  if (r.extended_price !== null) return { text: money(r.extended_price), derived: false };
+  if (r.quantity !== null && r.unit_price !== null) {
+    return { text: money(r.quantity * r.unit_price), derived: true };
+  }
+  return { text: "Not recorded", derived: false };
+}
+
 export function sourceLabel(source: string): string {
   if (source === "igce_estimate") return "Estimate (IGCE)";
   if (source === "record") return "Record";
@@ -195,12 +212,13 @@ export function scheduleToScaffoldClins(rows: ClinRow[]): ScaffoldClin[] {
     description: r.description,
     quantity: r.quantity === null ? "Not recorded" : r.quantity.toLocaleString("en-US"),
     unit: r.unit_of_issue?.trim() || "Not recorded",
-    amount:
-      r.extended_price !== null
-        ? money(r.extended_price)
-        : r.unit_price !== null
-          ? `${money(r.unit_price)} per unit`
-          : "Not recorded",
+    amount: (() => {
+      const a = displayAmount(r);
+      if (a.text !== "Not recorded") {
+        return a.derived ? `${a.text} (quantity times unit price)` : a.text;
+      }
+      return r.unit_price !== null ? `${money(r.unit_price)} per unit` : "Not recorded";
+    })(),
     note:
       r.source === "igce_estimate"
         ? IGCE_SOURCE_NOTE
