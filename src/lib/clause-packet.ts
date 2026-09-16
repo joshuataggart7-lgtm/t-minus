@@ -48,11 +48,19 @@ export type PacketClause = {
   status: string | null;
   effective_date: string | null;
   fill_ins: unknown;
+  /**
+   * True where the clause used to ride along inside FAR 52.212-5. That
+   * paragraph is Reserved under the RFO, so the clause carries its own
+   * prescription and is listed on its own.
+   */
+  formerly_bundled: boolean;
 };
 
 type Rule = {
   number: string;
   title: string;
+  /** The clause was formerly carried inside the 52.212-5 paragraph list. */
+  formerlyBundled?: boolean;
   /** Returns the reason the record includes this clause, or null to leave it out. */
   applies: (f: Ctx) => string | null;
 };
