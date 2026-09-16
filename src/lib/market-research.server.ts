@@ -96,13 +96,27 @@ function redact(url: URL, key: string | undefined) {
   return s.replace(encodeURIComponent(key), "REDACTED").replace(key, "REDACTED");
 }
 
-async function getJson(url: URL, key?: string): Promise<unknown> {
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!response.ok) {
-    const body = (await response.text()).slice(0, 200);
-    throw new Error(`${url.host} responded ${response.status} for ${redact(url, key)}. ${body}`);
+async function getJson(url: URL, key?: string, timeoutMs?: number): Promise<unknown> {
+  const controller = new AbortController();
+  const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: timeoutMs ? controller.signal : null,
+    });
+    if (!response.ok) {
+      const body = (await response.text()).slice(0, 200);
+      throw new Error(`${url.host} responded ${response.status} for ${redact(url, key)}. ${body}`);
+    }
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError" && timeoutMs) {
+      throw new Error(`${url.host} did not respond within ${Math.round(timeoutMs / 1000)} seconds.`);
+    }
+    throw error;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
-  return response.json();
 }
 
 function entitiesFromRaw(raw: unknown, naics: string): EngineEntity[] {
@@ -456,7 +470,10 @@ export async function runEngine(options: {
   const isSchedule = /8\.4/.test(method);
   const runCalc = isSchedule || servicePsc || labourWords;
   if (runCalc) {
-    const keyword = titleText.trim() || psc || naics;
+    const keywordMatch = requirementText.match(
+      /\b(aviation|aircraft|flights?|pilot|engineering|maintenance|repair|technical|operations?|training|inspection|research|analysis|support|services?|labou?r)\b/,
+    );
+    const keyword = keywordMatch?.[1] ?? (psc || naics);
     const url = new URL("https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/");
     url.searchParams.set("page", "1");
     url.searchParams.set("page_size", "20");
@@ -466,20 +483,22 @@ export async function runEngine(options: {
     if (calcKey) url.searchParams.set("api_key", calcKey);
     const query = redact(url, calcKey);
     try {
-      const raw = object(await getJson(url, calcKey));
-      const rows = array(raw["results"] ?? raw["data"]);
-      const count = rows.length;
-      const reported = num(raw["count"] ?? raw["total_count"]);
-      calcNote = count
-        ? `GSA CALC+ returned ${count} ceiling labour rates for “${keyword}”${
-            reported !== null && reported > count ? ` of ${reported} matching rates` : ""
+      const raw = object(await getJson(url, calcKey, 18_000));
+      const hits = object(raw["hits"]);
+      const rows = array(hits["hits"] ?? raw["results"] ?? raw["data"]);
+      const totalValue = object(hits["total"])["value"] ?? hits["total"];
+      const reported = num(totalValue ?? raw["count"] ?? raw["total_count"]);
+      const count = reported ?? rows.length;
+      calcNote = rows.length
+        ? `GSA CALC+ returned ${rows.length} ceiling labour rates for “${keyword}”${
+            reported !== null && reported > rows.length ? ` of ${reported} matching rates` : ""
           }.`
         : "";
       record({
         source: "GSA CALC+ ceiling labour rates",
         query,
         resultCount: count,
-        outcome: count
+        outcome: rows.length
           ? `Returned ceiling labour rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
           : "Returned no comparable ceiling rates for this keyword.",
       });

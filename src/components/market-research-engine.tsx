@@ -43,6 +43,7 @@ export function MarketResearchEngine({
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
   const [latestRanAt, setLatestRanAt] = useState<string | null>(null);
+  const [latestIncompleteRanAt, setLatestIncompleteRanAt] = useState<string | null>(null);
   const [previousRuns, setPreviousRuns] = useState<
     { runId: string; ranAt: string; log: ResearchLogEntry[] }[]
   >([]);
@@ -60,6 +61,7 @@ export function MarketResearchEngine({
         setFindings(result.findings);
         setLog(result.log);
         setLatestRanAt(result.latestRanAt);
+        setLatestIncompleteRanAt(result.latestIncompleteRanAt);
         setPreviousRuns(result.previousRuns);
       })
       .catch(() => {
@@ -75,16 +77,11 @@ export function MarketResearchEngine({
 
   const search = useMutation({
     mutationFn: async () => run({ data: { acquisitionId } }),
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setFindings(result.findings);
-      // A run replaces the previous values; the earlier run moves to history.
-      setPreviousRuns((runs) =>
-        log && log.length && latestRanAt
-          ? [{ runId: `${latestRanAt}`, ranAt: latestRanAt, log }, ...runs]
-          : runs,
-      );
       setLog(result.log);
       setLatestRanAt(result.ranAt);
+      setLatestIncompleteRanAt(null);
       setSuggested(result.suggestedSetAside);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
@@ -92,6 +89,12 @@ export function MarketResearchEngine({
         } (FAR 19.502-2).`,
       );
       setMessage(null);
+      const refreshed = await read({ data: { acquisitionId } });
+      setFindings(refreshed.findings);
+      setLog(refreshed.log);
+      setLatestRanAt(refreshed.latestRanAt);
+      setLatestIncompleteRanAt(refreshed.latestIncompleteRanAt);
+      setPreviousRuns(refreshed.previousRuns);
     },
     onError: (e: Error) => setMessage(`The research did not run: ${e.message}. Try again.`),
   });
@@ -158,6 +161,12 @@ export function MarketResearchEngine({
             <h5 className="text-[15px] font-medium">
               Research log{latestRanAt ? `, most recent run ${latestRanAt.slice(0, 10)}` : ""}
             </h5>
+            {latestIncompleteRanAt ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                A later run on {latestIncompleteRanAt.slice(0, 10)} did not save a source log. The completed log below
+                remains the current record.
+              </p>
+            ) : null}
             {log.length ? (
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
@@ -185,6 +194,11 @@ export function MarketResearchEngine({
                   ))}
                 </tbody>
               </table>
+            ) : latestIncompleteRanAt ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                The latest research run did not save a source log. Run the research again
+                {previousRuns.length ? " or open a previous completed run below." : "."}
+              </p>
             ) : (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 The research has not been run on this file yet.
