@@ -1237,6 +1237,10 @@ function DocumentPage() {
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
   const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
+  // The standing body follows the same method test as the citation, so a
+  // simplified file never reads Part 15 prose.
+  const sectionBody = (s: SectionDef) =>
+    methodKnown ? sectionStandingText(s, citationValues) : s.standingText;
   const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
 
   const runDraft = async (key: string) => {
