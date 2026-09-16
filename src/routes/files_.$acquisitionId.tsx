@@ -2372,6 +2372,8 @@ function FilePage() {
         </div>
       </details>
 
+      <ClauseChangeBanner acquisitionId={acquisitionId} />
+
       <CompanionGatesPanel gates={companionGates} />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
