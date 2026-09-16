@@ -59,6 +59,7 @@ import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
 import { CdrlPanel } from "@/components/cdrl-panel";
+import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
@@ -2929,6 +2930,17 @@ function FilePage() {
                       applied={appliedClauseNumbers}
                       actorName={actorName}
                       phase={p.phase}
+                    />
+                  ) : null}
+                  {acq ? (
+                    <SowClauseAssistPanel
+                      acquisitionId={acquisitionId}
+                      facts={acq as Record<string, unknown>}
+                      recommended={packetClauses}
+                      canWrite={canWrite}
+                      actor={actorName}
+                      phase={p.phase}
+                      onBanner={setBanner}
                     />
                   ) : null}
                   {packetSelection.length > 0 ? (
