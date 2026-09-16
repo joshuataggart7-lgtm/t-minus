@@ -3145,7 +3145,26 @@ function FilePage() {
                     defaultOpen={p.phase === "Award"}
                     acquisitionId={acquisitionId}
                     suggestedForm={suggestedOfficialForm}
+                    assemblyCounts={
+                      buildNf1098Assembly({
+                        fileIndex,
+                        scaffold: formatScaffold,
+                        recommendedClauseCount: packetClauses.length,
+                        appliedClauseCount: appliedClauseNumbers?.length ?? null,
+                      }).counts
+                    }
                   />
+                  {acq ? (
+                    <FpdsFillAidSummary
+                      input={{
+                        acq: acq as unknown as Record<string, unknown>,
+                        awardDate: lifecycle?.awardDate ?? null,
+                        centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
+                      }}
+                      onExport={() => fpdsExport.mutate()}
+                      exporting={fpdsExport.isPending}
+                    />
+                  ) : null}
                   <Nf1098AssemblyPanel
                     acquisitionId={acquisitionId}
                     input={{
