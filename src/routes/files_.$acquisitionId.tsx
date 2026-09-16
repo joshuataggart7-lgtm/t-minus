@@ -1179,8 +1179,13 @@ function FilePage() {
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    // Setting the name and putting the link in the page before the click is
+    // what keeps the browser from renaming the file to the blob id.
+    a.setAttribute("download", fileName);
+    a.rel = "noopener";
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     URL.revokeObjectURL(url);
     // The packet is a local file the officer carries into NCMS by hand.
     // T-Minus does not write to NCMS, and this prototype makes no claim to.
