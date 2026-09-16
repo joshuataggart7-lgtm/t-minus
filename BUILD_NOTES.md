@@ -1241,3 +1241,8 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
 - PNM reference line and visible citation badge on simplified files read RFO FAR 12.204(a); FAR 13.106-3(b)(3), seeded from the record's acquisition method and contract format. Genuine Part 15 files still route to FAR 15.406-3.
 - Exported PNM / Word / PDF / NF 1858 text strips the literal "Draft, confirm." flags; the on-screen "Drafted from the record — confirm." hints remain.
 - Verified on A-2027-0101 and A-2027-0102 PNM routes; no console errors.
+
+## P0.4 IDIQ clause note (16 Sep 2026)
+- A-2026-0090 / orders under IDIQ: full vehicle clause reconciliation deferred as risky this turn.
+- Instead the Solicitation/Quote and Award clause packet on IDIQ parent and order files shows a calm on-screen note: "Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don't open the clause delta on this file during the walkthrough."
+- Sample 1/2 seeds untouched; no new holds; no NCMS/FedRAMP/live FPDS claims.
