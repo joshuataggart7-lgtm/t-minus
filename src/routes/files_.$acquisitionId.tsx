@@ -2147,7 +2147,7 @@ function FilePage() {
                             )
                           ) : null}
                           <span className="block w-full">
-                            <ExplainThis explanation={explainDocRow(d, p.phase, saved || attached)} label={saved || attached ? "Why this row" : "Why?"} />
+                            <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(saved || attached))} label={saved || attached ? "Why this row" : "Why?"} />
                           </span>
 
                         </>
