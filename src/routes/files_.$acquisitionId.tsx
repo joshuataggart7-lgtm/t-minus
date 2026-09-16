@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { loadModTasks } from "@/lib/clause-impact";
+import { loadModTasks, storedClauseList } from "@/lib/clause-impact";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { Nf1707Signoffs } from "@/components/nf1707-signoffs";
@@ -47,6 +47,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
+import { ClausePicker } from "@/components/clause-picker";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { buildFileIndex } from "@/lib/file-index";
