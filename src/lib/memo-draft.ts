@@ -1001,6 +1001,7 @@ function memorandumForRecord(ctx: MemoDraftCtx): Values {
         }`;
   const out: Values = { opening, file_tab: "001" };
   if (purpose === "Chronology of the acquisition to date") out["body"] = chronologyParagraphs(ctx);
+  if (purpose === MFR_SITUATION_PURPOSE) out["body"] = situationScaffold(ctx);
   return out;
 }
 
