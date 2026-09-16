@@ -1,3 +1,4 @@
+import { CLAUSE_FILLIN_NOTE } from "@/lib/clause-fillins";
 // Award handoff.
 //
 // One place an officer reads top to bottom and keys into NCMS. Nothing here is
@@ -262,6 +263,7 @@ export function AwardHandoffPanel({
 
           <section>
             <Head n={5}>Clauses in order, with fill-ins</Head>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
             {scaffold.clauses.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 No clauses selected for this file yet.
@@ -287,7 +289,7 @@ export function AwardHandoffPanel({
                       </td>
                       <td className="p-2">{c.section}</td>
                       <td className="p-2 text-muted-foreground">
-                        {c.fillIns ?? "No fill-in recorded in the matrices"}
+                        {c.fillIns ?? "No fill-in recorded on the file or in the matrices"}
                       </td>
                     </tr>
                   ))}

@@ -1969,3 +1969,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## Successor-clock polish (#24)
 - Launched files with a PoP end and no linked successor now state the follow-on must start by the computed date (same phase-plan formula) with a pointer to Intake; Overview method copy and the file section both state the clock is advisory only — no holds, no auto-created files.
+- Clause fill-ins now read from the record (CO, period of performance, place, ordering period, 52.217-9 notice lead) via src/lib/clause-fillins.ts; shown in the clause picker, format scaffold, handoff packet and Award handoff, with honest "Not recorded" blanks. 52.212-3 / 52.212-5 stay off. Advisory only; NCMS remains the system of record.

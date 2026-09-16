@@ -9,6 +9,7 @@
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
+import { clauseFillinText } from "@/lib/clause-fillins";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
@@ -260,7 +261,9 @@ export function buildFormatScaffold(
     title: c.title,
     section: (c.ucf_section ?? "").trim() || "Not recorded in the matrices",
     reason: c.reason,
-    fillIns: fillInText(c.fill_ins),
+    // Record first: the officer sees the dates, names and limits this file
+    // already carries, with honest blanks, not just whatever the matrices hold.
+    fillIns: clauseFillinText(facts, c.clause_number, c.fill_ins) ?? fillInText(c.fill_ins),
   }));
 
   return {
@@ -347,7 +350,7 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       title: c.title,
       section: c.section,
       reason: c.reason,
-      fill_ins: c.fillIns ?? "No fill-in recorded in the matrices",
+      fill_ins: c.fillIns ?? "No fill-in recorded on the file or in the matrices",
     })),
     note: "Local scaffolding for the handoff packet. NCMS is the system of record; T-Minus does not write to NCMS.",
 

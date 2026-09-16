@@ -51,6 +51,7 @@ import { awardConfidence, historyFrom } from "@/lib/confidence";
 import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
+import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
@@ -1545,6 +1546,20 @@ function FilePage() {
     [packetClauses, appliedClauseNumbers],
   );
 
+  // Fill-ins the award carries, read from the record first and the matrices
+  // second, with blanks left reading "Not recorded".
+  const awardFillins = useMemo(
+    () =>
+      packetSelection
+        .map((c) => ({
+          clause_number: c.clause_number,
+          text: clauseFillinText((acq as Record<string, unknown> | null) ?? null, c.clause_number, c.fill_ins),
+        }))
+        .filter((row): row is { clause_number: string; text: string } => Boolean(row.text)),
+    [packetSelection, acq],
+  );
+
+
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
   // The method on the record drives the shell: SF 1449 with Part 12/13 voice,
@@ -3003,6 +3018,7 @@ function FilePage() {
                       applied={appliedClauseNumbers}
                       actorName={actorName}
                       phase={p.phase}
+                      facts={(acq as Record<string, unknown> | null) ?? null}
                     />
                   ) : null}
                   {acq ? (
@@ -3107,23 +3123,17 @@ function FilePage() {
                     onExport={() => evidencePack.mutate()}
                     exporting={evidencePack.isPending}
                   />
-                  {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
+                  {p.phase === "Award" && awardFillins.length > 0 ? (
                     <div className="mt-3 border border-border p-4">
                       <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
-                      <p className="mt-1 text-[13px] text-muted-foreground">
-                        Read from the clause matrices. The officer sets each value before the award is written in NCMS.
-                      </p>
+                      <p className="mt-1 text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
                       <ul className="mt-2 space-y-1 text-[13px]">
-                        {packetSelection
-                          .filter((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0)
-                          .map((c) => (
-                            <li key={c.clause_number}>
-                              <span data-numeric>{c.clause_number}</span>{" "}
-                              <span className="text-muted-foreground">
-                                {(c.fill_ins as unknown[]).map((v) => String(v)).join("; ")}
-                              </span>
-                            </li>
-                          ))}
+                        {awardFillins.map((row) => (
+                          <li key={row.clause_number}>
+                            <span data-numeric>{row.clause_number}</span>{" "}
+                            <span className="text-muted-foreground">{row.text}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   ) : null}
