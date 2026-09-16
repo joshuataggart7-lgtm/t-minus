@@ -14,6 +14,14 @@ export const CITE_STUB_NOTE =
 export const CITE_CORPUS_UNLOADED_NOTE =
   "Citation stub: the regulation corpus is not loaded in this session, so this citation is shown as recorded text only.";
 
+export const NFS_CG_NOT_LOADED_NOTE =
+  "NFS Companion Guide text is not loaded in this prototype.";
+
+/** True when a citation names the NFS Companion Guide (NFS CG / Companion Guide). */
+export function citationHasCompanionGuide(citation: string | null | undefined): boolean {
+  return /NFS\s+CG|\bCompanion Guide\b/i.test(String(citation ?? ""));
+}
+
 /** Citation tokens in a line of prose: FAR 13.106-3, NFS 1819.202-70, 41 U.S.C. 1901. */
 export function citationTokens(citation: string | null | undefined): string[] {
   const text = String(citation ?? "");

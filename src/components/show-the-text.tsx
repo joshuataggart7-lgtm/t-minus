@@ -6,11 +6,14 @@
 // regulation text is ever generated here.
 
 import { useId, useState } from "react";
-import { citationTokens, useCiteCorpus } from "@/lib/cite-stub";
+import { citationHasCompanionGuide, citationTokens, useCiteCorpus } from "@/lib/cite-stub";
 import { formatRefDate, tierLabel, type RegRefRow } from "@/lib/regulation-sidebar";
 
 const NO_BODY_NOTE =
   "The full regulation paragraph is not loaded in this prototype. Read the authority at its official source before relying on it.";
+
+const NFS_CG_NOTE =
+  "NFS Companion Guide text is not loaded in this prototype.";
 
 function normalise(value: string): string {
   return value.replace(/\s+/g, " ").trim().toUpperCase();
@@ -32,6 +35,7 @@ export function ShowTheText({ citation }: { citation: string | null | undefined 
   const { rows, state } = useCiteCorpus();
   if (!String(citation ?? "").trim()) return null;
   const matches = corpusRowsFor(citation, rows);
+  const isCompanionGuide = citationHasCompanionGuide(citation);
   return (
     <span className="inline-block align-baseline">
       <button
@@ -46,6 +50,9 @@ export function ShowTheText({ citation }: { citation: string | null | undefined 
       {open ? (
         <div id={id} className="mt-2 max-w-[70ch] border border-border bg-background p-4 text-[13px] leading-[18px]">
           <p className="font-medium">{citation}</p>
+          {isCompanionGuide ? (
+            <p className="mt-1 text-muted-foreground">{NFS_CG_NOTE}</p>
+          ) : null}
           {state.loading ? (
             <p className="mt-2 text-muted-foreground">Loading the reference list.</p>
           ) : state.failed || !rows || rows.length === 0 ? (
