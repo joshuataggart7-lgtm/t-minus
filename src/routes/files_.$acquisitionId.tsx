@@ -3194,7 +3194,7 @@ function FilePage() {
       <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
-          <div className="w-full min-w-0 overflow-x-auto">
+          <div className="w-full min-w-0 max-w-[calc(100vw-6.5rem)] overflow-x-auto sm:max-w-full">
           <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
