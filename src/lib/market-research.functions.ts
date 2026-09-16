@@ -36,6 +36,10 @@ export type ResearchRunView = {
   suggestedSetAside: string;
   entityCount: number;
   noticeCount: number;
+  /** Sources Sought notices found in the same read-only SAM.gov search. */
+  sourcesSought: { title: string; posted: string; setAside: string }[];
+  /** True when a notices window was actually searched. */
+  noticesSearched: boolean;
   awardCount: number;
 };
 
