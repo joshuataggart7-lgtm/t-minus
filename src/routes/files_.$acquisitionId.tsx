@@ -412,6 +412,30 @@ function FilePage() {
   }
 
 
+  // Prior files of the same profile, for the honest days-to-award range. Read
+  // only: the public fields of every record and the recorded launch events.
+  const historyQ = useQuery({
+    queryKey: ["award-history"],
+    enabled: authState === "signed-in",
+    staleTime: 300_000,
+    queryFn: async () => {
+      const [acqs, launched] = await Promise.all([
+        supabase.from("acquisition_facts").select("*"),
+        supabase.from("audit_log").select("acquisition_id,action,logged_at").eq("action", "Launched"),
+      ]);
+      return { acqs: acqs.data ?? [], launched: launched.data ?? [] };
+    },
+  });
+
+  const confidence = useMemo(() => {
+    if (!acq || !q.data?.plan) return null;
+    const history = historyFrom(
+      (historyQ.data?.acqs ?? []) as unknown as AcqRow[],
+      historyQ.data?.launched ?? [],
+    );
+    return awardConfidence(acq as AcqRow, history, q.data.plan as PhasePlanRow[]);
+  }, [acq, q.data?.plan, historyQ.data]);
+
   // The successor clock reads the same phase plan the launch sequence reads.
   const successor = useMemo(() => {
     if (!acq) return null;
