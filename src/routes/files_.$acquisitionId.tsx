@@ -1388,6 +1388,17 @@ function FilePage() {
                 evaluation: formatScaffold.evaluation,
               }
             : null,
+          clins: scheduleClins.map((c) => ({
+            clin: c.clin,
+            description: c.description,
+            amount: c.amount,
+            note: c.note,
+          })),
+          methodShellLabel: shell
+            ? `${shell.path === "sf1449" ? "SF 1449" : "UCF"} / ${shell.partFamily === "12_13" ? "Part 12-13" : "Part 15"}`
+            : null,
+          competitive: shell ? shell.competitive : null,
+          sectionJCount: sectionJ.length,
           gates: companionGates
             .filter((g) => g.applies)
             .map((g) => ({
