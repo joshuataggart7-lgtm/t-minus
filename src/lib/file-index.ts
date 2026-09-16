@@ -53,6 +53,10 @@ export type IndexTab = {
   origin: "generated" | "uploaded";
   open: IndexOpen | null;
   documents: IndexDocument[];
+  /** Crosswalk WSC enrichment, present only where the template is mapped. */
+  nearOrder?: number;
+  nearTitle?: string;
+  nearUid?: string;
 };
 
 export type FileIndex = {
