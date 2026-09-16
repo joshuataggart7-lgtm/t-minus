@@ -123,11 +123,20 @@ export function buildFileIndex(
   const present = new Map<string, IndexTab>();
 
   for (const a of attachments) {
-    const tab = normTab(a.nf_1098_tab);
-    if (tab === "" || tab === "—") continue;
+    // An upload with no tab is still on the file. It is listed under an honest
+    // "N/A" rather than dropped out of the index.
+    const tab = displayTab(normTab(a.nf_1098_tab));
     const key = `${tab}|${a.doc_label}`;
     const entry =
-      present.get(key) ?? ({ tab, templateName: a.doc_label, phase: "Intake", documents: [] } satisfies IndexTab);
+      present.get(key) ??
+      ({
+        tab,
+        templateName: a.doc_label,
+        phase: "Intake",
+        origin: "uploaded" as const,
+        open: a.attachment_id ? ({ kind: "attachment" as const, attachmentId: a.attachment_id }) : null,
+        documents: [],
+      } satisfies IndexTab);
     entry.documents.push({
       templateName: a.file_name,
       version: entry.documents.length + 1,
@@ -136,6 +145,7 @@ export function buildFileIndex(
       memo: false,
       memoTo: null,
     });
+    if (a.attachment_id) entry.open = { kind: "attachment", attachmentId: a.attachment_id };
     present.set(key, entry);
   }
 
@@ -143,10 +153,10 @@ export function buildFileIndex(
     const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
     if (!tpl) continue;
     // A memorandum for record is filed under the tab the contracting officer
-    // picked when saving it, not under the template's own tab.
+    // picked when saving it, not under the template's own tab. A template with
+    // no tab of its own is still listed, under "N/A".
     const picked = normTab(d.field_values?.__tab);
-    const tab = picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab);
-    if (tab === "" || tab === "—") continue;
+    const tab = displayTab(picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
     const def = TEMPLATES.find((t) => t.name === tpl.name);
     const key = `${tab}|${tpl.name}`;
     const entry =
@@ -155,6 +165,8 @@ export function buildFileIndex(
         tab,
         templateName: tpl.name,
         phase: def ? phaseForTemplate(def.key) : "—",
+        origin: "generated" as const,
+        open: openFor(tpl.name, def?.key),
         documents: [],
       } satisfies IndexTab);
     entry.documents.push({
