@@ -403,9 +403,39 @@ export function selectPacketClauses(
   const value = num(facts, "estimated_value");
   const type = `${str(facts, "contract_type")} ${str(facts, "hybrid_contract_type")}`;
   const place = str(facts, "place_of_performance_standardized") || str(facts, "place_of_performance");
-  const commercialText = `${str(facts, "commercial_determination")} ${str(facts, "contract_format")} ${str(facts, "acquisition_method")}`;
   const post = facts["post_award"] as { option_periods?: unknown[]; options?: unknown[] } | null | undefined;
   const optionList = (post?.option_periods ?? post?.options) as unknown[] | undefined;
+
+  // The vehicle and the scenario answered at intake carry facts the contract
+  // type alone does not: a parent IDIQ can be FFP-priced, and a commercial
+  // clause set can be recorded on the vehicle rather than on the determination.
+  const vehicle = (facts["vehicle"] ?? {}) as Record<string, unknown>;
+  const scenario = (facts["scenario"] ?? {}) as Record<string, unknown>;
+  const clauseSet = typeof vehicle["clause_set"] === "string" ? (vehicle["clause_set"] as string) : "";
+  const scenarioVehicle = typeof scenario["vehicle"] === "string" ? (scenario["vehicle"] as string) : "";
+  const parentNumber = str(facts, "parent_contract_number");
+  const vehicleText = `${clauseSet} ${str(facts, "title")} ${str(facts, "vehicle_type")}`;
+
+  const commercialText = `${str(facts, "commercial_determination")} ${str(facts, "contract_format")} ${str(facts, "acquisition_method")}`;
+
+  let idiq = false;
+  let idiqSource = "";
+  if (/idiq|indefinite/i.test(type)) {
+    idiq = true;
+    idiqSource = `Contract type on the record: ${str(facts, "contract_type")}`;
+  } else if (/^idiq_(award|order)$/.test(scenarioVehicle) || /order_under/i.test(scenarioVehicle)) {
+    idiq = true;
+    idiqSource =
+      scenarioVehicle === "idiq_award"
+        ? "The record answers this file as a parent indefinite-delivery vehicle"
+        : "The record answers this file as an order under an indefinite-delivery vehicle";
+  } else if (parentNumber.trim()) {
+    idiq = true;
+    idiqSource = `The record names a parent contract: ${parentNumber}`;
+  } else if (/idiq|indefinite quantity|indefinite delivery/i.test(vehicleText)) {
+    idiq = true;
+    idiqSource = "The vehicle recorded on this file reads as indefinite delivery";
+  }
 
   const ctx: Ctx = {
     f: facts,
