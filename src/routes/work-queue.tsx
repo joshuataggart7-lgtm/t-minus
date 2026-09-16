@@ -204,7 +204,7 @@ function WorkQueuePage() {
     rows.sort((a, b) => {
       if (sortBy === "owner") return a.owner.localeCompare(b.owner);
       if (sortBy === "phase") return String(a.m.currentPhase ?? "").localeCompare(String(b.m.currentPhase ?? ""));
-      const value = (c: Card) => (typeof c.m.daysToAward === "number" ? c.m.daysToAward : Number.POSITIVE_INFINITY);
+      const value = (c: Card) => (typeof c.days === "number" ? c.days : Number.POSITIVE_INFINITY);
       return value(a) - value(b);
     });
     return rows;
@@ -387,7 +387,7 @@ function WorkQueuePage() {
                     ? `${c.m.daysSinceAward ?? 0} since award`
                     : c.m.clockState === "scrubbed"
                       ? "Clock stopped"
-                      : (c.m.daysToAward ?? "Clock not started")}
+                      : (c.days ?? "Clock not started")}
                 </td>
                 <td className="p-2">
                   <span
@@ -432,7 +432,7 @@ function CardView({ c }: { c: Card }) {
               ? (c.m.daysSinceAward ?? 0)
               : c.m.clockState === "scrubbed"
                 ? "—"
-                : (c.m.daysToAward ?? "—")}
+                : (c.days ?? "—")}
           </p>
           <p className="text-[12px] text-muted-foreground">
             {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}
