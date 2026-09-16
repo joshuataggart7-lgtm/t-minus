@@ -64,7 +64,7 @@ export function Nf1098AssemblyPanel({
               <td className="p-2" data-numeric>{r.slot}</td>
               <td className="p-2">{r.item}</td>
               <td className="p-2">
-                <span className={r.status === "Missing" ? "text-[hsl(var(--status-risk))]" : undefined}>
+                <span className={r.status === "Missing" ? "text-atrisk" : undefined}>
                   {r.status}
                 </span>
               </td>
