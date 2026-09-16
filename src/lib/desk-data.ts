@@ -28,6 +28,9 @@ export type DeskCard = {
 
 export type DeskData = {
   cards: DeskCard[];
+  plan: PhasePlanRow[];
+  /** launched files with their recorded award dates, for the confidence range */
+  history: HistoryFile[];
   polls: PollRow[];
   centers: { center_code: string; aging_threshold_days?: number | null }[];
   modTasks: {
