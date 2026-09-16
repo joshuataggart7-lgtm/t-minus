@@ -1987,3 +1987,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## UX story polish (2026-09-16)
 
 - `fileStory` now labels the mission date as "mission milestone" and states "need date / PoP start" separately from the record (one phrase when the ISO dates match, both when they differ); the trailing audit boilerplate moved to a quiet muted provenance line (`fileStoryProvenance`) under the story. The primary story paragraph is `text-[15px] leading-[22px] text-foreground` with `max-w-[80ch]`; no `text-muted-foreground` on the primary line. Global — every file benefits. No seed, clock, CO, phase, or external-write changes.
+- Search deepen: clause numbers on the file and a capped slice of recent audit text now match in global search, with a match hint per hit and a prototype label. Print: file page yields story + launch sequence + contract file index only, page break before the index.
