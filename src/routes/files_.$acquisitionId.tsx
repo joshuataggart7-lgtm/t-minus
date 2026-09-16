@@ -1784,6 +1784,16 @@ function FilePage() {
   // ------------------------------------------------------ post-award modules
   const pa = postAward(acq);
   const options = useMemo(() => optionSchedule(acq, awardDate), [acq, awardDate]);
+  // The option exercise path reads its authority and its checklist from the
+  // same source the modification wizard uses. Nothing here is a gate.
+  const optionExercise = useMemo(() => {
+    const acqRow = (acq ?? null) as unknown as Record<string, unknown> | null;
+    const method = String(acqRow?.["acquisition_method"] ?? "");
+    return {
+      authority: modAuthorityText("option_exercise", acqRow),
+      rows: modRows({ mod_type: "option_exercise" }, { method }),
+    };
+  }, [acq]);
   const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);
   const retention = useMemo(
     () => retentionView(q.data?.thresholds ?? [], pa.final_payment_date ?? null, awardDate),
