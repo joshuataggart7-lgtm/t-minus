@@ -412,7 +412,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
 
   return (
-    <li className="py-5 first:pt-0 last:pb-0">
+    <li className="py-6 first:pt-1 last:pb-1">
       <div className="grid items-end gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="min-w-0">
           {driver.clockState === "launched" ? (
