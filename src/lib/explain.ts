@@ -18,14 +18,38 @@ export function fileStory(
   milestoneDate: string | null,
   phase: string | null,
   state: string | null,
+  needDate: string | null = null,
+  popStart: string | null = null,
 ): string {
   const words = acquisitionTypeWords(acq);
   // A parent indefinite-delivery vehicle is not bought for one mission; orders
   // placed under it carry the mission. Saying otherwise would misread the record.
   const parentVehicle = acquisitionProfile(acq as unknown as Record<string, unknown>) === "idiq_parent";
+
+  // Need date / PoP start: never conflate with the mission milestone. When the two
+  // record fields are the same ISO date, one phrase is honest; when they differ,
+  // both are shown from the record. When neither is recorded, nothing is added.
+  const day = (iso: string | null) => (iso ? String(iso).slice(0, 10) : null);
+  const nd = day(needDate);
+  const ps = day(popStart);
+  const needPoP =
+    nd && ps
+      ? nd === ps
+        ? `need date / PoP start ${nd}`
+        : `need date ${nd} / PoP start ${ps}`
+      : nd
+        ? `need date ${nd}`
+        : ps
+          ? `PoP start ${ps}`
+          : "";
+  const dateBits = [
+    milestoneDate ? `mission milestone ${milestoneDate}` : "",
+    needPoP,
+  ].filter(Boolean).join("; ");
+
   const mission =
     missionName && !parentVehicle
-      ? ` in support of ${missionName}${milestoneDate ? ` (mission date ${milestoneDate})` : ""}`
+      ? ` in support of ${missionName}${dateBits ? ` (${dateBits})` : ""}`
       : parentVehicle
         ? ", a parent vehicle that orders are placed against"
         : "";
@@ -37,7 +61,13 @@ export function fileStory(
         : phase
           ? `in ${phase}`
           : "at intake";
-  return `This is the contract file for a ${words} buy${mission}, now ${where}; every entry below is written from the record, and the audit trail shows who did what, when, and why.`;
+  return `This is the contract file for a ${words} buy${mission}, now ${where}.`;
+}
+
+/** Quiet provenance line for the file: the audit-trail promise, kept off the
+ *  primary story and surfaced behind an "About this file" disclosure instead. */
+export function fileStoryProvenance(): string {
+  return "Every entry below is written from the record, and the audit trail shows who did what, when, and why.";
 }
 
 export type Explanation = {
