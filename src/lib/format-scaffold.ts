@@ -74,6 +74,22 @@ export type FormatScaffold = {
   cdrl: PacketCdrlItem[];
   /** Payment milestones recorded on the file. Empty unless the office added some. */
   paymentMilestones: PacketPaymentMilestone[];
+  /** Section K as recorded on the file. Null where the shell is unknown. */
+  sectionK: ScaffoldSectionK | null;
+};
+
+/** Section K as the panel and the packet both print it. */
+export type ScaffoldSectionK = {
+  path: string;
+  heading: string;
+  path_note: string;
+  sam_status: string;
+  notes: string | null;
+  checklist: { label: string; status: string; note: string | null }[];
+  clauses: { clause_number: string; title: string }[];
+  clauses_empty_note: string | null;
+  empty_note: string | null;
+  note: string;
 };
 
 
@@ -125,6 +141,8 @@ export function buildFormatScaffold(
   cdrl?: PacketCdrlItem[],
   /** Payment milestones recorded on the file. */
   paymentMilestones?: PacketPaymentMilestone[],
+  /** Section K as the officer recorded it, already shaped for the packet. */
+  sectionK?: ScaffoldSectionK | null,
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
