@@ -1566,8 +1566,9 @@ function FilePage() {
         lmOverride,
         sectionJ,
         cdrlItems,
+        paymentItems,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems, paymentItems],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
@@ -2917,6 +2918,12 @@ function FilePage() {
                     onBanner={setBanner}
                   />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
+                  <PaymentMilestonesPanel
+                    acquisitionId={acquisitionId}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
                   <CdrlPanel
                     acquisitionId={acquisitionId}
                     canWrite={canWrite}
