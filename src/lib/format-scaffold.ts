@@ -260,7 +260,9 @@ export function buildFormatScaffold(
     title: c.title,
     section: (c.ucf_section ?? "").trim() || "Not recorded in the matrices",
     reason: c.reason,
-    fillIns: fillInText(c.fill_ins),
+    // Record first: the officer sees the dates, names and limits this file
+    // already carries, with honest blanks, not just whatever the matrices hold.
+    fillIns: clauseFillinText(facts, c.clause_number, c.fill_ins) ?? fillInText(c.fill_ins),
   }));
 
   return {
