@@ -196,7 +196,9 @@
   "funding_fiscal_year": "FY2027",
   "need_date": "2027-03-01",
   "target_award_date": "2027-01-29",
-  "funds_certified": null,
+  "funds_certified": true,
+  "proposed_price": 632800,
+  "proposed_price_received": "2026-09-12",
   "igce_attached": true,
   "sow_attached": true,
   "acquisition_forecast_verified": true,
@@ -234,7 +236,7 @@
    "Section10_foreign_travel": "None",
    "Section11_promotional_items": "None"
   },
-  "note": "Fictional IDIQ order seed under parent A-2026-0090 / 80ARC26D0090. Second snow depth campaign, $640,000. Intake attachments and fair-opportunity stub seeded for demo. igce_attached/sow_attached are true only because demo files exist as stored attachment rows (document_attachments); the loader forces them false only when no files are stored. No FPDS, no real market rates."
+  "note": "Fictional IDIQ order seed under parent A-2026-0090 / 80ARC26D0090. Second snow depth campaign, $640,000. Intake attachments and fair-opportunity stub seeded for demo. igce_attached/sow_attached are true only because demo files exist as stored attachment rows (document_attachments); the loader forces them false only when no files are stored. Demo provenance: funds certified yes for PoP (sample); proposed price $632,800 is a fictional quote consistent with the $640,000 order / parent IDIQ estimate, not a live market rate. No FPDS, no real market rates."
  },
  {
   "acquisition_id": "A-2027-0105",

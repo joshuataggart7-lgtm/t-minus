@@ -931,3 +931,24 @@ campaign, $640,000) under parent IDIQ **A-2026-0090** / contract
   from before the ID collision fix), so a future demo reset restores this
   order rather than re-sticking Intake.
 - Security findings deferred to the security triage pass.
+
+## A-2027-0104 Solicitation/Quote funds-certification seed unblock (2026-09-16)
+
+Mirrors the A-2027-0102 pattern (commits 5379a400 / a7121d14): live DB row
+for order **A-2027-0104** already has `funds_certified = true`,
+`proposed_price = 632800`, `proposed_price_received = 2026-09-12`, with
+`hold_reason`/`hold_owner` null and `clock_state` running (phase Intake).
+
+- **Seed.** `t-minus-seed/acquisitions.json` A-2027-0104 row updated to match:
+  `funds_certified: true` (was `null`), `proposed_price: 632800`,
+  `proposed_price_received: "2026-09-12"`, and the `note` now states the demo
+  provenance (funds certified yes for PoP (sample); proposed price $632,800 is
+  a fictional quote consistent with the $640,000 order / parent IDIQ estimate,
+  not a live market rate). A future demo reset restores this state.
+- **Scope.** Seed + BUILD_NOTES only. No launch-sequence, UI, auth, demo
+  persona, or other acquisition-row changes. No FPDS, no modifications, no
+  end-to-end award, no NCMS write-back, no FedRAMP claims. Fictional data only.
+- **Remaining gates.** The furthest honest gate after this seed is Fair
+  Opportunity / further Solicitation docs / PNM / NCMS handoff — those are
+  **not** claimed done.
+- Security findings deferred to the security triage pass.
