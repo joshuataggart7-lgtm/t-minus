@@ -219,11 +219,6 @@ function RequesterPortal() {
                         ? "This file is waiting on the requesting organization."
                         : "Counted from the dates on the record, not from an estimate."}
                     </p>
-                    {desk ? (
-                      <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
-                        {conf?.sentence}
-                      </p>
-                    ) : null}
                   </div>
 
                   <div>
@@ -246,6 +241,7 @@ function RequesterPortal() {
                     acq={acq}
                     plan={desk?.plan ?? []}
                     awardRange={conf?.sentence ?? null}
+                    missingCount={missing}
                   />
                 </div>
               </section>

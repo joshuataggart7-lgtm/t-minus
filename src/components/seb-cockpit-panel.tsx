@@ -163,24 +163,29 @@ export function SebCockpitPanel({
   const evidenceNoted = factors.filter((f) => factorHasEvidence(f)).length;
   const readinessItems: { label: string; value: string }[] = [
     {
-      label: "Clarifications on the fairness ledger",
-      value: clarifications.length === 0 ? "None recorded" : `${clarifications.length}`,
+      label: "L↔M consistency",
+      value:
+        lamp.status === "ok"
+          ? "Consistent — no findings"
+          : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
     },
     {
-      label: "Factors with evidence notes",
+      label: "Clarifications",
+      value: clarifications.length === 0 ? "No clarifications recorded" : `${clarifications.length} recorded`,
+    },
+    {
+      label: "Evaluation factors with evidence",
       value: !shell.competitive
         ? "Sole-source path"
         : factors.length === 0
-          ? "No factors recorded"
-          : `${evidenceNoted} of ${factors.length}`,
+          ? "No evaluation factors recorded"
+          : evidenceNoted === 0
+            ? `No evidence linked — 0 of ${factors.length}`
+            : `${evidenceNoted} of ${factors.length}`,
     },
     {
-      label: "L↔M consistency lamp",
-      value: lamp.status === "ok" ? "Consistent" : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
-    },
-    {
-      label: "Read receipts on documents",
-      value: "Tracked quietly on each document",
+      label: "Read receipts",
+      value: "Per-document status below",
     },
   ];
 
@@ -193,19 +198,20 @@ export function SebCockpitPanel({
         </span>
       </div>
 
-      {/* Board-ready strip — counts only, never a gate. */}
-      <section className="mt-3" aria-label="Board readiness snapshot">
-        <h5 className="text-[15px] font-medium">Board readiness snapshot</h5>
-        <dl className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+      {/* Board brief — one scannable strip, counts only, never a gate. */}
+      <section className="mt-3 break-inside-avoid" aria-label="Board brief">
+        <h5 className="text-[15px] font-medium">Board brief</h5>
+        <dl className="mt-1 max-w-[80ch] divide-y divide-border border-y border-border text-[13px] leading-[18px]">
           {readinessItems.map((item) => (
-            <div key={item.label} className="border border-border px-3 py-2 text-[13px] leading-[18px]">
+            <div key={item.label} className="flex flex-wrap items-baseline justify-between gap-4 py-1">
               <dt className="text-muted-foreground">{item.label}</dt>
-              <dd className="mt-[2px] font-medium" data-numeric>{item.value}</dd>
+              <dd className="font-medium" data-numeric>{item.value}</dd>
             </div>
           ))}
         </dl>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-          A snapshot only. Counts are advisory; nothing here gates the board, the file or a phase exit.
+          A brief only. Every count is advisory; nothing here gates the board, the file or a phase
+          exit. The detail behind each line sits below.
         </p>
       </section>
 
@@ -437,8 +443,8 @@ export function SebCockpitPanel({
           </p>
         ) : factors.length === 0 ? (
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-            No evaluation factors are recorded on this file yet, so there is nothing to map evidence
-            against.
+            No evaluation factors recorded — record a factor in Section M and evidence can be
+            linked against it.
           </p>
         ) : (
           <ul className="mt-2 divide-y divide-border border-y border-border">

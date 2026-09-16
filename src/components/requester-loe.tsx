@@ -11,17 +11,20 @@ import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import type { RefData } from "@/lib/intake";
 import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/estimator";
-import type { PhasePlanRow } from "@/lib/launch-sequence";
+import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
 
 export function RequesterLoe({
   acq,
   plan,
   awardRange,
+  missingCount,
 }: {
   acq: Record<string, unknown>;
   plan: PhasePlanRow[];
   /** The honest days-to-award range for this file, or null when withheld. */
   awardRange: string | null;
+  /** Items the requesting organization still owes on this file. */
+  missingCount?: number;
 }) {
   const ref: RefData = useMemo(
     () => ({
@@ -48,6 +51,28 @@ export function RequesterLoe({
     return [...out.entries()];
   }, [est]);
 
+  // Planned calendar days from the seeded phase plan for this file's type.
+  // Display only: nothing here recomputes a clock or writes to the record.
+  const planRows = useMemo(() => {
+    const type = acquisitionType(acq as unknown as AcqRow);
+    return plan.filter((p) => p.acquisition_type === type && p.phase);
+  }, [plan, acq]);
+
+  const plannedByPhase = useMemo(() => {
+    const out = new Map<string, number>();
+    for (const r of planRows) {
+      const key = (r.phase ?? "").toLowerCase();
+      if (r.planned_days != null) out.set(key, (out.get(key) ?? 0) + r.planned_days);
+    }
+    return out;
+  }, [planRows]);
+
+  const totalPlannedDays = useMemo(
+    () => planRows.reduce((sum, r) => sum + (r.planned_days ?? 0), 0),
+    [planRows],
+  );
+  const hasPlan = planRows.length > 0 && totalPlannedDays > 0;
+
   return (
     <div>
       <h3 className="text-[15px] font-medium">What this buy costs in contracting work</h3>
@@ -59,13 +84,38 @@ export function RequesterLoe({
         {est.hours.cs.toLocaleString("en-US")} to the contracting specialist.
       </p>
 
-      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
-        {byPhase.map(([phase, hours]) => (
-          <div key={phase} className="contents">
-            <dt className="text-muted-foreground">{phase}</dt>
-            <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
-          </div>
-        ))}
+      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+        <dt className="text-muted-foreground">Planned calendar days</dt>
+        <dd data-numeric>
+          {hasPlan ? `${totalPlannedDays} days across the phase plan` : "Phase-plan days are not loaded for this file"}
+        </dd>
+        {awardRange ? (
+          <>
+            <dt className="text-muted-foreground">Days to award</dt>
+            <dd>{awardRange}</dd>
+          </>
+        ) : null}
+        {missingCount != null ? (
+          <>
+            <dt className="text-muted-foreground">Items you still owe</dt>
+            <dd data-numeric>{missingCount}</dd>
+          </>
+        ) : null}
+      </dl>
+
+      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+        {byPhase.map(([phase, hours]) => {
+          const days = plannedByPhase.get(phase.toLowerCase());
+          return (
+            <div key={phase} className="contents">
+              <dt className="text-muted-foreground">{phase}</dt>
+              <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
+              <dd className="text-muted-foreground" data-numeric>
+                {days != null ? `${days} planned days` : "Planned days not loaded"}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
 
       <h4 className="mt-4 text-[15px] font-medium">What drives it on this file</h4>
@@ -78,9 +128,6 @@ export function RequesterLoe({
         ))}
       </ul>
 
-      {awardRange ? (
-        <p className="mt-3 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">{awardRange}</p>
-      ) : null}
 
       <p className="mt-4 max-w-[70ch] text-[15px] leading-[22px]">
         Technical team — provide a work breakdown structure covering the procurement support work.

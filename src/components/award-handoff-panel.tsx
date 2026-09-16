@@ -57,9 +57,25 @@ export function AwardHandoffPanel({
 
   // Soft readiness strip: advisory only, never holds a phase or blocks exit.
   const notRecorded = blocks.filter((b) => b.value === "Not recorded").length;
+  const clauses = scaffold.clauses ?? [];
+  // Derive blanks defensively from the fill-in string already on each clause.
+  const clausesWithBlanks = clauses.filter((c) =>
+    (c.fillIns ?? "").includes("Not recorded"),
+  ).length;
+  const lmLines = (scaffold.instructions ?? []).length + (scaffold.evaluation?.lines ?? []).length;
+  const kRows = scaffold.sectionK?.checklist?.length ?? 0;
   const readiness = [
     `Cover: ${notRecorded} of ${blocks.length} fields not recorded`,
     clins.length > 0 ? `Schedule: ${clins.length} line items` : "Schedule: no line items",
+    clauses.length > 0
+      ? `Clauses: ${clauses.length} selected — ${clausesWithBlanks} with a Not recorded fill-in`
+      : "Clauses: none selected yet",
+    lmLines > 0
+      ? `${sf ? "Instructions and evaluation" : "Sections L and M"}: ${lmLines} lines recorded`
+      : `${sf ? "Instructions and evaluation" : "Sections L and M"}: nothing recorded`,
+    scaffold.sectionK
+      ? `Representations and certifications: ${kRows} checklist rows · SAM ${scaffold.sectionK.sam_status}`
+      : "Representations and certifications: not recorded",
     attachments.length > 0
       ? `Attachments: ${attachments.length}`
       : `Attachments: ${SECTION_J_EMPTY}`,
@@ -115,18 +131,25 @@ export function AwardHandoffPanel({
 
       {open ? (
         <div className="mt-4 space-y-6">
-          <ul className="max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
-            {readiness.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-            {allEnclosuresEmpty ? (
+          <section aria-label="Packet completeness" className="break-inside-avoid">
+            <h5 className="text-[15px] font-medium">Packet completeness — advisory</h5>
+            <ul className="mt-1 max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
+              {readiness.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+              {allEnclosuresEmpty ? (
+                <li>
+                  No line items, attachments, data requirements or payment milestones are
+                  recorded yet — the packet prints the cover blocks only.
+                </li>
+              ) : null}
+              <li>Advisory only — nothing here holds the file or blocks a phase.</li>
               <li>
-                No line items, attachments, data requirements or payment milestones are
-                recorded yet — the packet prints the cover blocks only.
+                Counts read the record as it stands. No form on this file is Adobe verified; a
+                person checks the fields in desktop Adobe Acrobat Reader.
               </li>
-            ) : null}
-            <li>Advisory only — nothing here holds the file or blocks a phase.</li>
-          </ul>
+            </ul>
+          </section>
 
           <section>
             <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format — cover blocks"}</Head>
@@ -289,7 +312,38 @@ export function AwardHandoffPanel({
                       </td>
                       <td className="p-2">{c.section}</td>
                       <td className="p-2 text-muted-foreground">
-                        {c.fillIns ?? "No fill-in recorded on the file or in the matrices"}
+                        {c.fillIns ? (
+                          <ul className="space-y-[2px]">
+                            {c.fillIns
+                              .split(/;\s*|\n/)
+                              .map((part) => part.trim())
+                              .filter(Boolean)
+                              .map((part) => {
+                                const at = part.indexOf(":");
+                                const label = at > 0 ? part.slice(0, at) : part;
+                                const value = at > 0 ? part.slice(at + 1).trim() : "";
+                                const blank = value === "Not recorded";
+                                return (
+                                  <li key={part}>
+                                    <span>{label}</span>
+                                    {value ? (
+                                      <>
+                                        {": "}
+                                        <span
+                                          className={blank ? "text-[#B45309]" : "text-foreground"}
+                                          data-numeric
+                                        >
+                                          {blank ? "Not recorded — blank" : value}
+                                        </span>
+                                      </>
+                                    ) : null}
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        ) : (
+                          "No fill-in recorded on the file or in the matrices"
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -408,8 +462,8 @@ export function AwardHandoffPanel({
           <section>
             <Head n={9}>Signatures</Head>
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-              Left blank on purpose. The contracting officer signs the award in NCMS; T-Minus
-              records no signature and produces no signed form.
+              Every line below is blank on purpose. T-Minus stores no signature and does not write
+              to NCMS; the contracting officer signs the award in NCMS, the system of record.
             </p>
             <dl className="mt-2 grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-[18px] sm:grid-cols-2">
               {[
@@ -422,7 +476,11 @@ export function AwardHandoffPanel({
               ].map((label) => (
                 <div key={label} className="flex justify-between gap-4 border-b border-border py-1">
                   <dt className="text-muted-foreground">{label}</dt>
-                  <dd>Signed in NCMS</dd>
+                  <dd className="text-muted-foreground">
+                    {label.startsWith("Date")
+                      ? "Not recorded — completed in NCMS"
+                      : "Blank — signed in NCMS"}
+                  </dd>
                 </div>
               ))}
             </dl>
