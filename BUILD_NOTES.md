@@ -1940,3 +1940,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## Wave 5 SEB/board light deepen (2026-09-16)
 - Evaluation cockpit gains an advisory board-readiness snapshot: clarifications count, evidence-note coverage, L↔M lamp state, and quiet read-receipt note. Counts only; never gates board, file, hold, or phase exit.
 - Empty fairness ledger adds a soft line: "Fairness ledger is empty until the office records a clarification." No clarifications, evidence, or scores invented on Samples; clocks, phases, seeds unchanged.
+
+- Wave 4 P1 Section K: added `solicitation_k` (authenticated read, specialist-only write) and `src/lib/solicitation-k.ts`; the K panel now records SAM status, a method-split reps checklist and notes, keeps the matrix K clause list, keeps 52.212-3/52.212-5 out, and keeps `RFO_RESERVED_212_NOTE` on simplified commercial files. Save is specialist-gated and audits "Section K saved"; nothing gates phase exit.
+- The handoff packet and Award handoff panel print the same Section K (new section 3, before L/M); NCMS remains the system of record and no external write is made.
