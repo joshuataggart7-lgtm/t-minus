@@ -486,6 +486,24 @@ function FilePage() {
   });
   const attachments = useMemo(() => attachQ.data ?? [], [attachQ.data]);
 
+  // The schedule of line items. Empty schedules are filled once from the
+  // estimate already on the file; an existing schedule is never overwritten.
+  const clinQ = useQuery({
+    queryKey: ["clin-schedule", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      try {
+        return await ensureClinScheduleFromIgce(acquisitionId);
+      } catch {
+        return loadClinSchedule(acquisitionId);
+      }
+    },
+  });
+  const scheduleClins = useMemo(
+    () => scheduleToScaffoldClins(clinQ.data ?? []),
+    [clinQ.data],
+  );
+
   // The most recent recorded check on this file, read only. Running a check
   // stays where it already lives; this is a stamp and a link.
   const lastCheckQ = useQuery({
