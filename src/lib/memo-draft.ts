@@ -498,7 +498,7 @@ function jofoc(ctx: MemoDraftCtx): Values {
     : gap("choose the statutory authority in item 4, then draft this item against it");
 
   const publicationDate = str(ctx.values?.["notice_date"]);
-  const noticeLine = jofocNoticeStatus({ soleSource, notice: ctx.notice, publicationDate });
+  const noticeLine = jofocNoticeStatus({ soleSource, notice: ctx.notice ?? null, publicationDate });
   const isPosted = Boolean(publicationDate || ctx.notice?.postedOn);
 
   const researchLines = researchLogLines(ctx.researchLog);
