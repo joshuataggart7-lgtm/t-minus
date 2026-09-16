@@ -2117,6 +2117,7 @@ function FilePage() {
             About this prototype
           </Link>
         </p>
+        </>
       ) : null}
 
       {acq && canWrite ? (
