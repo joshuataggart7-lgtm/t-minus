@@ -2016,3 +2016,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Companion gates panel now states Companion Guide citations are process guidance, not binding NFS. Typecheck passed; sample files 0101/0102/0103/0090 all 200. Sample seeds/clocks untouched.
 
 - Blackout notice and Draft RFP alert added as named local aids on the acquisition file; PCD panel now says RFO Part overlay not loaded and names the Jul 23 2026 matrix date. Advisory only: no hold, no SAM publish, no email.
+- Enterprise PSL above-SAT advisory panel, FAR-vs-statute threshold conflict panel (seeded notes only), and Center-local (local) clause group added to the acquisition file page. Soft advisory; never hold a file or block a phase exit.

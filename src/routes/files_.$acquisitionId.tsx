@@ -97,6 +97,9 @@ import { loadDeviationsForAcquisition } from "@/lib/pcd-adoption";
 import { PcdAdoptionPanel } from "@/components/pcd-adoption-panel";
 import { BlackoutNoticePanel } from "@/components/blackout-notice-panel";
 import { DraftRfpAlertPanel } from "@/components/draft-rfp-alert-panel";
+import { EnterprisePslPanel } from "@/components/enterprise-psl-panel";
+import { ThresholdConflictsPanel } from "@/components/threshold-conflicts-panel";
+import { CenterLocalClausesPanel } from "@/components/center-local-clauses-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
@@ -2540,6 +2543,12 @@ function FilePage() {
       <BlackoutNoticePanel acq={acq as Record<string, unknown> | null} onBanner={setBanner} />
 
       <DraftRfpAlertPanel acq={acq as Record<string, unknown> | null} />
+
+      <EnterprisePslPanel acq={acq as Record<string, unknown> | null} />
+
+      <ThresholdConflictsPanel />
+
+      <CenterLocalClausesPanel />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
