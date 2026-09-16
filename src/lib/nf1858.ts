@@ -227,7 +227,7 @@ export type MemoDoc = {
 export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
   const clean = (text: string) => text
     .replace(/\s*\[[^\]]*\]/g, "")
-    .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?)/gi, "")
+    .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in a memorandum body.
     .replace(/(?:^|\s)Draft,\s*confirm\.\s*/gi, " ")
     .replace(/\s+([,.;:])/g, "$1")
