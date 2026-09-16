@@ -332,7 +332,7 @@ function FormPage() {
     try {
       await exportXfaIncremental(form.pdf, xfaDatasets(form), `${form.key}-${acquisitionId}`);
       setMessage(
-        "Form PDF exported. Open it in Adobe Reader; the answers are already in the fields. If your reader will not open it, use the data file with Import Data on the blank form.",
+        "Form PDF exported. Open it in Adobe Acrobat or Adobe Reader on the desktop; a blank face in Chrome or Edge is expected. If desktop Reader will not open it, use the data file with Import Data on the blank form.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
@@ -401,10 +401,22 @@ function FormPage() {
               Export data file for Import Data
             </button>
           </div>
-          <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-            The form PDF is the original form with only its data replaced, so Adobe Reader opens it as the
-            form. The flattened PDF prints every answer as text for the contract file.
-          </p>
+          <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+            <p>
+              Export preview below is the filled view in the browser. Export form PDF writes the official
+              blank with its data replaced; open that file in Adobe Acrobat or Adobe Reader on the desktop
+              to see the values in the form fields.
+            </p>
+            <p className="mt-2">
+              Chrome, Edge, and other built-in viewers often show a blank face for this kind of form. That
+              is expected, not a failed fill. If desktop Reader will not accept the edited file, use Export
+              data file for Import Data and import it onto the blank form from this app.
+            </p>
+            <p className="mt-2">
+              The flattened PDF prints every answer as text for the contract file. Signatures stay empty on
+              purpose. Field-by-field checking in Adobe has not been done in this prototype.
+            </p>
+          </div>
           {message ? (
             <p role="status" className="mb-6 text-[15px]">
               {message}
