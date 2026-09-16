@@ -76,6 +76,8 @@ export type EvidencePackInput = {
   /** Clause numbers actually applied on the file, where any are recorded. */
   appliedClauseNumbers?: string[] | null;
   fpds: FpdsInput;
+  /** The same assembly checklist the file page shows. Built from the record. */
+  assembly?: Nf1098AssemblyInput;
 };
 
 export type EvidencePackResult = { fileName: string; entries: number };
