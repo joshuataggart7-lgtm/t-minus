@@ -6,7 +6,7 @@
 - [ ] Verify A-2027-0101, refusal links, audit output, and desktop/mobile dialogs
 
 # Market research persistence
-- [ ] Prevent incomplete research runs from becoming the latest run
-- [ ] Parse CALC+ v3 results and use a short service keyword
-- [ ] Remove A-2027-0101 orphan runs and verify the completed-run display
+- [x] Prevent incomplete research runs from becoming the latest run
+- [x] Parse CALC+ v3 results and use a short service keyword
+- [x] Remove A-2027-0101 orphan runs and verify the completed-run display
 - [ ] Publish the verified fix
