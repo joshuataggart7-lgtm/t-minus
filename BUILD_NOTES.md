@@ -744,3 +744,27 @@ role check using the existing `private.*` helpers.
 - **`users`** — select stays authenticated for the Center config contact
   roster; insert and delete are administrator-only; update allows specialist,
   administrator, or the person's own row. `user_roles` was not touched.
+
+## Overnight continue pack (16 September 2026)
+
+- **CALC+ always logs.** The GSA CALC+ ceiling-rate step now runs on a wider
+  services/labour reading (service PSC, FAR 8.4, and services keywords now
+  including aviation, flight, charter, survey, inspection, training, repair,
+  research). When it is not applicable it writes an explicit skip row to the
+  research log instead of writing nothing. Zero-result runs still write a row
+  with count 0. No rates are ever invented.
+- **Batch 6 templates are live in launch sequences.** `HQ6`, `HQ6B`, and `HQ6C`
+  template keys were missing from the live-template set, so their rows showed
+  "Template planned; attach an external copy". They now open the drafted form.
+  The postaward successful and unsuccessful notification letters prefill from
+  the evaluation of quotations record (selected offeror plus one letter per
+  unsuccessful offeror). No NCMS write-back.
+- **Public UEI for the exclusions smoke test.** A-2026-0090 carries public SAM
+  UEI `G1THVER8BNL4`, labelled "University of Mississippi (public SAM UEI for
+  exclusions smoke test — not a DEMO vendor)". DEMO* vendors are unchanged.
+- **Contract awards entitlement errors are visible.** When the live SAM.gov
+  Contract Awards call fails, the comparables panel keeps its sample or cached
+  label and adds a plain sentence naming the cause (401 key rejected, 403 key
+  not entitled, 404 address, 429 rate limit, otherwise the status). Live,
+  cached, and sample labels remain accurate; no live awards are invented and no
+  FedRAMP claim is made.
