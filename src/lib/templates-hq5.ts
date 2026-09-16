@@ -1140,7 +1140,7 @@ const cbaNotification: TemplateDef = {
 const CHECKBOX_SYSTEM = ["", "Adequate", "Inadequate", "Other", "N/A"];
 const ppm: TemplateDef = {
   key: "ppm",
-  name: "Prenegotiation Position Memorandum (PPM)",
+  name: "Prenegotiation Position Memorandum (PPM), before negotiations",
   tab: "063",
   layout: "memo",
   badge: {
@@ -1148,9 +1148,9 @@ const ppm: TemplateDef = {
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-01",
-    note: "Used for non-competitive acquisitions, including new awards and modifications to contracts and orders, above the simplified acquisition threshold; approved before negotiations begin. The price negotiation memorandum records the result.",
+    note: "Used for non-competitive acquisitions, including new awards and modifications to contracts and orders, above the simplified acquisition threshold; approved before negotiations begin. The price negotiation memorandum (PNM) is the separate record written after negotiations and is the price reasonableness determination of record.",
   },
-  lead: "Prenegotiation position memorandum, prepared and approved before negotiations open.",
+  lead: "Prenegotiation position memorandum (PPM): the position approved before negotiations open. Not the PNM, which records the result afterwards.",
   sections: [
     {
       id: "title",

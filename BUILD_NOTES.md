@@ -1390,3 +1390,24 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
   and the RFO Reserved note for 52.212-3 / 52.212-5 in the clause picker.
 - No seed rewrites of Sample 1/2 acquisition facts, no new auto-holds, no NCMS write-back,
   no FedRAMP or live FPDS claims.
+
+## Wave 1 W1.5 polish (16 Sep 2026)
+
+- Spelling: "labour" corrected to "labor" throughout the market research runner, including
+  the CALC+ source label written to the research log.
+- CALC+ scope: the research log entry and the conclusion sentence now say what the numbers
+  are — awarded ceiling hourly rates on GSA schedule contracts, a labor comparison point,
+  not a price for this requirement and not inclusive of materials, travel or other direct costs.
+- Sample 2 leftover cite: the SAM.gov notice response rule no longer cites FAR 12.603(c) on a
+  sole-source record; it cites RFO FAR 5.203; RFO FAR 6.104. FAR 12.603 remains on competitive
+  combined synopsis/solicitation files only.
+- PPM label: the template reads "Prenegotiation Position Memorandum (PPM), before negotiations"
+  and both the lead and the badge note state that the PNM is the separate record written after
+  negotiations and is the price reasonableness determination of record.
+- Clause "applied": the picker now reads "N on the file of M recommended" with one line saying
+  what that means — the clause is recorded on the acquisition and carries into the handoff
+  packet, while the solicitation and contract of record are written in NCMS.
+- CO name consistency: A-2027-0103 carried "J. Rivera" while every other synthetic file carried
+  "J. Rivera (fictional CO)". The one record was aligned; no other facts changed.
+- No external writes, no new auto-holds, no seed rewrites on Sample 1/2. P0.1 UEI, P0.2 PNM
+  citations, P0.3 Reserved note and the QA batch 2 IDIQ clause-delta hide are unchanged.
