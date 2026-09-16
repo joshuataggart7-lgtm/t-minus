@@ -132,3 +132,16 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
 export function recordReadReceiptQuietly(input: ReadReceiptInput): void {
   void recordReadReceipt(input).catch(() => undefined);
 }
+
+/** Receipts across several files at once, newest first. Used by the reviewer inbox. */
+export async function loadReceiptsForAcquisitions(ids: string[]): Promise<ReadReceiptRow[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from("document_read_receipts")
+    .select(SELECT)
+    .in("acquisition_id", ids)
+    .order("opened_at", { ascending: false })
+    .limit(200);
+  if (error) throw new Error(error.message);
+  return (data ?? []) as unknown as ReadReceiptRow[];
+}
