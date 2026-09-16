@@ -336,19 +336,24 @@ export const samContractAwards = createServerFn({ method: "POST" })
       pscCode: psc || "—",
       minValue,
       maxValue,
-      awards: awardsFromRaw(raw),
+      awards: localAwards ?? awardsFromRaw(raw),
       source,
       sourceLabel:
         source === "live"
           ? "Live SAM.gov contract awards"
           : source === "cached"
             ? "Cached SAM.gov contract awards"
-            : "Sample data, fictional prior awards",
+            : source === "local"
+              ? `Prior T-Minus actions on NAICS ${naics || "—"} / PSC ${psc || "—"}`
+              : "Sample data, fictional prior awards",
       checkedAt,
     };
     if (providerError) {
       view.providerError = providerError;
-      view.providerNote = providerNoteFrom(providerError);
+      view.providerNote =
+        source === "local"
+          ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${naics || "—"} / PSC ${psc || "—"}. These rows are files in this system, not external awards. ${providerNoteFrom(providerError)}`
+          : providerNoteFrom(providerError);
     }
 
     const { error: saveError } = await supabaseAdmin.from("sam_checks").insert({
