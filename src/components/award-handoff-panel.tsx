@@ -108,6 +108,13 @@ export function AwardHandoffPanel({
 
       {open ? (
         <div className="mt-4 space-y-6">
+          <ul className="max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
+            {readiness.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+            <li>Advisory only — nothing here holds the file or blocks a phase.</li>
+          </ul>
+
           <section>
             <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format — cover blocks"}</Head>
             <p className="mt-1 text-[13px] text-muted-foreground">{scaffold.formatSource}</p>
