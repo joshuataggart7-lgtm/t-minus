@@ -160,6 +160,11 @@ function WorkQueuePage() {
         const dependency = m.blocker === "None"
           ? "None"
           : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
+        // The file page falls back to the need date when no target award date
+        // is recorded, so a running clock never reads "Clock not started".
+        const running = m.clockState !== "launched" && m.clockState !== "scrubbed";
+        const target =
+          (acq.target_award_date as string | null) ?? ((acq as Record<string, unknown>)["need_date"] as string | null) ?? null;
         return {
           m,
           column: columnFor(m),
@@ -168,6 +173,7 @@ function WorkQueuePage() {
           nextTask,
           dependency,
           daysInPhase: current?.actual_days ?? null,
+          days: m.daysToAward ?? (running && target ? daysBetween(today, target) : null),
         };
       });
   }, [q.data, ref]);
