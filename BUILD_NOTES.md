@@ -1983,3 +1983,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Added `emailCiteForMethod(acq)` so draft citations stay method-correct in one place: simplified/commercial files use FAR 13.106-3(d) and FAR 13.106-3; negotiated files use FAR 15.506(a) and FAR 15.404-1. No Part 15 citation ever lands on a simplified file.
 - Requester nudge now orders the IGCE row first; vendor notice uses the method-correct unsuccessful line, and the successful line stays a courtesy with NCMS as the document of record.
 - Copy only — no send, no NCMS/FPDS write, advisory only and never holds a phase exit. Sample clocks, COs, phases and seeds untouched.
+
+## UX story polish (2026-09-16)
+
+- `fileStory` now labels the mission date as "mission milestone" and states "need date / PoP start" separately from the record (one phrase when the ISO dates match, both when they differ); the trailing audit boilerplate moved to a quiet muted provenance line (`fileStoryProvenance`) under the story. The primary story paragraph is `text-[15px] leading-[22px] text-foreground` with `max-w-[80ch]`; no `text-muted-foreground` on the primary line. Global — every file benefits. No seed, clock, CO, phase, or external-write changes.
