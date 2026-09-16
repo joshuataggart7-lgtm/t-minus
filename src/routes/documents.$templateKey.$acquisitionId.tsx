@@ -1187,7 +1187,16 @@ function DocumentPage() {
 
   const set = (key: string, v: string) => {
     setTouched(true);
-    setValues((prev) => ({ ...prev, [key]: v }));
+    setValues((prev) => {
+      const next = { ...prev, [key]: v };
+      // Choosing the offeror rewrites the letter for that quoter, so one row
+      // yields one letter per unsuccessful offeror on the evaluation record.
+      if (key === "offeror_slot" && def && def.key === "postaward-letter-unsuccessful" && q.data?.acq) {
+        const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: next });
+        return applyMemoDraft(next, draft);
+      }
+      return next;
+    });
   };
 
   return (
