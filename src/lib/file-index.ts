@@ -203,8 +203,11 @@ export function buildFileIndex(
     // picked when saving it, not under the template's own tab. A template with
     // no tab of its own is still listed, under "N/A".
     const picked = normTab(d.field_values?.__tab);
-    const tab = displayTab(picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
     const def = TEMPLATES.find((t) => t.name === tpl.name);
+    // Where the template carries no tab, the Crosswalk WSC tab is used so the
+    // index reads honestly; a real tab on the record is left alone.
+    const resolved = nearFields(def?.key, picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
+    const tab = displayTab(resolved.tab);
     const key = `${tab}|${tpl.name}`;
     const entry =
       present.get(key) ??
@@ -215,6 +218,7 @@ export function buildFileIndex(
         origin: "generated" as const,
         open: openFor(tpl.name, def?.key),
         documents: [],
+        ...resolved.near,
       } satisfies IndexTab);
     entry.documents.push({
       templateName: tpl.name,
