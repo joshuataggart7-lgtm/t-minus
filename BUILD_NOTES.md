@@ -1296,3 +1296,23 @@ authority text is on hand:
 No citation text is invented or altered. Authority order unchanged: FAR/RFO, Interim NFS,
 NFS CG process-only. No seed edits, no new auto-holds, no NCMS write-back, FedRAMP, or live
 FPDS claims. Sample 1 and Sample 2 seeds untouched.
+
+## GSA SF 1449 and SF 30 as generated forms (16 Sep 2026)
+
+- Official blank forms downloaded from GSA and served unchanged as local static
+  assets: `public/forms/SF1449.pdf` (gsa.gov/system/files/SF1449-21.pdf) and
+  `public/forms/SF30.pdf` (gsa.gov/system/files/SF30-16c.pdf). No stubs were
+  needed; no PDF bytes were invented or edited.
+- `src/lib/sf-forms.ts` builds both forms from the acquisition record only
+  (blocks left blank where the record is silent, with a plain gap note). Field
+  paths are the forms' own XFA paths, so the populated export is the official
+  form carrying the record's data.
+- Registered in the existing generated-form engine (`FormKey`, `FORM_NAMES`,
+  `GENERATED_FORM_KEYS`, `buildForm`) and the `/forms/$formKey/$acquisitionId`
+  route. Two library rows added (SF 1449, SF 30) so versions can be saved.
+- Click path: `/forms/sf-1449/A-2027-0101` and `/forms/sf-30/A-2027-0102`.
+- No external writes. The solicitation and contract of record are built in NCMS
+  (NFS 1804.171); T-Minus produces a fill and a handoff only. Sample 1/2 seeds
+  untouched; no new auto-holds; no FedRAMP, live FPDS or SAM publish claims.
+- Known limits: SF 1449 continuation lines beyond item 0001 and the SF 30
+  block 14 continuation page are not populated; the CO completes them.
