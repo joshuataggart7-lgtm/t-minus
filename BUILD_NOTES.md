@@ -1607,3 +1607,29 @@ changes under the demo.
 No Sample 1 or Sample 2 facts changed, the SF 30 block 13 authority lock is
 untouched, the A-2026-0090 clause delta stays hidden, and no external system is
 written.
+
+## Standalone drafts and the situation-memo starter (optional polish after LOE)
+
+Any live template in the catalog can now be drafted onto any open file without
+a Required launch-sequence row. On the acquisition file, "Draft a document
+outside the sequence" lists every live template; choosing one opens the normal
+document writer at `/documents/{templateKey}/{acquisitionId}?standalone=1`,
+which drafts from the record and saves versions and exports exactly as today.
+The page carries a standalone label so the draft is never read as a required
+beat, and no new Required rows are added to any sequence, including Sample 1
+and Sample 2.
+
+The situation-memo starter opens a Memorandum for Record on a new purpose,
+"Record of an unexpected event affecting the schedule"
+(`?standalone=1&situation=1`). The scaffold pulls acquisition id, phase, clock
+state, hold reason and owner, target award date and today from the record, and
+leaves honest gap prompts for the event, the schedule effect and the action
+taken. No citation beyond the template's own FAR 4.801/4.803 badge is asserted.
+
+Not changed: W3.1 SF 30 Item 13 authority rules, the requester LOE/WBS ask,
+the Mission Clock Overview, the hard-hidden A-2026-0090 clause delta, Sample
+1/2 acquisition facts. No external writes.
+
+Still queued, not built: GSA SF 33 / SF 26 / OF 347 / OF 348 official blanks
+for Part 15 fills; CO name to Joshua Taggart where a single-name gap appears
+(walked Sample 1/2 Rivera display untouched).
