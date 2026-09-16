@@ -2017,3 +2017,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Blackout notice and Draft RFP alert added as named local aids on the acquisition file; PCD panel now says RFO Part overlay not loaded and names the Jul 23 2026 matrix date. Advisory only: no hold, no SAM publish, no email.
 - Enterprise PSL above-SAT advisory panel, FAR-vs-statute threshold conflict panel (seeded notes only), and Center-local (local) clause group added to the acquisition file page. Soft advisory; never hold a file or block a phase exit.
+- Buying guides & practice guidance panel (RFO hub only; NASA/GSA guides honestly not loaded) and plain-language determination helpers (commerciality / competition / price reasonableness) added to the acquisition file page. Advisory only; no new citations or URLs invented.
