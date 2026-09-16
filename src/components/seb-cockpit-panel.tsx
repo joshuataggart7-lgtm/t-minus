@@ -443,8 +443,8 @@ export function SebCockpitPanel({
           </p>
         ) : factors.length === 0 ? (
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-            No evaluation factors are recorded on this file yet, so there is nothing to map evidence
-            against.
+            No evaluation factors recorded — record a factor in Section M and evidence can be
+            linked against it.
           </p>
         ) : (
           <ul className="mt-2 divide-y divide-border border-y border-border">
