@@ -156,7 +156,7 @@ export async function exportEvidencePack(
 
   // ------------------------------------------------------------- documents
   const indexRows: (string | number | null)[][] = [];
-  ordered.forEach((d, i) => {
+  packed.forEach((d, i) => {
     const tpl = tplById.get(d.template_id ?? "");
     const name = tpl?.name ?? (d.template_id ? String(d.template_id) : "Document");
     const tab = tpl?.nf_1098_tab ?? "";
