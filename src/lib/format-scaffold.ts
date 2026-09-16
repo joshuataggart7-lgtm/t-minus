@@ -121,30 +121,9 @@ export function buildFormatScaffold(
     },
   ];
 
-  // One primary line item drawn from the record. A catalogue of line items is
-  // not invented here; quantity, unit and price are the officer's to set.
-  const clins: ScaffoldClin[] = [
-    {
-      clin: "0001",
-      description: s(facts, "title") || s(facts, "description_of_requirement") || "Requirement on this file",
-      quantity: "Not recorded",
-      unit: "Not recorded",
-      amount: dollars(value),
-      note: "Description and estimated value from the record; quantity, unit and price are set by the officer.",
-    },
-  ];
-
-  const igceNote = facts["igce_attached"] === true;
-  if (igceNote) {
-    clins.push({
-      clin: "0002",
-      description: "Additional line items from the independent government cost estimate",
-      quantity: "—",
-      unit: "—",
-      amount: "See the estimate on this file",
-      note: "Placeholder line; the estimate on this file carries the breakdown.",
-    });
-  }
+  // Line items come from the schedule on the file. No line item is invented
+  // here: an empty schedule prints as empty until the officer adds lines.
+  const clins: ScaffoldClin[] = scheduleClins ?? [];
 
   const has = (num: string) => clauses.some((c) => c.clause_number === num);
   const reasonFor = (num: string) => clauses.find((c) => c.clause_number === num)?.reason ?? null;
