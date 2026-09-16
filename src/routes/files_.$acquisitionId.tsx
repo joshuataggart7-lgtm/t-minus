@@ -55,6 +55,7 @@ import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
+import { exportFpdsFillingSheet } from "@/lib/fpds-filling-sheet";
 import { buildFileIndex } from "@/lib/file-index";
 import {
   ATTACHMENT_ACCEPT,
