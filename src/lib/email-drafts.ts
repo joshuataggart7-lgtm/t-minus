@@ -53,8 +53,10 @@ export function emailCiteForMethod(acq: Facts | null): {
 /** Does the record show an independent government cost estimate on the file? */
 function igceOutstanding(acq: Facts | null, missing: { label: string }[]): boolean {
   if (acq?.["igce_attached"] === true) return false;
+  if (acq?.["igce_attached"] === false) return true;
   return missing.some((m) => /igce|independent government (cost )?estimate/i.test(m.label));
 }
+
 
 export function buildEmailDrafts(input: {
   acq: Facts | null;
