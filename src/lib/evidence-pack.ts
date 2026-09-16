@@ -336,7 +336,7 @@ export async function exportEvidencePack(
     field: "evidence_pack",
     old_value: "",
     new_value: fileName,
-    reason: `Local zip with ${ordered.length} document versions in NF 1098 order, ${findings.length} research findings, ${logRows.length} research log rows, ${audit.length} audit rows, ${clauses.length} clauses and the FPDS filling sheet. Nothing was sent to an external system.`,
+    reason: `Local zip with ${packed.length} document versions in NF 1098 order, ${findings.length} research findings, ${logRows.length} research log rows, ${audit.length} audit rows, ${clauses.length} clauses and the FPDS filling sheet. Nothing was sent to an external system.`,
   });
 
   return { fileName, entries };
