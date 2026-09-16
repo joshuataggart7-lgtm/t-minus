@@ -83,7 +83,7 @@ export function evaluateCompanionGates(
     name: "Technical evaluation report",
     applies: terApplies,
     trigger: `Sole source above the simplified acquisition threshold (${`$${threshold(ref, "Simplified acquisition threshold", 350_000).toLocaleString("en-US")}`}).`,
-    citation: "NFS CG 1815.3; FAR 13.106-3(a)",
+    citation: "FAR 13.106-2 (evaluation of quotations); NFS CG 1815.45(b), guidance: Companion Guide process for the technical evaluation report on a sole source above the threshold",
     status: !terApplies ? "Not applicable" : terSat ? "Satisfied" : "Open",
     evidence: !terApplies
       ? "This file is not a sole-source proposal above the threshold."
