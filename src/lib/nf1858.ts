@@ -323,6 +323,10 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
   await renderPdf(blocks, {
     fileName,
     prototype: true,
+    // The agency insignia at the size and position the blank NF 1858 uses:
+    // 27.2mm by 24.0mm, top right of the first page only.
+    insignia: { url: INSIGNIA_URL, width: 77, height: 68 },
+    runningHead: h.subject,
   });
 }
 
