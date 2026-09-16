@@ -42,6 +42,7 @@ import {
   type PollRow,
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
+import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import {
   exportDocx,
   exportPdf,
@@ -126,6 +127,7 @@ function DocumentPage() {
   const search = Route.useSearch() as { offeror?: number };
   const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
+  const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
   const canWrite = hasAnyRole(["specialist", "hq"]);
 
@@ -1219,6 +1221,7 @@ function DocumentPage() {
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
   const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
+  const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
@@ -1300,6 +1303,9 @@ function DocumentPage() {
         <p className="mt-1 text-[13px] text-muted-foreground">
           {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
+        {badgeCiteStatus.kind === "stub" ? (
+          <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
+        ) : null}
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
             <p>{def.badge.note}</p>

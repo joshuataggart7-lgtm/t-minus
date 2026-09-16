@@ -1281,3 +1281,18 @@ launch sequence and click "Why this row" / "Why?" on any row.
   Depth Campaign 2027") and A-2027-0102 ("… sole source … Coastal Aerosol
   Validation"). FAR/RFO → Interim NFS → NFS CG process-only authority order
   unchanged.
+
+## Tier-1 #6 — citation stubs (16 Sep 2026)
+
+Added `src/lib/cite-stub.ts`. Where a citation renders, the app now checks the loaded
+`regulatory_refs` corpus for a matching token (FAR / RFO / NFS / U.S.C.). With no match, or
+with no corpus loaded in the session, a plain stub line is shown instead of implying the
+authority text is on hand:
+
+- "Why this row" / "Why?" disclosures (`src/components/explain-this.tsx`).
+- Document version badge (`src/routes/documents.$templateKey.$acquisitionId.tsx`), on screen only; exports unchanged.
+- Regulation panel references without a source URL (`src/components/regulation-sidebar.tsx`).
+
+No citation text is invented or altered. Authority order unchanged: FAR/RFO, Interim NFS,
+NFS CG process-only. No seed edits, no new auto-holds, no NCMS write-back, FedRAMP, or live
+FPDS claims. Sample 1 and Sample 2 seeds untouched.

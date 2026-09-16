@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/intake";
+import { CITE_STUB_NOTE } from "@/lib/cite-stub";
 import {
   formatRefDate,
   loadRegulationRefs,
@@ -149,6 +150,7 @@ export function RegulationSidebar({
                   {r.scope === "all" ? (
                     <p className="text-muted-foreground">Applies to every phase.</p>
                   ) : null}
+                  {r.url ? null : <p className="text-muted-foreground">{CITE_STUB_NOTE}</p>}
                   {r.url ? (
                     <p>
                       <a

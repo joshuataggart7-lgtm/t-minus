@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import type { Explanation } from "@/lib/explain";
+import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 
 /**
  * "Explain this": a small disclosure that shows why a flag, hold, or status
@@ -9,6 +10,8 @@ import type { Explanation } from "@/lib/explain";
 export function ExplainThis({ explanation, label = "Explain this" }: { explanation: Explanation; label?: string }) {
   const [open, setOpen] = useState(false);
   const id = useId();
+  const corpus = useCiteCorpus();
+  const cite = citeStatus(explanation.citation, corpus.rows, corpus.state);
   return (
     <span className="inline-block align-baseline">
       <button
@@ -33,6 +36,7 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
           <p className="mt-1">{explanation.rule ?? "Not recorded"}</p>
           <p className="mt-2 font-medium">Citation</p>
           <p className="mt-1 text-muted-foreground">{explanation.citation ?? "Not recorded"}</p>
+          {cite.kind === "stub" ? <p className="mt-1 text-muted-foreground">{cite.note}</p> : null}
           {explanation.note ? <p className="mt-1 text-muted-foreground">{explanation.note}</p> : null}
           <p className="mt-2 font-medium">What would clear it</p>
           <ul className="mt-1 list-disc pl-5">
