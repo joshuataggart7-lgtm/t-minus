@@ -267,7 +267,7 @@ export function ExecutiveOverview() {
         {q.isLoading ? (
           <LoadingNote what="the leadership callouts" />
         ) : callouts.length === 0 ? (
-          <p className="mt-3 text-muted-foreground">Every priority project is On Track.</p>
+          <p className="mt-3 text-muted-foreground">Every priority project is On track.</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {callouts.map((c) => (
