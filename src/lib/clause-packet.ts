@@ -7,6 +7,17 @@
 // the PCD 26-03B and NFS 1852 matrices in the clauses table; a clause the
 // matrices show as removed is never carried into a new document, and FAR
 // 52.212-5 is Reserved and never included.
+//
+// Under the RFO / PCD 26-03B, neither FAR 52.212-3 nor FAR 52.212-5 is
+// recommended, offered, or apply-able on the commercial SF 1449 packet:
+//   - 52.212-5 is Reserved; its old checkbox paragraph no longer carries
+//     commercial clause content.
+//   - Commercial clause content is prescribed via FAR Tables 12-2 and 12-3
+//     (and each clause's own prescription), so formerly bundled clauses are
+//     listed on their own, not through a 52.212-5 block.
+//   - Offeror representations and certifications for commercial buys are made
+//     in SAM (with FAR 52.204-7 on the packet), not by packing 52.212-3.
+// The single reason note surfaced to the officer lives in RFO_RESERVED_212_NOTE.
 
 export type ClauseRow = {
   clause_number: string | null;
