@@ -71,7 +71,7 @@ function RequesterPortal() {
   // Soft fallbacks only. Nothing here changes the record: the requester of
   // record on the samples is left exactly as seeded.
   const { mine, fallback } = useMemo(() => {
-    if (!desk) return { mine: [] as typeof DESK_CARDS, fallback: "none" as "none" | "all" | "samples" };
+    if (!desk) return { mine: [] as DeskCard[], fallback: "none" as "none" | "all" | "samples" };
     const me = user.name.toLowerCase();
     const own = desk.cards.filter((c) => c.requester.toLowerCase() === me);
     if (own.length > 0) return { mine: own, fallback: "none" as const };
