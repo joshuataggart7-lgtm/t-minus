@@ -106,3 +106,41 @@ export async function fileAsOfficialFinal(input: {
   });
   if (logError) throw new Error(logError.message);
 }
+
+/**
+ * Take the official mark off a version. The version itself is never deleted;
+ * it stays on the file as a draft. One audit line is recorded.
+ */
+export async function unfileOfficialFinal(input: {
+  acquisitionId: string;
+  documentId: string;
+  version: number;
+  templateName: string;
+  actor: string;
+  phase?: string | null;
+}): Promise<void> {
+  const row = await supabase
+    .from("documents")
+    .select("field_values")
+    .eq("document_id", input.documentId)
+    .maybeSingle();
+  if (row.error) throw new Error(row.error.message);
+
+  const { error } = await supabase
+    .from("documents")
+    .update({ field_values: clearedFieldValues(row.data?.field_values) as never })
+    .eq("document_id", input.documentId);
+  if (error) throw new Error(error.message);
+
+  const { error: logError } = await supabase.from("audit_log").insert({
+    acquisition_id: input.acquisitionId,
+    actor: input.actor,
+    action: "Official final mark removed",
+    field: input.templateName,
+    old_value: `version ${input.version}`,
+    new_value: null,
+    reason: `${input.actor} unfiled version ${input.version}. The version stays on the file as a draft.`,
+    phase: input.phase ?? null,
+  });
+  if (logError) throw new Error(logError.message);
+}
