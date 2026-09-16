@@ -1530,6 +1530,9 @@ function FilePage() {
     };
   }, [acq, shell, sectionLQ.data, sectionMQ.data, factorsQ.data, packetSelection]);
 
+  // Section J is the attachments on the record, for either format.
+  const sectionJ = useMemo(() => attachmentsForSectionJ(attachments), [attachments]);
+
   const formatScaffold = useMemo(
     () =>
       buildFormatScaffold(
@@ -1537,8 +1540,9 @@ function FilePage() {
         packetSelection,
         scheduleClins,
         lmOverride,
+        sectionJ,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
