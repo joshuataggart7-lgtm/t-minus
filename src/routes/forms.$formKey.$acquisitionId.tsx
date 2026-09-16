@@ -329,12 +329,20 @@ function FormPage() {
     setMessage("Flattened PDF exported.");
   };
 
+  // The data written out uses the field paths of the blank itself, page
+  // subform included, so Import Data binds every value.
+  const boundDatasets = async () => {
+    if (!form) return "";
+    const map = await blankPagePaths(form.pdf);
+    return xfaDatasets(withPagePaths(form, map));
+  };
+
   const exportPopulated = async () => {
     if (!form) return;
     try {
       const withCompanion = await exportXfaIncremental(
         form.pdf,
-        xfaDatasets(form),
+        await boundDatasets(),
         `${form.key}-${acquisitionId}`,
       );
       setMessage(
