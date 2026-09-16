@@ -1551,8 +1551,9 @@ function FilePage() {
         scheduleClins,
         lmOverride,
         sectionJ,
+        cdrlItems,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride, sectionJ],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
