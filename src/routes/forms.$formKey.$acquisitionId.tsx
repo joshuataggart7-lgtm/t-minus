@@ -30,7 +30,8 @@ export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   component: FormPage,
 });
 
-const isFormKey = (key: string): key is FormKey => key === "nf-1787" || key === "nf-1787a";
+const isFormKey = (key: string): key is FormKey =>
+  key === "nf-1787" || key === "nf-1787a" || key === "sf-1449" || key === "sf-30";
 
 /** Respondents from the cached set-aside evidence search, when it has been run. */
 function respondentsFromRaw(raw: unknown): FormRespondent[] {
