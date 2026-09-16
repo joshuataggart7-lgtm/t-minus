@@ -193,19 +193,27 @@ export type PacketPaymentMilestone = {
   amount: string;
   percent: string;
   value_note?: string;
+  clin_note?: string;
   notes?: string;
 };
 
 export function paymentMilestonesForPacket(
   rows: PaymentMilestoneRow[],
+  clins: { clin_id: string }[] = [],
 ): PacketPaymentMilestone[] {
-  return rows.map((r) => ({
-    event: r.event,
-    due_logic: payText(r.due_logic),
-    clin_number: payText(r.clin_number),
-    amount: payAmount(r.amount),
-    percent: payPercent(r.percent),
-    ...(payValueMissing(r) ? { value_note: PAYMENT_AMOUNT_BLANK } : {}),
-    ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
-  }));
+  const ids = clins.map((c) => c.clin_id);
+  return rows.map((r) => {
+    const clinNote = paymentOrphanNote(r, ids) ?? paymentUnlinkedNote(r, ids.length);
+    return {
+      event: r.event,
+      due_logic: payText(r.due_logic),
+      clin_number: payText(r.clin_number),
+      amount: payAmount(r.amount),
+      percent: payPercent(r.percent),
+      ...(payValueMissing(r) ? { value_note: PAYMENT_AMOUNT_BLANK } : {}),
+      ...(clinNote ? { clin_note: clinNote } : {}),
+      ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
+    };
+  });
 }
+
