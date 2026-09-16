@@ -9,6 +9,7 @@ import { signedInName } from "@/lib/account-name";
 import {
   createClin,
   deleteClin,
+  displayAmount,
   ensureClinScheduleFromIgce,
   loadClinSchedule,
   money,
