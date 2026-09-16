@@ -2789,6 +2789,12 @@ function FilePage() {
                       </tbody>
                     </table>
                   ) : null}
+                  <ClinSchedulePanel
+                    acquisitionId={acquisitionId}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
                   <FormatScaffoldPanel scaffold={formatScaffold} />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">
