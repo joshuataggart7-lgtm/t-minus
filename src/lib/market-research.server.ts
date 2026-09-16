@@ -97,12 +97,26 @@ function redact(url: URL, key: string | undefined) {
 }
 
 async function getJson(url: URL, key?: string): Promise<unknown> {
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
-  if (!response.ok) {
-    const body = (await response.text()).slice(0, 200);
-    throw new Error(`${url.host} responded ${response.status} for ${redact(url, key)}. ${body}`);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 18_000);
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    if (!response.ok) {
+      const body = (await response.text()).slice(0, 200);
+      throw new Error(`${url.host} responded ${response.status} for ${redact(url, key)}. ${body}`);
+    }
+    return response.json();
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(`${url.host} did not respond within 18 seconds.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
   }
-  return response.json();
 }
 
 function entitiesFromRaw(raw: unknown, naics: string): EngineEntity[] {
@@ -456,7 +470,10 @@ export async function runEngine(options: {
   const isSchedule = /8\.4/.test(method);
   const runCalc = isSchedule || servicePsc || labourWords;
   if (runCalc) {
-    const keyword = titleText.trim() || psc || naics;
+    const keywordMatch = requirementText.match(
+      /\b(aviation|aircraft|flights?|pilot|engineering|maintenance|repair|technical|operations?|training|inspection|research|analysis|support|services?|labou?r)\b/,
+    );
+    const keyword = keywordMatch?.[1] ?? psc || naics;
     const url = new URL("https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/");
     url.searchParams.set("page", "1");
     url.searchParams.set("page_size", "20");
@@ -467,19 +484,21 @@ export async function runEngine(options: {
     const query = redact(url, calcKey);
     try {
       const raw = object(await getJson(url, calcKey));
-      const rows = array(raw["results"] ?? raw["data"]);
-      const count = rows.length;
-      const reported = num(raw["count"] ?? raw["total_count"]);
-      calcNote = count
-        ? `GSA CALC+ returned ${count} ceiling labour rates for “${keyword}”${
-            reported !== null && reported > count ? ` of ${reported} matching rates` : ""
+      const hits = object(raw["hits"]);
+      const rows = array(hits["hits"] ?? raw["results"] ?? raw["data"]);
+      const totalValue = object(hits["total"])["value"] ?? hits["total"];
+      const reported = num(totalValue ?? raw["count"] ?? raw["total_count"]);
+      const count = reported ?? rows.length;
+      calcNote = rows.length
+        ? `GSA CALC+ returned ${rows.length} ceiling labour rates for “${keyword}”${
+            reported !== null && reported > rows.length ? ` of ${reported} matching rates` : ""
           }.`
         : "";
       record({
         source: "GSA CALC+ ceiling labour rates",
         query,
         resultCount: count,
-        outcome: count
+        outcome: rows.length
           ? `Returned ceiling labour rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
           : "Returned no comparable ceiling rates for this keyword.",
       });

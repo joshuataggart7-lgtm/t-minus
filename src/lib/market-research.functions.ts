@@ -58,22 +58,27 @@ export const runMarketResearch = createServerFn({ method: "POST" })
     const naics = String(record["naics_code"] ?? "").trim();
     if (!naics) throw new Error("This record has no NAICS code, so the research cannot run. Add one on the intake.");
 
+    // Run public-source searches before creating the database run. A slow or
+    // interrupted provider call must not leave an empty run that hides the
+    // last completed research log.
+    const runId = crypto.randomUUID();
+    const result = await runEngine({ runId, acq: record, supabaseAdmin });
+
     const run = await supabaseAdmin
       .from("research_runs")
       .insert({
+        run_id: runId,
         acquisition_id: data.acquisitionId,
         naics_code: naics,
         psc_code: String(record["psc_code"] ?? "") || null,
         acquisition_method: String(record["acquisition_method"] ?? "") || null,
+        state_code: result.stateCode,
         ran_by: me.name,
+        ran_at: result.ranAt,
       })
       .select("run_id,ran_at")
       .single();
     if (run.error) throw new Error(run.error.message);
-
-    const result = await runEngine({ runId: run.data.run_id, acq: record, supabaseAdmin });
-
-    await supabaseAdmin.from("research_runs").update({ state_code: result.stateCode }).eq("run_id", run.data.run_id);
 
     const logRows = result.log.map((entry) => ({
       run_id: run.data.run_id,
@@ -84,9 +89,14 @@ export const runMarketResearch = createServerFn({ method: "POST" })
       outcome: entry.outcome,
       ran_at: result.ranAt,
     }));
-    if (logRows.length) {
-      const { error } = await supabaseAdmin.from("research_log").insert(logRows);
-      if (error) throw new Error(error.message);
+    if (!logRows.length) {
+      await supabaseAdmin.from("research_runs").delete().eq("run_id", run.data.run_id);
+      throw new Error("The research completed without a source log, so the run was not saved.");
+    }
+    const { error: logError } = await supabaseAdmin.from("research_log").insert(logRows);
+    if (logError) {
+      await supabaseAdmin.from("research_runs").delete().eq("run_id", run.data.run_id);
+      throw new Error(logError.message);
     }
 
     const drafted = draftFindings(result, record);
@@ -178,7 +188,6 @@ export const readMarketResearch = createServerFn({ method: "POST" })
       .limit(20);
     if (runs.error) throw new Error(runs.error.message);
     const runList = runs.data ?? [];
-    const latestRunId = runList[0]?.run_id ?? null;
     const log = await context.supabase
       .from("research_log")
       .select("run_id,source,query,result_count,outcome,ran_at")
@@ -194,9 +203,14 @@ export const readMarketResearch = createServerFn({ method: "POST" })
       outcome: l.outcome,
       ranAt: l.ran_at,
     }));
+    const runIdsWithLogs = new Set(rows.map((row) => row.runId));
+    const completedRuns = runList.filter((run) => runIdsWithLogs.has(run.run_id));
+    const incompleteRuns = runList.filter((run) => !runIdsWithLogs.has(run.run_id));
+    const latestRunId = completedRuns[0]?.run_id ?? null;
     return {
-      latestRanAt: runList[0]?.ran_at ?? null,
-      previousRuns: runList.slice(1).map((r) => ({
+      latestRanAt: completedRuns[0]?.ran_at ?? null,
+      latestIncompleteRanAt: incompleteRuns[0]?.ran_at ?? null,
+      previousRuns: completedRuns.slice(1).map((r) => ({
         runId: r.run_id as string,
         ranAt: r.ran_at as string,
         log: rows.filter((l) => l.runId === r.run_id).map(({ runId: _runId, ...rest }) => rest) as ResearchLogEntry[],

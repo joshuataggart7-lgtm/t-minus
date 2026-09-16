@@ -768,3 +768,14 @@ role check using the existing `private.*` helpers.
   not entitled, 404 address, 429 rate limit, otherwise the status). Live,
   cached, and sample labels remain accurate; no live awards are invented and no
   FedRAMP claim is made.
+
+## Market research run repair (16 September 2026)
+
+- Empty orphan `research_runs` could hide the latest completed log and produce
+  the incorrect “has not been run yet” message. Public-source work now finishes
+  before the run is created, failed log persistence removes the new run, and
+  reads ignore any incomplete historical runs.
+- CALC+ always persists a count, zero-result, failure, or explicit skip row.
+  CALC+ v3 Elasticsearch `hits` are parsed directly, service searches use a
+  short matched keyword such as “aviation,” and public-source calls stop after
+  18 seconds so a stalled source can be recorded as a failure.
