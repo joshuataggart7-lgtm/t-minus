@@ -217,7 +217,7 @@ function RequesterPortal() {
                   <RequesterLoe
                     acq={acq}
                     plan={desk?.plan ?? []}
-                    awardRange={desk ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence : null}
+                    awardRange={null}
                   />
                 </div>
               </section>
