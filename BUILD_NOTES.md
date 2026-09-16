@@ -685,13 +685,20 @@ fallback was removed.
   service code, and a dollar range around the estimated value. The reader takes
   the `awardSummary` records and still understands rows cached under the old
   shape.
-- **Subawards (market research).** Now calls
-  `api.sam.gov/prod/contract/v1/subcontracts/search` with `pageSize`,
-  `pageNumber` and `status=Published`. That search has no NAICS parameter, so
-  the code is matched against the returned prime awards.
-- **USAspending.** Retried twice, after 0.5s and 1.5s, on a 5xx or a network
-  failure. The final failure is logged and written into the research log with
-  the attempt count. No award is ever invented.
+- **Subawards (market research).** Calls
+  `api.sam.gov/prod/contract/v1/subcontracts/search` first and falls back to
+  the same path without `/prod` on a 404. The query carries `pageNumber=0`,
+  `pageSize=100`, `status=Published` and a five-year `fromDate`/`toDate`
+  window. That search has no NAICS parameter, so the requested code is matched
+  client-side against the returned prime and subcontractor NAICS fields; the
+  panel still shows at most 25 rows.
+- **USAspending.** Retried up to three attempts with backoff of roughly
+  500 ms, 1500 ms and 3500 ms (plus jitter) on HTTP 525, other 5xx responses,
+  and network failures; a 429 gets one backoff retry, other 4xx responses are
+  not retried. The outcome string is written into the research log
+  ("Returned awards.", "Returned no awards under this code.", or a failure
+  line naming the last status after 3 attempts), and a total failure leaves
+  the awards list empty. No award is ever invented.
 - **GSA CALC+.** The retired CALC v1 rates endpoint is gone. Ceiling rates now
   come from `api.gsa.gov/acquisition/calc/v3/api/ceilingrates/`, which needs no
   API key; a key is sent only if one is configured. CALC+ now runs for any
