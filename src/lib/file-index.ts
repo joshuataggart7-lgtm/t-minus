@@ -83,12 +83,15 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
 
 /** An uploaded file on the record, indexed by the tab it belongs under. */
 export type IndexAttachmentRow = {
+  attachment_id?: string;
   doc_label: string;
   nf_1098_tab: string | null;
   file_name: string;
   uploaded_by_name: string | null;
   created_at: string;
+  storage_path?: string;
 };
+
 
 export function buildFileIndex(
   documents: IndexDocRow[],
