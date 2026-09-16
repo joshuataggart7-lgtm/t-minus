@@ -142,7 +142,14 @@ export function useDeskData(enabled: boolean) {
           requester: String(acq['requester_name'] ?? ""),
         };
       });
-    return { cards, polls: d.polls, centers: d.centers, modTasks: d.modTasks };
+    return {
+      cards,
+      polls: d.polls,
+      centers: d.centers,
+      modTasks: d.modTasks,
+      plan: d.plan,
+      history: historyFrom(d.acqs, d.log),
+    };
   }, [q.data]);
 
   return { ...q, desk: data };
