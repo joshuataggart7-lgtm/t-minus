@@ -339,8 +339,17 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
 
 /** Word export in the 1858 layout. */
 export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLine = "") {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer, PageNumber, AlignmentType } = await import("docx");
+  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, AlignmentType, ImageRun } =
+    await import("docx");
   const h = memo.header;
+  // The insignia from the official blank, first page only.
+  let insignia: ArrayBuffer | null = null;
+  try {
+    const res = await fetch(INSIGNIA_URL);
+    if (res.ok) insignia = await res.arrayBuffer();
+  } catch {
+    insignia = null;
+  }
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
   const p = (
