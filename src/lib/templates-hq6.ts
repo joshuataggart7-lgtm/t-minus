@@ -110,6 +110,7 @@ const postawardSuccessful: TemplateDef = {
         X("company_name", "Successful offeror company name"),
         X("center_name", "Center or installation", "center_name"),
         X("contract_number", "Contract number", "contract_number"),
+        M("award_amount", "Award amount"),
         D("effective_date", "Contract effective date"),
       ],
     },
