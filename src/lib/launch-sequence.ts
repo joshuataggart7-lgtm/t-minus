@@ -10,9 +10,9 @@ import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
 import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
 import { HQ5_PHASES, HQ5_TEMPLATE_KEYS } from "@/lib/templates-hq5";
-import { HQ6_PHASES } from "@/lib/templates-hq6";
-import { HQ6B_PHASES } from "@/lib/templates-hq6b";
-import { HQ6C_PHASES } from "@/lib/templates-hq6c";
+import { HQ6_PHASES, HQ6_TEMPLATE_KEYS } from "@/lib/templates-hq6";
+import { HQ6B_PHASES, HQ6B_TEMPLATE_KEYS } from "@/lib/templates-hq6b";
+import { HQ6C_PHASES, HQ6C_TEMPLATE_KEYS } from "@/lib/templates-hq6c";
 import {
   acquisitionProfile,
   exceptionLabel,
