@@ -1652,3 +1652,12 @@ Verified in the browser: header FAR 13.106-3(d), Procurement Office code JAZ.
 Not changed: exclusions sweep stays flag-only, W3.1 SF 30 Item 13 authorities,
 the requester LOE/WBS ask, the hidden A-2026-0090 clause delta, and Sample 1/2
 evaluation and UEI facts.
+
+## AC-W4-CLIN — editable schedule of line items (Wave 4 P0 #1)
+- New table `acquisition_clins` (line item number, description, optional quantity/unit/unit price/amount, source, sort order). Read by anyone signed in; specialists add, edit and remove. Audit log records "CLIN added", "CLIN edited" and "CLIN deleted".
+- New `src/lib/clin-schedule.ts`: load, seed-once from `igce_clins` when the schedule is empty (never overwrites an existing schedule), CRUD with audit entries, and `scheduleToScaffoldClins` for the scaffold and packet.
+- `buildFormatScaffold` no longer invents CLIN 0001 or an IGCE placeholder 0002. It takes the schedule; an empty schedule prints as empty with an honest line.
+- New `ClinSchedulePanel` on the file page beside the format scaffold: add/edit/delete, "Load from the estimate" when the schedule is empty, read-only outside the specialist gate. Estimate-sourced rows are marked "Estimate-sourced (IGCE)".
+- Format scaffold and NCMS handoff packet `format_scaffold.clins` now read the same schedule — one source of truth.
+- Sample 1 (A-2027-0101) and Sample 2 (A-2027-0102): first open seeds the schedule from their existing IGCE lines, so the scaffold shows the real lines and quantities and narrative-only lines keep blank quantity, unit and price. No invented quantities, no clock or hold changes, no NCMS write-back.
+- Cheap W3 polish: "L/M are handoff stubs — not the solicitation of record" chip above Instructions and Evaluation. No authorable L/M.
