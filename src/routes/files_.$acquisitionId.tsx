@@ -76,6 +76,7 @@ import {
 } from "@/lib/attachments";
 import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
+import { StandaloneDraft } from "@/components/standalone-draft";
 import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
@@ -2105,6 +2106,8 @@ function FilePage() {
         noticePostedDate={null}
         quoteDueDate={(acq?.['proposed_price_received'] as string | null | undefined) ?? null}
       />
+
+      <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
 
       <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
 
