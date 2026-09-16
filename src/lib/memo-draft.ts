@@ -31,14 +31,43 @@ export type PacketClauseLine = {
 };
 
 export type NoticeFacts = {
-  /** Date the notice document was saved, taken as the posting date. */
+  /**
+   * Date the notice was published to the Government Point of Entry. A save is
+   * not a publication, so this stays null until a real publication date is
+   * carried on the notice or entered on the justification.
+   */
   postedOn: string | null;
+  /** True when a notice document has been saved on this file. */
+  saved?: boolean;
+  /** Date the notice document was last saved. */
+  savedAt?: string | null;
   /** Response or closing date carried on the saved notice. */
   closesOn: string | null;
   noticeType: string | null;
   /** Quotations received, when the record carries a count. */
   quotesReceived: number | null;
 };
+
+/**
+ * The one sentence item 6 and item 10 of the justification carry about the
+ * notice of intent. Saved is not posted: a file with a saved notice and no
+ * publication date reads as a draft.
+ */
+export function jofocNoticeStatus(opts: {
+  soleSource: boolean;
+  notice?: NoticeFacts | null;
+  publicationDate?: string | null;
+}): string {
+  if (!opts.soleSource) return "Not applicable — competitive acquisition.";
+  const posted = (opts.publicationDate || opts.notice?.postedOn || "").trim();
+  if (posted) {
+    return `A notice of intent to sole source was posted to SAM.gov on ${posted}${
+      opts.notice?.closesOn ? `, closing ${opts.notice.closesOn}` : ""
+    }.`;
+  }
+  if (opts.notice?.saved) return "Notice of intent saved as a draft; not yet posted to SAM.gov.";
+  return "Notice of intent not yet posted.";
+}
 
 export type MemoDraftCtx = {
   acquisitionId: string;
