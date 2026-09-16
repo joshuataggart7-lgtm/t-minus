@@ -34,12 +34,20 @@ export function AwardHandoffPanel({
   defaultOpen = false,
   acquisitionId,
   suggestedForm,
+  assemblyCounts,
 }: {
   scaffold: FormatScaffold | null;
   defaultOpen?: boolean;
   acquisitionId?: string;
   /** The official form the record points at. A suggestion, never a lock. */
   suggestedForm?: { key: string; name: string; why: string } | null;
+  /** NF 1098 assembly counts from the same builder the checklist uses. */
+  assemblyCounts?: {
+    presentTabs: number;
+    missingTabs: number;
+    recorded: number;
+    notRecorded: number;
+  } | null;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   if (!scaffold) return null;
@@ -85,6 +93,12 @@ export function AwardHandoffPanel({
       : "Payment milestones: empty",
     "Signatures: blank on purpose — signed in NCMS",
   ];
+  if (assemblyCounts) {
+    readiness.push(
+      `NF 1098: ${assemblyCounts.presentTabs} tabs present · ${assemblyCounts.missingTabs} required tabs missing`,
+      `Enclosures: ${assemblyCounts.recorded} recorded · ${assemblyCounts.notRecorded} not recorded`,
+    );
+  }
   const allEnclosuresEmpty =
     clins.length === 0 && attachments.length === 0 && cdrl.length === 0 && payments.length === 0;
 

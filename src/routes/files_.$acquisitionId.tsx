@@ -65,6 +65,7 @@ import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
 import { Table12FillinsPanel } from "@/components/table-12-fillins-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { Nf1098AssemblyPanel } from "@/components/nf1098-assembly-panel";
+import { FpdsFillAidSummary } from "@/components/fpds-fill-aid-summary";
 import { buildNf1098Assembly } from "@/lib/nf1098-assembly";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
@@ -3145,7 +3146,26 @@ function FilePage() {
                     defaultOpen={p.phase === "Award"}
                     acquisitionId={acquisitionId}
                     suggestedForm={suggestedOfficialForm}
+                    assemblyCounts={
+                      buildNf1098Assembly({
+                        fileIndex,
+                        scaffold: formatScaffold,
+                        recommendedClauseCount: packetClauses.length,
+                        appliedClauseCount: appliedClauseNumbers?.length ?? null,
+                      }).counts
+                    }
                   />
+                  {acq ? (
+                    <FpdsFillAidSummary
+                      input={{
+                        acq: acq as unknown as Record<string, unknown>,
+                        awardDate: lifecycle?.awardDate ?? null,
+                        centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
+                      }}
+                      onExport={() => fpdsExport.mutate()}
+                      exporting={fpdsExport.isPending}
+                    />
+                  ) : null}
                   <Nf1098AssemblyPanel
                     acquisitionId={acquisitionId}
                     input={{
