@@ -356,9 +356,9 @@ function FormPage() {
     }
   };
 
-  const exportData = () => {
+  const exportData = async () => {
     if (!form) return;
-    exportXdp(xfaDatasets(form), `${form.key}-${acquisitionId}`);
+    exportXdp(await boundDatasets(), `${form.key}-${acquisitionId}`);
     setMessage(
       `Data file exported. In free Adobe Reader open the blank form from this app (${form.pdf}), then choose Forms or Manage Form Data, Import Data, and pick this file.`,
     );
