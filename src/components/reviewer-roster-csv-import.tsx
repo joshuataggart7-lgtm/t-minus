@@ -154,7 +154,7 @@ export function ReviewerRosterCsvImport({
       };
       const { error } = match
         ? await supabase.from("users").update(fields).eq("user_id", match.user_id)
-        : await supabase.from("users").insert(fields);
+        : await supabase.from("users").insert({ user_id: crypto.randomUUID(), ...fields });
       if (error) {
         setBusy(false);
         setProblem(`${row.name} was not saved: ${error.message}. Fix the file and upload it again.`);
