@@ -99,8 +99,8 @@ function TodayPage() {
 
   const isAdminAll = useMemo(() => {
     if (!desk) return false;
-    return roles.includes("administrator") && mine.length === desk.cards.length && !ownsMine;
-  }, [desk, roles, mine, ownsMine]);
+    return mine.length === desk.cards.length && !ownsMine;
+  }, [desk, mine, ownsMine]);
 
   const live = useMemo(
     () => mine.filter((c) => c.m.clockState !== "launched" && c.m.clockState !== "scrubbed"),
