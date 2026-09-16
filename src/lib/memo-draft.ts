@@ -966,6 +966,23 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
   if (price) out["quoted_price"] = price;
   const comparison = str(evaluation["price_comparison"]);
   if (comparison) out["price_variance"] = comparison;
+
+  // Competed file: the remaining blanks open as clearly labelled draft text
+  // taken only from the recommended quotation and the estimate already on the
+  // file. No negotiation is claimed and no award or rate is invented.
+  if (!/sole/i.test(str(a["competition"]))) {
+    if (price) out["negotiated_price"] = price;
+    out["technique"] = "Comparison of proposed prices received in response to the solicitation";
+    out["negotiation_summary"] =
+      `Draft, confirm. Quotations received in response to the solicitation were compared with one another and with the independent Government cost estimate on the file. The recommended quotation${
+        name ? ` from ${name}` : ""
+      }${price ? ` at ${dollars(price) || price}` : ""} is carried forward at the quoted price. No negotiation has been recorded on this file.`;
+    out["determination"] =
+      "Draft, confirm. The price is supported by the comparison of quotations received and the independent Government cost estimate on the file. The contracting officer's determination of price reasonableness is pending review.";
+    out["comparables_summary"] = (ctx.comparables ?? []).length
+      ? gap("state what the comparable awards loaded below show about this price")
+      : "Draft, confirm. No comparable awards are loaded on this file. Run comparables, or state the basis relied on instead.";
+  }
   return out;
 }
 
