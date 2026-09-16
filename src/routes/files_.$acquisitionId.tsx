@@ -3163,6 +3163,66 @@ function FilePage() {
                       </tbody>
                     </table>
 
+                    {(() => {
+                      const noticeOn = pa.option_notice_date ?? pa.option_notice_sent ?? null;
+                      const exercisedOn = pa.option_exercised_date ?? null;
+                      const next = options.periods[0] ?? null;
+                      const stateFor = (citation: string) => {
+                        if (citation.startsWith("FAR 17.207(a)")) {
+                          return noticeOn ? `Recorded ${noticeOn}` : "Open, not recorded";
+                        }
+                        if (citation.startsWith("FAR 17.207(c)")) {
+                          return exercisedOn ? `Recorded ${exercisedOn}` : "Open, not recorded";
+                        }
+                        return exercisedOn ? "Due with the modification" : "Open, not recorded";
+                      };
+                      return (
+                        <>
+                          <h5 className="mt-4 text-[15px] font-medium">What an option exercise carries</h5>
+                          <p className="mt-1 text-[13px] text-muted-foreground">
+                            Advisory checklist read from the record. It does not hold phase exit.
+                          </p>
+                          <table className="mt-2 w-full text-[13px] leading-[18px]">
+                            <caption className="sr-only">Option exercise checklist</caption>
+                            <thead>
+                              <tr className="border-y border-border text-left">
+                                <th scope="col" className="p-2">Step</th>
+                                <th scope="col" className="p-2">Citation</th>
+                                <th scope="col" className="p-2">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {optionExercise.rows.map((r) => (
+                                <tr key={r.label} className="border-b border-border">
+                                  <td className="p-2">
+                                    {r.templateKey ? (
+                                      <Link
+                                        to="/documents/$templateKey/$acquisitionId"
+                                        params={{ templateKey: r.templateKey, acquisitionId }}
+                                        className="text-primary"
+                                      >
+                                        {r.label}
+                                      </Link>
+                                    ) : (
+                                      r.label
+                                    )}
+                                  </td>
+                                  <td className="p-2">{r.citation}</td>
+                                  <td className="p-2">{stateFor(r.citation)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <p className="mt-2 text-[13px] text-muted-foreground">
+                            {next && next.start && next.end
+                              ? `The option must be exercised within ${next.label}, ${next.start} to ${next.end}.`
+                              : "No option period start and end are recorded, so the exercise window cannot be read from the file."}
+                          </p>
+                        </>
+                      );
+                    })()}
+
+
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <label className="text-[13px]" htmlFor="option-notice-date">
                         Preliminary notice sent on
