@@ -145,9 +145,11 @@ function TodayPage() {
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
           {!ownsMine ? (
             <p className="text-[13px] leading-[18px] text-muted-foreground">
-              No file lists {user.name} as the contracting officer, so{" "}
-              {isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`}. The
-              owner of record is shown on each file.
+              {isRequesterFallback
+                ? "Showing files where you are the requester of record."
+                : `No file lists ${user.name} as the contracting officer, so ${
+                    isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`
+                  }. The owner of record is shown on each file.`}
             </p>
           ) : null}
 
