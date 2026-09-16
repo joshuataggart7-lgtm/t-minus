@@ -1353,6 +1353,9 @@ function DocumentPage() {
         {badgeCiteStatus.kind === "stub" ? (
           <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
         ) : null}
+        <p className="mt-1">
+          <ShowTheText citation={badgeCite} />
+        </p>
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
             <p>{def.badge.note}</p>
