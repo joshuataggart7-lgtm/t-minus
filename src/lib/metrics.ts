@@ -245,6 +245,9 @@ export function computeMetrics(
 
   let blocker = "None";
   let blockerOwner: string | null = null;
+  // The next step says the same thing the file page hero says: write or attach
+  // the Required document that is missing, in the same words.
+  let heroLabel: string | null = null;
   if (launched || scrubbed) {
     blocker = "None";
   } else if (hold) {
