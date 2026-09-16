@@ -2014,3 +2014,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## Class deviation / PCD adoption tracker (advisory) — 2026-09-16
 - New "Regulatory baseline & deviations (advisory)" panel on the file page (src/lib/pcd-adoption.ts, src/components/pcd-adoption-panel.tsx): shows the file's regulatory_baseline_date and any linked deviation_requests (type, citation, status/decision) exactly as recorded; empty state "No deviation request is on this file." Never claims RFO Part adoption (links acquisition.gov/far-overhaul); PCD 26-03B noted as the locked clause-matrix/Reserved source only. Never holds a file or blocks a phase exit.
 - Companion gates panel now states Companion Guide citations are process guidance, not binding NFS. Typecheck passed; sample files 0101/0102/0103/0090 all 200. Sample seeds/clocks untouched.
+
+- Blackout notice and Draft RFP alert added as named local aids on the acquisition file; PCD panel now says RFO Part overlay not loaded and names the Jul 23 2026 matrix date. Advisory only: no hold, no SAM publish, no email.
