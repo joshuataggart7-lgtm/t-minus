@@ -118,6 +118,12 @@ export function AwardHandoffPanel({
             {readiness.map((line) => (
               <li key={line}>{line}</li>
             ))}
+            {allEnclosuresEmpty ? (
+              <li>
+                No line items, attachments, data requirements or payment milestones are
+                recorded yet — the packet prints the cover blocks only.
+              </li>
+            ) : null}
             <li>Advisory only — nothing here holds the file or blocks a phase.</li>
           </ul>
 
