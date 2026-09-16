@@ -1003,20 +1003,37 @@ function postawardSuccessful(ctx: MemoDraftCtx): Values {
     out["company_name"] = selected;
     out["addressee"] = selected;
   }
+  // Identifiers already on the file or on the saved notice; nothing invented.
+  const contract = str(a["contract_number"]);
+  if (contract) out["contract_number"] = contract;
+  if (!out["solicitation_number"]) {
+    const pr = str(a["pr_number"]);
+    if (pr) out["solicitation_number"] = pr;
+  }
   out["enclosures"] = "Source Selection Statement";
   return out;
 }
 
-/** One postaward letter per unsuccessful offeror on the evaluation record. */
+/**
+ * One postaward letter per unsuccessful offeror. "Offeror N" is the quoter in
+ * slot N of the evaluation record, so the label and the body name the same
+ * company.
+ */
 function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const selected = str(ctx.evaluationValues?.["recommended_quoter"]) || str(a["vendor_legal_name"]);
   const all = quoters(ctx);
-  const losers = all.filter((q) => q.name.toLowerCase() !== selected.toLowerCase());
-  const slot = Number(String(ctx.values?.["offeror_slot"] ?? "Offeror 1").replace(/\D+/g, "")) || 1;
-  const chosen = losers[slot - 1];
+  const isAwardee = (name: string) => Boolean(selected) && name.toLowerCase() === selected.toLowerCase();
+  const firstUnsuccessful = all.findIndex((q) => !isAwardee(q.name));
+  const asked = Number(String(ctx.values?.["offeror_slot"] ?? "").replace(/\D+/g, ""));
+  // Offeror N maps to quoter N. When no offeror is chosen yet, or the chosen
+  // one is the awardee, the letter opens on the first unsuccessful offeror.
+  let index = asked ? asked - 1 : firstUnsuccessful;
+  if (index < 0 || !all[index] || isAwardee(all[index]!.name)) index = firstUnsuccessful;
+  const chosen = index >= 0 ? all[index] : undefined;
   const out: Values = { ...letterContact(ctx) };
   if (chosen) {
+    out["offeror_slot"] = `Offeror ${index + 1}`;
     out["company_name"] = chosen.name;
     out["addressee"] = chosen.name;
   }
