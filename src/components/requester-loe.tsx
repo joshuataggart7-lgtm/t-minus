@@ -11,17 +11,20 @@ import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import type { RefData } from "@/lib/intake";
 import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/estimator";
-import type { PhasePlanRow } from "@/lib/launch-sequence";
+import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
 
 export function RequesterLoe({
   acq,
   plan,
   awardRange,
+  missingCount,
 }: {
   acq: Record<string, unknown>;
   plan: PhasePlanRow[];
   /** The honest days-to-award range for this file, or null when withheld. */
   awardRange: string | null;
+  /** Items the requesting organization still owes on this file. */
+  missingCount?: number;
 }) {
   const ref: RefData = useMemo(
     () => ({
