@@ -926,7 +926,8 @@ function FilePage() {
   );
 
   // When the CO has not entered a target award date, the forecast's anticipated
-  // award date stands in, so a running clock always shows days to award.
+  // award date stands in — and it is labelled a forecast, never a target.
+  const hasTargetAward = Boolean(acq?.target_award_date);
   const effectiveTargetAward =
     (acq?.target_award_date as string | null) ??
     (forecast && /^\d{4}-\d{2}-\d{2}$/.test(forecast.anticipated_award_date)
