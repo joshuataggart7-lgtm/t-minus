@@ -651,14 +651,13 @@ function DocumentPage() {
   }, [storedComparables]);
 
   // The drafted paragraph reports the recorded check rather than opening with
-  // "no comparable awards are loaded" when one has already run.
+  // "no comparable awards are loaded" when one has already run. Until the
+  // officer edits the field, the recorded check wins over the drafted opener.
   useEffect(() => {
     if (!storedComparables || touched) return;
     const text = comparablesSummary(storedComparables);
     setValues((prev) =>
-      prev["comparables_summary"] === undefined || prev["comparables_summary"] === text
-        ? prev
-        : { ...prev, comparables_summary: text },
+      prev["comparables_summary"] === text ? prev : { ...prev, comparables_summary: text },
     );
   }, [storedComparables, touched, values]);
 
