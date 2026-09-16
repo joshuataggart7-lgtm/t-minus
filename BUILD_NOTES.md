@@ -1161,3 +1161,35 @@ Verified on A-2027-0101 and A-2027-0102 (demo mode, 1440px, no console errors):
 No regressions found, so nothing beyond the copy above was changed. Security
 (staff-profile read finding), IDIQ/BPA order screens, SEB suite, SAM Awards
 entitlement, FOUO hierarchy, live FPDS and PDF-native FPDS remain deferred.
+
+## C — regulatory line-up on the Sample 1 walk (16 Sep 2026)
+
+Authoritative stack: FAR as overhauled (RFO), interim NFS carrying PCD 26-03B
+(2026-07-23) as binding NASA text, NFS Companion Guide (2026-09-11) as
+process/guidance only, active PIC/PN/PCD overlays.
+
+Fixes in this chunk:
+- Technical evaluation gate (`src/lib/companion-gates.ts`) no longer cites
+  "NFS CG 1815.3". It now cites FAR 13.106-2 for the evaluation itself and
+  NFS CG 1815.45(b) labelled as guidance (Companion Guide process for the
+  technical evaluation report on a sole source above the threshold).
+  `isTerRequired` behaviour is unchanged: Sample 1 competed -> not applicable;
+  Sample 2 sole source -> applies.
+- NF 1787 gate cites NFS 1819.202-70 as binding with NFS CG 1819.11 labelled
+  as guidance, matching the seeded review_rules row.
+- Aviation gate keeps the seeded NPR 7900.3 / NPD 7900.4E / NPR 8715.3
+  citation; it is presented as agency process, not as binding NFS.
+- Re-verified the commercial SF 1449 pack: 52.212-5 is never packed or
+  selectable, 52.212-3 never applies, removed clauses are filtered from both
+  the recommendation and the saved selection, reasons read under RFO FAR 12/13.5.
+- Swept src for binding claims of NFS CG 1804.11 and for FAR 12.204(b)(1) as
+  the price-reasonableness mandate: none remain (NCMS is cited as NFS 1804.171,
+  price reasonableness as RFO FAR 12.204(a) with FAR 13.106-3 where simplified
+  procedures apply). Sample 1 phase citations stay on the commercial Part 12
+  simplified path; Part 15 award notices only appear on genuine Part 15 files.
+
+Verified in the demo walk: Sample 1 shows two Companion gates (aviation safety
+and NF 1787 small business coordination) with no false TER, CIO or NPA gate;
+Sample 2 shows three with the sole-source TER applying. No console errors, no
+seed edits, no new holds, no NCMS write-back / FedRAMP / live FPDS claims.
+Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
