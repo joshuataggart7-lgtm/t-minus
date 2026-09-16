@@ -1491,3 +1491,8 @@ NCMS, SAM, FPDS or email write was introduced.
   Click path: Files → any file → What-if sandbox.
 
 - Executive Overview: navy Mission Clock hero — full-width navy band with large still day figures, status word paired with its color, mission links and blocker lines on the panel; status summary counts quieted to an inline strip below. No other routes touched.
+
+## Wave 2 W2.6 + W2.8
+
+- W2.6 Days to award with confidence range. New `src/lib/confidence.ts` computes planned calendar days from the seeded phase plan, the same run with weekends removed, and the spread of days prior launched files of the same acquisition type actually took (Center first when at least three peers there, otherwise agency-wide). Fewer than three peers reads "confidence range not yet enough history"; nothing is invented and no citation is attached. Shown on the file page clock line, under the Work Queue "Days to award" cell, and under each of CO Today's three next actions. Click paths: Files → A-2027-0101 (clock line); Work queue → list view; Today → Three things to do next.
+- W2.8 Center configuration CSV import. New `src/components/routing-csv-import.tsx` lets HQ and specialists upload a routing CSV (center_code, document_key, approving_official_title, optional thru_chain and memo_default), validates columns and every row against known Centers and routed documents, previews the rows, and only then upserts `memo_routing` and writes one audit row per applied row. No seed files are touched and no external system is written. Click path: Center configuration → Import routing from a CSV.
