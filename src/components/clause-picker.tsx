@@ -188,6 +188,13 @@ export function ClausePicker({
             </p>
           ) : null}
 
+          <details className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">
+            <summary className="cursor-pointer text-primary underline-offset-2 hover:underline">
+              Why FAR 52.212-3 and 52.212-5 are not on the packet
+            </summary>
+            <p className="mt-2">{RFO_RESERVED_212_NOTE}</p>
+          </details>
+
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <button
               type="button"
