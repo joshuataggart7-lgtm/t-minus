@@ -517,7 +517,7 @@ export async function runEngine(options: {
       query: "https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/ (not called)",
       resultCount: null,
       outcome:
-        "Skipped: the requirement does not read as services or labor, the product and service code is not a service code, and the method is not FAR 8.4.",
+        "Skipped: CALC+ publishes hourly ceiling rates on GSA schedule contracts, and this buy is neither a schedule buy nor priced by the labor hour, so those rates are not a comparison point for it.",
     });
   }
   if (isSchedule) {
