@@ -263,7 +263,13 @@ export function PaymentMilestonesPanel({
                     ) : null}
                   </td>
                   <td className="p-2">{payText(r.due_logic)}</td>
-                  <td className="p-2" data-numeric>{payText(r.clin_number)}</td>
+                  <td className="p-2" data-numeric>
+                    {payText(r.clin_number)}
+                    {clinNote(r) ? (
+                      <span className="block text-muted-foreground">{clinNote(r)}</span>
+                    ) : null}
+                  </td>
+
                   <td className="p-2" data-numeric>{payAmount(r.amount)}</td>
                   <td className="p-2" data-numeric>
                     {payPercent(r.percent)}
