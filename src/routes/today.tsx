@@ -55,22 +55,31 @@ function Section({ title, lead, children }: { title: string; lead?: string; chil
 }
 
 function TodayPage() {
-  const { authState, user } = useRole();
+  const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
 
   const mine = useMemo(() => {
     if (!desk) return [];
     const me = surname(user.name);
     const owned = desk.cards.filter((c) => surname(c.owner) === me);
+    if (owned.length > 0) return owned;
     // An account with no files of its own sees the Center's files, labelled.
-    return owned.length > 0 ? owned : desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
-  }, [desk, user.name, user.center_code]);
+    const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
+    // An administrator at a Center with no files sees every prototype file.
+    if (atCenter.length === 0 && roles.includes("administrator")) return desk.cards;
+    return atCenter;
+  }, [desk, user.name, user.center_code, roles]);
 
   const ownsMine = useMemo(() => {
     if (!desk) return true;
     const me = surname(user.name);
     return desk.cards.some((c) => surname(c.owner) === me);
   }, [desk, user.name]);
+
+  const isAdminAll = useMemo(() => {
+    if (!desk) return false;
+    return roles.includes("administrator") && mine.length === desk.cards.length && !ownsMine;
+  }, [desk, roles, mine, ownsMine]);
 
   const live = useMemo(
     () => mine.filter((c) => c.m.clockState !== "launched" && c.m.clockState !== "scrubbed"),
@@ -126,7 +135,9 @@ function TodayPage() {
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
           {!ownsMine ? (
             <p className="text-[13px] leading-[18px] text-muted-foreground">
-              No file lists {user.name} as the contracting officer, so files at {user.center_code} are shown.
+              No file lists {user.name} as the contracting officer, so{" "}
+              {isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`}. The
+              owner of record is shown on each file.
             </p>
           ) : null}
 

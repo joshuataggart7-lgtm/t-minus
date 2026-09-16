@@ -208,6 +208,50 @@ export function heroDocForPhase(
   return null;
 }
 
+export type HeroDoc = {
+  doc: RequiredDoc;
+  key: string;
+  /** "file" means the row is an attachment flag with no generator to open. */
+  kind: "template" | "form" | "file";
+};
+
+/**
+ * The one document that belongs to a given reviewer's office, searched across
+ * every phase of the file rather than only the poll phase. Falls back to the
+ * phase document when the office has no document of its own on the record.
+ */
+export function heroDocForReviewer(
+  m: AcqMetrics,
+  reviewerRole: string,
+  phase: string,
+): HeroDoc | null {
+  const role = (reviewerRole ?? "").toLowerCase();
+  const all: RequiredDoc[] = m.phases.flatMap((p) => p.docs ?? []);
+  const wrap = (doc: RequiredDoc | undefined): HeroDoc | null => {
+    if (!doc) return null;
+    const key = generatorKey(doc);
+    if (!key) return { doc, key: "", kind: "file" };
+    return { doc, key, kind: doc.templateKey ? "template" : "form" };
+  };
+  const byForm = (formKey: string) => all.find((d) => d.formKey === formKey);
+  const byTemplate = (templateKey: string) => all.find((d) => d.templateKey === templateKey);
+  const sow = () =>
+    all.find((d) => d.field === "sow_attached" || d.label.toLowerCase().startsWith("statement of work"));
+
+  let pick: RequiredDoc | undefined;
+  if (role.includes("small business")) pick = byForm("nf-1787");
+  else if (role.includes("flight operations") || role.includes("aviation")) pick = sow();
+  else if (role.includes("legal"))
+    pick =
+      byTemplate("jofoc") ??
+      all.find((d) => d.label.toLowerCase().includes("justification"));
+  else if (role.includes("pricing") || role.includes("price")) pick = byTemplate("pnm");
+
+  const chosen = wrap(pick);
+  if (chosen) return chosen;
+  return heroDocForPhase(m, phase);
+}
+
 /** Does a pending poll belong to this reviewer by name or by the office they hold? */
 export function pollMatchesReviewer(
   poll: PollRow,
