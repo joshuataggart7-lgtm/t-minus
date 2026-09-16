@@ -30,7 +30,14 @@ export type EstimatorInputs = {
   procedures: "SAP" | "COMM_SIMP" | "NEGOTIATED";
 };
 
-export type EstimateTask = { phase: string; name: string; hours: number; cs: number };
+export type EstimateTask = {
+  phase: string;
+  name: string;
+  hours: number;
+  cs: number;
+  /** What on this record drove the effort: the trigger behind the hours. */
+  why: string;
+};
 
 export type Estimate = {
   inputs: EstimatorInputs;
@@ -147,66 +154,87 @@ export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   const scale = isSAP ? 0.4 : isTO ? 0.55 : procedures === "COMM_SIMP" ? 0.75 : 1;
 
   const tasks: EstimateTask[] = [];
-  const add = (phase: string, name: string, hours: number, cs: number, scaled = true) => {
+  const proceduresWord =
+    procedures === "SAP"
+      ? "simplified acquisition procedures"
+      : procedures === "COMM_SIMP"
+        ? "commercial simplified procedures"
+        : "negotiated procedures";
+  const add = (phase: string, name: string, hours: number, cs: number, scaled = true, why = "") => {
     const h = Math.max(0, Math.round(scaled ? hours * scale : hours));
-    if (h > 0) tasks.push({ phase, name, hours: h, cs });
+    if (h > 0)
+      tasks.push({
+        phase,
+        name,
+        hours: h,
+        cs,
+        why: why || `The task every file of this kind runs, sized for ${proceduresWord}.`,
+      });
   };
+  const valueWhy = (v: number) =>
+    v > 50e6
+      ? "The estimated value is above $50M, the highest tier in the model."
+      : v > 10e6
+        ? "The estimated value is above $10M."
+        : v > 1e6
+          ? "The estimated value is above $1M."
+          : "The estimated value sits in the lowest tier.";
 
   // Acquisition planning
   let h = 6;
   if (V > 1e6) h = 10;
   if (V > 10e6) h = 16;
   if (V > 50e6) h = 24;
-  add("Acquisition planning", "Purchase request review and intake", h, 0.6);
+  add("Acquisition planning", "Purchase request review and intake", h, 0.6, true, valueWhy(V));
 
   h = 8;
   if (V > 1e6) h = 12;
   if (V > 10e6) h = 24;
   if (V > 50e6) h = 40;
-  add("Acquisition planning", "Acquisition plan and strategy", h, 0.5);
+  add("Acquisition planning", "Acquisition plan and strategy", h, 0.5, true, valueWhy(V));
 
   h = 8;
   if (soleSource) h = 12;
   if (V > 10e6) h += 4;
-  add("Acquisition planning", "Market research", h, 0.7);
+  add("Acquisition planning", "Market research", h, 0.7, true, soleSource ? "A sole source has to carry market research that stands behind the justification." : "Competition means the market has to be searched and written up.");
 
   if (soleSource && V > TH.SAT) {
     h = 16;
     if (V > 10e6) h = 28;
     if (V > 50e6) h = 40;
-    add("Acquisition planning", "Justification for other than full and open competition", h, 0.5, false);
+    add("Acquisition planning", "Justification for other than full and open competition", h, 0.5, false, "This buy is sole source above the simplified acquisition threshold, so a justification is required.");
   }
 
   if (reqType === "SERVICES") {
     h = V > 5e6 ? 6 : 4;
-    add("Acquisition planning", "Inherently governmental function review", h, 0.5);
+    add("Acquisition planning", "Inherently governmental function review", h, 0.5, true, "The requirement is for services, so the inherently governmental review applies.");
   }
 
   // Solicitation
   h = isTO ? 8 : 16;
   if (V > 5e6) h += 8;
   if (V > 50e6) h += 16;
-  add("Solicitation", "Solicitation drafting and assembly", h, 0.7);
+  add("Solicitation", "Solicitation drafting and assembly", h, 0.7, true, isTO ? "An order under an existing vehicle carries a shorter solicitation." : valueWhy(V));
 
   h = V > TH.SAT ? 10 : 6;
-  add("Solicitation", "Clause selection and representations", h, 0.8);
+  add("Solicitation", "Clause selection and representations", h, 0.8, true, V > TH.SAT ? "Above the simplified acquisition threshold, more clauses apply." : "At or below the simplified acquisition threshold, fewer clauses apply.");
 
-  add("Solicitation", "SAM.gov presolicitation and solicitation notices", soleSource ? 2 : 3, 0.9);
+  add("Solicitation", "SAM.gov presolicitation and solicitation notices", soleSource ? 2 : 3, 0.9, true, soleSource ? "A sole source posts a notice of intent rather than a solicitation notice." : "A competed buy posts the notice and answers what comes back.");
 
   h = 4;
   if (!soleSource && V > 5e6) h = 10;
-  add("Solicitation", "Questions, answers, and amendments", h, 0.6);
+  add("Solicitation", "Questions, answers, and amendments", h, 0.6, true, soleSource ? "One source means few questions." : valueWhy(V));
 
   // Evaluation, negotiation, and award
   h = soleSource ? 6 : 12;
   if (!soleSource && V > 5e6) h += 8;
-  add("Evaluation and award", "Quotation or proposal evaluation", h, 0.4);
+  add("Evaluation and award", "Quotation or proposal evaluation", h, 0.4, true, soleSource ? "One quotation to evaluate." : "Every quotation received has to be evaluated against the stated factors.");
 
   if (!isSAP) {
     h = 6;
     if (V > 5e6) h = 10;
     if (V > 50e6) h = 16;
-    add("Evaluation and award", "Technical evaluation coordination and fact-finding", h, 0.5);
+    add("Evaluation and award", "Technical evaluation coordination and fact-finding", h, 0.5, true, "This is the work the technical team is asked to support: evaluation coordination and fact-finding.");
   }
 
   h = 8;
@@ -214,28 +242,28 @@ export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   if (V > 10e6) h = 24;
   if (V > 50e6) h = 40;
   if (isCost) h = Math.round(h * 1.5);
-  add("Evaluation and award", "Cost or price analysis", h, 0.6);
+  add("Evaluation and award", "Cost or price analysis", h, 0.6, true, isCost ? "Cost reimbursement pricing takes half again the analysis of a fixed price buy." : valueWhy(V));
 
   if (soleSource && V > TH.SAT) {
     h = 12;
     if (V > 10e6) h = 20;
     if (V > 50e6) h = 32;
-    add("Evaluation and award", "Prenegotiation position memorandum", h, 0.5, false);
+    add("Evaluation and award", "Prenegotiation position memorandum", h, 0.5, false, "Sole source above the simplified acquisition threshold, so a position is written before negotiating.");
   }
 
   h = soleSource ? 8 : 4;
   if (V > 5e6) h += 8;
   if (isCost) h += 8;
-  add("Evaluation and award", "Negotiations", h, 0.3);
+  add("Evaluation and award", "Negotiations", h, 0.3, true, isCost ? "Cost reimbursement pricing adds negotiation time." : soleSource ? "With one source, price is settled by negotiation rather than competition." : valueWhy(V));
 
-  add("Evaluation and award", "Responsibility determination", V > TH.SAT ? 5 : 3, 0.8, false);
+  add("Evaluation and award", "Responsibility determination", V > TH.SAT ? 5 : 3, 0.8, false, "Every award needs a responsibility determination on the apparent successful offeror.");
 
   h = 6;
   if (V > 5e6) h = 10;
   if (V > 50e6) h = 16;
-  add("Evaluation and award", "Price negotiation memorandum and award documentation", h, 0.5);
+  add("Evaluation and award", "Price negotiation memorandum and award documentation", h, 0.5, true, valueWhy(V));
 
-  add("Evaluation and award", "Award execution and FPDS-NG report", 6, 0.7);
+  add("Evaluation and award", "Award execution and FPDS-NG report", 6, 0.7, true, "Award and the contract action report are keyed by hand.");
 
   const total = tasks.reduce((n, t) => n + t.hours, 0);
   const csH = Math.round(tasks.reduce((n, t) => n + t.hours * t.cs, 0));
