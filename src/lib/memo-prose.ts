@@ -20,7 +20,7 @@ const SOURCE_NAMES: [RegExp, string][] = [
 
 /** True where a line still carries machine detail a memorandum should not print. */
 export function hasSourceJargon(text: string): boolean {
-  return /\bAPI\b|\bendpoint\b|https?:\/\/|\[from public data[^\]]*\]|[?&][a-z]+=/i.test(text);
+  return /\bAPI\b|\bendpoint\b|\bJSON\b|\brecord row\b|https?:\/\/|\[from public data[^\]]*\]|[?&][a-z]+=/i.test(text);
 }
 
 /** One line of a memorandum body, in human prose. */
@@ -32,8 +32,15 @@ function humanLine(line: string): string {
   // A raw request URL is never printed in a memorandum.
   out = out.replace(/https?:\/\/\S+/g, "").replace(/\s*[?&][A-Za-z]+=\S+/g, "");
   for (const [pattern, name] of SOURCE_NAMES) out = out.replace(pattern, name);
+  // Any remaining bracketed tag, whatever it carries.
+  out = out.replace(/\s*\[[^\]]*\b(?:API|endpoint|JSON|query|source|engine|record row)\b[^\]]*\]/gi, "");
   // Any remaining machine words.
-  out = out.replace(/\s+(?:API|endpoint)s?\b/gi, "");
+  out = out.replace(/\s+(?:API|endpoint|JSON)s?\b/gi, "");
+  out = out.replace(/\brecord rows?\b/gi, "record");
+  // "query" and "engine" read as searches and as T-Minus on a signed page.
+  out = out.replace(/\b(?:search |)quer(?:y|ies)\b/gi, (m) => (/ies$/i.test(m) ? "searches" : "search"));
+  out = out.replace(/\b(?:the\s+)?(?:drafting|rules?|compliance|template)\s+engine\b/gi, "T-Minus");
+  out = out.replace(/\bengine\b/gi, "T-Minus");
   // "source, what was searched; date; 45 results" reads as a sentence.
   const parts = out.split(";").map((p) => p.trim()).filter(Boolean);
   if (parts.length === 3 && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]!) && /results?$|not available/i.test(parts[2]!)) {

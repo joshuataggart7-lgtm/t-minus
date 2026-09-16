@@ -17,6 +17,13 @@ import { humanMemoProse } from "@/lib/memo-prose";
 
 export const AGENCY_LINE = "National Aeronautics and Space Administration";
 
+/**
+ * The agency insignia taken from the official blank NF 1858. It is used on
+ * memorandum letterhead exports only: never in app chrome, and never on an
+ * official form overlay, which carries its own insignia.
+ */
+export const INSIGNIA_URL = "/letterhead/nasa-insignia.png";
+
 export const CUI_BANNER = "CUI";
 
 export const CUI_SHEET_TEXT = [
@@ -288,15 +295,22 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
   if (h.salutation) blocks.push({ text: h.salutation, gap: 10 });
   blocks.push({ text: "", gap: 8 });
   memo.paragraphs.forEach((p, i) => {
-    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10 });
+    // A numbered paragraph never opens at the foot of a page on its own.
+    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10, keepWith: 48 });
     for (const line of p.lines) blocks.push({ text: line, indent: 24, gap: 1 });
     if (p.lines.length) blocks.push({ text: "", gap: 6 });
   });
-  blocks.push({ text: "", gap: 28 }, { text: h.signatureName, gap: 0 }, { text: h.signatureTitle, gap: 16 });
+  // The signature block stays whole: blank signature line, typed name, title.
+  blocks.push(
+    { text: "", gap: 28 },
+    { text: "______________________________", gap: 2, keepWith: 60 },
+    { text: h.signatureName, gap: 0 },
+    { text: h.signatureTitle, gap: 16 },
+  );
   if (h.concurrence.length) {
-    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4 });
+    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4, keepWith: 24 + h.concurrence.length * 32 });
     for (const c of h.concurrence) {
-      blocks.push({ text: "______________________________   Date: __________", gap: 2 });
+      blocks.push({ text: "______________________________   Date: __________", gap: 2, keepWith: 24 });
       blocks.push({ text: [c.name, c.title].filter(Boolean).join(", "), gap: 10 });
     }
   }
@@ -316,13 +330,26 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
   await renderPdf(blocks, {
     fileName,
     prototype: true,
+    // The agency insignia at the size and position the blank NF 1858 uses:
+    // 27.2mm by 24.0mm, top right of the first page only.
+    insignia: { url: INSIGNIA_URL, width: 77, height: 68 },
+    runningHead: h.subject,
   });
 }
 
 /** Word export in the 1858 layout. */
 export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLine = "") {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Footer, PageNumber, AlignmentType } = await import("docx");
+  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, AlignmentType, ImageRun } =
+    await import("docx");
   const h = memo.header;
+  // The insignia from the official blank, first page only.
+  let insignia: ArrayBuffer | null = null;
+  try {
+    const res = await fetch(INSIGNIA_URL);
+    if (res.ok) insignia = await res.arrayBuffer();
+  } catch {
+    insignia = null;
+  }
   const serif = { font: "Times New Roman", size: 24 } as const;
   const small = { font: "Times New Roman", size: 20 } as const;
   const p = (
@@ -374,17 +401,18 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     }
     if (para.lines.length) children.push(p("", { after: 140 }));
   });
-  // Signature and Distribution stay together on the page when they fit.
+  // The signature block stays whole: blank signature line, typed name, title.
   children.push(
-    p("", { after: 400 }),
+    p("", { after: 400, keepNext: true }),
+    p("______________________________", { after: 40, keepNext: true }),
     p(h.signatureName, { keepNext: true }),
     p(h.signatureTitle, { after: 240, keepNext: true }),
   );
   if (h.concurrence.length) {
-    children.push(p("CONCURRENCE:", { bold: true }));
+    children.push(p("CONCURRENCE:", { bold: true, keepNext: true }));
     for (const c of h.concurrence) {
-      children.push(p("______________________________   Date: __________", { after: 40 }));
-      children.push(p([c.name, c.title].filter(Boolean).join(", "), { after: 160 }));
+      children.push(p("______________________________   Date: __________", { after: 40, keepNext: true }));
+      children.push(p([c.name, c.title].filter(Boolean).join(", "), { after: 160, keepNext: true }));
     }
   }
   if (h.enclosures.length) {
@@ -400,20 +428,46 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     h.cc.forEach((c) => children.push(p(c, { after: 40 })));
   }
   if (h.cui) children.push(p(CUI_BANNER, { bold: true, center: true }));
-  // The metadata line belongs in the page footer, not in the Distribution block.
-  const footer = new Footer({
+  // The metadata line belongs in the page footer, not in the Distribution
+  // block: prototype note at the left, page count at the right.
+  const footerParagraph = () =>
+    new Paragraph({
+      tabStops: [{ type: TabStopType.RIGHT, position: 9360 }],
+      spacing: { after: 0 },
+      children: [
+        new TextRun({ font: "Times New Roman", size: 16, color: "777777", text: "Prototype, synthetic data\t" }),
+        new TextRun({ font: "Times New Roman", size: 18, text: "Page " }),
+        new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.CURRENT] }),
+        new TextRun({ font: "Times New Roman", size: 18, text: " of " }),
+        new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.TOTAL_PAGES] }),
+      ],
+    });
+
+  // First page: the agency insignia, at the size and position the blank uses
+  // (27.2mm by 24.0mm, top right). Continuation pages: subject line only.
+  const firstHeader = new Header({
+    children: insignia
+      ? [
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            spacing: { after: 0 },
+            children: [
+              new ImageRun({
+                type: "png",
+                data: insignia,
+                transformation: { width: 77, height: 68 },
+                altText: { title: "NASA insignia", description: "NASA insignia", name: "NASA insignia" },
+              }),
+            ],
+          }),
+        ]
+      : [new Paragraph({ spacing: { after: 0 }, children: [] })],
+  });
+  const runningHeader = new Header({
     children: [
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        tabStops: [{ type: TabStopType.CENTER, position: 4680 }],
-        spacing: { after: 0 },
-        children: [
-          new TextRun({ font: "Times New Roman", size: 16, color: "777777", text: "Prototype, synthetic data\t" }),
-          new TextRun({ font: "Times New Roman", size: 18, text: "Page " }),
-          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.CURRENT] }),
-          new TextRun({ font: "Times New Roman", size: 18, text: " of " }),
-          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.TOTAL_PAGES] }),
-        ],
+        spacing: { after: 120 },
+        children: [new TextRun({ font: "Times New Roman", size: 20, color: "444444", text: h.subject })],
       }),
     ],
   });
@@ -423,9 +477,14 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     sections: [
       {
         properties: {
+          titlePage: true,
           page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
         },
-        footers: { default: footer },
+        headers: { first: firstHeader, default: runningHeader },
+        footers: {
+          first: new Footer({ children: [footerParagraph()] }),
+          default: new Footer({ children: [footerParagraph()] }),
+        },
         children,
       },
     ],

@@ -17,6 +17,12 @@ export type PdfBlock = {
   gap?: number;
   center?: boolean;
   pageBreakBefore?: boolean;
+  /**
+   * Points of room that must remain below this block. A signature block, a
+   * certification block or the opening line of a numbered paragraph is never
+   * left alone at the foot of a page.
+   */
+  keepWith?: number;
 };
 
 export type PdfOptions = {
@@ -24,6 +30,13 @@ export type PdfOptions = {
   footer?: string[];
   prototype?: boolean;
   margins?: { top: number; right: number; bottom: number; left: number };
+  /**
+   * Agency insignia on the first page only, as the official blank places it.
+   * Continuation pages carry no letterhead.
+   */
+  insignia?: { url: string; width: number; height: number };
+  /** Running head printed at the top of page 2 onward. */
+  runningHead?: string;
 };
 
 const PAGE = { width: 612, height: 792, margin: 72 };
@@ -47,6 +60,27 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
   let y = PAGE.height - margins.top;
   const maxWidth = PAGE.width - margins.left - margins.right;
 
+  // The insignia is fetched once and drawn on the first page only, at the
+  // position the official blank uses.
+  let insignia: Awaited<ReturnType<typeof doc.embedPng>> | null = null;
+  if (options.insignia) {
+    try {
+      const res = await fetch(options.insignia.url);
+      if (res.ok) insignia = await doc.embedPng(await res.arrayBuffer());
+    } catch {
+      insignia = null;
+    }
+  }
+  if (insignia && options.insignia) {
+    const { width, height } = options.insignia;
+    page.drawImage(insignia, {
+      x: PAGE.width - margins.right - width,
+      y: PAGE.height - margins.top - height,
+      width,
+      height,
+    });
+  }
+
   const drawFooter = (target: typeof page, pageNumber: number, totalPages: number) => {
     let fy = 30;
     for (const line of options.footer ?? []) {
@@ -62,9 +96,10 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     if (options.prototype !== false) {
       target.drawText("Prototype, synthetic data", { x: margins.left, y: 30, size: 8, font: roman, color: rgb(0.45, 0.45, 0.45) });
     }
+    // Page count sits at the right margin, opposite the prototype note.
     const pageText = `Page ${pageNumber} of ${totalPages}`;
     target.drawText(pageText, {
-      x: (PAGE.width - roman.widthOfTextAtSize(pageText, 9)) / 2,
+      x: PAGE.width - margins.right - roman.widthOfTextAtSize(pageText, 9),
       y: 30,
       size: 9,
       font: roman,
@@ -75,6 +110,12 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
   const newPage = () => {
     page = doc.addPage([PAGE.width, PAGE.height]);
     y = PAGE.height - margins.top;
+    // A continuation page carries no letterhead: the subject line only.
+    if (options.runningHead) {
+      const head = sanitize(options.runningHead);
+      page.drawText(head.slice(0, 120), { x: margins.left, y, size: 10, font: roman, color: rgb(0.25, 0.25, 0.25) });
+      y -= 26;
+    }
   };
 
   for (const block of blocks) {
@@ -83,6 +124,7 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     const indent = block.indent ?? 0;
     const width = maxWidth - indent;
     if (block.pageBreakBefore) newPage();
+    if (block.keepWith && y - block.keepWith < margins.bottom + 18) newPage();
     const words = sanitize(block.text).split(/\s+/).filter(Boolean);
     const lines: string[] = [];
     let line = "";
