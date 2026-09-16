@@ -96,6 +96,8 @@ export type TemplateDef = {
     corrections?: string[];
   };
   lead: string;
+  /** Lead line that depends on the record's acquisition method. */
+  leadFor?: (v: Values) => string;
   /**
    * Printed form. "memo" and "dandf" use the NF 1858 memorandum page; "dandf"
    * prints Findings, then Determination, then the signature page. "plan" is a
@@ -2788,12 +2790,19 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   const out: Values = {};
   for (const s of def.sections) {
     for (const f of s.fields) {
-      const raw = f.bind ? acq[f.bind] : undefined;
+      // A bind may name more than one column, best first: "co_code|requester_org_code"
+      // takes the contracting office code when the record carries one.
+      const columns = f.bind ? f.bind.split("|") : [];
+      const raw = columns.map((c) => acq[c]).find((v) => v !== null && v !== undefined && v !== "");
       if (raw === null || raw === undefined || raw === "") {
         out[f.key] = f.default ?? "";
         continue;
       }
-      out[f.key] = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
+      const text = typeof raw === "boolean" ? (raw ? "Yes" : "No") : String(raw);
+      // A letterhead prints the procurement office code, so a full contracting
+      // office code such as ARC-JAZ-01 reads as JAZ.
+      out[f.key] =
+        f.key === "org_code" ? (/^[A-Z]{2,4}-([A-Z]{2,4})-\d+$/.exec(text)?.[1] ?? text) : text;
     }
   }
   // Carried so a section citation can follow the record's acquisition method.

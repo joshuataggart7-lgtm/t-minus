@@ -65,7 +65,7 @@ function letterHeader(subjectHelp: string): SectionDef {
     tier: "guidance",
     fields: [
       D("letter_date", "Date the letter is signed and sent"),
-      X("org_code", "Procurement Office code or identifier", "requester_org_code"),
+      X("org_code", "Procurement Office code or identifier", "co_code|requester_org_code"),
       T("addressee", "Offeror name and address"),
       X("solicitation_number", "Solicitation number"),
       X("acquisition_title", "Acquisition title and acronym", "title"),
@@ -155,7 +155,11 @@ const postawardUnsuccessful: TemplateDef = {
     effective: "2026-03-01",
     note: "One letter per unsuccessful offeror. Choose the offeror from the evaluation record; the letter fills from it.",
   },
-  lead: "Letter notifying an unsuccessful offeror, with the five items FAR 15.207-2(b) requires.",
+  lead: "Letter notifying an unsuccessful offeror.",
+  leadFor: noticeCitation(
+    "Letter notifying an unsuccessful offeror, with the five items FAR 15.207-2(b) requires.",
+    "Letter notifying an unsuccessful quoter that its quotation was not accepted (FAR 13.106-3(d)).",
+  ),
   sections: [
     {
       id: "recipient",

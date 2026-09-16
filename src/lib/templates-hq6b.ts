@@ -1187,7 +1187,7 @@ const supplySourcesAuthorization: TemplateDef = {
       tier: "binding",
       fields: [
         D("letter_date", "Date the authorization is signed and sent"),
-        X("org_code", "Procurement Office code or identifier", "requester_org_code"),
+        X("org_code", "Procurement Office code or identifier", "co_code|requester_org_code"),
         T("contractor_block", "TO: contractor point of contact, name and address"),
         S("authorized_action", "SUBJECT: Authorization to", ["Lease", "Rent", "Purchase"], "Purchase"),
         X("supply_source", "Government supply source", undefined, "For example the General Services Administration (GSA), Defense Logistics Agency (DLA) or Veterans Administration (VA)."),

@@ -1293,7 +1293,7 @@ function DocumentPage() {
     <AppShell>
       <PageHeader
         title={def.name}
-        lead={`${acquisitionId} · ${def.lead}${
+        lead={`${acquisitionId} · ${methodKnown && def.leadFor ? def.leadFor(citationValues) : def.lead}${
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
@@ -1403,7 +1403,7 @@ function DocumentPage() {
         templateKey={templateKey}
         templateName={def.name}
         revision={def.badge.revision}
-        defaultCitation={def.badge.citation}
+        defaultCitation={badgeCite}
         acquisitionId={acquisitionId}
       />
 
