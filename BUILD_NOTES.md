@@ -1013,3 +1013,11 @@ and NCMS remains the contract writing system of record (NFS CG 1804.11).
 Sample 3 / IDIQ logic untouched. Security findings remain deferred.
 Verified on A-2027-0102: picker opens, Apply writes 22 clauses with no
 52.212-5 and no removed rows. TypeScript clean.
+
+## 16 Sep 2026 — Briefing book export stub
+
+- Added `src/lib/briefing-book.ts` and an "Export briefing book" item in the file page More menu (secondary; it does not compete with the primary Next action).
+- The pack is four printable pages built only from the record: cover, clock/next action/blocker, key facts (value, method, competition, set-aside, contract type, NAICS, place of performance, need date), and clause position (recommended count, applied count, three example clauses with reasons).
+- Every page footer reads "Synthetic / Prototype — not an official NASA system" and adds "Sample data" when `is_seed` is set. The clause page repeats that NCMS is the system of record and the handoff packet is local.
+- The export writes an audit_log row ("Briefing book exported"). No NCMS write-back, no FedRAMP, no FPDS, no real SAM publish. Fictional/sample data only; security deferred.
+- Verified on A-2027-0101: menu item present, file downloads, four marked pages render cleanly when printed to PDF.
