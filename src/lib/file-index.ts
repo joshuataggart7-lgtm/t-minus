@@ -7,6 +7,7 @@
 // names come from the template definitions and the templates table.
 
 import { TEMPLATES } from "./template-engine";
+import { FORM_NAMES, type FormKey } from "./nf1787";
 import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
 
 /** Core tabbed records every file of that type is expected to hold. */
