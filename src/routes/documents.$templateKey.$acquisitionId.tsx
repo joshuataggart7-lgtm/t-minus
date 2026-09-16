@@ -1192,6 +1192,7 @@ function DocumentPage() {
       // Choosing the offeror rewrites the letter for that quoter, so one row
       // yields one letter per unsuccessful offeror on the evaluation record.
       if (key === "offeror_slot" && def && def.key === "postaward-letter-unsuccessful" && q.data?.acq) {
+        for (const field of ["company_name", "addressee", "offeror_uei", "quotation_summary"]) next[field] = "";
         const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: next });
         return applyMemoDraft(next, draft);
       }
