@@ -46,6 +46,23 @@ export function AwardHandoffPanel({
   const sf = scaffold.mode === "sf1449";
   const jTitle = sf ? "Attachments" : "Section J — List of attachments";
 
+  // Soft readiness strip: advisory only, never holds a phase or blocks exit.
+  const notRecorded = scaffold.blocks.filter((b) => b.value === "Not recorded").length;
+  const readiness = [
+    `Cover: ${notRecorded} of ${scaffold.blocks.length} fields not recorded`,
+    scaffold.clins.length > 0
+      ? `Schedule: ${scaffold.clins.length} line items`
+      : "Schedule: no line items",
+    scaffold.attachments.length > 0
+      ? `Attachments: ${scaffold.attachments.length}`
+      : `Attachments: ${SECTION_J_EMPTY}`,
+    scaffold.cdrl.length > 0 ? `CDRL: ${scaffold.cdrl.length} items` : "CDRL: empty",
+    scaffold.paymentMilestones.length > 0
+      ? `Payment milestones: ${scaffold.paymentMilestones.length}`
+      : "Payment milestones: empty",
+    "Signatures: blank on purpose — signed in NCMS",
+  ];
+
   return (
     <div className="mt-4 border border-border p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
