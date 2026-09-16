@@ -236,12 +236,12 @@ export function buildFileIndex(
 
   const presentList = [...present.values()]
     .map((t) => ({ ...t, documents: [...t.documents].sort((a, b) => a.version - b.version) }))
-    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab) || a.templateName.localeCompare(b.templateName));
+    .sort((a, b) => indexRank(a) - indexRank(b) || a.templateName.localeCompare(b.templateName));
 
   const presentTabs = new Set(presentList.map((t) => t.tab));
   const missing = requiredTabs(phases, acq)
     .filter((t) => !presentTabs.has(t.tab))
-    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab));
+    .sort((a, b) => indexRank(a) - indexRank(b));
 
   return { present: presentList, missing };
 }
