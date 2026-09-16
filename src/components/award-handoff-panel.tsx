@@ -462,8 +462,8 @@ export function AwardHandoffPanel({
           <section>
             <Head n={9}>Signatures</Head>
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-              Left blank on purpose. The contracting officer signs the award in NCMS; T-Minus
-              records no signature and produces no signed form.
+              Every line below is blank on purpose. T-Minus stores no signature and does not write
+              to NCMS; the contracting officer signs the award in NCMS, the system of record.
             </p>
             <dl className="mt-2 grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-[18px] sm:grid-cols-2">
               {[
