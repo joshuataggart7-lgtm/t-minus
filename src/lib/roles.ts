@@ -18,7 +18,7 @@ export type SeededUser = {
 export const SEEDED_USERS: SeededUser[] = [
   {
     role: "administrator",
-    name: "Joshua Taggart (fictional)",
+    name: "Joshua Taggart",
     title: "Administrator",
     email: "administrator@t-minus.demo",
     center_code: "ARC",
