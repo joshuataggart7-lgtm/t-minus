@@ -10,6 +10,7 @@ import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow, RequiredDoc } from "@/lib/launch-sequence";
 import { generatorKey } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { historyFrom, type HistoryFile } from "@/lib/confidence";
 import {
   computeMetrics,
   awardDateFor,
