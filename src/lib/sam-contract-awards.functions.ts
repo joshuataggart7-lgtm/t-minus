@@ -256,6 +256,7 @@ export const samContractAwards = createServerFn({ method: "POST" })
     let raw: unknown;
     let source: ComparablesView["source"];
     let providerError = "";
+    let localAwards: ComparableAward[] | null = null;
 
     try {
       if (data.simulateFailure) throw new Error("Simulated network failure");
