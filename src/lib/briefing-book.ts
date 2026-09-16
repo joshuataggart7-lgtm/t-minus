@@ -9,6 +9,8 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
+import type { ScaffoldSectionK } from "@/lib/format-scaffold";
 
 const esc = (s: unknown) =>
   String(s ?? "")
