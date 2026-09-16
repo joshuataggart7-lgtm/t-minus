@@ -194,6 +194,7 @@ export async function exportEvidencePack(
         ["Saved at", d.saved_at ?? null],
         ["Reviewed by", d.reviewed_by ?? null],
         ["Reviewed at", d.reviewed_at ?? null],
+        ["Official copy", isOfficialFinal(d.field_values) ? "Filed as the official copy" : "Draft — not filed as official"],
       ],
     );
     const fileName = `documents/${String(i + 1).padStart(2, "0")}-${slug(tab) || "no-tab"}-${slug(name)}-v${d.version ?? 1}.html`;
