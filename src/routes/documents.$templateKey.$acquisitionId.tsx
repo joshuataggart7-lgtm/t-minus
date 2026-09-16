@@ -813,6 +813,22 @@ function DocumentPage() {
           setAiMeta({});
         }
       }
+      // Item 6 of the justification reports the state of the notice of intent
+      // now, not when the version was saved. A stored status line is refreshed
+      // against the notice on the file and the publication date on this form.
+      if (def.key === "jofoc") {
+        const soleSource = /sole/i.test(String(q.data.acq["competition"] ?? ""));
+        const fresh = jofocNoticeStatus({
+          soleSource,
+          notice: noticeFacts,
+          publicationDate: stored["notice_date"] ?? "",
+        });
+        const previous = stored["notice_status"] ?? "";
+        stored["notice_status"] = fresh;
+        if (!stored["interested_sources"] || stored["interested_sources"].trim() === previous.trim()) {
+          stored["interested_sources"] = fresh;
+        }
+      }
       setValues(stored);
       return;
     }
