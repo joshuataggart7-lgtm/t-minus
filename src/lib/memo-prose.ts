@@ -39,8 +39,12 @@ function humanLine(line: string): string {
   if (parts.length === 3 && /^\d{4}-\d{2}-\d{2}$/.test(parts[1]!) && /results?$|not available/i.test(parts[2]!)) {
     const head = parts[0]!.split(",").map((p) => p.trim()).filter(Boolean);
     const source = head[0] ?? "";
-    // The first clause repeats the parameters; only distinct ones are kept.
-    const said = [...new Set(head.slice(1))];
+    // The first clause often repeats the parameters that follow it; a clause
+    // already contained in another is dropped so the sentence reads once.
+    const unique = [...new Set(head.slice(1))];
+    const said = unique.filter(
+      (clause, i) => !unique.some((other, j) => j !== i && other.toLowerCase().includes(clause.toLowerCase()) && other.length > clause.length),
+    );
     const what = said.length ? ` for ${said.join(", ")}` : "";
     const count = /not available/i.test(parts[2]!) ? parts[2]! : `returned ${parts[2]!}`;
     out = `${source}${what}, searched ${parts[1]}, ${count}.`;
