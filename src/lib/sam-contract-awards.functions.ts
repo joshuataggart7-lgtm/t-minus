@@ -296,7 +296,10 @@ export const samContractAwards = createServerFn({ method: "POST" })
             : "Sample data, fictional prior awards",
       checkedAt,
     };
-    if (providerError) view.providerError = providerError;
+    if (providerError) {
+      view.providerError = providerError;
+      view.providerNote = providerNoteFrom(providerError);
+    }
 
     const { error: saveError } = await supabaseAdmin.from("sam_checks").insert({
       acquisition_id: data.acquisitionId,
