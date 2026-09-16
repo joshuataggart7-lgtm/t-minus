@@ -50,20 +50,98 @@ const numberOrNull = (value: unknown) => {
   return Number.isFinite(n) ? n : null;
 };
 
-function rowsFromRaw(raw: unknown): SubawardRow[] {
+/**
+ * Reads the subcontract search shape, where each record nests the prime award
+ * and the subaward, and also the flat shape used by cached rows and samples.
+ */
+function rowsFromRaw(raw: unknown, naicsFilter?: string): SubawardRow[] {
   const root = object(raw);
   const rows = array(
-    root["subawards"] ?? root["data"] ?? root["results"] ?? root["subawardData"] ?? root["_embedded"],
+    root["subcontracts"] ??
+      root["subawards"] ??
+      root["data"] ??
+      root["results"] ??
+      root["subawardData"] ??
+      root["_embedded"],
   ).map(object);
-  return rows.slice(0, 25).map((row) => ({
-    primeName: text(row["primeAwardeeName"], row["primeEntityName"], row["primeName"], row["awardeeName"]),
-    primeAgency: text(row["fundingAgencyName"], row["awardingAgencyName"], row["agency"]),
-    subName: text(row["subAwardeeName"], row["subEntityName"], row["subawardeeName"], row["subName"]),
-    subLocation: text(row["subAwardeeCity"], row["subEntityCity"], row["subawardeePlace"], row["subLocation"]),
-    amount: numberOrNull(row["subAwardAmount"] ?? row["subawardAmount"] ?? row["amount"]),
-    actionDate: text(row["subAwardDate"], row["subawardActionDate"], row["actionDate"], row["dateSigned"]),
-    description: text(row["subAwardDescription"], row["subawardDescription"], row["descriptionOfWork"]),
-  }));
+  const mapped = rows.map((row) => {
+    const prime = object(row["primeAward"] ?? row["primeContract"] ?? row["prime"]);
+    const primeEntity = object(prime["awardee"] ?? prime["entity"] ?? row["primeAwardee"]);
+    const sub = object(row["subAward"] ?? row["subcontract"] ?? row["subAwardee"] ?? row["subEntity"]);
+    const subAddress = object(sub["address"] ?? sub["physicalAddress"] ?? row["subAwardeeAddress"]);
+    const naics = text(
+      prime["naicsCode"],
+      row["naicsCode"],
+      object(prime["naics"])["code"],
+      object(row["naics"])["code"],
+    );
+    const city = text(subAddress["city"], sub["city"], row["subAwardeeCity"], row["subEntityCity"]);
+    const state = text(
+      subAddress["stateOrProvinceCode"],
+      subAddress["state"],
+      sub["state"],
+      row["subAwardeeState"],
+    );
+    return {
+      naics,
+      row: {
+        primeName: text(
+          primeEntity["legalBusinessName"],
+          primeEntity["name"],
+          prime["awardeeName"],
+          row["primeAwardeeName"],
+          row["primeEntityName"],
+          row["primeName"],
+          row["awardeeName"],
+        ),
+        primeAgency: text(
+          prime["fundingAgencyName"],
+          prime["awardingAgencyName"],
+          object(prime["fundingAgency"])["name"],
+          object(prime["awardingAgency"])["name"],
+          row["fundingAgencyName"],
+          row["awardingAgencyName"],
+          row["agency"],
+        ),
+        subName: text(
+          sub["legalBusinessName"],
+          sub["name"],
+          row["subAwardeeName"],
+          row["subEntityName"],
+          row["subawardeeName"],
+          row["subName"],
+        ),
+        subLocation:
+          city !== "—" && state !== "—"
+            ? `${city}, ${state}`
+            : text(city, state, row["subawardeePlace"], row["subLocation"]),
+        amount: numberOrNull(
+          sub["amount"] ?? row["subAwardAmount"] ?? row["subawardAmount"] ?? row["amount"],
+        ),
+        actionDate: text(
+          sub["actionDate"],
+          sub["dateSigned"],
+          row["subAwardDate"],
+          row["subawardActionDate"],
+          row["actionDate"],
+          row["dateSigned"],
+        ).slice(0, 10),
+        description: text(
+          sub["descriptionOfWork"],
+          sub["description"],
+          row["subAwardDescription"],
+          row["subawardDescription"],
+          row["descriptionOfWork"],
+        ),
+      } satisfies SubawardRow,
+    };
+  });
+  // The subcontract search has no NAICS parameter, so the code is matched here.
+  const filtered = naicsFilter
+    ? mapped.filter((m) => !m.naics || m.naics === "—" || m.naics.startsWith(naicsFilter))
+    : mapped;
+  const chosen = filtered.length ? filtered : mapped;
+  return chosen.slice(0, 25).map((m) => m.row);
 }
 
 /** Fictional subaward relationships, clearly labeled, used when SAM.gov is unreachable. */
@@ -131,10 +209,11 @@ export const fetchSubawards = createServerFn({ method: "POST" })
       const apiKey = process.env['SAM_GOV_API_KEY']?.trim();
       console.log(`[SAM.gov subawards] key present: ${Boolean(apiKey)}; length: ${apiKey?.length ?? 0}`);
       if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
-      const url = new URL("https://api.sam.gov/prod/federalcontractawards/subawards/v1/search");
+      const url = new URL("https://api.sam.gov/prod/contract/v1/subcontracts/search");
       url.searchParams.set("api_key", apiKey);
-      url.searchParams.set("naicsCode", naics);
-      url.searchParams.set("limit", "25");
+      url.searchParams.set("pageSize", "25");
+      url.searchParams.set("pageNumber", "0");
+      url.searchParams.set("status", "Published");
       const redacted = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
       const response = await fetch(url, { headers: { Accept: "application/json" } });
       if (!response.ok) {
@@ -142,7 +221,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
         throw new Error(`api.sam.gov responded ${response.status} for GET ${redacted}. Body: ${body || "(empty)"}`);
       }
       raw = await response.json();
-      if (!rowsFromRaw(raw).length) throw new Error(`SAM.gov returned no subawards for NAICS ${naics}.`);
+      if (!rowsFromRaw(raw, naics).length) throw new Error(`SAM.gov returned no subawards for NAICS ${naics}.`);
       source = "live";
     } catch (error) {
       providerError = error instanceof Error ? error.message : "The subaward lookup failed.";
@@ -156,7 +235,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
         .maybeSingle();
       const envelope = object(cached.data?.response_json);
       const cachedRaw = envelope["raw"];
-      if (!cached.error && cachedRaw && rowsFromRaw(cachedRaw).length && envelope["source"] !== "sample") {
+      if (!cached.error && cachedRaw && rowsFromRaw(cachedRaw, naics).length && envelope["source"] !== "sample") {
         raw = cachedRaw;
         source = "cached";
       } else {
@@ -167,7 +246,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
 
     const view: SubawardView = {
       naicsCode: naics,
-      rows: rowsFromRaw(raw),
+      rows: rowsFromRaw(raw, naics),
       source,
       sourceLabel:
         source === "live"

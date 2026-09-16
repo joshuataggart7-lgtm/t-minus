@@ -7,6 +7,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { FAIR_OPPORTUNITY_EXCEPTIONS, VEHICLE_DEFAULTS, type VehicleProfile } from "@/lib/vehicles";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
+import { lookupPsc, type PscLookup } from "@/lib/psc-lookup.functions";
 import {
   visibleForCenter,
   type Nf1707Field,
@@ -344,6 +345,23 @@ function IntakePage() {
     setNewProjectName("");
     setNewProjectDate("");
     setProjectError(null);
+  }
+
+  const [psc, setPsc] = useState<PscLookup | null>(null);
+  const [pscChecking, setPscChecking] = useState(false);
+  const lookupPscCode = useServerFn(lookupPsc);
+
+  async function checkPsc() {
+    const code = facts.psc_code.trim().toUpperCase();
+    if (!code) return;
+    setPscChecking(true);
+    try {
+      setPsc(await lookupPscCode({ data: { code } }));
+    } catch {
+      setPsc(null);
+    } finally {
+      setPscChecking(false);
+    }
   }
 
   const [place, setPlace] = useState<PlaceLookup | null>(null);
@@ -847,8 +865,31 @@ function IntakePage() {
               id="psc"
               className={inputClass}
               value={facts.psc_code}
-              onChange={(e) => set("psc_code", e.target.value.toUpperCase())}
+              onChange={(e) => {
+                set("psc_code", e.target.value.toUpperCase());
+                setPsc(null);
+              }}
             />
+            <button
+              type="button"
+              className="mt-2 rounded-lg border border-border px-3 py-2 text-[13px]"
+              disabled={pscChecking || !facts.psc_code.trim()}
+              onClick={() => void checkPsc()}
+            >
+              {pscChecking ? "Checking" : "Check product or service code"}
+            </button>
+            {psc ? (
+              <p
+                className={`mt-2 text-[13px] ${
+                  psc.state === "valid" ? "text-muted-foreground" : "text-[#B45309]"
+                }`}
+              >
+                {psc.state === "valid" && psc.officialName
+                  ? `${psc.code} — ${psc.officialName}`
+                  : psc.message}
+                <span className="block text-muted-foreground">{psc.sourceLabel}</span>
+              </p>
+            ) : null}
           </Field>
           <Field label="Contract type" htmlFor="ctype" error={err("contract_type")}>
             <select

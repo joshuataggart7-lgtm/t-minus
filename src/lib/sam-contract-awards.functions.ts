@@ -52,20 +52,79 @@ const numberOrNull = (value: unknown) => {
   return Number.isFinite(n) ? n : null;
 };
 
+/**
+ * Reads the Contract Awards API v1 shape (awardSummary) and, for cached rows
+ * written before the endpoint moved, the older flat shape.
+ */
 function awardsFromRaw(raw: unknown): ComparableAward[] {
   const root = object(raw);
   const rows = array(
-    root["contractAwards"] ?? root["awardData"] ?? root["results"] ?? root["data"] ?? root["_embedded"],
+    root["awardSummary"] ??
+      root["contractAwards"] ??
+      root["awardData"] ??
+      root["results"] ??
+      root["data"] ??
+      root["_embedded"],
   ).map(object);
-  return rows.slice(0, 10).map((row) => ({
-    agency: text(row["awardingAgencyName"], row["agency"], row["departmentName"]),
-    awardDate: text(row["awardDate"], row["dateSigned"], row["signedDate"]),
-    pricingType: text(row["typeOfContractPricing"], row["pricingType"], row["contractPricingType"]),
-    extentCompeted: text(row["extentCompeted"], row["competitionExtent"], row["extentCompetedDescription"]),
-    obligatedAmount: numberOrNull(
-      row["totalObligatedAmount"] ?? row["obligatedAmount"] ?? row["dollarsObligated"],
-    ),
-  }));
+  return rows.slice(0, 10).map((row) => {
+    const core = object(row["coreData"]);
+    const details = object(row["awardDetails"]);
+    const dates = object(details["dates"]);
+    const contracting = object(core["contractingOfficeAddress"] ?? core["contractingOffice"]);
+    const department = object(core["department"] ?? contracting["department"]);
+    const subtier = object(core["subTier"] ?? core["agency"] ?? contracting["subTier"]);
+    const pricing = object(details["typeOfContractPricing"] ?? core["typeOfContractPricing"]);
+    const competition = object(
+      details["competitionInformation"] ?? core["competitionInformation"] ?? row["competitionInformation"],
+    );
+    const extent = object(competition["extentCompeted"]);
+    return {
+      agency: text(
+        subtier["name"],
+        department["name"],
+        core["departmentName"],
+        core["subTierName"],
+        row["awardingAgencyName"],
+        row["agency"],
+        row["departmentName"],
+      ),
+      awardDate: text(
+        dates["dateSigned"],
+        details["dateSigned"],
+        core["dateSigned"],
+        row["awardDate"],
+        row["dateSigned"],
+        row["signedDate"],
+      ).slice(0, 10),
+      pricingType: text(
+        pricing["name"],
+        pricing["description"],
+        details["typeOfContractPricing"],
+        row["typeOfContractPricing"],
+        row["pricingType"],
+        row["contractPricingType"],
+      ),
+      extentCompeted: text(
+        extent["name"],
+        extent["description"],
+        competition["extentCompeted"],
+        competition["extentCompetedDescription"],
+        row["extentCompeted"],
+        row["extentCompetedDescription"],
+      ),
+      obligatedAmount: numberOrNull(
+        details["totalActionObligation"] ??
+          details["actionObligation"] ??
+          core["totalActionObligation"] ??
+          core["actionObligation"] ??
+          row["totalActionObligation"] ??
+          row["actionObligation"] ??
+          row["totalObligatedAmount"] ??
+          row["obligatedAmount"] ??
+          row["dollarsObligated"],
+      ),
+    };
+  });
 }
 
 /** Fictional prior awards, clearly labeled, used when SAM.gov is unreachable. */
@@ -133,13 +192,15 @@ export const samContractAwards = createServerFn({ method: "POST" })
         `[SAM.gov awards] key present: ${Boolean(apiKey)}; length: ${apiKey?.length ?? 0}`,
       );
       if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
-      const url = new URL("https://api.sam.gov/prod/federalcontractawards/v1/search");
+      const url = new URL("https://api.sam.gov/contract-awards/v1/search");
       url.searchParams.set("api_key", apiKey);
-      if (naics) url.searchParams.set("naicsCode", naics);
-      if (psc) url.searchParams.set("pscCode", psc);
-      if (minValue !== null) url.searchParams.set("minObligatedAmount", String(minValue));
-      if (maxValue !== null) url.searchParams.set("maxObligatedAmount", String(maxValue));
+      if (naics) url.searchParams.set("naicsCode", naics.slice(0, 6));
+      if (psc) url.searchParams.set("productOrServiceCode", psc);
+      if (minValue !== null && maxValue !== null)
+        url.searchParams.set("totalDollarsObligated", `[${minValue},${maxValue}]`);
       url.searchParams.set("limit", "10");
+      url.searchParams.set("offset", "0");
+      url.searchParams.set("includeSections", "contractId,coreData,awardDetails,awardeeData");
       const redacted = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
       const response = await fetch(url, { headers: { Accept: "application/json" } });
       if (!response.ok) {

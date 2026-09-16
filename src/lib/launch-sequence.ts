@@ -132,14 +132,29 @@ export function acquisitionType(acq: AcqRow) {
     : "commercial_ffp_13_5_competed";
 }
 
+/** True when the record itself says the buy is commercial. */
+export function isCommercialBuy(acq?: AcqRow | null): boolean {
+  const row = (acq ?? {}) as Record<string, unknown>;
+  const method = String(row["acquisition_method"] ?? "");
+  if (/13\.5|\b12\b/.test(method)) return true;
+  if (/\b15\b|\b13\b(?!\.5)/.test(method)) return false;
+  const scenario = row["scenario"];
+  const commercialFlag =
+    scenario !== null && typeof scenario === "object"
+      ? (scenario as Record<string, unknown>)["commercial"]
+      : undefined;
+  if (typeof commercialFlag === "boolean") return commercialFlag;
+  return /commercial/i.test(String(row["commercial_determination"] ?? ""));
+}
+
 /** The acquisition type written out for people, never the internal code. */
 export function acquisitionTypeWords(acq: AcqRow) {
   const contract = String((acq as Record<string, unknown>)["contract_type"] ?? "").trim();
-  const contractWords = /ffp|firm[- ]fixed/i.test(contract)
-    ? "Commercial FFP"
-    : contract
-      ? `Commercial ${contract}`
-      : "Commercial";
+  const commercial = isCommercialBuy(acq);
+  const typeWords = /ffp|firm[- ]fixed/i.test(contract) ? "FFP" : contract;
+  const contractWords = commercial
+    ? `Commercial ${typeWords}`.trim()
+    : typeWords || "Non-commercial";
   const method = String((acq as Record<string, unknown>)["acquisition_method"] ?? "");
   const methodWords = /13\.5/.test(method)
     ? "FAR 13.5"
@@ -151,7 +166,9 @@ export function acquisitionTypeWords(acq: AcqRow) {
           ? "FAR 8.4"
           : /12/.test(method)
             ? "FAR 12"
-            : "FAR 13.5";
+            : commercial
+              ? "FAR 13.5"
+              : "FAR 15";
   const competition = String(acq.competition ?? "");
   const compWords = /sole/i.test(competition)
     ? "sole source"
@@ -179,6 +196,23 @@ export const PHASE_CITATIONS: Record<string, string> = {
   Administration: "FAR Part 42; FAR 4.801 (contract file)",
   Closeout: "FAR 4.804 (closeout of contract files)",
 };
+
+/** Negotiated Part 15 citations, used where the simplified ones do not apply. */
+const PART_15_PHASE_CITATIONS: Record<string, string> = {
+  Synopsis: "RFO FAR 5.203 (presolicitation notice)",
+  "Solicitation/Quote": "FAR 15.203; NFS CG 1804.11 (NCMS is the system of record)",
+  "Technical Evaluation": "FAR 15.305 (proposal evaluation)",
+  "Price Reasonableness": "FAR 15.406-3 (price negotiation memorandum); FAR 15.404-1",
+  Award: "FAR 15.504; NFS CG 1804.11 (award written in NCMS)",
+};
+
+/** The citation a phase carries on this record's path. */
+export function phaseCitation(phase: string, acq?: AcqRow | null): string {
+  const method = String(((acq ?? {}) as Record<string, unknown>)["acquisition_method"] ?? "");
+  const negotiated = /15/.test(method) || (!/13|12|8\.4/.test(method) && !isCommercialBuy(acq));
+  if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
+  return PHASE_CITATIONS[phase] ?? "";
+}
 
 export const PHASE_GUIDANCE: Record<string, string> = {
   Intake: "Confirm the requirement, the money, and the mission date. The clock starts here.",
@@ -1047,7 +1081,7 @@ export function buildSequence(
       status,
       actual_days: actual,
       docs,
-      citation: PHASE_CITATIONS[phase] ?? "",
+      citation: phaseCitation(phase, acq),
       guidance: PHASE_GUIDANCE[phase] ?? "",
       needsPoll: phase === "Go/No-go Poll",
     };

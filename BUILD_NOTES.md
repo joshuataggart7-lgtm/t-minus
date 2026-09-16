@@ -673,3 +673,45 @@ Overview, Files, Intake, Center configuration and Watch: the header name stays
 "Joshua Taggart" and the first role chip stays "Administrator" on every page.
 Hard refresh on any of those pages: still signed in, same name and chip, no
 sign-in screen in between.
+
+## Public data feeds, hardening pass (16 September 2026)
+
+Every panel still shows whether what you see is a live result, a cached result
+from the last successful call, or clearly labeled sample data. No sample
+fallback was removed.
+
+- **Contract awards (PNM comparables).** Now calls the Contract Awards API at
+  `api.sam.gov/contract-awards/v1/search` with the NAICS code, the product or
+  service code, and a dollar range around the estimated value. The reader takes
+  the `awardSummary` records and still understands rows cached under the old
+  shape.
+- **Subawards (market research).** Now calls
+  `api.sam.gov/prod/contract/v1/subcontracts/search` with `pageSize`,
+  `pageNumber` and `status=Published`. That search has no NAICS parameter, so
+  the code is matched against the returned prime awards.
+- **USAspending.** Retried twice, after 0.5s and 1.5s, on a 5xx or a network
+  failure. The final failure is logged and written into the research log with
+  the attempt count. No award is ever invented.
+- **GSA CALC+.** The retired CALC v1 rates endpoint is gone. Ceiling rates now
+  come from `api.gsa.gov/acquisition/calc/v3/api/ceilingrates/`, which needs no
+  API key; a key is sent only if one is configured. CALC+ now runs for any
+  services or labour requirement, not only FAR 8.4 buys, and the rate count is
+  recorded in the research log.
+- **Exclusions.** The nightly sweep calls the dedicated exclusions endpoint,
+  `api.sam.gov/entity-information/v4/exclusions`, for every non-demo UEI. A
+  vendor is excluded when the exclusions list is not empty. Demo UEIs keep the
+  labeled sample path, and the entity registration exclusion flag remains a
+  secondary signal on entity checks.
+- **Product and service codes.** Intake can check a PSC against the SAM.gov
+  Public PSC API and shows the official name. An unknown or retired code is
+  warned about; if SAM.gov cannot be reached the code is still saveable with a
+  note saying it was not confirmed.
+- **Sample 3 wording.** A-2027-0103 is a cost-plus-fixed-fee Part 15 buy. The
+  file header no longer calls it commercial, and the Synopsis, Solicitation,
+  Technical Evaluation, Price Reasonableness and Award phases cite Part 15
+  (FAR 5.203, 15.203, 15.305, 15.406-3, 15.504) instead of the simplified
+  acquisition citations.
+- **Sample 1 evaluation record.** A-2027-0101 now carries a saved Evaluation of
+  Quotations Record with three fictional quoters, so the postaward letters fill
+  from it: Corsair Aviation Services successful, Strategic Aviation Partners
+  and SciFly Research Aviation unsuccessful.

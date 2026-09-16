@@ -65,6 +65,8 @@ function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
   const root = object(raw);
   const exclusions = array(root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"]);
   if (exclusions.length > 0) return { excluded: true, label: `Exclusion found (${exclusions.length} record(s))` };
+  const total = Number(root["totalRecords"] ?? object(root["_meta"])["totalRecords"]);
+  if (Number.isFinite(total) && total > 0) return { excluded: true, label: `Exclusion found (${total} record(s))` };
   const entity = object(array(root["entityData"])[0] ?? root["entityData"] ?? root);
   const registration = object(entity["entityRegistration"]);
   const flag = text(registration["exclusionStatusFlag"], object(entity["coreData"])["exclusionStatusFlag"]);
@@ -72,24 +74,25 @@ function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
   return { excluded: false, label: "No active exclusion" };
 }
 
-async function lookupExclusion(uei: string, legalName: string | null) {
+/** Reads the dedicated SAM.gov exclusions record for one UEI. */
+async function lookupExclusion(uei: string, _legalName: string | null) {
   const apiKey = process.env['SAM_GOV_API_KEY']?.trim();
   console.log(`[Exclusions sweep] key present: ${Boolean(apiKey)}; length: ${apiKey?.length ?? 0}`);
   if (!apiKey) throw new Error("The SAM.gov API key has not been configured.");
-  const url = new URL("https://api.sam.gov/entity-information/v3/entities");
+  const url = new URL("https://api.sam.gov/entity-information/v4/exclusions");
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("ueiSAM", uei);
-  url.searchParams.set("includeSections", "entityRegistration,coreData");
+  url.searchParams.set("recordStatus", "active");
+  url.searchParams.set("page", "0");
+  url.searchParams.set("size", "10");
   const redacted = url.toString().replace(encodeURIComponent(apiKey), "REDACTED").replace(apiKey, "REDACTED");
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   if (!response.ok) {
     const body = (await response.text()).slice(0, 300);
     throw new Error(`api.sam.gov responded ${response.status} for GET ${redacted}. Body: ${body || "(empty)"}`);
   }
-  const raw = await response.json();
-  if (!array(object(raw)["entityData"]).length)
-    throw new Error(`SAM.gov returned no registration for ${legalName ?? uei}.`);
-  return raw;
+  // An empty exclusions list is a valid answer: the vendor is not excluded.
+  return await response.json();
 }
 
 /** Runs the sweep. `actor` is the name recorded on every check and audit row. */
