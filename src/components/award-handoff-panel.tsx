@@ -46,22 +46,30 @@ export function AwardHandoffPanel({
   const sf = scaffold.mode === "sf1449";
   const jTitle = sf ? "Attachments" : "Section J — List of attachments";
 
+  // Partial records are normal on a live file. Read every list defensively so a
+  // half-built scaffold still renders instead of throwing.
+  const blocks = scaffold.blocks ?? [];
+  const clins = scaffold.clins ?? [];
+  const attachments = scaffold.attachments ?? [];
+  const cdrl = scaffold.cdrl ?? [];
+  const payments = scaffold.paymentMilestones ?? [];
+
   // Soft readiness strip: advisory only, never holds a phase or blocks exit.
-  const notRecorded = scaffold.blocks.filter((b) => b.value === "Not recorded").length;
+  const notRecorded = blocks.filter((b) => b.value === "Not recorded").length;
   const readiness = [
-    `Cover: ${notRecorded} of ${scaffold.blocks.length} fields not recorded`,
-    scaffold.clins.length > 0
-      ? `Schedule: ${scaffold.clins.length} line items`
-      : "Schedule: no line items",
-    scaffold.attachments.length > 0
-      ? `Attachments: ${scaffold.attachments.length}`
+    `Cover: ${notRecorded} of ${blocks.length} fields not recorded`,
+    clins.length > 0 ? `Schedule: ${clins.length} line items` : "Schedule: no line items",
+    attachments.length > 0
+      ? `Attachments: ${attachments.length}`
       : `Attachments: ${SECTION_J_EMPTY}`,
-    scaffold.cdrl.length > 0 ? `CDRL: ${scaffold.cdrl.length} items` : "CDRL: empty",
-    scaffold.paymentMilestones.length > 0
-      ? `Payment milestones: ${scaffold.paymentMilestones.length}`
+    cdrl.length > 0 ? `CDRL: ${cdrl.length} items` : "CDRL: empty",
+    payments.length > 0
+      ? `Payment milestones: ${payments.length}`
       : "Payment milestones: empty",
     "Signatures: blank on purpose — signed in NCMS",
   ];
+  const allEnclosuresEmpty =
+    clins.length === 0 && attachments.length === 0 && cdrl.length === 0 && payments.length === 0;
 
   return (
     <div className="mt-4 border border-border p-4">
