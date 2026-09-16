@@ -423,6 +423,7 @@ function FormPage() {
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="Recommended route for free Adobe Reader: open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file. The blank keeps its own rights."
               onClick={exportData}
             >
               Export data file for Import Data
