@@ -105,6 +105,7 @@ import { WhatIfPanel } from "@/components/what-if-panel";
 import { VehiclePanel } from "@/components/vehicle-panel";
 import { ModificationsPanel } from "@/components/modifications-panel";
 import { CloseoutPanel } from "@/components/closeout-panel";
+import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
@@ -2091,6 +2092,15 @@ function FilePage() {
         </section>
       ) : null}
 
+      <DeadlinesPanel
+        acq={acq as Record<string, unknown> | null}
+        awardDate={awardDate}
+        debriefingDate={debriefingDate}
+        thresholds={(q.data?.thresholds ?? []) as never}
+        noticePostedDate={null}
+        quoteDueDate={(acq?.['proposed_price_received'] as string | null | undefined) ?? null}
+      />
+
       <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
 
       <ModificationsPanel
@@ -2125,15 +2135,25 @@ function FilePage() {
       <details aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
-        <p className="mb-4 text-[13px] text-muted-foreground">
-          Built from the documents in this file, by NF 1098 tab. FAR 4.801 contract file.
+        <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
+          This is the NF 1098 checklist for the file: every tab, whether it is required for this
+          record, whether it is present, and the version and date of the latest document. Built from
+          the documents already on the file. FAR 4.801 contract file.
         </p>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="mb-4 text-[13px] text-primary"
+        >
+          Print the cover sheet
+        </button>
         <table className="w-full border border-border text-[13px] leading-[18px]">
           <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
           <thead>
             <tr className="border-b border-border bg-canvas text-left">
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
+              <th scope="col" className="px-3 py-2 font-medium">Required here</th>
               <th scope="col" className="px-3 py-2 font-medium">Phase</th>
               <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
               <th scope="col" className="px-3 py-2 font-medium">State</th>
@@ -2144,6 +2164,7 @@ function FilePage() {
               <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
+                <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
                 <td className="px-3 py-2">{t.phase}</td>
                 <td className="px-3 py-2">
                   {t.documents.at(-1)?.memo
@@ -2160,6 +2181,7 @@ function FilePage() {
               <tr key={`m-${t.tab}`} className="border-b border-border">
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
+                <td className="px-3 py-2">Required</td>
                 <td className="px-3 py-2">{t.phase}</td>
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
@@ -2169,7 +2191,7 @@ function FilePage() {
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={5}>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
                   No tabbed documents are saved on this file yet.
                 </td>
               </tr>
