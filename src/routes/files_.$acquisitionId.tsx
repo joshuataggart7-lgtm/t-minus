@@ -55,6 +55,12 @@ import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
+import { ClinSchedulePanel } from "@/components/clin-schedule-panel";
+import {
+  ensureClinScheduleFromIgce,
+  loadClinSchedule,
+  scheduleToScaffoldClins,
+} from "@/lib/clin-schedule";
 import { evaluateCompanionGates } from "@/lib/companion-gates";
 import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import type { StoredEstimate } from "@/lib/estimator";
