@@ -51,6 +51,7 @@ import { awardConfidence, historyFrom } from "@/lib/confidence";
 import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
+import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
