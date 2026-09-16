@@ -110,6 +110,8 @@ export function buildFormatScaffold(
   scheduleClins?: ScaffoldClin[],
   /** Sections L and M from the file. When given they replace the default lines. */
   lm?: ScaffoldLmOverride | null,
+  /** Section J: the attachments on the record. */
+  attachments?: SectionJAttachment[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
