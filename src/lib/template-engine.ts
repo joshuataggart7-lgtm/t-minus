@@ -2222,11 +2222,15 @@ const packetTransmittal: TemplateDef = {
 
 // ------------------------------------------------ Memorandum for Record
 /** Purposes the memorandum can carry, in the order the form offers them. */
+/** Purpose used by the situation-memo starter for an unexpected event. */
+export const MFR_SITUATION_PURPOSE = "Record of an unexpected event affecting the schedule";
+
 export const MFR_PURPOSES = [
   "Record of a decision not otherwise documented",
   "Explanation of a gap or delay in the file",
   "Correction of a document or date on the record",
   "Chronology of the acquisition to date",
+  MFR_SITUATION_PURPOSE,
   "Other",
 ] as const;
 

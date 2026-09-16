@@ -55,6 +55,7 @@ import {
   sectionCitation,
   sectionStandingText,
   MFR_KEY,
+  MFR_SITUATION_PURPOSE,
   type SectionDef,
   visibleFields,
   visibleSections,
@@ -80,9 +81,15 @@ import {
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
   // the evaluation record: /documents/postaward-letter-unsuccessful/ID?offeror=2
-  validateSearch: (search: Record<string, unknown>) => {
+  // standalone=1 marks a draft taken outside the launch sequence; situation=1
+  // opens the memorandum for record on the unexpected-event scaffold.
+  validateSearch: (search: Record<string, unknown>): { offeror?: number; standalone?: 1; situation?: 1 } => {
     const raw = Number(String(search["offeror"] ?? "").replace(/\D+/g, ""));
-    return raw >= 1 && raw <= 4 ? { offeror: raw } : {};
+    const out: { offeror?: number; standalone?: 1; situation?: 1 } = {};
+    if (raw >= 1 && raw <= 4) out.offeror = raw;
+    if (String(search["standalone"] ?? "") === "1") out.standalone = 1;
+    if (String(search["situation"] ?? "") === "1") out.situation = 1;
+    return out;
   },
   head: () => ({
     meta: [
@@ -125,7 +132,7 @@ function answersSummary(answers: unknown): string {
 
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
-  const search = Route.useSearch() as { offeror?: number };
+  const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
   const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
   const citeCorpus = useCiteCorpus();
@@ -977,6 +984,14 @@ function DocumentPage() {
     );
   }, [def, q.data, memoHeader, acquisitionId, coRecord, enclosures, board]);
 
+  // Situation memo starter: the unexpected-event purpose is chosen for the
+  // officer, who can change it. Everything else is drafted from the record.
+  useEffect(() => {
+    if (!search.situation || def?.key !== MFR_KEY) return;
+    setValues((prev) => (String(prev["purpose"] ?? "").trim() ? prev : { ...prev, purpose: MFR_SITUATION_PURPOSE }));
+  }, [search.situation, def]);
+
+
   // Memorandum for record: the opening line and, for a chronology, the body
   // are drafted again whenever the contracting officer changes the purpose.
   const mfrPurpose = def?.key === MFR_KEY ? `${values["purpose"] ?? ""}|${values["purpose_other"] ?? ""}` : "";
@@ -1282,6 +1297,18 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
+
+      {/* A standalone draft is taken outside the launch sequence. It saves and
+          exports like any document and adds no required row to the file. */}
+      {search.standalone ? (
+        <p className="mb-4 max-w-[80ch] border-l-2 border-border pl-3 text-[13px] text-muted-foreground">
+          Standalone draft. This document was started outside the launch sequence for {acquisitionId}.
+          It is not a required beat, and saving it does not add a requirement to the file.
+          {search.situation ? " Situation memo starter: the scaffold is drafted from the record; confirm every line." : ""}
+        </p>
+      ) : null}
+
+
 
       {/* The sidebar follows the file's own phase, not the template's home phase. */}
       <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
