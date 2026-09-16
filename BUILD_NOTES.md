@@ -1498,3 +1498,18 @@ NCMS, SAM, FPDS or email write was introduced.
 - W2.8 Center configuration CSV import. New `src/components/routing-csv-import.tsx` lets HQ and specialists upload a routing CSV (center_code, document_key, approving_official_title, optional thru_chain and memo_default), validates columns and every row against known Centers and routed documents, previews the rows, and only then upserts `memo_routing` and writes one audit row per applied row. No seed files are touched and no external system is written. Click path: Center configuration → Import routing from a CSV.
 
 - P0 exclusions false-hold: the nightly exclusions sweep is UEI-exact and read-only. Entity registration payloads no longer count as exclusions (totalRecords removed from the test); cache fallback reuses only prior Exclusions sweep rows carrying an exclusions payload for the same UEI; the sweep never writes clock_state or hold fields — it records a flag for CO review with cause, UEI, source and time, and a newer clean check on the same UEI clears it. "Last check" now renders a real date and time (no Invalid Date). Unsuccessful postaward letter sections cite FAR 13.106-3(d) on simplified files.
+
+## Method-specific unsuccessful offeror letter body
+
+Sections can now carry `standingTextFor(values)` beside `citationFor`, and the
+form, the printable view and both exports render it. On a FAR 13.5 or Part 12
+commercial file the Postaward Notification Letter Unsuccessful Offeror now
+states the notice under FAR 13.106-3(d), replaces the Part 15 debriefing
+paragraph with the brief explanation available under FAR 13.106-3(d), and drops
+the Source Selection Statement enclosure and rationale sentence; the price
+negotiation memorandum is named as the record instead. A genuine Part 15 file
+keeps FAR 15.207-2(b), FAR 15.301-1 and the enclosure unchanged. The letter's
+organization code reads `co_code` first (JAZ on the sample files) and the
+contracting officer e-mail and telephone continue to come from the users row
+matching the record's `co_name`. Exclusions sweep behaviour (SHA cce3fec) and
+the hidden A-2026-0090 clause delta are untouched.
