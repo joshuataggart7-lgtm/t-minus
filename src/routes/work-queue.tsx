@@ -9,6 +9,7 @@ import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
+import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import {
   computeMetrics,
   awardDateFor,
@@ -80,6 +81,7 @@ function WorkQueuePage() {
 
   const [view, setView] = useState<"board" | "list">("board");
   const [sortBy, setSortBy] = useState<"owner" | "phase" | "days">("owner");
+  const rowsRef = useRowKeysContainer<HTMLTableSectionElement>();
   const [scope, setScope] = useState<"all" | "mine" | "branch" | "center">("all");
   const [missionId, setMissionId] = useState<string>("all");
 
@@ -365,7 +367,8 @@ function WorkQueuePage() {
             <option value="days">Days to award</option>
           </select>
         </div>
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+        <RowKeysHint />
+        <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Acquisition</th>
@@ -380,9 +383,14 @@ function WorkQueuePage() {
               <th scope="col" className="p-2">Status</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody ref={rowsRef}>
             {sortedList.map((c) => (
-              <tr key={c.m.acq.acquisition_id} className="border-b border-border last:border-0">
+              <tr
+                key={c.m.acq.acquisition_id}
+                data-row-nav
+                tabIndex={0}
+                className="border-b border-border last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
                 <td className="p-2">
                   <Link
                     to="/files/$acquisitionId"
@@ -391,6 +399,25 @@ function WorkQueuePage() {
                   >
                     {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
                   </Link>
+                  <Link
+                    to="/files/$acquisitionId"
+                    params={{ acquisitionId: c.m.acq.acquisition_id }}
+                    hash="launch-sequence"
+                    data-row-action="exit"
+                    className="sr-only"
+                  >
+                    Open the launch sequence for {c.m.acq.acquisition_id}
+                  </Link>
+                  {/^write\b/i.test(c.nextTask ?? "") ? (
+                    <Link
+                      to="/files/$acquisitionId"
+                      params={{ acquisitionId: c.m.acq.acquisition_id }}
+                      data-row-action="write"
+                      className="sr-only"
+                    >
+                      {c.nextTask} on {c.m.acq.acquisition_id}
+                    </Link>
+                  ) : null}
                 </td>
                 <td className="p-2">{c.mission}</td>
                 <td className="p-2">{c.owner}</td>
