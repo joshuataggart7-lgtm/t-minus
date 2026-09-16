@@ -1376,7 +1376,7 @@ function FilePage() {
     if (!heroAction || !canWrite) return null;
     if (heroAction.generated) {
       return heroAction.generated.templateKey ? (
-        <Button asChild>
+        <Button asChild className="max-w-full whitespace-normal text-left">
           <Link
             to="/documents/$templateKey/$acquisitionId"
             params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
@@ -1385,7 +1385,7 @@ function FilePage() {
           </Link>
         </Button>
       ) : (
-        <Button asChild>
+        <Button asChild className="max-w-full whitespace-normal text-left">
           <Link
             to="/forms/$formKey/$acquisitionId"
             params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
@@ -1397,7 +1397,7 @@ function FilePage() {
     }
     if (heroAction.doc) {
       return (
-        <Button asChild disabled={attachDoc.isPending}>
+        <Button asChild disabled={attachDoc.isPending} className="max-w-full whitespace-normal text-left">
           <label className="cursor-pointer">
             {attachDoc.isPending ? "Attaching" : label}
             <input
@@ -1416,12 +1416,12 @@ function FilePage() {
       );
     }
     if (heroAction.label.startsWith("Exit ") && currentPhase) {
-      return <Button onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
+      return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
     }
     if (heroAction.label === "Open the poll" && currentPhase) {
-      return <Button onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
+      return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
     }
-    return <Button onClick={openLaunchSequence}>{label}</Button>;
+    return <Button className="max-w-full whitespace-normal text-left" onClick={openLaunchSequence}>{label}</Button>;
   };
 
   return (
