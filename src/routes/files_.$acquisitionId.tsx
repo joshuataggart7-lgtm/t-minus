@@ -53,6 +53,7 @@ import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
+import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
@@ -1387,6 +1388,17 @@ function FilePage() {
                 evaluation: formatScaffold.evaluation,
               }
             : null,
+          clins: scheduleClins.map((c) => ({
+            clin: c.clin,
+            description: c.description,
+            amount: c.amount,
+            note: c.note,
+          })),
+          methodShellLabel: shell
+            ? `${shell.path === "sf1449" ? "SF 1449" : "UCF"} / ${shell.partFamily === "12_13" ? "Part 12-13" : "Part 15"}`
+            : null,
+          competitive: shell ? shell.competitive : null,
+          sectionJCount: sectionJ.length,
           gates: companionGates
             .filter((g) => g.applies)
             .map((g) => ({
@@ -2942,6 +2954,7 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <ReadReceiptsPanel acquisitionId={acquisitionId} />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
                   <PaymentMilestonesPanel
                     acquisitionId={acquisitionId}

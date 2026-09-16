@@ -61,7 +61,18 @@ export type BriefingInput = {
   format?: BriefingFormat | null;
   /** Companion gates that apply to this record. */
   gates?: BriefingGate[];
+  /** The schedule of line items on the record, counted and printed. */
+  clins?: { clin: string; description: string; amount: string; note: string }[];
+  /** The method shell in the same voice as the file page, e.g. "SF 1449 / Part 12-13". */
+  methodShellLabel?: string | null;
+  /** Competitive or sole-source, from the record. */
+  competitive?: boolean | null;
+  /** Attachments eligible for Section J on the record. */
+  sectionJCount?: number | null;
 };
+
+export const AWARD_HANDOFF_POINTER =
+  "Award handoff: open the file's Award handoff view for CLIN, Sections L and M, clauses, Section J and the signature blanks. NCMS remains the system of record.";
 
 
 const money = (n: number) =>
@@ -137,6 +148,41 @@ function gatesPage(input: BriefingInput, mark: string): string {
     <h2>Companion gates</h2>
     <p class="sub">Gates that apply to this record, read from the seeded review rules. A gate is a checklist for the officer; it does not place the file on hold.</p>
     <table class="clauses" style="margin-top:20px"><thead><tr><th>Gate</th><th>Status</th><th>What triggers it</th><th>What the file shows</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  ${mark}
+</section>`;
+}
+
+
+/** The schedule of line items, counted, with the method shell and Section J. */
+function schedulePage(input: BriefingInput, mark: string): string {
+  const rows = input.clins ?? [];
+  const body = rows.length
+    ? rows
+        .map(
+          (c) =>
+            `<tr><td>${esc(c.clin)}</td><td>${esc(c.description)}<br><span class="sub" style="font-size:13px">${esc(c.note)}</span></td><td>${esc(c.amount)}</td></tr>`,
+        )
+        .join("")
+    : `<tr><td colspan="3">No line items drawn from this record yet.</td></tr>`;
+  const method = input.methodShellLabel
+    ? `${input.methodShellLabel}${
+        input.competitive === null || input.competitive === undefined
+          ? ""
+          : input.competitive
+            ? " · competitive"
+            : " · sole source"
+      }`
+    : "Method not recorded on this file.";
+  const jCount = input.sectionJCount ?? 0;
+  return `<section class="page">
+  <div>
+    <h2>Schedule and handoff</h2>
+    <p class="sub">Line items on the record: ${esc(rows.length)}.</p>
+    <table class="clauses" style="margin-top:20px"><thead><tr><th>CLIN</th><th>Description</th><th>Amount</th></tr></thead><tbody>${body}</tbody></table>
+    <p class="sub" style="margin-top:24px">Method: ${esc(method)}</p>
+    <p class="sub" style="margin-top:8px">Section J attachments on the record: ${esc(jCount)}</p>
+    <p class="sub" style="margin-top:8px">${esc(AWARD_HANDOFF_POINTER)}</p>
   </div>
   ${mark}
 </section>`;
@@ -238,6 +284,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   ${mark}
 </section>
 
+${schedulePage(input, mark)}
 ${formatPage(input, mark)}
 ${gatesPage(input, mark)}
 

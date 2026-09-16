@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -7,6 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { useDeskData, daysUntil, heroDocForReviewer, pollMatchesReviewer, type DeskCard } from "@/lib/desk-data";
 import { phaseCitation, type PollRow } from "@/lib/launch-sequence";
+import {
+  loadReceiptsForAcquisitions,
+  receiptStamp,
+  recordReadReceiptQuietly,
+  type ReceiptKind,
+} from "@/lib/read-receipts";
 
 export const Route = createFileRoute("/reviewer-inbox")({
   head: () => ({
@@ -52,6 +58,37 @@ function ReviewerInbox() {
       .sort((a, b) => String(a.poll.due_date ?? "9999").localeCompare(String(b.poll.due_date ?? "9999")));
     return { rows: built, matchMode: named.length > 0 ? ("named" as const) : ("all-pending" as const) };
   }, [desk, user.name, user.title]);
+
+  // Soft read receipts for the hero document on each row. Nothing here blocks a
+  // vote, a phase or a file; an empty result simply shows nothing.
+  const ids = useMemo(() => Array.from(new Set(rows.map((r) => r.card.m.acq.acquisition_id))), [rows]);
+  const receiptsQ = useQuery({
+    queryKey: ["read-receipts-inbox", ids.join(",")],
+    enabled: authState === "signed-in" && ids.length > 0,
+    queryFn: () => loadReceiptsForAcquisitions(ids),
+  });
+  const receipts = receiptsQ.data ?? [];
+
+  const openedNote = (id: string, kind: ReceiptKind, key: string): string | null => {
+    const hit = receipts.find(
+      (r) => r.acquisition_id === id && r.doc_kind === kind && r.doc_key === key,
+    );
+    return hit ? `Opened by ${hit.opened_by} · ${receiptStamp(hit.opened_at)}` : null;
+  };
+
+  const noteOpen = (id: string, kind: ReceiptKind, key: string, label: string, pollId: string) => {
+    void signedInName(user.name).then((who) => {
+      recordReadReceiptQuietly({
+        acquisitionId: id,
+        docKind: kind,
+        docKey: key,
+        docLabel: label,
+        openedBy: who,
+        pollId,
+        source: "reviewer-inbox",
+      });
+    });
+  };
 
   // The reviewer casts their own vote into the same polls row the file page
   // writes, with the same audit entry.
@@ -164,6 +201,7 @@ function ReviewerInbox() {
                         <Link
                           to="/files/$acquisitionId"
                           params={{ acquisitionId: id }}
+                          onClick={() => noteOpen(id, "file", "file", hero.doc.label, poll.poll_id)}
                           className="text-primary hover:text-primary-hover"
                         >
                           {hero.doc.label}
@@ -172,6 +210,7 @@ function ReviewerInbox() {
                         <Link
                           to="/documents/$templateKey/$acquisitionId"
                           params={{ templateKey: hero.key, acquisitionId: id }}
+                          onClick={() => noteOpen(id, "template", hero.key, hero.doc.label, poll.poll_id)}
                           className="text-primary hover:text-primary-hover"
                         >
                           {hero.doc.label}
@@ -180,6 +219,7 @@ function ReviewerInbox() {
                         <Link
                           to="/forms/$formKey/$acquisitionId"
                           params={{ formKey: hero.key, acquisitionId: id }}
+                          onClick={() => noteOpen(id, "form", hero.key, hero.doc.label, poll.poll_id)}
                           className="text-primary hover:text-primary-hover"
                         >
                           {hero.doc.label}
@@ -196,6 +236,15 @@ function ReviewerInbox() {
                     )}
                     {hero ? ` (${hero.doc.citation})` : ""}.
                   </p>
+
+                  {(() => {
+                    const kind: ReceiptKind = hero ? (hero.kind as ReceiptKind) : "file";
+                    const key = hero ? (hero.kind === "file" ? "file" : hero.key) : "file";
+                    const note = openedNote(id, kind, key);
+                    return note ? (
+                      <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{note}</p>
+                    ) : null;
+                  })()}
 
                   {isOpen ? (
                     <div className="mt-3 max-w-[70ch] rounded-lg border border-border p-4">

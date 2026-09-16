@@ -43,6 +43,8 @@ import {
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
 import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { signedInName } from "@/lib/account-name";
+import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import {
   exportDocx,
   exportPdf,
@@ -139,6 +141,30 @@ function DocumentPage() {
   const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
   const canWrite = hasAnyRole(["specialist", "hq"]);
+
+  // A read receipt for this visit. Soft tracking: it never blocks the document,
+  // a phase or a hold, and a failure here is silent.
+  useEffect(() => {
+    if (authState !== "signed-in" || !acquisitionId || !def) return;
+    let cancelled = false;
+    void (async () => {
+      const who = await signedInName(user.name);
+      if (cancelled) return;
+      recordReadReceiptQuietly({
+        acquisitionId,
+        docKind: "template",
+        docKey: templateKey,
+        docLabel: def.name,
+        openedBy: who,
+        source: "document-route",
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authState, acquisitionId, templateKey, def, user.name]);
+
+
 
   const [values, setValues] = useState<Values>({});
   const [touched, setTouched] = useState(false);

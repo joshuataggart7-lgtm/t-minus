@@ -383,16 +383,22 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
       ],
     },
     {
+      // Only the sections the record can honestly show are checked. A section
+      // T-Minus cannot see on this record is left unchecked with a gap note,
+      // rather than checked on assumption.
       title: "Block 11. Table of contents",
-      citation: "FAR 14.201-1; FAR 15.204-1",
-      fields: (["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"] as const).map((s) =>
-        field(
+      citation: "FAR 14.201-1; FAR 15.204-1 (confirm against RFO Part 53 if adopted)",
+      fields: (["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"] as const).map((s) => {
+        const present = s === "B" ? rows.length > 0 : false;
+        return field(
           `topmostSubform.Page1.${s}11`,
           `Section ${s} is in this package (block 11)`,
-          true,
-          undefined,
-        ),
-      ),
+          present,
+          present
+            ? undefined
+            : "Left unchecked: this record does not show the section, so the officer checks it in the package of record.",
+        );
+      }),
     },
     {
       title: "Blocks 12 to 18. Offer",
