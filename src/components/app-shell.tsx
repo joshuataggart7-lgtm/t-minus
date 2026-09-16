@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
+import { PresenterScreensBeat } from "@/components/presenter-screens-beat";
 import { usePresenter, setPresenter } from "@/lib/presenter";
 import { useTriggerConfig } from "@/lib/use-trigger-config";
 
@@ -248,6 +249,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 Needs attention: {authMessage}
               </p>
             ) : null}
+            <PresenterScreensBeat />
             {children}
           </main>
           <footer className="px-4 pb-8 text-[13px] text-muted-foreground sm:px-8">

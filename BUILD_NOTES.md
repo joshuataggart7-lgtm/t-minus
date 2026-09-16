@@ -1887,3 +1887,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## Innovator leftover #4 — peer-link strip polish
 - `src/routes/files_.$acquisitionId.tsx` Related actions section: `aria-label` "Peer systems" + quiet "Peer systems" lead in muted 13px; NCMS button label "NCMS packet (local — planned write-back)"; footer honesty line "NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov." NEAR export, Checks link, last-check stamp kept. Strip not hidden in Presenter mode. Walk, Samples, holds, clocks unchanged.
+
+## Presenter screens-you'd-open beat card (2026-09-16)
+- New `PresenterScreensBeat` mounted at main content start in AppShell; visible only in Presenter mode, dismissible, calm border card.
+- Copy names NCMS · NEAR · email · spreadsheet vs one T-Minus file; honesty footer: local packet only, T-Minus writes nothing to NCMS, NEAR, or SAM.gov. No write-back claim; Peer systems strip untouched.
+- Dismiss remembered via sessionStorage `tminus-presenter-screens-beat`; resets on Presenter OFF→ON so each demo pass shows the beat again.
+- No changes to Samples, clocks, phases, holds, factory gate, or 0090 clause delta.
