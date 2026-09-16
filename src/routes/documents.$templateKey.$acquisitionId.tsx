@@ -655,14 +655,20 @@ function DocumentPage() {
     }));
   }, [q.data]);
 
-  // The SAM.gov notice saved on this file, when there is one.
+  // The SAM.gov notice saved on this file, when there is one. Saving a notice
+  // is not publishing it, so the posting date comes only from a publication
+  // date carried on the notice itself.
   const noticeFacts = useMemo(() => {
     const rows = (q.data?.fileDocRows ?? []).filter((d) => d.templates?.name === "SAM.gov notice");
     const last = rows[rows.length - 1];
-    if (!last) return { postedOn: null, closesOn: null, noticeType: null, quotesReceived: null };
+    if (!last)
+      return { postedOn: null, saved: false, savedAt: null, closesOn: null, noticeType: null, quotesReceived: null };
     const fv = (last.field_values ?? {}) as Record<string, string>;
+    const published = fv["publication_date"] ?? fv["posted_date"] ?? fv["original_posted_date"] ?? null;
     return {
-      postedOn: last.saved_at ? String(last.saved_at).slice(0, 10) : null,
+      postedOn: published ? String(published).slice(0, 10) : null,
+      saved: true,
+      savedAt: last.saved_at ? String(last.saved_at).slice(0, 10) : null,
       closesOn: fv["response_date"] ?? null,
       noticeType: fv["notice_type"] ?? null,
       quotesReceived: null,
