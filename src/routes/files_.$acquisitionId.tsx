@@ -2903,6 +2903,12 @@ function FilePage() {
                     onBanner={setBanner}
                   />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
+                  <CdrlPanel
+                    acquisitionId={acquisitionId}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
