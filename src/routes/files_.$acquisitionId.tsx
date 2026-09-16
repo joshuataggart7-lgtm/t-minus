@@ -3191,7 +3191,7 @@ function FilePage() {
         </dl>
       </section>
 
-      <section className="mb-10">
+      <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
           <div className="w-full min-w-0 overflow-x-auto">
