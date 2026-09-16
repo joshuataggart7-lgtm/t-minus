@@ -6,6 +6,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -200,7 +207,8 @@ function FilePage() {
   const [mode, setMode] = useState<Mode>("veteran");
   const presenter = usePresenter();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<number | null>(null);
+  const [showFullSequence, setShowFullSequence] = useState(false);
   const [banner, setBanner] = useState<string | null>(null);
   // Edits in progress on the proposed price row, before they are saved.
   const [priceDraft, setPriceDraft] = useState<{ price: string; received: string } | null>(null);
@@ -764,7 +772,10 @@ function FilePage() {
     0,
     phases.findIndex((p) => p.status === "current"),
   );
-  const shownPhases = mode === "novice" ? phases.slice(step || currentIndex, (step || currentIndex) + 1) : phases;
+  const focusIndex = mode === "novice" ? (step ?? currentIndex) : currentIndex;
+  const shownPhases = showFullSequence
+    ? phases
+    : phases.slice(Math.max(0, focusIndex - 1), Math.min(phases.length, focusIndex + 2));
 
   const setDoc = useMutation({
     mutationFn: async ({ doc, attach, reason }: { doc: RequiredDoc; attach: boolean; reason?: string }) => {
@@ -1360,6 +1371,58 @@ function FilePage() {
     });
   }
 
+  const primaryAction = (label = heroAction?.label ?? "Next") => {
+    if (!heroAction || !canWrite) return null;
+    if (heroAction.generated) {
+      return heroAction.generated.templateKey ? (
+        <Button asChild>
+          <Link
+            to="/documents/$templateKey/$acquisitionId"
+            params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
+          >
+            {label}
+          </Link>
+        </Button>
+      ) : (
+        <Button asChild>
+          <Link
+            to="/forms/$formKey/$acquisitionId"
+            params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
+          >
+            {label}
+          </Link>
+        </Button>
+      );
+    }
+    if (heroAction.doc) {
+      return (
+        <Button asChild disabled={attachDoc.isPending}>
+          <label className="cursor-pointer">
+            {attachDoc.isPending ? "Attaching" : label}
+            <input
+              type="file"
+              className="sr-only"
+              accept={ATTACHMENT_ACCEPT}
+              disabled={attachDoc.isPending}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file && heroAction.doc) attachDoc.mutate({ doc: heroAction.doc, file });
+                event.target.value = "";
+              }}
+            />
+          </label>
+        </Button>
+      );
+    }
+    if (heroAction.label.startsWith("Exit ") && currentPhase) {
+      return <Button onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
+    }
+    if (heroAction.label === "Open the poll" && currentPhase) {
+      return <Button onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
+    }
+    return <Button onClick={openLaunchSequence}>{label}</Button>;
+  };
+
   return (
     <AppShell>
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
@@ -1370,8 +1433,30 @@ function FilePage() {
         </p>
       ) : null}
 
-      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-xl border border-border bg-background p-6 lg:p-8">
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,1fr)] lg:items-start">
+      {!q.isLoading && effectiveState === "hold" && hold ? (
+        <section aria-label="Current hold" className="mb-5 border-l-2 border-atrisk py-2 pl-4">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="max-w-[80ch] text-[15px] leading-[22px]">{hold.reason}</p>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Owner: {hold.owner}
+                {holdAge !== null
+                  ? holdAge >= holdThreshold
+                    ? ` · ${holdAge} days, past the ${holdThreshold}-day Center window`
+                    : ` · ${holdAge} days; aging after ${holdThreshold} days`
+                  : ""}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {primaryAction("Fix")}
+              <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Why?" />
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {!q.isLoading ? <section aria-label="Clock line" className="mb-10 rounded-xl border border-border bg-background p-7 lg:p-10">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(380px,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
@@ -1379,9 +1464,9 @@ function FilePage() {
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
             </p>
           </div>
-          <div className="grid gap-4 border-t border-border pt-5 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+          <div className="grid gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
             <div className="min-w-32">
-            <p className={presenter ? "text-[40px] leading-[48px] font-semibold" : "text-[32px] leading-10 font-semibold"} data-numeric>
+            <p className={presenter ? "text-[48px] leading-[52px] font-semibold" : "text-[40px] leading-[44px] font-semibold"} data-numeric>
               {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground">
@@ -1391,7 +1476,7 @@ function FilePage() {
                   ? "Countdown"
                   : "Calendar days to target award date"}
             </p>
-            <p className="mt-3 text-[15px] font-medium">
+            <p className="mt-4 text-[15px] font-medium">
               {effectiveState === "running"
                 ? "Clock running"
                 : effectiveState === "hold"
@@ -1406,7 +1491,7 @@ function FilePage() {
             <p className="mt-1 text-[18px] leading-6 font-medium">{lifecycle?.currentPhase ?? "Not started"}</p>
             {/* Only a Required row reads as missing here. With none missing the
                 line says the phase is ready to exit. */}
-            <p className="mt-3 text-[15px] leading-[22px]">
+            <p className="mt-4 max-w-[48ch] text-[15px] leading-[22px]">
               {lifecycle?.blocker && lifecycle.blocker !== "None"
                 ? lifecycle.blocker
                 : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
@@ -1417,143 +1502,46 @@ function FilePage() {
             <p className="mt-1 text-[13px] text-muted-foreground">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
-            {effectiveState === "hold" && holdAge !== null ? (
-               <p className="mt-1 text-[13px] text-muted-foreground">
-                {holdAge >= holdThreshold
-                  ? `Aging: on hold ${holdAge} days, past the ${holdThreshold}-day Center window`
-                  : `On hold ${holdAge} days; aging after ${holdThreshold} days`}
-              </p>
-            ) : null}
-            {heroAction && canWrite ? (
-              <div className="mt-4">
-                {heroAction.generated ? (
-                  heroAction.generated.templateKey ? (
-                    <Link
-                      to="/documents/$templateKey/$acquisitionId"
-                      params={{ templateKey: heroAction.generated.templateKey, acquisitionId }}
-                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
-                    >
-                      {heroAction.label}
-                    </Link>
-                  ) : (
-                    <Link
-                      to="/forms/$formKey/$acquisitionId"
-                      params={{ formKey: heroAction.generated.formKey ?? "nf-1787", acquisitionId }}
-                      className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
-                    >
-                      {heroAction.label}
-                    </Link>
-                  )
-                ) : heroAction.doc ? (
-                  <label className="inline-flex cursor-pointer items-center rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
-                    {attachDoc.isPending ? "Attaching" : heroAction.label}
-                    <input
-                      type="file"
-                      className="sr-only"
-                      accept={ATTACHMENT_ACCEPT}
-                      disabled={attachDoc.isPending}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file && heroAction.doc) attachDoc.mutate({ doc: heroAction.doc, file });
-                        event.target.value = "";
-                      }}
-                    />
-                  </label>
-                ) : heroAction.label.startsWith("Exit ") && currentPhase ? (
-                  <Button onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>
-                    {heroAction.label}
-                  </Button>
-                ) : heroAction.label === "Open the poll" && currentPhase ? (
-                  <Button onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>
-                    {heroAction.label}
-                  </Button>
-                ) : (
-                  <Button onClick={openLaunchSequence}>{heroAction.label}</Button>
-                )}
-              </div>
-            ) : null}
-            <div className="mt-4 flex flex-wrap gap-4">
-              <ExplainThis explanation={statusExplanation} label="Explain this status" />
-              {hold ? <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Explain this hold" /> : null}
+            {heroAction && canWrite ? <div className="mt-5">{primaryAction()}</div> : null}
+            <div className="mt-5">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground">More</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuItem asChild>
+                    <span><ExplainThis explanation={statusExplanation} label="Explain this status" /></span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/documents/$templateKey/$acquisitionId" params={{ templateKey: "memorandum-for-record", acquisitionId }}>Write a memo to file</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled={nearExport.isPending} onSelect={() => nearExport.mutate()}>
+                    {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
+                  </DropdownMenuItem>
+                  {canWrite ? (
+                    <DropdownMenuItem disabled={copySample.isPending} onSelect={() => copySample.mutate()}>
+                      {copySample.isPending ? "Copying the file" : "Copy as new sample"}
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  {!presenter ? (
+                    <DropdownMenuItem onSelect={() => { setMode(mode === "novice" ? "veteran" : "novice"); setStep(currentIndex); }}>
+                      Use {mode === "novice" ? "Veteran" : "Novice"} view
+                    </DropdownMenuItem>
+                  ) : null}
+                  {canWrite && acq?.clock_state !== "launched" ? (
+                    <>
+                      <DropdownMenuItem onSelect={() => showActionDialog({ kind: "scrub" })}>Scrub with a reason</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => launch.mutate()}>Launched (manual)</DropdownMenuItem>
+                    </>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             </div>
           </div>
         </div>
       </section> : null}
-
-      {!q.isLoading ? (
-      <div className="mb-8 flex flex-wrap items-center justify-end gap-2">
-        <div
-          role="group"
-          aria-label="View"
-          className={presenter ? "hidden" : "inline-flex overflow-hidden rounded-lg border border-border"}
-        >
-          {(["novice", "veteran"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m);
-                setStep(currentIndex);
-              }}
-              aria-pressed={mode === m}
-              className={
-                mode === m
-                  ? "bg-primary px-3 py-1.5 text-[13px] text-primary-foreground"
-                  : "px-3 py-1.5 text-[13px] text-muted-foreground"
-              }
-            >
-              {m === "novice" ? "Novice" : "Veteran"}
-            </button>
-          ))}
-        </div>
-        {canWrite && acq?.clock_state !== "launched" ? (
-          <>
-            <button
-              type="button"
-              onClick={() => launch.mutate()}
-              className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
-            >
-              Launched
-            </button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => showActionDialog({ kind: "scrub" })}
-              className="text-destructive"
-            >
-              Scrub with a reason
-            </Button>
-          </>
-        ) : null}
-        <Link
-          to="/documents/$templateKey/$acquisitionId"
-          params={{ templateKey: "memorandum-for-record", acquisitionId }}
-          className="rounded-lg border border-border px-3 py-1.5 text-[13px]"
-        >
-          Write a memo to file
-        </Link>
-        <button
-          type="button"
-          onClick={() => nearExport.mutate()}
-          disabled={nearExport.isPending}
-          className="rounded-lg border border-border px-3 py-1.5 text-[13px] disabled:opacity-40"
-        >
-          {nearExport.isPending ? "Building the export" : "Export file for NEAR"}
-        </button>
-        {canWrite ? (
-          <button
-            type="button"
-            onClick={() => copySample.mutate()}
-            disabled={copySample.isPending}
-            className="rounded-lg border border-border px-3 py-1.5 text-[13px] disabled:opacity-40"
-          >
-            {copySample.isPending ? "Copying the file" : "Copy as new sample"}
-          </button>
-        ) : null}
-      </div>
-      ) : null}
 
       {warrant ? (
         <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
@@ -1819,23 +1807,32 @@ function FilePage() {
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <p className="text-[13px] text-muted-foreground">
+            {showFullSequence ? `All ${phases.length} phases` : "Past, now, and next"}
+          </p>
+          <Button variant="ghost" size="sm" onClick={() => setShowFullSequence((value) => !value)}>
+            {showFullSequence ? "Show current window" : "Show full sequence"}
+          </Button>
+        </div>
+
         {mode === "novice" ? (
           <div className="mb-4 flex items-center gap-3 text-[13px]">
             <button
               type="button"
-              disabled={(step || currentIndex) === 0}
-              onClick={() => setStep(Math.max(0, (step || currentIndex) - 1))}
+              disabled={focusIndex === 0}
+              onClick={() => setStep(Math.max(0, focusIndex - 1))}
               className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
             >
               Previous phase
             </button>
             <span className="text-muted-foreground" data-numeric>
-              Phase {(step || currentIndex) + 1} of {phases.length}
+              Phase {focusIndex + 1} of {phases.length}
             </span>
             <button
               type="button"
-              disabled={(step || currentIndex) >= phases.length - 1}
-              onClick={() => setStep(Math.min(phases.length - 1, (step || currentIndex) + 1))}
+              disabled={focusIndex >= phases.length - 1}
+              onClick={() => setStep(Math.min(phases.length - 1, focusIndex + 1))}
               className="rounded-lg border border-border px-3 py-1 disabled:opacity-40"
             >
               Next phase
@@ -1904,7 +1901,7 @@ function FilePage() {
                           >
                             {saved
                               ? `Saved, version ${saved.version}${saved.savedAt ? `, ${formatDate(String(saved.savedAt).slice(0, 10))}` : ""}`
-                              : "Missing"}
+                              : `Needs ${d.label}`}
                           </StatusMark>
                           {d.templateKey ? (
                             <Link
@@ -1971,7 +1968,7 @@ function FilePage() {
                              color={state ? "var(--ontrack)" : "var(--atrisk)"}
                              className="text-[13px]"
                            >
-                             {state ? "Certified for the period of performance" : "Missing"}
+                              {state ? "Certified for the period of performance" : "Needs funds certification"}
                            </StatusMark>
                            {canWrite ? (
                              <button
@@ -2009,7 +2006,7 @@ function FilePage() {
                                      ? `, received ${formatDate(String(acq['proposed_price_received']).slice(0, 10))}`
                                      : ""
                                  }`
-                               : "Missing"}
+                                : "Needs the proposed price"}
                            </StatusMark>
                            {canWrite ? (
                              <span className="flex w-full flex-wrap items-end gap-3">
@@ -2080,7 +2077,7 @@ function FilePage() {
                              color={attached ? "var(--ontrack)" : "var(--atrisk)"}
                              className="text-[13px]"
                            >
-                             {attached ? "Attached" : "Missing"}
+                            {attached ? "Attached" : `Needs ${d.label}`}
                            </StatusMark>
                            {attached ? (
                              <button
@@ -2175,7 +2172,7 @@ function FilePage() {
                             color={state ? "var(--ontrack)" : "var(--atrisk)"}
                             className="text-[13px]"
                           >
-                            {state ? "Attached" : "Missing"}
+                            {state ? "Attached" : `Needs ${d.label}`}
                           </StatusMark>
 
                           {attached ? (
@@ -3036,7 +3033,7 @@ function FilePage() {
                 : actionDialog?.kind === "scrub"
                   ? "This stops the countdown and removes the file from active work queues while keeping its audit history."
                   : actionDialog?.kind === "remove"
-                    ? "This removes the file copy and marks the requirement Missing again."
+                    ? "This removes the file copy and marks the requirement as needing attention again."
                     : actionDialog?.kind === "vote"
                       ? `This records the vote received from ${actionDialog.entry.reviewer_name} in the file audit history.`
                       : "This creates one pending seat for every required reviewer using the current Center reviewer table."}
@@ -3044,13 +3041,14 @@ function FilePage() {
           </DialogHeader>
 
           {actionDialog?.kind === "exit" && (missingCurrentRequirements.length || pendingCurrentReviews.length) ? (
-            <div className="border-l-2 border-destructive pl-3 text-[13px]">
-              <p className="font-medium">The phase cannot exit until these Required items are complete:</p>
-              <ul className="mt-2 space-y-2">
-                {missingCurrentRequirements.map((doc) => {
+            <div className="border-l-2 border-atrisk pl-3 text-[13px]">
+              <p className="font-medium">This phase needs one more step before it can exit.</p>
+              <div className="mt-2">
+                {missingCurrentRequirements.slice(0, 1).map((doc) => {
                   const generator = generatorKey(doc);
                   return (
-                    <li key={doc.label}>
+                    <p key={doc.label}>
+                      Needs{" "}
                       {generator && doc.templateKey ? (
                         <Link
                           to="/documents/$templateKey/$acquisitionId"
@@ -3076,17 +3074,18 @@ function FilePage() {
                           {doc.label}
                         </a>
                       )}
-                    </li>
+                    </p>
                   );
                 })}
-                {pendingCurrentReviews.map((entry) => (
-                  <li key={entry.reviewer_role}>
+                {missingCurrentRequirements.length === 0 ? pendingCurrentReviews.slice(0, 1).map((entry) => (
+                  <p key={entry.reviewer_role}>
+                    Needs{" "}
                     <a href={`#poll-${actionDialog.phase}`} onClick={() => setActionDialog(null)} className="text-primary underline">
-                      {entry.reviewer_role}: vote pending
+                      the {entry.reviewer_role} vote
                     </a>
-                  </li>
-                ))}
-              </ul>
+                  </p>
+                )) : null}
+              </div>
             </div>
           ) : null}
 
@@ -3156,7 +3155,7 @@ function FilePage() {
         </DialogContent>
       </Dialog>
 
-      <section className="mb-10">
+      <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>
         <dl className="grid max-w-[80ch] gap-x-8 md:grid-cols-2">
           {(
@@ -3192,10 +3191,11 @@ function FilePage() {
         </dl>
       </section>
 
-      <section className="mb-10">
+      <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
-          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+          <div className="w-full min-w-0 max-w-[calc(100vw-6.5rem)] overflow-x-auto sm:max-w-full">
+          <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Logged</th>
@@ -3219,6 +3219,7 @@ function FilePage() {
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
         )}
