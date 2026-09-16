@@ -117,20 +117,76 @@ export function explainRedFlag(flag: RedFlag): Explanation {
   };
 }
 
-export function explainMissingDoc(doc: RequiredDoc, phase: string): Explanation {
+/**
+ * Why a launch-sequence row exists at all: what the file needs it for, written
+ * from the row's own purpose in the contract file. Nothing here is generated.
+ */
+const ROW_PURPOSE: { match: RegExp; purpose: string }[] = [
+  { match: /NF 1707/i, purpose: "The intake record is the requirement as the requester stated it. Every later document reads its facts from this row, so it is the first thing the file needs." },
+  { match: /cost estimate|IGCE/i, purpose: "The independent estimate is the government's own view of a fair price. Price reasonableness is judged against it, so it has to exist before quotations are seen." },
+  { match: /statement of work|performance work statement/i, purpose: "The work description is what the quoters price and what the government later accepts. Without it there is nothing to solicit or to inspect against." },
+  { match: /market research/i, purpose: "The research memorandum records what the market can supply, whether commercial items meet the need, and whether two or more small businesses can compete. The acquisition method rests on it." },
+  { match: /NF 1787/i, purpose: "The small business coordination record shows the set-aside decision was considered with the small business specialist before the requirement was released." },
+  { match: /other than full and open competition|limited sources|brand name/i, purpose: "The justification is the written basis for not competing the requirement. Without it the file cannot support a sole-source or restricted award." },
+  { match: /notice of intent/i, purpose: "The notice tells the market a sole-source award is planned and gives other sources a chance to respond before award." },
+  { match: /synopsis|solicitation notice/i, purpose: "The public notice is how the requirement reaches the market. It carries the quote instructions and the response date." },
+  { match: /NCMS handoff/i, purpose: "The solicitation and award are written in NCMS. This packet carries the facts and the clause set across so nothing is retyped." },
+  { match: /funds certified/i, purpose: "Funds have to be available for the period of performance before the government obligates. The certification is the record that they are." },
+  { match: /proposed price/i, purpose: "The proposed price from the intended source is what the negotiation memorandum and the price reasonableness determination are built on." },
+  { match: /evaluation of quotations/i, purpose: "The evaluation record shows how each quotation was measured against the stated criteria and who was recommended for award." },
+  { match: /negotiation memorandum|PNM/i, purpose: "The memorandum is the determination of record that the price is fair and reasonable, and the story of how that conclusion was reached." },
+  { match: /SAM\.gov|exclusion/i, purpose: "Award cannot go to an excluded party. The registration and exclusion check is the evidence that the intended awardee was clear at the time of award." },
+  { match: /integrity records|FAPIIS/i, purpose: "The integrity records are part of the responsibility picture the contracting officer signs to." },
+  { match: /SF 1449 signature/i, purpose: "The contracting officer's signature on the SF 1449 is the affirmative determination of responsibility and the act of award." },
+  { match: /recorded votes/i, purpose: "Each required reviewer votes by name, so the file shows who cleared the action and who did not." },
+  { match: /FPDS/i, purpose: "The contract action report puts the award into the federal record. The file is not complete until it is reported." },
+  { match: /CPARS|past performance/i, purpose: "The performance evaluation is what future buyers read when they assess this contractor." },
+  { match: /COR appointment/i, purpose: "The appointment letter names who may act on the government's behalf during performance and what they may not do." },
+  { match: /option exercise/i, purpose: "Exercising an option is a unilateral act with conditions. The notice and the determination are the record that they were met." },
+  { match: /SF 30/i, purpose: "The modification packet carries the change, its authority, and the clause effect so the change is administered from one record." },
+  { match: /closeout/i, purpose: "Closeout settles the money, the property, and the claims, and closes the file for retention." },
+  { match: /contract file complete/i, purpose: "The complete file is what an auditor, a protest, or a successor contracting officer reads years from now." },
+];
+
+function rowPurpose(doc: RequiredDoc): string {
+  const hit = ROW_PURPOSE.find((p) => p.match.test(doc.label));
+  if (hit) return hit.purpose;
+  return `${doc.label} is part of the contract file for this action: it records a fact or a decision that later documents and reviewers rely on.`;
+}
+
+/** Why a launch-sequence row is on this file, satisfied or not. */
+export function explainDocRow(doc: RequiredDoc, phase: string, satisfied: boolean): Explanation {
+  const why = [rowPurpose(doc)];
+  why.push(
+    doc.optional
+      ? `${phase} offers this row. It never holds the clock and never blocks the exit from the phase.`
+      : `${phase} requires this row, so the file cannot leave the phase until the record shows it.`,
+  );
+  why.push(
+    satisfied
+      ? "The record shows it, so this row is satisfied."
+      : "The record does not show it yet.",
+  );
   return {
-    heading: `${doc.label} is missing`,
-    why: [`${phase} requires this document, and the record does not show it yet.`],
-    rule: `${phase} required document: ${doc.label}`,
+    heading: satisfied ? `Why ${doc.label} is on this file` : `${doc.label} is missing`,
+    why,
+    rule: `${phase} ${doc.optional ? "offered" : "required"} row: ${doc.label}`,
     citation: doc.citation,
-    clears: [
-      doc.field
-        ? `Attach it and mark it on the file. The hold lifts as soon as the record shows it.`
-        : `Produce it from the template or the check it links to. The hold lifts as soon as the file shows it.`,
-    ],
+    clears: satisfied
+      ? ["Nothing is outstanding on this row."]
+      : [
+          doc.field
+            ? `Attach it and mark it on the file. The hold lifts as soon as the record shows it.`
+            : `Produce it from the template or the check it links to. The hold lifts as soon as the file shows it.`,
+        ],
     note: doc.note ?? null,
   };
 }
+
+export function explainMissingDoc(doc: RequiredDoc, phase: string): Explanation {
+  return explainDocRow(doc, phase, false);
+}
+
 
 export function explainHold(
   hold: { reason: string; owner: string },
