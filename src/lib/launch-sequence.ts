@@ -269,6 +269,9 @@ const LIVE_TEMPLATE_KEYS = new Set([
   ...HQ_TEMPLATE_KEYS,
   ...HQ4_TEMPLATE_KEYS,
   ...HQ5_TEMPLATE_KEYS,
+  ...HQ6_TEMPLATE_KEYS,
+  ...HQ6B_TEMPLATE_KEYS,
+  ...HQ6C_TEMPLATE_KEYS,
 ]);
 
 /** Rows the scenario answers switch on for this phase. */
