@@ -259,7 +259,10 @@ function TodayPage() {
             )}
           </Section>
 
-          <Section title="Three things to do next" lead="Ranked by the same urgency the Overview uses.">
+          <Section
+            title="Three things to do next"
+            lead="Ranked by the same urgency the Overview uses. Planned days come from the phase plan; the range is what prior files of the same profile actually took."
+          >
             {topThree.length === 0 ? (
               <EmptyState sentence="No open file needs a next step." />
             ) : (
@@ -270,6 +273,14 @@ function TodayPage() {
                       {i + 1}.
                     </span>{" "}
                     {c.m.nextAction} — <FileLink card={c} />
+                    <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
+                      {c.m.daysToAward === null
+                        ? "No target award date recorded."
+                        : `${c.m.daysToAward} calendar days to award. `}
+                      {desk
+                        ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
+                        : ""}
+                    </span>
                   </li>
                 ))}
               </ol>
