@@ -102,6 +102,8 @@ import { ThresholdConflictsPanel } from "@/components/threshold-conflicts-panel"
 import { CenterLocalClausesPanel } from "@/components/center-local-clauses-panel";
 import { PracticeLinksPanel } from "@/components/practice-links-panel";
 import { DeterminationHelpersPanel } from "@/components/determination-helpers-panel";
+import { OfficeInvitePanel } from "@/components/office-invite-panel";
+import { DocumentVersionsPanel } from "@/components/document-versions-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
