@@ -243,7 +243,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     reason:
       excludedFound === 0
         ? "No vendor of record is excluded"
-        : `${excludedFound} excluded; ${placedOnHold} placed on hold`,
+        : `${excludedFound} exclusion record(s) found; ${flaggedForReview} flagged for CO review; no clock changed`,
     logged_at: ranAt,
   });
   if (auditError) throw new Error(auditError.message);
