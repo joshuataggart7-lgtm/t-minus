@@ -8,6 +8,13 @@ import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { DefectReport } from "@/components/defect-report";
 import { ShareDocument } from "@/components/share-document";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { samContractAwards, type ComparablesView } from "@/lib/sam-contract-awards.functions";
 import { draftJofocItem, DRAFTABLE_JOFOC_FIELDS, type DraftProvenance } from "@/lib/ai-draft.functions";
@@ -426,6 +433,8 @@ function DocumentPage() {
   });
 
   const latest = q.data?.versions[0] ?? null;
+  const isSampleFile = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
+  const hasUnreviewedDraft = Object.values(aiMeta).some((meta) => !meta.reviewed);
 
   const board = useMemo(() => {
     if (!q.data?.acq) return [];
@@ -1316,18 +1325,19 @@ function DocumentPage() {
                       </button>
                     ) : null}
                   </div>
-                  {aiMeta[f.key] ? (
-                    <p className="mt-1 text-[13px]">
+                   {aiMeta[f.key] ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
                       <StatusMark color={aiMeta[f.key]!.reviewed ? "var(--ontrack)" : "var(--attention)"}>
-                        {aiMeta[f.key]!.reviewed ? "Reviewed by the contracting officer" : "AI draft, not yet reviewed"}
+                        {aiMeta[f.key]!.reviewed ? "Reviewed" : "Draft"}
                       </StatusMark>
-                      <span className="ml-2 text-muted-foreground">
-                        {aiMeta[f.key]!.model} · {new Date(aiMeta[f.key]!.generatedAt).toLocaleString()}
-                      </span>
+                      <span className="text-muted-foreground">Drafted from the record — confirm.</span>
+                      <button type="button" className="text-primary underline-offset-2 hover:underline" onClick={() => openSource(s, f)}>
+                        Details
+                      </button>
                       {!aiMeta[f.key]!.reviewed && canEdit ? (
                         <button
                           type="button"
-                          className="ml-3 rounded-lg border border-border px-2 py-1 text-[13px]"
+                          className="rounded-lg border border-border px-2 py-1 text-[13px]"
                           onClick={() => {
                             setTouched(true);
                             setAiMeta((prev) => ({ ...prev, [f.key]: { ...prev[f.key]!, reviewed: true } }));
@@ -1336,7 +1346,9 @@ function DocumentPage() {
                           Mark reviewed
                         </button>
                       ) : null}
-                    </p>
+                    </div>
+                  ) : draftedFields.has(f.key) ? (
+                    <p className="mt-1 text-[13px] text-muted-foreground">Drafted from the record — confirm.</p>
                   ) : null}
                   {f.kind === "readonly" ? (
                     <p id={id} className="text-[15px]">
@@ -1384,8 +1396,8 @@ function DocumentPage() {
                     </p>
                   ) : null}
                   {err ? (
-                    <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }}>
-                      {err}
+                    <p className="mt-1 text-[13px] text-atrisk">
+                      Needs {f.label.toLowerCase()}
                     </p>
                   ) : null}
                 </div>
@@ -1630,42 +1642,43 @@ function DocumentPage() {
           ) : null}
         </section>
 
-        <div className="mb-6 flex flex-wrap gap-3">
-          <button
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <Button
             type="submit"
-            className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
-            style={{ background: "var(--primary, #0B3D91)" }}
             disabled={!canEdit || save.isPending}
           >
             {save.isPending ? "Saving" : "Save version"}
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-2 text-[15px]"
-            onClick={() => {
-              if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
-               else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
-            }}
-          >
-            Export Word
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-border px-3 py-2 text-[15px]"
-            onClick={() => {
-              if (memoOn && memoDoc) {
-                void exportMemoPdf(memoDoc, headerLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
-                  setMessage("The PDF did not export. Try again, or export Word."),
-                );
-                return;
-              }
-               if (rendered) void exportPdf(rendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
-                 setMessage("The PDF did not export. Try again, or export Word."),
-               );
-            }}
-          >
-            Export PDF
-          </button>
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="outline">Export</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44">
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
+                  else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
+                }}
+              >
+                Export Word
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (memoOn && memoDoc) {
+                    void exportMemoPdf(memoDoc, headerLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                      setMessage("The PDF did not export. Try again, or export Word."),
+                    );
+                    return;
+                  }
+                  if (rendered) void exportPdf(rendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
+                    setMessage("The PDF did not export. Try again, or export Word."),
+                  );
+                }}
+              >
+                Export PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {message ? (
@@ -1747,35 +1760,40 @@ function DocumentPage() {
       ) : null}
 
 
-      <section aria-label="Provenance" className="mb-10 max-w-[80ch] border border-border bg-background p-4">
-        <h2 className="mb-2 text-[18px] leading-6 font-medium">Provenance</h2>
-        {latest ? (
-          <>
-            <p className="text-[15px] leading-[22px]">
-              {latest.reviewed_by ? "Reviewed" : "AI draft, not yet reviewed"}
-            </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              Model: {latest.ai_model ?? "—"} · Generated:{" "}
-              {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "—"}
-            </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              Reviewed by: {latest.reviewed_by ?? "—"} · Reviewed at:{" "}
-              {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "—"}
-            </p>
-            {canWrite ? (
-              <button
-                type="button"
-                className="mt-3 rounded-lg border border-border px-3 py-2 text-[15px]"
-                onClick={() => markReviewed.mutate()}
-                disabled={markReviewed.isPending}
-              >
-                Mark reviewed
-              </button>
-            ) : null}
-          </>
-        ) : (
-          <p className="text-muted-foreground">Save a version to record its provenance.</p>
-        )}
+      <section aria-label="Provenance" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Live</span>
+          {isSampleFile ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Sample</span> : null}
+          {hasUnreviewedDraft || (latest && !latest.reviewed_by) ? (
+            <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Draft</span>
+          ) : null}
+          {latest?.reviewed_by ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Reviewed</span> : null}
+          <details className="ml-1">
+            <summary className="cursor-pointer text-primary">Details</summary>
+            <div className="mt-3 max-w-[70ch] text-muted-foreground">
+              {latest ? (
+                <>
+                  <p>Saved from the live acquisition record.</p>
+                  <p className="mt-1">
+                    Model: {latest.ai_model ?? "—"} · Generated:{" "}
+                    {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "—"}
+                  </p>
+                  <p className="mt-1">
+                    Reviewed by: {latest.reviewed_by ?? "—"} · Reviewed at:{" "}
+                    {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "—"}
+                  </p>
+                  {canWrite && !latest.reviewed_by ? (
+                    <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => markReviewed.mutate()} disabled={markReviewed.isPending}>
+                      Mark reviewed
+                    </Button>
+                  ) : null}
+                </>
+              ) : (
+                <p>Save a version to record full provenance details.</p>
+              )}
+            </div>
+          </details>
+        </div>
       </section>
 
       <section aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
