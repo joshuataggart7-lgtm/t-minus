@@ -450,11 +450,12 @@ export async function runEngine(options: {
   const requirementText = `${titleText} ${String(acq["description_of_requirement"] ?? "")}`.toLowerCase();
   const servicePsc = /^[A-Za-z]/.test(psc);
   const labourWords =
-    /\b(services?|support|labou?r|maintenance|engineering|analys|technical|operations|staffing|studies)\b/.test(
+    /\b(services?|servicing|support|labou?r|maintenance|repair|engineering|analys|technical|operations?|operating|staffing|studies|study|training|aviation|aircraft|flight|flights|charter|survey|surveys|inspection|consult\w*|professional|research)\b/.test(
       requirementText,
     );
   const isSchedule = /8\.4/.test(method);
-  if (isSchedule || servicePsc || labourWords) {
+  const runCalc = isSchedule || servicePsc || labourWords;
+  if (runCalc) {
     const keyword = titleText.trim() || psc || naics;
     const url = new URL("https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/");
     url.searchParams.set("page", "1");
