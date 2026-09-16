@@ -206,9 +206,17 @@ export function SolicitationKlmPanel({
       </div>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{shell.formatSource}</p>
 
-      {/* K — thin: the reps and certs bucket from the clauses already selected. */}
+      {/* K — the prescribed clause bucket plus a recordable shell. */}
       <section className="mt-4">
-        <h5 className="text-[15px] font-medium">K — Representations and certifications</h5>
+        <h5 className="text-[15px] font-medium">
+          {part15 ? "K — Representations and certifications (Uniform Contract Format)" : "K — Representations and certifications"}
+        </h5>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          {part15 ? K_UCF_PATH_NOTE : K_SAM_PATH_NOTE}
+        </p>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{K_HANDOFF_CHIP}</p>
+
+        <h6 className="mt-3 text-[13px] font-medium">Clauses the matrices place in Section K</h6>
         {kClauses.length > 0 ? (
           <ul className="mt-1 list-disc pl-5 text-[13px]">
             {kClauses.map((c) => (
@@ -222,10 +230,119 @@ export function SolicitationKlmPanel({
             No clause on this file is placed in Section K by the matrices.
           </p>
         )}
+
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div>
+            <label className="block text-[13px] text-muted-foreground" htmlFor="sec-k-sam">
+              SAM representations status
+            </label>
+            <select
+              id="sec-k-sam"
+              className={field}
+              disabled={!canWrite}
+              value={kSam}
+              onChange={(e) => setKSam(e.target.value)}
+            >
+              {K_SAM_STATUS_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[13px] text-muted-foreground" htmlFor="sec-k-notes">
+              Section K note (optional)
+            </label>
+            <input
+              id="sec-k-notes"
+              className={field}
+              disabled={!canWrite}
+              value={kNotes}
+              onChange={(e) => setKNotes(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <table className="mt-3 w-full text-[13px] leading-[18px]">
+          <caption className="sr-only">Representations and certifications recorded on this file</caption>
+          <thead>
+            <tr className="border-y border-border text-left">
+              <th scope="col" className="p-2">Representation</th>
+              <th scope="col" className="p-2">Status</th>
+              <th scope="col" className="p-2">Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {kItems.map((item, idx) => (
+              <tr key={item.key} className="border-b border-border align-top">
+                <td className="p-2">{item.label}</td>
+                <td className="p-2">
+                  <label className="sr-only" htmlFor={`k-status-${item.key}`}>
+                    Status for {item.label}
+                  </label>
+                  <select
+                    id={`k-status-${item.key}`}
+                    className={field}
+                    disabled={!canWrite}
+                    value={item.status}
+                    onChange={(e) =>
+                      setKItems(
+                        kItems.map((row, i) =>
+                          i === idx ? { ...row, status: e.target.value as KItemStatus } : row,
+                        ),
+                      )
+                    }
+                  >
+                    {(Object.keys(K_STATUS_LABELS) as KItemStatus[]).map((s) => (
+                      <option key={s} value={s}>
+                        {K_STATUS_LABELS[s]}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td className="p-2">
+                  <label className="sr-only" htmlFor={`k-note-${item.key}`}>
+                    Note for {item.label}
+                  </label>
+                  <input
+                    id={`k-note-${item.key}`}
+                    className={field}
+                    disabled={!canWrite}
+                    value={item.note ?? ""}
+                    onChange={(e) =>
+                      setKItems(
+                        kItems.map((row, i) =>
+                          i === idx ? { ...row, note: e.target.value || null } : row,
+                        ),
+                      )
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!kAuthored(kQ.data ?? null) ? (
+          <p className="mt-2 text-[13px] text-muted-foreground">{K_EMPTY_NOTE}</p>
+        ) : null}
+        {canWrite ? (
+          <button
+            type="button"
+            onClick={() => saveK.mutate()}
+            disabled={saveK.isPending}
+            className="mt-3 border border-border px-3 py-1 text-[13px] disabled:opacity-50"
+          >
+            Save Section K
+          </button>
+        ) : null}
+
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
           {simplifiedCommercial
             ? RFO_RESERVED_212_NOTE
-            : "Representations and certifications ride in Section K from the clauses prescribed for this file. Reps are not authored in T-Minus."}
+            : part15
+              ? "Representations ride in Section K of the Uniform Contract Format; the solicitation of record is built in NCMS."
+              : "Representations and certifications ride in Section K from the clauses prescribed for this file."}
         </p>
       </section>
 
