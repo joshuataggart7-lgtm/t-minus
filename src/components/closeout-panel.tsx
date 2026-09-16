@@ -5,7 +5,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
-import { closeoutOf, retentionDate, type CloseoutRecord } from "@/lib/vehicles";
+import {
+  closeoutChecklist,
+  closeoutMemo,
+  closeoutOf,
+  closeoutReady,
+  retentionDate,
+  type CloseoutRecord,
+} from "@/lib/vehicles";
 
 export function CloseoutPanel({
   acq,
@@ -60,6 +67,9 @@ export function CloseoutPanel({
   const set = (patch: Partial<CloseoutRecord>) => setDraft({ ...record, ...patch });
   const input = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]";
   const retention = retentionDate(record.final_payment_date);
+  const items = closeoutChecklist(record, { cparsRecorded });
+  const open = items.filter((i) => !i.done);
+  const ready = closeoutReady(items);
 
   return (
     <section aria-label="Closeout record" className="mb-10 max-w-[70ch] rounded-xl border border-border bg-background p-5">
@@ -128,8 +138,39 @@ export function CloseoutPanel({
       </div>
       <p className="mt-3 text-[13px] text-muted-foreground">
         Final CPARS: {cparsRecorded ? "entered on this file" : "not entered yet"}. Retention date:{" "}
-        {retention ?? "set the final payment date to compute it"}.
+        {retention ?? "set the final payment date to compute it"}
+        {retention ? ", six years after final payment (FAR 4.805)" : ""}.
       </p>
+
+      <h3 className="mt-5 text-[15px] leading-[22px] font-medium">Closeout checklist</h3>
+      <p className="mt-1 text-[13px] text-muted-foreground">
+        Each line reads from this record. Nothing is marked complete that the record does not show.
+      </p>
+      <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+        {items.map((i) => (
+          <li key={i.label}>
+            {i.label} · {i.done ? "Complete" : "Open"} · {i.citation}
+            {i.note ? ` · ${i.note}` : ""}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 max-w-[70ch] border border-border p-3 text-[13px] leading-[18px]">
+        {ready
+          ? "Every closeout item reads complete. This file is ready for transfer."
+          : `This file is not ready for transfer yet. ${open.length} item${open.length === 1 ? "" : "s"} still open: ${open
+              .map((i) => i.label.toLowerCase())
+              .join(", ")}.`}
+      </p>
+      <button
+        type="button"
+        onClick={() => {
+          void navigator.clipboard?.writeText(closeoutMemo(acquisitionId, items, record));
+          onBanner("The memorandum to file was copied. Paste it where you keep the file.");
+        }}
+        className="mt-2 text-[15px] text-primary"
+      >
+        Copy the memorandum to file
+      </button>
       {canWrite ? (
         <button
           type="button"
