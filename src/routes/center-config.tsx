@@ -9,6 +9,7 @@ import { CENTER_POLICY_NOTE, todayISO, type CenterOverrideRow } from "@/lib/cent
 import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
 import { PeopleRoles } from "@/components/people-roles";
 import { PeopleContacts } from "@/components/people-contacts";
+import { RoutingCsvImport } from "@/components/routing-csv-import";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
