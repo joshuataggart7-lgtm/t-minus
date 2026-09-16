@@ -142,12 +142,8 @@ export function ClausePicker({
             </thead>
             <tbody>
               {recommended.map((c) => {
-                const fillIns =
-                  c.fill_ins && typeof c.fill_ins === "object" && Object.keys(c.fill_ins as object).length > 0
-                    ? Object.entries(c.fill_ins as Record<string, unknown>)
-                        .map(([k, v]) => `${k}: ${String(v)}`)
-                        .join("; ")
-                    : null;
+                // Record first, matrices second; blanks stay "Not recorded".
+                const fillIns = clauseFillinText(facts ?? null, c.clause_number, c.fill_ins);
                 return (
                   <tr key={c.clause_number} className="border-b border-border align-top">
                     <td className="p-2">
