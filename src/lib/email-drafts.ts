@@ -42,12 +42,13 @@ export function emailCiteForMethod(acq: Facts | null): {
         priceReasonableness: "FAR 13.106-3",
         methodLabel: "simplified commercial procedures",
       }
-    : {
-        unsuccessful: "FAR 15.503(b)",
+      : {
+        unsuccessful: "FAR 15.506(a)",
         priceReasonableness: "FAR 15.404-1",
         methodLabel: "negotiated procedures",
       };
 }
+
 
 /** Does the record show an independent government cost estimate on the file? */
 function igceOutstanding(acq: Facts | null, missing: { label: string }[]): boolean {
