@@ -1102,8 +1102,12 @@ export function buildSequence(
       effectiveIndex = adminIndex >= 0 ? adminIndex : closeoutIndex >= 0 ? closeoutIndex : currentIndex;
     }
   } else {
-    effectiveIndex =
-      earliestOpen >= 0 && (currentIndex < 0 || earliestOpen < currentIndex) ? earliestOpen : currentIndex;
+    // The recorded phase on the file is the single source of truth while the
+    // clock runs. An earlier phase still short a document is shown honestly in
+    // the sequence, but it never pulls the current marker backwards: every desk
+    // (Work Queue, Overview, Today, file header) must read the same phase the
+    // file itself reads.
+    effectiveIndex = currentIndex >= 0 ? currentIndex : earliestOpen;
   }
 
 

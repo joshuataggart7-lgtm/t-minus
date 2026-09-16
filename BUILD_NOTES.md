@@ -2021,3 +2021,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Added Invite another office and Who signed / saved what advisory panels on the acquisition file page. Both read existing polls, review_rules, documents, templates, and audit rows only; invite text is copy-only and no poll rows are created.
 
 - openPolls treats blank or case-insensitive "pending" votes as open (seeded A-2027-0101 pending reviews no longer read as closed); voteLabel shows pending as "Pending" / "No vote recorded yet". No seed changes.
+
+- buildSequence now trusts the recorded current_phase while the clock runs, so Work Queue, Overview, Today, and the file header all show the same phase and next step. Earlier unfinished required rows still show honestly in the sequence; nothing holds a file. Calmer empty copy on CDRL, payment milestones, and Section L/M factors.

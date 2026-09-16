@@ -545,7 +545,7 @@ export function SolicitationKlmPanel({
                 <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
                   {lpta
                     ? "No factors are recorded. On a lowest price technically acceptable basis, technical acceptability and price carry the award."
-                    : "No factors are recorded yet. Set at least two factors with their relative importance before the notice is posted."}
+                    : "No factors are recorded yet. The contracting office adds each factor and its relative importance when the evaluation approach is settled."}
                 </p>
               ) : (
                 <table className="mt-2 w-full text-[13px] leading-[18px]">
