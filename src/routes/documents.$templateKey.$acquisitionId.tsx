@@ -80,9 +80,15 @@ import {
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
   // the evaluation record: /documents/postaward-letter-unsuccessful/ID?offeror=2
-  validateSearch: (search: Record<string, unknown>) => {
+  // standalone=1 marks a draft taken outside the launch sequence; situation=1
+  // opens the memorandum for record on the unexpected-event scaffold.
+  validateSearch: (search: Record<string, unknown>): { offeror?: number; standalone?: 1; situation?: 1 } => {
     const raw = Number(String(search["offeror"] ?? "").replace(/\D+/g, ""));
-    return raw >= 1 && raw <= 4 ? { offeror: raw } : {};
+    const out: { offeror?: number; standalone?: 1; situation?: 1 } = {};
+    if (raw >= 1 && raw <= 4) out.offeror = raw;
+    if (String(search["standalone"] ?? "") === "1") out.standalone = 1;
+    if (String(search["situation"] ?? "") === "1") out.situation = 1;
+    return out;
   },
   head: () => ({
     meta: [
