@@ -312,7 +312,38 @@ export function AwardHandoffPanel({
                       </td>
                       <td className="p-2">{c.section}</td>
                       <td className="p-2 text-muted-foreground">
-                        {c.fillIns ?? "No fill-in recorded on the file or in the matrices"}
+                        {c.fillIns ? (
+                          <ul className="space-y-[2px]">
+                            {c.fillIns
+                              .split(/;\s*|\n/)
+                              .map((part) => part.trim())
+                              .filter(Boolean)
+                              .map((part) => {
+                                const at = part.indexOf(":");
+                                const label = at > 0 ? part.slice(0, at) : part;
+                                const value = at > 0 ? part.slice(at + 1).trim() : "";
+                                const blank = value === "Not recorded";
+                                return (
+                                  <li key={part}>
+                                    <span>{label}</span>
+                                    {value ? (
+                                      <>
+                                        {": "}
+                                        <span
+                                          className={blank ? "text-[#B45309]" : "text-foreground"}
+                                          data-numeric
+                                        >
+                                          {blank ? "Not recorded — blank" : value}
+                                        </span>
+                                      </>
+                                    ) : null}
+                                  </li>
+                                );
+                              })}
+                          </ul>
+                        ) : (
+                          "No fill-in recorded on the file or in the matrices"
+                        )}
                       </td>
                     </tr>
                   ))}
