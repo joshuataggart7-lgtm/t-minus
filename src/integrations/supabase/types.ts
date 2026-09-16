@@ -1303,6 +1303,70 @@ export type Database = {
         }
         Relationships: []
       }
+      document_read_receipts: {
+        Row: {
+          acquisition_id: string
+          created_at: string
+          doc_key: string
+          doc_kind: string
+          doc_label: string | null
+          opened_at: string
+          opened_by: string
+          poll_id: string | null
+          receipt_id: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          created_at?: string
+          doc_key: string
+          doc_kind: string
+          doc_label?: string | null
+          opened_at?: string
+          opened_by: string
+          poll_id?: string | null
+          receipt_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          created_at?: string
+          doc_key?: string
+          doc_kind?: string
+          doc_label?: string | null
+          opened_at?: string
+          opened_by?: string
+          poll_id?: string | null
+          receipt_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_read_receipts_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "document_read_receipts_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "document_read_receipts_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       document_shares: {
         Row: {
           acquisition_id: string | null
