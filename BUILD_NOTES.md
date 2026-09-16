@@ -722,3 +722,25 @@ fallback was removed.
   Quotations Record with three fictional quoters, so the postaward letters fill
   from it: Corsair Aviation Services successful, Strategic Aviation Partners
   and SciFly Research Aviation unsuccessful.
+
+## Security / RLS tightening (16 September 2026)
+
+Four critical findings were closed with a single migration. Reads stay open to
+signed-in users everywhere the demo lists these records; writes now require a
+role check using the existing `private.*` helpers.
+
+- **`center_overrides`** — select authenticated; insert/update/delete require
+  `private.is_specialist() OR private.is_admin()`.
+- **`deviation_requests`** — select authenticated; insert/update/delete require
+  specialist/hq or administrator. **`deviation_votes`** — select authenticated;
+  insert/delete specialist or administrator; update also allows the `reviewer`
+  and `hq` roles so reviewers can record their own vote.
+- **`document_attachments`** — select authenticated; insert for specialist,
+  administrator or requester; update and delete limited to those roles or the
+  uploader, and delete still refuses seeded rows. Storage bucket `attachments`
+  mirrors this: read for authenticated, upload for specialist/administrator/
+  requester, update by owner, delete by owner or specialist/administrator. The
+  old "any signed-in user may delete any attachment" storage policy is gone.
+- **`users`** — select stays authenticated for the Center config contact
+  roster; insert and delete are administrator-only; update allows specialist,
+  administrator, or the person's own row. `user_roles` was not touched.
