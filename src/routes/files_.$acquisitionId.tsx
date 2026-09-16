@@ -3107,23 +3107,17 @@ function FilePage() {
                     onExport={() => evidencePack.mutate()}
                     exporting={evidencePack.isPending}
                   />
-                  {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
+                  {p.phase === "Award" && awardFillins.length > 0 ? (
                     <div className="mt-3 border border-border p-4">
                       <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
-                      <p className="mt-1 text-[13px] text-muted-foreground">
-                        Read from the clause matrices. The officer sets each value before the award is written in NCMS.
-                      </p>
+                      <p className="mt-1 text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
                       <ul className="mt-2 space-y-1 text-[13px]">
-                        {packetSelection
-                          .filter((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0)
-                          .map((c) => (
-                            <li key={c.clause_number}>
-                              <span data-numeric>{c.clause_number}</span>{" "}
-                              <span className="text-muted-foreground">
-                                {(c.fill_ins as unknown[]).map((v) => String(v)).join("; ")}
-                              </span>
-                            </li>
-                          ))}
+                        {awardFillins.map((row) => (
+                          <li key={row.clause_number}>
+                            <span data-numeric>{row.clause_number}</span>{" "}
+                            <span className="text-muted-foreground">{row.text}</span>
+                          </li>
+                        ))}
                       </ul>
                     </div>
                   ) : null}
