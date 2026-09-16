@@ -141,7 +141,7 @@ function comparablesSummary(view: ComparablesView): string {
   );
   const lead =
     view.source === "local"
-      ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${view.naicsCode} / PSC ${view.pscCode}. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} in this system, not external awards.${stamp}`
+      ? `Comparables are drawn from T-Minus prior actions — live feed unavailable. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} on NAICS ${view.naicsCode} / PSC ${view.pscCode} in this system, not external awards.${stamp}`
       : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).${stamp}`;
   return [lead, ...lines].join("\n");
 }
@@ -651,6 +651,53 @@ function DocumentPage() {
     setComparables((prev) => prev ?? storedComparables);
   }, [storedComparables]);
 
+  // When no comparables check has run yet, prior T-Minus actions on the same
+  // NAICS or PSC stand in for the draft only. They are files in this system,
+  // never external awards, and nothing is written back to the record.
+  const naicsCode = String(q.data?.acq?.["naics_code"] ?? "");
+  const pscCode = String(q.data?.acq?.["psc_code"] ?? "");
+  const priorActions = useQuery({
+    queryKey: ["local-prior-actions", acquisitionId, naicsCode, pscCode],
+    enabled: Boolean(!storedComparables && (naicsCode || pscCode)),
+    queryFn: async () => {
+      const filter = [naicsCode ? `naics_code.eq.${naicsCode}` : null, pscCode ? `psc_code.eq.${pscCode}` : null]
+        .filter(Boolean)
+        .join(",");
+      const { data, error } = await supabase
+        .from("acquisition_facts")
+        .select("acquisition_id,title,estimated_value,contract_type,competition,target_award_date,need_date")
+        .or(filter)
+        .limit(20);
+      if (error) throw new Error(error.message);
+      return (data ?? []).filter((r) => r.acquisition_id !== acquisitionId).slice(0, 10);
+    },
+  });
+
+  // What the memorandum draws its comparables paragraph from: the recorded
+  // check first, prior actions second, nothing invented either way.
+  const comparablesForDraft = useMemo(() => {
+    if (storedComparables)
+      return {
+        source: storedComparables.source,
+        sourceLabel: storedComparables.sourceLabel,
+        awards: storedComparables.awards,
+        checkedAt: storedComparables.checkedAt,
+      };
+    const rows = priorActions.data ?? [];
+    if (!rows.length) return null;
+    return {
+      source: "local",
+      sourceLabel: "from T-Minus prior actions — live feed unavailable",
+      awards: rows.map((r) => ({
+        agency: `${r.acquisition_id} · ${r.title ?? "Untitled"} (T-Minus prior action)`,
+        awardDate: String(r.target_award_date ?? r.need_date ?? "—"),
+        pricingType: String(r.contract_type ?? "—"),
+        extentCompeted: String(r.competition ?? "—"),
+        obligatedAmount: r.estimated_value === null ? null : Number(r.estimated_value),
+      })),
+    };
+  }, [storedComparables, priorActions.data]);
+
   // The drafted paragraph reports the recorded check rather than opening with
   // "no comparable awards are loaded" when one has already run. Until the
   // officer edits the field, the recorded check wins over the drafted opener.
@@ -860,6 +907,7 @@ function DocumentPage() {
           | Record<string, string>
           | undefined) ?? null,
       evidence: researchEvidence,
+      comparables: comparablesForDraft,
       findings: q.data?.findings ?? {},
       researchLog,
       clauses: packetClauses,
@@ -892,7 +940,7 @@ function DocumentPage() {
         },
       ],
     }),
-    [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
+    [acquisitionId, q.data, researchEvidence, comparablesForDraft, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
   );
 
   // The quoters on the evaluation record, so the unsuccessful letter names the
