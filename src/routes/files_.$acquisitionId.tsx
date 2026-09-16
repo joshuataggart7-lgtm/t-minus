@@ -3194,7 +3194,8 @@ function FilePage() {
       <section className="mb-10">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
-          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+          <div className="max-w-full overflow-x-auto">
+          <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Logged</th>
@@ -3218,6 +3219,7 @@ function FilePage() {
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
         )}
