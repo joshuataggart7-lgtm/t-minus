@@ -344,7 +344,7 @@ export const samContractAwards = createServerFn({ method: "POST" })
           : source === "cached"
             ? "Cached SAM.gov contract awards"
             : source === "local"
-              ? `Prior T-Minus actions on NAICS ${naics || "—"} / PSC ${psc || "—"}`
+              ? "from T-Minus prior actions — live feed unavailable"
               : "Sample data, fictional prior awards",
       checkedAt,
     };
@@ -352,7 +352,7 @@ export const samContractAwards = createServerFn({ method: "POST" })
       view.providerError = providerError;
       view.providerNote =
         source === "local"
-          ? `USAspending unavailable; showing prior T-Minus actions on NAICS ${naics || "—"} / PSC ${psc || "—"}. These rows are files in this system, not external awards. ${providerNoteFrom(providerError)}`
+          ? `Comparables are drawn from T-Minus prior actions — live feed unavailable. Rows match NAICS ${naics || "—"} / PSC ${psc || "—"} and are files in this system, not external awards. ${providerNoteFrom(providerError)}`
           : providerNoteFrom(providerError);
     }
 
