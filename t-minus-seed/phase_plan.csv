@@ -24,3 +24,43 @@ commercial_ffp_13_5_sole_source,10,Award,10,derived from LOE Estimator SAP timel
 commercial_ffp_13_5_sole_source,11,FPDS-NG Report,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,12,Administration,365,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,13,Closeout,90,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+idiq_parent,1,Intake,5,"Requirement, funding and ordering period confirmed"
+idiq_parent,2,Market Research,20,
+idiq_parent,3,Solicitation/Quote,30,
+idiq_parent,4,Technical Evaluation,20,
+idiq_parent,5,Price Reasonableness,15,
+idiq_parent,6,Responsibility Check,3,
+idiq_parent,7,Go/No-go Poll,7,
+idiq_parent,8,Award,10,
+idiq_parent,9,FPDS-NG Report,3,
+idiq_parent,10,Administration,1825,Ordering period
+idiq_parent,11,Closeout,90,
+order_under_idiq,1,Intake,3,
+order_under_idiq,2,Fair Opportunity,5,FAR 16.505(b)(1)
+order_under_idiq,3,Solicitation/Quote,10,
+order_under_idiq,4,Technical Evaluation,7,
+order_under_idiq,5,Price Reasonableness,5,
+order_under_idiq,6,Responsibility Check,2,
+order_under_idiq,7,Award,5,
+order_under_idiq,8,FPDS-NG Report,3,
+order_under_idiq,9,Administration,365,
+order_under_idiq,10,Closeout,60,
+bpa,1,Intake,3,
+bpa,2,Market Research,10,
+bpa,3,Solicitation/Quote,10,
+bpa,4,Price Reasonableness,5,
+bpa,5,Responsibility Check,2,
+bpa,6,Award,5,
+bpa,7,FPDS-NG Report,3,
+bpa,8,Administration,365,Calls under the agreement and the annual review
+bpa,9,Closeout,60,
+fss_order,1,Intake,3,
+fss_order,2,Fair Opportunity,5,FAR 8.405-1 or 8.405-2 by value
+fss_order,3,Solicitation/Quote,7,
+fss_order,4,Technical Evaluation,5,
+fss_order,5,Price Reasonableness,5,
+fss_order,6,Responsibility Check,2,
+fss_order,7,Award,5,
+fss_order,8,FPDS-NG Report,3,
+fss_order,9,Administration,365,
+fss_order,10,Closeout,60,
