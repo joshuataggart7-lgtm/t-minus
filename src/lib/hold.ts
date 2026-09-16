@@ -42,6 +42,11 @@ export function savedDocKeys(
   for (const t of templates) {
     const def = TEMPLATES.find((d) => d.name === t.name);
     if (def) keyByTemplateId.set(t.template_id, def.key);
+    // The generated forms (NF 1787, NF 1787A) file their versions the same
+    // way the templates do, so a saved form clears its row everywhere.
+    for (const key of GENERATED_FORM_KEYS) {
+      if (FORM_NAMES[key] === t.name) keyByTemplateId.set(t.template_id, key);
+    }
   }
   const out = new Set<string>();
   for (const d of documents) {
