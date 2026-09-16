@@ -102,7 +102,7 @@ export function evaluateCompanionGates(
     name: "NF 1787 small business coordination",
     applies: sbApplies,
     trigger: `Value above the micro-purchase threshold ($${micro.toLocaleString("en-US")}).`,
-    citation: "NFS 1819.201(c); FAR 19.201",
+    citation: "NFS 1819.202-70 (binding); NFS CG 1819.11, guidance: Companion Guide process for the NF 1787",
     status: !sbApplies ? "Not applicable" : sbSat || sbVote.status === "Satisfied" ? "Satisfied" : "Open",
     evidence: !sbApplies
       ? "The value is at or below the micro-purchase threshold."
