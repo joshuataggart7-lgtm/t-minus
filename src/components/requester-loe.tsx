@@ -128,9 +128,6 @@ export function RequesterLoe({
         ))}
       </ul>
 
-      {awardRange ? (
-        <p className="mt-3 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">{awardRange}</p>
-      ) : null}
 
       <p className="mt-4 max-w-[70ch] text-[15px] leading-[22px]">
         Technical team — provide a work breakdown structure covering the procurement support work.
