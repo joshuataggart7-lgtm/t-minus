@@ -17,7 +17,14 @@ These are the limits we have not closed.
 
 All records in the prototype are fictional.
 
-- **No official blank for NF 1707 and NF 1098.** `public/forms/` carries no agency
-  blank for these two, so T-Minus ships no field overlay for them and does not
-  offer a re-typed lookalike. An overlay is possible once the official blank is
-  added.
+- **NF 1707 overlay is header only.** The official blank is now at
+  `public/forms/NF1707.pdf` and the requisition header (Center, requisition number,
+  requisitioning organization, description of requirement) binds from the record.
+  Sections 1 to 12 are still answered on Intake and are not mapped to form paths;
+  no path is guessed. Signature and approval blocks stay blank. A desktop Adobe
+  field check by a person is open.
+- **No official blank for NF 1098.** `public/forms/` carries no agency blank for
+  NF 1098, so T-Minus ships no field overlay and offers no re-typed lookalike. The
+  contract-file checklist follows the NEAR File Structure Checklist, Crosswalk WSC
+  (v3.3, Apr 24) and stays advisory. An overlay is possible once the official
+  blank is added.

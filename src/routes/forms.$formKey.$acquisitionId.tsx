@@ -35,6 +35,7 @@ export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
 });
 
 const isFormKey = (key: string): key is FormKey =>
+  key === "nf-1707" ||
   key === "nf-1787" ||
   key === "nf-1787a" ||
   key === "sf-1449" ||

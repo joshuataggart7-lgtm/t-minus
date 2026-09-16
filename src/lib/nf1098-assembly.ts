@@ -15,8 +15,9 @@ import type { FileIndex } from "@/lib/file-index";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 
 export const NF1098_ASSEMBLY_CHIP =
-  "Local assembly checklist for handoff. NCMS is the system of record (NFS 1804.171). " +
-  "T-Minus does not write to NCMS. Does not hold phase exit.";
+  "Local assembly checklist for handoff. Tabs and order follow the NEAR File Structure " +
+  "Checklist, Crosswalk WSC (v3.3, Apr 24) where a document is mapped. NCMS is the system " +
+  "of record (NFS 1804.171). T-Minus does not write to NCMS. Does not hold phase exit.";
 
 export type AssemblyStatus = "Present" | "Missing" | "Recorded" | "Not recorded" | "Not required";
 
@@ -51,6 +52,13 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
 
   const tabs: AssemblyRow[] = [];
 
+  // Slot text carries the checklist order where the document is mapped to a
+  // NEAR file element; unmapped rows read as the tab alone.
+  const slotFor = (t: { tab: string; nearOrder?: number }) =>
+    t.nearOrder ? `Tab ${t.tab} · NEAR order ${t.nearOrder}` : `Tab ${t.tab}`;
+  const nearNote = (t: { nearTitle?: string; nearUid?: string }) =>
+    t.nearTitle ? `NEAR file element ${t.nearUid ?? ""}, ${t.nearTitle}.`.replace(" , ", " ") : "";
+
   for (const t of fileIndex.present) {
     const latest = t.documents[t.documents.length - 1];
     const parts = [
@@ -59,19 +67,24 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
       t.documents.length > 1 ? `${t.documents.length} versions` : "",
     ].filter(Boolean);
     tabs.push({
-      slot: `Tab ${t.tab}`,
+      slot: slotFor(t),
       item: t.templateName,
       status: "Present",
-      note: parts.join(" · ") || "No version or date recorded",
+      note: [parts.join(" · ") || "No version or date recorded", nearNote(t)].filter(Boolean).join(" "),
     });
   }
 
   for (const t of fileIndex.missing) {
     tabs.push({
-      slot: `Tab ${t.tab}`,
+      slot: slotFor(t),
       item: t.templateName,
       status: "Missing",
-      note: `Required for this file at ${t.phase}. Nothing filed under this tab yet.`,
+      note: [
+        `Required for this file at ${t.phase}. Nothing filed under this tab yet.`,
+        nearNote(t),
+      ]
+        .filter(Boolean)
+        .join(" "),
     });
   }
 

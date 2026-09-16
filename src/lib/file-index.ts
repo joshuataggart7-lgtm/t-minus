@@ -10,6 +10,7 @@ import { TEMPLATES } from "./template-engine";
 import { FORM_NAMES, type FormKey } from "./nf1787";
 import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
 import { isOfficialFinal } from "./official-file";
+import { nearForTemplateKey, type NearElement } from "./near-crosswalk";
 
 /** Core tabbed records every file of that type is expected to hold. */
 const CORE_KEYS = [
@@ -52,6 +53,10 @@ export type IndexTab = {
   origin: "generated" | "uploaded";
   open: IndexOpen | null;
   documents: IndexDocument[];
+  /** Crosswalk WSC enrichment, present only where the template is mapped. */
+  nearOrder?: number;
+  nearTitle?: string;
+  nearUid?: string;
 };
 
 export type FileIndex = {
@@ -86,6 +91,28 @@ const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 /** A document with no tab of its own is listed under an honest "N/A". */
 const displayTab = (tab: string) => (tab === "" || tab === "—" || tab === "NA" ? "N/A" : tab);
 
+const blankTab = (tab: string) => tab === "" || tab === "—" || tab === "NA" || tab === "N/A";
+
+/**
+ * Crosswalk WSC enrichment for a template key. The checklist tab is used for
+ * display only where the template carries no tab of its own — a real tab on
+ * the record is never overwritten.
+ */
+function nearFields(templateKey: string | undefined, tab: string): {
+  tab: string;
+  near: Pick<IndexTab, "nearOrder" | "nearTitle" | "nearUid">;
+} {
+  const el: NearElement | null = nearForTemplateKey(templateKey);
+  if (!el) return { tab, near: {} };
+  const resolved = blankTab(tab) && el.tabPrimary !== null ? String(el.tabPrimary) : tab;
+  return { tab: resolved, near: { nearOrder: el.visualOrder, nearTitle: el.title, nearUid: el.uid } };
+}
+
+/** Checklist order where the row is mapped, otherwise the tab number. */
+function indexRank(t: IndexTab): number {
+  return t.nearOrder ?? 1000 + tabRank(t.tab);
+}
+
 /** The route that opens the official version of a generated document. */
 function openFor(templateName: string, templateKey: string | undefined): IndexOpen | null {
   const formKey = (Object.keys(FORM_NAMES) as FormKey[]).find((k) => FORM_NAMES[k] === templateName);
@@ -104,15 +131,19 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
     // The evaluation of quotations record is the requirement on a competed
     // simplified acquisition, in place of the report.
     .filter((t) => t.key !== "evaluation-of-quotations" || !isTerRequired(acq))
-    .map((t) => ({
-      tab: normTab(t.tab),
-      templateName: t.name,
-      phase: phaseForTemplate(t.key),
-      origin: "generated" as const,
-      open: { kind: "document" as const, templateKey: t.key },
-      documents: [],
-    }))
-    .filter((t) => t.tab !== "" && t.tab !== "—" && t.tab !== "NA" && t.tab !== "N/A")
+    .map((t) => {
+      const { tab, near } = nearFields(t.key, normTab(t.tab));
+      return {
+        tab,
+        templateName: t.name,
+        phase: phaseForTemplate(t.key),
+        origin: "generated" as const,
+        open: { kind: "document" as const, templateKey: t.key },
+        documents: [],
+        ...near,
+      };
+    })
+    .filter((t) => !blankTab(t.tab))
     .filter((t) => inSequence.has(t.phase.toLowerCase()));
 }
 
@@ -172,8 +203,11 @@ export function buildFileIndex(
     // picked when saving it, not under the template's own tab. A template with
     // no tab of its own is still listed, under "N/A".
     const picked = normTab(d.field_values?.__tab);
-    const tab = displayTab(picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
     const def = TEMPLATES.find((t) => t.name === tpl.name);
+    // Where the template carries no tab, the Crosswalk WSC tab is used so the
+    // index reads honestly; a real tab on the record is left alone.
+    const resolved = nearFields(def?.key, picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
+    const tab = displayTab(resolved.tab);
     const key = `${tab}|${tpl.name}`;
     const entry =
       present.get(key) ??
@@ -184,6 +218,7 @@ export function buildFileIndex(
         origin: "generated" as const,
         open: openFor(tpl.name, def?.key),
         documents: [],
+        ...resolved.near,
       } satisfies IndexTab);
     entry.documents.push({
       templateName: tpl.name,
@@ -201,12 +236,12 @@ export function buildFileIndex(
 
   const presentList = [...present.values()]
     .map((t) => ({ ...t, documents: [...t.documents].sort((a, b) => a.version - b.version) }))
-    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab) || a.templateName.localeCompare(b.templateName));
+    .sort((a, b) => indexRank(a) - indexRank(b) || a.templateName.localeCompare(b.templateName));
 
   const presentTabs = new Set(presentList.map((t) => t.tab));
   const missing = requiredTabs(phases, acq)
     .filter((t) => !presentTabs.has(t.tab))
-    .sort((a, b) => tabRank(a.tab) - tabRank(b.tab));
+    .sort((a, b) => indexRank(a) - indexRank(b));
 
   return { present: presentList, missing };
 }
