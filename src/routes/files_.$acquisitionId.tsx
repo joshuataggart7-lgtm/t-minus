@@ -86,6 +86,7 @@ import { ExplainThis } from "@/components/explain-this";
 import { MarketResearchEngine } from "@/components/market-research-engine";
 import {
   explainHold,
+  explainDocRow,
   explainMissingDoc,
   explainReview,
   explainStatus,
