@@ -1633,3 +1633,22 @@ the Mission Clock Overview, the hard-hidden A-2026-0090 clause delta, Sample
 Still queued, not built: GSA SF 33 / SF 26 / OF 347 / OF 348 official blanks
 for Part 15 fills; CO name to Joshua Taggart where a single-name gap appears
 (walked Sample 1/2 Rivera display untouched).
+
+## Unsuccessful-offeror letter: header citation and office code (QA fix)
+
+The page header of the Postaward Notification Letter Unsuccessful Offeror now
+follows the method on the record, as the body sections already did. A template
+may carry `leadFor` beside `citationFor`, and the document page prints the
+method-aware lead and badge once the record has loaded. On A-2027-0101
+(FAR 13.5 commercial simplified) the header reads FAR 13.106-3(d) only; the
+genuine Part 15 lead and badge still stand on a Part 15 file. The defect-report
+citation follows the same value.
+
+Procurement Office code now binds to the contracting office code first and the
+requester organization code only as a fallback (`co_code|requester_org_code`),
+and a full office code such as ARC-JAZ-01 prints as the office code JAZ.
+Verified in the browser: header FAR 13.106-3(d), Procurement Office code JAZ.
+
+Not changed: exclusions sweep stays flag-only, W3.1 SF 30 Item 13 authorities,
+the requester LOE/WBS ask, the hidden A-2026-0090 clause delta, and Sample 1/2
+evaluation and UEI facts.
