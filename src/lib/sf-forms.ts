@@ -131,9 +131,13 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
           [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" "),
           description ? undefined : TO_COMPLETE("record the description of the requirement"),
         ),
-        field("topmostSubform.quantity1", "Quantity (block 21)", ""),
-        field("topmostSubform.unit1", "Unit (block 22)", ""),
-        field("topmostSubform.unitprice1", "Unit price (block 23)", ""),
+        field("topmostSubform.quantity1", "Quantity (block 21)", firstClin?.quantity ? String(firstClin.quantity) : ""),
+        field("topmostSubform.unit1", "Unit (block 22)", str(firstClin?.unit)),
+        field(
+          "topmostSubform.unitprice1",
+          "Unit price (block 23)",
+          firstClin && firstClin.unitPrice !== null ? dollars(firstClin.unitPrice) : "",
+        ),
         field(
           "topmostSubform.amount1",
           "Amount (block 24)",
