@@ -2257,6 +2257,16 @@ function FilePage() {
               `No successor file is linked yet; ${successor.daysUntilStart} days until it must start.`
             )}
           </p>
+          {effectiveState === "launched" && !successor.successorId ? (
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              This file is in Administration. The follow-on acquisition must start by {formatDate(successor.startBy)} so
+              it can be awarded before the period of performance ends. Start it from Intake and link it as the
+              successor of this file.
+            </p>
+          ) : null}
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            Advisory only — the successor clock never places a hold, changes the phase, or creates a file on its own.
+          </p>
         </section>
       ) : null}
 
