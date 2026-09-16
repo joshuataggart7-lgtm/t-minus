@@ -136,10 +136,22 @@ export function explainHold(
   hold: { reason: string; owner: string },
   acq: AcqRow,
 ): Explanation {
+  // "Intake: IGCE is missing" reads as a field code on screen, so the same fact
+  // is stated as a calm sentence here.
+  const missing = /^(.+?):\s*(.+?)\s+is missing$/i.exec(hold.reason);
+  const noGo = /^No-go:\s*(.+)$/i.exec(hold.reason);
+  const unvoted = /^(.+?)\s+has not voted$/i.exec(hold.reason);
+  const sentence = missing
+    ? `The ${missing[2]} is not yet on the file for the ${missing[1]!.toLowerCase()} phase.`
+    : noGo
+      ? `A reviewer recorded a No-go: ${noGo[1]}.`
+      : unvoted
+        ? `${unvoted[1]} has not recorded a vote yet.`
+        : hold.reason;
   return {
     heading: "This file is on hold",
     why: [
-      hold.reason,
+      sentence,
       `${hold.owner} owns the hold.`,
       acq['hold_started_at']
         ? `The hold started on ${String(acq['hold_started_at']).slice(0, 10)}.`
