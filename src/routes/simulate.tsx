@@ -133,6 +133,13 @@ function SimulatePage() {
         lead="Change a threshold value or a review trigger and see, across every active file, how many days move and where. Nothing is written."
       />
 
+      <p
+        role="note"
+        className="mt-4 rounded-lg border border-border bg-canvas px-4 py-2 text-sm text-muted"
+      >
+        Advisory only — no open file is changed by this screen.
+      </p>
+
       {q.isLoading ? <LoadingNote what="the rules and the files" /> : null}
       {q.error ? <ErrorNote message="The rules and files could not be read. Reload the page to try again." /> : null}
 
@@ -229,7 +236,7 @@ function SimulatePage() {
               </p>
 
               {result.filesAffected.length === 0 ? (
-                <EmptyState sentence="Every active file keeps the same review steps and the same planned days under this value." />
+                <EmptyState sentence="No open file's rows would change under this what-if." />
               ) : (
                 <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
                   <caption className="sr-only">Files whose planned days change under the proposed value</caption>

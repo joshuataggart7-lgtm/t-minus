@@ -2007,3 +2007,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Line item Amount is derived for display as quantity times unit price when the extended price is blank; nothing is written back (schedule table and handoff packet share one helper).
 - NF 1098 counts now appear in the Award handoff completeness strip with a Present/Missing explanation on the checklist; a compact FPDS fill-aid summary (recorded / confirm / blank) sits on the file page with the no-submission banner visible; Sources Sought notices are named as their own read-only group in market research with an honest empty state.
 - Center configuration: routing CSV gained a downloadable template and a note that applying replaces only matching routing rows; a new reviewer roster CSV (center_code, reviewer_role, name; optional title, email) validates centers and existing reviewer roles, previews every line, skips seeded demo roster names without overwriting them, and audits each applied change. No review rule citation is created and no acquisition is touched.
+
+## Policy-impact simulator advisory banner
+- Added a calm advisory banner "Advisory only — no open file is changed by this screen." on /simulate; tightened the no-files-affected empty state to "No open file's rows would change under this what-if." Soft only; no seed/clock changes.
