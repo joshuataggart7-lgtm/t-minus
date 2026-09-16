@@ -1062,8 +1062,28 @@ export function buildSequence(
   // phase: the later phases have not started and their clocks do not run.
   // Drafting a later document early is allowed; the order is enforced here.
   const earliestOpen = rows.findIndex((r, i) => unfinished(r.phase as string, docsFor[i] ?? []));
-  const effectiveIndex =
-    earliestOpen >= 0 && (currentIndex < 0 || earliestOpen < currentIndex) ? earliestOpen : currentIndex;
+
+  // A launched or scrubbed file is past award: historical gaps in pre-award
+  // paperwork must never pull the displayed current phase back to Intake.
+  const clockState = String(acq.clock_state ?? "").toLowerCase();
+  const postAward = clockState === "launched" || clockState === "scrubbed";
+  const indexOfPhase = (name: string) =>
+    rows.findIndex((r) => (r.phase ?? "").toLowerCase() === name.toLowerCase());
+
+  let effectiveIndex: number;
+  if (postAward) {
+    const adminIndex = indexOfPhase("Administration");
+    const closeoutIndex = indexOfPhase("Closeout");
+    if (currentIndex >= 0 && (currentIndex === closeoutIndex || currentIndex >= adminIndex)) {
+      effectiveIndex = currentIndex;
+    } else {
+      effectiveIndex = adminIndex >= 0 ? adminIndex : closeoutIndex >= 0 ? closeoutIndex : currentIndex;
+    }
+  } else {
+    effectiveIndex =
+      earliestOpen >= 0 && (currentIndex < 0 || earliestOpen < currentIndex) ? earliestOpen : currentIndex;
+  }
+
 
   let cumulative = 0;
   return rows.map((r, i) => {
