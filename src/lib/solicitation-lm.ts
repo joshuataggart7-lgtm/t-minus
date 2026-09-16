@@ -387,6 +387,10 @@ export async function updateFactor(row: FactorRow, input: FactorInput, actor: st
       name: input.name.trim(),
       relative_importance: input.relative_importance,
       description: input.description,
+      evidence_note:
+        input.evidence_note === undefined
+          ? row.evidence_note
+          : (input.evidence_note ?? "").trim() || null,
     } as never)
     .eq("factor_id", row.factor_id);
   if (error) throw new Error(error.message);
