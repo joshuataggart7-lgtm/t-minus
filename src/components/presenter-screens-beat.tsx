@@ -38,13 +38,22 @@ export function PresenterScreensBeat() {
       }
       setDismissed(false);
     } else if (!presenter) {
-      // Presenter off: arm the next pass. Any later OFF→ON shows the beat
-      // again, whether the toggle flips in-page or across a reload.
       setDismissed(true);
+      // Arm the next pass only when presenter is known off: a real toggle
+      // off, or a stored "0" before hydration. A stored "1" means hydration
+      // is about to flip presenter on, so keep the dismiss.
+      let storedOff = wasPresenter.current && initialized.current;
       try {
-        window.sessionStorage.removeItem(DISMISS_KEY);
+        if (window.sessionStorage.getItem("tminus-presenter") === "0") storedOff = true;
       } catch {
         /* session storage is optional */
+      }
+      if (storedOff) {
+        try {
+          window.sessionStorage.removeItem(DISMISS_KEY);
+        } catch {
+          /* session storage is optional */
+        }
       }
     }
     wasPresenter.current = presenter;
