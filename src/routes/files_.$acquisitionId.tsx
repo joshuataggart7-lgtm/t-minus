@@ -2913,6 +2913,7 @@ function FilePage() {
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
                   <FormatScaffoldPanel scaffold={formatScaffold} />
+                  <AwardHandoffPanel scaffold={formatScaffold} defaultOpen={p.phase === "Award"} />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">
                       <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
