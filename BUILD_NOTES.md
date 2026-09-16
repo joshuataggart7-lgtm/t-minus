@@ -1778,3 +1778,34 @@ evaluation and UEI facts.
 - `solicitation_m_factors.evidence_note` (nullable text) added; `FactorRow`/`FactorInput` extended, `saveFactorEvidence` writes only that column with an audit line. Soft warn text: "Advisory: no evidence linked to this factor yet — does not hold the file."
 - New `src/components/seb-cockpit-panel.tsx` mounted directly under `SolicitationKlmPanel` on the file page — same phase visibility as L/M, no new phase gate. Lamp chip is green Consistent / amber Advisory, always labelled "Advisory — does not hold the file."
 - No NCMS write-back, no invented cites, no Part 15 bleed on the simplified Sample 1 path (the lamp quotes no authority text at all). Forms, Walk 99, CLIN/L/M/J/CDRL/Award/Pay untouched.
+
+## Wave 5 remainder — read receipts + briefing polish (AC-W5-RECEIPTS, AC-W5-BRIEF)
+
+- New table `document_read_receipts` (acquisition_id, doc_kind, doc_key, doc_label,
+  opened_by, opened_at, poll_id, source). RLS: SELECT/INSERT/UPDATE for signed-in
+  users. No seed rows — Sample 1/2 stay empty until a real person opens a document.
+- `src/lib/read-receipts.ts`: `recordReadReceipt`, `recordReadReceiptQuietly`,
+  `loadReadReceipts`, `loadReceiptsForDoc`, `loadReceiptsForAcquisitions`.
+  Dedupe rule chosen: same user + same document within two minutes refreshes
+  `opened_at` on the existing row rather than inserting a second row. Audit entry
+  "Document opened" is insert-only and best effort; a failed receipt never blocks
+  reading the document.
+- Opens recorded from: reviewer inbox hero link (carries poll_id, source
+  `reviewer-inbox`), `documents/$templateKey/$acquisitionId` on mount
+  (`document-route`), `forms/$formKey/$acquisitionId` on mount (`form-route`).
+- UI: `ReadReceiptsPanel` on the file page under the evaluation cockpit; empty text
+  "No read receipts on this file yet."; chip "Soft tracking — does not hold the file."
+  Reviewer inbox rows show "Opened by … · <time>" only when a receipt exists.
+- Receipts are advisory: no phase exit, hold, clock or required-doc code reads them.
+- Briefing book: new "Schedule and handoff" page with the CLIN count and table
+  (empty reads "No line items drawn from this record yet."), the method shell label
+  (SF 1449 / Part 12-13 or UCF / Part 15) with competitive vs sole source, the
+  Section J attachment count from `attachmentsForSectionJ`, and the Award handoff
+  pointer line. Existing pages, chips and the "Synthetic / Prototype — not an
+  official NASA system" footer mark are unchanged.
+- SF33 Block 11 honesty: the A–M table-of-contents boxes are no longer all checked.
+  Only Section B is checked, and only when a schedule exists on the record; every
+  other section is left unchecked with a gap note. Citation still FAR 14.201-1 /
+  FAR 15.204-1 with confirm-RFO wording.
+- No NCMS write-back, no invented traffic, no invented FAR body text. Security
+  findings remain deferred.
