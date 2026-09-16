@@ -52,6 +52,7 @@ export async function loadDocumentVersions(acquisitionId: string): Promise<{
     saved_at: d.saved_at ?? null,
     reviewed_by: d.reviewed_by ?? null,
     reviewed_at: d.reviewed_at ?? null,
+    ...officialMeta(d.field_values),
   }));
 
   const key = all.filter((r) => KEY_WORDS.some((w) => r.name.toLowerCase().includes(w)));
