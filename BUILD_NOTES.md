@@ -1686,3 +1686,5 @@ evaluation and UEI facts.
   `section_l` and `section_m`. The chip upgrades to "L/M drafted in T-Minus for handoff —
   NCMS remains the solicitation of record" once anything is saved.
 - No clock or hold writes, no invented quantities/awards/rates, no NCMS write-back.
+- Cite hygiene: Part 15 LPTA line in `sectionMLines` now cites `FAR 15.305` (already on the
+  Sample 3 path) instead of `FAR 15.101-2`; Part 12/13 LPTA cite stays `FAR 13.106-2(b)`.
