@@ -190,6 +190,7 @@ function WorkQueuePage() {
           dependency,
           daysInPhase: current?.actual_days ?? null,
           days: m.daysToAward ?? (running && target ? daysBetween(today, target) : null),
+          confidence: awardConfidence(acq as unknown as AcqRow, history, q.data.plan as PhasePlanRow[]),
         };
       });
   }, [q.data, ref]);
