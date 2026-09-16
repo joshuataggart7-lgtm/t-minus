@@ -78,7 +78,7 @@ import {
   sectionLLines,
   sectionMLines,
 } from "@/lib/solicitation-lm";
-import { acquisitionProfile } from "@/lib/vehicles";
+import { acquisitionProfile, modAuthorityText, modRows } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { loadSectionK, sectionKForPacket } from "@/lib/solicitation-k";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
@@ -1784,6 +1784,16 @@ function FilePage() {
   // ------------------------------------------------------ post-award modules
   const pa = postAward(acq);
   const options = useMemo(() => optionSchedule(acq, awardDate), [acq, awardDate]);
+  // The option exercise path reads its authority and its checklist from the
+  // same source the modification wizard uses. Nothing here is a gate.
+  const optionExercise = useMemo(() => {
+    const acqRow = (acq ?? null) as unknown as Record<string, unknown> | null;
+    const method = String(acqRow?.["acquisition_method"] ?? "");
+    return {
+      authority: modAuthorityText("option_exercise", acqRow),
+      rows: modRows({ mod_type: "option_exercise" }, { method }),
+    };
+  }, [acq]);
   const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);
   const retention = useMemo(
     () => retentionView(q.data?.thresholds ?? [], pa.final_payment_date ?? null, awardDate),
@@ -3153,6 +3163,66 @@ function FilePage() {
                       </tbody>
                     </table>
 
+                    {(() => {
+                      const noticeOn = pa.option_notice_date ?? pa.option_notice_sent ?? null;
+                      const exercisedOn = pa.option_exercised_date ?? null;
+                      const next = options.periods[0] ?? null;
+                      const stateFor = (citation: string) => {
+                        if (citation.startsWith("FAR 17.207(a)")) {
+                          return noticeOn ? `Recorded ${noticeOn}` : "Open, not recorded";
+                        }
+                        if (citation.startsWith("FAR 17.207(c)")) {
+                          return exercisedOn ? `Recorded ${exercisedOn}` : "Open, not recorded";
+                        }
+                        return exercisedOn ? "Due with the modification" : "Open, not recorded";
+                      };
+                      return (
+                        <>
+                          <h5 className="mt-4 text-[15px] font-medium">What an option exercise carries</h5>
+                          <p className="mt-1 text-[13px] text-muted-foreground">
+                            Advisory checklist read from the record. It does not hold phase exit.
+                          </p>
+                          <table className="mt-2 w-full text-[13px] leading-[18px]">
+                            <caption className="sr-only">Option exercise checklist</caption>
+                            <thead>
+                              <tr className="border-y border-border text-left">
+                                <th scope="col" className="p-2">Step</th>
+                                <th scope="col" className="p-2">Citation</th>
+                                <th scope="col" className="p-2">Status</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {optionExercise.rows.map((r) => (
+                                <tr key={r.label} className="border-b border-border">
+                                  <td className="p-2">
+                                    {r.templateKey ? (
+                                      <Link
+                                        to="/documents/$templateKey/$acquisitionId"
+                                        params={{ templateKey: r.templateKey, acquisitionId }}
+                                        className="text-primary"
+                                      >
+                                        {r.label}
+                                      </Link>
+                                    ) : (
+                                      r.label
+                                    )}
+                                  </td>
+                                  <td className="p-2">{r.citation}</td>
+                                  <td className="p-2">{stateFor(r.citation)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <p className="mt-2 text-[13px] text-muted-foreground">
+                            {next && next.start && next.end
+                              ? `The option must be exercised within ${next.label}, ${next.start} to ${next.end}.`
+                              : "No option period start and end are recorded, so the exercise window cannot be read from the file."}
+                          </p>
+                        </>
+                      );
+                    })()}
+
+
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <label className="text-[13px]" htmlFor="option-notice-date">
                         Preliminary notice sent on
@@ -3216,12 +3286,20 @@ function FilePage() {
                     <button
                       type="button"
                       onClick={() =>
-                        downloadModPacket("option exercise", "FAR 43.103(b)(1); FAR 52.217-9", options.periods[0] ?? null)
+                        downloadModPacket("option exercise", optionExercise.authority, options.periods[0] ?? null)
                       }
                       className="mt-3 text-[15px] text-primary"
                     >
                       Download the SF 30 handoff packet for the option modification
                     </button>
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      SF 30 block 13 authority: {optionExercise.authority}. The signed modification is
+                      built and signed in NCMS (NFS 1804.171); T-Minus produces the handoff packet only.
+                    </p>
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      To draft the modification itself, open Modifications on this file, choose New
+                      modification, and pick Option exercise.
+                    </p>
                   </div>
 
                   <div className="border border-border p-4">
