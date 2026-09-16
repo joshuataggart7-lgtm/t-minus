@@ -4,6 +4,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
 import { statusColor, urgencyRank } from "@/lib/metrics";
+import { awardConfidence } from "@/lib/confidence";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
