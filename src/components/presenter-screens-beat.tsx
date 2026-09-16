@@ -39,6 +39,15 @@ export function PresenterScreensBeat() {
       setDismissed(false);
     } else if (!presenter) {
       setDismissed(true);
+      if (wasPresenter.current) {
+        // Real ON→OFF toggle: arm the next pass so OFF→ON shows the beat
+        // again, even across a reload in between.
+        try {
+          window.sessionStorage.removeItem(DISMISS_KEY);
+        } catch {
+          /* session storage is optional */
+        }
+      }
     }
     wasPresenter.current = presenter;
   }, [presenter]);
