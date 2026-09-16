@@ -191,6 +191,9 @@ export function buildFileIndex(
       savedAt: d.saved_at,
       memo: d.issue_on_nf1858 === true,
       memoTo: d.memo_header?.to ?? null,
+      official: isOfficialFinal(d.field_values),
+      officialAt: d.field_values?.__official_filed_at ?? null,
+      officialBy: d.field_values?.__official_filed_by ?? null,
     });
     present.set(key, entry);
   }
