@@ -1727,6 +1727,11 @@ function FilePage() {
                   ? "Countdown"
                   : "Calendar days to target award date"}
             </p>
+            {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
+              <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
+                {confidence.sentence}
+              </p>
+            ) : null}
             <p className="mt-4 text-[15px] font-medium">
               {effectiveState === "running"
                 ? "Clock running"
