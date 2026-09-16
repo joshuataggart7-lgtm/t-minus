@@ -1356,6 +1356,11 @@ function DocumentPage() {
                     />
                   )}
                   {f.help ? <p className="mt-1 text-[13px] text-muted-foreground">{f.help}</p> : null}
+                  {f.helpFor?.(values) ? (
+                    <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }}>
+                      {f.helpFor(values)}
+                    </p>
+                  ) : null}
                   {err ? (
                     <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }}>
                       {err}

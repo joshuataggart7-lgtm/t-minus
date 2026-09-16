@@ -36,6 +36,8 @@ export type FieldDef = {
   /** Value the field carries before anyone types in it. */
   default?: string;
   help?: string;
+  /** A warning that depends on what has been answered elsewhere on the form. */
+  helpFor?: (v: Values) => string | undefined;
   showIf?: (v: Values) => boolean;
 };
 
@@ -315,9 +317,16 @@ const jofoc: TemplateDef = {
             "10 U.S.C. 3204(a)(5) as implemented by FAR 6.103-5 (authorized or required by statute)",
             "10 U.S.C. 3204(a)(6) as implemented by FAR 6.103-6 (national security)",
             "10 U.S.C. 3204(a)(7) as implemented by FAR 6.103-7 (public interest)",
-            "41 U.S.C. 1901 (FAR 12.102 procedures)",
-            "41 U.S.C. 1903 (FAR 12.102 procedures)",
+            "41 U.S.C. 1901 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
+            "41 U.S.C. 1903 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
           ],
+          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by FAR 6.103-1, or, on a FAR 12.102 or FAR 13.5 commercial simplified file, the 41 U.S.C. 1901 or 1903 option that names that basis. Item 5 must then document the only-one-responsible-source rationale.",
+          helpFor: (v) =>
+            (v["action_type"] ?? "").startsWith("Sole-source") &&
+            (v["authority"] ?? "") !== "" &&
+            !/6\.103-1|only one responsible source/i.test(v["authority"] ?? "")
+              ? "This is recorded as a sole-source action, but the authority selected is not the only-one-responsible-source basis. Confirm the authority matches the rationale in item 5, or change one of them."
+              : undefined,
         },
       ],
     },
