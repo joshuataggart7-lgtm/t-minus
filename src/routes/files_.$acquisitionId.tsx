@@ -588,7 +588,9 @@ function FilePage() {
               ? "Write the NF 1787"
               : generator === "nf-1787a"
                 ? "Write the NF 1787A"
-                : `Write the ${d.label}`;
+                : generator === "pnm"
+                  ? "Write the PNM"
+                  : `Write the ${d.label}`;
           return { label, generated: d };
         }
         const label = d.field === "igce_attached"
