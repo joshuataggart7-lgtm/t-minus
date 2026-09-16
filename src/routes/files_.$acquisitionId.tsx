@@ -58,6 +58,8 @@ import { attachmentsForSectionJ } from "@/lib/section-j";
 import { CdrlPanel } from "@/components/cdrl-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
+import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
+import { loadPaymentMilestones, paymentMilestonesForPacket } from "@/lib/payment-milestones";
 import {
   LM_AUTHORED_CHIP,
   LM_STUB_CHIP,
@@ -534,6 +536,17 @@ function FilePage() {
     queryFn: () => loadCdrl(acquisitionId),
   });
   const cdrlItems = useMemo(() => cdrlForPacket(cdrlQ.data ?? []), [cdrlQ.data]);
+
+  // Payment milestones. Optional, and empty unless the office recorded some.
+  const paymentQ = useQuery({
+    queryKey: ["payment-milestones", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadPaymentMilestones(acquisitionId),
+  });
+  const paymentItems = useMemo(
+    () => paymentMilestonesForPacket(paymentQ.data ?? []),
+    [paymentQ.data],
+  );
 
   // Sections L and M as the officer saved them. The workspace, the scaffold and
   // the handoff packet all read these rows, so they cannot disagree.
