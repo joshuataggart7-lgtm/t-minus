@@ -290,6 +290,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       scaffold.attachments.length === 0
         ? { attachments: [], empty_note: SECTION_J_EMPTY }
         : { attachments: scaffold.attachments },
+    // Data requirements sit beside the attachments. Empty unless recorded.
+    cdrl:
+      scaffold.cdrl.length === 0
+        ? { items: [], empty_note: CDRL_EMPTY }
+        : { items: scaffold.cdrl },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
