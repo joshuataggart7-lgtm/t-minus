@@ -168,7 +168,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const rolesKey = roles.join(",");
 
   const value = useMemo<RoleContextValue>(() => {
-    const seeded = userForRole(role === "administrator" ? "hq" : role);
+    const seeded = userForRole(role);
     const metadata = (session?.user?.user_metadata ?? {}) as Record<string, unknown>;
     const metaName = typeof metadata['display_name'] === "string" ? metadata['display_name'] : null;
     const user: SeededUser =
