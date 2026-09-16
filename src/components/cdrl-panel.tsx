@@ -164,8 +164,7 @@ export function CdrlPanel({
 
       {rows.length === 0 ? (
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          {CDRL_EMPTY} Nothing is written here for you; the contracting office records each item
-          when the requirement calls for one.
+          {CDRL_EMPTY} The contracting office records an item when the requirement calls for one.
         </p>
       ) : (
         <table className="mt-3 w-full text-[13px] leading-[18px]">
