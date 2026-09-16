@@ -1164,7 +1164,7 @@ function DocumentPage() {
       lines.push(`Typed on this template. Template revision: ${def.badge.revision}`);
       lines.push(`Item: ${s.title}`);
     }
-    const cite = sectionCitation(s, citationValues);
+    const cite = sectionCite(s);
     if (cite) lines.push(`Authority citation: ${cite}`);
     setSourcePanel({ title: f.label, lines });
   };
@@ -1179,6 +1179,11 @@ function DocumentPage() {
         q.data?.acq?.["contract_format"] ?? "",
       )}`.trim(),
   };
+  // Until the record has loaded, the template's own citation stands; a
+  // method-dependent citation is never guessed from empty values.
+  const methodKnown = Boolean(citationValues["__method"]);
+  const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
+  const sectionCite = (s: SectionDef) => (methodKnown ? sectionCite(s) : s.citation);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
@@ -1229,7 +1234,7 @@ function DocumentPage() {
           {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
         </p>
         <p className="mt-1 text-[13px] text-muted-foreground">
-          {badgeCitation(def, citationValues)} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
+          {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
         {def.badge.note ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
@@ -1319,9 +1324,9 @@ function DocumentPage() {
         {visibleSections(def, values).map((s) => {
           const body = (
             <>
-            {sectionCitation(s, citationValues) ? (
+            {sectionCite(s) ? (
               <p className="mb-2 text-[13px] text-muted-foreground">
-                {sectionCitation(s, citationValues)}
+                {sectionCite(s)}
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}
