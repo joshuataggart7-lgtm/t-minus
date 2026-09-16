@@ -224,7 +224,22 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   const rootRef = trailer.Root;
   if (!(rootRef instanceof PDFRef)) throw new Error("This form does not name a document root.");
   const infoRef = trailer.Info instanceof PDFRef ? trailer.Info : null;
-  const id = trailer.ID ? String(trailer.ID) : "";
+  // The blank writes its file identifier as /ID[<hex><hex>] with no spaces
+  // inside the brackets; the update keeps that exact shape.
+  const idArray = trailer.ID instanceof PDFArray ? trailer.ID : null;
+  const id = idArray
+    ? `[${idArray.asArray().map((entry) => entry.toString()).join("")}]`
+    : trailer.ID
+      ? String(trailer.ID)
+      : "";
+
+  // A Reader-extended blank carries usage rights (/Perms → /UR3). Appending an
+  // update leaves those rights pointing at bytes that have changed, and free
+  // Adobe Reader treats the file as tampered: it closes the document or shows a
+  // blank face. The update therefore writes a fresh catalog with every key of
+  // the original except /Perms, and points the trailer root at it. Values are
+  // copied raw, so nested references stay references.
+  const hasPerms = doc.catalog.has(PDFName.of("Perms"));
 
   const xml = new TextEncoder().encode(datasetsXml);
   const parts: Uint8Array[] = [original, ascii("\n")];
