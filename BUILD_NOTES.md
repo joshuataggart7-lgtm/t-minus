@@ -1365,3 +1365,28 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
 - Click path: open /files/A-2027-0101 → "Download the handoff packet".
 
 - UX P1 (CoS green light): button className merged via cn(buttonVariants({variant,size}),className) so hero CTAs wrap; heroAction maps PNM to "Write the PNM"; Overview MissionClockRow status now sentence case (no uppercase tracking-wide). CSS/copy only.
+
+## Walk-critical QA batch 2 (16 Sep 2026)
+
+- A-2026-0090 (IDIQ): the SF 30 clause delta is now hard-hidden on IDIQ parent and
+  order-under-IDIQ files. The counts, delta table and clause fill-ins are not rendered;
+  a strengthened demo note states the vehicle clause set is not reconciled and the delta
+  is withheld. Nothing is reconciled or invented.
+- Sample 2 synopsis: the SAM.gov notice badge and the Synopsis phase citation drop
+  FAR 12.603 / combined synopsis language on a sole-source record and read
+  "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source)".
+- Sample 2 market research: the conclusion prose cites RFO FAR 12.201-1 (Table 12-1);
+  the stale saved version on A-2027-0102 was rewritten to the same prose. No method or
+  competition code prints inside prose.
+- Sample 2 JOFOC: a stored authority written before the option list was refined is now
+  matched back to its option on load, so item 4 opens on
+  "41 U.S.C. 1901 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)"
+  instead of "Choose one". The saved A-2027-0102 justification value was aligned to that option.
+- PNM: "Draft, confirm." / "Drafted from the record, confirm." are stripped from every drafted
+  field body; the confirmation stays as the chip beside the field. Basis of the IGCE,
+  Certified cost or pricing data (Not required; commercial products or services, FAR 15.403-1(b)(3)
+  on a commercial simplified file) and Date of determination now prefill from the record.
+- Unchanged and verified: Corsair UEI HCH5G9HLMVZ5, PNM citations RFO FAR 12.204(a); FAR 13.106-3(b)(3),
+  and the RFO Reserved note for 52.212-3 / 52.212-5 in the clause picker.
+- No seed rewrites of Sample 1/2 acquisition facts, no new auto-holds, no NCMS write-back,
+  no FedRAMP or live FPDS claims.

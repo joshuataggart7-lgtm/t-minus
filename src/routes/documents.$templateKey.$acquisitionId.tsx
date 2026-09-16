@@ -839,6 +839,19 @@ function DocumentPage() {
       stored["__method"] = `${String(q.data.acq["acquisition_method"] ?? "")} ${String(
         q.data.acq["contract_format"] ?? "",
       )}`.trim();
+      // A stored choice written before an option list was refined still names
+      // the same authority, so it is matched back to the option it belongs to
+      // rather than opening the field on "Choose one".
+      for (const s of def.sections) {
+        for (const f of s.fields) {
+          if (f.kind !== "select" || !f.options?.length) continue;
+          const value = String(stored[f.key] ?? "").trim();
+          if (!value || f.options.includes(value)) continue;
+          const head = value.split(/\s*\(/)[0]!.trim();
+          const match = f.options.find((o) => o === value || (head && o.startsWith(head)));
+          if (match) stored[f.key] = match;
+        }
+      }
       const provenance = stored["__ai_provenance"];
       if (provenance) {
         try {

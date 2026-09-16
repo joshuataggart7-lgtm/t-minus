@@ -1524,6 +1524,14 @@ function FilePage() {
     [q.data?.thresholds, pa.final_payment_date, awardDate],
   );
   const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
+  // The clause set on an IDIQ vehicle is not reconciled yet, so the delta is
+  // withheld rather than shown as if it were the vehicle's clause set.
+  const clauseDeltaWithheld = useMemo(() => {
+    const acqRow = q.data?.acq;
+    if (!acqRow) return false;
+    const profile = acquisitionProfile(acqRow);
+    return profile === "idiq_parent" || profile === "order_under_idiq";
+  }, [q.data?.acq]);
 
   // Fill-ins the matrices carry on the clauses this modification updates.
   const modFillIns = useMemo(() => {
@@ -2849,62 +2857,66 @@ function FilePage() {
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                      The modification of record is written in NCMS (NFS 1804.171). The clause delta below is read
-                      from the clause matrices; removed clauses are struck and never carried forward.
+                      The modification of record is written in NCMS (NFS 1804.171). The clause set is read from the
+                      clause matrices; removed clauses are struck and never carried forward.
                     </p>
-                    {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
+                    {clauseDeltaWithheld ? (
                       <p className="mt-2 border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
-                        Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don’t open the
-                        clause delta on this file during the walkthrough — the delta below is illustrative, not
-                        the reconciled vehicle clause set.
+                        Demo note: clause reconciliation for this IDIQ vehicle is not complete, so the clause delta
+                        is withheld on this file. It is not shown on screen and is not part of the walkthrough. The
+                        vehicle clause set is reconciled against the matrices before any modification is written in
+                        NCMS.
                       </p>
-                    ) : null}
-                    <p className="mt-2 text-[13px]" data-numeric>
-                      {delta.updated.length} updated · {delta.removed.length} removed · {delta.unchanged.length}{" "}
-                      unchanged
-                    </p>
-                    <table className="mt-3 w-full text-[13px] leading-[18px]">
-                      <caption className="sr-only">Clause delta for the modification</caption>
-                      <thead>
-                        <tr className="border-y border-border text-left">
-                          <th scope="col" className="p-2">Clause</th>
-                          <th scope="col" className="p-2">Change</th>
-                          <th scope="col" className="p-2">Recorded status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          ...delta.removed.map((c) => ({ c, change: "Removed" })),
-                          ...delta.updated.map((c) => ({ c, change: "Updated" })),
-                        ].map(({ c, change }) => (
-                          <tr key={`${change}-${c.clause_number}`} className="border-b border-border">
-                            <td className="p-2" data-numeric>{c.clause_number}</td>
-                            <td className="p-2">
-                              <StatusMark
-                                color={change === "Removed" ? "var(--atrisk)" : "var(--attention)"}
-                                className="text-[13px]"
-                              >
-                                {change}
-                              </StatusMark>
-                            </td>
-                            <td className="p-2 text-muted-foreground">{c.status ?? "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    {modFillIns.length > 0 ? (
-                      <div className="mt-3 border border-border p-3">
-                        <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
-                        <ul className="mt-2 space-y-1 text-[13px]">
-                          {modFillIns.map((row) => (
-                            <li key={row.clause_number}>
-                              <span data-numeric>{row.clause_number}</span>{" "}
-                              <span className="text-muted-foreground">{row.fills}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
+                    ) : (
+                      <>
+                        <p className="mt-2 text-[13px]" data-numeric>
+                          {delta.updated.length} updated · {delta.removed.length} removed ·{" "}
+                          {delta.unchanged.length} unchanged
+                        </p>
+                        <table className="mt-3 w-full text-[13px] leading-[18px]">
+                          <caption className="sr-only">Clause delta for the modification</caption>
+                          <thead>
+                            <tr className="border-y border-border text-left">
+                              <th scope="col" className="p-2">Clause</th>
+                              <th scope="col" className="p-2">Change</th>
+                              <th scope="col" className="p-2">Recorded status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              ...delta.removed.map((c) => ({ c, change: "Removed" })),
+                              ...delta.updated.map((c) => ({ c, change: "Updated" })),
+                            ].map(({ c, change }) => (
+                              <tr key={`${change}-${c.clause_number}`} className="border-b border-border">
+                                <td className="p-2" data-numeric>{c.clause_number}</td>
+                                <td className="p-2">
+                                  <StatusMark
+                                    color={change === "Removed" ? "var(--atrisk)" : "var(--attention)"}
+                                    className="text-[13px]"
+                                  >
+                                    {change}
+                                  </StatusMark>
+                                </td>
+                                <td className="p-2 text-muted-foreground">{c.status ?? "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {modFillIns.length > 0 ? (
+                          <div className="mt-3 border border-border p-3">
+                            <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
+                            <ul className="mt-2 space-y-1 text-[13px]">
+                              {modFillIns.map((row) => (
+                                <li key={row.clause_number}>
+                                  <span data-numeric>{row.clause_number}</span>{" "}
+                                  <span className="text-muted-foreground">{row.fills}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : null}
+                      </>
+                    )}
                     <ul className="mt-3 list-disc pl-5 text-[13px] text-muted-foreground">
                       {SF30_CHECKLIST.map((c) => (
                         <li key={c}>{c}</li>

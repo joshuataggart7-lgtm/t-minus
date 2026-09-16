@@ -301,7 +301,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     if (m.includes("part 15") || m.includes("far 15") || m.includes("negotiat"))
       return "the procedures of FAR Part 15 apply";
     if (m.includes("13.5") || m.includes("commercial") || m.includes("part 12"))
-      return "the simplified procedures for commercial products and services under RFO FAR 12.201-1 apply";
+      return "the simplified procedures for commercial products and services under RFO FAR 12.201-1 (Table 12-1) apply";
     if (m.includes("13") || m.includes("simplified"))
       return "the simplified acquisition procedures of FAR Part 13 apply";
     return "";
@@ -988,6 +988,17 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const evaluation = ctx.evaluationValues;
   const out: Values = {};
+  // Blanks the record can answer: the basis of the estimate, whether certified
+  // cost or pricing data is required, and the date of the determination.
+  const igce = dollars(a["igce_amount"]);
+  out["igce_basis"] = igce
+    ? `The independent Government cost estimate of ${igce} on this file was built from the requirement on the record${
+        str(a["naics_code"]) ? ` under NAICS ${str(a["naics_code"])}` : ""
+      }, the period of performance recorded for it and prior prices paid for the same service.`
+    : gap("state how the independent Government cost estimate was built");
+  if (isSimplifiedCommercial(a))
+    out["cost_pricing_data"] = "Not required; commercial products or services (FAR 15.403-1(b)(3))";
+  if (ctx.today) out["determined_on"] = ctx.today;
   // On a sole-source file there is no competition to compare against, so the
   // vendor, the price and the analysis technique come from the record.
   if (/sole/i.test(str(a["competition"]))) {
@@ -1165,10 +1176,21 @@ const DRAFTERS: Record<string, (ctx: MemoDraftCtx) => Values> = {
   "sam-notice": samNotice,
 };
 
+/** The confirmation reads as a chip beside the field, never inside the body. */
+function stripConfirmChip(text: string): string {
+  return text
+    .replace(/\s*(?:Drafted from the record, confirm\.?|Draft, confirm\.?)\s*/gi, " ")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
 /** Drafted text for a document, keyed by template field. */
 export function draftMemoBody(templateKey: string, ctx: MemoDraftCtx): Values {
   const drafter = DRAFTERS[templateKey];
-  return drafter ? drafter(ctx) : {};
+  const draft = drafter ? drafter(ctx) : {};
+  const out: Values = {};
+  for (const [key, text] of Object.entries(draft)) out[key] = stripConfirmChip(String(text ?? ""));
+  return out;
 }
 
 /** Fills only the fields the contracting officer has left empty. */
