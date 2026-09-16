@@ -984,6 +984,14 @@ function DocumentPage() {
     );
   }, [def, q.data, memoHeader, acquisitionId, coRecord, enclosures, board]);
 
+  // Situation memo starter: the unexpected-event purpose is chosen for the
+  // officer, who can change it. Everything else is drafted from the record.
+  useEffect(() => {
+    if (!search.situation || def?.key !== MFR_KEY) return;
+    setValues((prev) => (String(prev["purpose"] ?? "").trim() ? prev : { ...prev, purpose: MFR_SITUATION_PURPOSE }));
+  }, [search.situation, def]);
+
+
   // Memorandum for record: the opening line and, for a chronology, the body
   // are drafted again whenever the contracting officer changes the purpose.
   const mfrPurpose = def?.key === MFR_KEY ? `${values["purpose"] ?? ""}|${values["purpose_other"] ?? ""}` : "";
