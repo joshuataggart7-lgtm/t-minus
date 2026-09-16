@@ -5,8 +5,33 @@
  *  status rule, plus the values on the record that made it fire.
  */
 
-import type { AcqRow, BoardEntry, RequiredDoc } from "@/lib/launch-sequence";
+import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } from "@/lib/launch-sequence";
 import type { RedFlag } from "@/lib/intake";
+
+/** One calm sentence under the file header: what this file is and why it
+ *  exists, assembled from the recorded facts (method, competition, mission,
+ *  where the clock stands) — the same facts the audit trail carries. */
+export function fileStory(
+  acq: AcqRow,
+  missionName: string | null,
+  milestoneDate: string | null,
+  phase: string | null,
+  state: string | null,
+): string {
+  const words = acquisitionTypeWords(acq);
+  const mission = missionName
+    ? ` in support of ${missionName}${milestoneDate ? ` (mission date ${milestoneDate})` : ""}`
+    : "";
+  const where =
+    state === "launched"
+      ? "awarded and in administration"
+      : state === "scrubbed"
+        ? "stopped, with its audit history retained"
+        : phase
+          ? `in ${phase}`
+          : "at intake";
+  return `This is the contract file for a ${words} buy${mission}, now ${where}; every entry below is written from the record, and the audit trail shows who did what, when, and why.`;
+}
 
 export type Explanation = {
   /** What fired. */

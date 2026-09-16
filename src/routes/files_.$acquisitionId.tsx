@@ -88,6 +88,7 @@ import {
   explainHold,
   explainDocRow,
   explainMissingDoc,
+  fileStory,
   explainReview,
   explainStatus,
   explainWarrant,
@@ -1639,6 +1640,11 @@ function FilePage() {
             <p className="mt-2 text-[15px] text-muted-foreground">
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
             </p>
+            {acq && !q.isLoading ? (
+              <p className="mt-3 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
+                {fileStory(acq as AcqRow, q.data?.mission?.name ?? null, q.data?.mission?.milestone_date ?? null, lifecycle?.currentPhase ?? null, effectiveState ?? null)}
+              </p>
+            ) : null}
           </div>
           <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
             <div className="min-w-0 sm:min-w-32">

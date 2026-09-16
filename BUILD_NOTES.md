@@ -1271,3 +1271,13 @@ no seed edits, no new auto-holds, no change to exits, clause packet, or claims.
 
 Verify: sign in, open `/files/A-2027-0101` or `/files/A-2027-0102`, expand the
 launch sequence and click "Why this row" / "Why?" on any row.
+
+## 2026-09-16 — Tier-1 #5 file story line
+- `fileStory` in `src/lib/explain.ts` renders one calm sentence under the file
+  header, assembled from recorded facts (acquisition type words, mission name
+  and milestone date, current phase/state) — the same facts the audit trail
+  carries. No model text, no seed changes, no new holds.
+- Verified on A-2027-0101 ("Commercial FFP, FAR 13.5, competed … Arctic Snow
+  Depth Campaign 2027") and A-2027-0102 ("… sole source … Coastal Aerosol
+  Validation"). FAR/RFO → Interim NFS → NFS CG process-only authority order
+  unchanged.
