@@ -425,6 +425,15 @@ function CenterConfigPage() {
         ) : null}
       </section>
 
+      {mayEdit ? (
+        <RoutingCsvImport
+          actorName={user?.name ?? "Unknown"}
+          centers={(q.data?.centers ?? []).map((c) => c.center_code)}
+          documentKeys={MEMO_DOCUMENT_KEYS.map((k) => k.key)}
+          onApplied={() => void qc.invalidateQueries({ queryKey: ["center-config"] })}
+        />
+      ) : null}
+
       <TriggerTableEditor mayEdit={hasAnyRole(["hq"]) || hasRole("administrator")} actor={user.name} />
     </AppShell>
   );
