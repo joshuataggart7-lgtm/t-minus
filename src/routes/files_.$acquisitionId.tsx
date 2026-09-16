@@ -1478,14 +1478,65 @@ function FilePage() {
 
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
+  // The method on the record drives the shell: SF 1449 with Part 12/13 voice,
+  // or the Uniform Contract Format with Part 15 voice.
+  const shell = useMemo(
+    () => methodShell(acq as unknown as Record<string, unknown> | null),
+    [acq],
+  );
+
+  const lmOverride = useMemo(() => {
+    if (!acq || !shell) return null;
+    const facts = acq as unknown as Record<string, unknown>;
+    const l = sectionLQ.data ?? null;
+    const m = sectionMQ.data ?? null;
+    const factors = factorsQ.data ?? [];
+    const authored = lmAuthored(l, m, factors);
+    return {
+      methodLabel: shell.methodLabel,
+      partFamily: shell.partFamily,
+      authored,
+      chip: authored ? LM_AUTHORED_CHIP : LM_STUB_CHIP,
+      instructions: sectionLLines(
+        facts,
+        shell,
+        l,
+        packetSelection.some((c) => c.clause_number === "52.212-1"),
+      ),
+      evaluation: sectionMLines(
+        shell,
+        m,
+        factors,
+        packetSelection.some((c) => c.clause_number === "52.212-2"),
+      ),
+      sectionL: {
+        volumes: l?.volumes ?? null,
+        page_limit: l?.page_limit ?? null,
+        submission_instructions: l?.submission_instructions ?? null,
+        response_due_note: l?.response_due_note ?? null,
+      },
+      sectionM: {
+        lpta: m?.lpta ?? false,
+        notes: m?.notes ?? null,
+        suppressed_sole_source: !shell.competitive,
+        factors: factors.map((f) => ({
+          name: f.name,
+          relative_importance: f.relative_importance ?? "Not recorded",
+          description: f.description ?? null,
+        })),
+      },
+    };
+  }, [acq, shell, sectionLQ.data, sectionMQ.data, factorsQ.data, packetSelection]);
+
   const formatScaffold = useMemo(
     () =>
       buildFormatScaffold(
         acq as unknown as Record<string, unknown> | null,
         packetSelection,
         scheduleClins,
+        lmOverride,
       ),
-    [acq, packetSelection, scheduleClins],
+    [acq, packetSelection, scheduleClins, lmOverride],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
