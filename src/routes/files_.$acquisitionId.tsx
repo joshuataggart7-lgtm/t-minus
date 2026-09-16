@@ -490,14 +490,20 @@ function FilePage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("sam_checks")
-        .select("check_type,checked_at,checked_by")
+        .select("check_type,checked_at,checked_by,vendor_uei,response_json")
         .eq("acquisition_id", acquisitionId)
         .order("checked_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      return data ?? null;
+        .limit(20);
+      return data ?? [];
     },
   });
+  const lastCheck = (lastCheckQ.data ?? [])[0] ?? null;
+  // A sweep flag is a question for the contracting officer, not a hold. A newer
+  // clean check on the same UEI answers it, so the flag clears itself.
+  const sweepFlag = useMemo(
+    () => exclusionFlagFrom((lastCheckQ.data ?? []) as SweepCheckRow[]),
+    [lastCheckQ.data],
+  );
   const attachmentFor = (key: string): AttachmentRow | null =>
     attachments.find((row) => row.doc_key === key) ?? null;
 
