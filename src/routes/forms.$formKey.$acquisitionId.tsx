@@ -447,6 +447,11 @@ function FormPage() {
               Chrome, Edge, and other built-in viewers often show a blank face for this kind of form. That
               is expected, not a failed fill.
             </p>
+            {formKey === "nf-1707" ? (
+              <p className="mt-2">
+                NF 1707 fills its header only; Sections 1 to 12 are answered on Intake, not on this form.
+              </p>
+            ) : null}
             <p className="mt-2">
               The flattened PDF prints every answer as text for the contract file. Signatures stay empty on
               purpose. Field-by-field checking in Adobe has not been done in this prototype.
