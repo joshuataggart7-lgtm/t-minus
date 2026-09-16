@@ -439,8 +439,12 @@ function waiverDeviation(ctx: MemoDraftCtx): Values {
   };
 }
 
-/** The statutory authority the record calls for, before the CO changes it. */
+/**
+ * The statutory authority the record calls for, before the CO changes it. A
+ * competed file carries no sole-source authority, so nothing is filled in.
+ */
 export function jofocAuthorityDefault(acq: Record<string, unknown>): string {
+  if (!isSoleSourceRecord(acq)) return "";
   if (isSimplifiedCommercial(acq)) return "41 U.S.C. 1901 (FAR 12.102 procedures)";
   return "";
 }
@@ -448,10 +452,15 @@ export function jofocAuthorityDefault(acq: Record<string, unknown>): string {
 function jofoc(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const v = ctx.values ?? {};
+  const soleSource = isSoleSourceRecord(a);
   const authority = str(v["authority"]) || jofocAuthorityDefault(a);
   const vendor = str(a["vendor_legal_name"]) || "the intended source";
   const value = dollars(a["estimated_value"]);
-  const rationale = authority.includes("1901")
+  const rationale = !soleSource
+    ? gap(
+        "state the authority for other than full and open competition and the basis for it; this file is recorded as competed",
+      )
+    : authority.includes("1901")
     ? `The authority cited is 41 U.S.C. 1901, carried out through the procedures of FAR 12.102 as applied by RFO FAR 12.201-1. The requirement is a commercial service with an estimated value of ${
         value || "the amount on the record"
       }, within the ceiling for simplified procedures for commercial products and services, so the acquisition is conducted under those procedures rather than full and open competition. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
@@ -459,11 +468,13 @@ function jofoc(ctx: MemoDraftCtx): Values {
     ? `The authority cited is ${authority}. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : gap("choose the statutory authority in item 4, then draft this item against it");
 
-  const noticeLine = ctx.notice?.postedOn
-    ? `A notice of intent to sole source was posted to SAM.gov on ${ctx.notice.postedOn}${
-        ctx.notice.closesOn ? `, closing ${ctx.notice.closesOn}` : ""
-      }.`
-    : "Notice of intent not yet posted (Synopsis phase).";
+  const noticeLine = !soleSource
+    ? "Not applicable — competitive acquisition."
+    : ctx.notice?.postedOn
+      ? `A notice of intent to sole source was posted to SAM.gov on ${ctx.notice.postedOn}${
+          ctx.notice.closesOn ? `, closing ${ctx.notice.closesOn}` : ""
+        }.`
+      : "Notice of intent not yet posted (Synopsis phase).";
 
   const researchLines = researchLogLines(ctx.researchLog);
   const market = researchLines.length
@@ -474,14 +485,15 @@ function jofoc(ctx: MemoDraftCtx): Values {
     authority,
     authority_rationale: rationale,
     // Items 6 and 10 read the posting and closing dates back from the notice
-    // of intent once it has been saved in the Synopsis phase.
-    notice_date: ctx.notice?.postedOn ?? "",
+    // of intent once it has been saved in the Synopsis phase. A competed file
+    // has no notice of intent, so the date stays empty.
+    notice_date: soleSource ? (ctx.notice?.postedOn ?? "") : "",
     price_analysis_plan: `Price reasonableness will be determined under ${priceAnalysisCitation(
       a,
     )} before award, using the quotation received, the independent Government cost estimate and prior prices for the same service. Drafted from the record, confirm.`,
     market_research: market,
     notice_status: noticeLine,
-    interested_sources: ctx.notice?.postedOn
+    interested_sources: soleSource && ctx.notice?.postedOn
       ? `${noticeLine} Responses received and their disposition are recorded in the contract file. Drafted from the record, confirm.`
       : noticeLine,
     
