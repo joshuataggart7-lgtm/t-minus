@@ -1741,6 +1741,9 @@ function FilePage() {
                   <DropdownMenuItem disabled={fpdsExport.isPending} onSelect={() => fpdsExport.mutate()}>
                     {fpdsExport.isPending ? "Building the FPDS filling sheet" : "FPDS filling sheet (fill aid)"}
                   </DropdownMenuItem>
+                  <DropdownMenuItem disabled={evidencePack.isPending} onSelect={() => evidencePack.mutate()}>
+                    {evidencePack.isPending ? "Building the evidence pack" : "Export evidence pack (zip)"}
+                  </DropdownMenuItem>
                   {canWrite ? (
                     <DropdownMenuItem disabled={copySample.isPending} onSelect={() => copySample.mutate()}>
                       {copySample.isPending ? "Copying the file" : "Copy as new sample"}
