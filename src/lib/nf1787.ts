@@ -38,7 +38,7 @@ export type GeneratedForm = {
   sections: FormSection[];
 };
 
-export type FormKey = "nf-1787" | "nf-1787a";
+export type FormKey = "nf-1787" | "nf-1787a" | "sf-1449" | "sf-30";
 
 import {
   findingText,
@@ -47,6 +47,7 @@ import {
   type FindingMap,
 } from "@/lib/research-findings";
 import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
+import { buildSf1449, buildSf30 } from "@/lib/sf-forms";
 
 /**
  * Registrant and small business counts read back out of the latest research
@@ -111,11 +112,13 @@ export type FormCtx = {
   simplifiedAcquisition?: { value: number; citation: string } | null;
 };
 
-export const GENERATED_FORM_KEYS: FormKey[] = ["nf-1787", "nf-1787a"];
+export const GENERATED_FORM_KEYS: FormKey[] = ["nf-1787", "nf-1787a", "sf-1449", "sf-30"];
 
 export const FORM_NAMES: Record<FormKey, string> = {
   "nf-1787": "NF 1787, Small Business Coordination Record",
   "nf-1787a": "NF 1787A, Market Research Report",
+  "sf-1449": "SF 1449, Solicitation/Contract/Order for Commercial Products and Commercial Services",
+  "sf-30": "SF 30, Amendment of Solicitation/Modification of Contract",
 };
 
 const TO_COMPLETE = (what: string) => `[Contracting officer to complete: ${what}]`;
@@ -669,6 +672,8 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
 }
 
 export function buildForm(key: FormKey, ctx: FormCtx): GeneratedForm {
+  if (key === "sf-1449") return buildSf1449(ctx);
+  if (key === "sf-30") return buildSf30(ctx);
   return key === "nf-1787" ? buildNf1787(ctx) : buildNf1787A(ctx);
 }
 
