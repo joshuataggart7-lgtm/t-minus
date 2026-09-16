@@ -2039,3 +2039,8 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## 2026-09-16
 - Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
+
+- NEAR crosswalk landed as `src/lib/near-crosswalk.ts` (NEAR File Structure Checklist.xlsx · Crosswalk WSC v3.3, Apr 24) with the honest template-to-unique-id map and lookup helpers.
+- Contract file index prefers the Crosswalk tab only where the template carries no tab (NF 1707 intake now reads Tab 13) and sorts by NEAR visual order when mapped; real tabs are never overwritten and no required tab is invented.
+- NF 1098 assembly rows show `Tab N · NEAR order N` with the NEAR file element title; the chip states Crosswalk order, advisory only, NCMS remains the system of record. No NF 1098 PDF or lookalike.
+- NF 1707 official blank landed at `public/forms/NF1707.pdf`; `nf-1707` wired as a generated form with a header-only overlay (Center, ReqNumber, ReqOrg, RequirementDescription). Sections 1 to 12 still bind from Intake; Adobe field check by a person remains open.
