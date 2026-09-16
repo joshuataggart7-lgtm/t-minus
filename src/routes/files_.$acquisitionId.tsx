@@ -2487,46 +2487,83 @@ function FilePage() {
             <tr className="border-b border-border bg-canvas text-left">
               <th scope="col" className="px-3 py-2 font-medium">Tab</th>
               <th scope="col" className="px-3 py-2 font-medium">Document</th>
+              <th scope="col" className="px-3 py-2 font-medium">Source</th>
+              <th scope="col" className="px-3 py-2 font-medium">Version</th>
+              <th scope="col" className="px-3 py-2 font-medium">Saved</th>
+              <th scope="col" className="px-3 py-2 font-medium">By</th>
               <th scope="col" className="px-3 py-2 font-medium">Required here</th>
-              <th scope="col" className="px-3 py-2 font-medium">Phase</th>
               <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
-              <th scope="col" className="px-3 py-2 font-medium">State</th>
             </tr>
           </thead>
           <tbody>
-            {fileIndex.present.map((t) => (
-              <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
-                <td className="px-3 py-2" data-numeric>{t.tab}</td>
-                <td className="px-3 py-2">{t.templateName}</td>
-                <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
-                <td className="px-3 py-2">{t.phase}</td>
-                <td className="px-3 py-2">
-                  {t.documents.at(-1)?.memo
-                    ? `Yes, to ${t.documents.at(-1)?.memoTo ?? "addressee not set"}`
-                    : "No"}
-                </td>
-                <td className="px-3 py-2">
-                  Present, {t.documents.length} version{t.documents.length === 1 ? "" : "s"}
-                  {t.documents.at(-1)?.savedAt ? `, latest ${formatDate(String(t.documents.at(-1)!.savedAt).slice(0, 10))}` : ""}
-                </td>
-              </tr>
-            ))}
+            {fileIndex.present.map((t) => {
+              const latest = t.documents.at(-1);
+              return (
+                <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
+                  <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                  <td className="px-3 py-2">
+                    {t.open?.kind === "document" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: t.open.templateKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "form" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/forms/$formKey/$acquisitionId"
+                        params={{ formKey: t.open.formKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "attachment" ? (
+                      <button
+                        type="button"
+                        className="text-primary underline-offset-2 hover:underline"
+                        onClick={() => void openIndexAttachment(t.open!.kind === "attachment" ? t.open.attachmentId : "")}
+                      >
+                        {t.templateName}
+                      </button>
+                    ) : (
+                      t.templateName
+                    )}
+                    {latest && t.origin === "uploaded" ? (
+                      <span className="block text-muted-foreground">{latest.templateName}</span>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
+                  <td className="px-3 py-2" data-numeric>{latest?.version ?? "—"}</td>
+                  <td className="px-3 py-2" data-numeric>
+                    {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
+                  </td>
+                  <td className="px-3 py-2">{latest?.savedBy ?? "Not recorded"}</td>
+                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
+                  <td className="px-3 py-2">
+                    {latest?.memo ? `Yes, to ${latest.memoTo ?? "addressee not set"}` : "No"}
+                  </td>
+                </tr>
+              );
+            })}
             {fileIndex.missing.map((t) => (
               <tr key={`m-${t.tab}`} className="border-b border-border">
                 <td className="px-3 py-2" data-numeric>{t.tab}</td>
                 <td className="px-3 py-2">{t.templateName}</td>
-                <td className="px-3 py-2">Required</td>
-                <td className="px-3 py-2">{t.phase}</td>
                 <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">—</td>
+                <td className="px-3 py-2">Required</td>
                 <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
-                  Required for this acquisition type, no document
+                  No document on this tab
                 </td>
               </tr>
             ))}
             {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
               <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={6}>
-                  No tabbed documents are saved on this file yet.
+                <td className="px-3 py-3 text-muted-foreground" colSpan={8}>
+                  No documents are saved or uploaded on this file yet.
                 </td>
               </tr>
             ) : null}
