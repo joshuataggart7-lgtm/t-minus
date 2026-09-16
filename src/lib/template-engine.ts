@@ -3069,7 +3069,8 @@ export function renderDocument(
 ): RenderedDoc {
   const blocks = visibleSections(def, v).map((s) => {
     const lines: string[] = [];
-    if (s.standingText) lines.push(s.standingText);
+    const standing = sectionStandingText(s, v);
+    if (standing) lines.push(standing);
     for (const f of visibleFields(s, v)) {
       const raw = (v[f.key] ?? "").trim();
       const value =
