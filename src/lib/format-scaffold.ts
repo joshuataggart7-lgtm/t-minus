@@ -304,6 +304,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       scaffold.cdrl.length === 0
         ? { items: [], empty_note: CDRL_EMPTY }
         : { items: scaffold.cdrl },
+    // Payment milestones as recorded. Empty unless the office added some.
+    payment_milestones:
+      scaffold.paymentMilestones.length === 0
+        ? { items: [], empty_note: PAYMENT_MILESTONES_EMPTY }
+        : { items: scaffold.paymentMilestones },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
