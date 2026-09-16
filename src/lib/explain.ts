@@ -7,6 +7,7 @@
 
 import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } from "@/lib/launch-sequence";
 import type { RedFlag } from "@/lib/intake";
+import { acquisitionProfile } from "@/lib/vehicles";
 
 /** One calm sentence under the file header: what this file is and why it
  *  exists, assembled from the recorded facts (method, competition, mission,
