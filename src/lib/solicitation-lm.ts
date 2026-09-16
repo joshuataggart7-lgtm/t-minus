@@ -271,7 +271,7 @@ export async function loadSectionM(acquisitionId: string): Promise<SectionMRow |
 export async function loadFactors(acquisitionId: string): Promise<FactorRow[]> {
   const { data, error } = await supabase
     .from("solicitation_m_factors")
-    .select("factor_id,acquisition_id,name,relative_importance,description,sort_order")
+    .select("factor_id,acquisition_id,name,relative_importance,description,evidence_note,sort_order")
     .eq("acquisition_id", acquisitionId)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -366,6 +366,7 @@ export async function createFactor(
     name: input.name.trim(),
     relative_importance: input.relative_importance,
     description: input.description,
+    evidence_note: (input.evidence_note ?? "").trim() || null,
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
