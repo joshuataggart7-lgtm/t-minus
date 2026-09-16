@@ -1412,6 +1412,20 @@ function FilePage() {
   );
   const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
 
+  // Fill-ins the matrices carry on the clauses this modification updates.
+  const modFillIns = useMemo(() => {
+    const rows = (q.data?.clauses ?? []) as { clause_number: string | null; fill_ins?: unknown }[];
+    return delta.updated
+      .map((c) => {
+        const match = rows.find((r) => r.clause_number === c.clause_number);
+        const fills = Array.isArray(match?.fill_ins)
+          ? (match.fill_ins as unknown[]).map((v) => String(v)).filter(Boolean)
+          : [];
+        return { clause_number: c.clause_number, fills: fills.join("; ") };
+      })
+      .filter((r) => r.fills.length > 0);
+  }, [delta, q.data?.clauses]);
+
   const savePostAward = useMutation({
     mutationFn: async (input: { patch: PostAward; action: string; field: string; reason: string; phase: string }) => {
       if (!acq) return;
