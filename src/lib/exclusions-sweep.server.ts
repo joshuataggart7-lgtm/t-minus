@@ -197,7 +197,8 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       exclusionLabel: label,
       source,
       sourceLabel,
-      placedOnHold: false,
+      flaggedForReview: excluded,
+      checkedAt: ranAt,
     };
     if (providerError) result.providerError = providerError;
 
