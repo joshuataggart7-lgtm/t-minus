@@ -1910,3 +1910,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Peer systems strip: added one quiet sentence that the handoff is a local packet and writing into NCMS is planned and not available in this prototype (NCMS system of record, NFS 1804.171). No write-back added.
 
 - Forms route: "View filled preview" outline button added before Export form PDF; scrolls/focuses `#export-preview` heading (id + tabIndex). Export form PDF carries a desktop-Adobe tooltip; short "Prefer the preview below" line sits above the Adobe help copy. Honest Adobe help copy and export/XFA logic unchanged.
+
+- Requester portal: RequesterLoe now receives the honest days-to-award range (conf.sentence) instead of null; "Days to award" cell shows "{n} calendar days" for a number, "No target award date recorded" when null/forecast-only, and launched wording unchanged. No invented hours/rates/peer history; estimator formulas untouched.
