@@ -2330,9 +2330,19 @@ function FilePage() {
                   <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
                     {q.isLoading
                       ? "Loading the clause list."
-                      : `${packetClauses.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
+                      : `${packetSelection.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
-                  {packetClauses.length > 0 ? (
+                  {acq ? (
+                    <ClausePicker
+                      acquisitionId={acquisitionId}
+                      recommended={packetClauses}
+                      clauseRows={q.data?.clauses ?? []}
+                      applied={appliedClauseNumbers}
+                      actorName={actorName}
+                      phase={p.phase}
+                    />
+                  ) : null}
+                  {packetSelection.length > 0 ? (
                     <table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Clauses in the packet and why each is included</caption>
                       <thead>
