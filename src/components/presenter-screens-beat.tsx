@@ -38,15 +38,13 @@ export function PresenterScreensBeat() {
       }
       setDismissed(false);
     } else if (!presenter) {
+      // Presenter off: arm the next pass. Any later OFF→ON shows the beat
+      // again, whether the toggle flips in-page or across a reload.
       setDismissed(true);
-      if (wasPresenter.current) {
-        // Real ON→OFF toggle: arm the next pass so OFF→ON shows the beat
-        // again, even across a reload in between.
-        try {
-          window.sessionStorage.removeItem(DISMISS_KEY);
-        } catch {
-          /* session storage is optional */
-        }
+      try {
+        window.sessionStorage.removeItem(DISMISS_KEY);
+      } catch {
+        /* session storage is optional */
       }
     }
     wasPresenter.current = presenter;
