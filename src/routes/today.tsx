@@ -72,25 +72,22 @@ function TodayPage() {
 
   const mine = useMemo(() => {
     if (!desk) return [];
-    const me = surname(user.name);
-    const owned = desk.cards.filter((c) => surname(c.owner) === me);
+    const owned = desk.cards.filter((c) => samePerson(c.owner, user.name));
     if (owned.length > 0) return owned;
     // A requester who owns no files as CO still sees the files they asked for.
     if (roles.includes("requester")) {
       const mine2 = desk.cards.filter((c) => c.requester.toLowerCase() === user.name.toLowerCase());
       if (mine2.length > 0) return mine2;
     }
-    // An account with no files of its own sees the Center's files, labelled.
-    const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
-    // An administrator at a Center with no files sees every prototype file.
-    if (atCenter.length === 0 && roles.includes("administrator")) return desk.cards;
-    return atCenter;
+    // An administrator who is on no file as CO sees every prototype file.
+    if (roles.includes("administrator")) return desk.cards;
+    // Any other account with no files of its own sees the Center's files.
+    return desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
   }, [desk, user.name, user.center_code, roles]);
 
   const ownsMine = useMemo(() => {
     if (!desk) return true;
-    const me = surname(user.name);
-    return desk.cards.some((c) => surname(c.owner) === me);
+    return desk.cards.some((c) => samePerson(c.owner, user.name));
   }, [desk, user.name]);
 
   const isRequesterFallback = useMemo(() => {
