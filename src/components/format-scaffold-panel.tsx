@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY, sectionJSummary } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
+import { PAYMENT_MILESTONES_EMPTY } from "@/lib/payment-milestones";
 
 /**
  * The contract format scaffold an officer carries into NCMS. SF 1449
@@ -153,6 +154,11 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
               {scaffold.cdrl.length === 0
                 ? CDRL_EMPTY
                 : `${scaffold.cdrl.length} data requirement${scaffold.cdrl.length === 1 ? "" : "s"} recorded on this file; the handoff packet carries them.`}
+            </p>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              {scaffold.paymentMilestones.length === 0
+                ? PAYMENT_MILESTONES_EMPTY
+                : `${scaffold.paymentMilestones.length} payment milestone${scaffold.paymentMilestones.length === 1 ? "" : "s"} recorded on this file; the handoff packet carries them.`}
             </p>
           </section>
 
