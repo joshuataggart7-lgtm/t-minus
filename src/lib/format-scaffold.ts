@@ -11,6 +11,7 @@
 import type { PacketClause } from "@/lib/clause-packet";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
+import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
