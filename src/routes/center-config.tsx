@@ -426,12 +426,23 @@ function CenterConfigPage() {
       </section>
 
       {mayEdit ? (
-        <RoutingCsvImport
-          actorName={user?.name ?? "Unknown"}
-          centers={(q.data?.centers ?? []).map((c) => c.center_code)}
-          documentKeys={MEMO_DOCUMENT_KEYS.map((k) => k.key)}
-          onApplied={() => void qc.invalidateQueries({ queryKey: ["center-config"] })}
-        />
+        <>
+          <RoutingCsvImport
+            actorName={user?.name ?? "Unknown"}
+            centers={(q.data?.centers ?? []).map((c) => c.center_code)}
+            documentKeys={MEMO_DOCUMENT_KEYS.map((k) => k.key)}
+            onApplied={() => void qc.invalidateQueries({ queryKey: ["center-config"] })}
+          />
+          <ReviewerRosterCsvImport
+            actorName={user?.name ?? "Unknown"}
+            centers={(q.data?.centers ?? []).map((c) => c.center_code)}
+            roles={(q.data?.rules ?? []).map((r) => r.reviewer_role)}
+            onApplied={() => {
+              void qc.invalidateQueries({ queryKey: ["center-config"] });
+              void qc.invalidateQueries({ queryKey: ["people-contacts"] });
+            }}
+          />
+        </>
       ) : null}
 
       <TriggerTableEditor mayEdit={hasAnyRole(["hq"]) || hasRole("administrator")} actor={user.name} />
