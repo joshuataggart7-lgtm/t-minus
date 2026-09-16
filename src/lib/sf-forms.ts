@@ -45,6 +45,12 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
   const price = Number(a["proposed_price"]) || Number(a["award_amount"]) || 0;
   const description = str(a["description_of_requirement"]) || str(a["title"]);
+  // Block 21 to 23 read the first line of the schedule on the file. Nothing is
+  // shown when the schedule does not carry the value.
+  const firstClin =
+    (ctx.clins ?? []).find((c) => /^0*1$/.test(c.clinNumber.replace(/\D/g, "") || "x")) ??
+    (ctx.clins ?? [])[0] ??
+    null;
 
   const sections: FormSection[] = [
     {
