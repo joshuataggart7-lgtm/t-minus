@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormatScaffold } from "@/lib/format-scaffold";
+import { SECTION_J_EMPTY, sectionJSummary } from "@/lib/section-j";
 
 /**
  * The contract format scaffold an officer carries into NCMS. SF 1449
