@@ -1935,8 +1935,13 @@ function FilePage() {
                     ? "No target award date recorded"
                     : hasTargetAward
                       ? "Calendar days to target award date"
-                      : "Calendar days to the forecast award date. No target award date recorded."}
+                      : "Calendar days to the forecast award date"}
             </p>
+            {effectiveState !== "launched" && effectiveState !== "scrubbed" && days !== null && !hasTargetAward ? (
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                The forecast stands in because no target award date is recorded on this file.
+              </p>
+            ) : null}
             {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
               <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
                 {confidence.sentence}
