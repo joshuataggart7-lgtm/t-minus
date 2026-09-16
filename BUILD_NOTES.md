@@ -1341,3 +1341,25 @@ write-back, no FedRAMP or live FPDS claims. No seed edits, no new auto-holds.
 
 Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
 19 entries, documents ordered by NF 1098 tab, CSVs populated, no console errors.
+
+## Wave 1 W1.4 — NCMS handoff packet in SF 1449 screen order (16 Sep 2026)
+
+- Added `src/lib/ncms-handoff.ts`. The handoff packet downloaded from the file
+  page now leads with `sf_1449_screen_order`: SF 1449 blocks in screen order,
+  each with the fill-in value taken from the acquisition record, and a short
+  note where the record cannot answer the block.
+- Signature blocks (31b contracting officer, 30b offeror signer and title) are
+  carried empty and flagged `signature: true` with "The contracting officer
+  signs in NCMS." `signature_note` states this at the top of the packet.
+- Files on an IDIQ vehicle or carrying a recorded modification also get
+  `sf_30_screen_order` (A-2026-0090).
+- Clauses are ordered by UCF section then clause number, with fill-in values
+  printed. FAR 52.212-3 / 52.212-5 remain excluded; `RFO_RESERVED_212_NOTE`
+  wording is unchanged.
+- No writes outside the browser. NCMS remains the contract writing system of
+  record (NFS 1804.171); the packet is a local JSON file the officer keys from.
+  No seed edits, no new auto-holds.
+- Verified by download: A-2027-0101 (five SF 1449 sections, three blank
+  signature blocks, requisition 4200999101) and A-2026-0090 (SF 1449 plus
+  SF 30 screen order, contract number 80ARC26D0090).
+- Click path: open /files/A-2027-0101 → "Download the handoff packet".

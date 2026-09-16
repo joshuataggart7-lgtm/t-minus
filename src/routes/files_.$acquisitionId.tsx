@@ -47,6 +47,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
+import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
@@ -1378,11 +1379,14 @@ function FilePage() {
 
   function downloadPacket() {
     if (!acq) return;
-    const packet = {
-      ...buildPacket(acq, packetSelection, phases, board),
-      contract_format: (acq as Record<string, unknown>)["contract_format"] ?? null,
-      format_scaffold: scaffoldForPacket(formatScaffold),
-    };
+    const packet = orderPacketForScreen(
+      {
+        ...buildPacket(acq, packetSelection, phases, board),
+        contract_format: (acq as Record<string, unknown>)["contract_format"] ?? null,
+        format_scaffold: scaffoldForPacket(formatScaffold),
+      },
+      acq as unknown as Record<string, unknown>,
+    );
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
