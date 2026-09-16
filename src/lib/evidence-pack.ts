@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
 import { buildFpdsSheet, buildFpdsHtml, type FpdsInput } from "@/lib/fpds-filling-sheet";
 import { RFO_RESERVED_212_NOTE, type PacketClause } from "@/lib/clause-packet";
+import { buildNf1098Assembly, assemblyToCsv, type Nf1098AssemblyInput } from "@/lib/nf1098-assembly";
 
 const esc = (s: unknown) =>
   String(s ?? "")
