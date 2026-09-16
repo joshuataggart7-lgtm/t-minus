@@ -528,11 +528,16 @@ export async function runEngine(options: {
     });
   }
 
-  // T-Minus's own prior actions under the same NAICS.
+  // T-Minus's own prior actions under the same NAICS or PSC. These are records
+  // in this system, never external awards.
   const prior = await options.supabaseAdmin
     .from("acquisition_facts")
-    .select("acquisition_id,title,current_phase,set_aside,naics_code")
-    .eq("naics_code", naics)
+    .select("acquisition_id,title,current_phase,set_aside,naics_code,psc_code,estimated_value,target_award_date")
+    .or(
+      [naics ? `naics_code.eq.${naics}` : null, psc ? `psc_code.eq.${psc}` : null]
+        .filter(Boolean)
+        .join(",") || `naics_code.eq.${naics}`,
+    )
     .neq("acquisition_id", String(acq["acquisition_id"] ?? ""))
     .limit(10);
   const priorRows = ((prior.data ?? []) as Record<string, unknown>[]).map((r) => ({
@@ -542,8 +547,8 @@ export async function runEngine(options: {
     setAside: String(r["set_aside"] ?? "Not recorded"),
   }));
   record({
-    source: "T-Minus prior actions under the same NAICS",
-    query: `acquisition_facts where naics_code = ${naics}`,
+    source: "T-Minus prior actions under the same NAICS or PSC",
+    query: `acquisition_facts where naics_code = ${naics} or psc_code = ${psc || "—"}`,
     resultCount: priorRows.length,
     outcome: priorRows.length ? "Returned prior actions on this code." : "No prior action on this code is on file.",
   });
