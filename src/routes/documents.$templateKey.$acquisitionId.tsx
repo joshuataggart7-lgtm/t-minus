@@ -54,7 +54,7 @@ import {
   technicalRepresentative,
   approvingOfficialTitle,
 } from "@/lib/template-engine";
-import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
+import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
 import type { FindingMap } from "@/lib/research-findings";
