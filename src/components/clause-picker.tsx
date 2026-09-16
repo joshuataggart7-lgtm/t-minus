@@ -209,7 +209,7 @@ export function ClausePicker({
 
       {note ? <p className="mt-3 max-w-[80ch] text-[13px]">{note}</p> : null}
       {error ? (
-        <p className="mt-3 max-w-[80ch] text-[13px] text-[hsl(var(--status-risk,0_70%_45%))]">{error}</p>
+        <p className="mt-3 max-w-[80ch] text-[13px] text-destructive">{error}</p>
       ) : null}
     </div>
   );
