@@ -524,6 +524,14 @@ function FilePage() {
     [clinQ.data],
   );
 
+  // Data requirements. Optional, and empty unless the office recorded some.
+  const cdrlQ = useQuery({
+    queryKey: ["cdrl", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadCdrl(acquisitionId),
+  });
+  const cdrlItems = useMemo(() => cdrlForPacket(cdrlQ.data ?? []), [cdrlQ.data]);
+
   // Sections L and M as the officer saved them. The workspace, the scaffold and
   // the handoff packet all read these rows, so they cannot disagree.
   const sectionLQ = useQuery({
