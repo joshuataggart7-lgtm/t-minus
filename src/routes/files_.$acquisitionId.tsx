@@ -48,6 +48,10 @@ import {
 } from "@/lib/launch-sequence";
 import { PACKET_CANDIDATE_NUMBERS, selectPacketClauses } from "@/lib/clause-packet";
 import { ClausePicker } from "@/components/clause-picker";
+import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
+import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
+import { evaluateCompanionGates } from "@/lib/companion-gates";
+import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
@@ -1247,9 +1251,31 @@ function FilePage() {
     [packetClauses, appliedClauseNumbers],
   );
 
+  // The contract format the record carries decides the scaffold the officer
+  // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
+  const formatScaffold = useMemo(
+    () => buildFormatScaffold(acq as unknown as Record<string, unknown> | null, packetSelection),
+    [acq, packetSelection],
+  );
+
+  // Companion gates: exits read from the seeded review rules and this record.
+  const companionGates = useMemo(
+    () =>
+      evaluateCompanionGates(acq, q.data?.rules ?? [], ref, {
+        savedKeys,
+        attachedKeys: keysFrom(attachments),
+        board,
+      }),
+    [acq, q.data?.rules, ref, savedKeys, attachments, board],
+  );
+
   function downloadPacket() {
     if (!acq) return;
-    const packet = buildPacket(acq, packetSelection, phases, board);
+    const packet = {
+      ...buildPacket(acq, packetSelection, phases, board),
+      contract_format: (acq as Record<string, unknown>)["contract_format"] ?? null,
+      format_scaffold: scaffoldForPacket(formatScaffold),
+    };
     const blob = new Blob([JSON.stringify(packet, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
@@ -1385,6 +1411,20 @@ function FilePage() {
     [q.data?.thresholds, pa.final_payment_date, awardDate],
   );
   const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
+
+  // Fill-ins the matrices carry on the clauses this modification updates.
+  const modFillIns = useMemo(() => {
+    const rows = (q.data?.clauses ?? []) as { clause_number: string | null; fill_ins?: unknown }[];
+    return delta.updated
+      .map((c) => {
+        const match = rows.find((r) => r.clause_number === c.clause_number);
+        const fills = Array.isArray(match?.fill_ins)
+          ? (match.fill_ins as unknown[]).map((v) => String(v)).filter(Boolean)
+          : [];
+        return { clause_number: c.clause_number, fills: fills.join("; ") };
+      })
+      .filter((r) => r.fills.length > 0);
+  }, [delta, q.data?.clauses]);
 
   const savePostAward = useMutation({
     mutationFn: async (input: { patch: PostAward; action: string; field: string; reason: string; phase: string }) => {
@@ -1876,6 +1916,8 @@ function FilePage() {
         </table>
         </div>
       </details>
+
+      <CompanionGatesPanel gates={companionGates} />
 
       <details id="launch-sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
@@ -2417,6 +2459,27 @@ function FilePage() {
                       </tbody>
                     </table>
                   ) : null}
+                  <FormatScaffoldPanel scaffold={formatScaffold} />
+                  {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
+                    <div className="mt-3 border border-border p-4">
+                      <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
+                      <p className="mt-1 text-[13px] text-muted-foreground">
+                        Read from the clause matrices. The officer sets each value before the award is written in NCMS.
+                      </p>
+                      <ul className="mt-2 space-y-1 text-[13px]">
+                        {packetSelection
+                          .filter((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0)
+                          .map((c) => (
+                            <li key={c.clause_number}>
+                              <span data-numeric>{c.clause_number}</span>{" "}
+                              <span className="text-muted-foreground">
+                                {(c.fill_ins as unknown[]).map((v) => String(v)).join("; ")}
+                              </span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ) : null}
                   <button type="button" onClick={downloadPacket} className="mt-3 text-[15px] text-primary">
                     Download the handoff packet
                   </button>
@@ -2695,6 +2758,19 @@ function FilePage() {
                         ))}
                       </tbody>
                     </table>
+                    {modFillIns.length > 0 ? (
+                      <div className="mt-3 border border-border p-3">
+                        <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
+                        <ul className="mt-2 space-y-1 text-[13px]">
+                          {modFillIns.map((row) => (
+                            <li key={row.clause_number}>
+                              <span data-numeric>{row.clause_number}</span>{" "}
+                              <span className="text-muted-foreground">{row.fills}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                     <ul className="mt-3 list-disc pl-5 text-[13px] text-muted-foreground">
                       {SF30_CHECKLIST.map((c) => (
                         <li key={c}>{c}</li>
