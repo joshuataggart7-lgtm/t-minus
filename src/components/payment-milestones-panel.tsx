@@ -62,6 +62,15 @@ const num = (v: string): number | null => {
 const field =
   "w-full border border-border bg-background px-2 py-1 text-[13px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
+/** "0001 — Line item description", truncated so the picker stays readable. */
+const clinOptionLabel = (c: { clin_number: string; description: string }): string => {
+  const d = (c.description ?? "").trim();
+  if (!d) return c.clin_number;
+  const short = d.length > 48 ? `${d.slice(0, 47)}…` : d;
+  return `${c.clin_number} — ${short}`;
+};
+
+
 export function PaymentMilestonesPanel({
   acquisitionId,
   canWrite,
