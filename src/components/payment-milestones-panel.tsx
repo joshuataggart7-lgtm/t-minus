@@ -13,6 +13,9 @@ import {
   deletePaymentMilestone,
   loadPaymentMilestones,
   payAmount,
+  paymentClinHint,
+  paymentOrphanNote,
+  paymentUnlinkedNote,
   payPercent,
   payText,
   payValueMissing,
@@ -20,6 +23,7 @@ import {
   type PaymentMilestoneInput,
   type PaymentMilestoneRow,
 } from "@/lib/payment-milestones";
+
 
 type Draft = {
   event: string;
@@ -58,6 +62,15 @@ const num = (v: string): number | null => {
 const field =
   "w-full border border-border bg-background px-2 py-1 text-[13px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
+/** "0001 — Line item description", truncated so the picker stays readable. */
+const clinOptionLabel = (c: { clin_number: string; description: string }): string => {
+  const d = (c.description ?? "").trim();
+  if (!d) return c.clin_number;
+  const short = d.length > 48 ? `${d.slice(0, 47)}…` : d;
+  return `${c.clin_number} — ${short}`;
+};
+
+
 export function PaymentMilestonesPanel({
   acquisitionId,
   canWrite,
@@ -89,6 +102,12 @@ export function PaymentMilestonesPanel({
     queryFn: () => loadClinSchedule(acquisitionId),
   });
   const clins = clinQ.data ?? [];
+
+  // Advisory only. These notes never hold the file or block a phase exit.
+  const clinIds = clins.map((c) => c.clin_id);
+  const clinNote = (r: PaymentMilestoneRow): string | null =>
+    paymentOrphanNote(r, clinIds) ?? paymentUnlinkedNote(r, clins.length);
+
 
   const toInput = (d: Draft): PaymentMilestoneInput => {
     const linked = clins.find((c) => c.clin_id === d.clin_id);
@@ -163,9 +182,10 @@ export function PaymentMilestonesPanel({
         <option value="">No CLIN linked</option>
         {clins.map((c) => (
           <option key={c.clin_id} value={c.clin_id}>
-            {c.clin_number}
+            {clinOptionLabel(c)}
           </option>
         ))}
+
       </select>
     </>
   );
@@ -206,7 +226,11 @@ export function PaymentMilestonesPanel({
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
           {PAYMENT_MILESTONES_EMPTY} Nothing is written here for you; the contracting office
           records each milestone when the requirement calls for one.
+          {paymentClinHint(clins.length) ? (
+            <span className="block">{paymentClinHint(clins.length)}</span>
+          ) : null}
         </p>
+
       ) : (
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Payment milestones recorded on this file</caption>
@@ -259,7 +283,13 @@ export function PaymentMilestonesPanel({
                     ) : null}
                   </td>
                   <td className="p-2">{payText(r.due_logic)}</td>
-                  <td className="p-2" data-numeric>{payText(r.clin_number)}</td>
+                  <td className="p-2" data-numeric>
+                    {payText(r.clin_number)}
+                    {clinNote(r) ? (
+                      <span className="block text-muted-foreground">{clinNote(r)}</span>
+                    ) : null}
+                  </td>
+
                   <td className="p-2" data-numeric>{payAmount(r.amount)}</td>
                   <td className="p-2" data-numeric>
                     {payPercent(r.percent)}
@@ -338,10 +368,11 @@ export function PaymentMilestonesPanel({
               <option value="">No CLIN linked</option>
               {clins.map((c) => (
                 <option key={c.clin_id} value={c.clin_id}>
-                  {c.clin_number}
+                  {clinOptionLabel(c)}
                 </option>
               ))}
             </select>
+
           </div>
           <div>
             <label className="block text-[13px] text-muted-foreground" htmlFor="new-pay-amount">

@@ -33,6 +33,30 @@ export type PaymentMilestoneInput = {
 
 export const PAYMENT_MILESTONES_EMPTY = "No payment milestones on this file.";
 export const PAYMENT_AMOUNT_BLANK = "Neither an amount nor a percentage is recorded.";
+export const PAYMENT_CLIN_ORPHAN = "Linked CLIN missing from schedule.";
+
+/** Soft hint under the empty state when a schedule already exists. */
+export const paymentClinHint = (clinCount: number): string | null =>
+  clinCount > 0
+    ? "CLIN schedule is on this file; link a CLIN when you add a milestone."
+    : null;
+
+/** Advisory only: the schedule has line items but this row links none. */
+export const paymentUnlinkedNote = (
+  row: { clin_id: string | null },
+  clinCount: number,
+): string | null =>
+  !row.clin_id && clinCount > 0
+    ? `CLIN not linked — schedule has ${clinCount} line ${clinCount === 1 ? "item" : "items"} on this file.`
+    : null;
+
+/** Advisory only: the stored link points at a CLIN no longer on the schedule. */
+export const paymentOrphanNote = (
+  row: { clin_id: string | null },
+  clinIds: string[],
+): string | null =>
+  row.clin_id && !clinIds.includes(row.clin_id) ? PAYMENT_CLIN_ORPHAN : null;
+
 
 /** Blank fields read plainly rather than pretending to a value. */
 export const payText = (v: string | null | undefined): string =>
@@ -169,19 +193,27 @@ export type PacketPaymentMilestone = {
   amount: string;
   percent: string;
   value_note?: string;
+  clin_note?: string;
   notes?: string;
 };
 
 export function paymentMilestonesForPacket(
   rows: PaymentMilestoneRow[],
+  clins: { clin_id: string }[] = [],
 ): PacketPaymentMilestone[] {
-  return rows.map((r) => ({
-    event: r.event,
-    due_logic: payText(r.due_logic),
-    clin_number: payText(r.clin_number),
-    amount: payAmount(r.amount),
-    percent: payPercent(r.percent),
-    ...(payValueMissing(r) ? { value_note: PAYMENT_AMOUNT_BLANK } : {}),
-    ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
-  }));
+  const ids = clins.map((c) => c.clin_id);
+  return rows.map((r) => {
+    const clinNote = paymentOrphanNote(r, ids) ?? paymentUnlinkedNote(r, ids.length);
+    return {
+      event: r.event,
+      due_logic: payText(r.due_logic),
+      clin_number: payText(r.clin_number),
+      amount: payAmount(r.amount),
+      percent: payPercent(r.percent),
+      ...(payValueMissing(r) ? { value_note: PAYMENT_AMOUNT_BLANK } : {}),
+      ...(clinNote ? { clin_note: clinNote } : {}),
+      ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
+    };
+  });
 }
+
