@@ -1116,7 +1116,16 @@ function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
     out["offeror_slot"] = `Offeror ${index + 1}`;
     out["company_name"] = chosen.name;
     out["addressee"] = chosen.name;
+    if (chosen.uei) out["offeror_uei"] = chosen.uei;
+    const priced = money(chosen.price);
+    const parts: string[] = [];
+    if (priced) parts.push(`The quotation was received at ${priced}.`);
+    if (chosen.rating) parts.push(`It was rated ${chosen.rating.toLowerCase()} on the evaluation of quotations.`);
+    if (parts.length) out["quotation_summary"] = parts.join(" ");
   }
+  // Item 4 reports the value awarded, which is the recommended price.
+  const awarded = str(ctx.evaluationValues?.["recommended_price"]);
+  if (awarded) out["contract_value"] = awarded;
   if (all.length) out["proposals_received"] = String(all.length);
   out["offerors_solicited"] = "Solicited through the government point of entry accessed at www.SAM.gov.";
   if (selected) out["awardees"] = selected;
