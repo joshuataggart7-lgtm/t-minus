@@ -418,13 +418,15 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
               {driver.daysToAward}
             </p>
           )}
-          <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
-            {driver.clockState === "launched"
-              ? `Days since award · ${formatDate(driver.awardDate)}`
-              : driver.daysToAward !== null && driver.daysToAward < 0
-                ? "Days past the award target"
-                : "Days to award"}
-          </p>
+          {driver.clockState !== "scrubbed" && driver.daysToAward !== null ? (
+            <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
+              {driver.clockState === "launched"
+                ? `Days since award · ${formatDate(driver.awardDate)}`
+                : driver.daysToAward < 0
+                  ? "Days past the award target"
+                  : "Days to award"}
+            </p>
+          ) : null}
           <p className="mt-1 text-[15px] leading-[22px] font-medium" style={{ color }}>
             {driver.status}
           </p>
