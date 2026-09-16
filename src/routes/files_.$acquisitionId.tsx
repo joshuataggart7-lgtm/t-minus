@@ -3018,6 +3018,7 @@ function FilePage() {
                       applied={appliedClauseNumbers}
                       actorName={actorName}
                       phase={p.phase}
+                      facts={(acq as Record<string, unknown> | null) ?? null}
                     />
                   ) : null}
                   {acq ? (
