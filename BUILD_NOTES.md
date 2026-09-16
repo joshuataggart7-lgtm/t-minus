@@ -1990,3 +1990,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Search deepen: clause numbers on the file and a capped slice of recent audit text now match in global search, with a match hint per hit and a prototype label. Print: file page yields story + launch sequence + contract file index only, page break before the index.
 
 - Clause picker calm copy: the none-applied branch now reads "N recommended from the matrix for this method" with a plain sentence (recommended from the PCD/NFS matrices for this buy type; CO chooses; nothing applied until chosen and applied). Soft copy only — never holds a Walk exit. 52.212-3/5 remain Reserved/absent. No seed, clock, phase, or external-write changes.
+
+## Claude #32–#35 (soft)
+- #32 One CO per file: documents now take the contracting officer from `acquisition_facts.co_name` always. When no user row matches that name the name still prints and email/phone stay blank; the signed-in persona is never substituted as the file's CO. Audit `actor` still records who clicked.
+- #33 CALC+ now runs only for FSS/FAR 8.4 schedule buys or labor-hour / T&M priced requirements. Service PSC and "services/flights" title triggers removed, so Sample 1 (V1A1 aviation charter) records the honest skip line instead of fetching schedule hourly rates. Other market-research paths unchanged.
+- #34 "Explain this" now opens a right-side panel (Escape or Close to dismiss) instead of expanding inline, so the officer never loses their place. Same content: why / rule / citation / what clears it.
+- #35 Keyboard on Today "Waiting on me" and the Work Queue list: J/K move between rows, E opens that file's launch sequence, W opens its write action when the next step is a write. Ignored in inputs, selects, textareas, contenteditable, and dialogs. Quiet hint line above each list. Advisory only; no clock, phase, seed, or external-system change.
