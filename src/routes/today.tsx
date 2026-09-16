@@ -81,8 +81,10 @@ function TodayPage() {
     }
     // An administrator who is on no file as CO sees every prototype file.
     if (roles.includes("administrator")) return desk.cards;
-    // Any other account with no files of its own sees the Center's files.
-    return desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
+    // Any other account with no files of its own sees the Center's files, and
+    // every prototype file when the Center holds none, so the page is never bare.
+    const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
+    return atCenter.length > 0 ? atCenter : desk.cards;
   }, [desk, user.name, user.center_code, roles]);
 
   const ownsMine = useMemo(() => {
