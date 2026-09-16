@@ -620,6 +620,31 @@ function DocumentPage() {
     onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
   });
 
+  // The contracting officer files one saved version as the official copy for
+  // this document on this file. Soft: no clock, no hold, nothing is sent.
+  const fileOfficial = useMutation({
+    mutationFn: async () => {
+      if (!latest) throw new Error("Save a version first.");
+      if (!q.data?.templateId) throw new Error("This document has no template record yet.");
+      await fileAsOfficialFinal({
+        acquisitionId,
+        templateId: q.data.templateId,
+        documentId: latest.document_id,
+        version: latest.version,
+        templateName: def?.name ?? "document",
+        actor: user.name,
+        phase,
+      });
+    },
+    onSuccess: async () => {
+      setMessage("Filed as the official copy. Earlier versions stay on the record as drafts.");
+      await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      await queryClient.invalidateQueries({ queryKey: ["document-versions", acquisitionId] });
+    },
+    onError: (e: Error) => setMessage(`That did not save: ${e.message}`),
+  });
+
   // Prior awards for this NAICS and PSC, half to double the estimated value.
   const runComparables = useMutation({
     mutationFn: async () => runComparablesFn({ data: { acquisitionId } }),
