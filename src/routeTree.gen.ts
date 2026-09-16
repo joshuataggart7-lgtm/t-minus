@@ -27,10 +27,13 @@ import { Route as OverviewRouteImport } from './routes/overview'
 import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as RegIntakeRouteImport } from './routes/reg-intake'
 import { Route as ReportingRouteImport } from './routes/reporting'
+import { Route as RequesterRouteImport } from './routes/requester'
+import { Route as ReviewerInboxRouteImport } from './routes/reviewer-inbox'
 import { Route as ScorecardRouteImport } from './routes/scorecard'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
 import { Route as SimulateRouteImport } from './routes/simulate'
 import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as TodayRouteImport } from './routes/today'
 import { Route as WatchRouteImport } from './routes/watch'
 import { Route as WorkQueueRouteImport } from './routes/work-queue'
 import { Route as DeviationsDeviationIdRouteImport } from './routes/deviations_.$deviationId'
@@ -134,6 +137,16 @@ const ReportingRoute = ReportingRouteImport.update({
   path: '/reporting',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequesterRoute = RequesterRouteImport.update({
+  id: '/requester',
+  path: '/requester',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewerInboxRoute = ReviewerInboxRouteImport.update({
+  id: '/reviewer-inbox',
+  path: '/reviewer-inbox',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScorecardRoute = ScorecardRouteImport.update({
   id: '/scorecard',
   path: '/scorecard',
@@ -152,6 +165,11 @@ const SimulateRoute = SimulateRouteImport.update({
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TodayRoute = TodayRouteImport.update({
+  id: '/today',
+  path: '/today',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WatchRoute = WatchRouteImport.update({
@@ -240,10 +258,13 @@ export interface FileRoutesByFullPath {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/requester': typeof RequesterRoute
+  '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
+  '/today': typeof TodayRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
@@ -276,10 +297,13 @@ export interface FileRoutesByTo {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/requester': typeof RequesterRoute
+  '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
+  '/today': typeof TodayRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/deviations/$deviationId': typeof DeviationsDeviationIdRoute
@@ -313,10 +337,13 @@ export interface FileRoutesById {
   '/pgpd-queue': typeof PgpdQueueRoute
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
+  '/requester': typeof RequesterRoute
+  '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
   '/simulate': typeof SimulateRoute
   '/templates': typeof TemplatesRoute
+  '/today': typeof TodayRoute
   '/watch': typeof WatchRoute
   '/work-queue': typeof WorkQueueRoute
   '/deviations_/$deviationId': typeof DeviationsDeviationIdRoute
@@ -351,10 +378,13 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/requester'
+    | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
+    | '/today'
     | '/watch'
     | '/work-queue'
     | '/deviations/$deviationId'
@@ -387,10 +417,13 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/requester'
+    | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
+    | '/today'
     | '/watch'
     | '/work-queue'
     | '/deviations/$deviationId'
@@ -423,10 +456,13 @@ export interface FileRouteTypes {
     | '/pgpd-queue'
     | '/reg-intake'
     | '/reporting'
+    | '/requester'
+    | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
     | '/simulate'
     | '/templates'
+    | '/today'
     | '/watch'
     | '/work-queue'
     | '/deviations_/$deviationId'
@@ -460,10 +496,13 @@ export interface RootRouteChildren {
   PgpdQueueRoute: typeof PgpdQueueRoute
   RegIntakeRoute: typeof RegIntakeRoute
   ReportingRoute: typeof ReportingRoute
+  RequesterRoute: typeof RequesterRoute
+  ReviewerInboxRoute: typeof ReviewerInboxRoute
   ScorecardRoute: typeof ScorecardRoute
   SeedStatusRoute: typeof SeedStatusRoute
   SimulateRoute: typeof SimulateRoute
   TemplatesRoute: typeof TemplatesRoute
+  TodayRoute: typeof TodayRoute
   WatchRoute: typeof WatchRoute
   WorkQueueRoute: typeof WorkQueueRoute
   DeviationsDeviationIdRoute: typeof DeviationsDeviationIdRoute
@@ -606,6 +645,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requester': {
+      id: '/requester'
+      path: '/requester'
+      fullPath: '/requester'
+      preLoaderRoute: typeof RequesterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reviewer-inbox': {
+      id: '/reviewer-inbox'
+      path: '/reviewer-inbox'
+      fullPath: '/reviewer-inbox'
+      preLoaderRoute: typeof ReviewerInboxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scorecard': {
       id: '/scorecard'
       path: '/scorecard'
@@ -632,6 +685,13 @@ declare module '@tanstack/react-router' {
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/today': {
+      id: '/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof TodayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/watch': {
@@ -740,10 +800,13 @@ const rootRouteChildren: RootRouteChildren = {
   PgpdQueueRoute: PgpdQueueRoute,
   RegIntakeRoute: RegIntakeRoute,
   ReportingRoute: ReportingRoute,
+  RequesterRoute: RequesterRoute,
+  ReviewerInboxRoute: ReviewerInboxRoute,
   ScorecardRoute: ScorecardRoute,
   SeedStatusRoute: SeedStatusRoute,
   SimulateRoute: SimulateRoute,
   TemplatesRoute: TemplatesRoute,
+  TodayRoute: TodayRoute,
   WatchRoute: WatchRoute,
   WorkQueueRoute: WorkQueueRoute,
   DeviationsDeviationIdRoute: DeviationsDeviationIdRoute,
