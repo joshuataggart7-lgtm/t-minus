@@ -2744,6 +2744,19 @@ function FilePage() {
                         ))}
                       </tbody>
                     </table>
+                    {modFillIns.length > 0 ? (
+                      <div className="mt-3 border border-border p-3">
+                        <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
+                        <ul className="mt-2 space-y-1 text-[13px]">
+                          {modFillIns.map((row) => (
+                            <li key={row.clause_number}>
+                              <span data-numeric>{row.clause_number}</span>{" "}
+                              <span className="text-muted-foreground">{row.fills}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
                     <ul className="mt-3 list-disc pl-5 text-[13px] text-muted-foreground">
                       {SF30_CHECKLIST.map((c) => (
                         <li key={c}>{c}</li>
