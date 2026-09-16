@@ -86,6 +86,8 @@ export function isStreamlined(facts: ScaffoldFacts): boolean {
 export function buildFormatScaffold(
   facts: ScaffoldFacts | null | undefined,
   clauses: PacketClause[],
+  /** The schedule on the file. When given, it is the only source of line items. */
+  scheduleClins?: ScaffoldClin[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
