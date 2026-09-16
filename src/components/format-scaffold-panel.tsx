@@ -129,6 +129,46 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
               ))}
             </ul>
           </section>
+
+          <section>
+            <h5 className="text-[15px] font-medium">Clauses this format carries</h5>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              Selected by the clause engine from this record. Each clause keeps the reason it applies and the
+              fill-in the matrices carry.
+            </p>
+            {scaffold.clauses.length === 0 ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                No clauses are selected on this file yet.
+              </p>
+            ) : (
+              <table className="mt-2 w-full text-[13px] leading-[18px]">
+                <caption className="sr-only">Clauses, the section they sit in, why each applies, and its fill-in</caption>
+                <thead>
+                  <tr className="border-y border-border text-left">
+                    <th scope="col" className="p-2">Clause</th>
+                    <th scope="col" className="p-2">Title</th>
+                    <th scope="col" className="p-2">Section</th>
+                    <th scope="col" className="p-2">Why it applies</th>
+                    <th scope="col" className="p-2">Fill-in</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scaffold.clauses.map((c) => (
+                    <tr key={c.clause_number} className="border-b border-border align-top">
+                      <td className="p-2" data-numeric>{c.clause_number}</td>
+                      <td className="p-2">{c.title}</td>
+                      <td className="p-2">{c.section}</td>
+                      <td className="p-2 text-muted-foreground">{c.reason}</td>
+                      <td className="p-2 text-muted-foreground">
+                        {c.fillIns ?? "No fill-in recorded in the matrices."}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
         </div>
       ) : null}
     </div>
