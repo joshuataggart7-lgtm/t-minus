@@ -2914,8 +2914,14 @@ function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const action = (value("action_type") || "sole-source contract").toLowerCase();
   const actionDescription = (value("action_description") || value("requirement_description") || blankLine).replace(/[.!?]+$/, "");
   const authorityRationale = value("authority_rationale").replace(/\s*Basis of record:.*$/i, "").trim();
+  // Saving a notice is not publishing it: the printed item reads posted only
+  // when a publication date is on the form, and otherwise follows the status
+  // line the form carries.
+  const noticeStatus = value("notice_status");
   const notice = value("notice_date")
     ? `The notice of intent was posted on ${value("notice_date")}${value("interested_sources") ? `. ${value("interested_sources")}` : "."}`
+    : /draft/i.test(noticeStatus)
+    ? "The notice of intent has been prepared as a draft and has not yet been posted to the Government Point of Entry."
     : "The notice of intent has not yet been posted.";
   const item = (n: number, heading: string, prose: string): PrintBlock => ({ heading: `${n}. ${heading}`, lines: [prose] });
   const approvalLines = [
