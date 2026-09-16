@@ -1908,3 +1908,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Forms route: honest Adobe guidance under the export buttons (export preview vs official blank with data replaced; Chrome/Edge blank face is expected; data-file/Import Data fallback; signatures stay empty; no Adobe field QA claimed) and matching success message after Export form PDF.
 - Peer systems strip: added one quiet sentence that the handoff is a local packet and writing into NCMS is planned and not available in this prototype (NCMS system of record, NFS 1804.171). No write-back added.
+
+- Forms route: "View filled preview" outline button added before Export form PDF; scrolls/focuses `#export-preview` heading (id + tabIndex). Export form PDF carries a desktop-Adobe tooltip; short "Prefer the preview below" line sits above the Adobe help copy. Honest Adobe help copy and export/XFA logic unchanged.
