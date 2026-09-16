@@ -225,7 +225,7 @@ export type MemoDoc = {
  * The record block is rendered as labeled lines so the facts read as facts.
  */
 export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
-  const clean = (text: string) => text
+  const clean = (text: string) => humanMemoProse(text)
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in a memorandum body.
