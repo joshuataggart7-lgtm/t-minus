@@ -104,6 +104,15 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     return (a.version ?? 0) - (b.version ?? 0);
   });
 
+  // Where an official copy has been filed for a template, that version alone
+  // goes out; drafts stay on the record and out of this export.
+  const officialTemplates = new Set(
+    ordered.filter((d) => isOfficialFinal(d.field_values)).map((d) => String(d.template_id ?? "")),
+  );
+  const packed = ordered.filter(
+    (d) => !officialTemplates.has(String(d.template_id ?? "")) || isOfficialFinal(d.field_values),
+  );
+
   const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
   const indexRows: (string | number | null)[][] = [];
