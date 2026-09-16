@@ -161,6 +161,7 @@ const postawardUnsuccessful: TemplateDef = {
       id: "recipient",
       title: "Recipient",
       citation: "FAR 15.207-2",
+      citationFor: noticeCitation("FAR 15.207-2", "FAR 13.106-3(d)"),
       tier: "binding",
       fields: [
         // Left empty so the letter opens on the first unsuccessful offeror on
