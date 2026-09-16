@@ -241,6 +241,7 @@ function RequesterPortal() {
                     acq={acq}
                     plan={desk?.plan ?? []}
                     awardRange={conf?.sentence ?? null}
+                    missingCount={missing}
                   />
                 </div>
               </section>
