@@ -550,7 +550,11 @@ function DocumentPage() {
           ...lines,
         ].join("\n"),
       }));
-      setMessage(`Comparables loaded. ${view.sourceLabel}.`);
+      setMessage(
+        view.source !== "live" && view.providerNote
+          ? `Comparables loaded. ${view.sourceLabel}. ${view.providerNote}`
+          : `Comparables loaded. ${view.sourceLabel}.`,
+      );
     },
     onError: (e: Error) => setMessage(`Comparables did not load: ${e.message}`),
   });
