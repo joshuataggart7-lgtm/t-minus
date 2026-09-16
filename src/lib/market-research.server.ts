@@ -457,18 +457,18 @@ export async function runEngine(options: {
   }
 
   // CALC+ ceiling rates. Run for FAR 8.4 buys and for any requirement that
-  // reads as services or labour. The endpoint needs no key; a key is sent when
+  // reads as services or labor. The endpoint needs no key; a key is sent when
   // one is configured.
   let calcNote = "";
   const titleText = String(acq["title"] ?? "");
   const requirementText = `${titleText} ${String(acq["description_of_requirement"] ?? "")}`.toLowerCase();
   const servicePsc = /^[A-Za-z]/.test(psc);
-  const labourWords =
+  const laborWords =
     /\b(services?|servicing|support|labou?r|maintenance|repair|engineering|analys|technical|operations?|operating|staffing|studies|study|training|aviation|aircraft|flight|flights|charter|survey|surveys|inspection|consult\w*|professional|research)\b/.test(
       requirementText,
     );
   const isSchedule = /8\.4/.test(method);
-  const runCalc = isSchedule || servicePsc || labourWords;
+  const runCalc = isSchedule || servicePsc || laborWords;
   if (runCalc) {
     const keywordMatch = requirementText.match(
       /\b(aviation|aircraft|flights?|pilot|engineering|maintenance|repair|technical|operations?|training|inspection|research|analysis|support|services?|labou?r)\b/,
@@ -490,21 +490,21 @@ export async function runEngine(options: {
       const reported = num(totalValue ?? raw["count"] ?? raw["total_count"]);
       const count = reported ?? rows.length;
       calcNote = rows.length
-        ? `GSA CALC+ returned ${rows.length} ceiling labour rates for “${keyword}”${
+        ? `GSA CALC+ returned ${rows.length} ceiling labor rates for “${keyword}”${
             reported !== null && reported > rows.length ? ` of ${reported} matching rates` : ""
           }.`
         : "";
       record({
-        source: "GSA CALC+ ceiling labour rates",
+        source: "GSA CALC+ ceiling labor rates",
         query,
         resultCount: count,
         outcome: rows.length
-          ? `Returned ceiling labour rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
+          ? `Returned ceiling labor rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
           : "Returned no comparable ceiling rates for this keyword.",
       });
     } catch (error) {
       record({
-        source: "GSA CALC+ ceiling labour rates",
+        source: "GSA CALC+ ceiling labor rates",
         query,
         resultCount: null,
         outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
@@ -512,11 +512,11 @@ export async function runEngine(options: {
     }
   } else {
     record({
-      source: "GSA CALC+ ceiling labour rates",
+      source: "GSA CALC+ ceiling labor rates",
       query: "https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/ (not called)",
       resultCount: null,
       outcome:
-        "Skipped: the requirement does not read as services or labour, the product and service code is not a service code, and the method is not FAR 8.4.",
+        "Skipped: the requirement does not read as services or labor, the product and service code is not a service code, and the method is not FAR 8.4.",
     });
   }
   if (isSchedule) {
