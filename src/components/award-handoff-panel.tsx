@@ -12,6 +12,7 @@ import { useState } from "react";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
+import { PAYMENT_MILESTONES_EMPTY } from "@/lib/payment-milestones";
 
 const NCMS_CHIP = "NCMS is the system of record. T-Minus does not write to NCMS.";
 
@@ -246,7 +247,45 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={7}>Signatures</Head>
+            <Head n={7}>Payment milestones</Head>
+            {scaffold.paymentMilestones.length === 0 ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                {PAYMENT_MILESTONES_EMPTY}
+              </p>
+            ) : (
+              <table className="mt-2 w-full text-[13px] leading-[18px]">
+                <caption className="sr-only">Payment milestones on this file</caption>
+                <thead>
+                  <tr className="border-y border-border text-left">
+                    <th scope="col" className="p-2">Event</th>
+                    <th scope="col" className="p-2">Due logic</th>
+                    <th scope="col" className="p-2">CLIN</th>
+                    <th scope="col" className="p-2">Amount</th>
+                    <th scope="col" className="p-2">Percent</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scaffold.paymentMilestones.map((m, i) => (
+                    <tr key={`${m.event}-${i}`} className="border-b border-border align-top">
+                      <td className="p-2">
+                        {m.event}
+                        {m.value_note ? (
+                          <span className="block text-muted-foreground">{m.value_note}</span>
+                        ) : null}
+                      </td>
+                      <td className="p-2">{m.due_logic}</td>
+                      <td className="p-2" data-numeric>{m.clin_number}</td>
+                      <td className="p-2" data-numeric>{m.amount}</td>
+                      <td className="p-2" data-numeric>{m.percent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section>
+            <Head n={8}>Signatures</Head>
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
               Left blank on purpose. The contracting officer signs the award in NCMS; T-Minus
               records no signature and produces no signed form.

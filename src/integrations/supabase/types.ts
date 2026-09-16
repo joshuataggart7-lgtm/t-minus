@@ -1770,6 +1770,86 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_milestones: {
+        Row: {
+          acquisition_id: string
+          amount: number | null
+          clin_id: string | null
+          clin_number: string | null
+          created_at: string
+          created_by: string | null
+          due_logic: string | null
+          event: string
+          is_seed: boolean
+          milestone_id: string
+          notes: string | null
+          percent: number | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          amount?: number | null
+          clin_id?: string | null
+          clin_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_logic?: string | null
+          event: string
+          is_seed?: boolean
+          milestone_id?: string
+          notes?: string | null
+          percent?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          amount?: number | null
+          clin_id?: string | null
+          clin_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          due_logic?: string | null
+          event?: string
+          is_seed?: boolean
+          milestone_id?: string
+          notes?: string | null
+          percent?: number | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_milestones_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "payment_milestones_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "payment_milestones_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "payment_milestones_clin_id_fkey"
+            columns: ["clin_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_clins"
+            referencedColumns: ["clin_id"]
+          },
+        ]
+      }
       phase_plan: {
         Row: {
           acquisition_type: string

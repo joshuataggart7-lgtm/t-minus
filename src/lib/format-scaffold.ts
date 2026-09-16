@@ -12,6 +12,10 @@ import type { PacketClause } from "@/lib/clause-packet";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
+import {
+  PAYMENT_MILESTONES_EMPTY,
+  type PacketPaymentMilestone,
+} from "@/lib/payment-milestones";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -68,6 +72,8 @@ export type FormatScaffold = {
   attachments: SectionJAttachment[];
   /** Data requirements recorded on the file. Empty unless the office added some. */
   cdrl: PacketCdrlItem[];
+  /** Payment milestones recorded on the file. Empty unless the office added some. */
+  paymentMilestones: PacketPaymentMilestone[];
 };
 
 
@@ -117,6 +123,8 @@ export function buildFormatScaffold(
   attachments?: SectionJAttachment[],
   /** Data requirements recorded on the file. */
   cdrl?: PacketCdrlItem[],
+  /** Payment milestones recorded on the file. */
+  paymentMilestones?: PacketPaymentMilestone[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -254,6 +262,7 @@ export function buildFormatScaffold(
     lm: lm ?? null,
     attachments: attachments ?? [],
     cdrl: cdrl ?? [],
+    paymentMilestones: paymentMilestones ?? [],
   };
 }
 
@@ -295,6 +304,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
       scaffold.cdrl.length === 0
         ? { items: [], empty_note: CDRL_EMPTY }
         : { items: scaffold.cdrl },
+    // Payment milestones as recorded. Empty unless the office added some.
+    payment_milestones:
+      scaffold.paymentMilestones.length === 0
+        ? { items: [], empty_note: PAYMENT_MILESTONES_EMPTY }
+        : { items: scaffold.paymentMilestones },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
