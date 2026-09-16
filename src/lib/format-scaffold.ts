@@ -253,6 +253,7 @@ export function buildFormatScaffold(
     clauses: scaffoldClauses,
     lm: lm ?? null,
     attachments: attachments ?? [],
+    cdrl: cdrl ?? [],
   };
 }
 
