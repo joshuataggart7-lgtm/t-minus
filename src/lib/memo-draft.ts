@@ -100,6 +100,19 @@ export type MemoDraftCtx = {
   noticeValues?: Values | null;
   /** The evaluation of quotations record, so the recommendation carries forward. */
   evaluationValues?: Values | null;
+  /** Comparables recorded on this file, or prior T-Minus actions standing in. */
+  comparables?: {
+    source: string;
+    sourceLabel: string;
+    awards: {
+      agency: string;
+      awardDate: string;
+      pricingType: string;
+      extentCompeted: string;
+      obligatedAmount: number | null;
+    }[];
+    checkedAt?: string;
+  } | null;
   /** Today, so a determination carries its date. */
   today?: string;
   /** Audit trail on this file, oldest first, for the chronology memorandum. */
@@ -1027,6 +1040,37 @@ function evaluationOfQuotations(ctx: MemoDraftCtx): Values {
 }
 
 /** The recommended quoter on the evaluation record carries into the PNM. */
+/**
+ * The comparables paragraph. It reports only what is recorded: a run of the
+ * comparables check, or prior T-Minus actions standing in for a live feed that
+ * is unavailable. No figure is invented, and no prior award is assumed.
+ */
+function comparablesParagraph(ctx: MemoDraftCtx): string {
+  const c = ctx.comparables;
+  if (!c || !c.awards.length)
+    return "Draft, confirm. No comparable awards are loaded on this file. Run comparables below, or state the basis relied on instead. No prior award is assumed here.";
+  const stamp = c.checkedAt ? ` Checked ${String(c.checkedAt).slice(0, 10)}.` : "";
+  const label =
+    c.source === "local"
+      ? "from T-Minus prior actions — live feed unavailable"
+      : c.source === "sample"
+        ? "sample data, fictional prior awards"
+        : c.sourceLabel;
+  const lead = `Draft, confirm. ${c.awards.length} comparable${
+    c.awards.length === 1 ? "" : "s"
+  } are on this file (${label}).${stamp}${
+    c.source === "local" ? " These rows are files in this system, not external awards." : ""
+  }`;
+  const lines = c.awards.slice(0, 10).map((a) => {
+    const amount =
+      a.obligatedAmount === null || Number.isNaN(a.obligatedAmount)
+        ? "amount not recorded"
+        : `$${Math.round(a.obligatedAmount).toLocaleString("en-US")}`;
+    return `- ${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${amount}`;
+  });
+  return [lead, ...lines].join("\n");
+}
+
 function priceNegotiation(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const evaluation = ctx.evaluationValues;
@@ -1078,8 +1122,7 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
       }${price ? ` at ${dollars(price) || price}` : ""} is carried forward at the quoted price. No negotiation has been recorded on this file.`;
     out["determination"] =
       "Draft, confirm. The price is supported by the comparison of quotations received and the independent Government cost estimate on the file. The contracting officer's determination of price reasonableness is pending review.";
-    out["comparables_summary"] =
-      "Draft, confirm. No comparable awards are loaded on this file. Run comparables below, or state the basis relied on instead. No prior award is assumed here.";
+    out["comparables_summary"] = comparablesParagraph(ctx);
   }
   return out;
 }
