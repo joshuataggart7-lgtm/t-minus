@@ -26,3 +26,4 @@
 - [x] D6 NFS Companion gates panel read from review_rules and the record
 - [x] Scaffold accuracy pass: shared sole-source test, no invented CLIN quantities, clause reasons and honest fill-ins, briefing book format + gates pages
 - [ ] Order-specific writing scaffolding (IDIQ/BPA orders) beyond the shared format scaffold
+- [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)

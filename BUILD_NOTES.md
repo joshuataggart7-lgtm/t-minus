@@ -1087,3 +1087,38 @@ Deferred: the fuller validated phase exit with linked requirements and audit bey
 5. **Sample 2 JOFOC (verified, no change).** The authority options and drafted prose already read 41 U.S.C. 1901 with FAR 12.102 procedures and the only-one-responsible-source basis under RFO FAR 6.103-1. Nothing was rewritten.
 
 Verification: TypeScript clean; both samples walked in demo mode with no console errors; no occurrence of "CG 1804.11", "12.204(b)(1)", FAR 15.503/15.504 or 52.212-5 on either file page. No seed record edits, no new holds, no NCMS write-back, FedRAMP or real SAM publish claims; security still deferred.
+
+## 16 Sep 2026 — FPDS filling sheet (fill aid)
+
+Shipped
+- New helper `src/lib/fpds-filling-sheet.ts` builds an FPDS field list from
+  `acquisition_facts` only: document identity (PIID, parent IDV, PR, title),
+  vendor (legal name, UEI, CAGE), classification (PSC with its note, NAICS,
+  contract type, format, commercial determination, method), competition
+  (extent competed, set-aside, JOFOC authority, fair opportunity), dollars,
+  dates and place of performance, and the contracting office.
+- Every field carries a state: Recorded, Blank ("Not recorded on this file"),
+  or Confirm ("Uncertain — confirm before keying"). Nothing is invented: no
+  PIIDs, UEIs, vendors, dollars or dates are synthesised. Action obligation is
+  only suggested from a recorded proposed price, never from the estimate.
+  Date signed is only Recorded when the file is launched; before award the
+  target date is shown as Confirm. Fair opportunity is only shown on orders
+  under an existing vehicle.
+- Printable HTML sheet with the banner "Fill aid for FPDS — not a live FPDS
+  submission", the prototype line on every page footer, and the sample mark on
+  seeded records. Downloaded from the file page More menu, secondary to Next.
+- Audit entry "FPDS filling sheet exported" with recorded/confirm/blank counts.
+
+Not claimed / deferred
+- No FPDS connection or submission, no NCMS write-back, no FedRAMP, no real
+  SAM publish. NCMS stays the peer system for the award document; the binding
+  citation remains NFS 1804.171.
+- No seed edits to A-2027-0101 or A-2027-0102; no new holds; RFO citation fixes
+  (12.204(a), no 52.212-5, no packed 52.212-3, Part 12 framing) untouched.
+- Deferred: PDF-native output, FPDS-NG code validation, obligation tracking.
+
+Verified
+- Sample 2 (A-2027-0102): 24 recorded, 2 to confirm, 3 blank — vendor name,
+  UEI DEMOMFS00001 and CAGE DEMO1 all read from the record.
+- Sample 1 (A-2027-0101): 19 recorded, 0 to confirm, 10 blank — vendor, PIID,
+  proposed price, obligation and award date all print as blanks honestly.
