@@ -15,6 +15,8 @@
 import type { FormCtx, GeneratedForm } from "@/lib/nf1787";
 import { buildSf1449, buildSf30 } from "@/lib/sf-forms";
 import { acquisitionProfile } from "@/lib/vehicles";
+import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
+import { isSimplifiedCommercial } from "@/lib/memo-draft";
 
 export type PacketEntry = {
   block: string;
