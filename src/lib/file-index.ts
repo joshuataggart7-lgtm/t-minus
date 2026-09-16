@@ -57,6 +57,7 @@ export type IndexTab = {
   nearOrder?: number;
   nearTitle?: string;
   nearUid?: string;
+  nearNotes?: string;
 };
 
 export type FileIndex = {
@@ -100,12 +101,21 @@ const blankTab = (tab: string) => tab === "" || tab === "—" || tab === "NA" ||
  */
 function nearFields(templateKey: string | undefined, tab: string): {
   tab: string;
-  near: Pick<IndexTab, "nearOrder" | "nearTitle" | "nearUid">;
+  near: Pick<IndexTab, "nearOrder" | "nearTitle" | "nearUid" | "nearNotes">;
 } {
   const el: NearElement | null = nearForTemplateKey(templateKey);
   if (!el) return { tab, near: {} };
   const resolved = blankTab(tab) && el.tabPrimary !== null ? String(el.tabPrimary) : tab;
-  return { tab: resolved, near: { nearOrder: el.visualOrder, nearTitle: el.title, nearUid: el.uid } };
+  return {
+    tab: resolved,
+    near: {
+      nearOrder: el.visualOrder,
+      nearTitle: el.title,
+      nearUid: el.uid,
+      // Crosswalk WSC "NEAR FE Notes" (What to File Here), shown verbatim.
+      nearNotes: el.notes || undefined,
+    },
+  };
 }
 
 /** Checklist order where the row is mapped, otherwise the tab number. */
