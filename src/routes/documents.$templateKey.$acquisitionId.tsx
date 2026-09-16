@@ -53,6 +53,7 @@ import {
   badgeCitation,
   validate,
   sectionCitation,
+  sectionStandingText,
   MFR_KEY,
   type SectionDef,
   visibleFields,
@@ -1035,7 +1036,7 @@ function DocumentPage() {
     centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
     centerAddress: q.data.center?.address_line ?? "",
     preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
-    organizationCode: String(q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
+    organizationCode: String(q.data.acq["co_code"] ?? q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
     additionalApprovalRequired: Boolean(signature && signature.blocks.length > 2),
   } : undefined;
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
@@ -1236,6 +1237,10 @@ function DocumentPage() {
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
   const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
+  // The standing body follows the same method test as the citation, so a
+  // simplified file never reads Part 15 prose.
+  const sectionBody = (s: SectionDef) =>
+    methodKnown ? sectionStandingText(s, citationValues) : s.standingText;
   const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
 
   const runDraft = async (key: string) => {
@@ -1415,7 +1420,7 @@ function DocumentPage() {
                 {s.tier ? ` · ${s.tier === "binding" ? "Binding" : "Guidance"}` : ""}
               </p>
             ) : null}
-            {s.standingText ? <p className="mb-3 text-[15px] leading-[22px]">{s.standingText}</p> : null}
+            {sectionBody(s) ? <p className="mb-3 text-[15px] leading-[22px]">{sectionBody(s)}</p> : null}
             {visibleFields(s, values).map((f) => {
               const id = `${s.id}-${f.key}`;
               const err = touched ? errors[f.key] : undefined;

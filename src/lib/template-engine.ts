@@ -49,6 +49,8 @@ export type SectionDef = {
   citationFor?: (v: Values) => string;
   tier?: "binding" | "guidance";
   standingText?: string;
+  /** Standing body that depends on the record's acquisition method. */
+  standingTextFor?: (v: Values) => string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
   /** Back-up material: shown collapsed on the form, printed in full. */
@@ -58,6 +60,11 @@ export type SectionDef = {
 /** The citation printed for a section on this record. */
 export function sectionCitation(s: SectionDef, v: Values): string | undefined {
   return s.citationFor ? s.citationFor(v) : s.citation;
+}
+
+/** The standing body printed for a section on this record. */
+export function sectionStandingText(s: SectionDef, v: Values): string | undefined {
+  return s.standingTextFor ? s.standingTextFor(v) : s.standingText;
 }
 
 /** The citation printed on the template badge for this record. */
@@ -3022,8 +3029,9 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
   };
   for (const section of visibleSections(def, v)) {
     const lines: string[] = [];
-    if (section.standingText)
-      lines.push(...section.standingText.split("\n").filter(Boolean).filter((line) => !repeatsTitle(line)));
+    const standing = sectionStandingText(section, v);
+    if (standing)
+      lines.push(...standing.split("\n").filter(Boolean).filter((line) => !repeatsTitle(line)));
     for (const field of visibleFields(section, v)) {
       const raw = (v[field.key] ?? "").trim();
       const value =
@@ -3061,7 +3069,8 @@ export function renderDocument(
 ): RenderedDoc {
   const blocks = visibleSections(def, v).map((s) => {
     const lines: string[] = [];
-    if (s.standingText) lines.push(s.standingText);
+    const standing = sectionStandingText(s, v);
+    if (standing) lines.push(standing);
     for (const f of visibleFields(s, v)) {
       const raw = (v[f.key] ?? "").trim();
       const value =

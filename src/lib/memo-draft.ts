@@ -1145,10 +1145,15 @@ function postawardUnsuccessful(ctx: MemoDraftCtx): Values {
   if (all.length) out["proposals_received"] = String(all.length);
   out["offerors_solicited"] = "Solicited through the government point of entry accessed at www.SAM.gov.";
   if (selected) out["awardees"] = selected;
+  // A simplified acquisition produces no source selection statement; the
+  // price negotiation memorandum is the record of the decision.
+  const simplifiedLetter = isSimplifiedCommercial(a);
   out["selection_rationale"] = selected
-    ? `In making the selection decision, all evaluation factors stated in the solicitation were considered. The rationale for selecting ${selected} is delineated in the enclosed source selection statement.`
+    ? simplifiedLetter
+      ? `All evaluation factors stated in the solicitation were considered. ${selected} represents the best value to the Government; the rationale is recorded in the price negotiation memorandum for this acquisition.`
+      : `In making the selection decision, all evaluation factors stated in the solicitation were considered. The rationale for selecting ${selected} is delineated in the enclosed source selection statement.`
     : gap("name the selected offeror and the evaluation factors considered");
-  out["enclosures"] = "Source Selection Statement";
+  out["enclosures"] = simplifiedLetter ? "" : "Source Selection Statement";
   return out;
 }
 
