@@ -28,7 +28,7 @@ export async function loadDocumentVersions(acquisitionId: string): Promise<{
   const [docsRes, tplRes, auditRes] = await Promise.all([
     supabase
       .from("documents")
-      .select("document_id,template_id,version,saved_by,saved_at,reviewed_by,reviewed_at")
+      .select("document_id,template_id,version,saved_by,saved_at,reviewed_by,reviewed_at,field_values")
       .eq("acquisition_id", acquisitionId),
     supabase.from("templates").select("template_id,name"),
     supabase
