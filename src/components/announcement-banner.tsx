@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
+import { usePresenter } from "@/lib/presenter";
 import {
   acknowledge,
   currentUserId,
