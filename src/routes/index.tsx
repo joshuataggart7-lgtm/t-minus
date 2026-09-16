@@ -338,6 +338,20 @@ function panelStatusColor(status: AcqMetrics["status"]) {
   return statusColor(status);
 }
 
+/** Sentence-case wording for the status word on the navy band. */
+function statusWord(status: AcqMetrics["status"]) {
+  switch (status) {
+    case "At Risk":
+      return "At risk";
+    case "Needs Attention":
+      return "Needs attention";
+    case "On Track":
+      return "On track";
+    case "Launched":
+      return "Launched";
+  }
+}
+
 /** Short, always-fitting wording for a blocker or next decision. */
 function shortReason(text: string) {
   // Drop parentheticals and section prefixes; they never fit on one line.
