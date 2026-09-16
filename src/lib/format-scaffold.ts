@@ -10,6 +10,7 @@
 
 import type { PacketClause } from "@/lib/clause-packet";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
+import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -62,6 +63,8 @@ export type FormatScaffold = {
   /** Every clause the engine selected, with the reason it is on this file. */
   clauses: ScaffoldClause[];
   lm: ScaffoldLmOverride | null;
+  /** Section J: the attachments on the record, not a clause bucket. */
+  attachments: SectionJAttachment[];
 };
 
 
@@ -107,6 +110,8 @@ export function buildFormatScaffold(
   scheduleClins?: ScaffoldClin[],
   /** Sections L and M from the file. When given they replace the default lines. */
   lm?: ScaffoldLmOverride | null,
+  /** Section J: the attachments on the record. */
+  attachments?: SectionJAttachment[],
 ): FormatScaffold | null {
   if (!facts) return null;
   const format = s(facts, "contract_format");
@@ -242,6 +247,7 @@ export function buildFormatScaffold(
     ucfSections,
     clauses: scaffoldClauses,
     lm: lm ?? null,
+    attachments: attachments ?? [],
   };
 }
 
@@ -273,6 +279,11 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
         }
       : null,
     lm_note: scaffold.lm?.chip ?? null,
+    // Section J is the list of attachments on the record, for either format.
+    section_j:
+      scaffold.attachments.length === 0
+        ? { attachments: [], empty_note: SECTION_J_EMPTY }
+        : { attachments: scaffold.attachments },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:

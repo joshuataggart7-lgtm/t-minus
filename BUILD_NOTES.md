@@ -1688,3 +1688,11 @@ evaluation and UEI facts.
 - No clock or hold writes, no invented quantities/awards/rates, no NCMS write-back.
 - Cite hygiene: Part 15 LPTA line in `sectionMLines` now cites `FAR 15.305` (already on the
   Sample 3 path) instead of `FAR 15.101-2`; Part 12/13 LPTA cite stays `FAR 13.106-2(b)`.
+
+## AC-W4-ATTACH-J — Section J is the list of attachments (Wave 4 P0)
+- New `src/lib/section-j.ts`: `attachmentsForSectionJ` orders the file's real `document_attachments` rows by NF 1098 tab, then label, then when they were attached; blank tabs read "—". Empty list wording is "None attached." — never clause wording.
+- New `SectionJPanel` on the file page in Solicitation/quote and Award, visible without opening the scaffold. Columns: NF 1098 tab | Label | File name. Title reads "Attachments for the handoff" on SF 1449 files, "Section J — List of attachments" on UCF files.
+- Format scaffold carries `attachments`; the scaffold panel prints the same table, and the UCF A–M table's Section J cell now summarises the attachments ("N files on the record; see the list of attachments below.") and only mentions clauses separately as "Clauses placed in Section J by the matrices" when the matrices actually placed any.
+- NCMS handoff packet JSON carries `section_j: { attachments: [...] }`, with `empty_note: "None attached."` only when there are none. Same content as the panel.
+- Sample 1 (A-2027-0101) shows its existing attachments (IGCE, SOW, NF 1707, funds certification) with their labels, file names and NF 1098 tab. No attachments invented, no clock or hold change, no NCMS write-back.
+- AC-W4-CDRL deferred: not shipped this turn.

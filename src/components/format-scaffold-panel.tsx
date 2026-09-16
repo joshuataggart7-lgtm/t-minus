@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormatScaffold } from "@/lib/format-scaffold";
+import { SECTION_J_EMPTY, sectionJSummary } from "@/lib/section-j";
 
 /**
  * The contract format scaffold an officer carries into NCMS. SF 1449
@@ -63,9 +64,18 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                       <td className="p-2" data-numeric>{sec.section}</td>
                       <td className="p-2">{sec.title}</td>
                       <td className="p-2 text-muted-foreground">
-                        {sec.clauses.length === 0
-                          ? "None prescribed from this record."
-                          : sec.clauses.map((c) => c.clause_number).join(", ")}
+                        {sec.section === "J"
+                          ? [
+                              sectionJSummary(scaffold.attachments),
+                              sec.clauses.length > 0
+                                ? `Clauses placed in Section J by the matrices: ${sec.clauses.map((c) => c.clause_number).join(", ")}.`
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")
+                          : sec.clauses.length === 0
+                            ? "None prescribed from this record."
+                            : sec.clauses.map((c) => c.clause_number).join(", ")}
                       </td>
                     </tr>
                   ))}
@@ -108,6 +118,35 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 ))}
               </tbody>
             </table>
+            )}
+          </section>
+
+          <section>
+            <h5 className="text-[15px] font-medium">
+              {scaffold.mode === "sf1449" ? "Attachments" : "Section J — List of attachments"}
+            </h5>
+            {scaffold.attachments.length === 0 ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
+            ) : (
+              <table className="mt-2 w-full text-[13px] leading-[18px]">
+                <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
+                <thead>
+                  <tr className="border-y border-border text-left">
+                    <th scope="col" className="p-2">NF 1098 tab</th>
+                    <th scope="col" className="p-2">Label</th>
+                    <th scope="col" className="p-2">File name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scaffold.attachments.map((a) => (
+                    <tr key={`${a.nf_1098_tab}-${a.label}-${a.file_name}`} className="border-b border-border align-top">
+                      <td className="p-2" data-numeric>{a.nf_1098_tab}</td>
+                      <td className="p-2">{a.label}</td>
+                      <td className="p-2 text-muted-foreground">{a.file_name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </section>
 

@@ -53,6 +53,8 @@ import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { ClausePicker } from "@/components/clause-picker";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
+import { SectionJPanel } from "@/components/section-j-panel";
+import { attachmentsForSectionJ } from "@/lib/section-j";
 import {
   LM_AUTHORED_CHIP,
   LM_STUB_CHIP,
@@ -1528,6 +1530,9 @@ function FilePage() {
     };
   }, [acq, shell, sectionLQ.data, sectionMQ.data, factorsQ.data, packetSelection]);
 
+  // Section J is the attachments on the record, for either format.
+  const sectionJ = useMemo(() => attachmentsForSectionJ(attachments), [attachments]);
+
   const formatScaffold = useMemo(
     () =>
       buildFormatScaffold(
@@ -1535,8 +1540,9 @@ function FilePage() {
         packetSelection,
         scheduleClins,
         lmOverride,
+        sectionJ,
       ),
-    [acq, packetSelection, scheduleClins, lmOverride],
+    [acq, packetSelection, scheduleClins, lmOverride, sectionJ],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
@@ -2885,6 +2891,7 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
+                  <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
