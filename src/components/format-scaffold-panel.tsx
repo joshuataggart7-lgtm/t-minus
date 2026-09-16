@@ -64,9 +64,18 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                       <td className="p-2" data-numeric>{sec.section}</td>
                       <td className="p-2">{sec.title}</td>
                       <td className="p-2 text-muted-foreground">
-                        {sec.clauses.length === 0
-                          ? "None prescribed from this record."
-                          : sec.clauses.map((c) => c.clause_number).join(", ")}
+                        {sec.section === "J"
+                          ? [
+                              sectionJSummary(scaffold.attachments),
+                              sec.clauses.length > 0
+                                ? `Clauses placed in Section J by the matrices: ${sec.clauses.map((c) => c.clause_number).join(", ")}.`
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")
+                          : sec.clauses.length === 0
+                            ? "None prescribed from this record."
+                            : sec.clauses.map((c) => c.clause_number).join(", ")}
                       </td>
                     </tr>
                   ))}
