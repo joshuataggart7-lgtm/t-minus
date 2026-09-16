@@ -749,7 +749,8 @@ export function xfaDatasets(form: GeneratedForm): string {
         if (!node.children.has(part)) node.children.set(part, { children: new Map() });
         node = node.children.get(part)!;
       }
-      node.value = typeof field.value === "boolean" ? (field.value ? "1" : "0") : field.value;
+      node.value =
+        typeof field.value === "boolean" ? checkboxXfaValue(field.value) : field.value;
     }
   }
   const render = (node: Node): string => {
