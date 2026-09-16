@@ -2547,6 +2547,16 @@ function FilePage() {
                     {latest && t.origin === "uploaded" ? (
                       <span className="block text-muted-foreground">{latest.templateName}</span>
                     ) : null}
+                    {t.nearOrder ? (
+                      <span className="block text-muted-foreground">
+                        NEAR order {t.nearOrder} · {t.nearTitle}
+                      </span>
+                    ) : null}
+                    {t.nearNotes ? (
+                      <span className="block text-muted-foreground">
+                        What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
                   <td className="px-3 py-2">
