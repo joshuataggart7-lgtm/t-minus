@@ -45,7 +45,8 @@ export type FormKey =
   | "sf-30"
   | "sf-33"
   | "sf-26"
-  | "of-347";
+  | "of-347"
+  | "nf-1707";
 
 /** A line on the schedule, as the official forms print it. */
 export type FormClin = {
@@ -67,6 +68,7 @@ import {
 } from "@/lib/research-findings";
 import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
 import { buildOf347, buildSf1449, buildSf26, buildSf30, buildSf33 } from "@/lib/sf-forms";
+import { buildNf1707Form } from "@/lib/nf1707-form";
 
 /**
  * Registrant and small business counts read back out of the latest research
@@ -134,6 +136,7 @@ export type FormCtx = {
 };
 
 export const GENERATED_FORM_KEYS: FormKey[] = [
+  "nf-1707",
   "nf-1787",
   "nf-1787a",
   "sf-1449",
@@ -144,6 +147,7 @@ export const GENERATED_FORM_KEYS: FormKey[] = [
 ];
 
 export const FORM_NAMES: Record<FormKey, string> = {
+  "nf-1707": "NF 1707, Special Approvals and Affirmations of Requisitions",
   "nf-1787": "NF 1787, Small Business Coordination Record",
   "nf-1787a": "NF 1787A, Market Research Report",
   "sf-1449": "SF 1449, Solicitation/Contract/Order for Commercial Products and Commercial Services",
@@ -709,6 +713,7 @@ export function buildForm(key: FormKey, ctx: FormCtx): GeneratedForm {
   if (key === "sf-33") return buildSf33(ctx);
   if (key === "sf-26") return buildSf26(ctx);
   if (key === "of-347") return buildOf347(ctx);
+  if (key === "nf-1707") return buildNf1707Form(ctx);
   return key === "nf-1787" ? buildNf1787(ctx) : buildNf1787A(ctx);
 }
 
