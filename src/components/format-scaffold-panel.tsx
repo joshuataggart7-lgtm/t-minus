@@ -76,8 +76,14 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
 
           <section>
             <h5 className="text-[15px] font-medium">Line items</h5>
+            {scaffold.clins.length === 0 ? (
+              <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                No line items are on the schedule for this file yet. The contracting office adds them on the
+                schedule above; none are invented here.
+              </p>
+            ) : (
             <table className="mt-2 w-full text-[13px] leading-[18px]">
-              <caption className="sr-only">Line items drawn from the record</caption>
+              <caption className="sr-only">Line items from the schedule on this file</caption>
               <thead>
                 <tr className="border-y border-border text-left">
                   <th scope="col" className="p-2">CLIN</th>
@@ -102,10 +108,14 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 ))}
               </tbody>
             </table>
+            )}
           </section>
 
           <section>
             <h5 className="text-[15px] font-medium">Instructions to offerors</h5>
+            <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
+              L/M are handoff stubs — not the solicitation of record
+            </p>
             <ul className="mt-2 space-y-1 text-[13px]">
               {scaffold.instructions.map((line) => (
                 <li key={line.text}>
@@ -120,6 +130,9 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
             <h5 className="text-[15px] font-medium">
               {scaffold.evaluation.mode === "competitive" ? "Evaluation factors" : "Evaluation on a sole-source file"}
             </h5>
+            <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
+              L/M are handoff stubs — not the solicitation of record
+            </p>
             <ul className="mt-2 space-y-1 text-[13px]">
               {scaffold.evaluation.lines.map((line) => (
                 <li key={line.text}>

@@ -55,6 +55,12 @@ import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
+import { ClinSchedulePanel } from "@/components/clin-schedule-panel";
+import {
+  ensureClinScheduleFromIgce,
+  loadClinSchedule,
+  scheduleToScaffoldClins,
+} from "@/lib/clin-schedule";
 import { evaluateCompanionGates } from "@/lib/companion-gates";
 import { CompanionGatesPanel } from "@/components/companion-gates-panel";
 import type { StoredEstimate } from "@/lib/estimator";
@@ -485,6 +491,24 @@ function FilePage() {
     queryFn: () => loadAttachments(acquisitionId),
   });
   const attachments = useMemo(() => attachQ.data ?? [], [attachQ.data]);
+
+  // The schedule of line items. Empty schedules are filled once from the
+  // estimate already on the file; an existing schedule is never overwritten.
+  const clinQ = useQuery({
+    queryKey: ["clin-schedule", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      try {
+        return await ensureClinScheduleFromIgce(acquisitionId);
+      } catch {
+        return loadClinSchedule(acquisitionId);
+      }
+    },
+  });
+  const scheduleClins = useMemo(
+    () => scheduleToScaffoldClins(clinQ.data ?? []),
+    [clinQ.data],
+  );
 
   // The most recent recorded check on this file, read only. Running a check
   // stays where it already lives; this is a stamp and a link.
@@ -1425,8 +1449,13 @@ function FilePage() {
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
   const formatScaffold = useMemo(
-    () => buildFormatScaffold(acq as unknown as Record<string, unknown> | null, packetSelection),
-    [acq, packetSelection],
+    () =>
+      buildFormatScaffold(
+        acq as unknown as Record<string, unknown> | null,
+        packetSelection,
+        scheduleClins,
+      ),
+    [acq, packetSelection, scheduleClins],
   );
 
   // Companion gates: exits read from the seeded review rules and this record.
@@ -2760,6 +2789,12 @@ function FilePage() {
                       </tbody>
                     </table>
                   ) : null}
+                  <ClinSchedulePanel
+                    acquisitionId={acquisitionId}
+                    canWrite={canWrite}
+                    actor={actorName}
+                    onBanner={setBanner}
+                  />
                   <FormatScaffoldPanel scaffold={formatScaffold} />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">
