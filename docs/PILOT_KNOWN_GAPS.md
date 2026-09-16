@@ -16,3 +16,8 @@ These are the limits we have not closed.
   Table 12 fill-in confirmations are advisory only; none hold a file or block a phase exit.
 
 All records in the prototype are fictional.
+
+- **No official blank for NF 1707 and NF 1098.** `public/forms/` carries no agency
+  blank for these two, so T-Minus ships no field overlay for them and does not
+  offer a re-typed lookalike. An overlay is possible once the official blank is
+  added.
