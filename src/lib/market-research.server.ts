@@ -348,26 +348,50 @@ export async function runEngine(options: {
       subawards: false,
     };
     const query = `POST ${endpoint} naics=${naics || "none"} psc=${psc || "none"} ${yearsAgo(5)} to ${today}`;
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) throw new Error(`api.usaspending.gov responded ${response.status}`);
-      awards = awardsFromRaw(await response.json());
-      record({
-        source: "USAspending API, awards in the last five years",
-        query,
-        resultCount: awards.length,
-        outcome: awards.length ? "Returned awards." : "Returned no awards under this code.",
-      });
-    } catch (error) {
+    // USAspending has been returning intermittent 5xx responses, so the search
+    // is retried twice with a short backoff before it is recorded as failed.
+    const BACKOFF_MS = [500, 1500];
+    let attempts = 0;
+    let lastError = "";
+    for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt += 1) {
+      attempts = attempt + 1;
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (response.status >= 500)
+          throw new Error(`api.usaspending.gov responded ${response.status}`);
+        if (!response.ok) throw new Error(`api.usaspending.gov responded ${response.status}`);
+        awards = awardsFromRaw(await response.json());
+        lastError = "";
+        break;
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : "unknown error";
+        const wait = BACKOFF_MS[attempt];
+        if (wait === undefined) break;
+        await new Promise((resolve) => setTimeout(resolve, wait));
+      }
+    }
+    if (lastError) {
+      console.error(
+        `[Market research] USAspending failed after ${attempts} attempt${attempts === 1 ? "" : "s"}: ${lastError}`,
+      );
       record({
         source: "USAspending API, awards in the last five years",
         query,
         resultCount: null,
-        outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
+        outcome: `The search failed after ${attempts} attempt${attempts === 1 ? "" : "s"}: ${lastError}`,
+      });
+    } else {
+      record({
+        source: "USAspending API, awards in the last five years",
+        query,
+        resultCount: awards.length,
+        outcome: awards.length
+          ? `Returned awards on attempt ${attempts}.`
+          : "Returned no awards under this code.",
       });
     }
   }
@@ -410,40 +434,56 @@ export async function runEngine(options: {
     }
   }
 
-  // GSA CALC and eLibrary, only for FAR 8.4 buys.
+  // CALC+ ceiling rates. Run for FAR 8.4 buys and for any requirement that
+  // reads as services or labour. The endpoint needs no key; a key is sent when
+  // one is configured.
   let calcNote = "";
-  if (/8\.4/.test(method)) {
-    const url = new URL("https://api.gsa.gov/acquisition/calc/v1/rates/");
-    url.searchParams.set("api_key", calcKey ?? "");
-    url.searchParams.set("q", String(acq["title"] ?? ""));
+  const titleText = String(acq["title"] ?? "");
+  const requirementText = `${titleText} ${String(acq["description_of_requirement"] ?? "")}`.toLowerCase();
+  const servicePsc = /^[A-Za-z]/.test(psc);
+  const labourWords =
+    /\b(services?|support|labou?r|maintenance|engineering|analys|technical|operations|staffing|studies)\b/.test(
+      requirementText,
+    );
+  const isSchedule = /8\.4/.test(method);
+  if (isSchedule || servicePsc || labourWords) {
+    const keyword = titleText.trim() || psc || naics;
+    const url = new URL("https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/");
+    url.searchParams.set("page", "1");
+    url.searchParams.set("page_size", "20");
+    url.searchParams.set("ordering", "current_price");
+    url.searchParams.set("sort", "asc");
+    if (keyword) url.searchParams.set("keyword", keyword);
+    if (calcKey) url.searchParams.set("api_key", calcKey);
     const query = redact(url, calcKey);
-    if (!calcKey) {
+    try {
+      const raw = object(await getJson(url, calcKey));
+      const rows = array(raw["results"] ?? raw["data"]);
+      const count = rows.length;
+      const reported = num(raw["count"] ?? raw["total_count"]);
+      calcNote = count
+        ? `GSA CALC+ returned ${count} ceiling labour rates for “${keyword}”${
+            reported !== null && reported > count ? ` of ${reported} matching rates` : ""
+          }.`
+        : "";
       record({
-        source: "GSA CALC labour rates",
+        source: "GSA CALC+ ceiling labour rates",
+        query,
+        resultCount: count,
+        outcome: count
+          ? `Returned ceiling labour rates${calcKey ? "" : " without an API key, which CALC+ does not require"}.`
+          : "Returned no comparable ceiling rates for this keyword.",
+      });
+    } catch (error) {
+      record({
+        source: "GSA CALC+ ceiling labour rates",
         query,
         resultCount: null,
-        outcome: "Not run. The GSA API key is not configured.",
+        outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
       });
-    } else {
-      try {
-        const raw = object(await getJson(url, calcKey));
-        const count = array(raw["results"]).length;
-        calcNote = count ? `GSA CALC returned ${count} comparable labour rates.` : "";
-        record({
-          source: "GSA CALC labour rates",
-          query,
-          resultCount: count,
-          outcome: count ? "Returned comparable labour rates." : "Returned no comparable rates.",
-        });
-      } catch (error) {
-        record({
-          source: "GSA CALC labour rates",
-          query,
-          resultCount: null,
-          outcome: `The search failed: ${error instanceof Error ? error.message : "unknown error"}`,
-        });
-      }
     }
+  }
+  if (isSchedule) {
     record({
       source: "GSA eLibrary schedule holders",
       query: `https://www.gsaelibrary.gsa.gov/ElibMain/scheduleList.do naics=${naics}`,
