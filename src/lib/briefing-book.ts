@@ -183,6 +183,10 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   ${mark}
 </section>
 
+${formatPage(input, mark)}
+${gatesPage(input, mark)}
+
+
 </body></html>`;
 }
 
