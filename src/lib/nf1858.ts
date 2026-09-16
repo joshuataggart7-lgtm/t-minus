@@ -401,17 +401,18 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     }
     if (para.lines.length) children.push(p("", { after: 140 }));
   });
-  // Signature and Distribution stay together on the page when they fit.
+  // The signature block stays whole: blank signature line, typed name, title.
   children.push(
-    p("", { after: 400 }),
+    p("", { after: 400, keepNext: true }),
+    p("______________________________", { after: 40, keepNext: true }),
     p(h.signatureName, { keepNext: true }),
     p(h.signatureTitle, { after: 240, keepNext: true }),
   );
   if (h.concurrence.length) {
-    children.push(p("CONCURRENCE:", { bold: true }));
+    children.push(p("CONCURRENCE:", { bold: true, keepNext: true }));
     for (const c of h.concurrence) {
-      children.push(p("______________________________   Date: __________", { after: 40 }));
-      children.push(p([c.name, c.title].filter(Boolean).join(", "), { after: 160 }));
+      children.push(p("______________________________   Date: __________", { after: 40, keepNext: true }));
+      children.push(p([c.name, c.title].filter(Boolean).join(", "), { after: 160, keepNext: true }));
     }
   }
   if (h.enclosures.length) {
