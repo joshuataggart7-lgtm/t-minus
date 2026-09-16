@@ -1577,3 +1577,33 @@ nothing absent is shown as present.
 No external writes were added. Sample 1 and Sample 2 facts, UEIs and evaluation
 rows are unchanged, the exclusions sweep still never writes clock or hold
 fields, and the Mission Clock Overview was not touched.
+
+## Level-of-effort polish (optional, after Wave 3)
+
+**Requester-visible effort.** Each file card on /requester now carries "What
+this buy costs in contracting work": total hours to award, the contracting
+officer and specialist split, hours by phase, and the five lines that drive the
+effort with the reason each one applies to this record — sole source above the
+simplified acquisition threshold, the value tier, cost reimbursement pricing,
+services, an order under an existing vehicle. The numbers are the seeded
+level-of-effort model run against this record's own facts; they are not Center
+averages and they are not rounded to look friendlier. Every task in the model
+now carries a plain-words reason alongside its hours. Under the figures sits the
+ask this exists for: the technical team provides a work breakdown structure
+covering the procurement support work, with the hours as the why. Where no
+estimate was saved with the intake the card says so and links to Estimate rather
+than implying one was run.
+
+**Days costing.** The requester card's days line now also carries the planned
+working days and the honest history range from the confidence model, withheld
+where fewer than three comparable prior files exist.
+
+**Queued, not built.** GSA SF 33, SF 26, OF 347 and OF 348 official blanks for
+Part 15 fills, on the same pattern as the SF 1449 and SF 30 public forms.
+Contracting officer name to Joshua Taggart where a single-name gap appears; the
+walked Sample 1 and Sample 2 files keep J. Rivera (fictional CO) so nothing
+changes under the demo.
+
+No Sample 1 or Sample 2 facts changed, the SF 30 block 13 authority lock is
+untouched, the A-2026-0090 clause delta stays hidden, and no external system is
+written.
