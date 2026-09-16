@@ -100,6 +100,8 @@ import { DraftRfpAlertPanel } from "@/components/draft-rfp-alert-panel";
 import { EnterprisePslPanel } from "@/components/enterprise-psl-panel";
 import { ThresholdConflictsPanel } from "@/components/threshold-conflicts-panel";
 import { CenterLocalClausesPanel } from "@/components/center-local-clauses-panel";
+import { PracticeLinksPanel } from "@/components/practice-links-panel";
+import { DeterminationHelpersPanel } from "@/components/determination-helpers-panel";
 import type { StoredEstimate } from "@/lib/estimator";
 import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
@@ -2549,6 +2551,10 @@ function FilePage() {
       <ThresholdConflictsPanel />
 
       <CenterLocalClausesPanel />
+
+      <PracticeLinksPanel />
+
+      <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
