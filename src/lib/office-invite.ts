@@ -52,14 +52,21 @@ export async function loadInviteData(acquisitionId: string): Promise<{
   return { polls, roles };
 }
 
-/** Open invites are the poll rows with no vote recorded yet. */
+/** Open invites are the poll rows with no recorded Go/No-go vote yet.
+ *  A blank vote or a case-insensitive "pending" vote is still open. */
 export function openPolls(polls: InvitePoll[]): InvitePoll[] {
-  return polls.filter((p) => !(p.vote ?? "").trim());
+  return polls.filter((p) => {
+    const v = (p.vote ?? "").trim().toLowerCase();
+    if (!v) return true; // blank — still open
+    if (v === "pending") return true; // seeded pending reviews stay open
+    return false; // any other recorded value (go/no-go/voted) is closed
+  });
 }
 
 export function voteLabel(p: InvitePoll): string {
   const v = (p.vote ?? "").trim();
   if (!v) return "No vote recorded yet";
+  if (v.toLowerCase() === "pending") return "Pending";
   return v;
 }
 

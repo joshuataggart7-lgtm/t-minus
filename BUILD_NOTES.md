@@ -2019,3 +2019,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Enterprise PSL above-SAT advisory panel, FAR-vs-statute threshold conflict panel (seeded notes only), and Center-local (local) clause group added to the acquisition file page. Soft advisory; never hold a file or block a phase exit.
 - Buying guides & practice guidance panel (RFO hub only; NASA/GSA guides honestly not loaded) and plain-language determination helpers (commerciality / competition / price reasonableness) added to the acquisition file page. Advisory only; no new citations or URLs invented.
 - Added Invite another office and Who signed / saved what advisory panels on the acquisition file page. Both read existing polls, review_rules, documents, templates, and audit rows only; invite text is copy-only and no poll rows are created.
+
+- openPolls treats blank or case-insensitive "pending" votes as open (seeded A-2027-0101 pending reviews no longer read as closed); voteLabel shows pending as "Pending" / "No vote recorded yet". No seed changes.
