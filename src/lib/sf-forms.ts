@@ -27,7 +27,8 @@ const dollars = (v: unknown): string => {
 
 const TO_COMPLETE = (what: string) => `[Contracting officer to complete: ${what}]`;
 
-const field = (path: string, label: string, value: FormValue, gap?: string) => ({ path, label, value, gap });
+const field = (path: string, label: string, value: FormValue, gap?: string) =>
+  (gap === undefined ? { path, label, value } : { path, label, value, gap });
 
 const issuedBy = (a: Record<string, unknown>): string =>
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
