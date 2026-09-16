@@ -83,6 +83,11 @@ export function SolicitationKlmPanel({
     enabled: Boolean(acquisitionId),
     queryFn: () => loadFactors(acquisitionId),
   });
+  const kQ = useQuery({
+    queryKey: ["section-k", acquisitionId],
+    enabled: Boolean(acquisitionId),
+    queryFn: () => loadSectionK(acquisitionId),
+  });
   const basisQ = useQuery({
     queryKey: ["award-basis-hint", acquisitionId],
     enabled: Boolean(acquisitionId),
@@ -128,7 +133,17 @@ export function SolicitationKlmPanel({
     }
   }, [mQ.data, basisQ.data]);
 
+  // The checklist rows follow the shell the record calls for; anything the
+  // officer already recorded wins over the default row.
+  useEffect(() => {
+    if (!shell) return;
+    setKItems(mergeKItems(shell, kQ.data?.items ?? []));
+    setKSam((kQ.data?.sam_status ?? "").trim() || "Not recorded");
+    setKNotes(kQ.data?.notes ?? "");
+  }, [shell, kQ.data]);
+
   const invalidate = () => {
+    void qc.invalidateQueries({ queryKey: ["section-k", acquisitionId] });
     void qc.invalidateQueries({ queryKey: ["section-l", acquisitionId] });
     void qc.invalidateQueries({ queryKey: ["section-m", acquisitionId] });
     void qc.invalidateQueries({ queryKey: ["section-m-factors", acquisitionId] });
