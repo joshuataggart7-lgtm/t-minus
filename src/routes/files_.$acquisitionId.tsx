@@ -1165,6 +1165,54 @@ function FilePage() {
       ),
   });
 
+  // A short board pack built from this record. Synthetic, printable, local.
+  const briefingExport = useMutation({
+    mutationFn: async () => {
+      if (!acq) throw new Error("The record is still loading");
+      const who = await signedInName(actorName);
+      return exportBriefingBook(
+        {
+          acquisitionId: acq.acquisition_id,
+          title: String(acq.title ?? acq.acquisition_id),
+          missionName: q.data?.mission?.name ?? null,
+          centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
+          isSample: Boolean(acq["is_seed"]),
+          currentPhase: lifecycle?.currentPhase ?? "Not started",
+          clockState:
+            effectiveState === "running"
+              ? "Clock running"
+              : effectiveState === "hold"
+                ? "On hold"
+                : effectiveState === "launched"
+                  ? "Launched"
+                  : (effectiveState ?? "—"),
+          days,
+          targetAwardDate: effectiveTargetAward,
+          nextAction: lifecycle?.nextAction ?? "Not recorded",
+          blocker: lifecycle?.blocker ?? null,
+          blockerOwner: lifecycle?.blockerOwner ?? null,
+          facts: briefingFacts(acq as unknown as Record<string, unknown>),
+          recommendedClauseCount: packetClauses.length,
+          appliedClauseCount: appliedClauseNumbers?.length ?? null,
+          exampleClauses: packetSelection.slice(0, 3).map((c) => ({
+            clause_number: c.clause_number,
+            title: c.title ?? null,
+            reason: c.reason ?? null,
+            ucf_section: c.ucf_section ?? null,
+          })),
+        },
+        who,
+      );
+    },
+    onSuccess: (fileName) => {
+      setBanner(`The briefing book downloaded as ${fileName}. It is a synthetic pack for this prototype; open it and print to PDF.`);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+    },
+    onError: (e: unknown) =>
+      setBanner(
+        `The briefing book could not be built: ${e instanceof Error ? e.message : "unknown reason"}. Try again in a moment.`,
+      ),
+  });
 
   // A demo copy: same intake facts, same requester package, fresh clock.
   const copySample = useMutation({
