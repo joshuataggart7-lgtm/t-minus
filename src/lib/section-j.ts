@@ -14,7 +14,7 @@ export type SectionJAttachment = {
   file_name: string;
   /** The NF 1098 tab on the row, or an em dash where the row carries none. */
   nf_1098_tab: string;
-  doc_key?: string;
+  doc_key?: string | undefined;
 };
 
 /** What the empty list says. Never clause wording. */
