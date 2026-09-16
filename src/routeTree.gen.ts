@@ -28,6 +28,7 @@ import { Route as PgpdQueueRouteImport } from './routes/pgpd-queue'
 import { Route as RegIntakeRouteImport } from './routes/reg-intake'
 import { Route as ReportingRouteImport } from './routes/reporting'
 import { Route as RequesterRouteImport } from './routes/requester'
+import { Route as RequesterPortalRouteImport } from './routes/requester-portal'
 import { Route as ReviewerInboxRouteImport } from './routes/reviewer-inbox'
 import { Route as ScorecardRouteImport } from './routes/scorecard'
 import { Route as SeedStatusRouteImport } from './routes/seed-status'
@@ -140,6 +141,11 @@ const ReportingRoute = ReportingRouteImport.update({
 const RequesterRoute = RequesterRouteImport.update({
   id: '/requester',
   path: '/requester',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RequesterPortalRoute = RequesterPortalRouteImport.update({
+  id: '/requester-portal',
+  path: '/requester-portal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewerInboxRoute = ReviewerInboxRouteImport.update({
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/requester': typeof RequesterRoute
+  '/requester-portal': typeof RequesterPortalRoute
   '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/requester': typeof RequesterRoute
+  '/requester-portal': typeof RequesterPortalRoute
   '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
@@ -338,6 +346,7 @@ export interface FileRoutesById {
   '/reg-intake': typeof RegIntakeRoute
   '/reporting': typeof ReportingRoute
   '/requester': typeof RequesterRoute
+  '/requester-portal': typeof RequesterPortalRoute
   '/reviewer-inbox': typeof ReviewerInboxRoute
   '/scorecard': typeof ScorecardRoute
   '/seed-status': typeof SeedStatusRoute
@@ -379,6 +388,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/requester'
+    | '/requester-portal'
     | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/requester'
+    | '/requester-portal'
     | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
@@ -457,6 +468,7 @@ export interface FileRouteTypes {
     | '/reg-intake'
     | '/reporting'
     | '/requester'
+    | '/requester-portal'
     | '/reviewer-inbox'
     | '/scorecard'
     | '/seed-status'
@@ -497,6 +509,7 @@ export interface RootRouteChildren {
   RegIntakeRoute: typeof RegIntakeRoute
   ReportingRoute: typeof ReportingRoute
   RequesterRoute: typeof RequesterRoute
+  RequesterPortalRoute: typeof RequesterPortalRoute
   ReviewerInboxRoute: typeof ReviewerInboxRoute
   ScorecardRoute: typeof ScorecardRoute
   SeedStatusRoute: typeof SeedStatusRoute
@@ -652,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequesterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requester-portal': {
+      id: '/requester-portal'
+      path: '/requester-portal'
+      fullPath: '/requester-portal'
+      preLoaderRoute: typeof RequesterPortalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reviewer-inbox': {
       id: '/reviewer-inbox'
       path: '/reviewer-inbox'
@@ -801,6 +821,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegIntakeRoute: RegIntakeRoute,
   ReportingRoute: ReportingRoute,
   RequesterRoute: RequesterRoute,
+  RequesterPortalRoute: RequesterPortalRoute,
   ReviewerInboxRoute: ReviewerInboxRoute,
   ScorecardRoute: ScorecardRoute,
   SeedStatusRoute: SeedStatusRoute,

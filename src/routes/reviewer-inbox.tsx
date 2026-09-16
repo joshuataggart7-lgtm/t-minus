@@ -5,7 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
-import { useDeskData, daysUntil, heroDocForPhase, pollMatchesReviewer, type DeskCard } from "@/lib/desk-data";
+import { useDeskData, daysUntil, heroDocForReviewer, pollMatchesReviewer, type DeskCard } from "@/lib/desk-data";
 import { phaseCitation, type PollRow } from "@/lib/launch-sequence";
 
 export const Route = createFileRoute("/reviewer-inbox")({
@@ -125,7 +125,7 @@ function ReviewerInbox() {
             {rows.map(({ poll, card }) => {
               const id = card.m.acq.acquisition_id;
               const phase = poll.phase ?? "";
-              const hero = heroDocForPhase(card.m, phase);
+              const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
               const due = daysUntil(poll.due_date);
               const isOpen = openPoll === poll.poll_id;
               return (
@@ -160,7 +160,15 @@ function ReviewerInbox() {
                   <p className="mt-2 text-[15px] leading-[22px]">
                     The one document to read:{" "}
                     {hero ? (
-                      hero.kind === "template" ? (
+                      hero.kind === "file" ? (
+                        <Link
+                          to="/files/$acquisitionId"
+                          params={{ acquisitionId: id }}
+                          className="text-primary hover:text-primary-hover"
+                        >
+                          {hero.doc.label}
+                        </Link>
+                      ) : hero.kind === "template" ? (
                         <Link
                           to="/documents/$templateKey/$acquisitionId"
                           params={{ templateKey: hero.key, acquisitionId: id }}
