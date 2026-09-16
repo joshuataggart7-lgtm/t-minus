@@ -144,6 +144,10 @@ const postawardUnsuccessful: TemplateDef = {
   layout: "memo",
   badge: {
     citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+    citationFor: noticeCitation(
+      "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+      "FAR 13.106-3(d) (notification to unsuccessful quoters)",
+    ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revisions 02/2025 and 03/2026",
     effective: "2026-03-01",
