@@ -62,7 +62,7 @@ import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
 import { exportFpdsFillingSheet } from "@/lib/fpds-filling-sheet";
 import { exportEvidencePack } from "@/lib/evidence-pack";
-import { buildFileIndex } from "@/lib/file-index";
+import { requiredTabs, buildFileIndex } from "@/lib/file-index";
 import {
   ATTACHMENT_ACCEPT,
   docKey,
@@ -560,6 +560,11 @@ function FilePage() {
         acq ?? undefined,
       ),
     [q.data?.documents, q.data?.templates, phases, attachments, acq],
+  );
+
+  const requiredTabSet = useMemo(
+    () => new Set(requiredTabs(phases.map((p) => p.phase), acq ?? undefined).map((t) => t.tab)),
+    [phases, acq],
   );
 
   const boards = useMemo(() => {
