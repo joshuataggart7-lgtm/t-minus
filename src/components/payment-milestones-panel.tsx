@@ -103,6 +103,12 @@ export function PaymentMilestonesPanel({
   });
   const clins = clinQ.data ?? [];
 
+  // Advisory only. These notes never hold the file or block a phase exit.
+  const clinIds = clins.map((c) => c.clin_id);
+  const clinNote = (r: PaymentMilestoneRow): string | null =>
+    paymentOrphanNote(r, clinIds) ?? paymentUnlinkedNote(r, clins.length);
+
+
   const toInput = (d: Draft): PaymentMilestoneInput => {
     const linked = clins.find((c) => c.clin_id === d.clin_id);
     return {
