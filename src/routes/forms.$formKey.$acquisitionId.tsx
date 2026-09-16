@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,8 @@ import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
+import { signedInName } from "@/lib/account-name";
+import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
