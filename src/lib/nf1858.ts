@@ -288,15 +288,22 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
   if (h.salutation) blocks.push({ text: h.salutation, gap: 10 });
   blocks.push({ text: "", gap: 8 });
   memo.paragraphs.forEach((p, i) => {
-    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10 });
+    // A numbered paragraph never opens at the foot of a page on its own.
+    blocks.push({ text: `${i + 1}. ${p.text}`, gap: p.lines.length ? 4 : 10, keepWith: 48 });
     for (const line of p.lines) blocks.push({ text: line, indent: 24, gap: 1 });
     if (p.lines.length) blocks.push({ text: "", gap: 6 });
   });
-  blocks.push({ text: "", gap: 28 }, { text: h.signatureName, gap: 0 }, { text: h.signatureTitle, gap: 16 });
+  // The signature block stays whole: blank signature line, typed name, title.
+  blocks.push(
+    { text: "", gap: 28 },
+    { text: "______________________________", gap: 2, keepWith: 60 },
+    { text: h.signatureName, gap: 0 },
+    { text: h.signatureTitle, gap: 16 },
+  );
   if (h.concurrence.length) {
-    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4 });
+    blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4, keepWith: 24 + h.concurrence.length * 32 });
     for (const c of h.concurrence) {
-      blocks.push({ text: "______________________________   Date: __________", gap: 2 });
+      blocks.push({ text: "______________________________   Date: __________", gap: 2, keepWith: 24 });
       blocks.push({ text: [c.name, c.title].filter(Boolean).join(", "), gap: 10 });
     }
   }
