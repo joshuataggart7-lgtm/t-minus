@@ -11,27 +11,26 @@ export function PresenterScreensBeat() {
   const presenter = usePresenter();
   const [dismissed, setDismissed] = useState(true);
   const wasPresenter = useRef(false);
-  const firstRun = useRef(true);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    if (firstRun.current) {
-      // First client run: presenter may have hydrated from sessionStorage.
-      // Respect an earlier dismiss; only a real OFF→ON toggle resets it.
-      firstRun.current = false;
-      wasPresenter.current = presenter;
-      if (presenter) {
-        let done = false;
-        try {
-          done = window.sessionStorage.getItem(DISMISS_KEY) === "1";
-        } catch {
-          /* session storage is optional */
-        }
-        setDismissed(done);
+    if (presenter && !initialized.current) {
+      // First time presenter reads as on (mount or hydration from
+      // sessionStorage): respect an earlier dismiss in this session.
+      initialized.current = true;
+      wasPresenter.current = true;
+      let done = false;
+      try {
+        done = window.sessionStorage.getItem(DISMISS_KEY) === "1";
+      } catch {
+        /* session storage is optional */
       }
+      setDismissed(!done ? false : true);
       return;
     }
     if (presenter && !wasPresenter.current) {
-      // Fresh Presenter pass: show the beat again even if dismissed last time.
+      // Real OFF→ON toggle: fresh demo pass, show the beat again even if
+      // it was dismissed last time.
       try {
         window.sessionStorage.removeItem(DISMISS_KEY);
       } catch {
