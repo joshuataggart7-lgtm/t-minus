@@ -373,7 +373,7 @@ function abbreviate(label: string) {
 function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
   const [expanded, setExpanded] = useState(false);
   const color = panelStatusColor(driver.status);
-  const atRisk = driver.status === "At Risk";
+
 
   const holdDays = driver.blockerSince ? Math.max(0, daysBetween(driver.blockerSince, todayISO())) : null;
   const onTrack = driver.status === "On Track";
