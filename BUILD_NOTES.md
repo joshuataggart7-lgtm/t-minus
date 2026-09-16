@@ -1236,3 +1236,8 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
   quoter, filling company name, UEI and a quotation summary (price quoted and rating)
   from the evaluation record, with item 4 reporting the value awarded. Citation stays
   FAR 13.106-3(d) on the commercial simplified file. No vendors invented.
+
+## P0.2 — PNM reference and export cleanliness (16 Sep 2026)
+- PNM reference line and visible citation badge on simplified files read RFO FAR 12.204(a); FAR 13.106-3(b)(3), seeded from the record's acquisition method and contract format. Genuine Part 15 files still route to FAR 15.406-3.
+- Exported PNM / Word / PDF / NF 1858 text strips the literal "Draft, confirm." flags; the on-screen "Drafted from the record — confirm." hints remain.
+- Verified on A-2027-0101 and A-2027-0102 PNM routes; no console errors.
