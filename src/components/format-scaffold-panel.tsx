@@ -122,6 +122,35 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
           </section>
 
           <section>
+            <h5 className="text-[15px] font-medium">
+              {scaffold.mode === "sf1449" ? "Attachments" : "Section J — List of attachments"}
+            </h5>
+            {scaffold.attachments.length === 0 ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
+            ) : (
+              <table className="mt-2 w-full text-[13px] leading-[18px]">
+                <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
+                <thead>
+                  <tr className="border-y border-border text-left">
+                    <th scope="col" className="p-2">NF 1098 tab</th>
+                    <th scope="col" className="p-2">Label</th>
+                    <th scope="col" className="p-2">File name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scaffold.attachments.map((a) => (
+                    <tr key={`${a.nf_1098_tab}-${a.label}-${a.file_name}`} className="border-b border-border align-top">
+                      <td className="p-2" data-numeric>{a.nf_1098_tab}</td>
+                      <td className="p-2">{a.label}</td>
+                      <td className="p-2 text-muted-foreground">{a.file_name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+
+          <section>
             <h5 className="text-[15px] font-medium">Instructions to offerors</h5>
             <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
               {scaffold.lm?.chip ?? "L/M are handoff stubs — not the solicitation of record"}
