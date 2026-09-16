@@ -442,7 +442,7 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
             </p>
           ) : null}
           <p className="mt-1 text-[15px] leading-[22px] font-medium" style={{ color }}>
-            {driver.status}
+            {statusWord(driver.status)}
           </p>
         </div>
 
