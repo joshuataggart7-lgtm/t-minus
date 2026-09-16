@@ -860,3 +860,23 @@ role check using the existing `private.*` helpers.
   Chrome keeps `ncms-handoff-A-2027-0102.json`. No server route, no
   Content-Disposition, no NCMS write-back. No FedRAMP claim.
 - Sample 2 JOFOC, export and packet path is done; the Solicitation seed is fixed.
+
+## 16 Sep 2026 — A-2027-0102 funds-certified hold, root cause
+
+- Traced every hold path: `computeHold` / `resolveHold` / `holdFromRecord`,
+  `buildSequence` unfinished-row gate, Work Queue and Overview blockers, and the
+  file-page required-row status. All of them read a row's state through the single
+  `docSatisfied` helper, and every page selects the whole `acquisition_facts` row,
+  so the column is always present in the record the helper reads.
+- Root cause of the report: the running preview build already clears the hold —
+  A-2027-0102 reads "Clock running, ready to exit Solicitation/Quote" with no hold
+  and no missing funds row. The published site was still serving a build made
+  before commit 5379a400, so the live page kept showing the old reason. The fix
+  needed a publish, not another code path.
+- Hardening kept: `docSatisfied` treats "Funds certified for the period" as a
+  record certification under 31 U.S.C. 1502, accepting a true boolean or a true /
+  yes / 1 value, and never lets a missing attachment override it — the same
+  robustness the proposed-price row has. Live row verified unchanged:
+  funds_certified true, proposed_price 812400 received 2026-09-10, hold fields null.
+- No NCMS write-back. No FedRAMP claim. Demo persona list untouched. Security
+  findings deferred.

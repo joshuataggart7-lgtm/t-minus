@@ -695,8 +695,12 @@ export function docSatisfied(
   // record whatever the attachment state is.
   if (doc.field === "proposed_price") return Number(acq['proposed_price'] ?? 0) > 0;
   // Funds certified is a certification on the record under 31 U.S.C. 1502, not
-  // a stored file. It reads from the record whatever the attachment state is.
-  if (doc.field === "funds_certified") return acq['funds_certified'] === true;
+  // a stored file. It reads from the record whatever the attachment state is,
+  // and accepts the answer however the record carries it.
+  if (doc.field === "funds_certified") {
+    const raw: unknown = acq['funds_certified'];
+    return raw === true || /^(true|yes|1)$/i.test(String(raw ?? ""));
+  }
   // A stored file is the only thing that makes a row read Attached. When the
   // caller knows whether a file exists, that answer decides.
   if (hasFile !== undefined) return hasFile;
