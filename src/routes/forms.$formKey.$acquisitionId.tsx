@@ -76,6 +76,29 @@ function FormPage() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
 
+  // A read receipt for this visit. Soft tracking only; a failure is silent and
+  // nothing on the file is held by it.
+  useEffect(() => {
+    if (authState !== "signed-in" || !acquisitionId || !isFormKey(formKey)) return;
+    let cancelled = false;
+    void (async () => {
+      const who = await signedInName(user.name);
+      if (cancelled) return;
+      recordReadReceiptQuietly({
+        acquisitionId,
+        docKind: "form",
+        docKey: formKey,
+        docLabel: FORM_NAMES[formKey],
+        openedBy: who,
+        source: "form-route",
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [authState, acquisitionId, formKey, user.name]);
+
+
   const q = useQuery({
     queryKey: ["generated-form", formKey, acquisitionId],
     enabled: authState === "signed-in" && isFormKey(formKey),
