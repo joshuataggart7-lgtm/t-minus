@@ -10,6 +10,8 @@ import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 export function ExplainThis({ explanation, label = "Explain this" }: { explanation: Explanation; label?: string }) {
   const [open, setOpen] = useState(false);
   const id = useId();
+  const corpus = useCiteCorpus();
+  const cite = citeStatus(explanation.citation, corpus.rows, corpus.state);
   return (
     <span className="inline-block align-baseline">
       <button
