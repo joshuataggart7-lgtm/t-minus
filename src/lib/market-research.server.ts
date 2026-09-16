@@ -473,7 +473,7 @@ export async function runEngine(options: {
     const keywordMatch = requirementText.match(
       /\b(aviation|aircraft|flights?|pilot|engineering|maintenance|repair|technical|operations?|training|inspection|research|analysis|support|services?|labou?r)\b/,
     );
-    const keyword = keywordMatch?.[1] ?? psc || naics;
+    const keyword = keywordMatch?.[1] ?? (psc || naics);
     const url = new URL("https://api.gsa.gov/acquisition/calc/v3/api/ceilingrates/");
     url.searchParams.set("page", "1");
     url.searchParams.set("page_size", "20");

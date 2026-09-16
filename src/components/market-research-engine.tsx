@@ -161,6 +161,12 @@ export function MarketResearchEngine({
             <h5 className="text-[15px] font-medium">
               Research log{latestRanAt ? `, most recent run ${latestRanAt.slice(0, 10)}` : ""}
             </h5>
+            {latestIncompleteRanAt ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                A later run on {latestIncompleteRanAt.slice(0, 10)} did not save a source log. The completed log below
+                remains the current record.
+              </p>
+            ) : null}
             {log.length ? (
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
