@@ -216,6 +216,17 @@ export function buildFormatScaffold(
     ucfSections.push({ section: "—", title: "Section not recorded in the matrices", clauses: unplaced });
   }
 
+  // Every clause keeps the reason the engine gave it and the fill-in the
+  // matrices carry. Where the matrices carry no fill-in, the scaffold says so
+  // rather than offering a value.
+  const scaffoldClauses: ScaffoldClause[] = clauses.map((c) => ({
+    clause_number: c.clause_number,
+    title: c.title,
+    section: (c.ucf_section ?? "").trim() || "Not recorded in the matrices",
+    reason: c.reason,
+    fillIns: fillInText(c.fill_ins),
+  }));
+
   return {
     mode,
     formatLabel: format || (mode === "sf1449" ? "SF 1449 streamlined (from the commercial determination)" : "Uniform Contract Format"),
@@ -227,8 +238,17 @@ export function buildFormatScaffold(
     instructions,
     evaluation,
     ucfSections,
+    clauses: scaffoldClauses,
   };
 }
+
+/** The fill-in text the matrices carry for a clause, or null where there is none. */
+export function fillInText(fills: unknown): string | null {
+  if (!Array.isArray(fills)) return null;
+  const parts = fills.map((v) => String(v ?? "").trim()).filter(Boolean);
+  return parts.length > 0 ? parts.join("; ") : null;
+}
+
 
 /** The scaffold as it rides in the local handoff packet. */
 export function scaffoldForPacket(scaffold: FormatScaffold | null) {
