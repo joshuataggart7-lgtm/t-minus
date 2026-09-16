@@ -205,11 +205,11 @@ export const readMarketResearch = createServerFn({ method: "POST" })
     }));
     const runIdsWithLogs = new Set(rows.map((row) => row.runId));
     const completedRuns = runList.filter((run) => runIdsWithLogs.has(run.run_id));
-    const incompleteRuns = runList.filter((run) => !runIdsWithLogs.has(run.run_id));
     const latestRunId = completedRuns[0]?.run_id ?? null;
     return {
       latestRanAt: completedRuns[0]?.ran_at ?? null,
-      latestIncompleteRanAt: incompleteRuns[0]?.ran_at ?? null,
+      latestIncompleteRanAt:
+        runList[0] && !runIdsWithLogs.has(runList[0].run_id) ? runList[0].ran_at : null,
       previousRuns: completedRuns.slice(1).map((r) => ({
         runId: r.run_id as string,
         ranAt: r.ran_at as string,

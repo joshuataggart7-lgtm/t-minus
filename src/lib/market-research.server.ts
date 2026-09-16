@@ -96,13 +96,13 @@ function redact(url: URL, key: string | undefined) {
   return s.replace(encodeURIComponent(key), "REDACTED").replace(key, "REDACTED");
 }
 
-async function getJson(url: URL, key?: string): Promise<unknown> {
+async function getJson(url: URL, key?: string, timeoutMs?: number): Promise<unknown> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 18_000);
+  const timer = timeoutMs ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
     const response = await fetch(url, {
       headers: { Accept: "application/json" },
-      signal: controller.signal,
+      signal: timeoutMs ? controller.signal : undefined,
     });
     if (!response.ok) {
       const body = (await response.text()).slice(0, 200);
@@ -110,12 +110,12 @@ async function getJson(url: URL, key?: string): Promise<unknown> {
     }
     return response.json();
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`${url.host} did not respond within 18 seconds.`);
+    if (error instanceof Error && error.name === "AbortError" && timeoutMs) {
+      throw new Error(`${url.host} did not respond within ${Math.round(timeoutMs / 1000)} seconds.`);
     }
     throw error;
   } finally {
-    clearTimeout(timer);
+    if (timer) clearTimeout(timer);
   }
 }
 
@@ -483,7 +483,7 @@ export async function runEngine(options: {
     if (calcKey) url.searchParams.set("api_key", calcKey);
     const query = redact(url, calcKey);
     try {
-      const raw = object(await getJson(url, calcKey));
+      const raw = object(await getJson(url, calcKey, 18_000));
       const hits = object(raw["hits"]);
       const rows = array(hits["hits"] ?? raw["results"] ?? raw["data"]);
       const totalValue = object(hits["total"])["value"] ?? hits["total"];
