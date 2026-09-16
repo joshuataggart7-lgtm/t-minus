@@ -18,6 +18,8 @@ import { CENTER_POLICY_NOTE } from "@/lib/center-config";
 const COLUMNS = ["center_code", "document_key", "approving_official_title"] as const;
 const OPTIONAL = ["thru_chain", "memo_default"] as const;
 
+export const ROUTING_TEMPLATE_CSV = [...COLUMNS, ...OPTIONAL].join(",") + "\n";
+
 export type RoutingImportRow = {
   center_code: string;
   document_key: string;
