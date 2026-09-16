@@ -1982,9 +1982,14 @@ function FilePage() {
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
             </p>
             {acq && !q.isLoading ? (
-              <p className="mt-3 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
-                {fileStory(acq as AcqRow, q.data?.mission?.name ?? null, q.data?.mission?.milestone_date ?? null, lifecycle?.currentPhase ?? null, effectiveState ?? null)}
-              </p>
+              <>
+                <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-foreground">
+                  {fileStory(acq as AcqRow, q.data?.mission?.name ?? null, q.data?.mission?.milestone_date ?? null, lifecycle?.currentPhase ?? null, effectiveState ?? null, (acq as AcqRow).need_date ?? null, (acq as AcqRow).period_of_performance_start ?? null)}
+                </p>
+                <p className="mt-2 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
+                  {fileStoryProvenance()}
+                </p>
+              </>
             ) : null}
           </div>
           <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
