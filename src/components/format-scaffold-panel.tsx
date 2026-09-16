@@ -148,6 +148,11 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 </tbody>
               </table>
             )}
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              {scaffold.cdrl.length === 0
+                ? CDRL_EMPTY
+                : `${scaffold.cdrl.length} data requirement${scaffold.cdrl.length === 1 ? "" : "s"} recorded on this file; the handoff packet carries them.`}
+            </p>
           </section>
 
           <section>
