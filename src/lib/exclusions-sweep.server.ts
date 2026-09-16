@@ -137,7 +137,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
   );
 
   const results: SweepVendorResult[] = [];
-  let placedOnHold = 0;
+  let flaggedForReview = 0;
 
   for (const file of files) {
     const uei = String(file.vendor_uei).trim().toUpperCase();
