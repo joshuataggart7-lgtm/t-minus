@@ -212,30 +212,20 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     });
     if (saveError) throw new Error(saveError.message);
 
-    if (excluded && file.clock_state !== "hold") {
-      const owner = file.co_name ? `Contracting officer: ${file.co_name}` : "Contracting officer";
-      const { error: holdError } = await supabaseAdmin
-        .from("acquisition_facts")
-        .update({
-          clock_state: "hold",
-          hold_reason: EXCLUSION_HOLD_REASON,
-          hold_owner: owner,
-          hold_started_at: new Date().toISOString(),
-        })
-        .eq("acquisition_id", file.acquisition_id);
-      if (holdError) throw new Error(holdError.message);
+    // The sweep never touches the clock. It records what it saw and, where an
+    // exclusion record exists, asks the contracting officer to look.
+    if (excluded) {
+      flaggedForReview += 1;
       await supabaseAdmin.from("audit_log").insert({
         acquisition_id: file.acquisition_id,
         actor,
-        action: "Clock placed on hold",
-        field: "clock_state",
-        old_value: String(file.clock_state ?? ""),
-        new_value: "hold",
-        reason: `${EXCLUSION_HOLD_REASON} — ${label} for ${legalName ?? uei} (${uei})`,
+        action: "Vendor exclusion flagged",
+        field: "vendor exclusions",
+        old_value: null,
+        new_value: EXCLUSION_REVIEW_FLAG,
+        reason: `${label} for ${legalName ?? uei} (UEI ${uei}); ${sourceLabel}; checked ${ranAt}`,
         logged_at: ranAt,
       });
-      result.placedOnHold = true;
-      placedOnHold += 1;
     }
 
     results.push(result);
