@@ -33,7 +33,7 @@ export type ComparablesView = {
   minValue: number | null;
   maxValue: number | null;
   awards: ComparableAward[];
-  source: "live" | "cached" | "sample";
+  source: "live" | "cached" | "local" | "sample";
   sourceLabel: string;
   checkedAt: string;
   providerError?: string;
@@ -173,6 +173,30 @@ function awardsFromRaw(raw: unknown): ComparableAward[] {
       ),
     };
   });
+}
+
+/**
+ * Prior T-Minus actions on the same NAICS or PSC, read from the public fields
+ * already on those records. Nothing is invented: every row is a file that
+ * exists in this system. Used when the external award lookups are down.
+ */
+function localPriorActions(
+  rows: Record<string, unknown>[],
+  currentId: string,
+): ComparableAward[] {
+  return rows
+    .filter((r) => String(r["acquisition_id"] ?? "") !== currentId)
+    .slice(0, 10)
+    .map((r) => ({
+      agency: `${String(r["acquisition_id"] ?? "—")} · ${String(r["title"] ?? "Untitled")} (T-Minus prior action)`,
+      awardDate: String(r["target_award_date"] ?? r["need_date"] ?? "—"),
+      pricingType: String(r["contract_type"] ?? "—"),
+      extentCompeted: String(r["competition"] ?? "—"),
+      obligatedAmount:
+        r["estimated_value"] === null || r["estimated_value"] === undefined
+          ? null
+          : Number(r["estimated_value"]),
+    }));
 }
 
 /** Fictional prior awards, clearly labeled, used when SAM.gov is unreachable. */
