@@ -2311,11 +2311,10 @@ function FilePage() {
                            {d.note ? (
                              <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
                            ) : null}
-                           {!attached && !d.optional ? (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
+                           </span>
+
                          </>
                        ) : state === null ? (
                         d.link === "packet" ? (
