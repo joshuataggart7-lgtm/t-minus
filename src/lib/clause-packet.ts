@@ -122,6 +122,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.209-6",
+    formerlyBundled: true,
     title: "Protecting the Government's Interest When Subcontracting with Contractors Debarred, Suspended, or Proposed for Debarment",
     applies: (c) =>
       c.value > c.micro ? `Value ${c.money(c.value)} exceeds the micro-purchase threshold (FAR 9.409).` : null,
@@ -167,6 +168,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-6",
+    formerlyBundled: true,
     title: "Notice of Total Small Business Set-Aside",
     applies: (c) =>
       /total small business/i.test(c.setAside)
@@ -175,6 +177,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-9",
+    formerlyBundled: true,
     title: "Small Business Subcontracting Plan",
     applies: (c) =>
       c.value >= c.subPlan && !/small business/i.test(c.setAside)
@@ -183,27 +186,32 @@ const RULES: Rule[] = [
   },
   {
     number: "52.219-28",
+    formerlyBundled: true,
     title: "Post-Award Small Business Program Rerepresentation",
     applies: (c) =>
       c.value > c.micro ? "Award above the micro-purchase threshold (FAR 19.309(c))." : null,
   },
   {
     number: "52.222-3",
+    formerlyBundled: true,
     title: "Convict Labor",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.202)." : null),
   },
   {
     number: "52.222-21",
+    formerlyBundled: true,
     title: "Prohibition of Segregated Facilities",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
   },
   {
     number: "52.222-26",
+    formerlyBundled: true,
     title: "Equal Opportunity",
     applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
   },
   {
     number: "52.222-41",
+    formerlyBundled: true,
     title: "Service Contract Labor Standards",
     applies: (c) =>
       c.services && c.value > 2500
@@ -212,26 +220,31 @@ const RULES: Rule[] = [
   },
   {
     number: "52.223-18",
+    formerlyBundled: true,
     title: "Encouraging Contractor Policies to Ban Text Messaging While Driving",
     applies: () => "Required in every solicitation and contract (FAR 23.1105).",
   },
   {
     number: "52.225-13",
+    formerlyBundled: true,
     title: "Restrictions on Certain Foreign Purchases",
     applies: () => "Required in every solicitation and contract (FAR 25.1103(a)).",
   },
   {
     number: "52.232-33",
+    formerlyBundled: true,
     title: "Payment by Electronic Funds Transfer—System for Award Management",
     applies: () => "Payment runs through the vendor's SAM registration (FAR 32.1110(a)(1)(i)).",
   },
   {
     number: "52.232-40",
+    formerlyBundled: true,
     title: "Providing Accelerated Payments to Small Business Subcontractors",
     applies: () => "Required in every solicitation and contract (FAR 32.009-2).",
   },
   {
     number: "52.233-3",
+    formerlyBundled: true,
     title: "Protest After Award",
     applies: () => "Required in every solicitation and contract (FAR 33.106(a)).",
   },
@@ -282,6 +295,7 @@ const RULES: Rule[] = [
   },
   {
     number: "52.244-6",
+    formerlyBundled: true,
     title: "Subcontracts for Commercial Products and Commercial Services",
     applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 44.403)." : null),
   },
