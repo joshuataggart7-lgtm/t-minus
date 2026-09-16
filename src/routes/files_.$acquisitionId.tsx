@@ -62,6 +62,7 @@ import { CdrlPanel } from "@/components/cdrl-panel";
 import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
 import { Table12FillinsPanel } from "@/components/table-12-fillins-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
+import { Nf1098AssemblyPanel } from "@/components/nf1098-assembly-panel";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
 import { loadPaymentMilestones, paymentMilestonesForPacket } from "@/lib/payment-milestones";
@@ -1477,6 +1478,12 @@ function FilePage() {
           isSample: Boolean(acq["is_seed"]),
           clauses: packetSelection,
           appliedClauseNumbers: appliedClauseNumbers ?? null,
+          assembly: {
+            fileIndex,
+            scaffold: formatScaffold,
+            recommendedClauseCount: packetClauses.length,
+            appliedClauseCount: appliedClauseNumbers?.length ?? null,
+          },
           fpds: {
             acq: acq as unknown as Record<string, unknown>,
             awardDate: lifecycle?.awardDate ?? null,
@@ -3052,6 +3059,17 @@ function FilePage() {
                     defaultOpen={p.phase === "Award"}
                     acquisitionId={acquisitionId}
                     suggestedForm={suggestedOfficialForm}
+                  />
+                  <Nf1098AssemblyPanel
+                    acquisitionId={acquisitionId}
+                    input={{
+                      fileIndex,
+                      scaffold: formatScaffold,
+                      recommendedClauseCount: packetClauses.length,
+                      appliedClauseCount: appliedClauseNumbers?.length ?? null,
+                    }}
+                    onExport={() => evidencePack.mutate()}
+                    exporting={evidencePack.isPending}
                   />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">

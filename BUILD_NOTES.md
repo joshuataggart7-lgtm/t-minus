@@ -1946,3 +1946,8 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Briefing book now prints "Representations and certifications (Section K)" on the format page from the same `scaffold.sectionK` object the Award handoff view reads: method voice (SAM path vs UCF), SAM status, checklist labels/statuses, K clause numbers, honest empty lines, and the quoted Reserved note on commercial files.
 - `AWARD_HANDOFF_POINTER` now names Section K alongside CLIN, L/M, clauses, Section J and signatures. Soft only; nothing gates phase exit and NCMS remains the system of record.
+
+## W4.6 — NF 1098 full assembly polish
+- Added `src/lib/nf1098-assembly.ts` and `Nf1098AssemblyPanel`: NF 1098 tabs present (version/date) and required tabs with nothing filed, plus advisory enclosure rows from the record (line items, Section K, L/M, Section J, CDRL, payment milestones, clauses applied of recommended, signatures blank on purpose — signed in NCMS).
+- Evidence pack now carries `assembly/nf1098-assembly-checklist.html` and `.csv` from the same builder, and the cover `index.html` gained a Contract-file assembly section with counts and a pointer.
+- Advisory only: missing tabs never hold phase exit, no documents or enclosures invented on Samples, no NCMS write-back.

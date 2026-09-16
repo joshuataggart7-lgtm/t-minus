@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
 import { buildFpdsSheet, buildFpdsHtml, type FpdsInput } from "@/lib/fpds-filling-sheet";
 import { RFO_RESERVED_212_NOTE, type PacketClause } from "@/lib/clause-packet";
+import { buildNf1098Assembly, assemblyToCsv, type Nf1098AssemblyInput } from "@/lib/nf1098-assembly";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -76,6 +77,8 @@ export type EvidencePackInput = {
   /** Clause numbers actually applied on the file, where any are recorded. */
   appliedClauseNumbers?: string[] | null;
   fpds: FpdsInput;
+  /** The same assembly checklist the file page shows. Built from the record. */
+  assembly?: Nf1098AssemblyInput;
 };
 
 export type EvidencePackResult = { fileName: string; entries: number };
@@ -242,6 +245,26 @@ export async function exportEvidencePack(
   const sheet = buildFpdsSheet(input.fpds);
   add("fpds/fpds-filling-sheet.html", buildFpdsHtml(sheet, stamp));
 
+  // ----------------------------------------------- contract-file assembly
+  const assembly = input.assembly ? buildNf1098Assembly(input.assembly) : null;
+  if (assembly) {
+    add(
+      "assembly/nf1098-assembly-checklist.html",
+      page(
+        acquisitionId,
+        stamp,
+        "Contract-file assembly (NF 1098)",
+        `<p class="cite">${esc(assembly.chip)}</p>
+         <p>${assembly.counts.presentTabs} tabs present · ${assembly.counts.missingTabs} required tabs with nothing filed · ${assembly.counts.recorded} enclosures recorded · ${assembly.counts.notRecorded} not recorded.</p>
+         <h2>NF 1098 tabs</h2>
+         ${table(["Tab", "Item", "Status", "Note"], assembly.tabs.map((r) => [r.slot, r.item, r.status, r.note]))}
+         <h2>Enclosures</h2>
+         ${table(["Slot", "Item", "Status", "Note"], assembly.enclosures.map((r) => [r.slot, r.item, r.status, r.note]))}`,
+      ),
+    );
+    add("assembly/nf1098-assembly-checklist.csv", assemblyToCsv(assembly));
+  }
+
   // ---------------------------------------------------------------- cover
   const cover = page(
     acquisitionId,
@@ -250,6 +273,22 @@ export async function exportEvidencePack(
     `<p>${input.isSample ? "Sample record. " : ""}Synthetic prototype data. This pack was built from what is recorded on this file. It is not an official contract file and nothing was written to an external system.</p>
      <h2>Documents in NF 1098 name order</h2>
      ${table(["NF 1098 tab", "Document", "Version", "Saved by", "Saved at", "File in this pack"], indexRows)}
+     ${
+       assembly
+         ? `<h2>Contract-file assembly</h2>
+     <p class="cite">${esc(assembly.chip)}</p>
+     ${table(
+       ["Item", "Count"],
+       [
+         ["NF 1098 tabs present", assembly.counts.presentTabs],
+         ["Required tabs with nothing filed", assembly.counts.missingTabs],
+         ["Enclosures recorded", assembly.counts.recorded],
+         ["Enclosures not recorded", assembly.counts.notRecorded],
+         ["Checklist in this pack", "assembly/nf1098-assembly-checklist.html"],
+       ],
+     )}`
+         : ""
+     }
      <h2>Also in this pack</h2>
      ${table(
        ["Item", "File", "Rows"],
@@ -259,6 +298,9 @@ export async function exportEvidencePack(
          ["Audit log", "audit/audit-log.csv", audit.length],
          ["Clause packet", "clauses/clauses.csv", clauses.length],
          ["FPDS filling sheet (fill aid)", "fpds/fpds-filling-sheet.html", sheet.recordedCount + sheet.uncertainCount + sheet.blankCount],
+         ...(assembly
+           ? [["Contract-file assembly checklist", "assembly/nf1098-assembly-checklist.csv", assembly.tabs.length + assembly.enclosures.length] as (string | number | null)[]]
+           : []),
        ],
      )}`,
   );
