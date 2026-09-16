@@ -550,7 +550,11 @@ function DocumentPage() {
           ...lines,
         ].join("\n"),
       }));
-      setMessage(`Comparables loaded. ${view.sourceLabel}.`);
+      setMessage(
+        view.source !== "live" && view.providerNote
+          ? `Comparables loaded. ${view.sourceLabel}. ${view.providerNote}`
+          : `Comparables loaded. ${view.sourceLabel}.`,
+      );
     },
     onError: (e: Error) => setMessage(`Comparables did not load: ${e.message}`),
   });
@@ -1674,6 +1678,9 @@ function DocumentPage() {
                   {money(comparables.maxValue)}
                 </span>
               </p>
+              {comparables.source !== "live" && comparables.providerNote ? (
+                <p className="mt-1 text-[13px] text-muted-foreground">{comparables.providerNote}</p>
+              ) : null}
               {comparables.awards.length ? (
                 <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
                   <thead>
