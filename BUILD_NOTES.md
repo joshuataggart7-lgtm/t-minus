@@ -1919,3 +1919,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Wave 5 SEB deepen: clarifications ledger is now editable in place (add / edit / delete, each logged) and keeps its honest empty line; the cockpit header states plainly that the panel is advisory and soft and holds no phase exit, hold or required document. L↔M lamp and evidence map unchanged and still warn-only.
 - Read receipts: quiet per-document count ("Opened N times by N people — soft tracking") on the document and form pages, hidden when there are no receipts and silent on failure. No sample clock, phase, clause or seed data touched; Samples 0101/0102/0090 unchanged.
+
+- Wave 4 depth #1: payment milestone CLIN picker now shows "number — description"; advisory-only notes for unlinked-when-CLINs-exist and orphaned links appear in the panel, the packet and the handoff table.
+- These notes never hold a file or block a phase exit; Samples 0101/0102 keep zero payment rows and an honest empty state with a soft CLIN-schedule hint.
