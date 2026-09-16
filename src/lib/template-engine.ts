@@ -2326,6 +2326,8 @@ const samNotice: TemplateDef = {
   tab: "N/A",
   badge: {
     citation: "RFO FAR 5.203; FAR 12.603; RFO FAR 6.104",
+    citationFor: (v) =>
+      isSole(v) ? "RFO FAR 5.203; RFO FAR 6.104" : "RFO FAR 5.203; FAR 12.603",
     tier: "binding",
     revision: "HQ Governmentwide Point of Entry templates 05/2026; posted in SAM.gov",
     note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",

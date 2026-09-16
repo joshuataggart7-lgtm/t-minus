@@ -222,6 +222,10 @@ const PART_15_PHASE_CITATIONS: Record<string, string> = {
 export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   const method = String(((acq ?? {}) as Record<string, unknown>)["acquisition_method"] ?? "");
   const negotiated = /15/.test(method) || (!/13|12|8\.4/.test(method) && !isCommercialBuy(acq));
+  // A sole-source notice is a notice of intent, never a combined
+  // synopsis/solicitation, so FAR 12.603 has no part in it.
+  const soleSource = /sole|brand/i.test(String(((acq ?? {}) as Record<string, unknown>)["competition"] ?? ""));
+  if (soleSource && phase === "Synopsis") return "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source)";
   if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
   if (!negotiated && isCommercialBuy(acq) && COMMERCIAL_PHASE_CITATIONS[phase])
     return COMMERCIAL_PHASE_CITATIONS[phase]!;
