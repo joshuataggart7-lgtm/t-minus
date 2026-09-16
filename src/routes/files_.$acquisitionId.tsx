@@ -86,6 +86,7 @@ import { ExplainThis } from "@/components/explain-this";
 import { MarketResearchEngine } from "@/components/market-research-engine";
 import {
   explainHold,
+  explainDocRow,
   explainMissingDoc,
   explainReview,
   explainStatus,
@@ -2145,11 +2146,10 @@ function FilePage() {
                               </label>
                             )
                           ) : null}
-                          {!saved && !attached && !d.optional ? (
-                            <span className="block w-full">
-                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                            </span>
-                          ) : null}
+                          <span className="block w-full">
+                            <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(saved || attached))} label={saved || attached ? "Why this row" : "Why?"} />
+                          </span>
+
                         </>
                        ) : d.field === "funds_certified" ? (
                          <>
@@ -2177,11 +2177,11 @@ function FilePage() {
                              <span className="block w-full text-[13px] text-muted-foreground">
                                Sample certification for this prototype file.
                              </span>
-                           ) : (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           )}
+                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state ? "Why this row" : "Why?"} />
+                           </span>
+
                          </>
                        ) : d.field === "proposed_price" ? (
                          <>
@@ -2254,11 +2254,10 @@ function FilePage() {
                                </button>
                              </span>
                            ) : null}
-                           {state === false ? (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                           </span>
+
                          </>
                        ) : d.attachOnly ? (
                          <>
@@ -2311,11 +2310,10 @@ function FilePage() {
                            {d.note ? (
                              <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
                            ) : null}
-                           {!attached && !d.optional ? (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
+                           </span>
+
                          </>
                        ) : state === null ? (
                         d.link === "packet" ? (
@@ -2401,11 +2399,10 @@ function FilePage() {
                               </label>
                             )
                           ) : null}
-                          {state === false ? (
-                            <span className="block w-full">
-                              <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                            </span>
-                          ) : null}
+                          <span className="block w-full">
+                            <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                          </span>
+
                         </>
                       )}
                       <span className="text-[13px] text-muted-foreground">{d.citation}</span>
