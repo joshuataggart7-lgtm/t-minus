@@ -8,6 +8,7 @@ import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
 import {
   computeMetrics,
   awardDateFor,
