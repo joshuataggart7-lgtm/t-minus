@@ -208,7 +208,9 @@ function RequesterPortal() {
                       <dd data-numeric>
                         {c.m.clockState === "launched"
                           ? `Launched ${c.m.daysSinceAward ?? 0} days ago`
-                          : (c.m.daysToAward ?? "Clock not started")}
+                          : Number.isFinite(c.m.daysToAward)
+                            ? `${c.m.daysToAward} calendar days`
+                            : "No target award date recorded"}
                       </dd>
                     </dl>
                     <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
@@ -242,7 +244,7 @@ function RequesterPortal() {
                   <RequesterLoe
                     acq={acq}
                     plan={desk?.plan ?? []}
-                    awardRange={null}
+                    awardRange={desk ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence : null}
                   />
                 </div>
               </section>
