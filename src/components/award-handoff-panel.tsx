@@ -476,7 +476,11 @@ export function AwardHandoffPanel({
               ].map((label) => (
                 <div key={label} className="flex justify-between gap-4 border-b border-border py-1">
                   <dt className="text-muted-foreground">{label}</dt>
-                  <dd>Signed in NCMS</dd>
+                  <dd className="text-muted-foreground">
+                    {label.startsWith("Date")
+                      ? "Not recorded — completed in NCMS"
+                      : "Blank — signed in NCMS"}
+                  </dd>
                 </div>
               ))}
             </dl>
