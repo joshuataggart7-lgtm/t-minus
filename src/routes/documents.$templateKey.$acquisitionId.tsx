@@ -76,6 +76,12 @@ import {
 } from "@/lib/nf1858";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
+  // An unsuccessful-offeror letter can be opened straight onto one quoter on
+  // the evaluation record: /documents/postaward-letter-unsuccessful/ID?offeror=2
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = Number(String(search["offeror"] ?? "").replace(/\D+/g, ""));
+    return raw >= 1 && raw <= 4 ? { offeror: raw } : {};
+  },
   head: () => ({
     meta: [
       { title: "Document — T-Minus" },
@@ -117,6 +123,7 @@ function answersSummary(answers: unknown): string {
 
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
+  const search = Route.useSearch() as { offeror?: number };
   const { authState, hasRole, hasAnyRole, user } = useRole();
   const queryClient = useQueryClient();
   const def = templateByKey(templateKey);
@@ -803,6 +810,22 @@ function DocumentPage() {
     [acquisitionId, q.data, researchEvidence, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
   );
 
+  // The quoters on the evaluation record, so the unsuccessful letter names the
+  // company on each slot rather than "Offeror 2", and never the awardee.
+  const quoterSlots = useMemo(() => {
+    const e = draftCtx.evaluationValues ?? {};
+    const awarded = String(e["recommended_quoter"] ?? "").trim().toLowerCase();
+    const rows: { slot: string; name: string; awarded: boolean }[] = [];
+    for (let i = 1; i <= 4; i += 1) {
+      const name = String(e[`quoter_${i}_name`] ?? "").trim();
+      if (!name) continue;
+      rows.push({ slot: `Offeror ${i}`, name, awarded: name.toLowerCase() === awarded });
+    }
+    return rows;
+  }, [draftCtx.evaluationValues]);
+
+
+
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
@@ -866,6 +889,13 @@ function DocumentPage() {
     if (def.key === "sam-notice") {
       filled["authority"] = samNoticeAuthority(q.data.acq);
     }
+    // One letter per unsuccessful quoter: the link carries the slot, and
+    // otherwise the first quoter who was not awarded is opened.
+    if (def.key === "postaward-letter-unsuccessful" && !filled["offeror_slot"]) {
+      const asked = search.offeror ? `Offeror ${search.offeror}` : "";
+      const fallback = quoterSlots.find((r) => !r.awarded)?.slot ?? "";
+      filled["offeror_slot"] = asked || fallback;
+    }
     // Every document is drafted from the record, section by section, so no
     // field the record can fill is ever opened empty.
     const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
@@ -882,9 +912,14 @@ function DocumentPage() {
       }
     }
     const drafted = applyMemoDraft(filled, draft);
+    // The unsuccessful letter reports the value awarded on the evaluation
+    // record, not the estimate carried on the intake.
+    if (def.key === "postaward-letter-unsuccessful" && draft["contract_value"]) {
+      drafted["contract_value"] = draft["contract_value"];
+    }
     setDraftedFields(new Set(draftedKeys(drafted, draft)));
     setValues(drafted);
-  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts]);
+  }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts, search.offeror, quoterSlots]);
 
   // NF 1858: the flag and the header come from the saved version when there is
   // one, and otherwise from the Center's routing table and the record.
@@ -1228,6 +1263,35 @@ function DocumentPage() {
       {/* The sidebar follows the file's own phase, not the template's home phase. */}
       <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
 
+      {def.key === "postaward-letter-unsuccessful" && quoterSlots.some((r) => !r.awarded) ? (
+        <section aria-label="Letter for each unsuccessful quoter" className="mb-4 max-w-[80ch]">
+          <p className="text-[13px] text-muted-foreground">
+            One letter per unsuccessful quoter on the evaluation record. Choose a company to write its
+            letter; the letter is saved as its own version.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {quoterSlots
+              .filter((r) => !r.awarded)
+              .map((r) => {
+                const current = (values["offeror_slot"] ?? "") === r.slot;
+                return (
+                  <button
+                    key={r.slot}
+                    type="button"
+                    aria-pressed={current}
+                    onClick={() => set("offeror_slot", r.slot)}
+                    className={`rounded-lg border px-3 py-1 text-[13px] ${
+                      current ? "border-primary text-primary" : "border-border text-foreground"
+                    }`}
+                  >
+                    {r.name}
+                  </button>
+                );
+              })}
+          </div>
+        </section>
+      ) : null}
+
       <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
         <p className="text-[15px] leading-[22px]">
           {def.badge.revision}
@@ -1406,9 +1470,12 @@ function DocumentPage() {
                       onChange={(e) => set(f.key, e.target.value)}
                     >
                       <option value="">Choose one</option>
-                      {(f.options ?? []).map((o) => (
-                        <option key={o} value={o}>
-                          {o}
+                      {(f.key === "offeror_slot" && quoterSlots.length
+                        ? quoterSlots.filter((r) => !r.awarded).map((r) => ({ value: r.slot, label: `${r.slot} — ${r.name}` }))
+                        : (f.options ?? []).map((o) => ({ value: o, label: o }))
+                      ).map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
                         </option>
                       ))}
                     </select>
