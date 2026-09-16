@@ -428,20 +428,46 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     h.cc.forEach((c) => children.push(p(c, { after: 40 })));
   }
   if (h.cui) children.push(p(CUI_BANNER, { bold: true, center: true }));
-  // The metadata line belongs in the page footer, not in the Distribution block.
-  const footer = new Footer({
+  // The metadata line belongs in the page footer, not in the Distribution
+  // block: prototype note at the left, page count at the right.
+  const footerParagraph = () =>
+    new Paragraph({
+      tabStops: [{ type: TabStopType.RIGHT, position: 9360 }],
+      spacing: { after: 0 },
+      children: [
+        new TextRun({ font: "Times New Roman", size: 16, color: "777777", text: "Prototype, synthetic data\t" }),
+        new TextRun({ font: "Times New Roman", size: 18, text: "Page " }),
+        new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.CURRENT] }),
+        new TextRun({ font: "Times New Roman", size: 18, text: " of " }),
+        new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.TOTAL_PAGES] }),
+      ],
+    });
+
+  // First page: the agency insignia, at the size and position the blank uses
+  // (27.2mm by 24.0mm, top right). Continuation pages: subject line only.
+  const firstHeader = new Header({
+    children: insignia
+      ? [
+          new Paragraph({
+            alignment: AlignmentType.RIGHT,
+            spacing: { after: 0 },
+            children: [
+              new ImageRun({
+                type: "png",
+                data: insignia,
+                transformation: { width: 77, height: 68 },
+                altText: { title: "NASA insignia", description: "NASA insignia", name: "NASA insignia" },
+              }),
+            ],
+          }),
+        ]
+      : [new Paragraph({ spacing: { after: 0 }, children: [] })],
+  });
+  const runningHeader = new Header({
     children: [
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        tabStops: [{ type: TabStopType.CENTER, position: 4680 }],
-        spacing: { after: 0 },
-        children: [
-          new TextRun({ font: "Times New Roman", size: 16, color: "777777", text: "Prototype, synthetic data\t" }),
-          new TextRun({ font: "Times New Roman", size: 18, text: "Page " }),
-          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.CURRENT] }),
-          new TextRun({ font: "Times New Roman", size: 18, text: " of " }),
-          new TextRun({ font: "Times New Roman", size: 18, children: [PageNumber.TOTAL_PAGES] }),
-        ],
+        spacing: { after: 120 },
+        children: [new TextRun({ font: "Times New Roman", size: 20, color: "444444", text: h.subject })],
       }),
     ],
   });
@@ -451,9 +477,11 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
     sections: [
       {
         properties: {
+          titlePage: true,
           page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
         },
-        footers: { default: footer },
+        headers: { first: firstHeader, default: runningHeader },
+        footers: { first: footerParagraph ? new Footer({ children: [footerParagraph()] }) : undefined, default: new Footer({ children: [footerParagraph()] }) },
         children,
       },
     ],
