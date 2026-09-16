@@ -57,10 +57,10 @@ const money = (v: unknown): string | null => {
 };
 
 /** A field that is present, or an honest blank. */
-function f(label: string, source: string, value: string | null, note?: string): FpdsField {
-  return value
-    ? { label, source, value, state: "recorded", ...(note ? { note } : {}) }
-    : { label, source, value: NOT_RECORDED, state: "blank", ...(note ? { note } : {}) };
+function f(label: string, source: string, value: string | null, note?: string, blankNote?: string): FpdsField {
+  if (value) return { label, source, value, state: "recorded", ...(note ? { note } : {}) };
+  const b = blankNote ?? note;
+  return { label, source, value: NOT_RECORDED, state: "blank", ...(b ? { note: b } : {}) };
 }
 
 /** A field the record can suggest but the keyer must confirm against the award. */
@@ -117,7 +117,7 @@ export function buildFpdsSheet(input: FpdsInput): FpdsSheet {
       name: "Competition",
       fields: [
         f("Extent competed", "Competition on the record", str(a["competition"])),
-        f("Set-aside", "Set-aside on the record", str(a["set_aside"]), "Blank means no set-aside is recorded, not that none applies."),
+        f("Set-aside", "Set-aside on the record", str(a["set_aside"]), undefined, "Blank means no set-aside is recorded on this file, not that none applies."),
         f("Authority for other than full and open competition", "JOFOC authority on the record", str(a["jofoc_authority_citation"])),
         f("Fair opportunity (orders under an IDV)", "Vehicle profile on the record", underVehicle && vehicle.fair_opportunity ? String(vehicle.fair_opportunity) : null,
           underVehicle ? undefined : "This file is not an order under an existing vehicle.",
