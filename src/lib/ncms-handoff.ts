@@ -14,6 +14,7 @@
 
 import type { FormCtx, GeneratedForm } from "@/lib/nf1787";
 import { buildSf1449, buildSf30 } from "@/lib/sf-forms";
+import { acquisitionProfile } from "@/lib/vehicles";
 
 export type PacketEntry = {
   block: string;
