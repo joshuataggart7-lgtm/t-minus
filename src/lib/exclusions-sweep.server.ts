@@ -66,17 +66,38 @@ function sampleExclusion(legalName: string | null, uei: string) {
   };
 }
 
-function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
+/**
+ * Reads an exclusions payload only.
+ *
+ * A registration record is not an exclusion: an entity response carries
+ * totalRecords for the registration itself, so counting it as an exclusion
+ * turns a clean, active vendor into a false positive. Only exclusion records,
+ * or an exclusion flag of Y on the entity, mean excluded. An empty exclusions
+ * list means the vendor is not excluded.
+ */
+export function excludedFromRaw(raw: unknown): { excluded: boolean; label: string } {
   const root = object(raw);
-  const exclusions = array(root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"]);
+  const exclusions = array(
+    root["excludedEntity"] ?? root["excludedEntityData"] ?? root["exclusionData"] ?? root["exclusionDetails"],
+  );
   if (exclusions.length > 0) return { excluded: true, label: `Exclusion found (${exclusions.length} record(s))` };
-  const total = Number(root["totalRecords"] ?? object(root["_meta"])["totalRecords"]);
-  if (Number.isFinite(total) && total > 0) return { excluded: true, label: `Exclusion found (${total} record(s))` };
   const entity = object(array(root["entityData"])[0] ?? root["entityData"] ?? root);
   const registration = object(entity["entityRegistration"]);
   const flag = text(registration["exclusionStatusFlag"], object(entity["coreData"])["exclusionStatusFlag"]);
   if (flag.toUpperCase() === "Y") return { excluded: true, label: "Exclusion found" };
   return { excluded: false, label: "No active exclusion" };
+}
+
+/** Does this stored payload come from the exclusions endpoint at all? */
+export function isExclusionsPayload(raw: unknown): boolean {
+  const root = object(raw);
+  if (root["sample"] === true) return true;
+  return (
+    "excludedEntity" in root ||
+    "excludedEntityData" in root ||
+    "exclusionData" in root ||
+    "exclusionDetails" in root
+  );
 }
 
 /** Reads the dedicated SAM.gov exclusions record for one UEI. */
