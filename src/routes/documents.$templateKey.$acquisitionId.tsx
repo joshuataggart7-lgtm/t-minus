@@ -637,6 +637,31 @@ function DocumentPage() {
 
 
 
+  // The comparables check already recorded on this file. The memorandum shows
+  // what that check returned; it never stands in for one that has not run.
+  const storedComparables = useMemo((): ComparablesView | null => {
+    const envelope = (q.data?.comparablesCheck?.response_json ?? null) as Record<string, unknown> | null;
+    const view = (envelope?.["normalized"] ?? null) as ComparablesView | null;
+    return view && Array.isArray(view.awards) ? view : null;
+  }, [q.data?.comparablesCheck]);
+
+  useEffect(() => {
+    if (!storedComparables) return;
+    setComparables((prev) => prev ?? storedComparables);
+  }, [storedComparables]);
+
+  // The drafted paragraph reports the recorded check rather than opening with
+  // "no comparable awards are loaded" when one has already run.
+  useEffect(() => {
+    if (!storedComparables || touched) return;
+    const text = comparablesSummary(storedComparables);
+    setValues((prev) =>
+      prev["comparables_summary"] === undefined || prev["comparables_summary"] === text
+        ? prev
+        : { ...prev, comparables_summary: text },
+    );
+  }, [storedComparables, touched, values]);
+
   // Vendor facts from the stored SAM.gov entity check, offered to the
   // nonresponsibility memo as pre-fill values.
   const samFacts = useMemo(() => {
