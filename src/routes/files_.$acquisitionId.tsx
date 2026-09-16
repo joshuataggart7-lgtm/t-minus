@@ -2036,7 +2036,7 @@ function FilePage() {
               className="text-primary underline-offset-2 hover:underline"
               onClick={() => downloadPacket()}
             >
-              NCMS handoff packet
+              NCMS packet (local — planned write-back)
             </button>
             <Link to="/checks" className="text-primary underline-offset-2 hover:underline">
               Checks
@@ -2055,7 +2055,7 @@ function FilePage() {
             </p>
           ) : null}
           <p className="mt-2 text-[13px] text-muted-foreground">
-            Both exports are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
+            NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
           </p>
         </section>
       ) : null}
