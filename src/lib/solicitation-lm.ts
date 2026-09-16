@@ -40,6 +40,8 @@ export type FactorRow = {
   name: string;
   relative_importance: string | null;
   description: string | null;
+  /** Officer-entered note on where the evidence for this factor sits. Advisory. */
+  evidence_note: string | null;
   sort_order: number;
 };
 
@@ -47,6 +49,7 @@ export type FactorInput = {
   name: string;
   relative_importance: string | null;
   description: string | null;
+  evidence_note?: string | null;
 };
 
 const str = (f: ScaffoldFacts, key: string): string => {
@@ -268,7 +271,7 @@ export async function loadSectionM(acquisitionId: string): Promise<SectionMRow |
 export async function loadFactors(acquisitionId: string): Promise<FactorRow[]> {
   const { data, error } = await supabase
     .from("solicitation_m_factors")
-    .select("factor_id,acquisition_id,name,relative_importance,description,sort_order")
+    .select("factor_id,acquisition_id,name,relative_importance,description,evidence_note,sort_order")
     .eq("acquisition_id", acquisitionId)
     .order("sort_order", { ascending: true });
   if (error) throw new Error(error.message);
@@ -363,6 +366,7 @@ export async function createFactor(
     name: input.name.trim(),
     relative_importance: input.relative_importance,
     description: input.description,
+    evidence_note: (input.evidence_note ?? "").trim() || null,
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
@@ -383,6 +387,10 @@ export async function updateFactor(row: FactorRow, input: FactorInput, actor: st
       name: input.name.trim(),
       relative_importance: input.relative_importance,
       description: input.description,
+      evidence_note:
+        input.evidence_note === undefined
+          ? row.evidence_note
+          : (input.evidence_note ?? "").trim() || null,
     } as never)
     .eq("factor_id", row.factor_id);
   if (error) throw new Error(error.message);
@@ -436,3 +444,34 @@ export async function awardBasisHint(acquisitionId: string): Promise<string | nu
 
 export const isLptaBasis = (basis: string | null | undefined): boolean =>
   /lowest price technically acceptable|\blpta\b/i.test(String(basis ?? ""));
+
+/* --------------------- evaluation factor evidence (soft) --------------------- */
+
+export const FACTOR_EVIDENCE_ADVISORY =
+  "Advisory: no evidence linked to this factor yet — does not hold the file.";
+
+/** True where the officer has recorded where the evidence for a factor sits. */
+export const factorHasEvidence = (row: FactorRow): boolean =>
+  Boolean((row.evidence_note ?? "").trim());
+
+/** Save only the evidence note on a factor. Nothing else on the row moves. */
+export async function saveFactorEvidence(
+  row: FactorRow,
+  evidenceNote: string,
+  actor: string,
+): Promise<void> {
+  const value = evidenceNote.trim() || null;
+  const { error } = await supabase
+    .from("solicitation_m_factors")
+    .update({ evidence_note: value } as never)
+    .eq("factor_id", row.factor_id);
+  if (error) throw new Error(error.message);
+  await audit(
+    row.acquisition_id,
+    actor,
+    value ? "Factor evidence recorded" : "Factor evidence cleared",
+    row.name,
+    value,
+    "Evidence note recorded against an evaluation factor. Advisory only.",
+  );
+}

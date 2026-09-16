@@ -655,6 +655,67 @@ export type Database = {
         }
         Relationships: []
       }
+      clarifications: {
+        Row: {
+          acquisition_id: string
+          clarification_id: string
+          created_at: string
+          created_by: string | null
+          is_seed: boolean
+          notes: string | null
+          recipients: string | null
+          sent_on: string | null
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          acquisition_id: string
+          clarification_id?: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          notes?: string | null
+          recipients?: string | null
+          sent_on?: string | null
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          acquisition_id?: string
+          clarification_id?: string
+          created_at?: string
+          created_by?: string | null
+          is_seed?: boolean
+          notes?: string | null
+          recipients?: string | null
+          sent_on?: string | null
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clarifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "acquisition_facts"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "clarifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_acquisitions"
+            referencedColumns: ["acquisition_id"]
+          },
+          {
+            foreignKeyName: "clarifications_acquisition_id_fkey"
+            columns: ["acquisition_id"]
+            isOneToOne: false
+            referencedRelation: "v_report_holds"
+            referencedColumns: ["acquisition_id"]
+          },
+        ]
+      }
       clause_matrix_2603b: {
         Row: {
           codified_number: string | null
@@ -2386,6 +2447,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          evidence_note: string | null
           factor_id: string
           is_seed: boolean
           name: string
@@ -2398,6 +2460,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          evidence_note?: string | null
           factor_id?: string
           is_seed?: boolean
           name: string
@@ -2410,6 +2473,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          evidence_note?: string | null
           factor_id?: string
           is_seed?: boolean
           name?: string
