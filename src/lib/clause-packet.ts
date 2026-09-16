@@ -93,9 +93,13 @@ type Ctx = {
   it: boolean;
   costReimbursement: boolean;
   idiq: boolean;
+  /** Plain words for why the vehicle reads as indefinite delivery, from the record. */
+  idiqSource: string;
   soleSource: boolean;
   options: boolean;
   onInstallation: boolean;
+  /** The clause set recorded on the vehicle, verbatim. */
+  clauseSet: string;
   money: (n: number) => string;
 };
 
