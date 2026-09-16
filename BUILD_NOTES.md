@@ -835,3 +835,28 @@ role check using the existing `private.*` helpers.
   and Center configuration read. Attachment storage reads are already scoped to
   files linked to a document record; the remaining notice on that bucket is the
   pre-existing anonymous-access warning.
+
+## Sample 2 smoke fixes, A-2027-0102 (16 September 2026)
+
+- Solicitation/Quote seed: `funds_certified` true, proposed price $812,400 received
+  2026-09-10. Fictional quote from Meridian Flight Sciences LLC, consistent with the
+  $820,000 IGCE on the file. Not a live market rate.
+- `docSatisfied` now reads "Funds certified for the period" from the record
+  (31 U.S.C. 1502 certification), not from an attachment, the same way the proposed
+  price row already read from the record. The seed loader no longer forces
+  `funds_certified` to false; it still forces `igce_attached` and `sow_attached`
+  to false because those are file flags.
+- The acquisition file page carries a Mark funds certified / Withdraw control for
+  that row, audited and recomputing the hold and clock like the price control.
+- JOFOC item 4: the two FAR 12.102 commercial options now name the
+  only-one-responsible-source basis under RFO FAR 6.103-1, matching
+  competition_authorities.csv. Help text on the authority field explains the choice,
+  and a warning shows when a sole-source action carries an authority that is not the
+  only-one-responsible-source basis. Prefill defaults a sole-source file to the
+  matching option when the stored citation is empty or is not one of the options.
+  No new citations were invented and no tier changed.
+- NCMS handoff packet: kept as a working local file download. Hardened with
+  setAttribute("download") and appending the link to the page before the click so
+  Chrome keeps `ncms-handoff-A-2027-0102.json`. No server route, no
+  Content-Disposition, no NCMS write-back. No FedRAMP claim.
+- Sample 2 JOFOC, export and packet path is done; the Solicitation seed is fixed.
