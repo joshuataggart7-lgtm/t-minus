@@ -440,7 +440,13 @@ function FormPage() {
             </p>
           ) : null}
 
-          <h2 className="mb-3 text-[18px] leading-6 font-medium">Export preview</h2>
+          <h2
+            id="export-preview"
+            tabIndex={-1}
+            className="mb-3 scroll-mt-4 text-[18px] leading-6 font-medium outline-none"
+          >
+            Export preview
+          </h2>
           {form.sections.map((section) => (
             <section key={section.title} className="mb-6 max-w-[80ch] border border-border bg-background p-4">
               <h3 className="text-[18px] leading-6 font-medium">{section.title}</h3>
