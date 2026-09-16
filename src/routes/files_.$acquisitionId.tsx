@@ -1545,6 +1545,20 @@ function FilePage() {
     [packetClauses, appliedClauseNumbers],
   );
 
+  // Fill-ins the award carries, read from the record first and the matrices
+  // second, with blanks left reading "Not recorded".
+  const awardFillins = useMemo(
+    () =>
+      packetSelection
+        .map((c) => ({
+          clause_number: c.clause_number,
+          text: clauseFillinText((acq as Record<string, unknown> | null) ?? null, c.clause_number, c.fill_ins),
+        }))
+        .filter((row): row is { clause_number: string; text: string } => Boolean(row.text)),
+    [packetSelection, acq],
+  );
+
+
   // The contract format the record carries decides the scaffold the officer
   // sees: SF 1449 streamlined on a commercial file, UCF sections otherwise.
   // The method on the record drives the shell: SF 1449 with Part 12/13 voice,
