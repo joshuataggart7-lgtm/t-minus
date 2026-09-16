@@ -88,6 +88,8 @@ function AboutPage() {
         </p>
       </section>
 
+      <PilotKnownGaps />
+
       {q.isError ? (
         <ErrorNote message="The template list did not load. Refresh the page; if it fails again, open Seed status." />
       ) : null}
