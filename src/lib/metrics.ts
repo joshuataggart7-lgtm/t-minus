@@ -119,6 +119,26 @@ export function awardDateFor(
   return row?.logged_at ? String(row.logged_at).slice(0, 10) : fallback;
 }
 
+/** The words the file page hero uses for a missing Required row. */
+export function heroActionLabel(doc: {
+  label: string;
+  field?: string | null;
+  templateKey?: string | null;
+  formKey?: string | null;
+}): string {
+  const generator = generatorKey(doc as never);
+  if (generator) {
+    if (generator === "market-research-memo") return "Write the memorandum";
+    if (generator === "nf-1787") return "Write the NF 1787";
+    if (generator === "nf-1787a") return "Write the NF 1787A";
+    if (generator === "pnm") return "Write the PNM";
+    return `Write the ${doc.label}`;
+  }
+  if (doc.field === "igce_attached") return "Attach the IGCE";
+  if (doc.field === "sow_attached") return "Attach the SOW/PWS";
+  return `Attach the ${doc.label}`;
+}
+
 export function computeMetrics(
   acq: AcqRow,
   opts: {
