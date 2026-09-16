@@ -212,12 +212,13 @@ export function scheduleToScaffoldClins(rows: ClinRow[]): ScaffoldClin[] {
     description: r.description,
     quantity: r.quantity === null ? "Not recorded" : r.quantity.toLocaleString("en-US"),
     unit: r.unit_of_issue?.trim() || "Not recorded",
-    amount:
-      r.extended_price !== null
-        ? money(r.extended_price)
-        : r.unit_price !== null
-          ? `${money(r.unit_price)} per unit`
-          : "Not recorded",
+    amount: (() => {
+      const a = displayAmount(r);
+      if (a.text !== "Not recorded") {
+        return a.derived ? `${a.text} (quantity times unit price)` : a.text;
+      }
+      return r.unit_price !== null ? `${money(r.unit_price)} per unit` : "Not recorded";
+    })(),
     note:
       r.source === "igce_estimate"
         ? IGCE_SOURCE_NOTE
