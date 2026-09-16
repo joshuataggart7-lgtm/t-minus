@@ -9,6 +9,7 @@ import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
+import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
@@ -31,7 +32,13 @@ export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
 });
 
 const isFormKey = (key: string): key is FormKey =>
-  key === "nf-1787" || key === "nf-1787a" || key === "sf-1449" || key === "sf-30";
+  key === "nf-1787" ||
+  key === "nf-1787a" ||
+  key === "sf-1449" ||
+  key === "sf-30" ||
+  key === "sf-33" ||
+  key === "sf-26" ||
+  key === "of-347";
 
 /** Respondents from the cached set-aside evidence search, when it has been run. */
 function respondentsFromRaw(raw: unknown): FormRespondent[] {
