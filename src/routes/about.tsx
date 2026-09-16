@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell, PageHeader, ErrorNote, LoadingNote } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { PilotKnownGaps } from "@/components/pilot-known-gaps";
 import { reportDefect } from "@/lib/template-defects";
 import {
   buildStamp,
@@ -87,6 +88,8 @@ function AboutPage() {
           remains the document of record for solicitations and contracts.
         </p>
       </section>
+
+      <PilotKnownGaps />
 
       {q.isError ? (
         <ErrorNote message="The template list did not load. Refresh the page; if it fails again, open Seed status." />

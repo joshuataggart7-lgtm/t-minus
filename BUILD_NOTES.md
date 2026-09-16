@@ -1953,3 +1953,9 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Advisory only: missing tabs never hold phase exit, no documents or enclosures invented on Samples, no NCMS write-back.
 
 - 2026-09-16: Briefing book now carries a Contract-file assembly counts block (present/missing tabs, recorded/not recorded enclosures) from the same buildNf1098Assembly input as the file page; Award handoff pointer mentions the NF 1098 assembly checklist beside Section K and L/M. Advisory only — NCMS is SoR, no write-back, no gates. Sample clocks/seeds unchanged.
+
+## Wave 6 — pilot harden (2026-09-16)
+- Smoke read of Samples: A-2027-0101 running / Price Reasonableness, A-2027-0102 running / Solicitation-Quote, both CO Joshua Taggart with 12 and 10 CLINs; A-2026-0090 launched / Administration. Payment, CDRL and Section K rows are zero on all three — honest empty, nothing invented, no clock/phase/seed change.
+- Award handoff reads every scaffold list defensively (blocks, CLINs, attachments, CDRL, payment) so a partial record renders instead of throwing, and adds one soft line when no enclosures are recorded: the packet prints cover blocks only. Advisory, never gates a phase.
+- The Adobe honesty line now shows whether or not a form is suggested — one quiet line, no duplicate, no Adobe verification claim and no field-binding work reopened.
+- New `PilotKnownGaps` card on About plus `docs/PILOT_KNOWN_GAPS.md`: human-only Adobe field QA, no NCMS write-back (NFS 1804.171 SoR), FPDS sheet is a fill aid not a submission, staff-PII finding deferred and open, advisories never hold a phase exit.
