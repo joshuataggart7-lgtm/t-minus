@@ -3363,6 +3363,13 @@ function FilePage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionDialog(null)}>Cancel</Button>
             <Button
+              variant={
+                actionDialog?.kind === "scrub" ||
+                actionDialog?.kind === "remove" ||
+                (actionDialog?.kind === "vote" && voteChoice === "no-go")
+                  ? "destructive"
+                  : "default"
+              }
               disabled={
                 !actionDialog ||
                 ((actionDialog.kind === "exit" || actionDialog.kind === "scrub" || actionDialog.kind === "remove") && !actionReason.trim()) ||
@@ -3385,8 +3392,21 @@ function FilePage() {
                 }
               }}
             >
-              Confirm
+              {actionDialog?.kind === "exit"
+                ? `Exit ${actionDialog.phase}`
+                : actionDialog?.kind === "scrub"
+                  ? "Scrub the acquisition"
+                  : actionDialog?.kind === "remove"
+                    ? "Remove the file"
+                    : actionDialog?.kind === "vote"
+                      ? voteChoice === "no-go"
+                        ? "Record No-go"
+                        : "Record Go"
+                      : actionDialog?.kind === "open-poll"
+                        ? "Open the poll"
+                        : "Confirm"}
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>
