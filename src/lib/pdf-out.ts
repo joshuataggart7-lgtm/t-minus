@@ -305,15 +305,30 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   return concat(parts);
 }
 
+/** Was the blank Reader-extended (usage rights, /Perms → /UR3)? */
+export function hasUsageRights(original: Uint8Array): boolean {
+  return new TextDecoder("latin1").decode(original).includes("/Perms");
+}
+
+/**
+ * Writes the filled form. Where the blank was Reader-extended, a companion
+ * .xdp is written with the same values, so Import Data always has a file even
+ * if a reader still refuses the filled PDF. Returns true when the companion
+ * was written.
+ */
 export async function exportXfaIncremental(
   pdfUrl: string,
   datasetsXml: string,
   fileName: string,
-): Promise<void> {
+): Promise<boolean> {
   const response = await fetch(pdfUrl);
   if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
-  const bytes = await buildXfaIncremental(new Uint8Array(await response.arrayBuffer()), datasetsXml);
+  const original = new Uint8Array(await response.arrayBuffer());
+  const extended = hasUsageRights(original);
+  const bytes = await buildXfaIncremental(original, datasetsXml);
   download(bytes, fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`, "application/pdf");
+  if (extended) exportXdp(datasetsXml, fileName.replace(/\.pdf$/i, ""));
+  return extended;
 }
 
 /**
