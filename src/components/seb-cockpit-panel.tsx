@@ -160,6 +160,30 @@ export function SebCockpitPanel({
 
   if (!shell) return null;
 
+  const evidenceNoted = factors.filter((f) => factorHasEvidence(f)).length;
+  const readinessItems: { label: string; value: string }[] = [
+    {
+      label: "Clarifications on the fairness ledger",
+      value: clarifications.length === 0 ? "None recorded" : `${clarifications.length}`,
+    },
+    {
+      label: "Factors with evidence notes",
+      value: !shell.competitive
+        ? "Sole-source path"
+        : factors.length === 0
+          ? "No factors recorded"
+          : `${evidenceNoted} of ${factors.length}`,
+    },
+    {
+      label: "L↔M consistency lamp",
+      value: lamp.status === "ok" ? "Consistent" : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
+    },
+    {
+      label: "Read receipts on documents",
+      value: "Tracked quietly on each document",
+    },
+  ];
+
   return (
     <div className="mt-3 border border-border p-4">
       <div className="flex flex-wrap items-baseline gap-2">
@@ -168,6 +192,22 @@ export function SebCockpitPanel({
           Advisory and soft. Nothing on this panel holds a phase exit, a hold or a required document.
         </span>
       </div>
+
+      {/* Board-ready strip — counts only, never a gate. */}
+      <section className="mt-3" aria-label="Board readiness snapshot">
+        <h5 className="text-[15px] font-medium">Board readiness snapshot</h5>
+        <dl className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {readinessItems.map((item) => (
+            <div key={item.label} className="border border-border px-3 py-2 text-[13px] leading-[18px]">
+              <dt className="text-muted-foreground">{item.label}</dt>
+              <dd className="mt-[2px] font-medium" data-numeric>{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          A snapshot only. Counts are advisory; nothing here gates the board, the file or a phase exit.
+        </p>
+      </section>
 
       {/* 1 — L to M consistency lamp. */}
       <section className="mt-3">
@@ -211,7 +251,12 @@ export function SebCockpitPanel({
         </div>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLARIFICATIONS_CHIP}</p>
         {clarifications.length === 0 ? (
-          <p className="mt-2 text-[13px] text-muted-foreground">{CLARIFICATIONS_EMPTY}</p>
+          <div className="mt-2">
+            <p className="text-[13px] text-muted-foreground">{CLARIFICATIONS_EMPTY}</p>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              Fairness ledger is empty until the office records a clarification.
+            </p>
+          </div>
         ) : (
           <table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
