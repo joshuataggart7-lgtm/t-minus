@@ -2177,11 +2177,11 @@ function FilePage() {
                              <span className="block w-full text-[13px] text-muted-foreground">
                                Sample certification for this prototype file.
                              </span>
-                           ) : (
-                             <span className="block w-full">
-                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
-                             </span>
-                           )}
+                           ) : null}
+                           <span className="block w-full">
+                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state ? "Why this row" : "Why?"} />
+                           </span>
+
                          </>
                        ) : d.field === "proposed_price" ? (
                          <>
