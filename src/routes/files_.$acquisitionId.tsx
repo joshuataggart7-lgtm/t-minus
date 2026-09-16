@@ -3226,12 +3226,20 @@ function FilePage() {
                     <button
                       type="button"
                       onClick={() =>
-                        downloadModPacket("option exercise", "FAR 43.103(b)(1); FAR 52.217-9", options.periods[0] ?? null)
+                        downloadModPacket("option exercise", optionExercise.authority, options.periods[0] ?? null)
                       }
                       className="mt-3 text-[15px] text-primary"
                     >
                       Download the SF 30 handoff packet for the option modification
                     </button>
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      SF 30 block 13 authority: {optionExercise.authority}. The signed modification is
+                      built and signed in NCMS (NFS 1804.171); T-Minus produces the handoff packet only.
+                    </p>
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      To draft the modification itself, open Modifications on this file, choose New
+                      modification, and pick Option exercise.
+                    </p>
                   </div>
 
                   <div className="border border-border p-4">
