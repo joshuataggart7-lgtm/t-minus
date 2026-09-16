@@ -90,9 +90,9 @@ export function buildFormatScaffold(
   if (!facts) return null;
   const format = s(facts, "contract_format");
   const mode: "sf1449" | "ucf" = isStreamlined(facts) ? "sf1449" : "ucf";
-  const soleSource = /sole|limited source|brand name/i.test(
-    `${s(facts, "competition")} ${s(facts, "acquisition_method")}`,
-  );
+  // Sole source is read the same way every other page on the file reads it.
+  const soleSource = isSoleSourceRecord(facts);
+
   const value = n(facts, "estimated_value");
   const pop = [s(facts, "period_of_performance_start"), s(facts, "period_of_performance_end")]
     .filter(Boolean)
