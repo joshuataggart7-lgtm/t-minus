@@ -38,7 +38,26 @@ export type GeneratedForm = {
   sections: FormSection[];
 };
 
-export type FormKey = "nf-1787" | "nf-1787a" | "sf-1449" | "sf-30";
+export type FormKey =
+  | "nf-1787"
+  | "nf-1787a"
+  | "sf-1449"
+  | "sf-30"
+  | "sf-33"
+  | "sf-26"
+  | "of-347";
+
+/** A line on the schedule, as the official forms print it. */
+export type FormClin = {
+  clinNumber: string;
+  description: string;
+  quantity: number | null;
+  unit: string | null;
+  unitPrice: number | null;
+  extendedPrice: number | null;
+  /** Where the line came from: the officer, the record or the estimate. */
+  source: string;
+};
 
 import {
   findingText,
@@ -47,7 +66,7 @@ import {
   type FindingMap,
 } from "@/lib/research-findings";
 import { isSoleSourceRecord, soleSourceFindings } from "@/lib/memo-draft";
-import { buildSf1449, buildSf30 } from "@/lib/sf-forms";
+import { buildOf347, buildSf1449, buildSf26, buildSf30, buildSf33 } from "@/lib/sf-forms";
 
 /**
  * Registrant and small business counts read back out of the latest research
@@ -110,15 +129,28 @@ export type FormCtx = {
   sizeStandard?: SizeStandard | null;
   /** Simplified acquisition threshold from the threshold table, with its citation. */
   simplifiedAcquisition?: { value: number; citation: string } | null;
+  /** The schedule on the file, in print order. Empty when none is recorded. */
+  clins?: FormClin[];
 };
 
-export const GENERATED_FORM_KEYS: FormKey[] = ["nf-1787", "nf-1787a", "sf-1449", "sf-30"];
+export const GENERATED_FORM_KEYS: FormKey[] = [
+  "nf-1787",
+  "nf-1787a",
+  "sf-1449",
+  "sf-30",
+  "sf-33",
+  "sf-26",
+  "of-347",
+];
 
 export const FORM_NAMES: Record<FormKey, string> = {
   "nf-1787": "NF 1787, Small Business Coordination Record",
   "nf-1787a": "NF 1787A, Market Research Report",
   "sf-1449": "SF 1449, Solicitation/Contract/Order for Commercial Products and Commercial Services",
   "sf-30": "SF 30, Amendment of Solicitation/Modification of Contract",
+  "sf-33": "SF 33, Solicitation, Offer and Award",
+  "sf-26": "SF 26, Award/Contract",
+  "of-347": "OF 347, Order for Supplies or Services",
 };
 
 const TO_COMPLETE = (what: string) => `[Contracting officer to complete: ${what}]`;
@@ -674,6 +706,9 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
 export function buildForm(key: FormKey, ctx: FormCtx): GeneratedForm {
   if (key === "sf-1449") return buildSf1449(ctx);
   if (key === "sf-30") return buildSf30(ctx);
+  if (key === "sf-33") return buildSf33(ctx);
+  if (key === "sf-26") return buildSf26(ctx);
+  if (key === "of-347") return buildOf347(ctx);
   return key === "nf-1787" ? buildNf1787(ctx) : buildNf1787A(ctx);
 }
 

@@ -9,6 +9,7 @@ import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
+import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
@@ -31,7 +32,13 @@ export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
 });
 
 const isFormKey = (key: string): key is FormKey =>
-  key === "nf-1787" || key === "nf-1787a" || key === "sf-1449" || key === "sf-30";
+  key === "nf-1787" ||
+  key === "nf-1787a" ||
+  key === "sf-1449" ||
+  key === "sf-30" ||
+  key === "sf-33" ||
+  key === "sf-26" ||
+  key === "of-347";
 
 /** Respondents from the cached set-aside evidence search, when it has been run. */
 function respondentsFromRaw(raw: unknown): FormRespondent[] {
@@ -124,7 +131,11 @@ function FormPage() {
             .eq("template_id", templateId)
             .order("version", { ascending: false })
         : { data: [] };
+      // The schedule on the file. Seeded once from the estimate when the file
+      // has one and no schedule yet; figures are never invented.
+      const clins = await ensureClinScheduleFromIgce(acquisitionId);
       return {
+        clins,
         templateId,
         versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null }[],
         findings: Object.fromEntries(
@@ -189,6 +200,16 @@ function FormPage() {
       simplifiedAcquisition: q.data.sat?.value
         ? { value: Number(q.data.sat.value), citation: String(q.data.sat.citation ?? "") }
         : null,
+      clins: (q.data.clins ?? []).map((r) => ({
+        clinNumber: String(r.clin_number ?? ""),
+        description: String(r.description ?? ""),
+        quantity: r.quantity === null || r.quantity === undefined ? null : Number(r.quantity),
+        unit: r.unit_of_issue ?? null,
+        unitPrice: r.unit_price === null || r.unit_price === undefined ? null : Number(r.unit_price),
+        extendedPrice:
+          r.extended_price === null || r.extended_price === undefined ? null : Number(r.extended_price),
+        source: String(r.source ?? ""),
+      })),
     };
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);

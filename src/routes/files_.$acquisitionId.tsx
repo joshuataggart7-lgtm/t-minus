@@ -103,6 +103,7 @@ import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
 import { StandaloneDraft } from "@/components/standalone-draft";
 import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
+import { recommendedOfficialForm } from "@/lib/sf-forms";
 import { signedInName } from "@/lib/account-name";
 import { protestWindow } from "@/lib/protest-window";
 import {
@@ -1571,6 +1572,13 @@ function FilePage() {
     [acq, packetSelection, scheduleClins, lmOverride, sectionJ, cdrlItems, paymentItems],
   );
 
+  // The official form the method on the record points at. A suggestion only:
+  // every other official form stays reachable from this file.
+  const suggestedOfficialForm = useMemo(() => {
+    const rec = recommendedOfficialForm(acq as unknown as Record<string, unknown> | null);
+    return rec ? { key: rec.key, name: FORM_NAMES[rec.key], why: rec.why } : null;
+  }, [acq]);
+
   // Companion gates: exits read from the seeded review rules and this record.
   const companionGates = useMemo(
     () =>
@@ -2943,7 +2951,12 @@ function FilePage() {
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
                   <FormatScaffoldPanel scaffold={formatScaffold} />
-                  <AwardHandoffPanel scaffold={formatScaffold} defaultOpen={p.phase === "Award"} />
+                  <AwardHandoffPanel
+                    scaffold={formatScaffold}
+                    defaultOpen={p.phase === "Award"}
+                    acquisitionId={acquisitionId}
+                    suggestedForm={suggestedOfficialForm}
+                  />
                   {p.phase === "Award" && packetSelection.some((c) => Array.isArray(c.fill_ins) && c.fill_ins.length > 0) ? (
                     <div className="mt-3 border border-border p-4">
                       <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
