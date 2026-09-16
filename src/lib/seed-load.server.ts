@@ -133,7 +133,9 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
     for (const [k, v] of Object.entries(row)) out[k] = v === "" ? null : v;
     // A document is only attached when a file is stored. Seeded samples carry
     // no files, so these load as missing rather than claiming an attachment.
-    for (const k of ["igce_attached", "sow_attached", "funds_certified"]) out[k] = false;
+    // Funds certified is a certification on the record, not a file, so the
+    // seeded answer is kept as written.
+    for (const k of ["igce_attached", "sow_attached"]) out[k] = false;
     return out;
   });
   await put("acquisition_facts", acqRows, "acquisition_id");

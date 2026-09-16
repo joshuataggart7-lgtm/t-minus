@@ -36,6 +36,8 @@ export type FieldDef = {
   /** Value the field carries before anyone types in it. */
   default?: string;
   help?: string;
+  /** A warning that depends on what has been answered elsewhere on the form. */
+  helpFor?: (v: Values) => string | undefined;
   showIf?: (v: Values) => boolean;
 };
 
@@ -315,9 +317,16 @@ const jofoc: TemplateDef = {
             "10 U.S.C. 3204(a)(5) as implemented by FAR 6.103-5 (authorized or required by statute)",
             "10 U.S.C. 3204(a)(6) as implemented by FAR 6.103-6 (national security)",
             "10 U.S.C. 3204(a)(7) as implemented by FAR 6.103-7 (public interest)",
-            "41 U.S.C. 1901 (FAR 12.102 procedures)",
-            "41 U.S.C. 1903 (FAR 12.102 procedures)",
+            "41 U.S.C. 1901 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
+            "41 U.S.C. 1903 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
           ],
+          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by FAR 6.103-1, or, on a FAR 12.102 or FAR 13.5 commercial simplified file, the 41 U.S.C. 1901 or 1903 option that names that basis. Item 5 must then document the only-one-responsible-source rationale.",
+          helpFor: (v) =>
+            (v["action_type"] ?? "").startsWith("Sole-source") &&
+            (v["authority"] ?? "") !== "" &&
+            !/6\.103-1|only one responsible source/i.test(v["authority"] ?? "")
+              ? "This is recorded as a sole-source action, but the authority selected is not the only-one-responsible-source basis. Confirm the authority matches the rationale in item 5, or change one of them."
+              : undefined,
         },
       ],
     },
@@ -2775,10 +2784,27 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   }
   // Carried so a section citation can follow the record's acquisition method.
   out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
-  if (def.key === "jofoc" && !out["action_type"]) {
-    // A sole-source record opens on the action it is: the CO can change it.
+  if (def.key === "jofoc") {
     const competition = String(acq["competition"] ?? "").toLowerCase();
-    if (competition.includes("sole") || competition.includes("brand")) out["action_type"] = "Sole-source contract";
+    const soleSource = competition.includes("sole") || competition.includes("brand");
+    // A sole-source record opens on the action it is: the CO can change it.
+    if (!out["action_type"] && soleSource) out["action_type"] = "Sole-source contract";
+    if (soleSource) {
+      // The stored citation only stands if it is one of the offered options;
+      // otherwise the field opens on the only-one-responsible-source option
+      // that matches the acquisition method.
+      const options =
+        def.sections.flatMap((s) => s.fields).find((f) => f.key === "authority")?.options ?? [];
+      const stored = String(out["authority"] ?? "").trim();
+      if (!stored || !options.includes(stored)) {
+        const method = String(acq["acquisition_method"] ?? "").toLowerCase();
+        const commercial = /12\.102|13\.5|commercial simplified/.test(method);
+        out["authority"] =
+          options.find((o) =>
+            commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
+          ) ?? stored;
+      }
+    }
   }
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });

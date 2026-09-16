@@ -93,7 +93,7 @@
     "acquisition_method": "FAR 13.5 commercial simplified procedures, sole source",
     "competition": "sole source",
     "set_aside": "None (sole source)",
-    "jofoc_authority_citation": "41 U.S.C. 1901 (commercial simplified procedures under RFO FAR 12.102; JOFOC template Item 4 second option); basis: only one responsible source per RFO FAR 6.103-1",
+    "jofoc_authority_citation": "41 U.S.C. 1901 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
     "commercial_determination": "commercial service",
     "contract_format": "SF 1449 streamlined",
     "funding_fiscal_year": "FY2027",
@@ -118,7 +118,7 @@
     "hold_owner": "",
     "status": "active",
     "current_phase": "JOFOC",
-    "note": "The JOFOC demo file. Legal reviewer votes No-go on the JOFOC in the demo, which places this file on hold. Vendor is fictional; the SAM.gov panel shows the labeled sample response for this UEI. Authority cite verified against the 04/2026 JOFOC template and RFO Parts 6 and 12 on 2026-09-11; Center counsel to validate the Item 4 wording.",
+    "note": "The JOFOC demo file. Legal reviewer votes No-go on the JOFOC in the demo, which places this file on hold. Vendor is fictional; the SAM.gov panel shows the labeled sample response for this UEI. Authority cite verified against the 04/2026 JOFOC template and RFO Parts 6 and 12 on 2026-09-11; Center counsel to validate the Item 4 wording. Demo provenance: funds certified yes for the period of performance 2026-12-01 to 2027-01-15 (sample); proposed price $812,400 is a fictional quote consistent with the $820,000 independent Government cost estimate, not a live market rate.",
     "nf1707_answers": {
       "Section1_strategic_sourcing": "NotAvailable (no mandatory source contract; documentation attached)",
       "Section2_section_508": "UnderLimitNoIT (no information technology)",
@@ -143,7 +143,9 @@
     "mission_directorate_code": "SMD",
     "mission_directorate_name": "Science Mission Directorate",
     "is_reimbursable": false,
-    "is_package_complete": true
+    "is_package_complete": true,
+    "proposed_price": 812400,
+    "proposed_price_received": "2026-09-10"
   },
   {
     "acquisition_id": "A-2027-0103",

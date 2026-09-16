@@ -868,6 +868,37 @@ function FilePage() {
     onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
   });
 
+  // Funds certified for the period of performance: a certification the CO
+  // records on the file under 31 U.S.C. 1502, not a stored document.
+  const setFundsCertified = useMutation({
+    mutationFn: async (certified: boolean) => {
+      if (!acq) return;
+      const who = await signedInName(actorName);
+      const { error } = await supabase
+        .from("acquisition_facts")
+        .update({ funds_certified: certified, updated_at: new Date().toISOString() } as never)
+        .eq("acquisition_id", acq.acquisition_id);
+      if (error) throw error;
+      await supabase.from("audit_log").insert([
+        {
+          acquisition_id: acq.acquisition_id,
+          actor: who,
+          action: certified ? "Funds certified for the period" : "Funds certification withdrawn",
+          field: "funds_certified",
+          old_value: String(acq['funds_certified'] ?? ""),
+          new_value: String(certified),
+          reason: "Certification recorded on the file for the period of performance",
+        },
+      ]);
+    },
+    onSuccess: () => {
+      setBanner("The funds certification is on the record.");
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
+    },
+    onError: (e: Error) => setBanner(`That change did not save: ${e.message}. Try again.`),
+  });
+
   // Attaching a required document: store the file, index it, audit it, and only
   // then mark the row Attached. Cancelling the picker changes nothing.
   const attachDoc = useMutation({
@@ -1148,8 +1179,13 @@ function FilePage() {
     const fileName = `ncms-handoff-${acq.acquisition_id}.json`;
     const a = document.createElement("a");
     a.href = url;
-    a.download = fileName;
+    // Setting the name and putting the link in the page before the click is
+    // what keeps the browser from renaming the file to the blob id.
+    a.setAttribute("download", fileName);
+    a.rel = "noopener";
+    document.body.appendChild(a);
     a.click();
+    a.remove();
     URL.revokeObjectURL(url);
     // The packet is a local file the officer carries into NCMS by hand.
     // T-Minus does not write to NCMS, and this prototype makes no claim to.
@@ -1929,6 +1965,38 @@ function FilePage() {
                             </span>
                           ) : null}
                         </>
+                       ) : d.field === "funds_certified" ? (
+                         <>
+                           <StatusMark
+                             color={state ? "var(--ontrack)" : "var(--atrisk)"}
+                             className="text-[13px]"
+                           >
+                             {state ? "Certified for the period of performance" : "Missing"}
+                           </StatusMark>
+                           {canWrite ? (
+                             <button
+                               type="button"
+                               disabled={setFundsCertified.isPending}
+                               onClick={() => setFundsCertified.mutate(!state)}
+                               className="rounded-lg border border-input px-3 py-1.5 text-[13px] text-primary disabled:opacity-60"
+                             >
+                               {setFundsCertified.isPending
+                                 ? "Saving"
+                                 : state
+                                   ? "Withdraw the certification"
+                                   : "Mark funds certified"}
+                             </button>
+                           ) : null}
+                           {state ? (
+                             <span className="block w-full text-[13px] text-muted-foreground">
+                               Sample certification for this prototype file.
+                             </span>
+                           ) : (
+                             <span className="block w-full">
+                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                             </span>
+                           )}
+                         </>
                        ) : d.field === "proposed_price" ? (
                          <>
                            <StatusMark
