@@ -1084,6 +1084,12 @@ function postawardSuccessful(ctx: MemoDraftCtx): Values {
     const pr = str(a["pr_number"]);
     if (pr) out["solicitation_number"] = pr;
   }
+  // The amount awarded is the price recommended on the evaluation record.
+  const awarded =
+    str(ctx.evaluationValues?.["recommended_price"]) ||
+    quoters(ctx).find((q) => selected && q.name.toLowerCase() === selected.toLowerCase())?.price ||
+    "";
+  if (awarded) out["award_amount"] = awarded;
   out["enclosures"] = "Source Selection Statement";
   return out;
 }
