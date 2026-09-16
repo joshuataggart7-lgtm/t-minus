@@ -149,6 +149,7 @@ export function RegulationSidebar({
                   {r.scope === "all" ? (
                     <p className="text-muted-foreground">Applies to every phase.</p>
                   ) : null}
+                  {r.url ? null : <p className="text-muted-foreground">{CITE_STUB_NOTE}</p>}
                   {r.url ? (
                     <p>
                       <a
