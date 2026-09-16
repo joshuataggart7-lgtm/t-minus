@@ -109,7 +109,10 @@ import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
 import { exportFpdsFillingSheet } from "@/lib/fpds-filling-sheet";
 import { exportEvidencePack } from "@/lib/evidence-pack";
-import { requiredTabs, buildFileIndex } from "@/lib/file-index";
+import { requiredTabs, buildFileIndex, type IndexOpen } from "@/lib/file-index";
+
+/** The stored upload behind an index row, when the row is an upload. */
+const attachmentIdOf = (open: IndexOpen | null) => (open?.kind === "attachment" ? open.attachmentId : "");
 import {
   ATTACHMENT_ACCEPT,
   docKey,
