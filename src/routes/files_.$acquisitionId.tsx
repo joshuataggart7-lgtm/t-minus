@@ -60,6 +60,7 @@ import { SectionJPanel } from "@/components/section-j-panel";
 import { attachmentsForSectionJ } from "@/lib/section-j";
 import { CdrlPanel } from "@/components/cdrl-panel";
 import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
+import { Table12FillinsPanel } from "@/components/table-12-fillins-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
@@ -2942,6 +2943,17 @@ function FilePage() {
                   ) : null}
                   {acq ? (
                     <SowClauseAssistPanel
+                      acquisitionId={acquisitionId}
+                      facts={acq as Record<string, unknown>}
+                      recommended={packetClauses}
+                      canWrite={canWrite}
+                      actor={actorName}
+                      phase={p.phase}
+                      onBanner={setBanner}
+                    />
+                  ) : null}
+                  {acq ? (
+                    <Table12FillinsPanel
                       acquisitionId={acquisitionId}
                       facts={acq as Record<string, unknown>}
                       recommended={packetClauses}
