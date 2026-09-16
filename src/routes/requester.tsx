@@ -80,7 +80,7 @@ function RequesterPortal() {
     // A signed-in requester or specialist named on no request sees the two demo
     // files, so the portal is never a dead end during the pilot.
     if (roles.includes("requester") || roles.includes("specialist")) {
-      const samples = desk.cards.filter((c) => SAMPLE_IDS.includes(c.acquisition_id));
+      const samples = desk.cards.filter((c) => SAMPLE_IDS.includes(c.m.acq.acquisition_id));
       if (samples.length > 0) return { mine: samples, fallback: "samples" as const };
     }
     return { mine: own, fallback: "none" as const };
