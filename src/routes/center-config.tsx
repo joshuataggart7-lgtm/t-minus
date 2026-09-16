@@ -10,6 +10,7 @@ import { MEMO_DOCUMENT_KEYS, type MemoRoutingRow } from "@/lib/nf1858";
 import { PeopleRoles } from "@/components/people-roles";
 import { PeopleContacts } from "@/components/people-contacts";
 import { RoutingCsvImport } from "@/components/routing-csv-import";
+import { ReviewerRosterCsvImport } from "@/components/reviewer-roster-csv-import";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({

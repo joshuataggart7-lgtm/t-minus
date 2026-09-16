@@ -158,6 +158,27 @@ export function RoutingCsvImport({
         anything is saved. {CENTER_POLICY_NOTE}
       </p>
 
+      <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
+        Applying replaces the matching routing rows for that Center and document. No acquisition is
+        touched.
+      </p>
+
+      <button
+        type="button"
+        onClick={() => {
+          const blob = new Blob([ROUTING_TEMPLATE_CSV], { type: "text/csv" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "routing-template.csv";
+          a.click();
+          URL.revokeObjectURL(url);
+        }}
+        className="mt-3 rounded-lg border border-border px-3 py-2 text-[13px] text-primary"
+      >
+        Download the template CSV
+      </button>
+
       <label className="mt-4 block text-sm">
         <span className="text-muted-foreground">Routing CSV</span>
         <input
