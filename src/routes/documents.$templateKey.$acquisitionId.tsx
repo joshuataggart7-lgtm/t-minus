@@ -55,6 +55,7 @@ import {
   sectionCitation,
   sectionStandingText,
   MFR_KEY,
+  MFR_SITUATION_PURPOSE,
   type SectionDef,
   visibleFields,
   visibleSections,
