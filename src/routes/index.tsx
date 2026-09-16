@@ -398,71 +398,65 @@ function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: Acq
         .join(" · ");
 
   return (
-    <li className="rounded-xl border border-border bg-background p-5 shadow-none" style={{ borderLeftWidth: 4, borderLeftColor: color }}>
-      <div className="grid gap-x-6 gap-y-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto]">
+    <li className="py-5 first:pt-0 last:pb-0">
+      <div className="grid items-end gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)]">
+        <div className="min-w-0">
+          {driver.clockState === "launched" ? (
+            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" data-numeric>
+              {driver.daysSinceAward ?? 0}
+            </p>
+          ) : driver.clockState === "scrubbed" ? (
+            <p className="text-[18px] leading-6 font-medium text-panel-muted">Clock stopped</p>
+          ) : driver.daysToAward === null ? (
+            <p className="text-[18px] leading-6 font-medium text-panel-muted">Clock not started</p>
+          ) : driver.daysToAward < 0 ? (
+            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" style={{ color }} data-numeric>
+              {Math.abs(driver.daysToAward)}
+            </p>
+          ) : (
+            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" data-numeric>
+              {driver.daysToAward}
+            </p>
+          )}
+          <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
+            {driver.clockState === "launched"
+              ? `Days since award · ${formatDate(driver.awardDate)}`
+              : driver.daysToAward !== null && driver.daysToAward < 0
+                ? "Days past the award target"
+                : "Days to award"}
+          </p>
+          <p className="mt-1 text-[15px] leading-[22px] font-medium" style={{ color }}>
+            {driver.status}
+          </p>
+        </div>
+
         <div className="min-w-0">
           <Link
             to="/files/$acquisitionId"
             params={{ acquisitionId: driver.acq.acquisition_id }}
-             className="block rounded text-[18px] leading-6 font-medium text-foreground underline-offset-4 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+            className="block rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
           >
             {mission.name}
           </Link>
-           <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground" data-numeric>
+          <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
           </p>
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-[15px] leading-[22px]">{driver.currentPhase ?? "Not started"}</p>
-          <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
-            {driver.nextAction}
+          <p className="mt-2 text-[13px] leading-[18px] text-panel-muted">
+            {driver.currentPhase ?? "Not started"} · {driver.nextAction}
           </p>
         </div>
 
-        <div className="sm:text-right">
-           <p className="text-[12px] font-medium text-muted-foreground sm:hidden">{driver.status}</p>
-           {driver.clockState === "launched" ? (
-             <p className="text-[28px] leading-8 font-semibold" data-numeric>{driver.daysSinceAward ?? 0}</p>
-           ) : driver.clockState === "scrubbed" ? (
-             <p className="text-[15px] leading-[22px] text-muted-foreground">Clock stopped</p>
-           ) : driver.daysToAward === null ? (
-            <p className="text-[15px] leading-[22px] text-muted-foreground">Clock not started</p>
-          ) : driver.daysToAward < 0 ? (
-            <p className="text-[18px] leading-6 font-semibold" style={{ color }} data-numeric>
-              {Math.abs(driver.daysToAward)} days overdue
-            </p>
-          ) : (
-            <p className="text-[28px] leading-8 font-semibold" data-numeric>
-              {driver.daysToAward}
-            </p>
-          )}
-          <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
-            {driver.clockState === "launched" ? `Days since award · ${formatDate(driver.awardDate)}` : "Days to award"}
-          </p>
-        </div>
-
-        <div className="min-w-0 sm:col-span-2 xl:col-span-3 border-t border-border pt-3">
-          <p
-            className="text-[12px] font-medium"
-            style={atRisk ? { color: "var(--atrisk)" } : undefined}
-          >
-            {driver.status}
-          </p>
+        <div className="min-w-0 sm:col-span-2 xl:col-span-1">
           <button
             type="button"
             onClick={() => setExpanded((e) => !e)}
             aria-expanded={expanded}
             title={fullLine}
-            className={
-              expanded
-                ? "mt-1 block w-full text-left text-[13px] leading-[18px] text-muted-foreground"
-                 : "mt-1 block w-full text-left text-[13px] leading-[18px] text-muted-foreground"
-            }
+            className="block w-full text-left text-[15px] leading-[22px] text-panel-foreground"
           >
             {expanded ? fullLine : shortLine}
           </button>
-          <p className="mt-1 break-words text-[13px] leading-[18px] text-muted-foreground" data-numeric>
+          <p className="mt-1 break-words text-[13px] leading-[18px] text-panel-muted" data-numeric>
             {driver.status === "Launched"
               ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
               : driver.scheduleImpactDays === null
