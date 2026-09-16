@@ -33,6 +33,22 @@ export type ScaffoldClause = {
   fillIns: string | null;
 };
 
+/**
+ * Sections L and M as the officer saved them, with the method label the record
+ * carries. When this is given it is the only source for the instructions and
+ * the evaluation lines, so the panel, the scaffold and the packet agree.
+ */
+export type ScaffoldLmOverride = {
+  methodLabel: string;
+  partFamily: "12_13" | "15";
+  authored: boolean;
+  chip: string;
+  instructions: ScaffoldLine[];
+  evaluation: { mode: "competitive" | "sole-source"; lines: ScaffoldLine[] };
+  sectionL: Record<string, string | null>;
+  sectionM: Record<string, unknown>;
+};
+
 export type FormatScaffold = {
   /** "sf1449" when the record carries the commercial streamlined format. */
   mode: "sf1449" | "ucf";
@@ -45,6 +61,7 @@ export type FormatScaffold = {
   ucfSections: UcfSection[];
   /** Every clause the engine selected, with the reason it is on this file. */
   clauses: ScaffoldClause[];
+  lm: ScaffoldLmOverride | null;
 };
 
 
