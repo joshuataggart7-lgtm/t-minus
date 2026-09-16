@@ -1962,3 +1962,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## Wave 6 follow-on — Pilot known gaps on file walk
 - File page Peer systems strip now carries a quiet muted 13px Pilot known gaps line + link to /about (Adobe human-only · no NCMS write-back · FPDS fill aid · advisories never hold exit); PresenterScreensBeat adds one bullet pointing at About. Presenter mode keeps it visible.
+
+- Option exercise: SF 30 block 13 authority now reads from modAuthorityText("option_exercise") instead of the administrative FAR 43.103(b)(1) string; Administration block adds the advisory FAR 17.207 checklist (notice, determination, FPDS, SF 30 handoff) with status read only from recorded dates, an honest exercise-window line, and a pointer to Modifications > New modification > Option exercise. Soft only; no phase gate, no NCMS or FPDS write.
