@@ -1960,6 +1960,38 @@ function FilePage() {
                             </span>
                           ) : null}
                         </>
+                       ) : d.field === "funds_certified" ? (
+                         <>
+                           <StatusMark
+                             color={state ? "var(--ontrack)" : "var(--atrisk)"}
+                             className="text-[13px]"
+                           >
+                             {state ? "Certified for the period of performance" : "Missing"}
+                           </StatusMark>
+                           {canWrite ? (
+                             <button
+                               type="button"
+                               disabled={setFundsCertified.isPending}
+                               onClick={() => setFundsCertified.mutate(!state)}
+                               className="rounded-lg border border-input px-3 py-1.5 text-[13px] text-primary disabled:opacity-60"
+                             >
+                               {setFundsCertified.isPending
+                                 ? "Saving"
+                                 : state
+                                   ? "Withdraw the certification"
+                                   : "Mark funds certified"}
+                             </button>
+                           ) : null}
+                           {state ? (
+                             <span className="block w-full text-[13px] text-muted-foreground">
+                               Sample certification for this prototype file.
+                             </span>
+                           ) : (
+                             <span className="block w-full">
+                               <ExplainThis explanation={explainMissingDoc(d, p.phase)} />
+                             </span>
+                           )}
+                         </>
                        ) : d.field === "proposed_price" ? (
                          <>
                            <StatusMark
