@@ -63,6 +63,7 @@ import { SowClauseAssistPanel } from "@/components/sow-clause-assist-panel";
 import { Table12FillinsPanel } from "@/components/table-12-fillins-panel";
 import { AwardHandoffPanel } from "@/components/award-handoff-panel";
 import { Nf1098AssemblyPanel } from "@/components/nf1098-assembly-panel";
+import { buildNf1098Assembly } from "@/lib/nf1098-assembly";
 import { cdrlForPacket, loadCdrl } from "@/lib/cdrl";
 import { PaymentMilestonesPanel } from "@/components/payment-milestones-panel";
 import { loadPaymentMilestones, paymentMilestonesForPacket } from "@/lib/payment-milestones";
@@ -1403,6 +1404,13 @@ function FilePage() {
             : null,
           // Same Section K object the Award handoff view prints — no second source.
           sectionK: formatScaffold?.sectionK ?? null,
+          // Same NF 1098 assembly input the evidence pack and panel use.
+          assemblyCounts: buildNf1098Assembly({
+            fileIndex,
+            scaffold: formatScaffold,
+            recommendedClauseCount: packetClauses.length,
+            appliedClauseCount: appliedClauseNumbers?.length ?? null,
+          }).counts,
           clins: scheduleClins.map((c) => ({
             clin: c.clin,
             description: c.description,
