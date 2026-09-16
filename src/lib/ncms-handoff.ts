@@ -120,6 +120,8 @@ export function orderPacketForScreen(
     sf_1449_screen_order: sf1449ScreenOrder(acq),
     ...(hasModificationPath(acq) ? { sf_30_screen_order: sf30ScreenOrder(acq) } : {}),
     clauses,
+    // Part 12 commercial packets say plainly why 52.212-3 and 52.212-5 are absent.
+    ...(isSimplifiedCommercial(acq) ? { reserved_52_212_5_note: RFO_RESERVED_212_NOTE } : {}),
     ...rest,
   };
 }
