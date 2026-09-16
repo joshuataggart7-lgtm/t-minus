@@ -1881,3 +1881,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Today desk: after CO-owned matching, a signed-in requester sees files where they are the requester of record, labelled "Showing files where you are the requester of record." Marsh → Sample 1 only. Specialist/Admin paths unchanged; Joshua Taggart stays CO.
 - Reviewer inbox: all-pending fallback copy softened ("No open review names you as the reviewer of record … listed for the walk. The reviewer of record on each row is shown beside it. The hero document still follows that office."). No poll seeds rewritten; heroDocForReviewer and read-receipts unchanged.
 - Requester portal own-file match for Dr. Elena Marsh (fictional) → A-2027-0101 verified as already correct; no seed or record changes. Advisories remain non-gating.
+
+## UX — panel-muted contrast bump
+- src/styles.css `--panel-muted` `#ccd6f0` → `#dce4f7` for clearer secondary lines on navy `#0f2a5b`, still calm. Visual only; no logic, Walk, or Sample changes.
