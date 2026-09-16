@@ -1943,3 +1943,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Wave 4 P1 Section K: added `solicitation_k` (authenticated read, specialist-only write) and `src/lib/solicitation-k.ts`; the K panel now records SAM status, a method-split reps checklist and notes, keeps the matrix K clause list, keeps 52.212-3/52.212-5 out, and keeps `RFO_RESERVED_212_NOTE` on simplified commercial files. Save is specialist-gated and audits "Section K saved"; nothing gates phase exit.
 - The handoff packet and Award handoff panel print the same Section K (new section 3, before L/M); NCMS remains the system of record and no external write is made.
+
+- Briefing book now prints "Representations and certifications (Section K)" on the format page from the same `scaffold.sectionK` object the Award handoff view reads: method voice (SAM path vs UCF), SAM status, checklist labels/statuses, K clause numbers, honest empty lines, and the quoted Reserved note on commercial files.
+- `AWARD_HANDOFF_POINTER` now names Section K alongside CLIN, L/M, clauses, Section J and signatures. Soft only; nothing gates phase exit and NCMS remains the system of record.
