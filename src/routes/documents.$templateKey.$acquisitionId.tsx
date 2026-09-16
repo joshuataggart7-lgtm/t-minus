@@ -1219,6 +1219,7 @@ function DocumentPage() {
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
   const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
+  const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
