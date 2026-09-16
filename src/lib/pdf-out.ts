@@ -259,12 +259,28 @@ export async function buildXfaIncremental(original: Uint8Array, datasetsXml: str
   // objects the previous cross-reference stream reports.
   const prevDict = new TextDecoder("latin1").decode(original.slice(prev, prev + 600));
   const prevSize = Number.parseInt(/\/Size\s+(\d+)/.exec(prevDict)?.[1] ?? "0", 10);
-  const xrefNumber = Math.max(doc.context.largestObjectNumber + 1, Number.isFinite(prevSize) ? prevSize : 0);
+  const nextNumber = Math.max(doc.context.largestObjectNumber + 1, Number.isFinite(prevSize) ? prevSize : 0);
+
+  const rows = [{ num: datasetsRef.objectNumber, at: dataOffset }];
+
+  let catalogNumber = 0;
+  if (hasPerms) {
+    const body = doc.catalog
+      .entries()
+      .filter(([key]) => key.asString() !== "/Perms")
+      .map(([key, value]) => `${key.asString()} ${value.toString()}`)
+      .join("\n");
+    catalogNumber = nextNumber;
+    const catalogBytes = ascii(`${catalogNumber} 0 obj\n<<\n${body}\n>>\nendobj\n`);
+    rows.push({ num: catalogNumber, at: offset });
+    parts.push(catalogBytes);
+    offset += catalogBytes.length;
+  }
+
+  const xrefNumber = hasPerms ? nextNumber + 1 : nextNumber;
   const xrefOffset = offset;
-  const rows = [
-    { num: datasetsRef.objectNumber, at: dataOffset },
-    { num: xrefNumber, at: xrefOffset },
-  ].sort((a, b) => a.num - b.num);
+  rows.push({ num: xrefNumber, at: xrefOffset });
+  rows.sort((a, b) => a.num - b.num);
   const entries = new Uint8Array(rows.length * 7);
   rows.forEach((row, i) => {
     const at = i * 7;
