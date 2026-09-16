@@ -262,6 +262,7 @@ export function AwardHandoffPanel({
 
           <section>
             <Head n={5}>Clauses in order, with fill-ins</Head>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
             {scaffold.clauses.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 No clauses selected for this file yet.
