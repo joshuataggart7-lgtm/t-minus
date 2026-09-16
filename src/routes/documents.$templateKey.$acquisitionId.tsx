@@ -2144,13 +2144,15 @@ function DocumentPage() {
               <dt className="text-muted-foreground">To</dt>
               <dd>{memoHeader?.to || q.data?.routing?.approving_official_title || "Not recorded"}</dd>
             </div>
-            <div className="flex gap-2">
-              <dt className="text-muted-foreground">Thru</dt>
-              <dd>
-                {(memoHeader?.thru?.length ? memoHeader.thru : (q.data?.routing?.thru_chain ?? [])).join(" · ") ||
-                  "Not recorded"}
-              </dd>
-            </div>
+            {(() => {
+              const thruList = (memoHeader?.thru?.length ? memoHeader.thru : (q.data?.routing?.thru_chain ?? [])).filter(Boolean);
+              return thruList.length > 0 ? (
+                <div className="flex gap-2">
+                  <dt className="text-muted-foreground">Thru</dt>
+                  <dd>{thruList.join(" · ")}</dd>
+                </div>
+              ) : null;
+            })()}
             <div className="flex gap-2">
               <dt className="text-muted-foreground">From</dt>
               <dd>{memoHeader?.from || "Not recorded"}</dd>
