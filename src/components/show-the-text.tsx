@@ -63,6 +63,7 @@ export function ShowTheText({ citation }: { citation: string | null | undefined 
             </p>
           ) : (
             <>
+            <>
               <ul className="mt-2 space-y-3">
                 {matches.slice(0, 4).map((r) => (
                   <li key={r.ref_id}>
