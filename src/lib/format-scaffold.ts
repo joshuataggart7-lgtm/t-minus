@@ -259,8 +259,20 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
   return {
     mode: scaffold.mode,
     format: scaffold.formatLabel,
+    format_source: scaffold.formatSource,
+    method_label: scaffold.lm?.methodLabel ?? "Acquisition method not recorded",
+    part_family: scaffold.lm?.partFamily ?? null,
     blocks: scaffold.blocks,
     clins: scaffold.clins,
+    section_l: scaffold.lm ? { fields: scaffold.lm.sectionL, lines: scaffold.instructions } : null,
+    section_m: scaffold.lm
+      ? {
+          ...scaffold.lm.sectionM,
+          mode: scaffold.evaluation.mode,
+          lines: scaffold.evaluation.lines,
+        }
+      : null,
+    lm_note: scaffold.lm?.chip ?? null,
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:
