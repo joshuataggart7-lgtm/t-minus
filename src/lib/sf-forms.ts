@@ -14,7 +14,7 @@
  * completed by the contracting officer.
  */
 
-import type { FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
+import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
