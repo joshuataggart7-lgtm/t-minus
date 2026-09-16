@@ -631,7 +631,11 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
   const rows = schedule(ctx);
   const shown = rows.slice(0, 13);
   const parent = parentContract(a);
-  const deliveryOrder = Boolean(parent) || /order/i.test(str(a["order_number"]));
+  const deliveryOrder =
+    Boolean(parent) ||
+    /order under idiq|delivery order|task order/i.test(
+      `${str(a["contract_format"])} ${str(a["acquisition_profile"])}`,
+    );
   const total = scheduleTotal(rows) ?? (Number(a["award_amount"]) || Number(a["estimated_value"]) || null);
   const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
   const setAside = str(a["set_aside"]).toLowerCase();
@@ -826,7 +830,11 @@ export function recommendedOfficialForm(
   const phase = str(facts["current_phase"]).toLowerCase();
   const mods = Array.isArray(facts["modifications"]) ? (facts["modifications"] as unknown[]) : [];
   const parent = parentContract(facts);
-  const order = Boolean(parent) || str(facts["order_number"]).trim().length > 0;
+  const order =
+    Boolean(parent) ||
+    /order under idiq|delivery order|task order|order_under_idiq/i.test(
+      `${format} ${str(facts["acquisition_profile"])}`,
+    );
 
   if (mods.length > 0 || /modification|post-?award change/.test(phase)) {
     return { key: "sf-30", why: "A modification is recorded on this file." };
@@ -844,7 +852,7 @@ export function recommendedOfficialForm(
     return {
       key: "of-347",
       why: order
-        ? "An order under a parent contract is recorded on this file."
+        ? "An order under an existing contract is recorded on this file."
         : "Simplified acquisition on the record, ordered on a purchase order.",
     };
   }
