@@ -2036,3 +2036,6 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## 2026-09-16
 - Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
+
+## 2026-09-16
+- Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
