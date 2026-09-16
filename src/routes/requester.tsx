@@ -65,19 +65,23 @@ function RequesterPortal() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
 
-  const mine = useMemo(() => {
-    if (!desk) return [];
+  // Soft fallbacks only. Nothing here changes the record: the requester of
+  // record on the samples is left exactly as seeded.
+  const { mine, fallback } = useMemo(() => {
+    if (!desk) return { mine: [] as typeof DESK_CARDS, fallback: "none" as "none" | "all" | "samples" };
     const me = user.name.toLowerCase();
     const own = desk.cards.filter((c) => c.requester.toLowerCase() === me);
+    if (own.length > 0) return { mine: own, fallback: "none" as const };
     // An administrator named on no request sees every prototype file instead.
-    if (own.length === 0 && roles.includes("administrator")) return desk.cards;
-    return own;
+    if (roles.includes("administrator")) return { mine: desk.cards, fallback: "all" as const };
+    // A signed-in requester or specialist named on no request sees the two demo
+    // files, so the portal is never a dead end during the pilot.
+    if (roles.includes("requester") || roles.includes("specialist")) {
+      const samples = desk.cards.filter((c) => SAMPLE_IDS.includes(c.acquisition_id));
+      if (samples.length > 0) return { mine: samples, fallback: "samples" as const };
+    }
+    return { mine: own, fallback: "none" as const };
   }, [desk, user.name, roles]);
-
-  const showingAll = useMemo(
-    () => Boolean(desk) && mine.length > 0 && !desk!.cards.some((c) => c.requester.toLowerCase() === user.name.toLowerCase()),
-    [desk, mine, user.name],
-  );
 
   return (
     <AppShell>
