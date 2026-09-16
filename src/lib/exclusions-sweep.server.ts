@@ -254,7 +254,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
     filesChecked: files.length,
     vendorsChecked: results.length,
     excludedFound,
-    placedOnHold,
+    flaggedForReview,
     results,
   };
 }
