@@ -24,6 +24,22 @@ export type BriefingClause = {
   ucf_section?: string | null;
 };
 
+export type BriefingFormat = {
+  formatLabel: string;
+  mode: "sf1449" | "ucf";
+  clins: { clin: string; description: string; amount: string; note: string }[];
+  instructions: { text: string; citation: string | null }[];
+  evaluation: { mode: "competitive" | "sole-source"; lines: { text: string; citation: string | null }[] };
+};
+
+export type BriefingGate = {
+  name: string;
+  status: string;
+  citation: string;
+  trigger: string;
+  evidence: string;
+};
+
 export type BriefingInput = {
   acquisitionId: string;
   title: string;
@@ -41,7 +57,12 @@ export type BriefingInput = {
   recommendedClauseCount: number;
   appliedClauseCount: number | null;
   exampleClauses: BriefingClause[];
+  /** The contract format scaffold, from the same helper the file page uses. */
+  format?: BriefingFormat | null;
+  /** Companion gates that apply to this record. */
+  gates?: BriefingGate[];
 };
+
 
 const money = (n: number) =>
   `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
