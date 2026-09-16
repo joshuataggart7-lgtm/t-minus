@@ -1436,9 +1436,12 @@ function DocumentPage() {
                       onChange={(e) => set(f.key, e.target.value)}
                     >
                       <option value="">Choose one</option>
-                      {(f.options ?? []).map((o) => (
-                        <option key={o} value={o}>
-                          {o}
+                      {(f.key === "offeror_slot" && quoterSlots.length
+                        ? quoterSlots.filter((r) => !r.awarded).map((r) => ({ value: r.slot, label: `${r.slot} — ${r.name}` }))
+                        : (f.options ?? []).map((o) => ({ value: o, label: o }))
+                      ).map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
                         </option>
                       ))}
                     </select>
