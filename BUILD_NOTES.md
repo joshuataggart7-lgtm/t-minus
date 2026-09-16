@@ -1809,3 +1809,38 @@ evaluation and UEI facts.
   FAR 15.204-1 with confirm-RFO wording.
 - No NCMS write-back, no invented traffic, no invented FAR body text. Security
   findings remain deferred.
+
+## Wave 6 — pilot harden + regulation change banner stub
+
+Pilot harden (smoke first, code only where something was actually wrong):
+- Signed-in browser pass over A-2027-0101, A-2027-0102, /requester, /today,
+  /reviewer-inbox, /clause-changes and /forms/sf-1449/A-2027-0101. No console or
+  page errors on any of them. Sample 1 and Sample 2 both still read
+  co_name Joshua Taggart and clock_state running; nothing was written to either
+  record this wave.
+- Wave 4/5 panels (CLIN schedule, Solicitation K/L/M, evaluation cockpit, read
+  receipts, Section J, payment milestones, CDRL, Award handoff) render on
+  A-2027-0102 with no throw on empty L/M. They sit inside the NCMS handoff block,
+  which is still gated to the Solicitation/Quote and Award phases, so Sample 1 at
+  Price Reasonableness does not show them. That gate is unchanged and is a
+  deliberate phase behaviour, not a break.
+- Requester portal: added a soft fallback for a signed-in requester or specialist
+  who is named on no request — the two demo files only, with the line
+  "Demo files — you are not the requester of record." No requester name was
+  invented on either sample; the requester of record still reads from the record.
+  The administrator "all files" fallback is unchanged, as is the Today desk and
+  the reviewer inbox fallback to open polls.
+
+Regulation change banner stub (`src/components/clause-change-banner.tsx`):
+- Reads only open rows from clause_mod_tasks for that acquisition_id. Zero open
+  rows renders nothing at all; loading and error states render nothing.
+- One line naming the count and up to three clause numbers with their change kind,
+  then a link to /clause-changes, then the chip
+  "Advisory — does not hold the file."
+- Never calls computeHold, never touches clock_state, never gates a phase exit or
+  a required document. Hidden in presenter mode, like the other chrome.
+- Mounted on the file page above the launch sequence, beside the companion gates.
+
+Unchanged: A-2026-0090 SF 30 clause delta stays hard hidden, no NCMS write-back,
+no FedRAMP claim, no invented FAR or NFS body text, no Adobe forms QA claim.
+Security findings remain deferred.
