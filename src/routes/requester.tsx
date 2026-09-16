@@ -5,6 +5,8 @@ import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, type DeskCard } from "@/lib/desk-data";
 import { phaseCitation } from "@/lib/launch-sequence";
 import { statusColor } from "@/lib/metrics";
+import { awardConfidence } from "@/lib/confidence";
+import { RequesterLoe } from "@/components/requester-loe";
 
 export const Route = createFileRoute("/requester")({
   head: () => ({
@@ -189,6 +191,11 @@ function RequesterPortal() {
                         ? "This file is waiting on the requesting organization."
                         : "Counted from the dates on the record, not from an estimate."}
                     </p>
+                    {desk ? (
+                      <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
+                        {awardConfidence(c.m.acq, desk.history, desk.plan).sentence}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div>
@@ -204,6 +211,14 @@ function RequesterPortal() {
                       {c.m.nextDecisionDate ? ` by ${c.m.nextDecisionDate}` : ""}.
                     </p>
                   </div>
+                </div>
+
+                <div className="mt-8 border-t border-border pt-6">
+                  <RequesterLoe
+                    acq={acq}
+                    plan={desk?.plan ?? []}
+                    awardRange={desk ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence : null}
+                  />
                 </div>
               </section>
             );
