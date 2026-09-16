@@ -2066,6 +2066,8 @@ function FilePage() {
           ) : null}
           <p className="mt-2 text-[13px] text-muted-foreground">
             NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
+            The handoff is a local packet you key into NCMS, which stays the system of record under NFS
+            1804.171; writing into NCMS from here is planned and not available in this prototype.
           </p>
         </section>
       ) : null}
