@@ -166,6 +166,28 @@ function answersSummary(answers: unknown): string {
   return entries.map(([k, v]) => `${k}: ${typeof v === "boolean" ? "Yes" : String(v)}`).join("\n");
 }
 
+// The draft flag belongs beside a field as a chip, never inside the text the
+// officer reads or signs. These two helpers keep the wording out of the body
+// while remembering which fields carried it.
+const DRAFT_MARK =
+  /\s*(?:Drafted from the record[,—-]?\s*confirm\.?|Draft[,—-]?\s*confirm\.?)\s*/gi;
+
+function markedKeys(values: Values): string[] {
+  return Object.entries(values)
+    .filter(([, v]) => typeof v === "string" && new RegExp(DRAFT_MARK.source, "i").test(v))
+    .map(([k]) => k);
+}
+
+function stripDraftMarks(values: Values): Values {
+  const out: Values = { ...values };
+  for (const [k, v] of Object.entries(out)) {
+    if (typeof v !== "string") continue;
+    const cleaned = v.replace(DRAFT_MARK, " ").replace(/[ \t]{2,}/g, " ").trim();
+    if (cleaned !== v) out[k] = cleaned;
+  }
+  return out;
+}
+
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
   const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
@@ -1082,7 +1104,12 @@ function DocumentPage() {
           stored["interested_sources"] = fresh;
         }
       }
-      setValues(stored);
+      // The draft flag is a chip beside the field, never words inside the
+      // field body. A stored version written before that rule is cleaned on
+      // the way in, and the field still shows its chip.
+      const storedMarked = markedKeys(stored);
+      if (storedMarked.length) setDraftedFields((prev) => new Set([...prev, ...storedMarked]));
+      setValues(stripDraftMarks(stored));
       return;
     }
     const filled = prefill(def, {
@@ -1138,8 +1165,8 @@ function DocumentPage() {
     if (def.key === "postaward-letter-unsuccessful" && draft["contract_value"]) {
       drafted["contract_value"] = draft["contract_value"];
     }
-    setDraftedFields(new Set(draftedKeys(drafted, draft)));
-    setValues(drafted);
+    setDraftedFields(new Set([...draftedKeys(drafted, draft), ...markedKeys(drafted)]));
+    setValues(stripDraftMarks(drafted));
   }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts, search.offeror, quoterSlots]);
 
   // NF 1858: the flag and the header come from the saved version when there is
