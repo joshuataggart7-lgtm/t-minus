@@ -336,6 +336,16 @@ export function PaymentMilestonesPanel({
         </table>
       )}
 
+      {planNotes.length > 0 ? (
+        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+          {planNotes.map((n) => (
+            <span key={n} className="block">
+              {n}
+            </span>
+          ))}
+        </p>
+      ) : null}
+
       {canWrite && adding ? (
         <div className="mt-3 grid grid-cols-1 gap-3 border border-border bg-background p-3 sm:grid-cols-3">
           <div className="sm:col-span-2">
