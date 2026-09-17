@@ -7,6 +7,8 @@
  * adoption status — it says so and points at the official source.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { SEED_SOURCES } from "@/lib/about";
+import { NFS_CG_NOT_LOADED_NOTE } from "@/lib/cite-stub";
 import type { DeviationRow } from "@/lib/deviations";
 
 export const RFO_SOURCE_URL = "https://www.acquisition.gov/far-overhaul";
