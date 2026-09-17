@@ -432,9 +432,55 @@ function RegIntakePage() {
 
       {isHq && !text ? (
         <div className="mt-8">
-          <EmptyState sentence={`Nothing is staged. ${dataset.table} holds ${q.data?.length ?? 0} rows today.`} />
+          <EmptyState
+            sentence={
+              textType
+                ? `Nothing is staged. ${(live.data ?? []).filter((r) => textType.corpora.includes(r.corpus)).length} live sections are loaded for ${textType.label.toLowerCase()} today.`
+                : `Nothing is staged. ${dataset.table} holds ${q.data?.length ?? 0} rows today.`
+            }
+          />
         </div>
       ) : null}
+
+      {sectionDiff && textType ? (
+        <section className="mt-10">
+          <h2 className="section-title">Difference against the loaded text</h2>
+          <p className="mt-2 max-w-[80ch] text-muted-foreground">
+            {sectionDiffSentence(textType.label, sectionDiff)} Replaced and removed sections are marked superseded, not
+            deleted, so documents written under the earlier text stay readable.
+            {textType.binding ? "" : " Every section in this file loads as non-binding practice guidance."}
+          </p>
+          <SectionDiffTable heading="Replaced sections" rows={sectionDiff.changed} kind="changed" />
+          <SectionDiffTable heading="New sections" rows={sectionDiff.added} kind="added" />
+          <SectionDiffTable heading="Sections no longer in the file" rows={sectionDiff.removed} kind="removed" />
+          {isHq ? (
+            <div className="mt-8 flex items-center gap-4">
+              <button
+                type="button"
+                disabled={
+                  busy || sectionDiff.added.length + sectionDiff.changed.length + sectionDiff.removed.length === 0
+                }
+                onClick={() => void applySections()}
+                className="rounded-lg border border-border px-3 py-2 text-[14px] text-primary hover:border-primary disabled:opacity-60"
+              >
+                {busy ? "Applying" : "Apply the text"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setText(null);
+                  setFileName(null);
+                  setSectionRows(null);
+                }}
+                className="rounded-lg border border-border px-3 py-2 text-[14px] hover:border-primary"
+              >
+                Discard the upload
+              </button>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
 
       {diff ? (
         <section className="mt-10">
