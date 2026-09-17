@@ -31,3 +31,4 @@
 
 # ORBIT visual identity
 - [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters
+- [x] Ship Chunk 5 Executive Overview data hero: portfolio countdown strip and phase distribution inside the navy Mission Clock band

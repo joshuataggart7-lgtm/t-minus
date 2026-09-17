@@ -2368,3 +2368,7 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
 - `[fill from template header]` governing-citation stubs left as stubs.
 - Untouched: OF347, SF30, memo checkout, file index, SF1449 schedule and
   `packSentences`, clocks (FLAG-only), samples, regulation corpus seed.
+
+## ORBIT Chunk 5 — Executive Overview data hero
+
+Visual-only evolution of the navy Mission Clock band on the Executive Overview. Above the priority-mission rows, the same navy surface now carries a portfolio scan strip: a Launch countdown · Portfolio row of per-acquisition chips (acquisition id, T−/T+ days in tabular numerals, HOLD/FORECAST/OVERDUE badges) driven by the existing countdownView() honesty rules — cyan healthy, muted+amber HOLD, cyan FORECAST, cyan T+ after award, red OVERDUE T+ only; each chip links to the acquisition file. Below it a quiet phase-distribution list (phase label, bar, count) derived only from metrics[].currentPhase — no new date math, no invented hours/minutes. The quiet status summary remains below the band; no competing white hero card, no decorative imagery. Soft Walk forms, regulation corpus, Nova, clocks, seeds, and exports untouched.
