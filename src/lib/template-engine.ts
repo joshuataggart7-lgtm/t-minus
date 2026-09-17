@@ -2900,6 +2900,9 @@ export type ExportContext = {
   preparedDate?: string | undefined;
   organizationCode?: string | undefined;
   additionalApprovalRequired?: boolean | undefined;
+  researchLog?: unknown[] | undefined;
+  sizeStandard?: string | null | undefined;
+  priorTminusActionCount?: number | undefined;
 };
 
 type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean; center?: boolean; bold?: boolean };

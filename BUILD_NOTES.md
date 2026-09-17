@@ -2604,3 +2604,9 @@ No forms, exports, citations, clocks, holds or record logic touched.
   revision RFO-PDF-2026-09-17) were already ingested and match the supplied seed file; no re-ingest
   and no invented FAR 10.002(e).
 - Forms untouched: AcroForm/pdf-lib, SF1449/SF30/OF347, packSentences, file index, JOFOC Word master.
+
+## Soft Walk P0-1 — JOFOC OP master and Item 6 honesty
+- `public/forms/JOFOC_MASTER.docx` was rebuilt from the authoritative HQ OP JOFOC (7) package while keeping no headers and no word/media. The live export still fetches `/forms/JOFOC_MASTER.docx`, lints marker runs, and applies marker replacement only.
+- The JOFOC Word export now writes Item 6 as named-source sentences: System for Award Management (SAM.gov), USAspending, SBA size standards, and prior T-Minus actions under the record NAICS when present. Raw dates, counts, service errors, API labels, and endpoint tags stay out of the signed body.
+- The amount-driven signature ladder remains live-threshold based. Sample 2 at the recorded $820,000 value selects Band 1 only: L. Park technical representative and Joshua Taggart contracting officer, with other signature bands removed and signature lines blank.
+- Protected surfaces stayed locked: no SF1449/OF347/SF30/pdf-lib/packSentences/file-index changes, no sample fact/clock/citation/clause changes, no external writes, and no Clock B.

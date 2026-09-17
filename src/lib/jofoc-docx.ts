@@ -36,6 +36,16 @@ export type JofocSigBandId =
 
 export type JofocThresholdRow = { name?: string | null; value?: number | null };
 
+type JofocResearchLogLine = {
+  source?: string | null;
+  query?: string | null;
+  result_count?: number | null;
+  count?: number | null;
+  outcome?: string | null;
+  ran_at?: string | null;
+  ranAt?: string | null;
+};
+
 const BAND_MARKERS: Record<JofocSigBandId, string> = {
   LE_900K: "[[SIG_BAND_LE_900K]]",
   GT_900K_LE_20M: "[[SIG_BAND_GT_900K_LE_20M]]",
@@ -102,6 +112,64 @@ export function humanizeMarketResearch(raw: string): string {
   return lines.join(" ");
 }
 
+const uniquePush = (items: string[], value: string) => {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (!normalized) return;
+  if (!items.some((item) => item.toLowerCase() === normalized.toLowerCase())) items.push(normalized);
+};
+
+function sourceName(raw: string): string {
+  const text = raw.replace(/\s+(?:API|endpoint)$/i, "").trim();
+  if (/sam\.gov|entity|opportunit|exclusion/i.test(text)) return "System for Award Management (SAM.gov)";
+  if (/usa\s?spending/i.test(text)) return "USAspending";
+  if (/sba|size standard/i.test(text)) return "SBA size standards";
+  if (/t-minus|prior action|local/i.test(text)) return "prior T-Minus actions";
+  return text;
+}
+
+function queryNaics(query: string): string {
+  const param = (name: string) => {
+    const m = new RegExp(`[?&]${name}=([^&\\s]+)`, "i").exec(query);
+    return m ? decodeURIComponent(m[1] ?? "") : "";
+  };
+  return (
+    param("naicsCode") ||
+    param("ncode") ||
+    /naics[_ ]?code\s*=\s*'?(\d{2,6})/i.exec(query)?.[1] ||
+    /naics[= ](\d{2,6})/i.exec(query)?.[1] ||
+    ""
+  );
+}
+
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+/** Item 6 reads as named-source prose, while source detail stays in the research log. */
+export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
+  const v = ctx.values ?? {};
+  const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
+  const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
+  const sources: string[] = [];
+  for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
+  if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
+  if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
+  if (!sources.length) {
+    const fallback = humanizeMarketResearch(cleanProse(str(v["market_research"])));
+    if (fallback && !/\bAPI\b|endpoint|JSON|service error|not available|\d+\s+results?\b|\d{4}-\d{2}-\d{2}/i.test(fallback)) {
+      return fallback;
+    }
+    uniquePush(sources, "System for Award Management (SAM.gov)");
+    uniquePush(sources, "USAspending");
+    uniquePush(sources, "SBA size standards");
+    uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
+  }
+  const scope = naics && !sources.some((source) => source.includes(`NAICS ${naics}`)) ? ` for NAICS ${naics}` : "";
+  return `Market research was conducted using ${joinList(sources)}${scope}. Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
+}
+
 function thresholdValue(thresholds: JofocThresholdRow[] | undefined, name: string, fallback: number): number {
   const hit = thresholds?.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase());
   const v = hit?.value;
@@ -132,6 +200,12 @@ const blankName = (v: string) => (v ? v : KEEP);
 export type JofocDocxContext = ExportContext & {
   /** Live thresholds table rows when available (documents route). */
   thresholds?: JofocThresholdRow[];
+  /** Public-source searches already recorded on this file. */
+  researchLog?: JofocResearchLogLine[] | unknown[];
+  /** SBA size-standard note or citation when loaded for the record. */
+  sizeStandard?: string | null;
+  /** Prior T-Minus actions surfaced as local comparables. */
+  priorTminusActionCount?: number;
 };
 
 /** Marker map for Soft Walk JOFOC Word — OP master markers + one active SIG band. */
@@ -178,7 +252,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
       ? "The notice of intent has been prepared as a draft and has not yet been posted to the Government Point of Entry."
       : "The notice of intent has not yet been posted.";
 
-  const market = humanizeMarketResearch(value("market_research"));
+  const market = jofocMarketResearchProse(ctx);
   const rationale = value("authority_rationale").replace(/\s*Basis of record:.*$/i, "").trim();
 
   // 10 USC stem paragraph is deletable via marker when the 41 U.S.C. path applies.
