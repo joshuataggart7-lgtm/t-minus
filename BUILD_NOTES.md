@@ -2575,3 +2575,5 @@ No residual citation bugs found in this pass.
 - SF 1449, OF 347 and SF 30 continue to read their officer name only from
   `co_name`. The commercial SF 1449 face remains 1 Lot at the recorded face
   amount when CLIN 0001 is only part of that amount.
+
+- Exec Overview portfolio scan chips: mission/title heading, quieter tabular A-number, phase chip, existing countdownView face (T-/HOLD/FORECAST/T+ tones unchanged), optional hold reason. Dense dark console cards with cyan hover accent. No form, clock, seed, or citation changes.

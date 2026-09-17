@@ -79,11 +79,22 @@ function chipDigitColor(view: CountdownView): string {
  * Every figure is read from the already-computed AcqMetrics via countdownView;
  * no new date math, no invented hours or minutes.
  */
-function PortfolioScan({ metrics }: { metrics: AcqMetrics[] }) {
+function PortfolioScan({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
   const chips = useMemo(
     () =>
-      metrics.map((m) => ({ acq: m.acq.acquisition_id, view: countdownView(m) })),
-    [metrics],
+      metrics.map((m) => {
+        const mission = missions.find((x) => x.mission_id === m.acq.mission_id) ?? null;
+        const title = (m.acq.title ?? "").trim();
+        return {
+          acq: m.acq.acquisition_id,
+          heading: title || mission?.name || m.acq.acquisition_id,
+          mission: mission?.name ?? null,
+          phase: m.currentPhase ?? "Not started",
+          hold: m.hold,
+          view: countdownView(m),
+        };
+      }),
+    [metrics, missions],
   );
 
   const phases = useMemo(() => {
@@ -102,42 +113,68 @@ function PortfolioScan({ metrics }: { metrics: AcqMetrics[] }) {
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-panel-muted">
         Launch countdown · Portfolio
       </p>
-      <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-3" aria-label="Portfolio countdowns">
-        {chips.map(({ acq, view }) => (
+      <ul
+        className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+        aria-label="Portfolio countdowns"
+      >
+        {chips.map(({ acq, heading, mission, phase, hold, view }) => (
           <li key={acq}>
             <Link
               to="/files/$acquisitionId"
               params={{ acquisitionId: acq }}
-              title={`${acq} — ${view.caption}`}
-              className="inline-flex items-baseline gap-2 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+              title={`${heading} — ${acq} — ${view.caption}`}
+              className="block h-full rounded-lg border border-panel-muted/30 bg-white/[0.04] px-4 py-3 transition-colors hover:border-[color:var(--accent-cyan)]/60 hover:bg-white/[0.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              <span className="text-[12px] text-panel-muted">{acq}</span>
-              {view.days === null ? (
-                <span className="text-[13px] text-panel-muted">
-                  {view.mode === "stopped" ? "Stopped" : "Not started"}
+              <p className="truncate text-[15px] leading-[22px] font-medium text-panel-foreground">
+                {heading}
+              </p>
+              <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-[12px] text-panel-muted">
+                <span data-numeric className="[font-variant-numeric:tabular-nums]">
+                  {acq}
                 </span>
-              ) : (
-                <span
-                  className="text-[17px] font-semibold [font-variant-numeric:tabular-nums]"
-                  style={{ color: chipDigitColor(view) }}
-                  data-numeric
-                >
-                  {view.prefix} {view.days}
+                {mission && mission !== heading ? <span>· {mission}</span> : null}
+              </p>
+              <p className="mt-2">
+                <span className="inline-block rounded border border-panel-muted/40 px-1.5 py-0.5 text-[11px] text-panel-muted">
+                  {phase}
                 </span>
-              )}
-              {view.badge ? (
-                <span
-                  className="rounded px-1 text-[10px] font-semibold tracking-wide"
-                  style={
-                    view.mode === "hold"
-                      ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
-                      : view.mode === "overdue"
-                        ? { color: "#ffffff", backgroundColor: "var(--atrisk)" }
-                        : { color: "var(--panel)", backgroundColor: "var(--accent-cyan)" }
-                  }
-                >
-                  {view.badge}
-                </span>
+              </p>
+              <p className="mt-2 flex items-baseline gap-2">
+                {view.days === null ? (
+                  <span className="text-[13px] text-panel-muted">
+                    {view.mode === "stopped" ? "Stopped" : "Not started"}
+                  </span>
+                ) : (
+                  <span
+                    className="text-[22px] font-semibold [font-variant-numeric:tabular-nums]"
+                    style={{ color: chipDigitColor(view) }}
+                    data-numeric
+                  >
+                    {view.prefix} {view.days}
+                  </span>
+                )}
+                {view.days !== null ? (
+                  <span className="text-[12px] text-panel-muted">days</span>
+                ) : null}
+                {view.badge ? (
+                  <span
+                    className="rounded px-1 text-[10px] font-semibold tracking-wide"
+                    style={
+                      view.mode === "hold"
+                        ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
+                        : view.mode === "overdue"
+                          ? { color: "#ffffff", backgroundColor: "var(--atrisk)" }
+                          : { color: "var(--panel)", backgroundColor: "var(--accent-cyan)" }
+                    }
+                  >
+                    {view.badge}
+                  </span>
+                ) : null}
+              </p>
+              {hold ? (
+                <p className="mt-1.5 truncate text-[12px] text-panel-muted">
+                  On hold — {hold.reason}
+                </p>
               ) : null}
             </Link>
           </li>
@@ -329,7 +366,7 @@ export function ExecutiveOverview() {
           <>
             {/* The one bold element: deep navy Mission Clock band, large still figures. */}
             <div className="rounded-xl bg-panel px-6 py-6 text-panel-foreground sm:px-8">
-              <PortfolioScan metrics={metrics} />
+              <PortfolioScan metrics={metrics} missions={q.data?.missions ?? []} />
               <div className="flex items-baseline justify-between gap-4">
                 <p className="text-[13px] text-panel-muted" data-numeric>
                   Across {metrics.length} acquisitions
