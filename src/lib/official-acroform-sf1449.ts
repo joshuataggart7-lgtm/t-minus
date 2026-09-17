@@ -302,10 +302,11 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
       box1_1: false,
       box1_2: false,
       box1_3: false,
-      are1: false,
-      arenot1: commercial,
-      are2: false,
-      arenot2: commercial,
+      are1: addenda27a === true,
+      arenot1: addenda27a === false,
+      are2: addenda27b === true,
+      arenot2: addenda27b === false,
+
     },
 
     // Signature blocks stay empty: a person signs them.
