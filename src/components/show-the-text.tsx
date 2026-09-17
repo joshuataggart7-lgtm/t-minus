@@ -7,7 +7,12 @@
 
 import { useId, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { citationHasCompanionGuide, citationTokens, useCiteCorpus } from "@/lib/cite-stub";
+import {
+  CITE_HEADING_ONLY_NOTE,
+  citationHasCompanionGuide,
+  citationTokens,
+  useCiteCorpus,
+} from "@/lib/cite-stub";
 import { formatRefDate, tierLabel, type RegRefRow } from "@/lib/regulation-sidebar";
 import {
   formatRetrieved,
