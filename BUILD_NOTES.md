@@ -2548,3 +2548,18 @@ No residual citation bugs found in this pass.
   fallback is unchanged.
 - Perms-strip and the companion Import Data path are unchanged. SF1449 and
   SF30 remain non-Live and are not Adobe-verified.
+
+## Soft §2 — form_field_mappings as data
+- `src/lib/form-field-mappings.json` now carries 233 rows: sf1449 109, sf30 39,
+  of347 85. Added the three date boxes the SF 1449 list named (Date[0], Date[1],
+  Date[2]); each stays empty until a person signs or a date is recorded.
+- Every sf1449 row was checked against the official blank: no row names a field
+  the blank does not carry.
+- `form-field-mappings.ts` (types, FORM_FIELD_MAPPINGS, mappingsFor) and
+  `apply-form-mappings.ts` (applyFormMappings, pdfText/pdfMoney/pdfCheck,
+  match rules eq | includes | includes_any | truthy | array_includes |
+  roger_sb2) are the only path the SF 1449 fill uses.
+- `official-acroform-sf1449.ts` deletes the XFA layer before writing and fills
+  through `mappingsFor('sf1449', revision)` against nested record paths.
+- SF 30 and OF 347 rows remain data only; no UI. Forms stay non-Live and are
+  not Adobe-verified. Clocks stay FLAG-only.
