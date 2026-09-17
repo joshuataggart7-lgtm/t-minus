@@ -2932,7 +2932,7 @@ function genericPrintBlocks(doc: RenderedDoc): PrintBlock[] {
     }));
 }
 
-function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
+export function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const v = ctx.values;
   const value = (key: string) => cleanExportText(v[key] ?? "");
   const contractor = value("contractor_name") || blankLine;

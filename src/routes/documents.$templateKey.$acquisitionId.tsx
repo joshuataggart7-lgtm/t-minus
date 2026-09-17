@@ -76,6 +76,8 @@ import {
   technicalRepresentative,
   approvingOfficialTitle,
 } from "@/lib/template-engine";
+import { generateJofocDocx } from "@/lib/jofoc-docx";
+import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
@@ -2061,7 +2063,12 @@ function DocumentPage() {
               <DropdownMenuItem
                 onSelect={() => {
                   if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
-                  else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
+                  else if (def.key === "jofoc" && exportContext) {
+                    // The JOFOC is written into the NASA Word master, not built from scratch.
+                    void generateJofocDocx(exportContext)
+                      .then((bytes) => downloadDocxBytes(bytes, `jofoc-${acquisitionId}.docx`))
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                  } else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
                 }}
               >
                 Export Word

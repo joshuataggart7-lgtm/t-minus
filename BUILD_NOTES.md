@@ -2577,3 +2577,5 @@ No residual citation bugs found in this pass.
   amount when CLIN 0001 is only part of that amount.
 
 - Exec Overview portfolio scan chips: mission/title heading, quieter tabular A-number, phase chip, existing countdownView face (T-/HOLD/FORECAST/T+ tones unchanged), optional hold reason. Dense dark console cards with cyan hover accent. No form, clock, seed, or citation changes.
+
+- Soft Walk: JOFOC Word now Roger-fills `public/forms/JOFOC_MASTER.docx` (NASA HQ cite-fixed JOFOC (7) package + Soft Walk markers) instead of building docx from scratch. One CO certification/signature block (no TR, advocate, or multi-tier lines); Prototype footer retained. PDF path unchanged; Soft Walk forms untouched.
