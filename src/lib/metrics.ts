@@ -60,15 +60,20 @@ export type AcqMetrics = {
   deadline: string | null;
 };
 
-const dayFmt = (iso: string | null) =>
-  iso
-    ? new Date(iso + "T00:00:00Z").toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        timeZone: "UTC",
-      })
-    : "no date";
+const dayFmt = (iso: string | null) => {
+  if (!iso) return "no date";
+  // A calendar date or a full timestamp both read as a calendar date here,
+  // so a checked_at stamp never renders as "Invalid Date".
+  const when = new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
+  if (Number.isNaN(when.getTime())) return "no date";
+  return when.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+};
+
 
 export function formatDate(iso: string | null) {
   return dayFmt(iso);
