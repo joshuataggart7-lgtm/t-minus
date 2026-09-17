@@ -139,7 +139,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   const v = ctx.values ?? {};
   const value = (key: string) => cleanProse(str(v[key]));
   const estimated = parseMoney(v["estimated_value"]);
-  const classJustification = /^(1|true|yes|y)$/i.test(str(v["class_justification"])) || Boolean(v["class_justification"] === true);
+  const classJustification = /^(1|true|yes|y)$/i.test(str(v["class_justification"]));
   const band = selectJofocSigBand(estimated, classJustification, ctx.thresholds);
   const authority = value("authority");
   const is41 = /41\s*U\.?\s*S\.?\s*C\.?\s*190[13]/i.test(authority) || /FAR\s*12\.102/i.test(authority);
@@ -190,7 +190,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);
-    authority10Line = m ? m[1].trim() || KEEP : authority || KEEP;
+    authority10Line = m ? (m[1] ?? "").trim() || KEEP : authority || KEEP;
   } else {
     authority10Line = KEEP;
   }
