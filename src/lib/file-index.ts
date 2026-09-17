@@ -199,7 +199,7 @@ export function buildFileIndex(
   const hasOfficialSf1449Upload = attachments.some(
     (a) => isSf1449(a.doc_label) && /official/i.test(a.doc_label),
   );
-  const liveAttachments = hasOfficialSf1449
+  const liveAttachments = hasGeneratedOfficialSf1449 || hasOfficialSf1449Upload
     ? attachments.filter((a) => !isSf1449(a.doc_label) || (!hasGeneratedOfficialSf1449 && /official/i.test(a.doc_label)))
     : attachments;
 
