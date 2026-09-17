@@ -2563,3 +2563,15 @@ No residual citation bugs found in this pass.
   through `mappingsFor('sf1449', revision)` against nested record paths.
 - SF 30 and OF 347 rows remain data only; no UI. Forms stay non-Live and are
   not Adobe-verified. Clocks stay FLAG-only.
+
+## Soft Walk P0 — Joshua Taggart output lock
+- Live records verified: A-2026-0090, A-2027-0101 and A-2027-0102 name
+  Joshua Taggart as contracting officer; A-2027-0103 remains J. Rivera
+  (fictional CO). No clock or phase changed.
+- The 0090 fixture now also names Joshua Taggart, matching the already-correct
+  0101 and 0102 fixtures so a reset cannot regress the Soft Walk outputs.
+- Market Research Memorandum headers force both FROM and `signatureName` from
+  the file's current `co_name`; the saved 0101 header already names Joshua.
+- SF 1449, OF 347 and SF 30 continue to read their officer name only from
+  `co_name`. The commercial SF 1449 face remains 1 Lot at the recorded face
+  amount when CLIN 0001 is only part of that amount.
