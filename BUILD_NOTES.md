@@ -2057,3 +2057,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Perms-strip and the Import Data companion path are unchanged. SF 1449, SF 30 and templates remain non-Live; no Adobe desktop verification is claimed.
 
 - W4.3 deepen: payment milestones framed as the invoice plan on the panel, format scaffold, packet JSON and Award handoff section 8. Soft plan advisories only (percent total, not-100% note, plan summary of count/linked/missing value). No gating, no invented rows, samples untouched.
+
+- W4.4: CDRL / data requirements labelled as a distinct block beside document attachments in the panel, format scaffold, handoff packet JSON and Award handoff section 7; soft DRD completeness notes (items, DRD refs, missing frequency/as-of/distribution) and a muted method-aware line (commercial streamlined vs services/R&D). Advisory only — never holds Walk or a phase exit; no DRD text or cites invented; Samples left empty.
