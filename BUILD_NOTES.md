@@ -2179,3 +2179,11 @@ The form preview can outline where each filled value came from. Scope comes from
 - `src/lib/official-acroform-forms.ts` adds `of347CtxToRogerData`, `sf30CtxToRogerData` and `generateOfficialFormPdf`, using the same pipeline: resolve blank by revision, `deleteXFA()`, `applyFormMappings` from the existing mapping rows, appearances, save. Roger's imperative mappers were used as shape reference only; no field names were re-derived.
 - Pack retention as in §10: `of-347-official` and `sf-30-official` keys, with the audit row and the honest failure message.
 - Signature and contracting officer date blocks stay empty on all three.
+
+## ORBIT visual identity — Chunk 1 frame
+
+- The authenticated application frame now uses a near-black console surface for the top strip and left navigation, with NASA blue reserved for structural borders.
+- The work area remains a dense, near-white canvas with existing page, table, form, and document layouts unchanged.
+- Electric cyan is `#22D3EE` and is reserved for the active navigation marker/text and keyboard focus outlines.
+- Open acquisition files show a compact file-context link beneath the primary navigation. The prototype disclaimer remains visible in high-contrast text on the dark footer strip.
+- No countdown, phase rail, assistant rename, Executive Overview imagery, form/export behavior, record data, citations, or clock behavior changed in this chunk.

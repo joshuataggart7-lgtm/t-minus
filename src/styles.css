@@ -39,6 +39,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chrome: var(--chrome);
+  --color-chrome-foreground: var(--chrome-foreground);
+  --color-chrome-muted: var(--chrome-muted);
+  --color-chrome-structure: var(--chrome-structure);
+  --color-accent-cyan: var(--accent-cyan);
   --color-panel: var(--panel);
   --color-panel-foreground: var(--panel-foreground);
   --color-panel-muted: var(--panel-muted);
@@ -73,6 +78,13 @@
   --accent: #f5f7fb;
   --accent-foreground: #0b3d91;
   --ring: #0b3d91;
+
+  /* ORBIT frame: cyan is reserved for active navigation and keyboard focus. */
+  --chrome: #090d14;
+  --chrome-foreground: #f7f9fc;
+  --chrome-muted: #aeb8c7;
+  --chrome-structure: #0b3d91;
+  --accent-cyan: #22d3ee;
 
   /* mission clock panel */
   --panel: #0f2a5b;
@@ -152,10 +164,22 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-accent-cyan);
     outline-offset: 2px;
   }
 
+}
+
+/* Search trigger only while it sits in the dark application chrome. */
+.app-chrome-search > button {
+  border-color: var(--chrome-structure);
+  background: var(--chrome);
+  color: var(--chrome-muted);
+}
+
+.app-chrome-search > button:hover {
+  border-color: var(--chrome-structure);
+  color: var(--chrome-foreground);
 }
 
 @utility clock-figure {
