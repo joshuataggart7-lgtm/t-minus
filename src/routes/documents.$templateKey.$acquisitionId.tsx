@@ -1280,6 +1280,9 @@ function DocumentPage() {
     preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
     organizationCode: String(q.data.acq["co_code"] ?? q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
     additionalApprovalRequired: Boolean(signature && signature.blocks.length > 2),
+    researchLog: q.data.researchLog,
+    sizeStandard: q.data.sizeStandard?.citation ?? null,
+    priorTminusActionCount: comparablesForDraft?.source === "local" ? comparablesForDraft.awards.length : 0,
     // Live JOFOC approval-tier rows so the signature band is amount-driven.
     thresholds: (q.data.thresholds ?? []).map((t) => ({
       name: t.name,
