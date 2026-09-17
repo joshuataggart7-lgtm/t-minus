@@ -69,7 +69,12 @@ export function resolveSections(
   const exact = rows.filter((r) => normaliseCitation(r.citation) === wanted);
   if (exact.length > 0) return exact;
   if (isSingleCitation(wanted)) return [];
-  const tokens = citationTokens(citation).map(normaliseCitation);
+  // A token is only used when the prose names that section on its own. Where
+  // the prose says FAR 10.002(e), the token FAR 10.002 is dropped rather than
+  // standing in for a paragraph the corpus does not carry.
+  const tokens = citationTokens(citation)
+    .map(normaliseCitation)
+    .filter((t) => !new RegExp(`${t.replace(/[.()\-]/g, "\\$&")}\\s*\\(`).test(wanted));
   if (tokens.length === 0) return [];
   return rows.filter((r) => tokens.includes(normaliseCitation(r.citation)));
 }
