@@ -76,8 +76,18 @@ export async function loadDeviationsForAcquisition(acquisitionId: string): Promi
   return (data ?? []) as unknown as DeviationSummary[];
 }
 
-/** One line for a deviation row: type, citation, and where it stands. */
+/**
+ * One line for a deviation row: type, citation, and where it stands as
+ * recorded. No vote is counted and no board outcome is inferred here — an
+ * undecided request is reported as still open.
+ */
 export function deviationStatusLine(d: DeviationSummary): string {
-  const decision = d.decision ? `, decision: ${d.decision}` : "";
-  return `${d.deviation_type} deviation — ${d.citation} — status ${d.status}${decision}`;
+  const status = String(d.status ?? "").trim().toLowerCase();
+  const open = status === "" || status === "open" || status === "pending" || status === "submitted";
+  const decision = d.decision
+    ? `, decision as recorded: ${d.decision}`
+    : open
+      ? ", still open — no decision is recorded"
+      : ", no decision is recorded";
+  return `${d.deviation_type} deviation — ${d.citation} — status ${d.status || "not recorded"}${decision}`;
 }
