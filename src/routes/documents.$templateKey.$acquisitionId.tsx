@@ -1589,15 +1589,31 @@ function DocumentPage() {
 
       
       {heldByOther && checkout ? (
-        <p
+        <div
           role="status"
           className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
         >
-          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")}{" "}
-          The fields are
-          read-only for you until that person saves or closes the document, or thirty minutes pass. Refresh
-          this page to pick it up.
-        </p>
+          <p>
+            Checked out by {checkout.user_name} since{" "}
+            {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")} What is saved is shown here and
+            reads as written; the fields are read-only for you until that person saves or closes the
+            document, or thirty minutes pass.
+          </p>
+          {canWrite ? (
+            <p className="mt-2">
+              <button
+                type="button"
+                className="text-primary underline"
+                onClick={() => void takeOver()}
+              >
+                Take over the document
+              </button>{" "}
+              <span className="text-muted-foreground">
+                The hand-over is recorded with both names. Nothing already saved is lost.
+              </span>
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <form
