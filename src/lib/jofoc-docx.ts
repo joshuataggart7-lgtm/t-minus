@@ -175,7 +175,27 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
     uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   }
   const scope = naics && !sources.some((source) => source.includes(`NAICS ${naics}`)) ? ` for NAICS ${naics}` : "";
-  return `Market research was conducted using ${joinList(sources)}${scope}. Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
+  // Recorded search date and headline count, written as prose when the record holds them.
+  const searchDate = humanDate(
+    researchLog
+      .map((line) => str(line.ran_at) || str(line.ranAt))
+      .filter(Boolean)
+      .sort()
+      .pop() ?? "",
+  );
+  const topCount = researchLog
+    .map((line) => Number(line.result_count ?? line.count ?? NaN))
+    .filter((n) => Number.isFinite(n) && n >= 0)
+    .sort((a, b) => b - a)[0];
+  const detail =
+    searchDate || topCount !== undefined
+      ? ` The research was performed${searchDate ? ` on ${searchDate}` : ""}${
+          topCount !== undefined
+            ? `, and the broadest search returned ${topCount} ${topCount === 1 ? "candidate source" : "candidate sources"}`
+            : ""
+        }.`
+      : "";
+  return `Market research was conducted using ${joinList(sources)}${scope}.${detail} Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
 }
 
 function thresholdValue(thresholds: JofocThresholdRow[] | undefined, name: string, fallback: number): number {
