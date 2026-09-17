@@ -22,6 +22,7 @@ import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
+import { uploadAttachment } from "@/lib/attachments";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
@@ -443,6 +444,54 @@ function FormPage() {
     }
   };
 
+
+  /**
+   * Soft §10: a generated draft is kept on the file, not only in the reader's
+   * Downloads folder. The bytes already downloaded are written into the
+   * evidence pack as an attachment. A pack write that fails never loses the
+   * download; it is reported as it happened. This is prototype retention, not
+   * a write-back to NCMS.
+   */
+  const fileIntoPack = async (input: {
+    bytes: Uint8Array;
+    fileName: string;
+    contentType: string;
+    key: string;
+    label: string;
+    note?: string;
+  }): Promise<string> => {
+    try {
+      const who = await signedInName(user.name);
+      const file = new File([input.bytes as unknown as BlobPart], input.fileName, {
+        type: input.contentType,
+      });
+      await uploadAttachment({
+        acquisitionId,
+        key: input.key,
+        label: input.label,
+        file,
+        actor: who,
+      });
+      try {
+        await supabase.from("audit_log").insert({
+          acquisition_id: acquisitionId,
+          actor: who,
+          action: "Official form draft filed",
+          field: input.label,
+          old_value: null,
+          new_value: input.note ?? input.fileName,
+          reason: "A generated draft was filed on the contract file for the evidence pack",
+        } as never);
+      } catch {
+        // Soft: the audit note never holds the file.
+      }
+      return " The draft is also filed on the contract file, in the evidence pack.";
+    } catch (error) {
+      const why = error instanceof Error ? error.message : "the pack write did not finish";
+      return ` The download is on your machine, but filing it on the contract file did not finish: ${why}`;
+    }
+  };
+
   /**
    * SF 1449 on the official blank, written into the blank's own fields so the
    * values show in Adobe Reader, Chrome and Preview alike.
@@ -460,11 +509,26 @@ function FormPage() {
           return;
         }
       }
-      const bytes = await generateOfficialSf1449Pdf(formCtx, { formRevision: pinnedRevision });
-      downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
+      const revision = pinnedRevision ?? currentFormRevision("sf1449");
+      const bytes = await generateOfficialSf1449Pdf(formCtx, { formRevision: revision });
+      const fileName = `sf-1449-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
+      downloadPdfBytes(bytes, fileName);
       setMessage(
-        `Official PDF exported on blank revision ${pinnedRevision ?? currentFormRevision("sf1449")}. ` +
+        `Official PDF exported on blank revision ${revision}. ` +
           "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+      );
+      const filed = await fileIntoPack({
+        bytes,
+        fileName,
+        contentType: "application/pdf",
+        key: "sf-1449-official",
+        label: "SF 1449 official draft (prototype)",
+        note: `Blank revision ${revision}`,
+      });
+      setMessage(
+        `Official PDF exported on blank revision ${revision}. ` +
+          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer." +
+          filed,
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
@@ -476,10 +540,20 @@ function FormPage() {
     if (!formCtx) return;
     try {
       const bytes = await generateRfpCoverDocx(formCtx);
-      downloadDocxBytes(bytes, `rfp-cover-${acquisitionId}.docx`);
-      setMessage(
-        "RFP cover letter exported in Word. It is the NASA master with the record's wording filled in; passages the record does not carry are left out. It is a prototype draft for the contracting officer to check and sign.",
-      );
+      const fileName = `rfp-cover-${acquisitionId}.docx`;
+      downloadDocxBytes(bytes, fileName);
+      const base =
+        "RFP cover letter exported in Word. It is the NASA master with the record's wording filled in; passages the record does not carry are left out. It is a prototype draft for the contracting officer to check and sign.";
+      setMessage(base);
+      const filed = await fileIntoPack({
+        bytes,
+        fileName,
+        contentType:
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        key: "rfp-cover",
+        label: "RFP cover letter draft (prototype)",
+      });
+      setMessage(base + filed);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The letter did not export.");
     }
