@@ -111,6 +111,9 @@ export function PaymentMilestonesPanel({
   const clinNote = (r: PaymentMilestoneRow): string | null =>
     paymentOrphanNote(r, clinIds) ?? paymentUnlinkedNote(r, clins.length);
 
+  // Plan-level notes read from the same rows the packet prints.
+  const planNotes: string[] = paymentPlanNotes(paymentMilestonesForPacket(rows, clins));
+
 
   const toInput = (d: Draft): PaymentMilestoneInput => {
     const linked = clins.find((c) => c.clin_id === d.clin_id);
