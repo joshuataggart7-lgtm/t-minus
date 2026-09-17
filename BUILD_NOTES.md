@@ -2458,3 +2458,11 @@ No residual citation bugs found in this pass.
 - File hero action labels: `pnm` generator → "Write the PNM"; `market-research-memo` → "Write the memorandum"; `nf-1787`/`nf-1787a` retained; IGCE/SOW-PWS attach labels retained. Labels only — no attach/generate behavior changed.
 - Executive Overview `MissionClockRow`: status rendered via `statusWord()` (sentence case: "At risk" / "Needs attention" / "On track" / "Launched"), no `uppercase`/`tracking-wide` on the status word; color marker paired with the word. Summary cards already sentence case.
 - Smoke: `/` and `/files/A-2027-0101` returned 200. Sample 1/2 seeds untouched.
+
+## Sample 1 QA — PNM draft chips, prefill, index tab 065
+- Draft wording ("Drafted from the record, confirm." / "Draft, confirm.") is stripped from prefilled and stored field bodies on the document form; the flag stays as a chip beside the field. Applies to the PNM negotiation summary and determination statement.
+- PNM prefill on simplified commercial files already fills Basis of the IGCE, Certified cost or pricing data ("Not required; commercial products or services (FAR 15.403-1(b)(3))") and Date of determination from the record; unchanged.
+- PNM cites unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files, never a bare FAR 15.406-3.
+- NF 1098 tab 065 is display-only and gates nothing; saving the generated PNM satisfies it. No seed change.
+- CO of record on A-2027-0101 stays J. Rivera (fictional CO); the signed-in admin name is never substituted.
+- P0.3 reserved-clause note stays visible on the Sample 1 clause packet UI.
