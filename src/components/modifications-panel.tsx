@@ -233,10 +233,7 @@ export function ModificationsPanel({
               ))}
             </ul>
             {clauseDeltaWithheld ? (
-              <p className="mt-2 text-muted-foreground">
-                Clause delta: withheld on this vehicle. Clause reconciliation is not complete, so it
-                is not shown on this file.
-              </p>
+              <p className="mt-2 text-muted-foreground">{IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}</p>
             ) : (
               <p className="mt-2 text-muted-foreground">
                 Clause delta: read from the clause matrices on the file after the modification is
