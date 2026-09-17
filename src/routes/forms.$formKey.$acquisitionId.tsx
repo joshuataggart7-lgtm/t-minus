@@ -192,7 +192,7 @@ function FormPage() {
     },
   });
 
-  const baseForm = useMemo(() => {
+  const formCtx = useMemo<FormCtx | null>(() => {
     if (!q.data?.acq || !isFormKey(formKey)) return null;
     const acq = q.data.acq;
     const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
