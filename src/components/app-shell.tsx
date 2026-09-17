@@ -197,8 +197,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <nav
           aria-label="Main"
           className={cn(
-            "min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure bg-chrome text-chrome-foreground transition-[width] duration-150 ease-out max-[1099px]:w-14",
-            collapsed ? "w-14" : "w-60",
+            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out",
+            collapsed ? "w-14" : "w-56 lg:w-60",
           )}
         >
           <div className="py-3">
@@ -207,27 +207,27 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               if (!groupItems.length) return null;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className="flex w-full items-center justify-between px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted max-[1099px]:sr-only">
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
-                <ul className={cn(!expanded && "hidden", "max-[1099px]:block")}>
+                <ul className={cn(!expanded && "hidden", collapsed && "block")}>
                 {groupItems.map((item) => {
               const active = pathname === item.to;
-              const Icon = NAV_ICONS[item.label] ?? Files;
+              const Icon = NAV_ICONS[item.label] ?? FolderOpen;
               return (
                 <li key={item.to}>
                   <Link
                     to={item.to}
                     title={item.label}
                     className={cn(
-                      "flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
+                      "nav-label group relative flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
                       active
-                        ? "border-accent-cyan font-medium text-accent-cyan"
-                        : "border-transparent text-chrome-muted hover:text-chrome-foreground",
+                        ? "border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_12%,transparent)] font-semibold text-accent-cyan"
+                        : "border-transparent text-chrome-muted hover:bg-white/[0.04] hover:text-chrome-foreground",
                     )}
                   >
-                    <Icon className="size-4 shrink-0" aria-hidden="true" />
-                    <span className={cn("truncate max-[1099px]:sr-only", collapsed && "sr-only")}>{item.label}</span>
+                    <Icon className={cn("size-[18px] shrink-0", active ? "text-accent-cyan" : "text-chrome-muted group-hover:text-chrome-foreground")} aria-hidden="true" />
+                    <span className={cn("truncate", collapsed && "sr-only")}>{item.label}</span>
                     {!collapsed && item.note ? (
                       <span className="block text-[12px] text-chrome-muted">{item.note}</span>
                     ) : null}
@@ -238,12 +238,12 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             })}</ul></section>;
             })}
             {openAcquisitionId ? (
-              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0 max-[1099px]:hidden")}>
-                <p className="px-1 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted">Open file</p>
+              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0")}>
+                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>Open file</p>
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
-                  className="mt-2 block border-l-2 border-accent-cyan px-3 py-2 text-[13px] font-medium text-accent-cyan"
+                  className="mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]"
                 >
                   {openAcquisitionId}
                 </Link>
