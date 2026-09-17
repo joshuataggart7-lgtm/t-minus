@@ -17,6 +17,7 @@ import {
   sf1449CtxToRogerData,
   validateSf1449ClinReconciliation,
 } from "@/lib/official-acroform-sf1449";
+import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
@@ -420,6 +421,20 @@ function FormPage() {
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
+    }
+  };
+
+  /** The RFP cover letter in Word, written into the NASA master. */
+  const exportRfpCover = async () => {
+    if (!formCtx) return;
+    try {
+      const bytes = await generateRfpCoverDocx(formCtx);
+      downloadDocxBytes(bytes, `rfp-cover-${acquisitionId}.docx`);
+      setMessage(
+        "RFP cover letter exported in Word. It is the NASA master with the record's wording filled in; passages the record does not carry are left out. It is a prototype draft for the contracting officer to check and sign.",
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The letter did not export.");
     }
   };
 
