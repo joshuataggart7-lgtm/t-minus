@@ -17,6 +17,7 @@ import {
   sf1449CtxToRogerData,
   validateSf1449ClinReconciliation,
 } from "@/lib/official-acroform-sf1449";
+import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
@@ -423,6 +424,20 @@ function FormPage() {
     }
   };
 
+  /** The RFP cover letter in Word, written into the NASA master. */
+  const exportRfpCover = async () => {
+    if (!formCtx) return;
+    try {
+      const bytes = await generateRfpCoverDocx(formCtx);
+      downloadDocxBytes(bytes, `rfp-cover-${acquisitionId}.docx`);
+      setMessage(
+        "RFP cover letter exported in Word. It is the NASA master with the record's wording filled in; passages the record does not carry are left out. It is a prototype draft for the contracting officer to check and sign.",
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The letter did not export.");
+    }
+  };
+
   const exportData = async () => {
     if (!form) return;
     exportXdp(await boundDatasets(), `${form.key}-${acquisitionId}`);
@@ -514,6 +529,14 @@ function FormPage() {
               onClick={exportData}
             >
               Export data file for Import Data{formKey === "sf-1449" ? " (legacy)" : ""}
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="The NASA RFP cover letter master, filled from this record. A prototype draft for the contracting officer to check and sign."
+              onClick={() => void exportRfpCover()}
+            >
+              Export RFP cover (Word)
             </button>
           </div>
           <p className="mb-4 text-[13px] text-muted-foreground">

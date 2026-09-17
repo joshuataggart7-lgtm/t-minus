@@ -2090,3 +2090,11 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Block 20: short requirement title on the priced row, narrative wrapped across the rows beneath.
 - Face line: quantity x unit price when it reconciles, else 1/Lot/face for commercial firm fixed price, else all priced columns blank. A quantity is never invented from hours.
 - validateSf1449ClinReconciliation compares schedule amounts to the total; the official AcroForm export asks before generating a draft that does not add up.
+
+## §5 — RFP cover letter in Word from the genuine NASA master (Soft)
+- Added `public/forms/RFP_COVER_MASTER.docx` (sha256 4e5e9a04…c1c3a, 58,571 bytes) — Roger's genuine NASA RFP cover master, 38 `[[MARKER]]` runs. Not embedded as base64 in source.
+- Added `src/lib/apply-docx-markers.ts`: `applyMarkers` (JSZip → rewrite only `word/document.xml` → DEFLATE rezip; empty value deletes the ancestor `<w:p>`), Soft `lintMarkersSplit` naming any marker split across runs, and `readDocumentXml`.
+- Added `src/lib/rfp-cover-docx.ts`: marker map ported Softly from Roger's `rfpMarkers` onto FormCtx/acquisition fields; optional passages (phase-in, property, site visit, OCI, security, AI, draft RFP, past performance, SEB, CAGE, price exhibits, blackout) stay empty so their paragraphs disappear. `generateRfpCoverDocx` + `downloadDocxBytes`.
+- Forms page: secondary button "Export RFP cover (Word)". SF 1449 AcroForm export stays the primary PDF route; SF 1449/SF 30 remain non-Live and no Adobe verification is claimed.
+- Verified in-browser against A-2027-0101-shaped fields: no split markers, 0 markers left in the output, letterhead/styles/footers untouched.
+- Honest gap: the 97 HQ templates on disk carry prose "Insert …" placeholders, not `[[MARKER]]` masters. This ship proves the technique on the one genuine master only; authoring or converting markers into the remaining masters is later work.
