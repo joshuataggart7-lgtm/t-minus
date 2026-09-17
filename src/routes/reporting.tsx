@@ -147,6 +147,11 @@ function ReportingPage() {
             </table>
           </div>
         ) : null}
+        {!preview.isLoading && !preview.error && preview.data && preview.data.length === 0 ? (
+          <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+            This view holds no rows yet, so there is nothing to show or download.
+          </p>
+        ) : null}
       </section>
 
       <section className="mt-10 border-t border-border pt-6">
