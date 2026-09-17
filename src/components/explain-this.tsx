@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import type { Explanation } from "@/lib/explain";
-import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
-import { ShowTheText } from "@/components/show-the-text";
+import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 
 /**
  * "Explain this": a side panel that shows why a flag, hold, or status fired,
