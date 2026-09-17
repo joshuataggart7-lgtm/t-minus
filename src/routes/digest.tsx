@@ -220,16 +220,28 @@ function DigestPage() {
             </p>
           ) : null}
 
+          {sections.length === 0 ? (
+            <p className="mt-8 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+              Nothing has moved this week, so the digest has no lines to send.
+            </p>
+          ) : null}
+
           {sections.map((s) => (
             <section key={s.heading} className="mt-8">
               <h2 className="text-[18px] leading-6 font-medium">{s.heading}</h2>
-              <ul className="mt-2 max-w-[80ch] space-y-1 text-[13px] leading-[18px]">
-                {s.lines.map((line) => (
-                  <li key={line} data-numeric>
-                    {line}
-                  </li>
-                ))}
-              </ul>
+              {s.lines.length === 0 ? (
+                <p className="mt-2 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+                  Nothing recorded under this heading.
+                </p>
+              ) : (
+                <ul className="mt-2 max-w-[80ch] space-y-1 text-[13px] leading-[18px]">
+                  {s.lines.map((line) => (
+                    <li key={line} data-numeric>
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
           ))}
         </>

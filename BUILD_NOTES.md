@@ -2068,3 +2068,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Wave 5 Board path deepen: boardReadiness now carries a real read-receipt count (null when unread, never invented); cockpit shows a Read receipts line and pointer to the panel below; briefing book Board readiness page prints the same snapshot. Advisory only — nothing holds a file or phase exit.
 - W5 fidelity: the shared Board snapshot now carries the record-derived method voice across cockpit and briefing, separates factor and evidence empties, keeps sole-source evaluation explicit, uses an exact uncapped record count for receipts, and omits that line when the count read fails. Advisory only; no clock, hold, phase, required-document, seed, form, or external-write behavior changed.
+
+- Wave 6 pilot harden: shared Pilot known gaps line on Today and Work queue; calm empty states on the weekly digest and reporting views (CSV download disabled when a view holds no rows). Advisory only; no seeds, clocks, forms, or external writes touched.

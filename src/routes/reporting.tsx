@@ -110,7 +110,12 @@ function ReportingPage() {
       <section className="mt-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-medium">{REPORT_VIEWS.find((v) => v.view === open)?.label}</h2>
-          <button type="button" className="rounded-lg border border-border px-3 py-1 text-primary" onClick={download}>
+          <button
+            type="button"
+            disabled={!preview.data || preview.data.length === 0}
+            className="rounded-lg border border-border px-3 py-1 text-primary disabled:cursor-not-allowed disabled:text-muted-foreground"
+            onClick={download}
+          >
             Download CSV
           </button>
         </div>
@@ -141,6 +146,11 @@ function ReportingPage() {
               </tbody>
             </table>
           </div>
+        ) : null}
+        {!preview.isLoading && !preview.error && preview.data && preview.data.length === 0 ? (
+          <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+            This view holds no rows yet, so there is nothing to show or download.
+          </p>
         ) : null}
       </section>
 
