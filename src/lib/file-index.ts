@@ -179,7 +179,17 @@ export function buildFileIndex(
   const tplById = new Map(templates.map((t) => [t.template_id, t]));
   const present = new Map<string, IndexTab>();
 
-  for (const a of attachments) {
+  // P1-6: once the official SF 1449 export is on the file, an earlier hand
+  // upload of the same form is stale and is not listed a second time.
+  const isSf1449 = (label: string) => /sf\s*[- ]?1449/i.test(label);
+  const hasOfficialSf1449 = attachments.some(
+    (a) => isSf1449(a.doc_label) && /official/i.test(a.doc_label),
+  );
+  const liveAttachments = hasOfficialSf1449
+    ? attachments.filter((a) => !isSf1449(a.doc_label) || /official/i.test(a.doc_label))
+    : attachments;
+
+  for (const a of liveAttachments) {
     // An upload with no tab is still on the file. It is listed under an honest
     // "N/A" rather than dropped out of the index.
     const tab = displayTab(normTab(a.nf_1098_tab));
