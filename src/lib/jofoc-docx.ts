@@ -150,9 +150,10 @@ function joinList(items: string[]): string {
 /** Item 6 reads as named-source prose, while source detail stays in the research log. */
 export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const v = ctx.values ?? {};
-  const naics = cleanProse(str(v["naics_code"])) || ctx.researchLog?.map((l) => queryNaics(str(l.query))).find(Boolean) || "";
+  const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
+  const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
   const sources: string[] = [];
-  for (const line of ctx.researchLog ?? []) uniquePush(sources, sourceName(str(line.source)));
+  for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
   if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
   if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   if (!sources.length) {
@@ -200,7 +201,7 @@ export type JofocDocxContext = ExportContext & {
   /** Live thresholds table rows when available (documents route). */
   thresholds?: JofocThresholdRow[];
   /** Public-source searches already recorded on this file. */
-  researchLog?: JofocResearchLogLine[];
+  researchLog?: JofocResearchLogLine[] | unknown[];
   /** SBA size-standard note or citation when loaded for the record. */
   sizeStandard?: string | null;
   /** Prior T-Minus actions surfaced as local comparables. */
