@@ -9,6 +9,9 @@ import { loadClinSchedule } from "@/lib/clin-schedule";
 import {
   PAYMENT_AMOUNT_BLANK,
   PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentMilestonesForPacket,
+  paymentPlanNotes,
   createPaymentMilestone,
   deletePaymentMilestone,
   loadPaymentMilestones,
@@ -107,6 +110,9 @@ export function PaymentMilestonesPanel({
   const clinIds = clins.map((c) => c.clin_id);
   const clinNote = (r: PaymentMilestoneRow): string | null =>
     paymentOrphanNote(r, clinIds) ?? paymentUnlinkedNote(r, clins.length);
+
+  // Plan-level notes read from the same rows the packet prints.
+  const planNotes: string[] = paymentPlanNotes(paymentMilestonesForPacket(rows, clins));
 
 
   const toInput = (d: Draft): PaymentMilestoneInput => {
@@ -207,7 +213,7 @@ export function PaymentMilestonesPanel({
   return (
     <div className="mt-3 border border-border bg-muted/20 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h4 className="text-[15px] font-medium">Payment milestones</h4>
+        <h4 className="text-[15px] font-medium">Payment milestones — invoice plan</h4>
         <span className="text-[13px] text-muted-foreground">
           Read in the handoff packet, not in a separate spreadsheet.
         </span>
@@ -221,6 +227,8 @@ export function PaymentMilestonesPanel({
           </button>
         ) : null}
       </div>
+
+      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{PAYMENT_PLAN_LABEL}</p>
 
       {rows.length === 0 ? (
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
@@ -331,6 +339,16 @@ export function PaymentMilestonesPanel({
         </table>
       )}
 
+      {planNotes.length > 0 ? (
+        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+          {planNotes.map((n) => (
+            <span key={n} className="block">
+              {n}
+            </span>
+          ))}
+        </p>
+      ) : null}
+
       {canWrite && adding ? (
         <div className="mt-3 grid grid-cols-1 gap-3 border border-border bg-background p-3 sm:grid-cols-3">
           <div className="sm:col-span-2">
@@ -351,6 +369,7 @@ export function PaymentMilestonesPanel({
             <input
               id="new-pay-due"
               className={field}
+              placeholder='Free text — a date or "upon CLIN 0001 acceptance"'
               value={draft.due_logic}
               onChange={(e) => setDraft({ ...draft, due_logic: e.target.value })}
             />

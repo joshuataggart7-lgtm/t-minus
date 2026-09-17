@@ -15,6 +15,8 @@ import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
 import {
   PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentPlanNotes,
   type PacketPaymentMilestone,
 } from "@/lib/payment-milestones";
 
@@ -332,8 +334,12 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
     // Payment milestones as recorded. Empty unless the office added some.
     payment_milestones:
       scaffold.paymentMilestones.length === 0
-        ? { items: [], empty_note: PAYMENT_MILESTONES_EMPTY }
-        : { items: scaffold.paymentMilestones },
+        ? { label: PAYMENT_PLAN_LABEL, items: [], empty_note: PAYMENT_MILESTONES_EMPTY }
+        : {
+            label: PAYMENT_PLAN_LABEL,
+            items: scaffold.paymentMilestones,
+            plan_notes: paymentPlanNotes(scaffold.paymentMilestones),
+          },
     instructions_to_offerors: scaffold.instructions,
     evaluation: scaffold.evaluation,
     ucf_sections:

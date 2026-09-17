@@ -14,7 +14,11 @@ import { Link } from "@tanstack/react-router";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
-import { PAYMENT_MILESTONES_EMPTY } from "@/lib/payment-milestones";
+import {
+  PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentPlanNotes,
+} from "@/lib/payment-milestones";
 
 const NCMS_CHIP = "NCMS is the system of record. T-Minus does not write to NCMS.";
 
@@ -430,7 +434,10 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={8}>Payment milestones</Head>
+            <Head n={8}>Payment milestones — invoice plan</Head>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              {PAYMENT_PLAN_LABEL}
+            </p>
             {scaffold.paymentMilestones.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 {PAYMENT_MILESTONES_EMPTY}
@@ -471,6 +478,11 @@ export function AwardHandoffPanel({
                 </tbody>
               </table>
             )}
+            {paymentPlanNotes(scaffold.paymentMilestones).map((n) => (
+              <p key={n} className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+                {n}
+              </p>
+            ))}
           </section>
 
           <section>

@@ -32,6 +32,9 @@ export type PaymentMilestoneInput = {
 };
 
 export const PAYMENT_MILESTONES_EMPTY = "No payment milestones on this file.";
+/** How a CO should read this block: it is the invoice plan for the file. */
+export const PAYMENT_PLAN_LABEL =
+  "Payment milestones are the invoice plan for this file: what gets invoiced, when, and against which line item.";
 export const PAYMENT_AMOUNT_BLANK = "Neither an amount nor a percentage is recorded.";
 export const PAYMENT_CLIN_ORPHAN = "Linked CLIN missing from schedule.";
 
@@ -215,5 +218,58 @@ export function paymentMilestonesForPacket(
       ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Soft plan-level advisories. Muted text only: they never hold the file, never
+// block a phase exit, and never invent a balancing row or an amount.
+// ---------------------------------------------------------------------------
+
+const pct = (item: PacketPaymentMilestone): number | null => {
+  const m = /^(-?\d+(\.\d+)?)%$/.exec(item.percent.trim());
+  return m ? Number(m[1]) : null;
+};
+
+/** Sum of the percentages actually recorded, or null when none are. */
+export function paymentPercentTotal(items: PacketPaymentMilestone[]): number | null {
+  const values = items.map(pct).filter((v): v is number => v !== null);
+  if (values.length === 0) return null;
+  return Math.round(values.reduce((a, b) => a + b, 0) * 100) / 100;
+}
+
+/** "Recorded percentages total X%." — shown only when a percentage exists. */
+export function paymentPercentLine(items: PacketPaymentMilestone[]): string | null {
+  const total = paymentPercentTotal(items);
+  return total === null ? null : `Recorded percentages total ${total}%.`;
+}
+
+/** Soft advisory when the recorded percentages do not come to about 100%. */
+export function paymentPercentAdvisory(items: PacketPaymentMilestone[]): string | null {
+  const total = paymentPercentTotal(items);
+  if (total === null) return null;
+  return Math.abs(total - 100) < 0.01
+    ? null
+    : "Percentages on this plan do not total 100%.";
+}
+
+/** One muted line summarizing the plan for the panel and the packet. */
+export function paymentPlanSummary(items: PacketPaymentMilestone[]): string | null {
+  if (items.length === 0) return null;
+  const linked = items.filter((i) => i.clin_number !== "Not recorded").length;
+  const missing = items.filter((i) => Boolean(i.value_note)).length;
+  return [
+    `${items.length} milestone${items.length === 1 ? "" : "s"} on this plan`,
+    `${linked} linked to a CLIN`,
+    `${missing} without an amount or percentage`,
+  ].join(" · ");
+}
+
+/** Every plan-level note in one place, for the panel and the packet alike. */
+export function paymentPlanNotes(items: PacketPaymentMilestone[]): string[] {
+  return [
+    paymentPlanSummary(items),
+    paymentPercentLine(items),
+    paymentPercentAdvisory(items),
+  ].filter((s): s is string => Boolean(s));
 }
 
