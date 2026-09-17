@@ -166,6 +166,28 @@ function answersSummary(answers: unknown): string {
   return entries.map(([k, v]) => `${k}: ${typeof v === "boolean" ? "Yes" : String(v)}`).join("\n");
 }
 
+// The draft flag belongs beside a field as a chip, never inside the text the
+// officer reads or signs. These two helpers keep the wording out of the body
+// while remembering which fields carried it.
+const DRAFT_MARK =
+  /\s*(?:Drafted from the record[,—-]?\s*confirm\.?|Draft[,—-]?\s*confirm\.?)\s*/gi;
+
+function markedKeys(values: Values): string[] {
+  return Object.entries(values)
+    .filter(([, v]) => typeof v === "string" && new RegExp(DRAFT_MARK.source, "i").test(v))
+    .map(([k]) => k);
+}
+
+function stripDraftMarks(values: Values): Values {
+  const out: Values = { ...values };
+  for (const [k, v] of Object.entries(out)) {
+    if (typeof v !== "string") continue;
+    const cleaned = v.replace(DRAFT_MARK, " ").replace(/[ \t]{2,}/g, " ").trim();
+    if (cleaned !== v) out[k] = cleaned;
+  }
+  return out;
+}
+
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
   const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
