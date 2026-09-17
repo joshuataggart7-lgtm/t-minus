@@ -578,6 +578,12 @@ function FormPage() {
    */
   const exportOfficialOther = async (formId: "of347" | "sf30") => {
     if (!formCtx) return;
+    if (blankAvailable.data === false) {
+      setMessage(
+        "The official blank form file is not available in this build, so there is nothing to write into. Use the data file export instead.",
+      );
+      return;
+    }
     try {
       const revision = pinnedRevision ?? currentFormRevision(formId);
       const bytes = await generateOfficialFormPdf(formId, formCtx, { formRevision: revision });
