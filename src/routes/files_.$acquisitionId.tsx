@@ -3266,6 +3266,7 @@ function FilePage() {
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
+                    facts={acq as unknown as Record<string, unknown> | null}
                   />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}

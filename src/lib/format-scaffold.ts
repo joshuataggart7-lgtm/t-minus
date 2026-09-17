@@ -12,7 +12,7 @@ import type { PacketClause } from "@/lib/clause-packet";
 import { clauseFillinText } from "@/lib/clause-fillins";
 import { isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
-import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
+import { CDRL_EMPTY, CDRL_LABEL, cdrlPackNotes, type PacketCdrlItem } from "@/lib/cdrl";
 import {
   PAYMENT_MILESTONES_EMPTY,
   PAYMENT_PLAN_LABEL,
@@ -329,8 +329,8 @@ export function scaffoldForPacket(scaffold: FormatScaffold | null) {
     // Data requirements sit beside the attachments. Empty unless recorded.
     cdrl:
       scaffold.cdrl.length === 0
-        ? { items: [], empty_note: CDRL_EMPTY }
-        : { items: scaffold.cdrl },
+        ? { label: CDRL_LABEL, items: [], empty_note: CDRL_EMPTY }
+        : { label: CDRL_LABEL, items: scaffold.cdrl, pack_notes: cdrlPackNotes(scaffold.cdrl) },
     // Payment milestones as recorded. Empty unless the office added some.
     payment_milestones:
       scaffold.paymentMilestones.length === 0
