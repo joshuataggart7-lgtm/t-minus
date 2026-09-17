@@ -12,9 +12,10 @@ import { useTriggerConfig } from "@/lib/use-trigger-config";
 
 import { cn } from "@/lib/utils";
 import {
-  BellRing, BookOpenCheck, BriefcaseBusiness, Building2, Calculator, ChevronDown,
-  ClipboardCheck, FileClock, FileInput, Files, Gauge, LayoutDashboard, Megaphone,
-  PanelLeft, Radio, ScrollText, SearchCheck, ShieldCheck, TriangleAlert,
+  BarChart3, BookOpenCheck, Building2, Calculator, CalendarClock, ChevronDown,
+  CircleCheckBig, ClipboardCheck, Database, FilePlus2, FolderOpen, Gauge, History,
+  Inbox, Layers, LayoutTemplate, Megaphone, Newspaper, PanelLeft, Radar, Rocket,
+  ScrollText, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,15 +26,18 @@ const NAV_GROUPS = [
   { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
 ] as const;
 
+// Icons are chosen so the meaning reads at a glance beside the label.
 const NAV_ICONS: Record<string, LucideIcon> = {
-  "Executive Overview": LayoutDashboard, Today: Gauge, "Reviewer inbox": ClipboardCheck,
-  "Requester portal": FileInput, "Work Queue": BriefcaseBusiness, Files, Intake: FileInput,
-  Estimate: Calculator, Templates: ScrollText, Checks: SearchCheck, Deviations: ShieldCheck,
-  "Audit Log": FileClock, Watch: Radio, "Directive compliance": ClipboardCheck,
-  "Clause changes": BookOpenCheck, Escalations: TriangleAlert, "Leadership digest": Gauge,
-  "Reporting views": Gauge, Simulate: Gauge, "Center configuration": Building2,
-  Announcements: Megaphone, "Seed status": BellRing, "Regulatory data intake": FileInput,
-  "PGPD queue": Files,
+  "Executive Overview": Rocket, Today: CalendarClock, "Reviewer inbox": Inbox,
+  "Requester portal": Send, "Work Queue": ClipboardCheck, Files: FolderOpen,
+  Intake: FilePlus2, Estimate: Calculator, Templates: LayoutTemplate,
+  Checks: CircleCheckBig, Deviations: ShieldAlert, "Audit Log": History,
+  Watch: Radar, "Directive compliance": ShieldCheck, "Clause changes": BookOpenCheck,
+  Escalations: TriangleAlert, "Leadership digest": Newspaper,
+  "Reporting views": BarChart3, Simulate: Gauge, "Center configuration": Building2,
+  Announcements: Megaphone, "Seed status": Database,
+  "Regulatory data intake": ScrollText, "PGPD queue": Layers,
+  Configuration: SlidersHorizontal,
 };
 
 // Survives route remounts so the click run isn't reset by navigation.
@@ -98,7 +102,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
       >
         Skip to main content
       </a>
-      <header className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure bg-chrome px-4 py-2 text-chrome-foreground md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] md:py-0 sm:px-6">
+      <header className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] md:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -193,8 +197,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <nav
           aria-label="Main"
           className={cn(
-            "min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure bg-chrome text-chrome-foreground transition-[width] duration-150 ease-out max-[1099px]:w-14",
-            collapsed ? "w-14" : "w-60",
+            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out",
+            collapsed ? "w-14" : "w-56 lg:w-60",
           )}
         >
           <div className="py-3">
@@ -203,27 +207,27 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               if (!groupItems.length) return null;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className="flex w-full items-center justify-between px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted max-[1099px]:sr-only">
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
-                <ul className={cn(!expanded && "hidden", "max-[1099px]:block")}>
+                <ul className={cn(!expanded && "hidden", collapsed && "block")}>
                 {groupItems.map((item) => {
               const active = pathname === item.to;
-              const Icon = NAV_ICONS[item.label] ?? Files;
+              const Icon = NAV_ICONS[item.label] ?? FolderOpen;
               return (
                 <li key={item.to}>
                   <Link
                     to={item.to}
                     title={item.label}
                     className={cn(
-                      "flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
+                      "nav-label group relative flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
                       active
-                        ? "border-accent-cyan font-medium text-accent-cyan"
-                        : "border-transparent text-chrome-muted hover:text-chrome-foreground",
+                        ? "border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_12%,transparent)] font-semibold text-accent-cyan"
+                        : "border-transparent text-chrome-muted hover:bg-white/[0.04] hover:text-chrome-foreground",
                     )}
                   >
-                    <Icon className="size-4 shrink-0" aria-hidden="true" />
-                    <span className={cn("truncate max-[1099px]:sr-only", collapsed && "sr-only")}>{item.label}</span>
+                    <Icon className={cn("size-[18px] shrink-0", active ? "text-accent-cyan" : "text-chrome-muted group-hover:text-chrome-foreground")} aria-hidden="true" />
+                    <span className={cn("truncate", collapsed && "sr-only")}>{item.label}</span>
                     {!collapsed && item.note ? (
                       <span className="block text-[12px] text-chrome-muted">{item.note}</span>
                     ) : null}
@@ -234,12 +238,12 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             })}</ul></section>;
             })}
             {openAcquisitionId ? (
-              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0 max-[1099px]:hidden")}>
-                <p className="px-1 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted">Open file</p>
+              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0")}>
+                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>Open file</p>
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
-                  className="mt-2 block border-l-2 border-accent-cyan px-3 py-2 text-[13px] font-medium text-accent-cyan"
+                  className="mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]"
                 >
                   {openAcquisitionId}
                 </Link>
@@ -267,7 +271,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <PresenterScreensBeat />
             {children}
           </main>
-          <footer className="border-t border-chrome-structure bg-chrome px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
+          <footer className="chrome-surface border-t-2 border-chrome-structure px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
             Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
             <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
               About T-Minus
@@ -288,6 +292,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 export function PageHeader({ title, lead }: { title: string; lead?: string }) {
   return (
     <div className="mb-8 border-b border-border pb-6">
+      <span aria-hidden="true" className="mb-3 block h-[3px] w-10 rounded-sm bg-primary" />
       <h1 className="page-title">{title}</h1>
       {lead ? <p className="mt-2 max-w-[70ch] text-muted-foreground">{lead}</p> : null}
     </div>
@@ -354,7 +359,7 @@ export function EmptyState({
 
 export function Placeholder({ note }: { note: string }) {
   return (
-    <div className="rounded-lg border border-border bg-background p-6">
+    <div className="surface-raised rounded-lg border border-border p-6">
       <p className="text-muted-foreground">{note}</p>
     </div>
   );

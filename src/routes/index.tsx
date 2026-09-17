@@ -123,7 +123,7 @@ function PortfolioScan({ metrics, missions }: { metrics: AcqMetrics[]; missions:
               to="/files/$acquisitionId"
               params={{ acquisitionId: acq }}
               title={`${heading} — ${acq} — ${view.caption}`}
-              className="block h-full rounded-lg border border-panel-muted/30 bg-white/[0.04] px-4 py-3 transition-colors hover:border-[color:var(--accent-cyan)]/60 hover:bg-white/[0.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+              className="block h-full rounded-lg border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_28px_-22px_rgba(0,0,0,0.9)] transition-colors hover:border-[color:var(--accent-cyan)]/60 hover:bg-white/[0.09] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <p className="truncate text-[15px] leading-[22px] font-medium text-panel-foreground">
                 {heading}
@@ -365,7 +365,7 @@ export function ExecutiveOverview() {
         ) : (
           <>
             {/* The one bold element: deep navy Mission Clock band, large still figures. */}
-            <div className="rounded-xl bg-panel px-6 py-6 text-panel-foreground sm:px-8">
+            <div className="console-panel rounded-xl border border-white/10 px-6 py-6 text-panel-foreground sm:px-8">
               <PortfolioScan metrics={metrics} missions={q.data?.missions ?? []} />
               <div className="flex items-baseline justify-between gap-4">
                 <p className="text-[13px] text-panel-muted" data-numeric>
