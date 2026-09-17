@@ -183,22 +183,24 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.schedule1",
           "Schedule of supplies or services (block 20)",
-          [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" "),
+          scheduleLines[0] ?? "",
           description ? undefined : TO_COMPLETE("record the description of the requirement"),
         ),
-        field("topmostSubform.quantity1", "Quantity (block 21)", firstClin?.quantity ? String(firstClin.quantity) : ""),
-        field("topmostSubform.unit1", "Unit (block 22)", str(firstClin?.unit)),
-        field(
-          "topmostSubform.unitprice1",
-          "Unit price (block 23)",
-          firstClin && firstClin.unitPrice !== null ? dollars(firstClin.unitPrice) : "",
-        ),
+        field("topmostSubform.quantity1", "Quantity (block 21)", lineQuantity),
+        field("topmostSubform.unit1", "Unit (block 22)", lineUnit),
+        field("topmostSubform.unitprice1", "Unit price (block 23)", lineUnitPrice),
         field(
           "topmostSubform.amount1",
           "Amount (block 24)",
           dollars(price || a["estimated_value"]),
           price ? undefined : "Estimated value shown; the award amount replaces it at award.",
         ),
+        // The narrative continues on the rows below. Those rows carry text
+        // only; the priced line is line one.
+        ...scheduleLines.slice(1).map((line, i) =>
+          field(`topmostSubform.schedule${i + 2}`, `Schedule continued (block 20)`, line),
+        ),
+        field("topmostSubform.TOTALAWARD", "Total award amount (block 26)", dollars(price)),
         field("topmostSubform.accountingdata", "Accounting and appropriation data (block 25)", str(a["funding_source"])),
       ],
     },
