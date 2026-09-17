@@ -1477,7 +1477,12 @@ function FilePage() {
             m: sectionMQ.data ?? null,
             factors: factorsQ.data ?? [],
             clarificationCount: clarificationsQ.data?.length ?? 0,
+            // Real count off the record, or no line at all.
+            receiptCount: await loadReadReceipts(acquisitionId)
+              .then((rows) => rows.length)
+              .catch(() => null),
           }),
+
           gates: companionGates
             .filter((g) => g.applies)
             .map((g) => ({
