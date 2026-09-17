@@ -61,6 +61,8 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
 };
 
 /** The set-aside programmes block 10 carries, one key only. */
+export type SetAsideProgramme = "wosb" | "edwosb" | "sdvosb" | "hubzone" | "eight_a" | "small_business";
+
 export type SetAsideKey =
   | "unrestricted"
   | "edwosb"
@@ -88,7 +90,7 @@ export function setAsideKey(recorded: unknown): SetAsideKey {
 }
 
 /** One true flag when a programme is recorded, all false when unrestricted. */
-export function setAsideFlags(recorded: unknown): Record<string, boolean> {
+export function setAsideFlags(recorded: unknown): Record<SetAsideProgramme, boolean> {
   const key = setAsideKey(recorded);
   return {
     wosb: key === "wosb",
