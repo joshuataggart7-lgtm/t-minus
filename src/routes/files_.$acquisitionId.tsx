@@ -145,6 +145,7 @@ import {
   type ForecastAcq,
 } from "@/lib/forecast";
 import { ExplainThis } from "@/components/explain-this";
+import { Nova } from "@/components/nova";
 import { MarketResearchEngine } from "@/components/market-research-engine";
 import {
   explainHold,
@@ -2059,6 +2060,7 @@ function FilePage() {
             <div className="flex items-center gap-3">
               {primaryAction("Fix")}
               <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Why?" />
+              <Nova acquisitionId={acquisitionId} rowLabel={`hold · ${hold.reason}`} />
             </div>
           </div>
         </section>
@@ -2869,7 +2871,10 @@ function FilePage() {
                             )
                           ) : null}
                           <span className="block w-full">
-                            <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(saved || attached))} label={saved || attached ? "Why this row" : "Why?"} />
+                            <span className="flex flex-wrap items-center gap-2">
+                              <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(saved || attached))} label={saved || attached ? "Why this row" : "Why?"} />
+                              <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                            </span>
                           </span>
 
                         </>
@@ -2901,7 +2906,10 @@ function FilePage() {
                              </span>
                            ) : null}
                            <span className="block w-full">
-                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state ? "Why this row" : "Why?"} />
+                              <span className="flex flex-wrap items-center gap-2">
+                                <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state ? "Why this row" : "Why?"} />
+                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                              </span>
                            </span>
 
                          </>
@@ -2977,7 +2985,10 @@ function FilePage() {
                              </span>
                            ) : null}
                            <span className="block w-full">
-                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                              <span className="flex flex-wrap items-center gap-2">
+                                <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                              </span>
                            </span>
 
                          </>
@@ -3033,7 +3044,10 @@ function FilePage() {
                              <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
                            ) : null}
                            <span className="block w-full">
-                             <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
+                              <span className="flex flex-wrap items-center gap-2">
+                                <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
+                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                              </span>
                            </span>
 
                          </>
@@ -3122,7 +3136,10 @@ function FilePage() {
                             )
                           ) : null}
                           <span className="block w-full">
-                            <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                            <span className="flex flex-wrap items-center gap-2">
+                              <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
+                              <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                            </span>
                           </span>
 
                         </>

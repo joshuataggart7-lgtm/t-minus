@@ -28,3 +28,6 @@
 - [x] Scaffold accuracy pass: shared sole-source test, no invented CLIN quantities, clause reasons and honest fill-ins, briefing book format + gates pages
 - [ ] Order-specific writing scaffolding (IDIQ/BPA orders) beyond the shared format scaffold
 - [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)
+
+# ORBIT visual identity
+- [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters

@@ -1,3 +1,10 @@
+## ORBIT Chunk 4 — Nova
+
+- Renamed the visible cited-draft assistant to Nova without changing the cite-or-refuse answer path.
+- Added quiet, click-only Nova controls to the top strip, document and form page tops, and key acquisition-file Why clusters.
+- Nova panels name their workspace, file, document, or row scope; show sources; and state that drafts are not written to the record.
+- Nova has no automatic opening, avatar, animation, microphone, speech, or record mutation. Orby remains a separate hidden easter egg.
+
 # T-Minus build notes
 
 - Soft SEB / briefing polish: the Evaluation cockpit and exported briefing book now share one Board readiness summary for L↔M findings, clarifications, and evaluation-factor evidence. Empty states are brief and honest; all results remain advisory and never hold a file or phase exit. Sample records, clocks, seeds, external-write boundaries, and form export paths were unchanged.
