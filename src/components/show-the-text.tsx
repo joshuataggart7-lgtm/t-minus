@@ -97,7 +97,11 @@ function SectionBlock({ s }: { s: RegulationSection }) {
           <span className="border border-border px-2 py-0.5 text-[12px]">Non-binding practice guidance</span>
         )}
       </p>
-      <p className="mt-2 whitespace-pre-wrap">{s.text}</p>
+      {body ? (
+        <p className="mt-2 whitespace-pre-wrap">{body}</p>
+      ) : (
+        <p className="mt-2 text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+      )}
       <a
         href={s.source_url}
         target="_blank"
