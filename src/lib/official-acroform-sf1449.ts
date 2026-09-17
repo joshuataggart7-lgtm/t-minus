@@ -165,18 +165,30 @@ export function setAsideFlags(recorded: unknown): Record<SetAsideProgramme, bool
 
 /** The priced face line, reconciled or left empty. */
 export function faceLine(
-  clin: { quantity?: number | null; unit?: string | null; unitPrice?: number | null } | null,
+  clin: {
+    quantity?: number | null;
+    unit?: string | null;
+    unitPrice?: number | null;
+    extendedPrice?: number | null;
+  } | null,
   faceAmount: number,
   commercial: boolean,
 ): { quantity: string; unit: string; unit_price: string; amount: string } {
   const qty = clin?.quantity ?? null;
   const unitPrice = clin?.unitPrice ?? null;
-  if (qty !== null && unitPrice !== null && faceAmount > 0 && Math.abs(qty * unitPrice - faceAmount) < 0.5) {
+  const extended = clin?.extendedPrice ?? null;
+  const reconciles = (target: number | null) =>
+    qty !== null && unitPrice !== null && target !== null && target > 0 && Math.abs(qty * unitPrice - target) < 0.5;
+  // The priced row is the first schedule line, so it multiplies out against
+  // that line's own extended price. A single-line file where the schedule line
+  // is the whole face amount still reconciles the same way.
+  if (reconciles(extended) || reconciles(faceAmount)) {
+    const amount = reconciles(extended) ? extended! : faceAmount;
     return {
       quantity: String(qty),
       unit: str(clin?.unit),
       unit_price: dollars(unitPrice),
-      amount: dollars(faceAmount),
+      amount: dollars(amount),
     };
   }
   if (commercial && faceAmount > 0) {
