@@ -2636,3 +2636,6 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - SF 1449: the official back-page rows (schedule 9 to 36) are now mapped. Text that does not fit on the face prints there and the face marker reads "(continued on the schedule, block 20, page 2)". Where everything fits, no continuation marker is printed at all. Receiving report blocks 32-42 are untouched.
 - SF 30: block 13 boxes and the authority blank beside them are derived together. A recorded flag rules; a named modification type selects its own block and authority text; an unnamed type stays in 13D with the blank left empty rather than a guess.
 - JOFOC: a commercial sole source under FAR 12.102 prints exactly one statute, 41 U.S.C. 1901, with the 10 U.S.C. stem, line and "or" markers empty so those paragraphs delete.
+
+## Soft Walk — SF 30 block 13 honesty (P0-2 residual)
+- Block 13D is ticked only when the record carries the authority the block asks the writer to specify. Where the authority is genuinely unknown, block 13 is left unmarked rather than ticked and blank; the gap shows on the form page. A named modification type still selects its own block and authority. Nothing is invented; block 14 description is separate.

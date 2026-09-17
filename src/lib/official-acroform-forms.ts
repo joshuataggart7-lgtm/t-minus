@@ -136,12 +136,11 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
 
   // Block 13: the recorded flags rule. Where none is recorded, the block for
   // the recorded modification type is used, so the ticked box and the
-  // authority blank beside it always agree. A type the list does not name,
-  // and "other", stay in block 13D as recorded.
+  // authority blank beside it always agree.
   const recordedBlocks = ["sf30_13a", "sf30_13b", "sf30_13c", "sf30_13d"].some((k) => Boolean(mod[k]));
   const namedType = MOD_TYPES.some((m) => m.key === str(mod["mod_type"]));
   const byType = sf30Blocks(str(mod["mod_type"]));
-  const block13 = recordedBlocks
+  let block13 = recordedBlocks
     ? {
         a: Boolean(mod["sf30_13a"]),
         b: Boolean(mod["sf30_13b"]),
@@ -150,13 +149,19 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       }
     : namedType
       ? { a: byType.sf30_13a, b: byType.sf30_13b, c: byType.sf30_13c, d: byType.sf30_13d }
-      : kind
-        ? { a: false, b: false, c: false, d: true }
-        : { a: false, b: false, c: false, d: false };
-  // The authority is read from the record, or derived for a named type. An
-  // unnamed type leaves the blank empty rather than printing a guess.
+      : { a: false, b: false, c: false, d: false };
+  // The authority is read from the record, or derived for a named type. A type
+  // the list does not name leaves the blank empty rather than printing a guess.
   const authorityText =
     str(mod["authority_text"]) || (namedType ? modAuthorityText(str(mod["mod_type"]), a) : "");
+  // A type the list does not name belongs in block 13D, but only when the
+  // record carries the authority that block asks the writer to specify.
+  if (!recordedBlocks && !namedType && authorityText) block13 = { a: false, b: false, c: false, d: true };
+  // Block 13D says "other" and then asks the writer to specify. A ticked 13D
+  // with nothing written beside it states a category the record cannot
+  // support, so where the authority is genuinely unknown block 13 is left
+  // unmarked and the gap is shown honestly on the form page instead.
+  if (block13.d && !authorityText) block13 = { a: false, b: false, c: false, d: false };
 
 
   const data: RogerFormData = {
