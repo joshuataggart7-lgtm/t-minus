@@ -136,8 +136,10 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
 
   // Block 13: the recorded flags rule. Where none is recorded, the block for
   // the recorded modification type is used, so the ticked box and the
-  // authority blank beside it always agree.
+  // authority blank beside it always agree. A type the list does not name,
+  // and "other", stay in block 13D as recorded.
   const recordedBlocks = ["sf30_13a", "sf30_13b", "sf30_13c", "sf30_13d"].some((k) => Boolean(mod[k]));
+  const namedType = MOD_TYPES.some((m) => m.key === str(mod["mod_type"]));
   const byType = sf30Blocks(str(mod["mod_type"]));
   const block13 = recordedBlocks
     ? {
@@ -146,11 +148,15 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
         c: Boolean(mod["sf30_13c"]),
         d: Boolean(mod["sf30_13d"]),
       }
-    : kind
+    : namedType
       ? { a: byType.sf30_13a, b: byType.sf30_13b, c: byType.sf30_13c, d: byType.sf30_13d }
-      : { a: false, b: false, c: false, d: false };
+      : kind
+        ? { a: false, b: false, c: false, d: true }
+        : { a: false, b: false, c: false, d: false };
+  // The authority is read from the record, or derived for a named type. An
+  // unnamed type leaves the blank empty rather than printing a guess.
   const authorityText =
-    str(mod["authority_text"]) || (kind ? modAuthorityText(str(mod["mod_type"]), a) : "");
+    str(mod["authority_text"]) || (namedType ? modAuthorityText(str(mod["mod_type"]), a) : "");
 
 
   const data: RogerFormData = {
