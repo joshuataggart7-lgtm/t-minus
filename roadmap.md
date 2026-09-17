@@ -8,6 +8,7 @@
 
 # Accuracy
 - [x] RFO citation punch list: NFS 1804.171, FAR 12.204(a), 52.212-3 pack logic, Sample 1 Part 12 notices
+- [ ] Restore Joshua Taggart as sole CO on Soft Walk Samples 1/2 and 0090 outputs; verify protected form and memo paths
 
 # Market research persistence
 - [x] Prevent incomplete research runs from becoming the latest run
