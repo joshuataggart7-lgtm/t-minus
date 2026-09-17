@@ -348,6 +348,11 @@ function RegIntakePage() {
                     {d.label} ({d.fileHint})
                   </option>
                 ))}
+                {TEXT_TYPES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label} ({t.fileHint})
+                  </option>
+                ))}
               </select>
             </div>
             <div>
