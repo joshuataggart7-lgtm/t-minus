@@ -396,12 +396,24 @@ function RegIntakePage() {
         </section>
       ) : null}
 
-      {q.isLoading ? (
+      <section className="mt-8 max-w-[80ch]">
+        <h2 className="section-title">Regulation and guidance text loaded</h2>
+        <p className="mt-2 text-muted-foreground">
+          Text is loaded by hand. There is no fetch on a schedule, so re-upload when a new revision is issued.
+        </p>
+        <ul className="mt-2 list-disc pl-5 text-[13px] leading-[18px] text-muted-foreground">
+          {reminders.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
+
+      {q.isLoading && !textType ? (
         <div className="mt-8">
           <LoadingNote what="the loaded regulatory data" />
         </div>
       ) : null}
-      {q.error ? (
+      {q.error && !textType ? (
         <div className="mt-8">
           <ErrorNote message={`${(q.error as Error).message} Reload the page to try again.`} />
         </div>
