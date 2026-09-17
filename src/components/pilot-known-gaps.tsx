@@ -44,3 +44,21 @@ export function PilotKnownGaps() {
     </section>
   );
 }
+
+/**
+ * One calm line pointing at the full list. Used on desks and the file page so a
+ * pilot reader meets the limits where they work, not only on /about.
+ */
+export function PilotKnownGapsLine({ className = "" }: { className?: string }) {
+  return (
+    <p
+      className={`max-w-[80ch] border-t border-border pt-3 text-[13px] leading-[18px] text-muted-foreground ${className}`}
+    >
+      Pilot known gaps: Adobe field checks are human · no NCMS write-back · FPDS is a fill aid · advisories never hold
+      a phase.{" "}
+      <a href="/about" className="text-primary underline-offset-2 hover:underline">
+        About this prototype
+      </a>
+    </p>
+  );
+}
