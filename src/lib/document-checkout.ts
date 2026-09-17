@@ -199,3 +199,46 @@ export async function releaseCheckout(args: {
     args.reason,
   );
 }
+
+/**
+ * Take the document over from the person holding it. P0-3: the reader sees who
+ * holds it and since when, and can say so deliberately. The hand-over is
+ * written to the audit log with both names, and the previous holder's saved
+ * prose is never touched.
+ */
+export async function takeOverCheckout(args: {
+  acquisitionId: string;
+  templateKey: string;
+  documentName: string;
+  phase: string;
+  userName: string;
+  holder: Checkout;
+}): Promise<Checkout | null> {
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return null;
+  const userName = await signedInName(args.userName);
+
+  await supabase
+    .from("document_checkouts")
+    .update({ released_at: new Date().toISOString() })
+    .eq("checkout_id", args.holder.checkout_id)
+    .is("released_at", null);
+  await logCheckout(
+    args.acquisitionId,
+    args.phase,
+    userName,
+    "Document check-out taken over",
+    args.documentName,
+    `Taken over from ${args.holder.user_name} by ${userName}`,
+    `Checked out since ${checkoutTime(args.holder.checked_out_at)}`,
+  );
+
+  return claimCheckout({
+    acquisitionId: args.acquisitionId,
+    templateKey: args.templateKey,
+    documentName: args.documentName,
+    phase: args.phase,
+    userName: args.userName,
+  });
+}
