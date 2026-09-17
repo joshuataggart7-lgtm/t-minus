@@ -87,7 +87,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   // narrative beneath it.
   const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  const scheduleLines = [wrapLines(title, 52, 1)[0] ?? "", ...wrapLines(narrative, 52, 7)];
+  const scheduleLines = [wrapLines(title, 52, 1)[0] ?? "", ...packSentences(narrative, 52, 7).lines];
 
   // Block 10 carries a number, not prose. A total small business set-aside is
   // the whole requirement.
