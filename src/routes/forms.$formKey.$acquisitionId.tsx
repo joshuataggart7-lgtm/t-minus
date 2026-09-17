@@ -185,7 +185,15 @@ function FormPage() {
       // The schedule on the file. Seeded once from the estimate when the file
       // has one and no schedule yet; figures are never invented.
       const clins = await ensureClinScheduleFromIgce(acquisitionId);
+      // P0-2: the modifications recorded on this file, so the SF 30 reads its
+      // own mod number. No modification is invented when the table is empty.
+      const mods = await supabase
+        .from("contract_modifications")
+        .select("mod_number,mod_type,authority_text,description,sf30_13a,sf30_13b,sf30_13c,sf30_13d,created_at")
+        .eq("acquisition_id", acquisitionId)
+        .order("created_at", { ascending: true });
       return {
+        modifications: (mods.data ?? []) as Record<string, unknown>[],
         clins,
         templateId,
         versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null; field_values?: unknown }[],
@@ -203,7 +211,7 @@ function FormPage() {
             },
           ]),
         ) as FindingMap,
-        acq: row,
+        acq: row ? { ...row, modifications: (mods.data ?? []) } : row,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
         size: (size.data ?? null) as Record<string, unknown> | null,
