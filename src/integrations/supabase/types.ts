@@ -2099,6 +2099,60 @@ export type Database = {
         }
         Relationships: []
       }
+      regulation_sections: {
+        Row: {
+          binding: boolean
+          citation: string
+          corpus: string
+          corpus_revision: string
+          created_at: string
+          effective_date: string | null
+          heading: string | null
+          id: string
+          parent_citation: string | null
+          retrieved_at: string
+          sha256: string
+          source_url: string
+          superseded_at: string | null
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          binding: boolean
+          citation: string
+          corpus: string
+          corpus_revision: string
+          created_at?: string
+          effective_date?: string | null
+          heading?: string | null
+          id?: string
+          parent_citation?: string | null
+          retrieved_at: string
+          sha256: string
+          source_url: string
+          superseded_at?: string | null
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          binding?: boolean
+          citation?: string
+          corpus?: string
+          corpus_revision?: string
+          created_at?: string
+          effective_date?: string | null
+          heading?: string | null
+          id?: string
+          parent_citation?: string | null
+          retrieved_at?: string
+          sha256?: string
+          source_url?: string
+          superseded_at?: string | null
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       regulatory_refs: {
         Row: {
           applies_to_phase: string | null
