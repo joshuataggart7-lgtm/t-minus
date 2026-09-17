@@ -1,5 +1,7 @@
 # T-Minus build notes
 
+- Soft SEB / briefing polish: the Evaluation cockpit and exported briefing book now share one Board readiness summary for L↔M findings, clarifications, and evaluation-factor evidence. Empty states are brief and honest; all results remain advisory and never hold a file or phase exit. Sample records, clocks, seeds, external-write boundaries, and form export paths were unchanged.
+
 ## B1. Foundation
 
 Decisions taken where the specification left room, kept to the simplest option
