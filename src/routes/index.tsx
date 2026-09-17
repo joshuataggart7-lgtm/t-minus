@@ -1029,8 +1029,12 @@ function EnterpriseTab({
             <p className="text-foreground">
               <span className="font-medium">T-Minus</span>
               <br />
-              PR 4200999101 is A-2027-0101, Commercial Aviation Services: Arctic snow depth
-              flights, spring 2027 campaign. Center ARC, owner J. Rivera (fictional CO).
+              PR 4200999101 is A-2027-0101, {sample?.acq.title ?? "Commercial Aviation Services"}.
+              {" "}Center {sample?.acq.center_code ?? "ARC"}, owner{" "}
+              {String(
+                (sample?.acq as Record<string, unknown> | undefined)?.["co_name"] ?? "",
+              ).trim() || "not recorded"}
+              .
               {sample ? (
                 <>
                   {" "}
