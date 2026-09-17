@@ -147,7 +147,7 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
-/** Item 6 reads as named-source prose, while source detail stays in the research log. */
+/** Item 8 reads as named-source prose, while source detail stays in the research log. */
 export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const v = ctx.values ?? {};
   const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
@@ -260,7 +260,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    authority41Line = authority || "41 U.S.C. 1901 (FAR 12.102 procedures)";
+    authority41Line = authority || "41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)";
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);
