@@ -33,6 +33,23 @@ const field = (path: string, label: string, value: FormValue, gap?: string) =>
 const issuedBy = (a: Record<string, unknown>): string =>
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
 
+/** Text broken into at most `rows` lines of about `width` characters. */
+const wrapLines = (text: string, width: number, rows: number): string[] => {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (!line) line = word;
+    else if (line.length + 1 + word.length <= width) line = `${line} ${word}`;
+    else {
+      lines.push(line);
+      line = word;
+    }
+    if (lines.length === rows) break;
+  }
+  if (line && lines.length < rows) lines.push(line);
+  return lines.slice(0, rows);
+};
+
 /** SF 1449, filled from the acquisition record. */
 export function buildSf1449(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
@@ -51,6 +68,38 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     (ctx.clins ?? []).find((c) => /^0*1$/.test(c.clinNumber.replace(/\D/g, "") || "x")) ??
     (ctx.clins ?? [])[0] ??
     null;
+
+  // Quantity, unit and unit price only print when quantity times unit price
+  // equals the amount on the form. A line that does not multiply out is left
+  // blank for the contracting officer rather than carrying a quantity the
+  // record does not support. A commercial firm fixed price buy with one line
+  // prints as a single lot at the face amount; how the work is measured stays
+  // in the block 20 narrative.
+  const qty = firstClin?.quantity ?? null;
+  const unitPrice = firstClin?.unitPrice ?? null;
+  const multipliesOut =
+    qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
+  const singleLotLine = !multipliesOut && commercial && price > 0 && (ctx.clins ?? []).length <= 1;
+  const lineQuantity = multipliesOut ? String(qty) : singleLotLine ? "1" : "";
+  const lineUnit = multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "";
+  const lineUnitPrice = multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "";
+  const clinNarrative = str(firstClin?.description);
+  const narrative = [
+    description,
+    clinNarrative && clinNarrative !== description ? clinNarrative : "",
+    pop ? `Period of performance ${pop}.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  // Each schedule row on the blank is one line, so the narrative is wrapped
+  // across the rows the blank carries.
+  const scheduleLines = wrapLines(narrative, 52, 8);
+
+  // Block 10 carries a number, not prose. A total small business set-aside is
+  // the whole requirement.
+  const partialSetAside = /partial/i.test(setAside);
+  const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
+  const setAsidePercent = totalSmallBusiness ? "100" : "";
 
   const sections: FormSection[] = [
     {
@@ -71,7 +120,14 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
           str(a["solicitation_number"]),
           str(a["solicitation_number"]) ? undefined : "Assigned in NCMS when the solicitation issues.",
         ),
-        field("topmostSubform.issuedbycode", "Issued by (block 9)", issuedBy(a) || TO_COMPLETE("record the issuing office")),
+        // Block 9 carries the office code in the code box and the office name
+        // in the address box beside it.
+        field("topmostSubform.issuedbycode", "Issued by code (block 9)", str(a["center_code"])),
+        field(
+          "topmostSubform.TextField1[4]",
+          "Issued by (block 9)",
+          issuedBy(a) || TO_COMPLETE("record the issuing office"),
+        ),
         field("topmostSubform.contactname", "Point of contact (block 7)", str(a["co_name"])),
         field("topmostSubform.contactphone", "Telephone (block 7)", str(a["co_phone"])),
         field("topmostSubform.pagenumber", "Page of pages (block 3)", "1"),
@@ -83,7 +139,8 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
       fields: [
         field("topmostSubform.UNRESTRICTIONTED", "Unrestricted (block 10)", !setAside),
         field("topmostSubform.SETASIDE", "Set aside (block 10)", Boolean(setAside)),
-        field("topmostSubform.setasidepercent", "Set-aside basis (block 10)", setAside),
+        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", totalSmallBusiness),
+        field("topmostSubform.setasidepercent", "Percent set aside (block 10)", setAsidePercent),
         field("topmostSubform.NAICS", "NAICS code (block 10)", str(a["naics_code"])),
         field(
           "topmostSubform.SIZESTANDARDS",
@@ -134,22 +191,24 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.schedule1",
           "Schedule of supplies or services (block 20)",
-          [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" "),
+          scheduleLines[0] ?? "",
           description ? undefined : TO_COMPLETE("record the description of the requirement"),
         ),
-        field("topmostSubform.quantity1", "Quantity (block 21)", firstClin?.quantity ? String(firstClin.quantity) : ""),
-        field("topmostSubform.unit1", "Unit (block 22)", str(firstClin?.unit)),
-        field(
-          "topmostSubform.unitprice1",
-          "Unit price (block 23)",
-          firstClin && firstClin.unitPrice !== null ? dollars(firstClin.unitPrice) : "",
-        ),
+        field("topmostSubform.quantity1", "Quantity (block 21)", lineQuantity),
+        field("topmostSubform.unit1", "Unit (block 22)", lineUnit),
+        field("topmostSubform.unitprice1", "Unit price (block 23)", lineUnitPrice),
         field(
           "topmostSubform.amount1",
           "Amount (block 24)",
           dollars(price || a["estimated_value"]),
           price ? undefined : "Estimated value shown; the award amount replaces it at award.",
         ),
+        // The narrative continues on the rows below. Those rows carry text
+        // only; the priced line is line one.
+        ...scheduleLines.slice(1).map((line, i) =>
+          field(`topmostSubform.schedule${i + 2}`, `Schedule continued (block 20)`, line),
+        ),
+        field("topmostSubform.TOTALAWARD", "Total award amount (block 26)", dollars(price)),
         field("topmostSubform.accountingdata", "Accounting and appropriation data (block 25)", str(a["funding_source"])),
       ],
     },
