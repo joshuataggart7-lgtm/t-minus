@@ -13,7 +13,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
-import { CDRL_EMPTY } from "@/lib/cdrl";
+import { CDRL_EMPTY, CDRL_LABEL, cdrlPackNotes } from "@/lib/cdrl";
 import {
   PAYMENT_MILESTONES_EMPTY,
   PAYMENT_PLAN_LABEL,
@@ -91,7 +91,9 @@ export function AwardHandoffPanel({
     attachments.length > 0
       ? `Attachments: ${attachments.length}`
       : `Attachments: ${SECTION_J_EMPTY}`,
-    cdrl.length > 0 ? `CDRL: ${cdrl.length} items` : "CDRL: empty",
+    cdrl.length > 0
+      ? `${CDRL_LABEL}: ${cdrl.length} items`
+      : `${CDRL_LABEL}: ${CDRL_EMPTY}`,
     payments.length > 0
       ? `Payment milestones: ${payments.length}`
       : "Payment milestones: empty",
@@ -401,8 +403,12 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={7}>CDRL / data requirements</Head>
-            {scaffold.cdrl.length === 0 ? (
+            <Head n={7}>{CDRL_LABEL}</Head>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              Data requirements on this file. Listed beside the document attachments in section 6,
+              not among them.
+            </p>
+            {cdrl.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{CDRL_EMPTY}</p>
             ) : (
               <table className="mt-2 w-full text-[13px] leading-[18px]">
@@ -431,6 +437,11 @@ export function AwardHandoffPanel({
                 </tbody>
               </table>
             )}
+            {cdrlPackNotes(cdrl).map((n) => (
+              <p key={n} className="mt-1 text-[13px] text-muted-foreground">
+                {n}
+              </p>
+            ))}
           </section>
 
           <section>

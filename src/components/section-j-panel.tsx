@@ -16,11 +16,13 @@ export function SectionJPanel({
   return (
     <div className="mt-3 border border-border p-4">
       <h4 className="text-[15px] font-medium">
-        {mode === "sf1449" ? "Attachments for the handoff" : "Section J — List of attachments"}
+        {mode === "sf1449"
+          ? "Document attachments for the handoff"
+          : "Section J — Document attachments"}
       </h4>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-        These files are on the record. The handoff packet carries the same list. NCMS remains the
-        system of record.
+        These files are on the record. Data requirements are listed separately under CDRL / data
+        requirements. The handoff packet carries the same list. NCMS remains the system of record.
       </p>
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
