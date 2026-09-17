@@ -32,8 +32,20 @@ export { displayDate, getPath, pdfCheck, pdfMoney, pdfText };
 export type RogerSf1449Data = Record<string, unknown>;
 
 /** The mapper. It writes the mapping rows for this blank, nothing more. */
-export function fillOfficialSF1449(form: import("pdf-lib").PDFForm, d: RogerSf1449Data): void {
-  applyFormMappings(form, mappingsFor("sf1449", "11/2021"), d);
+export function fillOfficialSF1449(
+  form: import("pdf-lib").PDFForm,
+  d: RogerSf1449Data,
+  revision?: string | null,
+): void {
+  // Soft §9: the rows read must match the blank's revision. An unknown pin
+  // falls back to the rows for the current builtin.
+  const wanted = (revision || "").trim() || currentFormRevision("sf1449");
+  const rows = mappingsFor("sf1449", wanted);
+  applyFormMappings(
+    form,
+    rows.length ? rows : mappingsFor("sf1449", currentFormRevision("sf1449")),
+    d,
+  );
 }
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
