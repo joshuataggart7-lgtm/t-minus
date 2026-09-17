@@ -1280,6 +1280,11 @@ function DocumentPage() {
     preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
     organizationCode: String(q.data.acq["co_code"] ?? q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
     additionalApprovalRequired: Boolean(signature && signature.blocks.length > 2),
+    // Live JOFOC approval-tier rows so the signature band is amount-driven.
+    thresholds: (q.data.thresholds ?? []).map((t) => ({
+      name: t.name,
+      value: t.value === null || t.value === undefined ? null : Number(t.value),
+    })),
   } : undefined;
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
