@@ -530,6 +530,14 @@ function FormPage() {
             >
               Export data file for Import Data{formKey === "sf-1449" ? " (legacy)" : ""}
             </button>
+            <button
+              type="button"
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="The NASA RFP cover letter master, filled from this record. A prototype draft for the contracting officer to check and sign."
+              onClick={() => void exportRfpCover()}
+            >
+              Export RFP cover (Word)
+            </button>
           </div>
           <p className="mb-4 text-[13px] text-muted-foreground">
             Prefer the preview below in the browser; open the form PDF in Adobe desktop.
