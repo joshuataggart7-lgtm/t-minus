@@ -16,6 +16,7 @@
 
 import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
+import { faceLine, setAsideFlags } from "@/lib/official-acroform-sf1449";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -76,27 +77,23 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   // single lot at the face amount when no single CLIN line multiplies out; how
   // the work is measured stays in the block 20 narrative. The number of IGCE
   // estimate rows behind the file does not change the face line.
-  const qty = firstClin?.quantity ?? null;
-  const unitPrice = firstClin?.unitPrice ?? null;
-  const multipliesOut =
-    qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
-  const singleLotLine = !multipliesOut && commercial && price > 0;
-  const lineQuantity = multipliesOut ? String(qty) : singleLotLine ? "1" : "";
-  const lineUnit = multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "";
-  const lineUnitPrice = multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "";
-  // Block 20 carries the requirement description and the period of
-  // performance. The CLIN description is not appended when the requirement
-  // description already carries the narrative.
+  const priced = faceLine(firstClin, price, commercial);
+  const lineQuantity = priced.quantity;
+  const lineUnit = priced.unit;
+  const lineUnitPrice = priced.unit_price;
+  const lineAmount = priced.amount;
+  // Block 20 carries the short requirement title on the priced row and the
+  // narrative beneath it.
+  const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  // Each schedule row on the blank is one line, so the narrative is wrapped
-  // across the rows the blank carries.
-  const scheduleLines = wrapLines(narrative, 52, 8);
+  const scheduleLines = [wrapLines(title, 52, 1)[0] ?? "", ...wrapLines(narrative, 52, 7)];
 
   // Block 10 carries a number, not prose. A total small business set-aside is
   // the whole requirement.
   const partialSetAside = /partial/i.test(setAside);
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
   const setAsidePercent = totalSmallBusiness ? "100" : "";
+  const saFlags = setAsideFlags(setAside);
 
   const sections: FormSection[] = [
     {
@@ -136,7 +133,17 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
       fields: [
         field("topmostSubform.UNRESTRICTIONTED", "Unrestricted (block 10)", !setAside),
         field("topmostSubform.SETASIDE", "Set aside (block 10)", Boolean(setAside)),
-        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", totalSmallBusiness),
+        // One programme box only, read the same way the official export reads it.
+        field("topmostSubform.SMALLBUSINESS[0]", "Women-owned small business (block 10)", saFlags.wosb),
+        field(
+          "topmostSubform.SMALLBUSINESS[1]",
+          "Economically disadvantaged women-owned small business (block 10)",
+          saFlags.edwosb,
+        ),
+        field("topmostSubform.SERVICEDISABLED", "Service-disabled veteran-owned (block 10)", saFlags.sdvosb),
+        field("topmostSubform.HUBZONESMALL", "HUBZone small business (block 10)", saFlags.hubzone),
+        field("topmostSubform.ACHECKBOX", "8(a) (block 10)", saFlags.eight_a),
+        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", saFlags.small_business),
         field("topmostSubform.setasidepercent", "Percent set aside (block 10)", setAsidePercent),
         field("topmostSubform.NAICS", "NAICS code (block 10)", str(a["naics_code"])),
         field(
@@ -197,8 +204,10 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.amount1",
           "Amount (block 24)",
-          dollars(price || a["estimated_value"]),
-          price ? undefined : "Estimated value shown; the award amount replaces it at award.",
+          lineAmount,
+          lineAmount
+            ? undefined
+            : "The priced columns stay blank: the recorded line does not reconcile to the amount.",
         ),
         // The narrative continues on the rows below. Those rows carry text
         // only; the priced line is line one.

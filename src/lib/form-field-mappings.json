@@ -115,46 +115,53 @@
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].SMALLBUSINESS[0]",
-    "record_path": "acquisition.set_aside_program",
+    "record_path": "acquisition.set_aside_flags.wosb",
     "type": "check",
-    "match": "includes",
-    "equals": "wosb"
+    "match": "truthy",
+    "note": "Women-owned small business only."
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].SMALLBUSINESS[1]",
-    "record_path": "acquisition.set_aside_program",
+    "record_path": "acquisition.set_aside_flags.edwosb",
     "type": "check",
-    "match": "includes",
-    "equals": "edwosb"
+    "match": "truthy",
+    "note": "Economically disadvantaged women-owned small business only."
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].SERVICEDISABLED[0]",
-    "record_path": "acquisition.set_aside_program",
+    "record_path": "acquisition.set_aside_flags.sdvosb",
     "type": "check",
-    "match": "includes_any",
-    "equals": "sdvosb|service"
+    "match": "truthy"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].HUBZONESMALL[0]",
-    "record_path": "acquisition.set_aside_program",
+    "record_path": "acquisition.set_aside_flags.hubzone",
     "type": "check",
-    "match": "includes",
-    "equals": "hubzone"
+    "match": "truthy"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page1[0].ACHECKBOX[0]",
+    "record_path": "acquisition.set_aside_flags.eight_a",
+    "type": "check",
+    "match": "truthy",
+    "note": "10. THIS ACQUISITION IS 8(A)."
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].SMALLBUSINESS[2]",
-    "record_path": "acquisition.set_aside_program",
+    "record_path": "acquisition.set_aside_flags.small_business",
     "type": "check",
-    "match": "roger_sb2",
-    "equals": "small_business_total"
+    "match": "truthy",
+    "note": "Total or generic small business set-aside only."
   },
   {
     "form_id": "sf1449",

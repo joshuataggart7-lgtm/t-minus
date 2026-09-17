@@ -11,7 +11,12 @@ import { withNf1707Answers } from "@/lib/nf1707-form";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
-import { downloadPdfBytes, generateOfficialSf1449Pdf } from "@/lib/official-acroform-sf1449";
+import {
+  downloadPdfBytes,
+  generateOfficialSf1449Pdf,
+  sf1449CtxToRogerData,
+  validateSf1449ClinReconciliation,
+} from "@/lib/official-acroform-sf1449";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
@@ -398,6 +403,16 @@ function FormPage() {
   const exportOfficialAcroform = async () => {
     if (!formCtx) return;
     try {
+      // The schedule is checked against the total before anything is written.
+      // A draft may still be needed, so the reader is asked rather than stopped.
+      const check = validateSf1449ClinReconciliation(sf1449CtxToRogerData(formCtx));
+      if (!check.ok) {
+        const goOn = window.confirm(`${check.message}\n\nGenerate the draft anyway?`);
+        if (!goOn) {
+          setMessage(`${check.message} Nothing was exported.`);
+          return;
+        }
+      }
       const bytes = await generateOfficialSf1449Pdf(formCtx);
       downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
       setMessage(
