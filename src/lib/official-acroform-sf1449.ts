@@ -218,6 +218,14 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const narrativeLines = allNarrativeLines.slice(0, 7);
   const continuesBeyondFace = allNarrativeLines.length > narrativeLines.length;
 
+  // Blocks 27a and 27b: whether addenda are attached is the officer's answer,
+  // read from the record when it carries one and left blank when it does not.
+  const addenda27a = addendaFlag(
+    a["sf1449_27a"] ?? a["clauses_are_attached"] ?? a["addenda_attached"],
+  );
+  const addenda27b = addendaFlag(a["sf1449_27b"] ?? a["addenda_attached"]);
+
+
 
   const flags = setAsideFlags(setAside);
   const partialSetAside = /partial/i.test(setAside);
