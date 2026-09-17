@@ -27,6 +27,42 @@ function parseRespondents(value: string): ResearchRespondent[] {
  * contracting officer's click; the log shows every source, query, date and
  * result count, including the sources that returned nothing.
  */
+type NoticeRow = { title: string; posted: string; setAside: string };
+
+/** One named group of read-only SAM.gov notices, with an honest empty state. */
+function NoticeGroup({
+  label,
+  lead,
+  empty,
+  notices,
+}: {
+  label: string;
+  lead: string;
+  empty: string;
+  notices: NoticeRow[];
+}) {
+  return (
+    <section aria-label={label} className="mt-4 border-t border-border pt-3">
+      <h5 className="text-[15px] font-medium">{label}</h5>
+      <p className="mt-1 text-[13px] text-muted-foreground">{lead}</p>
+      {notices.length === 0 ? (
+        <p className="mt-2 text-[13px] text-muted-foreground">{empty}</p>
+      ) : (
+        <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+          {notices.map((n) => (
+            <li key={`${n.title}-${n.posted}`}>
+              {n.title}
+              <span className="block text-muted-foreground">
+                Posted {n.posted || "date not reported"} · {n.setAside || "set-aside not reported"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function MarketResearchEngine({
   acquisitionId,
   canWrite,
