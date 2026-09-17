@@ -2149,3 +2149,12 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## §8 Lineage overlay
 The form preview can outline where each filled value came from. Scope comes from the §6 mapping rows, joined by field name; a recorded research finding names its source and date when one is stored. The overlay is off by default, is preview only, and changes no exported bytes. Turning it on writes one audit row with the counts. Nothing invents a person, a date or a citation.
+
+## Soft §9 — Pinned blank revision (form_templates registry)
+- `src/lib/form-templates.ts` holds the registry in the shape a future table
+  `form_templates (form_id, revision, storage_path, sha256, effective_date, superseded_at, mapping_profile, source)` will carry.
+- Builtin revisions: SF 1449 11/2021 (`/forms/SF1449.pdf`), SF 30 11/2016 (`/forms/SF30.pdf`), OF 347 02/2012 (`/forms/OF347.pdf`).
+- Save version on sf-1449 / sf-30 / of-347 records `__form_revision` in `documents.field_values` (no migration this ship).
+- `generateOfficialSf1449Pdf` resolves the blank through `resolveFormTemplate('sf1449', pin)` and passes that revision into `mappingsFor`; an unknown pin falls back to the current builtin rather than naming a blank that does not exist.
+- The form page shows "blank revision 11/2021" in the header line and names it in the export message.
+- SF 1449 and SF 30 remain non-Live; no Adobe field-by-field check has been made. §10 not started.
