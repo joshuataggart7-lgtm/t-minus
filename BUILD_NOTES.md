@@ -2487,3 +2487,27 @@ No residual citation bugs found in this pass.
 - recommendedOfficialForm: a recorded modification points at SF 30; a record naming SF 26 points at SF 26; commercial streamlined (Sample 1) points at SF 1449, never forced to SF 33; an order under an existing contract or a simplified purchase points at OF 347; everything else negotiated in the uniform format points at SF 33. A suggestion only — every other form stays reachable.
 - Signature fields are never filled on any of the three; offeror and contractor blocks stay empty; missing government fields are flagged as gaps rather than guessed.
 - The forms page description now names SF 33, SF 26 and OF 347.
+
+## Today desk — administrator view (QA fail fix)
+- `src/routes/today.tsx`: an administrator now always sees every prototype file,
+  with the files that list them as contracting officer read first. The previous
+  rule only fell back to all files when no file named them as CO, so
+  A-2027-0101 (CO J. Rivera, fictional) disappeared from Joshua's desk while
+  A-2027-0102 (CO Joshua Taggart) stayed. Note copy states which view is shown.
+- CO match stays case-insensitive on full name or surname; no `co_name` rewrite,
+  no clock or phase change.
+- Verified in the record: A-2027-0101 running / Price Reasonableness /
+  no target award date; A-2027-0102 running / Solicitation/Quote.
+
+## Checks this turn
+- nextAction already resolves to the file hero label when a Required document is
+  missing (`metrics.ts:326`, `nextAction: heroLabel ?? nextDecision`).
+- File header never claims a target award date it does not have: with none
+  recorded the countdown reads `FORECAST · days to the forecast award date; no
+  target recorded`, or `No target award date recorded` when no forecast exists.
+- A-2026-0090: vehicle `idiq_award` → profile `idiq_parent` → clause delta stays
+  hard-hidden on the file page and the modifications panel. Story text is the
+  multiple-award IDIQ vehicle, no Arctic campaign wording.
+- A-2027-0101 comparables: the recorded check (16 Sep 2026 14:34 UTC) carries five
+  T-Minus prior actions, labelled "from T-Minus prior actions — live feed
+  unavailable". The PNM paragraph reports them; nothing invented.
