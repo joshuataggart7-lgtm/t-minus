@@ -2533,3 +2533,18 @@ No residual citation bugs found in this pass.
   empty state "No Blackout / Draft RFP notices loaded for this ... window" and
   the reminder that T-Minus never posts to SAM.gov. Soft advisory only.
 - No seed rewrites (0101/0102/0103), no clock or hold changes.
+
+## P0 form BIND fix (SF1449 / SF30 Import Data)
+- Verified the data file nests each field under the page subform read from the
+  official blank: `<topmostSubform><Page1><reqnumber>…`. Page comes from the
+  blank's own field names, so SF30 (and any page-2 field) binds without a
+  separate rule.
+- Checkbox values in the datasets are `1`/`0`; the AcroForm layer maps to
+  `/1`/`/Off`.
+- `faceLine` now reconciles the priced row against the first schedule line's
+  own extended price as well as the face amount. A-2027-0101 block 21 to 24
+  prints 160 / hour / $3,600 / $576,000 from CLIN 0001; block 26 still carries
+  the face amount. Nothing reconciling stays blank; the commercial single-lot
+  fallback is unchanged.
+- Perms-strip and the companion Import Data path are unchanged. SF1449 and
+  SF30 remain non-Live and are not Adobe-verified.
