@@ -15,7 +15,7 @@ import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
-import { modAuthorityText, sf30Blocks } from "@/lib/vehicles";
+import { modAuthorityText, sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
 
 export type RogerFormData = Record<string, unknown>;
 
