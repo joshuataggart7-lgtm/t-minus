@@ -339,6 +339,7 @@ function RegIntakePage() {
                   setDatasetId(e.target.value);
                   setText(null);
                   setFileName(null);
+                  setSectionRows(null);
                   setMessage(null);
                   setProblem(null);
                 }}
