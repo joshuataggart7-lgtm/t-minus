@@ -17,6 +17,7 @@
 import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { faceLine, setAsideFlags } from "@/lib/official-acroform-sf1449";
+import { of347Face } from "@/lib/of347-face";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -254,7 +255,17 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
       title: "Blocks 1 to 8. Identification",
       citation: "FAR 43.301; FAR 53.243",
       fields: [
-        field("topmostSubform.AmendmentNo", "Amendment or modification number (block 2)", str(mod["mod_number"])),
+        // P0-2: block 2 carries the recorded modification number only. When no
+        // modification is recorded the block stays empty; the contract number
+        // belongs in block 10A and is never reused here.
+        field(
+          "topmostSubform.AmendmentNo",
+          "Amendment or modification number (block 2)",
+          str(mod["mod_number"]),
+          str(mod["mod_number"])
+            ? undefined
+            : "No modification is recorded on this file, so block 2 prints empty. A number is never invented.",
+        ),
         field("topmostSubform.EffectiveDate", "Effective date (block 3)", str(mod["effective_date"])),
         field("topmostSubform.ReqNumber", "Requisition or purchase request number (block 4)", str(a["pr_number"])),
         field("topmostSubform.ProjectNo", "Project number (block 5)", str(a["acquisition_id"])),
@@ -709,7 +720,22 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
 /** OF 347, Order for Supplies or Services. Page 1 only; the back stays empty. */
 export function buildOf347(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
-  const rows = schedule(ctx);
+  // P0-1: the same face the AcroForm export prints. One row per line item
+  // number; a commercial firm fixed price file prints one lot at the award
+  // face so the printed lines sum to the grand total.
+  const face = of347Face(ctx);
+  const rows: FormClin[] = face.lot
+    ? [
+        {
+          clinNumber: "0001",
+          description: str(a["title"]) || str(a["description_of_requirement"]),
+          quantity: 1,
+          unit: "Lot",
+          unitPrice: face.total,
+          extendedPrice: face.total,
+        } as FormClin,
+      ]
+    : face.rows;
   const shown = rows.slice(0, 13);
   const parent = parentContract(a);
   const deliveryOrder =
@@ -717,8 +743,10 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     /order under idiq|delivery order|task order/i.test(
       `${str(a["contract_format"])} ${str(a["acquisition_profile"])}`,
     );
-  const total = scheduleTotal(rows) ?? (Number(a["award_amount"]) || Number(a["estimated_value"]) || null);
-  const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
+  const total = face.total;
+  // A place of performance is not a ship-to. Consignee prints only from a
+  // recorded ship-to; inspection and acceptance stay empty.
+  const shipTo = str(a["ship_to_name"]) || str(a["consignee_name"]);
   const setAside = str(a["set_aside"]).toLowerCase();
 
   const clinFields = shown.flatMap((r, i) => {
@@ -782,7 +810,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
       title: "Blocks 6 to 8. Ship to, contractor and type of order",
       citation: "FAR 13.307",
       fields: [
-        field("F.P1.CONSIGNEENAME", "Name of consignee (block 6a)", place, place ? undefined : "No ship-to on the record."),
+        field("F.P1.CONSIGNEENAME", "Name of consignee (block 6a)", shipTo, shipTo ? undefined : "No ship-to on the record; the place of performance is not printed as a consignee."),
         field("F.P1.SHIPVIA", "Ship via (block 6f)", ""),
         field(
           "F.P1.CONTRACTNAME",

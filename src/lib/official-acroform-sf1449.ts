@@ -76,40 +76,49 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
 
 /**
  * Narrative packed into whole sentences across at most `rows` lines.
- * A sentence that will not fit is left off and the last line is marked so the
- * reader is sent on rather than shown a half sentence.
+ *
+ * P1-5: when the text does not fit, the marker gets a row of its own. Whole
+ * sentences are packed into the rows above it, so the schedule never ends
+ * mid-sentence, and the sentences left off are returned as `rest` so the
+ * continuation the marker promises is real.
  */
 const packSentences = (
   text: string,
   width: number,
   rows: number,
-): { lines: string[]; truncated: boolean } => {
+): { lines: string[]; truncated: boolean; rest: string } => {
   const sentences = (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [])
     .map((s) => s.trim())
     .filter(Boolean);
-  const marker = "(see continuation sheet)";
-  let kept = "";
-  let truncated = false;
-  for (const sentence of sentences) {
-    const next = kept ? `${kept} ${sentence}` : sentence;
-    if (wrapLines(next, width, rows + 1).length > rows) {
-      truncated = true;
-      break;
+  // The order carries no generated continuation sheet, so the marker points at
+  // the requirement description on the file rather than at a page that does
+  // not exist.
+  const marker = "(description continues in the requirement on file)";
+
+  /** The sentences that fit in `limit` lines, and those left over. */
+  const fit = (limit: number): { kept: string; rest: string } => {
+    let kept = "";
+    let index = 0;
+    for (; index < sentences.length; index += 1) {
+      const sentence = sentences[index] ?? "";
+      const next = kept ? `${kept} ${sentence}` : sentence;
+      if (limit < 1 || wrapLines(next, width, limit + 1).length > limit) break;
+      kept = next;
     }
-    kept = next;
+    return { kept, rest: sentences.slice(index).join(" ").trim() };
+  };
+
+  const full = fit(rows);
+  if (!full.rest) return { lines: wrapLines(full.kept, width, rows), truncated: false, rest: "" };
+
+  // A continuation is needed, so the last row is reserved for the marker.
+  const short = fit(rows - 1);
+  if (!short.kept) {
+    // Not even the first sentence fits above the marker: send the reader on
+    // rather than print half a sentence.
+    return { lines: [marker], truncated: true, rest: text.trim() };
   }
-  if (!kept) {
-    // Not even the first sentence fits: wrap it and mark the continuation.
-    const lines = wrapLines(text, width, rows);
-    if (lines.length) lines[lines.length - 1] = marker;
-    return { lines, truncated: Boolean(text.trim()) };
-  }
-  const lines = wrapLines(kept, width, rows);
-  if (truncated) {
-    if (lines.length < rows) lines.push(marker);
-    else lines[lines.length - 1] = marker;
-  }
-  return { lines, truncated };
+  return { lines: [...wrapLines(short.kept, width, rows - 1), marker], truncated: true, rest: short.rest };
 };
 
 /** The set-aside programmes block 10 carries, one key only. */

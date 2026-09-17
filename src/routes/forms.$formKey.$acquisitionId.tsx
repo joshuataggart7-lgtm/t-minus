@@ -33,6 +33,7 @@ import {
   currentFormRevision,
   FORM_REVISION_KEY,
   pinnedRevisionFrom,
+  resolveFormTemplate,
   routeKeyToFormId,
 } from "@/lib/form-templates";
 
@@ -339,6 +340,27 @@ function FormPage() {
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
 
+  // P0 fold-in: an official export is only Ready when the blank itself loads.
+  // Mapping rows alone are not enough: a missing blank exports nothing.
+  const blankFormId = isFormKey(formKey) ? routeKeyToFormId(formKey) : null;
+  const blankAvailable = useQuery({
+    queryKey: ["official-blank", blankFormId],
+    enabled: Boolean(blankFormId),
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const template = resolveFormTemplate(blankFormId!, null);
+      try {
+        const head = await fetch(template.storage_path, { method: "HEAD" });
+        if (head.ok) return true;
+        const get = await fetch(template.storage_path);
+        return get.ok;
+      } catch {
+        return false;
+      }
+    },
+  });
+
+
   if (!isFormKey(formKey)) {
     return (
       <AppShell>
@@ -356,11 +378,18 @@ function FormPage() {
     ? pinnedRevisionFrom(latest?.field_values) ?? currentFormRevision(formTemplateId)
     : null;
   // P0-4/P0-1: a blank with no mapping rows would export empty, so it reads
-  // Planned rather than Ready.
-  const officialExportStatus =
-    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0
+  // Planned rather than Ready. P0 fold-in: Ready also requires the blank
+  // itself to load, so the badge never promises a file that is not there.
+  const hasMappings = Boolean(
+    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0,
+  );
+  const officialExportStatus = !hasMappings
+    ? "Planned"
+    : blankAvailable.data === true
       ? "Ready"
-      : "Planned";
+      : blankAvailable.data === false
+        ? "Planned, the blank form file is not available in this build"
+        : "checking the blank form";
 
   const save = useMutation({
     mutationFn: async () => {
@@ -422,8 +451,9 @@ function FormPage() {
       blocks.push({ text: section.title, bold: true, size: 12, gap: 2 });
       if (section.citation) blocks.push({ text: section.citation, size: 9, gap: 4 });
       for (const field of section.fields) {
+        // An empty block reads as prose, never as a filled dash.
         const value =
-          typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value || "—";
+          typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value || "Not recorded";
         blocks.push({ text: `${field.label}: ${value}`, size: 11, indent: 12, gap: 2 });
       }
       blocks.push({ text: "", gap: 8 });
@@ -548,6 +578,12 @@ function FormPage() {
    */
   const exportOfficialOther = async (formId: "of347" | "sf30") => {
     if (!formCtx) return;
+    if (blankAvailable.data === false) {
+      setMessage(
+        "The official blank form file is not available in this build, so there is nothing to write into. Use the data file export instead.",
+      );
+      return;
+    }
     try {
       const revision = pinnedRevision ?? currentFormRevision(formId);
       const bytes = await generateOfficialFormPdf(formId, formCtx, { formRevision: revision });
@@ -858,7 +894,7 @@ function FormPage() {
                         ? field.value
                           ? "Checked"
                           : "Not checked"
-                        : field.value || "—"}
+                        : field.value || <span className="text-muted-foreground">Not recorded</span>}
                       {field.gap ? (
                         <span className="block text-[13px] text-muted-foreground">{field.gap}</span>
                       ) : null}

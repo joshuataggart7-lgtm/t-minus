@@ -32,6 +32,7 @@ import {
   loadCheckout,
   releaseCheckout,
   type Checkout,
+  takeOverCheckout,
 } from "@/lib/document-checkout";
 import {
   itemsFromRefs,
@@ -270,6 +271,28 @@ function DocumentPage() {
       release("Document closed");
     };
   }, [authState, def, acquisitionId, templateKey, phase, user.name, canWrite]);
+
+  /** P0-3: take the document over from the person holding it, deliberately. */
+  const takeOver = async () => {
+    if (!def || !checkout) return;
+    try {
+      const held = await takeOverCheckout({
+        acquisitionId,
+        templateKey,
+        documentName: def.name,
+        phase,
+        userName: user.name,
+        holder: checkout,
+      });
+      setCheckout(held);
+      const { data } = await supabase.auth.getUser();
+      if (held && data.user?.id === held.user_id) setMyCheckoutId(held.checkout_id);
+      setMessage("You have the document. The hand-over is in the audit log.");
+    } catch {
+      setMessage("The document could not be taken over just now. Try again in a moment.");
+    }
+  };
+
 
   // Keep the label current for the people who are only reading.
   useEffect(() => {
@@ -1589,15 +1612,31 @@ function DocumentPage() {
 
       
       {heldByOther && checkout ? (
-        <p
+        <div
           role="status"
           className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
         >
-          Checked out by {checkout.user_name} since {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")}{" "}
-          The fields are
-          read-only for you until that person saves or closes the document, or thirty minutes pass. Refresh
-          this page to pick it up.
-        </p>
+          <p>
+            Checked out by {checkout.user_name} since{" "}
+            {checkoutTime(checkout.checked_out_at).replace(/\.?$/, ".")} What is saved is shown here and
+            reads as written; the fields are read-only for you until that person saves or closes the
+            document, or thirty minutes pass.
+          </p>
+          {canWrite ? (
+            <p className="mt-2">
+              <button
+                type="button"
+                className="text-primary underline"
+                onClick={() => void takeOver()}
+              >
+                Take over the document
+              </button>{" "}
+              <span className="text-muted-foreground">
+                The hand-over is recorded with both names. Nothing already saved is lost.
+              </span>
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <form

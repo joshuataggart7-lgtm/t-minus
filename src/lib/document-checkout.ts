@@ -19,6 +19,23 @@ export function isExpired(checkedOutAt: string) {
   return Date.now() - new Date(checkedOutAt).getTime() > CHECKOUT_MINUTES * 60_000;
 }
 
+/**
+ * Two display names that read as the same person. Case, punctuation and extra
+ * spacing are ignored, so "Joshua Taggart" and "joshua  taggart" match. Two
+ * genuinely different names never match.
+ */
+export function samePersonName(a: string | null | undefined, b: string | null | undefined) {
+  const norm = (v: string | null | undefined) =>
+    String(v ?? "")
+      .toLowerCase()
+      .replace(/[.,'`’-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const left = norm(a);
+  return Boolean(left) && left === norm(b);
+}
+
+
 /** Short local time for the label, e.g. "9:14 a.m." */
 export function checkoutTime(iso: string) {
   const d = new Date(iso);
@@ -102,10 +119,16 @@ export async function claimCheckout(args: {
   if (existing.error) throw new Error(existing.error.message);
 
   const row = existing.data as Checkout | null;
+  // The same account already holds it: nothing changes.
   if (row && row.user_id === userId) return row;
-  if (row && !isExpired(row.checked_out_at)) return row;
+
   if (row) {
-    // Thirty minutes passed; the check-out lapses and the document is free.
+    const lapsed = isExpired(row.checked_out_at);
+    // P0-3: the same person signed in again, under a different account row
+    // with the same display name, is not a second person. They take their own
+    // document back rather than being locked out of it.
+    const samePerson = samePersonName(row.user_name, userName);
+    if (!lapsed && !samePerson) return row;
     await supabase
       .from("document_checkouts")
       .update({ released_at: new Date().toISOString() })
@@ -113,11 +136,13 @@ export async function claimCheckout(args: {
     await logCheckout(
       args.acquisitionId,
       args.phase,
-      row.user_name,
+      lapsed ? row.user_name : userName,
       "Document check-out released",
       args.documentName,
-      `Check-out by ${row.user_name} lapsed`,
-      `No save within ${CHECKOUT_MINUTES} minutes`,
+      lapsed ? `Check-out by ${row.user_name} lapsed` : `Check-out by ${row.user_name} taken back`,
+      lapsed
+        ? `No save within ${CHECKOUT_MINUTES} minutes`
+        : "Same person opened the document in another session",
     );
   }
 
@@ -173,4 +198,47 @@ export async function releaseCheckout(args: {
     `Released by ${userName}`,
     args.reason,
   );
+}
+
+/**
+ * Take the document over from the person holding it. P0-3: the reader sees who
+ * holds it and since when, and can say so deliberately. The hand-over is
+ * written to the audit log with both names, and the previous holder's saved
+ * prose is never touched.
+ */
+export async function takeOverCheckout(args: {
+  acquisitionId: string;
+  templateKey: string;
+  documentName: string;
+  phase: string;
+  userName: string;
+  holder: Checkout;
+}): Promise<Checkout | null> {
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id;
+  if (!userId) return null;
+  const userName = await signedInName(args.userName);
+
+  await supabase
+    .from("document_checkouts")
+    .update({ released_at: new Date().toISOString() })
+    .eq("checkout_id", args.holder.checkout_id)
+    .is("released_at", null);
+  await logCheckout(
+    args.acquisitionId,
+    args.phase,
+    userName,
+    "Document check-out taken over",
+    args.documentName,
+    `Taken over from ${args.holder.user_name} by ${userName}`,
+    `Checked out since ${checkoutTime(args.holder.checked_out_at)}`,
+  );
+
+  return claimCheckout({
+    acquisitionId: args.acquisitionId,
+    templateKey: args.templateKey,
+    documentName: args.documentName,
+    phase: args.phase,
+    userName: args.userName,
+  });
 }

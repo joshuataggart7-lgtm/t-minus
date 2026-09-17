@@ -2267,3 +2267,29 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
   and NASA-insignia-free chrome preserved. FLAG-only clocks; no Clock B.
 - Accent cyan `#22D3EE` reserved for the current node and existing countdown/nav
   accents already shipped in Chunks 1–2.
+
+## Soft Walk P0 ship — order, amendment, check-out, index
+
+- OF 347 (P0-1): one row per line item number; a commercial firm fixed price
+  file prints one lot at the award face, so the printed lines sum to the grand
+  total and to the SF 1449 total (A-2027-0101: 1 Lot, $1,385,000). Estimate
+  figures that disagree with the face are never used. Place of performance is
+  no longer printed as consignee, inspection point or acceptance point; those
+  blocks stay empty unless a ship-to is recorded. Preview and AcroForm export
+  share `of347Face` in `src/lib/of347-face.ts`.
+- SF 30 (P0-2): block 2 carries the recorded modification number only, with an
+  honest note when none is recorded. Block 10A remains the contract number.
+  A-2026-0090 has no modification, so block 2 prints empty and the form stays
+  Ready. Empty blocks read "Not recorded" rather than an em dash.
+- Check-out (P0-3): saved prose stays readable while held. The same person
+  under a second account row takes their own document back; another holder is
+  named with the time and can be taken over deliberately, recorded in the audit
+  log with both names. Nothing saved is deleted.
+- Official export status (fold-in): Ready now requires mapping rows and a
+  blank that actually loads; otherwise it reads Planned with the reason, and
+  the export button says so instead of producing nothing.
+- SF 1449 schedule (P1-5): the continuation marker gets a row of its own, so
+  the schedule never ends mid-sentence, and it points at the requirement on the
+  file rather than a continuation sheet the prototype does not generate.
+- File index (P1-6): retired versions are skipped, and a stale hand-uploaded
+  SF 1449 is not listed once the official export is on the file.

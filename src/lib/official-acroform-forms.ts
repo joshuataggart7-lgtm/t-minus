@@ -13,6 +13,7 @@ import { currentFormRevision, resolveFormTemplate, type FormTemplateId } from "@
 import { withCanonical } from "@/lib/canonical-adapters";
 import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
+import { dedupeClins, of347Face } from "@/lib/of347-face";
 
 export type RogerFormData = Record<string, unknown>;
 
@@ -27,28 +28,47 @@ const num = (v: unknown): number | null => {
 const officeOf = (a: Record<string, unknown>): string =>
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
 
-/** The schedule rows on the file, in print order, as the mapping rows read them. */
+/**
+ * The schedule rows on the file, in print order, as the mapping rows read them.
+ * P0-1: one row per line item number. A file whose schedule carries the same
+ * CLIN twice prints it once.
+ */
 function scheduleRows(ctx: FormCtx): Record<string, unknown>[] {
-  return (ctx.clins ?? []).slice(0, 8).map((c) => ({
-    item_number: c.clinNumber,
-    description: c.description,
-    quantity: c.quantity === null ? "" : String(c.quantity),
-    unit: c.unit ?? "",
-    unit_price: c.unitPrice ?? "",
-    amount: c.extendedPrice ?? "",
-  }));
+  return dedupeClins(ctx.clins ?? [])
+    .slice(0, 8)
+    .map((c) => ({
+      item_number: c.clinNumber,
+      description: c.description,
+      quantity: c.quantity === null ? "" : String(c.quantity),
+      unit: c.unit ?? "",
+      unit_price: c.unitPrice ?? "",
+      amount: c.extendedPrice ?? "",
+    }));
 }
 
 /** The record as the OF 347 mapping rows read it. */
 export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
   const a = ctx.acq;
-  const rows = scheduleRows(ctx);
-  const lineTotal = rows.reduce((sum, r) => sum + (num(r["amount"]) ?? 0), 0);
-  const total = lineTotal || num(a["award_amount"]) || num(a["estimated_value"]) || null;
+  const face = of347Face(ctx);
+  const rows = face.lot
+    ? [
+        {
+          item_number: "0001",
+          description: str(a["title"]) || str(a["description_of_requirement"]),
+          quantity: "1",
+          unit: "Lot",
+          unit_price: face.total ?? "",
+          amount: face.total ?? "",
+        },
+      ]
+    : scheduleRows(ctx);
+  const total = face.total;
   const parent = str(a["parent_contract_number"]);
   const isDeliveryOrder = Boolean(parent) || /delivery order|task order|order under/i.test(str(a["contract_format"]));
   const setAside = str(a["set_aside"]);
-  const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
+  // P0-1: a place of performance is not a consignee, an inspection point or an
+  // acceptance point. Those blocks stay empty unless the record carries them.
+  const shipTo = str(a["ship_to_name"]) || str(a["consignee_name"]);
 
   const data: RogerFormData = {
     pagination: { page: "1", pages: "1", total_pages: "" },
@@ -72,12 +92,14 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
       zip: str(a["awardee_postal_code"]),
     },
     delivery: {
-      consignee: { name: place, street: "", city: "", state: "", zip: "" },
+      // Consignee only when a real ship-to is recorded. Inspection and
+      // acceptance stay empty: the record carries no dedicated field for them.
+      consignee: { name: shipTo, street: "", city: "", state: "", zip: "" },
       ship_via: "",
       fob: "",
       deliver_by: str(a["period_of_performance_end"]),
-      inspection_point: place,
-      acceptance_point: place,
+      inspection_point: "",
+      acceptance_point: "",
       government_bl: "",
     },
     acquisition: {
