@@ -52,6 +52,8 @@ export interface FormFieldMapping {
   constant?: string;
   /** Soft: a short note for the reader of this table. */
   note?: string;
+  /** Soft §6: inheritance level. Missing is read as "transaction". */
+  scope?: FieldScope;
 }
 
 export const FORM_FIELD_MAPPINGS: FormFieldMapping[] = rowsJson as FormFieldMapping[];
