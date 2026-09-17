@@ -179,20 +179,20 @@ export function faceLine(
   const extended = clin?.extendedPrice ?? null;
   const reconciles = (target: number | null) =>
     qty !== null && unitPrice !== null && target !== null && target > 0 && Math.abs(qty * unitPrice - target) < 0.5;
-  // The priced row is the first schedule line, so it multiplies out against
-  // that line's own extended price. A single-line file where the schedule line
-  // is the whole face amount still reconciles the same way.
-  if (reconciles(extended) || reconciles(faceAmount)) {
-    const amount = reconciles(extended) ? extended! : faceAmount;
+  // The official commercial face carries the whole action. A first CLIN that
+  // does not equal that face amount belongs in schedule detail, not in the
+  // single priced face row; use the recorded one-lot face instead.
+  if (commercial && faceAmount > 0 && !reconciles(faceAmount)) {
+    return { quantity: "1", unit: "Lot", unit_price: dollars(faceAmount), amount: dollars(faceAmount) };
+  }
+  if (reconciles(faceAmount) || reconciles(extended)) {
+    const amount = reconciles(faceAmount) ? faceAmount : extended;
     return {
       quantity: String(qty),
       unit: str(clin?.unit),
       unit_price: dollars(unitPrice),
       amount: dollars(amount),
     };
-  }
-  if (commercial && faceAmount > 0) {
-    return { quantity: "1", unit: "Lot", unit_price: dollars(faceAmount), amount: dollars(faceAmount) };
   }
   // Nothing reconciles: the priced columns stay empty for the contracting
   // officer rather than carrying an amount with no quantity behind it.
