@@ -73,7 +73,11 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
             <p className="mt-1">{explanation.rule ?? "Not recorded"}</p>
             <p className="mt-3 font-medium">Citation</p>
             <p className="mt-1 text-muted-foreground">{explanation.citation ?? "Not recorded"}</p>
-            {cite.kind === "stub" ? <p className="mt-1 text-muted-foreground">{cite.note}</p> : null}
+            {textState === "heading" ? (
+              <p className="mt-1 text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+            ) : cite.kind === "stub" && textState === "none" ? (
+              <p className="mt-1 text-muted-foreground">{cite.note}</p>
+            ) : null}
             {explanation.citation ? (
               <p className="mt-1">
                 <ShowTheText citation={explanation.citation} />
