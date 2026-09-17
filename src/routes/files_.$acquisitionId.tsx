@@ -130,6 +130,8 @@ import { StandaloneDraft } from "@/components/standalone-draft";
 import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
 import { recommendedOfficialForm } from "@/lib/sf-forms";
 import { signedInName } from "@/lib/account-name";
+import { boardReadiness } from "@/lib/board-readiness";
+import { loadClarifications } from "@/lib/clarifications";
 import { protestWindow } from "@/lib/protest-window";
 import {
   FORECAST_CITATION,
@@ -598,6 +600,11 @@ function FilePage() {
     queryKey: ["section-m-factors", acquisitionId],
     enabled: authState === "signed-in",
     queryFn: () => loadFactors(acquisitionId),
+  });
+  const clarificationsQ = useQuery({
+    queryKey: ["clarifications", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: () => loadClarifications(acquisitionId),
   });
 
   // Deviation requests linked to this file, read only, for the advisory
@@ -1464,6 +1471,13 @@ function FilePage() {
             : null,
           competitive: shell ? shell.competitive : null,
           sectionJCount: sectionJ.length,
+          boardReadiness: boardReadiness({
+            shell,
+            l: sectionLQ.data ?? null,
+            m: sectionMQ.data ?? null,
+            factors: factorsQ.data ?? [],
+            clarificationCount: clarificationsQ.data?.length ?? 0,
+          }),
           gates: companionGates
             .filter((g) => g.applies)
             .map((g) => ({

@@ -9,6 +9,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { boardReadinessItems, type BoardReadiness } from "@/lib/board-readiness";
 import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
 import type { ScaffoldSectionK } from "@/lib/format-scaffold";
 
@@ -81,6 +82,8 @@ export type BriefingInput = {
    * file page makes. Counts only — the full checklist lives on the file.
    */
   assemblyCounts?: { presentTabs: number; missingTabs: number; recorded: number; notRecorded: number } | null;
+  /** Same advisory snapshot shown in the Evaluation cockpit Board brief. */
+  boardReadiness?: BoardReadiness | null;
 };
 
 export const AWARD_HANDOFF_POINTER =
@@ -195,6 +198,28 @@ function gatesPage(input: BriefingInput, mark: string): string {
     <h2>Companion gates</h2>
     <p class="sub">Gates that apply to this record, read from the seeded review rules. A gate is a checklist for the officer; it does not place the file on hold.</p>
     <table class="clauses" style="margin-top:20px"><thead><tr><th>Gate</th><th>Status</th><th>What triggers it</th><th>What the file shows</th></tr></thead><tbody>${rows}</tbody></table>
+  </div>
+  ${mark}
+</section>`;
+}
+
+/** Same compact, advisory Board brief shown in the Evaluation cockpit. */
+function boardReadinessPage(input: BriefingInput, mark: string): string {
+  const readiness = input.boardReadiness;
+  if (!readiness) return "";
+  const rows = boardReadinessItems(readiness)
+    .map((item) => `<tr><th scope="row">${esc(item.label)}</th><td>${esc(item.value)}</td></tr>`)
+    .join("");
+  const findings = readiness.lamp.findings.length
+    ? `<ul style="margin:8px 0 0;padding-left:18px;font-size:14px">${readiness.lamp.findings.map((finding) => `<li>${esc(finding)}</li>`).join("")}</ul>`
+    : `<p class="sub" style="margin-top:8px">No L↔M findings recorded.</p>`;
+  return `<section class="page">
+  <div>
+    <h2>Board readiness</h2>
+    <p class="sub">The same advisory snapshot shown in the Evaluation cockpit.</p>
+    <table style="margin-top:20px"><tbody>${rows}</tbody></table>
+    ${findings}
+    <p class="sub" style="margin-top:20px">Briefing aid only. Nothing here holds the file or a phase exit.</p>
   </div>
   ${mark}
 </section>`;
@@ -342,6 +367,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
 
 ${schedulePage(input, mark)}
 ${formatPage(input, mark)}
+${boardReadinessPage(input, mark)}
 ${gatesPage(input, mark)}
 
 

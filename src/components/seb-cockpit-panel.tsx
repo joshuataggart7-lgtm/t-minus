@@ -8,9 +8,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
+import { boardReadiness, boardReadinessItems } from "@/lib/board-readiness";
 import {
   CLARIFICATIONS_CHIP,
-  CLARIFICATIONS_EMPTY,
   clarificationText,
   createClarification,
   deleteClarification,
@@ -18,7 +18,7 @@ import {
   updateClarification,
   type ClarificationRow,
 } from "@/lib/clarifications";
-import { LM_LAMP_LABEL, LM_LAMP_OK, lmConsistencyCheck } from "@/lib/lm-consistency";
+import { LM_LAMP_LABEL, LM_LAMP_OK } from "@/lib/lm-consistency";
 import {
   FACTOR_EVIDENCE_ADVISORY,
   factorHasEvidence,
@@ -81,12 +81,14 @@ export function SebCockpitPanel({
   const factors = factorsQ.data ?? [];
   const clarifications = clarQ.data ?? [];
 
-  const lamp = lmConsistencyCheck({
+  const readiness = boardReadiness({
     shell,
     l: lQ.data ?? null,
     m: mQ.data ?? null,
     factors,
+    clarificationCount: clarifications.length,
   });
+  const lamp = readiness.lamp;
 
   const addClarification = useMutation({
     mutationFn: async () => {
@@ -160,34 +162,7 @@ export function SebCockpitPanel({
 
   if (!shell) return null;
 
-  const evidenceNoted = factors.filter((f) => factorHasEvidence(f)).length;
-  const readinessItems: { label: string; value: string }[] = [
-    {
-      label: "L↔M consistency",
-      value:
-        lamp.status === "ok"
-          ? "Consistent — no findings"
-          : `${lamp.findings.length} advisory finding${lamp.findings.length === 1 ? "" : "s"}`,
-    },
-    {
-      label: "Clarifications",
-      value: clarifications.length === 0 ? "No clarifications recorded" : `${clarifications.length} recorded`,
-    },
-    {
-      label: "Evaluation factors with evidence",
-      value: !shell.competitive
-        ? "Sole-source path"
-        : factors.length === 0
-          ? "No evaluation factors recorded"
-          : evidenceNoted === 0
-            ? `No evidence linked — 0 of ${factors.length}`
-            : `${evidenceNoted} of ${factors.length}`,
-    },
-    {
-      label: "Read receipts",
-      value: "Per-document status below",
-    },
-  ];
+  const readinessItems = boardReadinessItems(readiness);
 
   return (
     <div className="mt-3 border border-border p-4">
@@ -257,12 +232,9 @@ export function SebCockpitPanel({
         </div>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLARIFICATIONS_CHIP}</p>
         {clarifications.length === 0 ? (
-          <div className="mt-2">
-            <p className="text-[13px] text-muted-foreground">{CLARIFICATIONS_EMPTY}</p>
-            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-              Fairness ledger is empty until the office records a clarification.
-            </p>
-          </div>
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            None recorded — the fairness ledger stays empty until the office adds one.
+          </p>
         ) : (
           <table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
@@ -443,8 +415,7 @@ export function SebCockpitPanel({
           </p>
         ) : factors.length === 0 ? (
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-            No evaluation factors recorded — record a factor in Section M and evidence can be
-            linked against it.
+            No factors recorded — there is no evaluation evidence to map yet.
           </p>
         ) : (
           <ul className="mt-2 divide-y divide-border border-y border-border">
