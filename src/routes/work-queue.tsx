@@ -10,6 +10,7 @@ import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
+import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import {
   computeMetrics,
   awardDateFor,
