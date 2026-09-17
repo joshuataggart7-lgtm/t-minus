@@ -14,7 +14,8 @@
  * field check by a person is still open.
  */
 
-import type { FormCtx, GeneratedForm } from "@/lib/nf1787";
+import type { FormCtx, FormField, GeneratedForm } from "@/lib/nf1787";
+import { pathForLeaf, pathForSubformLeaf, type BlankPaths } from "@/lib/xfa-blank-paths";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
