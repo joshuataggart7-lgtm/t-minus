@@ -478,6 +478,11 @@ export function AwardHandoffPanel({
                 </tbody>
               </table>
             )}
+            {paymentPlanNotes(scaffold.paymentMilestones).map((n) => (
+              <p key={n} className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+                {n}
+              </p>
+            ))}
           </section>
 
           <section>
