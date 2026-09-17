@@ -266,6 +266,34 @@ export function explainHold(
       : unvoted
         ? `${unvoted[1]} has not recorded a vote yet.`
         : hold.reason;
+  // An exclusion question names its cause, the exact UEI, the source and the
+  // time it was read, so no one has to guess what raised it.
+  const review = (() => {
+    const scenario = acq['scenario'];
+    const flag =
+      scenario && typeof scenario === "object" && !Array.isArray(scenario)
+        ? (scenario as Record<string, unknown>)["_exclusion_review"]
+        : null;
+    return flag && typeof flag === "object" ? (flag as Record<string, unknown>) : null;
+  })();
+  const exclusionCause = review || /vendor excluded|exclusion/i.test(hold.reason);
+  if (exclusionCause) {
+    const uei = String(review?.["uei"] ?? acq['vendor_uei'] ?? "not recorded");
+    return {
+      heading: review ? "A vendor exclusion review is open" : "This file is on hold",
+      why: [
+        `Cause: ${String(review?.["cause"] ?? hold.reason)}.`,
+        `Vendor UEI: ${uei}.`,
+        `Source: ${String(review?.["source"] ?? "SAM.gov check on the record")}.`,
+        `Read at: ${String(review?.["flagged_at"] ?? acq['hold_started_at'] ?? "time not recorded")}.`,
+      ],
+      rule: "An exclusion record is matched by exact UEI only, and it raises a review for the contracting officer. It never moves the clock on its own.",
+      citation: "FAR 9.405 (exclusions); FAR 4.801 (contract file)",
+      clears: [
+        "Run the live SAM.gov check on this record. A clean result showing no active exclusion clears the review automatically and is recorded.",
+      ],
+    };
+  }
   return {
     heading: "This file is on hold",
     why: [
@@ -282,6 +310,7 @@ export function explainHold(
     ],
   };
 }
+
 
 export function explainStatus(args: {
   status: string;

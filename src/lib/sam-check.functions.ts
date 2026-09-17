@@ -232,7 +232,37 @@ export const runSamEntityCheck = createServerFn({ method: "POST" })
     });
     if (saveError) throw new Error(saveError.message);
 
+    // A clean live registration read clears the sweep's exclusion review flag
+    // on this record. The clock is never touched here.
+    if (source === "live" && acquisitionId && view.exclusionFlag === "No active exclusion") {
+      const current = await supabaseAdmin
+        .from("acquisition_facts")
+        .select("scenario")
+        .eq("acquisition_id", acquisitionId)
+        .maybeSingle();
+      const scenario = object(current.data?.scenario);
+      if (scenario["_exclusion_review"]) {
+        const cleared = { ...scenario };
+        delete cleared["_exclusion_review"];
+        await supabaseAdmin
+          .from("acquisition_facts")
+          .update({ scenario: cleared as Json })
+          .eq("acquisition_id", acquisitionId);
+        await supabaseAdmin.from("audit_log").insert({
+          acquisition_id: acquisitionId,
+          actor: me.name,
+          action: "Exclusion review flag cleared",
+          field: "vendor exclusions",
+          old_value: "vendor exclusion flagged; CO review",
+          new_value: null,
+          reason: `Live SAM.gov check shows no active exclusion for ${uei}; checked ${checkedAt}`,
+          logged_at: checkedAt,
+        });
+      }
+    }
+
     const { error: auditError } = await supabaseAdmin.from("audit_log").insert({
+
       acquisition_id: acquisitionId,
       actor: me.name,
       action: "SAM.gov entity check",

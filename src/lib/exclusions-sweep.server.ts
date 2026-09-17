@@ -128,7 +128,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
 
   const open = await supabaseAdmin
     .from("acquisition_facts")
-    .select("acquisition_id,vendor_uei,vendor_legal_name,clock_state,hold_reason,hold_owner,co_name,status")
+    .select("acquisition_id,vendor_uei,vendor_legal_name,clock_state,hold_reason,hold_owner,co_name,status,scenario")
     .order("acquisition_id");
   if (open.error) throw new Error(open.error.message);
 
@@ -214,19 +214,53 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
 
     // The sweep never touches the clock. It records what it saw and, where an
     // exclusion record exists, asks the contracting officer to look.
+    const scenario = object(file.scenario);
     if (excluded) {
       flaggedForReview += 1;
+      await supabaseAdmin
+        .from("acquisition_facts")
+        .update({
+          scenario: {
+            ...scenario,
+            _exclusion_review: {
+              cause: label,
+              uei,
+              source: sourceLabel,
+              flagged_at: ranAt,
+            },
+          } as Json,
+        })
+        .eq("acquisition_id", file.acquisition_id);
       await supabaseAdmin.from("audit_log").insert({
         acquisition_id: file.acquisition_id,
         actor,
-        action: "Vendor exclusion flagged",
+        action: "Exclusion review flag set — CO review",
         field: "vendor exclusions",
         old_value: null,
         new_value: EXCLUSION_REVIEW_FLAG,
         reason: `${label} for ${legalName ?? uei} (UEI ${uei}); ${sourceLabel}; checked ${ranAt}`,
         logged_at: ranAt,
       });
+    } else if (source === "live" && scenario["_exclusion_review"]) {
+      // A clean live exclusions read on the same exact UEI clears the flag.
+      const cleared = { ...scenario };
+      delete cleared["_exclusion_review"];
+      await supabaseAdmin
+        .from("acquisition_facts")
+        .update({ scenario: cleared as Json })
+        .eq("acquisition_id", file.acquisition_id);
+      await supabaseAdmin.from("audit_log").insert({
+        acquisition_id: file.acquisition_id,
+        actor,
+        action: "Exclusion review flag cleared",
+        field: "vendor exclusions",
+        old_value: EXCLUSION_REVIEW_FLAG,
+        new_value: null,
+        reason: `${label} for UEI ${uei}; ${sourceLabel}; checked ${ranAt}`,
+        logged_at: ranAt,
+      });
     }
+
 
     results.push(result);
   }
