@@ -75,6 +75,7 @@ export function PcdAdoptionPanel({
         </p>
         <p className="mt-1">{RFO_PART_OVERLAY_NOT_LOADED}</p>
         <p className="mt-1">{PCD_2603B_NOTE}</p>
+        <p className="mt-1">{COMPANION_GUIDE_TIER_NOTE}</p>
       </div>
     </section>
   );
