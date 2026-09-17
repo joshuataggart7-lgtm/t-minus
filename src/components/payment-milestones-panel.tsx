@@ -232,8 +232,7 @@ export function PaymentMilestonesPanel({
 
       {rows.length === 0 ? (
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          {PAYMENT_MILESTONES_EMPTY} The contracting office records a milestone when the payment
-          approach calls for one.
+          {PAYMENT_MILESTONES_EMPTY} {PAYMENT_MILESTONES_EMPTY_NOTE}
           {paymentClinHint(clins.length) ? (
             <span className="block">{paymentClinHint(clins.length)}</span>
           ) : null}
