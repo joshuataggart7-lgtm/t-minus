@@ -4446,7 +4446,6 @@ function FilePage() {
 
       </div>
       </div>
-      </div>
       ) : null}
 
       <Link to="/files" className="text-primary underline underline-offset-2">
