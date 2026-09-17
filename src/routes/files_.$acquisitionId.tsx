@@ -2181,6 +2181,22 @@ function FilePage() {
                   <DropdownMenuItem disabled={fpdsExport.isPending} onSelect={() => fpdsExport.mutate()}>
                     {fpdsExport.isPending ? "Building the FPDS filling sheet" : "FPDS filling sheet (fill aid)"}
                   </DropdownMenuItem>
+                  {/* Review-and-sign path: the official blank filled from this
+                      record. Signature blocks stay empty. */}
+                  {shell?.path === "sf1449" ? (
+                    <DropdownMenuItem asChild>
+                      <Link to="/forms/$formKey/$acquisitionId" params={{ formKey: "sf-1449", acquisitionId }}>
+                        Filled SF 1449 for signature
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  {String(acq?.["contract_number"] ?? "").trim() ? (
+                    <DropdownMenuItem asChild>
+                      <Link to="/forms/$formKey/$acquisitionId" params={{ formKey: "sf-30", acquisitionId }}>
+                        Filled SF 30 for signature
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
                   <DropdownMenuItem disabled={evidencePack.isPending} onSelect={() => evidencePack.mutate()}>
                     {evidencePack.isPending ? "Building the evidence pack" : "Export evidence pack (zip)"}
                   </DropdownMenuItem>
