@@ -2079,3 +2079,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Block 20 narrative keeps the requirement description and period of performance only; the CLIN description is no longer appended when the requirement description already carries the narrative.
 
 - Soft §1: SF 1449 now exports through a pdf-lib AcroForm pipeline on the official blank (load, deleteXFA, fill, updateFieldAppearances, save) so values show in Reader, Chrome and Preview. XFA/XDP Import Data demoted to a labelled secondary route. Non-Live until a human Adobe check; no Adobe claim.
+
+- Soft: SF 1449 AcroForm field mappings now live as data rows (`src/lib/form-field-mappings.ts`, shaped like a future `form_field_mappings` table) and are applied by `src/lib/apply-form-mappings.ts`; the generator reads the rows instead of a hard-coded field list, keeps the deleteXFA-before-fill pipeline and the Lot CLIN rule, and stays non-Live with no Adobe check.
