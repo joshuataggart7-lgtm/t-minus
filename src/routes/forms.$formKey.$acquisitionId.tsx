@@ -612,6 +612,12 @@ function FormPage() {
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
         {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
+        {formTemplateId === "sf1449"
+          ? " · official PDF export: Live"
+          : formTemplateId
+            ? " · official PDF export: Ready"
+            : ""}
+
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
       <p className="mb-6 text-[15px]">
