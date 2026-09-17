@@ -174,6 +174,19 @@ export const runMarketResearch = createServerFn({ method: "POST" })
         .filter((n) => /sources\s*sought/i.test(n.noticeType) || /sources\s*sought/i.test(n.title))
         .slice(0, 10)
         .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
+      // Blackout notices in the same read-only search, named separately so the
+      // officer can see whether one is already posted for this window.
+      blackoutNotices: result.notices
+        .filter((n) => /black\s*-?\s*out/i.test(n.noticeType) || /black\s*-?\s*out/i.test(n.title))
+        .slice(0, 10)
+        .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
+      // Draft RFP / draft solicitation notices in the same read-only search.
+      draftRfpNotices: result.notices
+        .filter((n) =>
+          /draft\s*(rfp|rfq|solicitation)|presolicitation\s*draft/i.test(`${n.noticeType} ${n.title}`),
+        )
+        .slice(0, 10)
+        .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
       noticesSearched: result.noticesSearched,
       awardCount: result.awards.length,
     };
