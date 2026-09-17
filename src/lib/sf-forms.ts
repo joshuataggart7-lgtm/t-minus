@@ -16,6 +16,7 @@
 
 import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
+import { faceLine, setAsideFlags } from "@/lib/official-acroform-sf1449";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
