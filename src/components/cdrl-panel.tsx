@@ -146,10 +146,10 @@ export function CdrlPanel({
   return (
     <div className="mt-3 border border-border bg-muted/20 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h4 className="text-[15px] font-medium">CDRL / data requirements</h4>
+        <h4 className="text-[15px] font-medium">{CDRL_LABEL}</h4>
         <span className="text-[13px] text-muted-foreground">
-          Optional. Separate from the document attachments on the record. Blanks print "Not recorded" and no
-          Word sidecar is needed.
+          Optional, and listed beside the document attachments rather than among them. Blanks print
+          "Not recorded" and no Word sidecar is needed.
         </span>
         {canWrite ? (
           <button
@@ -161,6 +161,20 @@ export function CdrlPanel({
           </button>
         ) : null}
       </div>
+
+      {methodNote ? (
+        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">{methodNote}</p>
+      ) : null}
+
+      {packNotes.length > 0 ? (
+        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+          {packNotes.map((n) => (
+            <span key={n} className="block">
+              {n}
+            </span>
+          ))}
+        </p>
+      ) : null}
 
       {rows.length === 0 ? (
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
