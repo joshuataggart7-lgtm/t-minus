@@ -40,9 +40,10 @@ export function MarketResearchEngine({
   const [log, setLog] = useState<ResearchLogEntry[] | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
   // Sources Sought notices from the latest run, named as their own group.
-  const [sourcesSought, setSourcesSought] = useState<
-    { title: string; posted: string; setAside: string }[] | null
-  >(null);
+  const [sourcesSought, setSourcesSought] = useState<NoticeRow[] | null>(null);
+  // Blackout and Draft RFP notices, named the same way and read-only.
+  const [blackoutNotices, setBlackoutNotices] = useState<NoticeRow[] | null>(null);
+  const [draftRfpNotices, setDraftRfpNotices] = useState<NoticeRow[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
