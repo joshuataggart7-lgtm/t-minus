@@ -154,6 +154,7 @@ function RegIntakePage() {
   const pick = async (file: File | null) => {
     setMessage(null);
     setProblem(null);
+    setSectionRows(null);
     if (!file) {
       setFileName(null);
       setText(null);
@@ -162,6 +163,71 @@ function RegIntakePage() {
     const body = await file.text();
     setFileName(file.name);
     setText(body);
+    if (textType) {
+      try {
+        const parsed = parseSectionFile(body);
+        setSectionRows(await readSectionUpload(parsed, textType.binding, textType.corpora));
+      } catch (e) {
+        setSectionRows(null);
+        setProblem(
+          `${e instanceof Error ? e.message : String(e)} Check the file is one section per line and upload it again.`,
+        );
+      }
+    }
+  };
+
+  /** Text intake: supersede what is replaced, insert the new text, log it. */
+  const applySections = async () => {
+    if (!sectionDiff || !textType) return;
+    setBusy(true);
+    setMessage(null);
+    setProblem(null);
+    const now = new Date().toISOString();
+    const actor = user.name;
+    try {
+      await applySectionDiff(sectionDiff);
+      const summary = sectionDiffSentence(textType.label, sectionDiff);
+      const touched = [...sectionDiff.changed, ...sectionDiff.removed, ...sectionDiff.added].map((r) => r.citation);
+      let citing: string[] = [];
+      try {
+        citing = await filesCitingChangedSections(
+          [...sectionDiff.changed, ...sectionDiff.removed].map((r) => r.citation),
+        );
+      } catch {
+        citing = [];
+      }
+      const citingLine =
+        citing.length > 0
+          ? `Live files citing changed sections: ${citing.join(", ")}.`
+          : "No live file cites a section whose text changed.";
+
+      const { error: logError } = await supabase.from("audit_log").insert([
+        {
+          acquisition_id: null,
+          actor,
+          action: "Regulation text applied",
+          field: "regulation_sections",
+          old_value: `${live.data?.length ?? 0} live sections`,
+          new_value: `${summary} ${citingLine}`,
+          reason: reason.trim() || fileName,
+          logged_at: now,
+        },
+      ] as never);
+      if (logError) throw new Error(logError.message);
+
+      setMessage(
+        `${summary} ${touched.length} citation${touched.length === 1 ? "" : "s"} touched. Superseded text stays readable. ${citingLine}`,
+      );
+      setText(null);
+      setFileName(null);
+      setSectionRows(null);
+      await qc.invalidateQueries({ queryKey: ["regulation-sections-live"] });
+    } catch (e) {
+      setProblem(
+        `${e instanceof Error ? e.message : String(e)} Check that you are signed in as HQ, then apply again.`,
+      );
+    }
+    setBusy(false);
   };
 
   const apply = async () => {
