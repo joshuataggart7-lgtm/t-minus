@@ -487,7 +487,12 @@ function FormPage() {
             </p>
             {formKey === "nf-1707" ? (
               <p className="mt-2">
-                NF 1707 fills its header only; Sections 1 to 12 are answered on Intake, not on this form.
+                NF 1707 carries no widget layer, so its field paths are read from the blank itself. The
+                header and every Intake answer the blank has a field for are written; an answer with no
+                field on the blank stays on Intake rather than being placed under a guessed name.
+                Signature, concurrence and approval blocks stay blank for the Approvals step. The filled
+                preview is for a person to check the fields in desktop Reader; it is not an Adobe
+                verification, and nothing here holds a phase.
               </p>
             ) : null}
             <p className="mt-2">
