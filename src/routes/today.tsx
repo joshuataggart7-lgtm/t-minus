@@ -7,6 +7,7 @@ import { statusColor, urgencyRank } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
+import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -349,11 +350,7 @@ function TodayPage() {
                     </span>{" "}
                     {c.m.nextAction} — <FileLink card={c} />
                     <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-                      {c.m.daysToAward !== null
-                        ? `${c.m.daysToAward} calendar days to the target award date. `
-                        : c.m.forecastAwardDate
-                          ? `${daysUntil(c.m.forecastAwardDate) ?? 0} calendar days to the forecast award date; no target award date recorded. `
-                          : "No target award date recorded."}
+                      <LaunchCountdownCompact view={countdownView(c.m)} className="mr-2" />
                       {desk
                         ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
                         : ""}
