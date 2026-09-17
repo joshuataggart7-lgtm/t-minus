@@ -103,7 +103,16 @@ export async function claimCheckout(args: {
 
   const row = existing.data as Checkout | null;
   if (row && row.user_id === userId) return row;
-  if (row && !isExpired(row.checked_out_at)) return row;
+  // P0-3: the same person signed in again, under a second account row with the
+  // same display name, is not a second person. They keep their own document.
+  if (row && !isExpired(row.checked_out_at) && sameperson(row.user_name, userName)) {
+    await supabase
+      .from("document_checkouts")
+      .update({ released_at: new Date().toISOString() })
+      .eq("checkout_id", row.checkout_id);
+  } else if (row && !isExpired(row.checked_out_at)) {
+    return row;
+  }
   if (row) {
     // Thirty minutes passed; the check-out lapses and the document is free.
     await supabase
