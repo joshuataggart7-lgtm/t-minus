@@ -993,9 +993,9 @@
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Code[1]",
-    "record_path": "administering_office.code",
+    "record_path": "contractor.code",
     "type": "text",
-    "scope": "organization"
+    "scope": "contract"
   },
   {
     "form_id": "sf30",
@@ -1011,9 +1011,9 @@
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Code[2]",
-    "record_path": "contractor.code",
+    "record_path": "administering_office.code",
     "type": "text",
-    "scope": "contract"
+    "scope": "organization"
   },
   {
     "form_id": "sf30",
