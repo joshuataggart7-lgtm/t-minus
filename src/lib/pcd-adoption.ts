@@ -7,6 +7,8 @@
  * adoption status — it says so and points at the official source.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { SEED_SOURCES } from "@/lib/about";
+import { NFS_CG_NOT_LOADED_NOTE } from "@/lib/cite-stub";
 import type { DeviationRow } from "@/lib/deviations";
 
 export const RFO_SOURCE_URL = "https://www.acquisition.gov/far-overhaul";
@@ -26,6 +28,22 @@ export const RFO_PART_OVERLAY_NOT_LOADED =
 
 export const PCD_2603B_NOTE =
   "Interim NFS PCD 26-03B is the clause-matrix and Reserved-clause source T-Minus already reads, at the matrix date Jul 23 2026. That is the source of the clause list only; it is not a record that every Interim NFS part applies to this file.";
+
+/**
+ * The dated sources behind the clause matrix, read from the seed record in
+ * about.ts. These are the issuance dates of the policy baseline the matrix is
+ * built on — a different fact from the regulatory baseline date on the file.
+ */
+export const PCD_MATRIX_BASELINE: { name: string; asOf: string }[] = SEED_SOURCES.filter((s) =>
+  ["NFS interim rule", "PCD 26-03B clause matrix", "NFS applicability matrix"].includes(s.name),
+);
+
+export const PCD_BASELINE_VS_FILE_NOTE =
+  "This is the issuance date of the policy baseline the clause matrix is built on. It is not the regulatory baseline date on the file, which is the date the officer recorded for this acquisition.";
+
+/** The Companion Guide is process guidance. It never binds, and its text is not loaded. */
+export const COMPANION_GUIDE_TIER_NOTE =
+  `The NFS Companion Guide is process guidance, never binding authority. ${NFS_CG_NOT_LOADED_NOTE}`;
 
 export type DeviationSummary = {
   deviation_id: string;
@@ -58,8 +76,18 @@ export async function loadDeviationsForAcquisition(acquisitionId: string): Promi
   return (data ?? []) as unknown as DeviationSummary[];
 }
 
-/** One line for a deviation row: type, citation, and where it stands. */
+/**
+ * One line for a deviation row: type, citation, and where it stands as
+ * recorded. No vote is counted and no board outcome is inferred here — an
+ * undecided request is reported as still open.
+ */
 export function deviationStatusLine(d: DeviationSummary): string {
-  const decision = d.decision ? `, decision: ${d.decision}` : "";
-  return `${d.deviation_type} deviation — ${d.citation} — status ${d.status}${decision}`;
+  const status = String(d.status ?? "").trim().toLowerCase();
+  const open = status === "" || status === "open" || status === "pending" || status === "submitted";
+  const decision = d.decision
+    ? `, decision as recorded: ${d.decision}`
+    : open
+      ? ", still open — no decision is recorded"
+      : ", no decision is recorded";
+  return `${d.deviation_type} deviation — ${d.citation} — status ${d.status || "not recorded"}${decision}`;
 }

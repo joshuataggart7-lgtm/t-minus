@@ -27,6 +27,42 @@ function parseRespondents(value: string): ResearchRespondent[] {
  * contracting officer's click; the log shows every source, query, date and
  * result count, including the sources that returned nothing.
  */
+type NoticeRow = { title: string; posted: string; setAside: string };
+
+/** One named group of read-only SAM.gov notices, with an honest empty state. */
+function NoticeGroup({
+  label,
+  lead,
+  empty,
+  notices,
+}: {
+  label: string;
+  lead: string;
+  empty: string;
+  notices: NoticeRow[];
+}) {
+  return (
+    <section aria-label={label} className="mt-4 border-t border-border pt-3">
+      <h5 className="text-[15px] font-medium">{label}</h5>
+      <p className="mt-1 text-[13px] text-muted-foreground">{lead}</p>
+      {notices.length === 0 ? (
+        <p className="mt-2 text-[13px] text-muted-foreground">{empty}</p>
+      ) : (
+        <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+          {notices.map((n) => (
+            <li key={`${n.title}-${n.posted}`}>
+              {n.title}
+              <span className="block text-muted-foreground">
+                Posted {n.posted || "date not reported"} · {n.setAside || "set-aside not reported"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function MarketResearchEngine({
   acquisitionId,
   canWrite,
@@ -40,9 +76,10 @@ export function MarketResearchEngine({
   const [log, setLog] = useState<ResearchLogEntry[] | null>(null);
   const [summary, setSummary] = useState<string | null>(null);
   // Sources Sought notices from the latest run, named as their own group.
-  const [sourcesSought, setSourcesSought] = useState<
-    { title: string; posted: string; setAside: string }[] | null
-  >(null);
+  const [sourcesSought, setSourcesSought] = useState<NoticeRow[] | null>(null);
+  // Blackout and Draft RFP notices, named the same way and read-only.
+  const [blackoutNotices, setBlackoutNotices] = useState<NoticeRow[] | null>(null);
+  const [draftRfpNotices, setDraftRfpNotices] = useState<NoticeRow[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [setAside, setSetAside] = useState<string | null>(null);
   const [suggested, setSuggested] = useState<string | null>(null);
@@ -88,6 +125,8 @@ export function MarketResearchEngine({
       setLatestIncompleteRanAt(null);
       setSuggested(result.suggestedSetAside);
       setSourcesSought(result.noticesSearched ? result.sourcesSought : []);
+      setBlackoutNotices(result.noticesSearched ? result.blackoutNotices : []);
+      setDraftRfpNotices(result.noticesSearched ? result.draftRfpNotices : []);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
           result.ruleOfTwoMet ? "met" : "not met"
@@ -182,6 +221,24 @@ export function MarketResearchEngine({
             </ul>
           )}
         </section>
+      ) : null}
+
+      {blackoutNotices ? (
+        <NoticeGroup
+          label="Blackout notice"
+          lead="Blackout notices found in the same read-only SAM.gov search. T-Minus reads notices; it never posts one to SAM.gov. This is a local reminder only."
+          empty="No Blackout notices loaded for this NAICS and place-of-performance window."
+          notices={blackoutNotices}
+        />
+      ) : null}
+
+      {draftRfpNotices ? (
+        <NoticeGroup
+          label="Draft RFP"
+          lead="Draft RFP and draft solicitation notices found in the same read-only SAM.gov search. T-Minus reads notices; it never posts one to SAM.gov. This is a local reminder only."
+          empty="No Draft RFP notices loaded for this NAICS and place-of-performance window."
+          notices={draftRfpNotices}
+        />
       ) : null}
 
       {findings === null || log === null ? (

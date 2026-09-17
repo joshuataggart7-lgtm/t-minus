@@ -38,6 +38,10 @@ export type ResearchRunView = {
   noticeCount: number;
   /** Sources Sought notices found in the same read-only SAM.gov search. */
   sourcesSought: { title: string; posted: string; setAside: string }[];
+  /** Blackout notices in the same read-only search, named as their own group. */
+  blackoutNotices: { title: string; posted: string; setAside: string }[];
+  /** Draft RFP / draft solicitation notices in the same read-only search. */
+  draftRfpNotices: { title: string; posted: string; setAside: string }[];
   /** True when a notices window was actually searched. */
   noticesSearched: boolean;
   awardCount: number;
@@ -172,6 +176,19 @@ export const runMarketResearch = createServerFn({ method: "POST" })
       // group. Read-only: T-Minus never posts a notice to SAM.gov.
       sourcesSought: result.notices
         .filter((n) => /sources\s*sought/i.test(n.noticeType) || /sources\s*sought/i.test(n.title))
+        .slice(0, 10)
+        .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
+      // Blackout notices in the same read-only search, named separately so the
+      // officer can see whether one is already posted for this window.
+      blackoutNotices: result.notices
+        .filter((n) => /black\s*-?\s*out/i.test(n.noticeType) || /black\s*-?\s*out/i.test(n.title))
+        .slice(0, 10)
+        .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
+      // Draft RFP / draft solicitation notices in the same read-only search.
+      draftRfpNotices: result.notices
+        .filter((n) =>
+          /draft\s*(rfp|rfq|solicitation)|presolicitation\s*draft/i.test(`${n.noticeType} ${n.title}`),
+        )
         .slice(0, 10)
         .map((n) => ({ title: n.title, posted: n.posted, setAside: n.setAside })),
       noticesSearched: result.noticesSearched,

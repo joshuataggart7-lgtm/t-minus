@@ -1,5 +1,8 @@
 import {
+  COMPANION_GUIDE_TIER_NOTE,
   PCD_2603B_NOTE,
+  PCD_BASELINE_VS_FILE_NOTE,
+  PCD_MATRIX_BASELINE,
   RFO_ADOPTION_NOT_RECORDED,
   RFO_PART_OVERLAY_NOT_LOADED,
   RFO_SOURCE_URL,
@@ -33,7 +36,14 @@ export function PcdAdoptionPanel({
           <dt className="font-medium">Regulatory baseline date on this file</dt>
           <dd className="text-muted-foreground" data-numeric>{baselineDate ?? "Not recorded"}</dd>
         </div>
+        {PCD_MATRIX_BASELINE.map((s) => (
+          <div key={s.name} className="flex flex-wrap gap-x-2 border-t border-border py-2">
+            <dt className="font-medium">{s.name}, issued</dt>
+            <dd className="text-muted-foreground" data-numeric>{s.asOf}</dd>
+          </div>
+        ))}
       </dl>
+      <p className="text-[13px] leading-[18px] text-muted-foreground">{PCD_BASELINE_VS_FILE_NOTE}</p>
 
       <div className="border-t border-border py-2">
         <p className="text-[13px] font-medium leading-[18px]">Deviation requests on this file</p>
@@ -65,6 +75,7 @@ export function PcdAdoptionPanel({
         </p>
         <p className="mt-1">{RFO_PART_OVERLAY_NOT_LOADED}</p>
         <p className="mt-1">{PCD_2603B_NOTE}</p>
+        <p className="mt-1">{COMPANION_GUIDE_TIER_NOTE}</p>
       </div>
     </section>
   );
