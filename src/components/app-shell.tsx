@@ -292,6 +292,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 export function PageHeader({ title, lead }: { title: string; lead?: string }) {
   return (
     <div className="mb-8 border-b border-border pb-6">
+      <span aria-hidden="true" className="mb-3 block h-[3px] w-10 rounded-sm bg-primary" />
       <h1 className="page-title">{title}</h1>
       {lead ? <p className="mt-2 max-w-[70ch] text-muted-foreground">{lead}</p> : null}
     </div>
