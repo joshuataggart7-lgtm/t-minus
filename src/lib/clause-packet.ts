@@ -557,5 +557,10 @@ export function sanitizeClauseSelection(
 export const RFO_RESERVED_212_LINE =
   "52.212-3 and 52.212-5 are Reserved under RFO FAR Part 12/52; statutory and EO terms are prescribed independently via Tables 12-2 and 12-3 (NASA PCD 26-03B / clause matrix disposition).";
 
+/** The one note shown for an IDIQ vehicle or an order under it. The clause
+ *  delta is withheld, not hidden-but-openable: there is no "don't open" state. */
+export const IDIQ_CLAUSE_DELTA_WITHHELD_NOTE =
+  "Clause reconciliation for this IDIQ vehicle is not complete, so the clause delta is withheld on this file. It is not shown on screen and is not part of the walkthrough. The vehicle clause set is reconciled against the matrices before any modification is written in NCMS.";
+
 export const RFO_RESERVED_212_NOTE =
   "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause content is prescribed through FAR Tables 12-2 and 12-3 and each clause's own prescription rather than the old 52.212-5 checkbox paragraph. Offeror representations and certifications for commercial buys are made in SAM (with FAR 52.204-7 on the packet), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able here.";
