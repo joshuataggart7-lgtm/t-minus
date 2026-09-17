@@ -19,6 +19,8 @@ import {
   type ClarificationRow,
 } from "@/lib/clarifications";
 import { LM_LAMP_LABEL, LM_LAMP_OK } from "@/lib/lm-consistency";
+import { loadReadReceipts, READ_RECEIPTS_CHIP } from "@/lib/read-receipts";
+
 import {
   FACTOR_EVIDENCE_ADVISORY,
   factorHasEvidence,
@@ -94,7 +96,9 @@ export function SebCockpitPanel({
     m: mQ.data ?? null,
     factors,
     clarificationCount: clarifications.length,
+    receiptCount: receiptsQ.data ? receiptsQ.data.length : null,
   });
+
   const lamp = readiness.lamp;
 
   const addClarification = useMutation({
