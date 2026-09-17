@@ -118,17 +118,6 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
   return withCanonical("of347", data, { samEntity: (a as Record<string, unknown>)["sam_entity"] ?? null });
 }
 
-/**
- * Whether the file carries more than one awardee. A multiple-award vehicle has
- * no single contractor of record, so block 8 stays empty rather than naming one
- * of the holders.
- */
-export function isMultipleAward(a: Record<string, unknown>): boolean {
-  const vehicle = (a["vehicle"] ?? {}) as Record<string, unknown>;
-  const awardees = Array.isArray(vehicle["awardees"]) ? (vehicle["awardees"] as unknown[]) : [];
-  return str(vehicle["award_type"]).toLowerCase() === "multiple" || awardees.length > 1;
-}
-
 /** The record as the SF 30 mapping rows read it. */
 export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const a = ctx.acq;
