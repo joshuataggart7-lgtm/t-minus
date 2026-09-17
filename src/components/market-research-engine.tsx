@@ -125,6 +125,8 @@ export function MarketResearchEngine({
       setLatestIncompleteRanAt(null);
       setSuggested(result.suggestedSetAside);
       setSourcesSought(result.noticesSearched ? result.sourcesSought : []);
+      setBlackoutNotices(result.noticesSearched ? result.blackoutNotices : []);
+      setDraftRfpNotices(result.noticesSearched ? result.draftRfpNotices : []);
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
           result.ruleOfTwoMet ? "met" : "not met"
