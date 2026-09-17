@@ -2646,3 +2646,11 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - Amount-driven signature ladder: exactly one SIG_BAND_* prints, inactive bands delete. Signature underscore lines stay blank.
 - Authority lines are the Batch2 FAR 8.401(b)/GSAM face strings only; FAR 8.104(b) never printed.
 - SF1449, SF30, OF347, JOFOC master and generator untouched.
+
+## ORBIT Chunk 4 — Nova (visual/interaction only)
+Nova ships as a quiet, click-only cited-answer panel: outline control (no auto-open, no audio, no avatar),
+scoped label from acquisition / document / row context, AI-draft disclosure, source list with tier and
+effective date, keyboard focus on open and Escape to close. Nova makes no record writes and reuses the
+existing cite-or-refuse server behavior. Placed in the app-shell header, document and form action areas,
+and beside acquisition-file hold/document rows. Orby untouched. Soft Walk forms (OF347, SF30, market
+research memo, SF1449 schedule packSentences) and the regulatory corpus untouched.
