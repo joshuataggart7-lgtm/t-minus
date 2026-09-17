@@ -390,6 +390,23 @@ function FormPage() {
     }
   };
 
+  /**
+   * SF 1449 on the official blank, written into the blank's own fields so the
+   * values show in Adobe Reader, Chrome and Preview alike.
+   */
+  const exportOfficialAcroform = async () => {
+    if (!formCtx) return;
+    try {
+      const bytes = await generateOfficialSf1449Pdf(formCtx);
+      downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
+      setMessage(
+        "Official PDF exported. It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The form did not export.");
+    }
+  };
+
   const exportData = async () => {
     if (!form) return;
     exportXdp(await boundDatasets(), `${form.key}-${acquisitionId}`);
