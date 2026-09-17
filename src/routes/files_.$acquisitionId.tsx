@@ -4447,6 +4447,9 @@ function FilePage() {
       </section>
       )}
 
+      </div>
+      </div>
+
       <Link to="/files" className="text-primary underline underline-offset-2">
         Back to Files
       </Link>
