@@ -1968,5 +1968,257 @@
     "type": "date",
     "note": "Offer acceptance date. Empty until recorded.",
     "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule9[0]",
+    "record_path": "schedule.8.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule10[0]",
+    "record_path": "schedule.9.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule11[0]",
+    "record_path": "schedule.10.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule12[0]",
+    "record_path": "schedule.11.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule13[0]",
+    "record_path": "schedule.12.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule14[0]",
+    "record_path": "schedule.13.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule15[0]",
+    "record_path": "schedule.14.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule16[0]",
+    "record_path": "schedule.15.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule17[0]",
+    "record_path": "schedule.16.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule18[0]",
+    "record_path": "schedule.17.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule19[0]",
+    "record_path": "schedule.18.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule20[0]",
+    "record_path": "schedule.19.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule21[0]",
+    "record_path": "schedule.20.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule22[0]",
+    "record_path": "schedule.21.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule23[0]",
+    "record_path": "schedule.22.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule24[0]",
+    "record_path": "schedule.23.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule25[0]",
+    "record_path": "schedule.24.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule26[0]",
+    "record_path": "schedule.25.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule27[0]",
+    "record_path": "schedule.26.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule28[0]",
+    "record_path": "schedule.27.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule29[0]",
+    "record_path": "schedule.28.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule30[0]",
+    "record_path": "schedule.29.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule31[0]",
+    "record_path": "schedule.30.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule32[0]",
+    "record_path": "schedule.31.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule33[0]",
+    "record_path": "schedule.32.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule34[0]",
+    "record_path": "schedule.33.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule35[0]",
+    "record_path": "schedule.34.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page2[0].schedule36[0]",
+    "record_path": "schedule.35.description",
+    "type": "text",
+    "multiline": true,
+    "scope": "transaction"
   }
 ]
