@@ -89,7 +89,8 @@ function RegIntakePage() {
   const qc = useQueryClient();
   const isHq = hasRole("hq");
 
-  const [datasetId, setDatasetId] = useState(DATASETS[0]!.id);
+  const [datasetId, setDatasetId] = useState<string>(DATASETS[0]!.id);
+  const textType = isTextType(datasetId) ? TEXT_TYPES.find((t) => t.id === datasetId)! : null;
   const dataset = datasetById(datasetId);
   const [fileName, setFileName] = useState<string | null>(null);
   const [text, setText] = useState<string | null>(null);
@@ -98,10 +99,11 @@ function RegIntakePage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [sectionRows, setSectionRows] = useState<SectionUpload[] | null>(null);
 
   const q = useQuery({
     queryKey: ["reg-intake", dataset.table],
-    enabled: authState === "signed-in",
+    enabled: authState === "signed-in" && !textType,
     queryFn: async () => {
       const { data, error } = await table(dataset.table).select("*");
       if (error) throw new Error(error.message);
@@ -109,8 +111,27 @@ function RegIntakePage() {
     },
   });
 
+  const live = useQuery({
+    queryKey: ["regulation-sections-live"],
+    enabled: authState === "signed-in",
+    queryFn: loadLiveSections,
+  });
+
+  const reminders = useMemo(() => {
+    const rows = live.data ?? [];
+    const loaded = oldestRetrievedByCorpus(rows);
+    const seen = new Set(loaded.map((l) => l.corpus));
+    const all = [...BINDING_CORPORA, ...GUIDANCE_CORPORA];
+    return all.map((corpus) => {
+      const hit = loaded.find((l) => l.corpus === corpus);
+      if (!seen.has(corpus) || !hit) return `${corpus} text not loaded`;
+      const days = daysSince(hit.retrieved_at);
+      return `${corpus} text last loaded ${days === null ? "on an unrecorded date" : `${days} day${days === 1 ? "" : "s"} ago`}`;
+    });
+  }, [live.data]);
+
   const incoming = useMemo(() => {
-    if (!text) return null;
+    if (!text || textType) return null;
     try {
       // The file is read exactly as written; the effective date is recorded
       // with the change rather than written into rows that leave it blank.
@@ -118,12 +139,17 @@ function RegIntakePage() {
     } catch {
       return null;
     }
-  }, [text, dataset]);
+  }, [text, dataset, textType]);
 
   const diff: Diff | null = useMemo(() => {
     if (!incoming || !q.data) return null;
     return diffDataset(dataset, incoming, q.data);
   }, [incoming, q.data, dataset]);
+
+  const sectionDiff: SectionDiff | null = useMemo(() => {
+    if (!textType || !sectionRows || !live.data) return null;
+    return diffSections(sectionRows, live.data);
+  }, [textType, sectionRows, live.data]);
 
   const pick = async (file: File | null) => {
     setMessage(null);
