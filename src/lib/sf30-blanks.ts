@@ -8,7 +8,7 @@
  */
 
 import type { FormCtx } from "@/lib/nf1787";
-import { isMultipleAward } from "@/lib/official-acroform-forms";
+import { isMultipleAward } from "@/lib/award-holders";
 
 export interface Sf30Blank {
   block: string;
