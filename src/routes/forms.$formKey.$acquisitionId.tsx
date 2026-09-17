@@ -25,6 +25,12 @@ import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
+import {
+  currentFormRevision,
+  FORM_REVISION_KEY,
+  pinnedRevisionFrom,
+  routeKeyToFormId,
+} from "@/lib/form-templates";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
@@ -331,6 +337,13 @@ function FormPage() {
 
   const latest = q.data?.versions?.[0] ?? null;
 
+  // Soft §9: the blank this form is written against. A saved version keeps the
+  // revision recorded on it; a new one uses the current builtin.
+  const formTemplateId = routeKeyToFormId(formKey);
+  const pinnedRevision = formTemplateId
+    ? pinnedRevisionFrom(latest?.field_values) ?? currentFormRevision(formTemplateId)
+    : null;
+
   const save = useMutation({
     mutationFn: async () => {
       if (!form) throw new Error("The form is still loading.");
@@ -344,6 +357,10 @@ function FormPage() {
             typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value;
         }
       }
+      // Soft §9: an official blank is pinned at the moment the version is
+      // saved, so regenerating this version later reads the same blank.
+      const pinFormId = routeKeyToFormId(formKey);
+      if (pinFormId) fieldValues[FORM_REVISION_KEY] = currentFormRevision(pinFormId);
       const { error } = await supabase.from("documents").insert({
         acquisition_id: acquisitionId,
         template_id: q.data.templateId,
@@ -370,7 +387,7 @@ function FormPage() {
       return nextVersion;
     },
     onSuccess: async (v) => {
-      setMessage(`Saved as version ${v}. The version is in the contract file index and the launch sequence row now reads Saved.`);
+      setMessage(`Saved as version ${v}.${pinnedRevision ? ` Blank revision ${pinnedRevision} is recorded on it.` : ""} The version is in the contract file index and the launch sequence row now reads Saved.`);
       await queryClient.invalidateQueries({ queryKey: ["generated-form", formKey, acquisitionId] });
     },
     onError: (e: unknown) =>
@@ -443,10 +460,11 @@ function FormPage() {
           return;
         }
       }
-      const bytes = await generateOfficialSf1449Pdf(formCtx);
+      const bytes = await generateOfficialSf1449Pdf(formCtx, { formRevision: pinnedRevision });
       downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
       setMessage(
-        "Official PDF exported. It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+        `Official PDF exported on blank revision ${pinnedRevision ?? currentFormRevision("sf1449")}. ` +
+          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
@@ -486,6 +504,7 @@ function FormPage() {
       </p>
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
+        {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
       <p className="mb-6 text-[15px]">
