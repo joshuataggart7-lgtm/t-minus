@@ -84,6 +84,7 @@ function humanDate(iso: string): string {
 
 function cleanProse(text: string): string {
   return text
+    .replace(/\s*\[(?:DO NOT delete|Do not delete)[^\]]*\]/g, "")
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     .replace(/\s*Source:.*$/gi, "")
