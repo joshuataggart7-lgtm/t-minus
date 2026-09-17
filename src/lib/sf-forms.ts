@@ -52,6 +52,38 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     (ctx.clins ?? [])[0] ??
     null;
 
+  // Quantity, unit and unit price only print when quantity times unit price
+  // equals the amount on the form. A line that does not multiply out is left
+  // blank for the contracting officer rather than carrying a quantity the
+  // record does not support. A commercial firm fixed price buy with one line
+  // prints as a single lot at the face amount; how the work is measured stays
+  // in the block 20 narrative.
+  const qty = firstClin?.quantity ?? null;
+  const unitPrice = firstClin?.unitPrice ?? null;
+  const multipliesOut =
+    qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
+  const singleLotLine = !multipliesOut && commercial && price > 0 && (ctx.clins ?? []).length <= 1;
+  const lineQuantity = multipliesOut ? String(qty) : singleLotLine ? "1" : "";
+  const lineUnit = multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "";
+  const lineUnitPrice = multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "";
+  const clinNarrative = str(firstClin?.description);
+  const narrative = [
+    description,
+    clinNarrative && clinNarrative !== description ? clinNarrative : "",
+    pop ? `Period of performance ${pop}.` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  // Each schedule row on the blank is one line, so the narrative is wrapped
+  // across the rows the blank carries.
+  const scheduleLines = wrapLines(narrative, 52, 8);
+
+  // Block 10 carries a number, not prose. A total small business set-aside is
+  // the whole requirement.
+  const partialSetAside = /partial/i.test(setAside);
+  const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
+  const setAsidePercent = totalSmallBusiness ? "100" : "";
+
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 9. Solicitation and issuing office",
