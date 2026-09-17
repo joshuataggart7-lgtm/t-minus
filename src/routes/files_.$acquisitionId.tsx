@@ -168,6 +168,7 @@ import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
+import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
   buildModificationPacket,
