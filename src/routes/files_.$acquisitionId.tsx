@@ -56,7 +56,7 @@ import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
-import { loadReadReceipts } from "@/lib/read-receipts";
+import { loadReadReceiptCount } from "@/lib/read-receipts";
 
 import { ClauseChangeBanner } from "@/components/clause-change-banner";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
@@ -1480,8 +1480,7 @@ function FilePage() {
             factors: factorsQ.data ?? [],
             clarificationCount: clarificationsQ.data?.length ?? 0,
             // Real count off the record, or no line at all.
-            receiptCount: await loadReadReceipts(acquisitionId)
-              .then((rows) => rows.length)
+            receiptCount: await loadReadReceiptCount(acquisitionId)
               .catch(() => null),
           }),
 
