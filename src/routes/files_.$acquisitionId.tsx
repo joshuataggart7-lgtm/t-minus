@@ -3265,9 +3265,7 @@ function FilePage() {
                   ) : null}
                   {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
                     <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
-                      Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don’t open the clause
-                      delta on this file during the walkthrough — the packet below is illustrative, not the
-                      reconciled vehicle clause set.
+                      {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
                     </p>
                   ) : null}
                   {acq ? (
