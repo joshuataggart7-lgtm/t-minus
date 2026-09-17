@@ -17,6 +17,7 @@
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { mappingsFor } from "@/lib/form-field-mappings";
+import { currentFormRevision, resolveFormTemplate } from "@/lib/form-templates";
 import { withCanonical } from "@/lib/canonical-adapters";
 import {
   applyFormMappings,
@@ -305,10 +306,13 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
  */
 export async function generateOfficialSf1449Pdf(
   ctx: FormCtx,
-  options: { flatten?: boolean } = {},
+  options: { flatten?: boolean; formRevision?: string | null } = {},
 ): Promise<Uint8Array> {
   const { PDFDocument, StandardFonts } = await import("pdf-lib");
-  const response = await fetch("/forms/SF1449.pdf");
+  // Soft §9: the blank comes from the registry, by the pinned revision when
+  // the document carries one and by the current builtin when it does not.
+  const template = resolveFormTemplate("sf1449", options.formRevision ?? null);
+  const response = await fetch(template.storage_path);
   if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
   const pdf = await PDFDocument.load(await response.arrayBuffer());
 
@@ -319,7 +323,7 @@ export async function generateOfficialSf1449Pdf(
     /* the blank carries no XFA layer */
   }
 
-  fillOfficialSF1449(form, sf1449CtxToRogerData(ctx));
+  fillOfficialSF1449(form, sf1449CtxToRogerData(ctx), template.revision);
 
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   form.updateFieldAppearances(font);
