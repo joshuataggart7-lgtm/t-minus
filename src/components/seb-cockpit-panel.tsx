@@ -11,7 +11,6 @@ import { signedInName } from "@/lib/account-name";
 import { boardReadiness, boardReadinessItems } from "@/lib/board-readiness";
 import {
   CLARIFICATIONS_CHIP,
-  CLARIFICATIONS_EMPTY,
   clarificationText,
   createClarification,
   deleteClarification,
