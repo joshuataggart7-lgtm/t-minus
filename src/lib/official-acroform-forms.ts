@@ -154,6 +154,9 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   // the list does not name leaves the blank empty rather than printing a guess.
   const authorityText =
     str(mod["authority_text"]) || (namedType ? modAuthorityText(str(mod["mod_type"]), a) : "");
+  // A type the list does not name belongs in block 13D, but only when the
+  // record carries the authority that block asks the writer to specify.
+  if (!recordedBlocks && !namedType && authorityText) block13 = { a: false, b: false, c: false, d: true };
   // Block 13D says "other" and then asks the writer to specify. A ticked 13D
   // with nothing written beside it states a category the record cannot
   // support, so where the authority is genuinely unknown block 13 is left
