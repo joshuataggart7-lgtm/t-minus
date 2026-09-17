@@ -1584,7 +1584,9 @@ function DocumentPage() {
         <p className="mt-1 text-[13px] text-muted-foreground">
           {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
-        {badgeCiteStatus.kind === "stub" ? (
+        {badgeTextState === "heading" ? (
+          <p className="mt-1 text-[13px] text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+        ) : badgeCiteStatus.kind === "stub" && badgeTextState === "none" ? (
           <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
         ) : null}
         <p className="mt-1">
