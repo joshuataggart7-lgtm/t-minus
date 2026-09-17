@@ -4,7 +4,8 @@
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].reqnumber[0]",
     "record_path": "requisition.number",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -12,70 +13,80 @@
     "pdf_field": "topmostSubform[0].Page1[0].pagenumber[0]",
     "record_path": "",
     "type": "text",
-    "constant": "1 OF 2"
+    "constant": "1 OF 2",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].contractno[0]",
     "record_path": "contract.number",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].AWARDDate[0]",
     "record_path": "contract.award_effective_date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ordernumber[0]",
     "record_path": "order.number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].solicitationnumber[0]",
     "record_path": "solicitation.number",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].Date[3]",
     "record_path": "solicitation.issue_date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].contactname[0]",
     "record_path": "solicitation.contact.name",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].contactphone[0]",
     "record_path": "solicitation.contact.phone",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].Date[4]",
     "record_path": "solicitation.offer_due_local",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].issuedbycode[0]",
     "record_path": "issuing_office.code",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
@@ -84,7 +95,8 @@
     "record_path": "issuing_office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
@@ -93,7 +105,8 @@
     "record_path": "acquisition.restriction",
     "type": "check",
     "match": "eq",
-    "equals": "unrestricted"
+    "equals": "unrestricted",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -102,14 +115,16 @@
     "record_path": "acquisition.restriction",
     "type": "check",
     "match": "eq",
-    "equals": "set_aside"
+    "equals": "set_aside",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].setasidepercent[0]",
     "record_path": "acquisition.set_aside_percent",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -118,7 +133,8 @@
     "record_path": "acquisition.set_aside_flags.wosb",
     "type": "check",
     "match": "truthy",
-    "note": "Women-owned small business only."
+    "note": "Women-owned small business only.",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -127,7 +143,8 @@
     "record_path": "acquisition.set_aside_flags.edwosb",
     "type": "check",
     "match": "truthy",
-    "note": "Economically disadvantaged women-owned small business only."
+    "note": "Economically disadvantaged women-owned small business only.",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -135,7 +152,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].SERVICEDISABLED[0]",
     "record_path": "acquisition.set_aside_flags.sdvosb",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -143,7 +161,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].HUBZONESMALL[0]",
     "record_path": "acquisition.set_aside_flags.hubzone",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -152,7 +171,8 @@
     "record_path": "acquisition.set_aside_flags.eight_a",
     "type": "check",
     "match": "truthy",
-    "note": "10. THIS ACQUISITION IS 8(A)."
+    "note": "10. THIS ACQUISITION IS 8(A).",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -161,21 +181,24 @@
     "record_path": "acquisition.set_aside_flags.small_business",
     "type": "check",
     "match": "truthy",
-    "note": "Total or generic small business set-aside only."
+    "note": "Total or generic small business set-aside only.",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].NAICS[0]",
     "record_path": "acquisition.naics",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].SIZESTANDARDS[0]",
     "record_path": "acquisition.size_standard",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -183,14 +206,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].SEESCHEDULE[0]",
     "record_path": "delivery.see_schedule",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].discountterms[0]",
     "record_path": "offer.discount_terms",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -198,14 +223,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].THISCONTRACT[0]",
     "record_path": "dpas.is_rated_order",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].rating[0]",
     "record_path": "dpas.rating",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -214,7 +241,8 @@
     "record_path": "solicitation.method",
     "type": "check",
     "match": "eq",
-    "equals": "rfq"
+    "equals": "rfq",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -223,7 +251,8 @@
     "record_path": "solicitation.method",
     "type": "check",
     "match": "eq",
-    "equals": "ifb"
+    "equals": "ifb",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -232,7 +261,8 @@
     "record_path": "solicitation.method",
     "type": "check",
     "match": "eq",
-    "equals": "rfp"
+    "equals": "rfp",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf1449",
@@ -241,21 +271,24 @@
     "record_path": "delivery.deliver_to.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].TextField1[3]",
     "record_path": "delivery.deliver_to.code",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].AdministeredByCode[0]",
     "record_path": "administering_office.code",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
@@ -264,21 +297,24 @@
     "record_path": "administering_office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].contractorcode[0]",
     "record_path": "contractor.code",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].TextField1[0]",
     "record_path": "contractor.facility_code",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
@@ -287,21 +323,24 @@
     "record_path": "contractor.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].TextField1[1]",
     "record_path": "contractor.phone",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].TextField1[5]",
     "record_path": "payment.office.code",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
@@ -310,7 +349,8 @@
     "record_path": "payment.office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "sf1449",
@@ -318,7 +358,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].bremittanceisdifferent[0]",
     "record_path": "contractor.remittance_differs",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
@@ -326,14 +367,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].SEEADDENDUM[0]",
     "record_path": "invoice.see_addendum",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM1[0]",
     "record_path": "schedule.0.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -341,42 +384,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule1[0]",
     "record_path": "schedule.0.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity1[0]",
     "record_path": "schedule.0.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit1[0]",
     "record_path": "schedule.0.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice1[0]",
     "record_path": "schedule.0.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount1[0]",
     "record_path": "schedule.0.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM2[0]",
     "record_path": "schedule.1.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -384,42 +433,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule2[0]",
     "record_path": "schedule.1.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity2[0]",
     "record_path": "schedule.1.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit2[0]",
     "record_path": "schedule.1.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice2[0]",
     "record_path": "schedule.1.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount2[0]",
     "record_path": "schedule.1.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM3[0]",
     "record_path": "schedule.2.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -427,42 +482,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule3[0]",
     "record_path": "schedule.2.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity3[0]",
     "record_path": "schedule.2.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit3[0]",
     "record_path": "schedule.2.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice3[0]",
     "record_path": "schedule.2.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount3[0]",
     "record_path": "schedule.2.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM4[0]",
     "record_path": "schedule.3.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -470,42 +531,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule4[0]",
     "record_path": "schedule.3.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity4[0]",
     "record_path": "schedule.3.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit4[0]",
     "record_path": "schedule.3.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice4[0]",
     "record_path": "schedule.3.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount4[0]",
     "record_path": "schedule.3.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM5[0]",
     "record_path": "schedule.4.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -513,42 +580,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule5[0]",
     "record_path": "schedule.4.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity5[0]",
     "record_path": "schedule.4.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit5[0]",
     "record_path": "schedule.4.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice5[0]",
     "record_path": "schedule.4.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount5[0]",
     "record_path": "schedule.4.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM6[0]",
     "record_path": "schedule.5.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -556,42 +629,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule6[0]",
     "record_path": "schedule.5.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity6[0]",
     "record_path": "schedule.5.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit6[0]",
     "record_path": "schedule.5.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice6[0]",
     "record_path": "schedule.5.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount6[0]",
     "record_path": "schedule.5.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM7[0]",
     "record_path": "schedule.6.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -599,42 +678,48 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule7[0]",
     "record_path": "schedule.6.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity7[0]",
     "record_path": "schedule.6.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit7[0]",
     "record_path": "schedule.6.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice7[0]",
     "record_path": "schedule.6.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount7[0]",
     "record_path": "schedule.6.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].ITEMNUM8[0]",
     "record_path": "schedule.7.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -642,35 +727,40 @@
     "pdf_field": "topmostSubform[0].Page1[0].schedule8[0]",
     "record_path": "schedule.7.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].quantity8[0]",
     "record_path": "schedule.7.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unit8[0]",
     "record_path": "schedule.7.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].unitprice8[0]",
     "record_path": "schedule.7.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].amount8[0]",
     "record_path": "schedule.7.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -678,56 +768,64 @@
     "pdf_field": "topmostSubform[0].Page1[0].accountingdata[0]",
     "record_path": "accounting.data",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].TOTALAWARD[0]",
     "record_path": "award.total_amount",
-    "type": "money"
+    "type": "money",
+    "scope": "contract"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].numberofcopies[0]",
     "record_path": "offer.copies",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].offerreference[0]",
     "record_path": "offer.reference",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].exceptions[0]",
     "record_path": "offer.exceptions",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].contractingofficer[0]",
     "record_path": "signer.contracting_officer",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].signername[0]",
     "record_path": "signer.name",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
     "revision": "11/2021",
     "pdf_field": "topmostSubform[0].Page1[0].signertitle[0]",
     "record_path": "signer.title",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -735,7 +833,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox1[0]",
     "record_path": "clauses.box1_0",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -743,7 +842,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox1[1]",
     "record_path": "clauses.box1_1",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -751,7 +851,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox1[2]",
     "record_path": "clauses.box1_2",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -759,7 +860,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox1[3]",
     "record_path": "clauses.box1_3",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -767,7 +869,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].are1[0]",
     "record_path": "clauses.are1",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -775,7 +878,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].arenot1[0]",
     "record_path": "clauses.arenot1",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -783,7 +887,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].are2[0]",
     "record_path": "clauses.are2",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf1449",
@@ -791,77 +896,88 @@
     "pdf_field": "topmostSubform[0].Page1[0].arenot2[0]",
     "record_path": "clauses.arenot2",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].AmendmentNo[0]",
     "record_path": "modification.amendment_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].AmendmentNo[1]",
     "record_path": "modification.amendment_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].ModificationNo[0]",
     "record_path": "modification.number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].EffectiveDate[0]",
     "record_path": "modification.effective_date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].ProjectNo[0]",
     "record_path": "modification.project_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].ReqNumber[0]",
     "record_path": "requisition.number",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].ContractIDCode[0]",
     "record_path": "contract.id_code",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Page[0]",
     "record_path": "pagination.page",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Pages[0]",
     "record_path": "pagination.pages",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Code[0]",
     "record_path": "issuing_office.code",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "sf30",
@@ -870,14 +986,16 @@
     "record_path": "issuing_office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Code[1]",
     "record_path": "administering_office.code",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "sf30",
@@ -886,21 +1004,24 @@
     "record_path": "administering_office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Code[2]",
     "record_path": "contractor.code",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].FacilityCode[0]",
     "record_path": "contractor.facility_code",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "sf30",
@@ -909,7 +1030,8 @@
     "record_path": "contractor.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "contract"
   },
   {
     "form_id": "sf30",
@@ -917,14 +1039,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox9[0]",
     "record_path": "modification.amends_solicitation",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Dated9B[0]",
     "record_path": "solicitation.issue_date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -932,14 +1056,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox10[0]",
     "record_path": "modification.modifies_contract",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Dated10B[0]",
     "record_path": "contract.award_effective_date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -947,7 +1073,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox11[0]",
     "record_path": "modification.offer_period_changes",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -955,7 +1082,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].Extended[0]",
     "record_path": "modification.offer_period_extended",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -963,21 +1091,24 @@
     "pdf_field": "topmostSubform[0].Page1[0].NotExtended[0]",
     "record_path": "modification.offer_period_not_extended",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].Copies[0]",
     "record_path": "modification.copies",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].CopiesReturned[0]",
     "record_path": "modification.copies_returned",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -985,7 +1116,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].AccountingData[0]",
     "record_path": "accounting.data",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -993,14 +1125,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox13A[0]",
     "record_path": "modification.item_13a",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].A13[0]",
     "record_path": "modification.item_13a_authority",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1008,7 +1142,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox13B[0]",
     "record_path": "modification.item_13b",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1016,14 +1151,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox13C[0]",
     "record_path": "modification.item_13c",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].C13[0]",
     "record_path": "modification.item_13c_authority",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1031,14 +1168,16 @@
     "pdf_field": "topmostSubform[0].Page1[0].CheckBox13D[0]",
     "record_path": "modification.item_13d",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].D13[0]",
     "record_path": "modification.item_13d_authority",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1046,7 +1185,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].Is[0]",
     "record_path": "modification.contractor_signature_required",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1054,7 +1194,8 @@
     "pdf_field": "topmostSubform[0].Page1[0].IsNot[0]",
     "record_path": "modification.contractor_signature_not_required",
     "type": "check",
-    "match": "truthy"
+    "match": "truthy",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1063,21 +1204,24 @@
     "record_path": "modification.description",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].NameandTitleSigner[0]",
     "record_path": "signer.name_title",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].NameandTitleOfficer[0]",
     "record_path": "signer.contracting_officer",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "sf30",
@@ -1085,70 +1229,80 @@
     "pdf_field": "topmostSubform[0].Page2[0].TextField1[0]",
     "record_path": "modification.description_continued",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].PAGE[0]",
     "record_path": "pagination.page",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].OFPAGE[0]",
     "record_path": "pagination.pages",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].TOTALPAGES[0]",
     "record_path": "pagination.total_pages",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ORDERDATE[0]",
     "record_path": "order.date",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CONTRACTNO[0]",
     "record_path": "contract.number",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ORDERNO[0]",
     "record_path": "order.number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].REQUISITION[0]",
     "record_path": "requisition.number",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].REGUISIT[0]",
     "record_path": "requisition.reference",
-    "type": "text"
+    "type": "text",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].REF[0]",
     "record_path": "order.reference",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1157,49 +1311,56 @@
     "record_path": "issuing_office.name_address",
     "type": "text",
     "font_size": 8,
-    "multiline": true
+    "multiline": true,
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CONTRACTNAME[0]",
     "record_path": "solicitation.contact.name",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].COMPANYNAME[0]",
     "record_path": "contractor.name",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STREET[0]",
     "record_path": "contractor.street",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CITY[0]",
     "record_path": "contractor.city",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STATE[0]",
     "record_path": "contractor.state",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ZIPCODE[0]",
     "record_path": "contractor.zip",
-    "type": "text"
+    "type": "text",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
@@ -1207,98 +1368,112 @@
     "pdf_field": "F[0].P1[0].ACCOUNT[0]",
     "record_path": "accounting.data",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CONSIGNEENAME[0]",
     "record_path": "delivery.consignee.name",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STREETADDRESS[0]",
     "record_path": "delivery.consignee.street",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CITY[1]",
     "record_path": "delivery.consignee.city",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STATE2[0]",
     "record_path": "delivery.consignee.state",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ZIPCODE2[0]",
     "record_path": "delivery.consignee.zip",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].SHIPVIA[0]",
     "record_path": "delivery.ship_via",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].FOB[0]",
     "record_path": "delivery.fob",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].DELIVERDATE[0]",
     "record_path": "delivery.deliver_by",
-    "type": "date"
+    "type": "date",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].INSPECT[0]",
     "record_path": "delivery.inspection_point",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ACCEPT[0]",
     "record_path": "delivery.acceptance_point",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].GOVT[0]",
     "record_path": "delivery.government_bl",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].DISCOUNT[0]",
     "record_path": "offer.discount_terms",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].SHIPPING[0]",
     "record_path": "payment.shipping_point",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1306,63 +1481,72 @@
     "pdf_field": "F[0].P1[0].INVOICE[0]",
     "record_path": "payment.invoice_to",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].NAME21A[0]",
     "record_path": "payment.office.name",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STREET21B[0]",
     "record_path": "payment.office.street",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].CITY21C[0]",
     "record_path": "payment.office.city",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].STATE21D[0]",
     "record_path": "payment.office.state",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ZIPCODE[1]",
     "record_path": "payment.office.zip",
-    "type": "text"
+    "type": "text",
+    "scope": "organization"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].GROSS[0]",
     "record_path": "award.gross_amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].GRANDTOTAL[0]",
     "record_path": "award.total_amount",
-    "type": "money"
+    "type": "money",
+    "scope": "contract"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].NAME3[0]",
     "record_path": "signer.contracting_officer",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1371,7 +1555,8 @@
     "record_path": "order.kind",
     "type": "check",
     "match": "eq",
-    "equals": "purchase"
+    "equals": "purchase",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1380,7 +1565,8 @@
     "record_path": "order.kind",
     "type": "check",
     "match": "eq",
-    "equals": "delivery"
+    "equals": "delivery",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1389,7 +1575,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "small"
+    "equals": "small",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1398,7 +1585,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "wosb"
+    "equals": "wosb",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1407,7 +1595,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "edwosb"
+    "equals": "edwosb",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1416,7 +1605,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "hubzone"
+    "equals": "hubzone",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1425,7 +1615,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "8(a)"
+    "equals": "8(a)",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1434,7 +1625,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes",
-    "equals": "sdb"
+    "equals": "sdb",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1443,7 +1635,8 @@
     "record_path": "acquisition.set_aside_program",
     "type": "check",
     "match": "includes_any",
-    "equals": "sdvosb|service"
+    "equals": "sdvosb|service",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
@@ -1452,14 +1645,16 @@
     "record_path": "acquisition.restriction",
     "type": "check",
     "match": "eq",
-    "equals": "other_than_small"
+    "equals": "other_than_small",
+    "scope": "acquisition"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO1[0]",
     "record_path": "schedule.0.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1467,42 +1662,48 @@
     "pdf_field": "F[0].P1[0].SUPPLIES1[0]",
     "record_path": "schedule.0.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY1[0]",
     "record_path": "schedule.0.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT1[0]",
     "record_path": "schedule.0.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE1[0]",
     "record_path": "schedule.0.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT1[0]",
     "record_path": "schedule.0.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO2[0]",
     "record_path": "schedule.1.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1510,42 +1711,48 @@
     "pdf_field": "F[0].P1[0].SUPPLIES2[0]",
     "record_path": "schedule.1.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY2[0]",
     "record_path": "schedule.1.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT2[0]",
     "record_path": "schedule.1.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE2[0]",
     "record_path": "schedule.1.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT2[0]",
     "record_path": "schedule.1.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO3[0]",
     "record_path": "schedule.2.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1553,42 +1760,48 @@
     "pdf_field": "F[0].P1[0].SUPPLIES3[0]",
     "record_path": "schedule.2.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY3[0]",
     "record_path": "schedule.2.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT3[0]",
     "record_path": "schedule.2.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE3[0]",
     "record_path": "schedule.2.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT3[0]",
     "record_path": "schedule.2.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO4[0]",
     "record_path": "schedule.3.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1596,42 +1809,48 @@
     "pdf_field": "F[0].P1[0].SUPPLIES4[0]",
     "record_path": "schedule.3.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY4[0]",
     "record_path": "schedule.3.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT4[0]",
     "record_path": "schedule.3.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE4[0]",
     "record_path": "schedule.3.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT4[0]",
     "record_path": "schedule.3.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO5[0]",
     "record_path": "schedule.4.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1639,42 +1858,48 @@
     "pdf_field": "F[0].P1[0].SUPPLIES5[0]",
     "record_path": "schedule.4.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY5[0]",
     "record_path": "schedule.4.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT5[0]",
     "record_path": "schedule.4.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE5[0]",
     "record_path": "schedule.4.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT5[0]",
     "record_path": "schedule.4.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].ITEMNO6[0]",
     "record_path": "schedule.5.item_number",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
@@ -1682,34 +1907,39 @@
     "pdf_field": "F[0].P1[0].SUPPLIES6[0]",
     "record_path": "schedule.5.description",
     "type": "text",
-    "multiline": true
+    "multiline": true,
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].QUANTITY6[0]",
     "record_path": "schedule.5.quantity",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNIT6[0]",
     "record_path": "schedule.5.unit",
-    "type": "text"
+    "type": "text",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].UNITPRICE6[0]",
     "record_path": "schedule.5.unit_price",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   },
   {
     "form_id": "of347",
     "revision": "04/2006",
     "pdf_field": "F[0].P1[0].AMOUNT6[0]",
     "record_path": "schedule.5.amount",
-    "type": "money"
+    "type": "money",
+    "scope": "transaction"
   }
 ]

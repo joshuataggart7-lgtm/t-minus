@@ -129,6 +129,7 @@ import {
 import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
 import { StandaloneDraft } from "@/components/standalone-draft";
+import { NewOrderPanel } from "@/components/new-order-panel";
 import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
 import { recommendedOfficialForm } from "@/lib/sf-forms";
 import { signedInName } from "@/lib/account-name";
@@ -2461,6 +2462,12 @@ function FilePage() {
       />
 
       <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
+
+      <NewOrderPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+      />
 
       <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
 
