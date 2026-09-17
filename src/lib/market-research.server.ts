@@ -628,13 +628,22 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
     { n: entities.length, m: result.smallBusinessCount },
     false,
   );
+  // Where the searches return the same entity in more than one geography or
+  // source, the findings figure counts each entity once. That relationship is
+  // said in plain words so the paragraph's number and the line counts above it
+  // read honestly together. No new number is introduced.
+  const rawCount = result.stateEntities.length + result.nationalEntities.length;
+  const dedupeSentence =
+    rawCount > entities.length
+      ? " This figure is de-duplicated across the sources and geographies searched, so an entity found in more than one search is counted once."
+      : "";
   if (entities.length) {
     add(
       "memo.findings",
       "Memorandum paragraph 5, findings",
       soleSource
-        ? soleSourceSentence
-        : `${entities.length} source${entities.length === 1 ? "" : "s"} were identified under NAICS ${result.naics}, of which ${result.smallBusinessCount} are registered as small business under that code. The expectation of offers from two or more responsible small business concerns at fair market prices is ${
+        ? `${soleSourceSentence}${dedupeSentence}`
+        : `${entities.length} source${entities.length === 1 ? "" : "s"} were identified under NAICS ${result.naics}, of which ${result.smallBusinessCount} are registered as small business under that code.${dedupeSentence} The expectation of offers from two or more responsible small business concerns at fair market prices is ${
             result.ruleOfTwoMet ? "met" : "not met"
           } (FAR 19.502-2).`,
       "SAM.gov Entity Management API",
