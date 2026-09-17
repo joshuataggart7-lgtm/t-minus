@@ -274,9 +274,16 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.NameandAddress",
           "Name and address of contractor (block 8)",
-          str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+          isMultipleAward(a) ? "" : str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+          isMultipleAward(a)
+            ? "This is a multiple-award vehicle. No single contractor of record is recorded for this modification, so block 8 prints empty and no holder is named."
+            : undefined,
         ),
-        field("topmostSubform.FacilityCode", "Unique entity identifier (block 8)", str(a["awardee_uei"])),
+        field(
+          "topmostSubform.FacilityCode",
+          "Unique entity identifier (block 8)",
+          isMultipleAward(a) ? "" : str(a["awardee_uei"]),
+        ),
         field("topmostSubform.Page", "Page (block 1)", "1"),
         field("topmostSubform.Pages", "Of pages (block 1)", "1"),
       ],
