@@ -61,7 +61,26 @@ export function useLiveSections() {
   return { rows: q.data, loading: q.isPending, failed: q.isError };
 }
 
+/** What the loaded corpus actually holds for one citation:
+ *  "body" verbatim text, "heading" heading only, "none" nothing resolved. */
+export function citationTextState(
+  citation: string | null | undefined,
+  rows: RegulationSection[] | undefined,
+): "body" | "heading" | "none" {
+  const resolved = resolveSections(citation, rows);
+  if (resolved.length === 0) return "none";
+  return resolved.some((s) => String(s.text ?? "").trim().length > 0) ? "body" : "heading";
+}
+
+/** The same state, loaded for the session, for callers that only show a note. */
+export function useCitationTextState(citation: string | null | undefined): "body" | "heading" | "none" | "loading" {
+  const sections = useLiveSections();
+  if (sections.loading) return "loading";
+  return citationTextState(citation, sections.rows);
+}
+
 function SectionBlock({ s }: { s: RegulationSection }) {
+  const body = String(s.text ?? "").trim();
   return (
     <li>
       <p className="font-medium">
