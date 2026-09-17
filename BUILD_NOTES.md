@@ -2082,3 +2082,11 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Soft: SF 1449 AcroForm field mappings now live as data rows (`src/lib/form-field-mappings.ts`, shaped like a future `form_field_mappings` table) and are applied by `src/lib/apply-form-mappings.ts`; the generator reads the rows instead of a hard-coded field list, keeps the deleteXFA-before-fill pipeline and the Lot CLIN rule, and stays non-Live with no Adobe check.
 - Soft: the SF 1449 / SF 30 / OF 347 field mappings now sit in `src/lib/form-field-mappings.json` (229 rows: sf1449 105, sf30 39, of347 85), every pdf_field checked against the official blank at generation time; the SF 1449 adapter emits the nested record paths those rows read. SF 30 and OF 347 are data only, no export button; forms stay non-Live with no Adobe check.
+
+## §3 + §4 — SF 1449 block 9/10/20 defects and CLIN reconciliation (soft)
+- Block 9: code box carries the short centre code only; the centre name and branch go in the name/address block.
+- Block 10: percent is a number ("100") or empty, never prose.
+- Set-aside boxes now come from an explicit programme enum (edwosb > wosb > sdvosb > hubzone > 8(a) > small business), one box only. EDWOSB no longer also ticks WOSB. 8(a) mapped to ACHECKBOX[0]; the substring and roger_sb2 rows are gone.
+- Block 20: short requirement title on the priced row, narrative wrapped across the rows beneath.
+- Face line: quantity x unit price when it reconciles, else 1/Lot/face for commercial firm fixed price, else all priced columns blank. A quantity is never invented from hours.
+- validateSf1449ClinReconciliation compares schedule amounts to the total; the official AcroForm export asks before generating a draft that does not add up.
