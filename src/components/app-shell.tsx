@@ -359,7 +359,7 @@ export function EmptyState({
 
 export function Placeholder({ note }: { note: string }) {
   return (
-    <div className="rounded-lg border border-border bg-background p-6">
+    <div className="surface-raised rounded-lg border border-border p-6">
       <p className="text-muted-foreground">{note}</p>
     </div>
   );
