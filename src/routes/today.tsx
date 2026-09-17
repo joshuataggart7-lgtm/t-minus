@@ -74,22 +74,28 @@ function TodayPage() {
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
   const rowsRef = useRowKeysContainer<HTMLUListElement>();
 
+  const isAdmin = roles.includes("administrator");
+
   const mine = useMemo(() => {
     if (!desk) return [];
     const owned = desk.cards.filter((c) => samePerson(c.owner, user.name));
+    // An administrator keeps sight of every prototype file, with the files they
+    // own as contracting officer read first.
+    if (isAdmin) {
+      const rest = desk.cards.filter((c) => !owned.includes(c));
+      return [...owned, ...rest];
+    }
     if (owned.length > 0) return owned;
     // A requester who owns no files as CO still sees the files they asked for.
     if (roles.includes("requester")) {
       const mine2 = desk.cards.filter((c) => c.requester.toLowerCase() === user.name.toLowerCase());
       if (mine2.length > 0) return mine2;
     }
-    // An administrator who is on no file as CO sees every prototype file.
-    if (roles.includes("administrator")) return desk.cards;
     // Any other account with no files of its own sees the Center's files, and
     // every prototype file when the Center holds none, so the page is never bare.
     const atCenter = desk.cards.filter((c) => c.m.acq.center_code === user.center_code);
     return atCenter.length > 0 ? atCenter : desk.cards;
-  }, [desk, user.name, user.center_code, roles]);
+  }, [desk, user.name, user.center_code, roles, isAdmin]);
 
   const ownsMine = useMemo(() => {
     if (!desk) return true;
@@ -101,10 +107,7 @@ function TodayPage() {
     return desk.cards.some((c) => c.requester.toLowerCase() === user.name.toLowerCase());
   }, [desk, ownsMine, roles, user.name]);
 
-  const isAdminAll = useMemo(() => {
-    if (!desk) return false;
-    return mine.length === desk.cards.length && !ownsMine;
-  }, [desk, mine, ownsMine]);
+  const isAdminAll = isAdmin;
 
   const live = useMemo(
     () => mine.filter((c) => c.m.clockState !== "launched" && c.m.clockState !== "scrubbed"),
@@ -168,7 +171,13 @@ function TodayPage() {
         <ErrorNote message="Today did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
       ) : (
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
-          {!ownsMine ? (
+          {isAdmin ? (
+            <p className="text-[13px] leading-[18px] text-muted-foreground">
+              {ownsMine
+                ? `All prototype files are shown, with the files that list ${user.name} as contracting officer first. The owner of record is shown on each file.`
+                : `No file lists ${user.name} as the contracting officer, so all prototype files are shown. The owner of record is shown on each file.`}
+            </p>
+          ) : !ownsMine ? (
             <p className="text-[13px] leading-[18px] text-muted-foreground">
               {isRequesterFallback
                 ? "Showing files where you are the requester of record."
