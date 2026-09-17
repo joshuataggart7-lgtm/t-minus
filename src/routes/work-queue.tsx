@@ -458,6 +458,7 @@ function WorkQueuePage() {
       <p className="mt-6 text-[13px] text-muted-foreground" data-numeric>
         {filtered.length} of {cards.length} files shown. Today is {today}.
       </p>
+      <PilotKnownGapsLine className="mt-8" />
     </AppShell>
   );
 }
