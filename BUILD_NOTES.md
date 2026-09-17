@@ -2337,3 +2337,27 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
   revision RFO-PDF-2026-09-17) and one non-binding FAR Companion excerpt.
 - Untouched: OF347, SF30, memo, file index, SF1449 schedule, clocks (FLAG-only),
   samples.
+
+## Soft Walk Batch 2 — cite honesty and Show me the text FAR 10 coverage
+
+- `citationTokens()` in `src/lib/cite-stub.ts` now recognises part-level
+  citations (`FAR Part 10`, `FAR part 10`, `NFS Part N`, `NFS CG Part N`) in
+  addition to numbered sections. The Market Research Memorandum badge
+  `FAR Part 10; NFS 1810` now resolves the loaded `far_rfo` row for
+  **FAR Part 10** and shows its verbatim text; **NFS 1810** stays unresolved
+  with the official link, because no NFS corpus is loaded.
+- Precise paragraph citations still never widen to a parent section:
+  `FAR 10.002(e)` and `FAR 10.001(a)(3)` remain unresolved, with the
+  nearby-loaded-sections note only. `NFS CG 1810.12` remains the honest
+  "not loaded" stub. No regulation or NFS text was invented.
+- Generators re-checked for the Batch 1 hard cite defects: LSJ is
+  `FAR 8.401(b)` + GSAM, urgency JOFOC carries no `FAR 6.301(b)(2)`, no
+  `FAR 6.1030` remains outside the correction log, and NPA / ANOSCA cite
+  `NFS CG 1805.31` / `NFS CG 1805.32`. No generator change was needed.
+  The four HQ Word masters were corrected on the box, outside the app.
+- RFP cover master polish skipped: the only "Not recorded" values are the
+  required Center, title, and CO fields, where the honest blank is correct.
+  No change to `public/forms/RFP_COVER_MASTER.docx` or its marker fill.
+- `[fill from template header]` governing-citation stubs left as stubs.
+- Untouched: OF347, SF30, memo checkout, file index, SF1449 schedule and
+  `packSentences`, clocks (FLAG-only), samples, regulation corpus seed.
