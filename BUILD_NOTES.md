@@ -2618,3 +2618,10 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - Block 14 continuation writes to page 2 only when the recorded prose runs past block 14.
 - Accounting reads a recorded funding line only; no money or accounting string is invented.
 - A "Blocks left empty, and why" list on the SF 30 form page names each honest blank.
+
+## Soft Walk JOFOC residual — Item 8 and authority correction
+- Replaced `public/forms/JOFOC_MASTER.docx` with the supplied residual HQ JOFOC (7) markerized master. It has no headers and no `word/media`; the footer carries `Rev.: 4/2026`.
+- Market research remains under Item 8 / `FAR 6.104-1(a)(8)` with named-source prose only: SAM.gov, USAspending, SBA size standards, and prior T-Minus actions under the record NAICS. Raw dates, counts, service errors, API labels, and endpoint tags stay out of the signed body.
+- Item 4 now accepts recorded `41 U.S.C. 1901` or `41 U.S.C. 1903`; the empty fallback is neutral (`41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)`).
+- Protected surfaces stayed locked: SF1449, OF347, SF30, sample clocks, sample facts, ORBIT chrome, regulation corpus, clauses, and external-write boundaries were not touched.
+
