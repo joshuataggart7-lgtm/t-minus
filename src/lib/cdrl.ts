@@ -31,6 +31,8 @@ export type CdrlInput = {
 };
 
 export const CDRL_EMPTY = "No CDRL items on this file.";
+export const CDRL_EMPTY_NOTE =
+  "An empty list is normal until the contracting office records a data requirement.";
 
 /** Blank fields read plainly rather than pretending to a value. */
 export const cdrlText = (v: string | null | undefined): string =>

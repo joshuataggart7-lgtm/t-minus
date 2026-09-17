@@ -13,9 +13,10 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
-import { CDRL_EMPTY, CDRL_LABEL, cdrlPackNotes } from "@/lib/cdrl";
+import { CDRL_EMPTY, CDRL_EMPTY_NOTE, CDRL_LABEL, cdrlPackNotes } from "@/lib/cdrl";
 import {
   PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_MILESTONES_EMPTY_NOTE,
   PAYMENT_PLAN_LABEL,
   paymentPlanNotes,
 } from "@/lib/payment-milestones";
@@ -78,13 +79,15 @@ export function AwardHandoffPanel({
   const kRows = scaffold.sectionK?.checklist?.length ?? 0;
   const readiness = [
     `Cover: ${notRecorded} of ${blocks.length} fields not recorded`,
-    clins.length > 0 ? `Schedule: ${clins.length} line items` : "Schedule: no line items",
+    clins.length > 0
+      ? `Schedule: ${clins.length} line items`
+      : "Schedule: no line items recorded yet",
     clauses.length > 0
       ? `Clauses: ${clauses.length} selected — ${clausesWithBlanks} with a Not recorded fill-in`
       : "Clauses: none selected yet",
     lmLines > 0
       ? `${sf ? "Instructions and evaluation" : "Sections L and M"}: ${lmLines} lines recorded`
-      : `${sf ? "Instructions and evaluation" : "Sections L and M"}: nothing recorded`,
+      : `${sf ? "Instructions and evaluation" : "Sections L and M"}: nothing recorded yet`,
     scaffold.sectionK
       ? `Representations and certifications: ${kRows} checklist rows · SAM ${scaffold.sectionK.sam_status}`
       : "Representations and certifications: not recorded",
@@ -96,7 +99,7 @@ export function AwardHandoffPanel({
       : `${CDRL_LABEL}: ${CDRL_EMPTY}`,
     payments.length > 0
       ? `Payment milestones: ${payments.length}`
-      : "Payment milestones: empty",
+      : `Payment milestones: ${PAYMENT_MILESTONES_EMPTY}`,
     "Signatures: blank on purpose — signed in NCMS",
   ];
   if (assemblyCounts) {
@@ -159,11 +162,12 @@ export function AwardHandoffPanel({
               ))}
               {allEnclosuresEmpty ? (
                 <li>
-                  No line items, attachments, data requirements or payment milestones are
-                  recorded yet — the packet prints the cover blocks only.
+                  Nothing is recorded under the schedule, attachments, data requirements, or payment
+                  milestones yet. That is normal until the office records it; the packet prints the
+                  cover blocks only.
                 </li>
               ) : null}
-              <li>Advisory only — nothing here holds the file or blocks a phase.</li>
+              <li>Advisory only — nothing here holds the file or blocks a phase exit.</li>
               <li>
                 Counts read the record as it stands. No form on this file is Adobe verified; a
                 person checks the fields in desktop Adobe Acrobat Reader.
@@ -409,7 +413,9 @@ export function AwardHandoffPanel({
               not among them.
             </p>
             {cdrl.length === 0 ? (
-              <p className="mt-2 text-[13px] text-muted-foreground">{CDRL_EMPTY}</p>
+              <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
+              </p>
             ) : (
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Data requirements on this file</caption>
@@ -450,8 +456,8 @@ export function AwardHandoffPanel({
               {PAYMENT_PLAN_LABEL}
             </p>
             {scaffold.paymentMilestones.length === 0 ? (
-              <p className="mt-2 text-[13px] text-muted-foreground">
-                {PAYMENT_MILESTONES_EMPTY}
+              <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+                {PAYMENT_MILESTONES_EMPTY} {PAYMENT_MILESTONES_EMPTY_NOTE}
               </p>
             ) : (
               <table className="mt-2 w-full text-[13px] leading-[18px]">

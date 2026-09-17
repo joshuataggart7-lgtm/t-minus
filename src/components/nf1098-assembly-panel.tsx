@@ -49,8 +49,13 @@ export function Nf1098AssemblyPanel({
       </p>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         Present means a document is on the file under that tab. Missing means the required tab has
-        nothing filed yet. A missing tab is advisory: it never holds the file or a phase exit, and
-        the list only names tabs the phase plan requires — no enclosure is invented here.
+        nothing filed yet. Not recorded means the record has no value for that enclosure. A missing
+        tab is advisory: it never holds the file or a phase exit, and the list only names tabs the
+        phase plan requires — no enclosure is invented here.
+      </p>
+      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+        The NF 1098 form blank is not packaged. This checklist is assembled from the record; it is
+        not presented as a filled agency form.
       </p>
 
       <table className="mt-3 w-full text-[13px] leading-[18px]">

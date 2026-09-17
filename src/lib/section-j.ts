@@ -17,8 +17,9 @@ export type SectionJAttachment = {
   doc_key?: string | undefined;
 };
 
-/** What the empty list says. Never clause wording. */
-export const SECTION_J_EMPTY = "None attached.";
+/** What the empty list says. Calm and honest; never clause wording. */
+export const SECTION_J_EMPTY =
+  "No attachments on this file. The office adds one when the record calls for it.";
 
 /**
  * The attachments on the file, ordered by NF 1098 tab, then label, then the

@@ -32,6 +32,8 @@ export type PaymentMilestoneInput = {
 };
 
 export const PAYMENT_MILESTONES_EMPTY = "No payment milestones on this file.";
+export const PAYMENT_MILESTONES_EMPTY_NOTE =
+  "The contracting office records one when the payment approach calls for it.";
 /** How a CO should read this block: it is the invoice plan for the file. */
 export const PAYMENT_PLAN_LABEL =
   "Payment milestones are the invoice plan for this file: what gets invoiced, when, and against which line item.";
