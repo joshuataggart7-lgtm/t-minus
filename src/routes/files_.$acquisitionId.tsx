@@ -2014,6 +2014,17 @@ function FilePage() {
     return () => window.removeEventListener("beforeprint", onBeforePrint);
   }, []);
 
+  // P1-E: on a client navigation the record arrives a moment after the route
+  // does. Until it is in hand the page says it is loading rather than painting
+  // an empty file that reads like a record with nothing on it.
+  if (q.isLoading || (!acq && !q.isError)) {
+    return (
+      <AppShell>
+        <LoadingNote what="the acquisition file" />
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       {/* Quiet print-only header: the record's id and title on the handout. */}
