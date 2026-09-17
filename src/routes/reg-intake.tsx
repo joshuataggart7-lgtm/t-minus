@@ -369,12 +369,12 @@ function RegIntakePage() {
             </div>
             <div>
               <label htmlFor="file" className="text-[14px]">
-                File (comma separated values)
+                {textType ? "File (one section per line)" : "File (comma separated values)"}
               </label>
               <input
                 id="file"
                 type="file"
-                accept=".csv,text/csv"
+                accept={textType ? ".jsonl,.json,application/json" : ".csv,text/csv"}
                 className={field}
                 onChange={(e) => void pick(e.target.files?.[0] ?? null)}
               />
