@@ -158,3 +158,52 @@ export function cdrlForPacket(rows: CdrlRow[]): PacketCdrlItem[] {
     ...(r.notes?.trim() ? { notes: r.notes.trim() } : {}),
   }));
 }
+
+/** The heading the panel, the packet and the handoff all use for this block. */
+export const CDRL_LABEL = "CDRL / data requirements";
+
+/**
+ * Soft completeness notes on the DRD pack. Advisory only: nothing here holds a
+ * phase, blocks an exit, or invents a DRD paragraph or a citation.
+ */
+export function cdrlPackNotes(items: PacketCdrlItem[]): string[] {
+  if (items.length === 0) return [];
+  const missing = (v: string) => v === "Not recorded";
+  const noDrd = items.filter((i) => missing(i.drd_ref)).length;
+  const noFreq = items.filter((i) => missing(i.frequency)).length;
+  const noAsOf = items.filter((i) => missing(i.as_of)).length;
+  const noDist = items.filter((i) => missing(i.distribution)).length;
+  const notes: string[] = [
+    `${items.length} CDRL item${items.length === 1 ? "" : "s"} recorded · ${items.length - noDrd} with a DRD reference.`,
+  ];
+  if (noDrd > 0) {
+    notes.push(`${noDrd} CDRL item${noDrd === 1 ? " has" : "s have"} no DRD reference recorded.`);
+  }
+  const gaps = [
+    noFreq > 0 ? `${noFreq} without a frequency` : "",
+    noAsOf > 0 ? `${noAsOf} without an as-of` : "",
+    noDist > 0 ? `${noDist} without a distribution` : "",
+  ].filter(Boolean);
+  if (gaps.length > 0) notes.push(`${gaps.join(" · ")}.`);
+  return notes;
+}
+
+/**
+ * A muted, method-aware line on whether a CDRL pack is commonly expected.
+ * Read from the record only, and never a requirement: empty stays valid.
+ */
+export function cdrlMethodNote(facts: Record<string, unknown> | null | undefined): string | null {
+  if (!facts) return null;
+  const str = (k: string) => String(facts[k] ?? "").toLowerCase();
+  const format = str("contract_format");
+  const commercial =
+    /1449|streamlin|commercial/.test(format) || /commercial/.test(str("commercial_determination"));
+  if (commercial) {
+    return "On a commercial, streamlined file a CDRL is often not required; an empty list is normal here.";
+  }
+  const method = `${str("acquisition_method")} ${str("psc_note")} ${str("description_of_requirement")}`;
+  if (/servic|research|r&d|study|engineering|support/.test(method)) {
+    return "On a services or research file a CDRL and DRD pack is commonly expected where data deliverables apply. It stays optional.";
+  }
+  return "A CDRL is recorded only where the requirement calls for data deliverables.";
+}
