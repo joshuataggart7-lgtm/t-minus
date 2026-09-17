@@ -489,16 +489,21 @@ export function selectPacketClauses(
     if (!reason) continue;
     const row = matrix.get(rule.number);
     if (row && /remov/i.test(`${row.status ?? ""} ${row.disposition ?? ""}`)) continue;
+    const formerlyBundled = rule.formerlyBundled === true;
     out.push({
       clause_number: rule.number,
       title: row?.title || rule.title,
-      reason,
+      // A clause that once sat inside 52.212-5 carries its own prescription
+      // now. The prescription is named, no table row number is invented.
+      reason: formerlyBundled
+        ? `${reason} Prescribed on its own under RFO FAR 12.205; see FAR Tables 12-2 (provisions) and 12-3 (clauses).`
+        : reason,
       ucf_section: row?.ucf_section ?? null,
       source: row?.source ?? (rule.number.startsWith("1852") ? "NFS" : "FAR"),
       status: row?.status ?? "not in the loaded matrices (verify in NCMS)",
       effective_date: row?.effective_date ?? null,
       fill_ins: row?.fill_ins ?? null,
-      formerly_bundled: rule.formerlyBundled === true,
+      formerly_bundled: formerlyBundled,
     });
   }
   return out.sort((a, b) => a.clause_number.localeCompare(b.clause_number, "en", { numeric: true }));
