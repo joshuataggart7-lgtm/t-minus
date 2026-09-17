@@ -2211,7 +2211,7 @@ function FilePage() {
             </div>
           </div>
         </div>
-      </section> : null}
+      </section>
 
       {acq ? (
         <>
