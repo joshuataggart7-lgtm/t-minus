@@ -136,7 +136,17 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
       fields: [
         field("topmostSubform.UNRESTRICTIONTED", "Unrestricted (block 10)", !setAside),
         field("topmostSubform.SETASIDE", "Set aside (block 10)", Boolean(setAside)),
-        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", totalSmallBusiness),
+        // One programme box only, read the same way the official export reads it.
+        field("topmostSubform.SMALLBUSINESS[0]", "Women-owned small business (block 10)", saFlags["wosb"]),
+        field(
+          "topmostSubform.SMALLBUSINESS[1]",
+          "Economically disadvantaged women-owned small business (block 10)",
+          saFlags["edwosb"],
+        ),
+        field("topmostSubform.SERVICEDISABLED", "Service-disabled veteran-owned (block 10)", saFlags["sdvosb"]),
+        field("topmostSubform.HUBZONESMALL", "HUBZone small business (block 10)", saFlags["hubzone"]),
+        field("topmostSubform.ACHECKBOX", "8(a) (block 10)", saFlags["eight_a"]),
+        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", saFlags["small_business"]),
         field("topmostSubform.setasidepercent", "Percent set aside (block 10)", setAsidePercent),
         field("topmostSubform.NAICS", "NAICS code (block 10)", str(a["naics_code"])),
         field(
