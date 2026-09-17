@@ -82,7 +82,7 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
  * mid-sentence, and the sentences left off are returned as `rest` so the
  * continuation the marker promises is real.
  */
-const packSentences = (
+export const packSentences = (
   text: string,
   width: number,
   rows: number,
@@ -262,10 +262,19 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
   // P0-3: the face rows carry whole sentences. Nothing is cut mid-sentence;
-  // what does not fit is marked as continuing.
+  // what does not fit is marked as continuing, and the continuation marker
+  // occupies its own row alone.
   const packed = packSentences(narrative, 52, 7);
   const narrativeLines = packed.lines;
   const continuesBeyondFace = packed.truncated;
+  // Soft Walk guard: the final content line is a whole sentence, so it ends
+  // with terminal punctuation; the marker row, when present, stands alone.
+  if (packed.truncated) {
+    const last = narrativeLines[narrativeLines.length - 1] ?? "";
+    const content = narrativeLines[narrativeLines.length - 2] ?? "";
+    console.assert(/\(description continues/.test(last), "SF1449: marker row must stand alone");
+    console.assert(/[.!?]$/.test(content.trim()), "SF1449: final content line must end a sentence");
+  }
 
   // Blocks 27a and 27b: whether addenda are attached is the officer's answer,
   // read from the record when it carries one and left blank when it does not.
