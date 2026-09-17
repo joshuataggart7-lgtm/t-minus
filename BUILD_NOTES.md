@@ -2182,6 +2182,8 @@ The form preview can outline where each filled value came from. Scope comes from
 
 ## ORBIT visual identity — Chunk 1 frame
 
+Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
+
 - The authenticated application frame now uses a near-black console surface for the top strip and left navigation, with NASA blue reserved for structural borders.
 - The work area remains a dense, near-white canvas with existing page, table, form, and document layouts unchanged.
 - Electric cyan is `#22D3EE` and is reserved for the active navigation marker/text and keyboard focus outlines.
