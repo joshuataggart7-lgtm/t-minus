@@ -60,6 +60,94 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
   return lines.slice(0, rows);
 };
 
+/** The set-aside programmes block 10 carries, one key only. */
+export type SetAsideKey =
+  | "unrestricted"
+  | "edwosb"
+  | "wosb"
+  | "sdvosb"
+  | "hubzone"
+  | "eight_a"
+  | "small_business";
+
+/**
+ * The recorded set-aside read as one programme. The order matters: the most
+ * specific programme wins, so an economically disadvantaged women-owned
+ * set-aside never also ticks the women-owned box.
+ */
+export function setAsideKey(recorded: unknown): SetAsideKey {
+  const t = str(recorded).toLowerCase();
+  if (!t) return "unrestricted";
+  if (/\bedwosb\b/.test(t) || /economically disadvantaged women/.test(t)) return "edwosb";
+  if (/\bwosb\b/.test(t) || /women[- ]owned/.test(t)) return "wosb";
+  if (/\bsdvosb\b/.test(t) || /service[- ]disabled/.test(t)) return "sdvosb";
+  if (/hubzone/.test(t) || /hub zone/.test(t)) return "hubzone";
+  if (/8\s*\(?a\)?/.test(t) || /\b8a\b/.test(t) || /eight\s*\(?a\)?/.test(t)) return "eight_a";
+  if (/small business/.test(t) || /\btotal\b/.test(t)) return "small_business";
+  return "small_business";
+}
+
+/** One true flag when a programme is recorded, all false when unrestricted. */
+export function setAsideFlags(recorded: unknown): Record<string, boolean> {
+  const key = setAsideKey(recorded);
+  return {
+    wosb: key === "wosb",
+    edwosb: key === "edwosb",
+    sdvosb: key === "sdvosb",
+    hubzone: key === "hubzone",
+    eight_a: key === "eight_a",
+    small_business: key === "small_business",
+  };
+}
+
+/** The priced face line, reconciled or left empty. */
+export function faceLine(
+  clin: { quantity?: number | null; unit?: string | null; unitPrice?: number | null } | null,
+  faceAmount: number,
+  commercial: boolean,
+): { quantity: string; unit: string; unit_price: string; amount: string } {
+  const qty = clin?.quantity ?? null;
+  const unitPrice = clin?.unitPrice ?? null;
+  if (qty !== null && unitPrice !== null && faceAmount > 0 && Math.abs(qty * unitPrice - faceAmount) < 0.5) {
+    return {
+      quantity: String(qty),
+      unit: str(clin?.unit),
+      unit_price: dollars(unitPrice),
+      amount: dollars(faceAmount),
+    };
+  }
+  if (commercial && faceAmount > 0) {
+    return { quantity: "1", unit: "Lot", unit_price: dollars(faceAmount), amount: dollars(faceAmount) };
+  }
+  // Nothing reconciles: the priced columns stay empty for the contracting
+  // officer rather than carrying an amount with no quantity behind it.
+  return { quantity: "", unit: "", unit_price: "", amount: "" };
+}
+
+/** A money string read back as a number. */
+const moneyValue = (v: unknown): number => {
+  const n = Number(String(v ?? "").replace(/[^0-9.-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+/**
+ * Whether the schedule lines add up to the total the form carries. Soft: this
+ * reports, it never blocks a draft.
+ */
+export function validateSf1449ClinReconciliation(
+  data: RogerSf1449Data,
+): { ok: true } | { ok: false; message: string } {
+  const rows = (data["schedule"] as Record<string, string>[] | undefined) ?? [];
+  const lines = rows.reduce((sum, row) => sum + moneyValue(row["amount"]), 0);
+  const total = moneyValue((data["award"] as Record<string, unknown> | undefined)?.["total_amount"]);
+  if (lines === 0 && total === 0) return { ok: true };
+  if (Math.abs(lines - total) <= 0.01) return { ok: true };
+  return {
+    ok: false,
+    message: `The schedule shows discrepancy ${dollars(lines)} vs ${dollars(total)} on the total award amount.`,
+  };
+}
+
 /**
  * The record as the mapping rows read it. The schedule rule is the one the
  * generated form already follows: quantity, unit and unit price print only
@@ -77,7 +165,9 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
   const price = Number(a["proposed_price"]) || Number(a["award_amount"]) || 0;
   const description = str(a["description_of_requirement"]) || str(a["title"]);
-  const office = [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])]
+  // Block 9: the code box carries the short centre code, the block beside it
+  // carries the centre name and branch.
+  const officeName = [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])]
     .filter(Boolean)
     .join(", ");
 
@@ -85,33 +175,26 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     (ctx.clins ?? []).find((c) => /^0*1$/.test(c.clinNumber.replace(/\D/g, "") || "x")) ??
     (ctx.clins ?? [])[0] ??
     null;
-  const qty = firstClin?.quantity ?? null;
-  const unitPrice = firstClin?.unitPrice ?? null;
-  const multipliesOut =
-    qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
-  const singleLotLine = !multipliesOut && commercial && price > 0;
+  const priced = faceLine(firstClin, price, commercial);
 
+  // Block 20: the short requirement title on the priced row, the narrative
+  // beneath it.
+  const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  const scheduleLines = wrapLines(narrative, 52, 8);
+  const narrativeLines = wrapLines(narrative, 52, 7);
 
+  const flags = setAsideFlags(setAside);
   const partialSetAside = /partial/i.test(setAside);
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
 
-  // The priced line, then the narrative rows beneath it.
-  const schedule: Record<string, string>[] = scheduleLines.map((line, i) => {
-    if (i > 0) return { description: line };
-    return {
+  const schedule: Record<string, string>[] = [
+    {
       item_number: "0001",
-      description: line,
-      quantity: multipliesOut ? String(qty) : singleLotLine ? "1" : "",
-      unit: multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "",
-      unit_price: multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "",
-      amount: dollars(price || a["estimated_value"]),
-    };
-  });
-  if (schedule.length === 0) {
-    schedule.push({ item_number: "0001", amount: dollars(price || a["estimated_value"]) });
-  }
+      description: wrapLines(title, 52, 1)[0] ?? "",
+      ...priced,
+    },
+    ...narrativeLines.map((line) => ({ description: line })),
+  ];
 
   const method = commercial ? "rfq" : "rfp";
   const coName = str(a["co_name"]);
@@ -132,11 +215,12 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
       contact: { name: coName, phone: str(a["co_phone"]) },
       method,
     },
-    issuing_office: { code: str(a["center_code"]), name_address: office },
+    issuing_office: { code: str(a["center_code"]), name_address: officeName },
 
     acquisition: {
       restriction: setAside ? "set_aside" : "unrestricted",
-      set_aside_program: totalSmallBusiness ? `small_business_total ${setAside}` : setAside,
+      set_aside_program: setAsideKey(setAside),
+      set_aside_flags: flags,
       // Block 10 carries a number, never prose.
       set_aside_percent: totalSmallBusiness ? "100" : "",
       naics: str(a["naics_code"]),
@@ -146,6 +230,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
           : dollars(ctx.sizeStandard.receiptsUsd)
         : "",
     },
+
 
     dpas: { is_rated_order: Boolean(str(a["dpas_rating"])), rating: str(a["dpas_rating"]) },
     delivery: {
