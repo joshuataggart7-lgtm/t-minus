@@ -2158,3 +2158,14 @@ The form preview can outline where each filled value came from. Scope comes from
 - `generateOfficialSf1449Pdf` resolves the blank through `resolveFormTemplate('sf1449', pin)` and passes that revision into `mappingsFor`; an unknown pin falls back to the current builtin rather than naming a blank that does not exist.
 - The form page shows "blank revision 11/2021" in the header line and names it in the export message.
 - SF 1449 and SF 30 remain non-Live; no Adobe field-by-field check has been made. §10 not started.
+
+## Soft §10 — Generated draft into the evidence pack
+- After the SF 1449 official AcroForm export, the same bytes are filed on the contract file through `uploadAttachment` (`sf-1449-official`, "SF 1449 official draft (prototype)"), with an extra `Official form draft filed` audit row naming the blank revision from §9. The RFP cover letter follows the same path (`rfp-cover`).
+- The download always happens first. A failed pack write reports honestly and never loses the file.
+- This is prototype retention on the file, not a write-back to NCMS. A true server-side (Edge) generate remains a follow-on; this ship generates in the browser and writes into the pack.
+
+## Roger Soft Walk §§1–10 complete — remaining gaps
+1. SF Live / Adobe field-by-field verification gate: not done. SF 1449 and SF 30 stay non-Live and no Adobe claim is made.
+2. Edge vs client generate: this ship generates in the browser and files into the pack; server-side generate is a follow-on.
+3. OF 347 and SF 30 official export: data and mappings only, no export UI.
+4. About 96 HQ OP templates still carry prose "Insert…" wording rather than `[[MARKER]]` masters; only the RFP cover master is marker-driven.
