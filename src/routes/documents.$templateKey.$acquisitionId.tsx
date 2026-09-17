@@ -51,7 +51,7 @@ import {
   type PollRow,
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
-import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
