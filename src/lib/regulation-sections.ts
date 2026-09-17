@@ -48,10 +48,17 @@ export function normaliseCitation(value: string | null | undefined): string {
     .toUpperCase();
 }
 
+/** True when the whole string is one citation, e.g. "FAR 10.002(e)". */
+function isSingleCitation(value: string): boolean {
+  return /^(?:RFO\s+)?(?:FAR|NFS(?:\s+CG)?)\s+(?:PART\s+)?\d{1,4}(?:\.\d+)*(?:-\d+)*(?:\([0-9A-Z]+\))*$/.test(value);
+}
+
 /**
- * Resolve a citation to loaded sections. Exact citation match first; when
- * nothing matches exactly, the citation tokens in the line of prose are tried.
- * Nothing is inferred beyond an exact string match on a loaded citation.
+ * Resolve a citation to loaded sections. The match is exact on the citation
+ * string. When the citation is a line of prose naming sections, the citation
+ * tokens in it are tried; a single precise citation such as FAR 10.002(e) is
+ * never widened to its parent section, so a paragraph the corpus does not
+ * carry stays unresolved. Nothing is inferred beyond an exact match.
  */
 export function resolveSections(
   citation: string | null | undefined,
@@ -61,6 +68,7 @@ export function resolveSections(
   if (!wanted || !rows || rows.length === 0) return [];
   const exact = rows.filter((r) => normaliseCitation(r.citation) === wanted);
   if (exact.length > 0) return exact;
+  if (isSingleCitation(wanted)) return [];
   const tokens = citationTokens(citation).map(normaliseCitation);
   if (tokens.length === 0) return [];
   return rows.filter((r) => tokens.includes(normaliseCitation(r.citation)));
