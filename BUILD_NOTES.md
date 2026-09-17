@@ -2077,3 +2077,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## SF 1449 Lot gate fix (soft follow-up)
 - `buildSf1449` Lot packaging now fires for any commercial FFP face whose first CLIN does not multiply out, regardless of how many IGCE estimate rows sit behind the file (A-2027-0101 has many). The `length <= 1` check is removed; the face still prints ITEM 0001 = qty 1 / Lot / unit price = amount / amount, and no quantity is invented from hours.
 - Block 20 narrative keeps the requirement description and period of performance only; the CLIN description is no longer appended when the requirement description already carries the narrative.
+
+- Soft §1: SF 1449 now exports through a pdf-lib AcroForm pipeline on the official blank (load, deleteXFA, fill, updateFieldAppearances, save) so values show in Reader, Chrome and Preview. XFA/XDP Import Data demoted to a labelled secondary route. Non-Live until a human Adobe check; no Adobe claim.

@@ -11,6 +11,7 @@ import { withNf1707Answers } from "@/lib/nf1707-form";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
+import { downloadPdfBytes, generateOfficialSf1449Pdf } from "@/lib/official-acroform-sf1449";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
@@ -192,7 +193,7 @@ function FormPage() {
     },
   });
 
-  const baseForm = useMemo(() => {
+  const formCtx = useMemo<FormCtx | null>(() => {
     if (!q.data?.acq || !isFormKey(formKey)) return null;
     const acq = q.data.acq;
     const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
@@ -242,8 +243,13 @@ function FormPage() {
         source: String(r.source ?? ""),
       })),
     };
-    return buildForm(formKey, ctx);
+    return ctx;
   }, [q.data, formKey, acquisitionId]);
+
+  const baseForm = useMemo(
+    () => (formCtx && isFormKey(formKey) ? buildForm(formKey, formCtx) : null),
+    [formCtx, formKey],
+  );
 
   /**
    * NF 1707 is a pure XFA blank, so its paths are read from the blank's own
@@ -385,6 +391,23 @@ function FormPage() {
     }
   };
 
+  /**
+   * SF 1449 on the official blank, written into the blank's own fields so the
+   * values show in Adobe Reader, Chrome and Preview alike.
+   */
+  const exportOfficialAcroform = async () => {
+    if (!formCtx) return;
+    try {
+      const bytes = await generateOfficialSf1449Pdf(formCtx);
+      downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
+      setMessage(
+        "Official PDF exported. It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The form did not export.");
+    }
+  };
+
   const exportData = async () => {
     if (!form) return;
     exportXdp(await boundDatasets(), `${form.key}-${acquisitionId}`);
@@ -443,13 +466,24 @@ function FormPage() {
             >
               View filled preview
             </button>
+            {formKey === "sf-1449" ? (
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
+                style={{ background: "var(--primary, #0B3D91)" }}
+                title="The official blank filled so the values show in Adobe Reader, Chrome and Preview. Signatures stay empty."
+                onClick={() => void exportOfficialAcroform()}
+              >
+                Export official PDF (AcroForm)
+              </button>
+            ) : null}
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
+              title="Legacy Import Data route. Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
               onClick={() => void exportPopulated()}
             >
-              Export form PDF
+              Export form PDF{formKey === "sf-1449" ? " (legacy)" : ""}
             </button>
             <button
               type="button"
@@ -464,13 +498,23 @@ function FormPage() {
               title="Recommended route for free Adobe Reader: open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file. The blank keeps its own rights."
               onClick={exportData}
             >
-              Export data file for Import Data
+              Export data file for Import Data{formKey === "sf-1449" ? " (legacy)" : ""}
             </button>
           </div>
           <p className="mb-4 text-[13px] text-muted-foreground">
             Prefer the preview below in the browser; open the form PDF in Adobe desktop.
           </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+            {formKey === "sf-1449" ? (
+              <p className="mb-2">
+                Export official PDF is the first route to try. It is the official blank with its dynamic
+                layer removed and the record's values written into the form's own fields, so Adobe
+                Reader, Chrome and Preview all show them and the fields stay editable. It is still a
+                prototype export, not an Adobe-verified form, and signature blocks stay empty for the
+                contracting officer. The two exports below are the older Import Data route and stay here
+                as a fallback.
+              </p>
+            ) : null}
             <p>
               The recommended route in free Adobe Reader is the data file. Open the blank form from this
               app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data, Import Data,
