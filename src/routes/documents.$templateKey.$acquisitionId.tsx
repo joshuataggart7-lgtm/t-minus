@@ -1082,7 +1082,12 @@ function DocumentPage() {
           stored["interested_sources"] = fresh;
         }
       }
-      setValues(stored);
+      // The draft flag is a chip beside the field, never words inside the
+      // field body. A stored version written before that rule is cleaned on
+      // the way in, and the field still shows its chip.
+      const storedMarked = markedKeys(stored);
+      if (storedMarked.length) setDraftedFields((prev) => new Set([...prev, ...storedMarked]));
+      setValues(stripDraftMarks(stored));
       return;
     }
     const filled = prefill(def, {
