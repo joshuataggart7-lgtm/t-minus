@@ -72,25 +72,22 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   // Quantity, unit and unit price only print when quantity times unit price
   // equals the amount on the form. A line that does not multiply out is left
   // blank for the contracting officer rather than carrying a quantity the
-  // record does not support. A commercial firm fixed price buy with one line
-  // prints as a single lot at the face amount; how the work is measured stays
-  // in the block 20 narrative.
+  // record does not support. A commercial firm fixed price buy prints as a
+  // single lot at the face amount when no single CLIN line multiplies out; how
+  // the work is measured stays in the block 20 narrative. The number of IGCE
+  // estimate rows behind the file does not change the face line.
   const qty = firstClin?.quantity ?? null;
   const unitPrice = firstClin?.unitPrice ?? null;
   const multipliesOut =
     qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
-  const singleLotLine = !multipliesOut && commercial && price > 0 && (ctx.clins ?? []).length <= 1;
+  const singleLotLine = !multipliesOut && commercial && price > 0;
   const lineQuantity = multipliesOut ? String(qty) : singleLotLine ? "1" : "";
   const lineUnit = multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "";
   const lineUnitPrice = multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "";
-  const clinNarrative = str(firstClin?.description);
-  const narrative = [
-    description,
-    clinNarrative && clinNarrative !== description ? clinNarrative : "",
-    pop ? `Period of performance ${pop}.` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  // Block 20 carries the requirement description and the period of
+  // performance. The CLIN description is not appended when the requirement
+  // description already carries the narrative.
+  const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
   // Each schedule row on the blank is one line, so the narrative is wrapped
   // across the rows the blank carries.
   const scheduleLines = wrapLines(narrative, 52, 8);
