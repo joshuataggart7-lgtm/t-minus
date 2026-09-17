@@ -488,6 +488,18 @@ export function SebCockpitPanel({
           The evidence map is advisory and does not hold the file, a phase or a document.
         </p>
       </section>
+
+      {/* 4 — pointer to the read receipts that sit directly below on the Board path. */}
+      <section className="mt-4 border-t border-border pt-4">
+        <h5 className="text-[15px] font-medium">Read receipts</h5>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          {receiptsQ.data && receiptsQ.data.length > 0
+            ? `${receiptsQ.data.length} recorded. Who opened what is listed in the read receipts just below.`
+            : "None yet. Opens are listed in the read receipts just below as people read documents on this file."}{" "}
+          {READ_RECEIPTS_CHIP}
+        </p>
+      </section>
+
     </div>
   );
 }
