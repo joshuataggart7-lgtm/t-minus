@@ -171,7 +171,13 @@ function TodayPage() {
         <ErrorNote message="Today did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
       ) : (
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
-          {!ownsMine ? (
+          {isAdmin ? (
+            <p className="text-[13px] leading-[18px] text-muted-foreground">
+              {ownsMine
+                ? `All prototype files are shown, with the files that list ${user.name} as contracting officer first. The owner of record is shown on each file.`
+                : `No file lists ${user.name} as the contracting officer, so all prototype files are shown. The owner of record is shown on each file.`}
+            </p>
+          ) : !ownsMine ? (
             <p className="text-[13px] leading-[18px] text-muted-foreground">
               {isRequesterFallback
                 ? "Showing files where you are the requester of record."
