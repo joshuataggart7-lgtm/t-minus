@@ -2061,3 +2061,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - W4.3 deepen: payment milestones framed as the invoice plan on the panel, format scaffold, packet JSON and Award handoff section 8. Soft plan advisories only (percent total, not-100% note, plan summary of count/linked/missing value). No gating, no invented rows, samples untouched.
 
 - W4.4: CDRL / data requirements labelled as a distinct block beside document attachments in the panel, format scaffold, handoff packet JSON and Award handoff section 7; soft DRD completeness notes (items, DRD refs, missing frequency/as-of/distribution) and a muted method-aware line (commercial streamlined vs services/R&D). Advisory only — never holds Walk or a phase exit; no DRD text or cites invented; Samples left empty.
+
+## Handoff honesty polish
+
+- Award handoff, NF 1098 assembly, payment milestones, and CDRL empty/advisory lines now use the same calm record-first wording. NF 1098 explicitly remains a checklist from the record, not a filled agency form; Adobe field checks stay human-only, NCMS remains the system of record, and no advisory holds a file or phase exit.
