@@ -59,22 +59,26 @@ export function AuthScreen() {
     );
 
   return (
-    <div className="min-h-screen bg-canvas text-foreground">
+    <div className="chrome-surface min-h-screen text-chrome-foreground">
       <main className="mx-auto max-w-[560px] px-6 py-16">
-        <h1 className="text-[28px] leading-[34px] font-semibold">T-Minus</h1>
-        <p className="text-[15px] leading-[22px] text-muted-foreground">
+        <span aria-hidden="true" className="mb-5 block h-[3px] w-12 rounded-sm bg-accent-cyan" />
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-chrome-muted">
           Mission Acquisition Acceleration
         </p>
-        <p className="mt-6 max-w-[70ch] text-[15px] leading-[22px]">
+        <h1 className="mt-2 text-[34px] leading-[40px] font-semibold text-chrome-foreground">T-Minus</h1>
+        <p className="mt-5 max-w-[70ch] text-[17px] leading-[26px] text-chrome-foreground">
           T-Minus turns acquisition time into mission readiness.
+        </p>
+        <p className="mt-2 max-w-[70ch] text-[15px] leading-[22px] text-chrome-muted">
+          Procurement at the speed of mission.
         </p>
 
         {mode === "choose" ? (
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="console-panel mt-8 flex flex-wrap gap-3 rounded-xl border border-white/10 p-5">
             <button
               type="button"
               onClick={() => setMode("password")}
-              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+              className="rounded-lg bg-accent-cyan px-4 py-2 text-[15px] font-medium text-[color:var(--chrome)]"
             >
               Sign in
             </button>
@@ -82,7 +86,7 @@ export function AuthScreen() {
               type="button"
               disabled={busy}
               onClick={tryDemo}
-              className="rounded-lg border border-border bg-background px-4 py-2 text-[15px]"
+              className="rounded-lg border border-white/25 px-4 py-2 text-[15px] text-chrome-foreground hover:bg-white/10"
             >
               Try the demo
             </button>
