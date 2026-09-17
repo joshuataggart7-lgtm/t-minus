@@ -48,7 +48,7 @@ export function boardReadiness({
 
 
 export function boardReadinessItems(readiness: BoardReadiness): { label: string; value: string }[] {
-  return [
+  const items = [
     {
       label: "L↔M",
       value:
@@ -72,4 +72,15 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
           : `${readiness.evidenceCount} of ${readiness.factorCount} factors noted`,
     },
   ];
+  // Receipts are counted off the record only. No count read, no line.
+  if (readiness.receiptCount !== null) {
+    items.push({
+      label: "Read receipts",
+      value:
+        readiness.receiptCount === 0
+          ? "None yet — per-document status below"
+          : `${readiness.receiptCount} recorded`,
+    });
+  }
+  return items;
 }
