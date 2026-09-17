@@ -1143,8 +1143,8 @@ function DocumentPage() {
     if (def.key === "postaward-letter-unsuccessful" && draft["contract_value"]) {
       drafted["contract_value"] = draft["contract_value"];
     }
-    setDraftedFields(new Set(draftedKeys(drafted, draft)));
-    setValues(drafted);
+    setDraftedFields(new Set([...draftedKeys(drafted, draft), ...markedKeys(drafted)]));
+    setValues(stripDraftMarks(drafted));
   }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts, search.offeror, quoterSlots]);
 
   // NF 1858: the flag and the header come from the saved version when there is
