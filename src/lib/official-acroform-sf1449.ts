@@ -210,10 +210,14 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const priced = faceLine(firstClin, price, commercial);
 
   // Block 20: the short requirement title on the priced row, the narrative
-  // beneath it.
+  // beneath it. The narrative prints on the face rows so the schedule reads on
+  // page one; only what does not fit sends the reader to the continuation.
   const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  const narrativeLines = wrapLines(narrative, 52, 7);
+  const allNarrativeLines = wrapLines(narrative, 52, 64);
+  const narrativeLines = allNarrativeLines.slice(0, 7);
+  const continuesBeyondFace = allNarrativeLines.length > narrativeLines.length;
+
 
   const flags = setAsideFlags(setAside);
   const partialSetAside = /partial/i.test(setAside);
