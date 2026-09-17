@@ -32,6 +32,7 @@ import {
   loadCheckout,
   releaseCheckout,
   type Checkout,
+  takeOverCheckout,
 } from "@/lib/document-checkout";
 import {
   itemsFromRefs,
