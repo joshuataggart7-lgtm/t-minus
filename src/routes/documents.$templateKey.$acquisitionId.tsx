@@ -1090,7 +1090,7 @@ function DocumentPage() {
           setAiMeta({});
         }
       }
-      // Item 6 of the justification reports the state of the notice of intent
+      // The notice item of the justification reports the state of the notice of intent
       // now, not when the version was saved. A stored status line is refreshed
       // against the notice on the file and the publication date on this form.
       if (def.key === "jofoc") {

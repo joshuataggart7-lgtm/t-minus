@@ -84,6 +84,7 @@ function humanDate(iso: string): string {
 
 function cleanProse(text: string): string {
   return text
+    .replace(/\s*\[(?:DO NOT delete|Do not delete)[^\]]*\]/g, "")
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     .replace(/\s*Source:.*$/gi, "")
@@ -147,12 +148,16 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
-/** Item 6 reads as named-source prose, while source detail stays in the research log. */
+/** Item 8 reads as named-source prose, while source detail stays in the research log. */
 export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const v = ctx.values ?? {};
   const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
   const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
   const sources: string[] = [];
+  uniquePush(sources, "System for Award Management (SAM.gov)");
+  uniquePush(sources, "USAspending");
+  uniquePush(sources, "SBA size standards");
+  uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
   if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
   if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
@@ -217,7 +222,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   const band = selectJofocSigBand(estimated, classJustification, ctx.thresholds);
   const authority = value("authority");
   const is41 = /41\s*U\.?\s*S\.?\s*C\.?\s*190[13]/i.test(authority) || /FAR\s*12\.102/i.test(authority);
-  const is10 = /10\s*U\.?\s*S\.?\s*C\.?\s*3204/i.test(authority) || /FAR\s*6\.103/i.test(authority);
+  const is10 = !is41 && (/10\s*U\.?\s*S\.?\s*C\.?\s*3204/i.test(authority) || /FAR\s*6\.103/i.test(authority));
   const isUrgency = /6\.103-2/.test(authority);
   const isFollowOn = /6\.103-1/.test(authority);
 
@@ -260,7 +265,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    authority41Line = authority || "41 U.S.C. 1901 (FAR 12.102 procedures)";
+    authority41Line = authority || "41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)";
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);
