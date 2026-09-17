@@ -242,8 +242,13 @@ function FormPage() {
         source: String(r.source ?? ""),
       })),
     };
-    return buildForm(formKey, ctx);
+    return ctx;
   }, [q.data, formKey, acquisitionId]);
+
+  const baseForm = useMemo(
+    () => (formCtx && isFormKey(formKey) ? buildForm(formKey, formCtx) : null),
+    [formCtx, formKey],
+  );
 
   /**
    * NF 1707 is a pure XFA blank, so its paths are read from the blank's own
