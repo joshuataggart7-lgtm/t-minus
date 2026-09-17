@@ -168,6 +168,7 @@ import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
+import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
   buildModificationPacket,
@@ -2063,7 +2064,21 @@ function FilePage() {
         </section>
       ) : null}
 
-      {!q.isLoading ? <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
+      {!q.isLoading ? (
+      <div className="mb-2 grid min-w-0 gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-8">
+        <aside className="no-print hidden lg:block">
+          <LaunchSequenceRail
+            phases={phases}
+            daysToPhaseExit={
+              lifecycle?.nextDecision?.startsWith("Exit")
+                ? lifecycle.daysToNextDecision
+                : null
+            }
+          />
+        </aside>
+        <div className="min-w-0">
+
+      <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
         <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
             <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
@@ -2196,7 +2211,7 @@ function FilePage() {
             </div>
           </div>
         </div>
-      </section> : null}
+      </section>
 
       {acq ? (
         <>
@@ -4428,6 +4443,10 @@ function FilePage() {
         {q.data?.log.length ? <div className="w-full min-w-0 overflow-x-auto"><table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]"><thead><tr className="border-b border-border text-left"><th scope="col" className="p-2">Logged</th><th scope="col" className="p-2">Actor</th><th scope="col" className="p-2">Action</th><th scope="col" className="p-2">Field</th><th scope="col" className="p-2">New value</th><th scope="col" className="p-2">Reason</th></tr></thead><tbody>{q.data.log.map((row) => <tr key={row.log_id} className="border-b border-border align-top"><td className="p-2">{new Date(row.logged_at).toLocaleString()}</td><td className="p-2">{row.actor}</td><td className="p-2">{row.action}</td><td className="p-2">{row.field}</td><td className="p-2">{row.new_value}</td><td className="p-2">{row.reason}</td></tr>)}</tbody></table></div> : <p className="text-muted-foreground">No entries yet for this file.</p>}
       </section>
       )}
+
+      </div>
+      </div>
+      ) : null}
 
       <Link to="/files" className="text-primary underline underline-offset-2">
         Back to Files

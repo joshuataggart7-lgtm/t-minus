@@ -2249,3 +2249,21 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
 - Honest gap left standing: where a commercial companion citation is not loaded
   in the app's regulatory rows, the letter leaves the line for the contracting
   officer rather than borrowing a part 15 citation.
+
+## ORBIT Chunk 3 — Launch sequence rail
+
+- Added `src/components/launch-sequence-rail.tsx` exporting `LaunchSequenceRail`
+  that reads the existing `PhaseView[]` from `buildSequence()` (no new date math,
+  no invented hours/minutes). Complete phases show a filled structure node;
+  the current phase is lit electric cyan `#22D3EE` with a NOW badge and, only
+  when `lifecycle.nextDecision` begins with "Exit", a compact `T− N to exit`
+  read from `lifecycle.daysToNextDecision`; upcoming phases are outlined only.
+- Wired the rail as a left-side vertical scan on the acquisition file page
+  (`src/routes/files_.$acquisitionId.tsx`) via a `lg:grid-cols-[200px_minmax(0,1fr)]`
+  layout; the rail is hidden below `lg` (no-print) and sticky on wide screens.
+  The existing `<details id="launch-sequence">` panel is untouched.
+- Visual/interaction only: no citations, clause logic, AcroForm, export layout,
+  seed data, clock/hold/award math, or record writes changed. Prototype footer
+  and NASA-insignia-free chrome preserved. FLAG-only clocks; no Clock B.
+- Accent cyan `#22D3EE` reserved for the current node and existing countdown/nav
+  accents already shipped in Chunks 1–2.
