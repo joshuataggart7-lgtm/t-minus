@@ -271,6 +271,28 @@ function DocumentPage() {
     };
   }, [authState, def, acquisitionId, templateKey, phase, user.name, canWrite]);
 
+  /** P0-3: take the document over from the person holding it, deliberately. */
+  const takeOver = async () => {
+    if (!def || !checkout) return;
+    try {
+      const held = await takeOverCheckout({
+        acquisitionId,
+        templateKey,
+        documentName: def.name,
+        phase,
+        userName: user.name,
+        holder: checkout,
+      });
+      setCheckout(held);
+      const { data } = await supabase.auth.getUser();
+      if (held && data.user?.id === held.user_id) setMyCheckoutId(held.checkout_id);
+      setMessage("You have the document. The hand-over is in the audit log.");
+    } catch {
+      setMessage("The document could not be taken over just now. Try again in a moment.");
+    }
+  };
+
+
   // Keep the label current for the people who are only reading.
   useEffect(() => {
     if (authState !== "signed-in" || !def || myCheckoutId) return;
