@@ -151,13 +151,16 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       offer_period_not_extended: false,
       copies: "",
       copies_returned: "",
-      item_13a: Boolean(mod["sf30_13a"]) || kind.includes("change order"),
-      item_13b: Boolean(mod["sf30_13b"]) || kind.includes("administrative"),
-      item_13c: Boolean(mod["sf30_13c"]) || kind.includes("supplemental") || kind.includes("mutual"),
-      item_13d: Boolean(mod["sf30_13d"]) || kind.includes("other"),
-      item_13a_authority: str(mod["authority_text"]),
-      item_13c_authority: str(mod["authority_text"]),
-      item_13d_authority: str(mod["authority_text"]),
+      item_13a: block13.a,
+      item_13b: block13.b,
+      item_13c: block13.c,
+      item_13d: block13.d,
+      // P0-2: the authority prints in the blank next to the box that is
+      // ticked, read from the record. Nothing is invented: where the covering
+      // clause is not on the record, the authority helper says so plainly.
+      item_13a_authority: block13.a ? authorityText : "",
+      item_13c_authority: block13.c ? authorityText : "",
+      item_13d_authority: block13.d ? authorityText : "",
       // Nothing is assumed about whether the contractor must sign.
       contractor_signature_required: false,
       contractor_signature_not_required: false,
