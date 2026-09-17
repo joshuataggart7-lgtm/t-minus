@@ -369,6 +369,7 @@ export function PaymentMilestonesPanel({
             <input
               id="new-pay-due"
               className={field}
+              placeholder='Free text — a date or "upon CLIN 0001 acceptance"'
               value={draft.due_logic}
               onChange={(e) => setDraft({ ...draft, due_logic: e.target.value })}
             />
