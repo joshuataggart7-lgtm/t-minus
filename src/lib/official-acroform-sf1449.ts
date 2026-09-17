@@ -17,6 +17,7 @@
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { mappingsFor } from "@/lib/form-field-mappings";
+import { currentFormRevision, resolveFormTemplate } from "@/lib/form-templates";
 import { withCanonical } from "@/lib/canonical-adapters";
 import {
   applyFormMappings,
@@ -32,8 +33,20 @@ export { displayDate, getPath, pdfCheck, pdfMoney, pdfText };
 export type RogerSf1449Data = Record<string, unknown>;
 
 /** The mapper. It writes the mapping rows for this blank, nothing more. */
-export function fillOfficialSF1449(form: import("pdf-lib").PDFForm, d: RogerSf1449Data): void {
-  applyFormMappings(form, mappingsFor("sf1449", "11/2021"), d);
+export function fillOfficialSF1449(
+  form: import("pdf-lib").PDFForm,
+  d: RogerSf1449Data,
+  revision?: string | null,
+): void {
+  // Soft §9: the rows read must match the blank's revision. An unknown pin
+  // falls back to the rows for the current builtin.
+  const wanted = (revision || "").trim() || currentFormRevision("sf1449");
+  const rows = mappingsFor("sf1449", wanted);
+  applyFormMappings(
+    form,
+    rows.length ? rows : mappingsFor("sf1449", currentFormRevision("sf1449")),
+    d,
+  );
 }
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
@@ -293,10 +306,13 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
  */
 export async function generateOfficialSf1449Pdf(
   ctx: FormCtx,
-  options: { flatten?: boolean } = {},
+  options: { flatten?: boolean; formRevision?: string | null } = {},
 ): Promise<Uint8Array> {
   const { PDFDocument, StandardFonts } = await import("pdf-lib");
-  const response = await fetch("/forms/SF1449.pdf");
+  // Soft §9: the blank comes from the registry, by the pinned revision when
+  // the document carries one and by the current builtin when it does not.
+  const template = resolveFormTemplate("sf1449", options.formRevision ?? null);
+  const response = await fetch(template.storage_path);
   if (!response.ok) throw new Error(`The blank form did not load (${response.status}).`);
   const pdf = await PDFDocument.load(await response.arrayBuffer());
 
@@ -307,7 +323,7 @@ export async function generateOfficialSf1449Pdf(
     /* the blank carries no XFA layer */
   }
 
-  fillOfficialSF1449(form, sf1449CtxToRogerData(ctx));
+  fillOfficialSF1449(form, sf1449CtxToRogerData(ctx), template.revision);
 
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   form.updateFieldAppearances(font);
