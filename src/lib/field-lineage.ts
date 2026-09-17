@@ -21,9 +21,9 @@ export type FieldLineage = {
   status: LineageStatus;
   /** Human sentence for the tooltip. */
   tooltip: string;
-  source?: string;
-  sourceDate?: string | null;
-  scope?: FieldScope;
+  source?: string | undefined;
+  sourceDate?: string | null | undefined;
+  scope?: FieldScope | undefined;
 };
 
 const humanDate = (iso: string | null | undefined): string => {
@@ -54,10 +54,10 @@ export function findingForPath(findings: FindingMap | undefined, path: string) {
 export function resolveFieldLineage(args: {
   path: string;
   value: unknown;
-  scope?: FieldScope;
-  findings?: FindingMap;
+  scope?: FieldScope | undefined;
+  findings?: FindingMap | undefined;
   /** Soft: the value differs from a baseline, when one is known. */
-  overridden?: boolean;
+  overridden?: boolean | undefined;
 }): FieldLineage | null {
   const empty =
     args.value === null || args.value === undefined || args.value === "" || args.value === false;
