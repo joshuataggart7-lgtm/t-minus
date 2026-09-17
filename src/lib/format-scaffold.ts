@@ -15,6 +15,8 @@ import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, type PacketCdrlItem } from "@/lib/cdrl";
 import {
   PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentPlanNotes,
   type PacketPaymentMilestone,
 } from "@/lib/payment-milestones";
 
