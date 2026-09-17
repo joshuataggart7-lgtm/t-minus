@@ -184,6 +184,24 @@ export function MarketResearchEngine({
         </section>
       ) : null}
 
+      {blackoutNotices ? (
+        <NoticeGroup
+          label="Blackout notice"
+          lead="Blackout notices found in the same read-only SAM.gov search. T-Minus reads notices; it never posts one to SAM.gov. This is a local reminder only."
+          empty="No Blackout notices loaded for this NAICS and place-of-performance window."
+          notices={blackoutNotices}
+        />
+      ) : null}
+
+      {draftRfpNotices ? (
+        <NoticeGroup
+          label="Draft RFP"
+          lead="Draft RFP and draft solicitation notices found in the same read-only SAM.gov search. T-Minus reads notices; it never posts one to SAM.gov. This is a local reminder only."
+          empty="No Draft RFP notices loaded for this NAICS and place-of-performance window."
+          notices={draftRfpNotices}
+        />
+      ) : null}
+
       {findings === null || log === null ? (
         <p className="mt-4 text-[13px] text-muted-foreground">Loading</p>
       ) : (
