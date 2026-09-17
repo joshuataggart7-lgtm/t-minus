@@ -3735,10 +3735,7 @@ function FilePage() {
                     </p>
                     {clauseDeltaWithheld ? (
                       <p className="mt-2 border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
-                        Demo note: clause reconciliation for this IDIQ vehicle is not complete, so the clause delta
-                        is withheld on this file. It is not shown on screen and is not part of the walkthrough. The
-                        vehicle clause set is reconciled against the matrices before any modification is written in
-                        NCMS.
+                        {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
                       </p>
                     ) : (
                       <>
