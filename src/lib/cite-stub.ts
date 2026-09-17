@@ -22,13 +22,20 @@ export function citationHasCompanionGuide(citation: string | null | undefined): 
   return /NFS\s+CG|\bCompanion Guide\b/i.test(String(citation ?? ""));
 }
 
-/** Citation tokens in a line of prose: FAR 13.106-3, NFS 1819.202-70, 41 U.S.C. 1901. */
+/** Citation tokens in a line of prose: FAR 13.106-3, FAR Part 10, NFS 1819.202-70, 41 U.S.C. 1901. */
 export function citationTokens(citation: string | null | undefined): string[] {
   const text = String(citation ?? "");
   const out = new Set<string>();
-  for (const m of text.matchAll(/\b(?:RFO\s+)?(FAR|NFS(?:\s+CG)?)\s+(\d{1,4}(?:\.\d+)*(?:-\d+)*)/gi)) {
-    out.add(`${m[1]!.replace(/\s+/g, " ").toUpperCase()} ${m[2]!}`);
+  // "Part" is optional so that a part-level citation such as FAR Part 10,
+  // which the loaded corpus carries as its own row, is recognised too.
+  for (const m of text.matchAll(
+    /\b(?:RFO\s+)?(FAR|NFS(?:\s+CG)?)\s+(?:(Part)\s+)?(\d{1,4}(?:\.\d+)*(?:-\d+)*)/gi,
+  )) {
+    const scheme = m[1]!.replace(/\s+/g, " ").toUpperCase();
+    const part = m[2] ? "Part " : "";
+    out.add(`${scheme} ${part}${m[3]!}`);
   }
+
   for (const m of text.matchAll(/\b(\d{1,2})\s+U\.S\.C\.\s+(\d+[a-z]?)/gi)) {
     out.add(`${m[1]} U.S.C. ${m[2]}`);
   }
