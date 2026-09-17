@@ -139,7 +139,8 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
       fields: [
         field("topmostSubform.UNRESTRICTIONTED", "Unrestricted (block 10)", !setAside),
         field("topmostSubform.SETASIDE", "Set aside (block 10)", Boolean(setAside)),
-        field("topmostSubform.setasidepercent", "Set-aside basis (block 10)", setAside),
+        field("topmostSubform.SMALLBUSINESS[2]", "Small business set-aside (block 10)", totalSmallBusiness),
+        field("topmostSubform.setasidepercent", "Percent set aside (block 10)", setAsidePercent),
         field("topmostSubform.NAICS", "NAICS code (block 10)", str(a["naics_code"])),
         field(
           "topmostSubform.SIZESTANDARDS",
