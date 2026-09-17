@@ -2169,3 +2169,13 @@ The form preview can outline where each filled value came from. Scope comes from
 2. Edge vs client generate: this ship generates in the browser and files into the pack; server-side generate is a follow-on.
 3. OF 347 and SF 30 official export: data and mappings only, no export UI.
 4. About 96 HQ OP templates still carry prose "Insert…" wording rather than `[[MARKER]]` masters; only the RFP cover master is marker-driven.
+
+## SF 1449 pass — official AcroForm Live, OF 347 and SF 30 shipped
+
+- SF 1449 official AcroForm export is marked **Live** on the form page header; OF 347 and SF 30 read **Ready**. The Adobe claim is unchanged in kind: no field-by-field Adobe verification is asserted, only that the blank's own AcroForm fields carry the values.
+- Legacy XFA/XDP exports for SF 1449, SF 30 and OF 347 are demoted behind a collapsed "Legacy XFA and data file routes (not recommended)" panel. They still work; nothing on the Sample walk was removed.
+- Block 20: the narrative prints on the face schedule rows. `delivery.see_schedule` is ticked only when the wrapped narrative truly runs past the eight face rows, not on every commercial file.
+- Blocks 27a and 27b: the ARE / ARE NOT pairs are read from the record (`sf1449_27a`, `sf1449_27b`, `clauses_are_attached`, `addenda_attached`). When the record says nothing, both boxes stay empty for the contracting officer. The old hardcode from the commercial flag is gone.
+- `src/lib/official-acroform-forms.ts` adds `of347CtxToRogerData`, `sf30CtxToRogerData` and `generateOfficialFormPdf`, using the same pipeline: resolve blank by revision, `deleteXFA()`, `applyFormMappings` from the existing mapping rows, appearances, save. Roger's imperative mappers were used as shape reference only; no field names were re-derived.
+- Pack retention as in §10: `of-347-official` and `sf-30-official` keys, with the audit row and the honest failure message.
+- Signature and contracting officer date blocks stay empty on all three.

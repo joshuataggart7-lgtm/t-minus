@@ -140,11 +140,27 @@ export function faceLine(
   return { quantity: "", unit: "", unit_price: "", amount: "" };
 }
 
+/**
+ * The recorded answer to an "ARE / ARE NOT attached" pair, read from the file.
+ * Nothing is assumed: when the record says nothing, both boxes stay empty for
+ * the contracting officer rather than printing "are not attached".
+ */
+export function addendaFlag(value: unknown): boolean | null {
+  if (value === true) return true;
+  if (value === false) return false;
+  const t = str(value).toLowerCase();
+  if (!t) return null;
+  if (/^(y|yes|true|are|attached|are attached)$/.test(t)) return true;
+  if (/^(n|no|false|are not|not attached|are not attached)$/.test(t)) return false;
+  return null;
+}
+
 /** A money string read back as a number. */
 const moneyValue = (v: unknown): number => {
   const n = Number(String(v ?? "").replace(/[^0-9.-]/g, ""));
   return Number.isFinite(n) ? n : 0;
 };
+
 
 /**
  * Whether the schedule lines add up to the total the form carries. Soft: this
@@ -194,10 +210,22 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const priced = faceLine(firstClin, price, commercial);
 
   // Block 20: the short requirement title on the priced row, the narrative
-  // beneath it.
+  // beneath it. The narrative prints on the face rows so the schedule reads on
+  // page one; only what does not fit sends the reader to the continuation.
   const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  const narrativeLines = wrapLines(narrative, 52, 7);
+  const allNarrativeLines = wrapLines(narrative, 52, 64);
+  const narrativeLines = allNarrativeLines.slice(0, 7);
+  const continuesBeyondFace = allNarrativeLines.length > narrativeLines.length;
+
+  // Blocks 27a and 27b: whether addenda are attached is the officer's answer,
+  // read from the record when it carries one and left blank when it does not.
+  const addenda27a = addendaFlag(
+    a["sf1449_27a"] ?? a["clauses_are_attached"] ?? a["addenda_attached"],
+  );
+  const addenda27b = addendaFlag(a["sf1449_27b"] ?? a["addenda_attached"]);
+
+
 
   const flags = setAsideFlags(setAside);
   const partialSetAside = /partial/i.test(setAside);
@@ -250,7 +278,9 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
 
     dpas: { is_rated_order: Boolean(str(a["dpas_rating"])), rating: str(a["dpas_rating"]) },
     delivery: {
-      see_schedule: true,
+      // Ticked only when the requirement truly runs past the face rows.
+      see_schedule: continuesBeyondFace,
+
       deliver_to: { name_address: place, code: "" },
     },
     administering_office: { name_address: officeName, code: str(a["center_code"]) },
@@ -280,10 +310,11 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
       box1_1: false,
       box1_2: false,
       box1_3: false,
-      are1: false,
-      arenot1: commercial,
-      are2: false,
-      arenot2: commercial,
+      are1: addenda27a === true,
+      arenot1: addenda27a === false,
+      are2: addenda27b === true,
+      arenot2: addenda27b === false,
+
     },
 
     // Signature blocks stay empty: a person signs them.

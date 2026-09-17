@@ -17,7 +17,9 @@ import {
   sf1449CtxToRogerData,
   validateSf1449ClinReconciliation,
 } from "@/lib/official-acroform-sf1449";
+import { generateOfficialFormPdf } from "@/lib/official-acroform-forms";
 import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
+
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
@@ -515,7 +517,7 @@ function FormPage() {
       downloadPdfBytes(bytes, fileName);
       setMessage(
         `Official PDF exported on blank revision ${revision}. ` +
-          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable, and signature blocks and the award date stay empty for the contracting officer.",
       );
       const filed = await fileIntoPack({
         bytes,
@@ -527,13 +529,44 @@ function FormPage() {
       });
       setMessage(
         `Official PDF exported on blank revision ${revision}. ` +
-          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer." +
+          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable, and signature blocks and the award date stay empty for the contracting officer." +
           filed,
       );
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The form did not export.");
     }
   };
+
+  /**
+   * OF 347 and SF 30 on their official blanks, the same AcroForm route the
+   * SF 1449 takes. Signature blocks stay empty for the contracting officer.
+   */
+  const exportOfficialOther = async (formId: "of347" | "sf30") => {
+    if (!formCtx) return;
+    try {
+      const revision = pinnedRevision ?? currentFormRevision(formId);
+      const bytes = await generateOfficialFormPdf(formId, formCtx, { formRevision: revision });
+      const label = formId === "of347" ? "OF 347" : "SF 30";
+      const fileName = `${formKey}-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
+      downloadPdfBytes(bytes, fileName);
+      const base =
+        `${label} official PDF exported on blank revision ${revision}. ` +
+        "It is the official blank with the record's values written into its own fields, so Adobe Reader, Chrome and Preview all show them and the fields stay editable. Signature blocks stay empty for the contracting officer.";
+      setMessage(base);
+      const filed = await fileIntoPack({
+        bytes,
+        fileName,
+        contentType: "application/pdf",
+        key: `${formKey}-official`,
+        label: `${label} official draft`,
+        note: `Blank revision ${revision}`,
+      });
+      setMessage(base + filed);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The form did not export.");
+    }
+  };
+
 
   /** The RFP cover letter in Word, written into the NASA master. */
   const exportRfpCover = async () => {
@@ -579,6 +612,12 @@ function FormPage() {
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
         {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
+        {formTemplateId === "sf1449"
+          ? " · official PDF export: Live"
+          : formTemplateId
+            ? " · official PDF export: Ready"
+            : ""}
+
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
       <p className="mb-6 text-[15px]">
@@ -631,25 +670,41 @@ function FormPage() {
             >
               {showLineage ? "Hide where values came from" : "Show where values came from"}
             </button>
-            {formKey === "sf-1449" ? (
+            {formTemplateId ? (
               <button
                 type="button"
                 className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
                 style={{ background: "var(--primary, #0B3D91)" }}
                 title="The official blank filled so the values show in Adobe Reader, Chrome and Preview. Signatures stay empty."
-                onClick={() => void exportOfficialAcroform()}
+                onClick={() =>
+                  void (formTemplateId === "sf1449"
+                    ? exportOfficialAcroform()
+                    : exportOfficialOther(formTemplateId))
+                }
               >
                 Export official PDF (AcroForm)
               </button>
             ) : null}
-            <button
-              type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Legacy Import Data route. Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
-              onClick={() => void exportPopulated()}
-            >
-              Export form PDF{formKey === "sf-1449" ? " (legacy)" : ""}
-            </button>
+            {!formTemplateId ? (
+              <>
+                <button
+                  type="button"
+                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  title="Open in Adobe Acrobat or Reader on the desktop. Signatures stay empty."
+                  onClick={() => void exportPopulated()}
+                >
+                  Export form PDF
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  title="Open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file."
+                  onClick={exportData}
+                >
+                  Export data file for Import Data
+                </button>
+              </>
+            ) : null}
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
@@ -660,48 +715,62 @@ function FormPage() {
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Recommended route for free Adobe Reader: open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file. The blank keeps its own rights."
-              onClick={exportData}
-            >
-              Export data file for Import Data{formKey === "sf-1449" ? " (legacy)" : ""}
-            </button>
-            <button
-              type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px]"
               title="The NASA RFP cover letter master, filled from this record. A prototype draft for the contracting officer to check and sign."
               onClick={() => void exportRfpCover()}
             >
               Export RFP cover (Word)
             </button>
           </div>
+          {formTemplateId ? (
+            <details className="mb-4 max-w-[80ch] text-[13px] text-muted-foreground">
+              <summary className="cursor-pointer">Legacy XFA and data file routes (not recommended)</summary>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  onClick={() => void exportPopulated()}
+                >
+                  Export form PDF (legacy)
+                </button>
+                <button
+                  type="button"
+                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  onClick={exportData}
+                >
+                  Export data file for Import Data (legacy)
+                </button>
+              </div>
+              <p className="mt-2">
+                These two write the blank's dynamic layer instead of its fields, so they open only in
+                desktop Adobe and show a blank face elsewhere. They stay here as a fallback.
+              </p>
+            </details>
+          ) : null}
           <p className="mb-4 text-[13px] text-muted-foreground">
             Prefer the preview below in the browser; open the form PDF in Adobe desktop.
           </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-            {formKey === "sf-1449" ? (
+            {formTemplateId ? (
               <p className="mb-2">
-                Export official PDF is the first route to try. It is the official blank with its dynamic
-                layer removed and the record's values written into the form's own fields, so Adobe
-                Reader, Chrome and Preview all show them and the fields stay editable. It is still a
-                prototype export, not an Adobe-verified form, and signature blocks stay empty for the
-                contracting officer. The two exports below are the older Import Data route and stay here
-                as a fallback.
+                Export official PDF is the route to use. It is the official blank with its dynamic layer
+                removed and the record's values written into the form's own fields, so Adobe Reader,
+                Chrome and Preview all show them and the fields stay editable. Signature blocks and the
+                award date stay empty for the contracting officer.
               </p>
-            ) : null}
-            <p>
-              The recommended route in free Adobe Reader is the data file. Open the blank form from this
-              app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data, Import Data,
-              and pick the exported data file. The blank keeps its own rights, so Reader accepts it.
-            </p>
-            <p className="mt-2">
-              Export form PDF writes the official blank with its data replaced. Free Reader used to close
-              this kind of fill because the blank is rights-enabled; this build leaves those usage rights
-              off the export so Reader can open it to view and print. Signatures stay empty either way.
-            </p>
-            <p className="mt-2">
-              Chrome, Edge, and other built-in viewers often show a blank face for this kind of form. That
-              is expected, not a failed fill.
-            </p>
+            ) : (
+              <>
+                <p>
+                  The recommended route in free Adobe Reader is the data file. Open the blank form from
+                  this app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data,
+                  Import Data, and pick the exported data file. The blank keeps its own rights, so Reader
+                  accepts it.
+                </p>
+                <p className="mt-2">
+                  Chrome, Edge, and other built-in viewers often show a blank face for this kind of form.
+                  That is expected, not a failed fill.
+                </p>
+              </>
+            )}
             {formKey === "nf-1707" ? (
               <p className="mt-2">
                 NF 1707 fills from the record: the requisition header and each Intake answer the blank
@@ -713,9 +782,10 @@ function FormPage() {
             ) : null}
             <p className="mt-2">
               The flattened PDF prints every answer as text for the contract file. Signatures stay empty on
-              purpose. Field-by-field checking in Adobe has not been done in this prototype.
+              purpose.
             </p>
           </div>
+
           {message ? (
             <p role="status" className="mb-6 text-[15px]">
               {message}
