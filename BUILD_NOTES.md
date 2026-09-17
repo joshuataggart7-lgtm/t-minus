@@ -2466,3 +2466,10 @@ No residual citation bugs found in this pass.
 - NF 1098 tab 065 is display-only and gates nothing; saving the generated PNM satisfies it. No seed change.
 - CO of record on A-2027-0101 stays J. Rivera (fictional CO); the signed-in admin name is never substituted.
 - P0.3 reserved-clause note stays visible on the Sample 1 clause packet UI.
+
+## Walk QA Sample 1 — unstick
+- PNM body text carries no draft wording; the "Drafted from the record — confirm." flag is a chip beside the field only (document form, prefilled and stored values alike).
+- A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (FAR 15.403-1(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI HCH5G9HLMVZ5, prices and clock are untouched.
+- Contracting officer of record on A-2027-0101 restored to J. Rivera (fictional CO) on the file header, evaluation and PNM sign-off; the signed-in admin name is never written onto the synthetic file.
+- P0.3 reserved-clause note stays visible on the Sample 1 clause packet.
+- PNM citations unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files.
