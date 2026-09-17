@@ -118,6 +118,17 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
   return withCanonical("of347", data, { samEntity: (a as Record<string, unknown>)["sam_entity"] ?? null });
 }
 
+/**
+ * Whether the file carries more than one awardee. A multiple-award vehicle has
+ * no single contractor of record, so block 8 stays empty rather than naming one
+ * of the holders.
+ */
+export function isMultipleAward(a: Record<string, unknown>): boolean {
+  const vehicle = (a["vehicle"] ?? {}) as Record<string, unknown>;
+  const awardees = Array.isArray(vehicle["awardees"]) ? (vehicle["awardees"] as unknown[]) : [];
+  return str(vehicle["award_type"]).toLowerCase() === "multiple" || awardees.length > 1;
+}
+
 /** The record as the SF 30 mapping rows read it. */
 export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const a = ctx.acq;
@@ -125,6 +136,12 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const mod = mods.length ? mods[mods.length - 1]! : {};
   const amends = !str(a["contract_number"]);
   const kind = str(mod["mod_type"]).toLowerCase();
+  // Block 8 names a contractor only when one is recorded for this action. On a
+  // multiple-award vehicle no single holder is picked.
+  const single = !isMultipleAward(a);
+  const contractorName = single ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) : "";
+  const contractorCode = single ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) : "";
+  const contractorCage = single ? str(a["awardee_cage"]) || str(a["intended_awardee_cage"]) : "";
 
   const data: RogerFormData = {
     pagination: { page: "1", pages: "1" },
