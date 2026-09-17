@@ -11,7 +11,12 @@ import { withNf1707Answers } from "@/lib/nf1707-form";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
-import { downloadPdfBytes, generateOfficialSf1449Pdf } from "@/lib/official-acroform-sf1449";
+import {
+  downloadPdfBytes,
+  generateOfficialSf1449Pdf,
+  sf1449CtxToRogerData,
+  validateSf1449ClinReconciliation,
+} from "@/lib/official-acroform-sf1449";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
