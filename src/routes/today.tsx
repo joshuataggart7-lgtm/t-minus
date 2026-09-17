@@ -6,6 +6,7 @@ import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-dat
 import { statusColor, urgencyRank } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
+import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
