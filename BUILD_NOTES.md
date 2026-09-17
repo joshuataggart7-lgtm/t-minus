@@ -2631,3 +2631,8 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - `jofocMarkers` on the commercial FAR 12.102 / 41 U.S.C. path now prints exactly one statute (1901 or 1903) in `[[AUTHORITY_41USC_LINE]]`; `[[AUTHORITY_10USC_STEM]]`, `[[AUTHORITY_10USC_LINE]]`, and `[[AUTHORITY_OR_TOKEN]]` stay empty so applyMarkers deletes those paragraphs. Embedded FAR 6.103-1 basis text no longer implies a Title 10 path, and no dangling 10 U.S.C. 3204(a) stem can print.
 - Item 8: "prior T-Minus actions" is normalized to one label (no duplicate), and the recorded search date plus headline result count are written as prose when the record holds them.
 - Untouched: SF1449 / OF347 / SF30, Band 1 signature ladder, sample money, clocks, corpus, ORBIT.
+
+## Soft Walk — P0 generator fixes (SF1449 continuation, SF30 block 13, JOFOC Item 4)
+- SF 1449: the official back-page rows (schedule 9 to 36) are now mapped. Text that does not fit on the face prints there and the face marker reads "(continued on the schedule, block 20, page 2)". Where everything fits, no continuation marker is printed at all. Receiving report blocks 32-42 are untouched.
+- SF 30: block 13 boxes and the authority blank beside them are derived together. A recorded flag rules; a named modification type selects its own block and authority text; an unnamed type stays in 13D with the blank left empty rather than a guess.
+- JOFOC: a commercial sole source under FAR 12.102 prints exactly one statute, 41 U.S.C. 1901, with the 10 U.S.C. stem, line and "or" markers empty so those paragraphs delete.
