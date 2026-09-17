@@ -15,6 +15,7 @@ import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
+import { modAuthorityText, sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
 
 export type RogerFormData = Record<string, unknown>;
 
@@ -133,6 +134,31 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const contractorCode = single ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) : "";
   const contractorCage = single ? str(a["awardee_cage"]) || str(a["intended_awardee_cage"]) : "";
 
+  // Block 13: the recorded flags rule. Where none is recorded, the block for
+  // the recorded modification type is used, so the ticked box and the
+  // authority blank beside it always agree. A type the list does not name,
+  // and "other", stay in block 13D as recorded.
+  const recordedBlocks = ["sf30_13a", "sf30_13b", "sf30_13c", "sf30_13d"].some((k) => Boolean(mod[k]));
+  const namedType = MOD_TYPES.some((m) => m.key === str(mod["mod_type"]));
+  const byType = sf30Blocks(str(mod["mod_type"]));
+  const block13 = recordedBlocks
+    ? {
+        a: Boolean(mod["sf30_13a"]),
+        b: Boolean(mod["sf30_13b"]),
+        c: Boolean(mod["sf30_13c"]),
+        d: Boolean(mod["sf30_13d"]),
+      }
+    : namedType
+      ? { a: byType.sf30_13a, b: byType.sf30_13b, c: byType.sf30_13c, d: byType.sf30_13d }
+      : kind
+        ? { a: false, b: false, c: false, d: true }
+        : { a: false, b: false, c: false, d: false };
+  // The authority is read from the record, or derived for a named type. An
+  // unnamed type leaves the blank empty rather than printing a guess.
+  const authorityText =
+    str(mod["authority_text"]) || (namedType ? modAuthorityText(str(mod["mod_type"]), a) : "");
+
+
   const data: RogerFormData = {
     pagination: { page: "1", pages: "1" },
     modification: {
@@ -151,13 +177,16 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       offer_period_not_extended: false,
       copies: "",
       copies_returned: "",
-      item_13a: Boolean(mod["sf30_13a"]) || kind.includes("change order"),
-      item_13b: Boolean(mod["sf30_13b"]) || kind.includes("administrative"),
-      item_13c: Boolean(mod["sf30_13c"]) || kind.includes("supplemental") || kind.includes("mutual"),
-      item_13d: Boolean(mod["sf30_13d"]) || kind.includes("other"),
-      item_13a_authority: str(mod["authority_text"]),
-      item_13c_authority: str(mod["authority_text"]),
-      item_13d_authority: str(mod["authority_text"]),
+      item_13a: block13.a,
+      item_13b: block13.b,
+      item_13c: block13.c,
+      item_13d: block13.d,
+      // P0-2: the authority prints in the blank next to the box that is
+      // ticked, read from the record. Nothing is invented: where the covering
+      // clause is not on the record, the authority helper says so plainly.
+      item_13a_authority: block13.a ? authorityText : "",
+      item_13c_authority: block13.c ? authorityText : "",
+      item_13d_authority: block13.d ? authorityText : "",
       // Nothing is assumed about whether the contractor must sign.
       contractor_signature_required: false,
       contractor_signature_not_required: false,
