@@ -7,162 +7,32 @@
  * and writes the AcroForm fields instead. The result opens with its values
  * visible in Adobe Reader, Chrome and Preview.
  *
- * The field names below are the names carried by the official blank and are
- * written exactly as the blank spells them. Signature blocks and award dates
- * stay empty: they are completed by the contracting officer. This is a
- * prototype export; no field-by-field Adobe check has been done.
+ * Which box each value lands in is no longer written here: the field names
+ * live as rows in form-field-mappings, the same shape a table will carry. This
+ * file only turns the record into the values those rows read. Signature blocks
+ * and award dates stay empty: they are completed by the contracting officer.
+ * This is a prototype export; no field-by-field Adobe check has been done.
  */
 
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
+import { mappingsFor } from "@/lib/form-field-mappings";
+import {
+  applyFormMappings,
+  displayDate,
+  getPath,
+  pdfCheck,
+  pdfMoney,
+  pdfText,
+} from "@/lib/apply-form-mappings";
 
-const P = "topmostSubform[0].Page1[0].";
+export { displayDate, getPath, pdfCheck, pdfMoney, pdfText };
 
 export type RogerSf1449Data = Record<string, unknown>;
 
-/** A value on the data object, by dotted path or plain key. */
-export function getPath(data: RogerSf1449Data, path: string): unknown {
-  if (path in data) return data[path];
-  let node: unknown = data;
-  for (const part of path.split(".")) {
-    if (node === null || node === undefined || typeof node !== "object") return undefined;
-    node = (node as Record<string, unknown>)[part];
-  }
-  return node;
-}
-
-const asText = (v: unknown): string =>
-  v === null || v === undefined || typeof v === "boolean" ? "" : String(v).trim();
-
-/** Write a text field. Empty values are skipped; a missing field is ignored. */
-export function pdfText(
-  form: import("pdf-lib").PDFForm,
-  name: string,
-  value: unknown,
-  size = 8,
-): void {
-  const text = asText(value);
-  if (!text) return;
-  try {
-    const field = form.getTextField(name);
-    field.setText(text);
-    try {
-      field.setFontSize(size);
-    } catch {
-      /* the blank fixes the size on some fields */
-    }
-  } catch {
-    /* the blank does not carry this field */
-  }
-}
-
-/** Tick a check box. Only a true value writes; false leaves the box as it is. */
-export function pdfCheck(form: import("pdf-lib").PDFForm, name: string, on: unknown): void {
-  if (!on) return;
-  try {
-    form.getCheckBox(name).check();
-  } catch {
-    /* the blank does not carry this box */
-  }
-}
-
-/** A money field, written the way the form prints amounts. */
-export function pdfMoney(form: import("pdf-lib").PDFForm, name: string, value: unknown, size = 8): void {
-  if (value === null || value === undefined || value === "") return;
-  if (typeof value === "string") {
-    pdfText(form, name, value, size);
-    return;
-  }
-  const n = Number(value);
-  if (!Number.isFinite(n) || n === 0) return;
-  pdfText(form, name, n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }), size);
-}
-
-/** A recorded date as the form prints it. Empty when nothing is recorded. */
-export function displayDate(value: unknown): string {
-  const raw = asText(value);
-  if (!raw) return "";
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
-  return m ? `${m[2]}/${m[3]}/${m[1]}` : raw;
-}
-
-/**
- * The mapper. Field names are the official blank's own names and are not
- * renamed.
- */
+/** The mapper. It writes the mapping rows for this blank, nothing more. */
 export function fillOfficialSF1449(form: import("pdf-lib").PDFForm, d: RogerSf1449Data): void {
-  // Blocks 1 to 9. Solicitation and issuing office.
-  pdfText(form, `${P}reqnumber[0]`, getPath(d, "reqnumber"));
-  pdfText(form, `${P}pagenumber[0]`, getPath(d, "pagenumber"));
-  pdfText(form, `${P}contractno[0]`, getPath(d, "contractno"));
-  pdfText(form, `${P}ordernumber[0]`, getPath(d, "ordernumber"));
-  pdfText(form, `${P}solicitationnumber[0]`, getPath(d, "solicitationnumber"));
-  pdfText(form, `${P}contactname[0]`, getPath(d, "contactname"));
-  pdfText(form, `${P}contactphone[0]`, getPath(d, "contactphone"));
-  pdfText(form, `${P}issuedbycode[0]`, getPath(d, "issuedbycode"));
-  // Block 9 address box carries the office name.
-  pdfText(form, `${P}TextField1[4]`, getPath(d, "issuedbyname"));
-
-  // Block 10. Set-aside and size.
-  pdfCheck(form, `${P}UNRESTRICTIONTED[0]`, getPath(d, "unrestricted"));
-  pdfCheck(form, `${P}SETASIDE[0]`, getPath(d, "setaside"));
-  pdfText(form, `${P}setasidepercent[0]`, getPath(d, "setasidepercent"));
-  pdfCheck(form, `${P}SMALLBUSINESS[0]`, getPath(d, "smallbusiness0"));
-  pdfCheck(form, `${P}SMALLBUSINESS[1]`, getPath(d, "smallbusiness1"));
-  pdfCheck(form, `${P}SMALLBUSINESS[2]`, getPath(d, "smallbusiness2"));
-  pdfCheck(form, `${P}SERVICEDISABLED[0]`, getPath(d, "servicedisabled"));
-  pdfCheck(form, `${P}HUBZONESMALL[0]`, getPath(d, "hubzonesmall"));
-  pdfText(form, `${P}NAICS[0]`, getPath(d, "naics"));
-  pdfText(form, `${P}SIZESTANDARDS[0]`, getPath(d, "sizestandards"));
-
-  // Blocks 11 to 18. Delivery, administration and contractor.
-  pdfText(form, `${P}rating[0]`, getPath(d, "rating"));
-  pdfText(form, `${P}discountterms[0]`, getPath(d, "discountterms"));
-  pdfText(form, `${P}DeliverTo[0]`, getPath(d, "deliverto"));
-  pdfText(form, `${P}AdministeredBy[0]`, getPath(d, "administeredby"));
-  pdfText(form, `${P}AdministeredByCode[0]`, getPath(d, "administeredbycode"));
-  pdfText(form, `${P}contractoraddress[0]`, getPath(d, "contractoraddress"));
-  pdfText(form, `${P}contractorcode[0]`, getPath(d, "contractorcode"));
-  pdfText(form, `${P}contractorphone[0]`, getPath(d, "contractorphone"));
-  pdfText(form, `${P}paymentbyaddress[0]`, getPath(d, "paymentbyaddress"));
-
-  // Blocks 19 to 24. Schedule. Row one carries the priced line; the rows below
-  // carry the narrative only.
-  for (let i = 1; i <= 8; i += 1) {
-    pdfText(form, `${P}ITEMNUM${i}[0]`, getPath(d, `itemnum${i}`));
-    pdfText(form, `${P}schedule${i}[0]`, getPath(d, `schedule${i}`));
-    pdfText(form, `${P}quantity${i}[0]`, getPath(d, `quantity${i}`));
-    pdfText(form, `${P}unit${i}[0]`, getPath(d, `unit${i}`));
-    pdfMoney(form, `${P}unitprice${i}[0]`, getPath(d, `unitprice${i}`));
-    pdfMoney(form, `${P}amount${i}[0]`, getPath(d, `amount${i}`));
-  }
-
-  // Blocks 25 to 31. Accounting, award and signature blocks.
-  pdfText(form, `${P}accountingdata[0]`, getPath(d, "accountingdata"));
-  pdfMoney(form, `${P}TOTALAWARD[0]`, getPath(d, "totalaward"));
-  pdfText(form, `${P}numberofcopies[0]`, getPath(d, "numberofcopies"));
-  pdfText(form, `${P}offerreference[0]`, getPath(d, "offerreference"));
-  pdfText(form, `${P}exceptions[0]`, getPath(d, "exceptions"));
-  pdfText(form, `${P}signername[0]`, getPath(d, "signername"));
-  pdfText(form, `${P}signertitle[0]`, getPath(d, "signertitle"));
-  pdfText(form, `${P}contractingofficer[0]`, getPath(d, "contractingofficer"));
-  pdfText(form, `${P}AWARDDate[0]`, displayDate(getPath(d, "awarddate")));
-
-  // Solicitation type and addendum boxes.
-  pdfCheck(form, `${P}RFQ[0]`, getPath(d, "rfq"));
-  pdfCheck(form, `${P}RFP[0]`, getPath(d, "rfp"));
-  pdfCheck(form, `${P}FB[0]`, getPath(d, "ifb"));
-  pdfCheck(form, `${P}SEEADDENDUM[0]`, getPath(d, "seeaddendum"));
-  pdfCheck(form, `${P}SEESCHEDULE[0]`, getPath(d, "seeschedule"));
-  pdfCheck(form, `${P}THISCONTRACT[0]`, getPath(d, "thiscontract"));
-  pdfCheck(form, `${P}CheckBox1[0]`, getPath(d, "checkbox1_0"));
-  pdfCheck(form, `${P}CheckBox1[1]`, getPath(d, "checkbox1_1"));
-  pdfCheck(form, `${P}CheckBox1[2]`, getPath(d, "checkbox1_2"));
-  pdfCheck(form, `${P}CheckBox1[3]`, getPath(d, "checkbox1_3"));
-  pdfCheck(form, `${P}are1[0]`, getPath(d, "are1"));
-  pdfCheck(form, `${P}arenot1[0]`, getPath(d, "arenot1"));
-  pdfCheck(form, `${P}are2[0]`, getPath(d, "are2"));
-  pdfCheck(form, `${P}arenot2[0]`, getPath(d, "arenot2"));
+  applyFormMappings(form, mappingsFor("sf1449", "11/2021"), d);
 }
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
@@ -191,7 +61,7 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
 };
 
 /**
- * The record as the AcroForm mapper reads it. The schedule rule is the one the
+ * The record as the mapping rows read it. The schedule rule is the one the
  * generated form already follows: quantity, unit and unit price print only
  * when quantity times unit price equals the amount; a commercial firm fixed
  * price face otherwise prints as one lot at the face amount. A quantity is
@@ -227,58 +97,89 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const partialSetAside = /partial/i.test(setAside);
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
 
-  const data: RogerSf1449Data = {
-    reqnumber: str(a["pr_number"]) || str(a["acquisition_id"]),
-    pagenumber: "1",
-    contractno: str(a["contract_number"]),
-    ordernumber: str(a["order_number"]),
-    solicitationnumber: str(a["solicitation_number"]),
-    contactname: str(a["co_name"]),
-    contactphone: str(a["co_phone"]),
-    // Block 9 keeps the short code in the code box and the office name beside it.
-    issuedbycode: str(a["center_code"]),
-    issuedbyname: office,
-
-    unrestricted: !setAside,
-    setaside: Boolean(setAside),
-    smallbusiness2: totalSmallBusiness,
-    // Block 10 carries a number, never prose.
-    setasidepercent: totalSmallBusiness ? "100" : "",
-    naics: str(a["naics_code"]),
-    sizestandards: ctx.sizeStandard
-      ? ctx.sizeStandard.standardType === "employees"
-        ? `${ctx.sizeStandard.employees ?? ""} employees`
-        : dollars(ctx.sizeStandard.receiptsUsd)
-      : "",
-
-    rating: str(a["dpas_rating"]),
-    deliverto: place,
-    administeredby: office,
-    contractoraddress: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-    contractorcode: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
-    paymentbyaddress: str(a["payment_office"]),
-
-    itemnum1: "0001",
-    quantity1: multipliesOut ? String(qty) : singleLotLine ? "1" : "",
-    unit1: multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "",
-    unitprice1: multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "",
-    amount1: dollars(price || a["estimated_value"]),
-    totalaward: dollars(price),
-
-    accountingdata: str(a["funding_source"]),
-    contractingofficer: str(a["co_name"]),
-    // Signature blocks and the award date are completed by the contracting
-    // officer, so they stay empty here.
-    awarddate: "",
-    signername: "",
-    signertitle: "",
-  };
-
-  scheduleLines.forEach((line, i) => {
-    data[`schedule${i + 1}`] = line;
+  // The priced line, then the narrative rows beneath it.
+  const schedule = scheduleLines.map((line, i) => {
+    if (i > 0) return { description: line };
+    return {
+      item: "0001",
+      description: line,
+      quantity: multipliesOut ? String(qty) : singleLotLine ? "1" : "",
+      unit: multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "",
+      unit_price: multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "",
+      amount: dollars(price || a["estimated_value"]),
+    };
   });
+  if (schedule.length === 0) {
+    schedule.push({ item: "0001", amount: dollars(price || a["estimated_value"]) });
+  }
 
-  return data;
+  const method = commercial ? "rfq" : "rfp";
+  const coName = str(a["co_name"]);
+
+  return {
+    requisition: { number: str(a["pr_number"]) || str(a["acquisition_id"]) },
+    pagination: { page_of: "1" },
+    contract: {
+      number: str(a["contract_number"]),
+      order_number: str(a["order_number"]),
+    },
+    solicitation: {
+      number: str(a["solicitation_number"]),
+      contact_name: coName,
+      contact_phone: str(a["co_phone"]),
+      method,
+    },
+    issuing_office: { code: str(a["center_code"]), name: office },
+
+    set_aside: {
+      raw: setAside,
+      type: setAside,
+      unrestricted: !setAside,
+      is_set_aside: Boolean(setAside),
+      // Block 10 carries a number, never prose.
+      percent: totalSmallBusiness ? "100" : "",
+    },
+    naics: {
+      code: str(a["naics_code"]),
+      size_standard: ctx.sizeStandard
+        ? ctx.sizeStandard.standardType === "employees"
+          ? `${ctx.sizeStandard.employees ?? ""} employees`
+          : dollars(ctx.sizeStandard.receiptsUsd)
+        : "",
+    },
+
+    delivery: { rating: str(a["dpas_rating"]), deliver_to: place },
+    administration: { office, code: str(a["center_code"]) },
+    contractor: {
+      address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
+      phone: str(a["awardee_phone"]) || str(a["intended_awardee_phone"]),
+    },
+    payment: { office: str(a["payment_office"]), discount_terms: str(a["discount_terms"]) },
+
+    schedule,
+    accounting: { data: str(a["funding_source"]) },
+    award: {
+      total: dollars(price),
+      // The award date is completed by the contracting officer.
+      date: "",
+    },
+    offer: { copies: "", reference: "", exceptions: "" },
+
+    clauses: {
+      mode: commercial ? "addendum" : "schedule",
+      see_addendum: commercial,
+      see_schedule: !commercial,
+      this_contract: false,
+      are1: false,
+      arenot1: commercial,
+      are2: false,
+      arenot2: commercial,
+    },
+
+    // Signature blocks stay empty: a person signs them.
+    signer: { contracting_officer: coName, name: "", title: "" },
+  };
 }
 
 /**
