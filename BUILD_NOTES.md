@@ -2579,3 +2579,14 @@ No residual citation bugs found in this pass.
 - Exec Overview portfolio scan chips: mission/title heading, quieter tabular A-number, phase chip, existing countdownView face (T-/HOLD/FORECAST/T+ tones unchanged), optional hold reason. Dense dark console cards with cyan hover accent. No form, clock, seed, or citation changes.
 
 - Soft Walk: JOFOC Word now Roger-fills `public/forms/JOFOC_MASTER.docx` (NASA HQ cite-fixed JOFOC (7) package + Soft Walk markers) instead of building docx from scratch. One CO certification/signature block (no TR, advocate, or multi-tier lines); Prototype footer retained. PDF path unchanged; Soft Walk forms untouched.
+
+## Soft Walk #2 — ORBIT chrome + scanning (chrome only)
+Left rail: clearer meaning-mapped icons, labels always visible (icon-only only when
+the rail is collapsed), letterspaced group headings, electric-cyan active item with a
+quiet cyan wash. Chrome: layered near-black gradient on the top strip, rail and footer;
+top strip sticky. Scanning: Mission Clock band is now a deep console panel with depth;
+portfolio chips carry inner-light/elevation. Landing: dark mission entry with cyan
+primary action; "Prototype. Not an official NASA system." stays legible. Countdown
+chips: awarded-elapsed now carries a cyan AWARDED badge so T+ never reads as red
+OVERDUE. Work surfaces: page-title accent rule and a whisper of elevation only.
+No forms, exports, citations, clocks, holds or record logic touched.
