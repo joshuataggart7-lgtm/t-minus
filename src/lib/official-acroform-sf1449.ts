@@ -17,6 +17,7 @@
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { mappingsFor } from "@/lib/form-field-mappings";
+import { withCanonical } from "@/lib/canonical-adapters";
 import {
   applyFormMappings,
   displayDate,
