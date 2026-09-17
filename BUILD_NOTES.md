@@ -2447,3 +2447,8 @@ Checked against the seeded record; no code changes were needed.
    shared string and shows on this file too.
 
 No residual citation bugs found in this pass.
+
+## P0.2 / P0.4 — PNM Ref citation + export strip + demo note
+- NF 1858 memo header Ref/badge on simplified files resolves to **RFO FAR 12.204(a); FAR 13.106-3(b)(3)** — never bare FAR 15.406-3. Verified live on A-2027-0101 in demo mode (badge line reads "RFO FAR 12.204(a); FAR 13.106-3(b)(3) · Binding", no pair leak, no Part 15 citation).
+- Export stripping of "Draft, confirm." present in both `template-engine.ts` `cleanExportText` and `nf1858.ts` `memoParagraphs`; on-screen "Drafted from the record — confirm." stays UI-only.
+- demo: don't open clause delta on A-2026-0090 / IDIQ vehicle (contradictory seeded clause set).
