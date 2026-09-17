@@ -88,8 +88,8 @@ function TemplatesPage() {
 
   const rows = q.data ?? [];
   const tabs = [...new Set(rows.map((r) => r.nf_1098_tab ?? "—"))].sort((a, b) => a.localeCompare(b));
-  const live = rows.filter((r) => r.status === "live").length;
-  const next = rows.filter((r) => r.status?.startsWith("build next")).length;
+  const live = rows.filter((r) => isLiveStatus(r.status)).length;
+  const next = rows.filter((r) => (r.status ?? "").toLowerCase().startsWith("build next")).length;
 
   return (
     <AppShell>
@@ -130,8 +130,8 @@ function TemplatesPage() {
                   {rows
                     .filter((r) => (r.nf_1098_tab ?? "—") === tab)
                     .map((r) => {
-                      const key = r.status === "live" ? liveKeyFor(r.name) : null;
-                      const isDeviation = r.name === DEVIATION_TEMPLATE.name && r.status === "live";
+                      const key = isLiveStatus(r.status) ? liveKeyFor(r.name) : null;
+                      const isDeviation = r.name === DEVIATION_TEMPLATE.name && isLiveStatus(r.status);
                       return (
                         <tr key={r.template_id} className="border-b border-border last:border-0 align-top">
                           <td className="px-3 py-2">
