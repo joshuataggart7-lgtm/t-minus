@@ -97,7 +97,8 @@ const packSentences = (
     let kept = "";
     let index = 0;
     for (; index < sentences.length; index += 1) {
-      const next = kept ? `${kept} ${sentences[index]}` : sentences[index];
+      const sentence = sentences[index] ?? "";
+      const next = kept ? `${kept} ${sentence}` : sentence;
       if (limit < 1 || wrapLines(next, width, limit + 1).length > limit) break;
       kept = next;
     }
