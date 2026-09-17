@@ -463,11 +463,12 @@ function FormPage() {
 
 
   /**
-   * Soft §10: a generated draft is kept on the file, not only in the reader's
-   * Downloads folder. The bytes already downloaded are written into the
-   * evidence pack as an attachment. A pack write that fails never loses the
-   * download; it is reported as it happened. This is prototype retention, not
-   * a write-back to NCMS.
+   * Soft §10, P1-C: a generated draft is kept on the file, not only in the
+   * reader's Downloads folder. This app made the bytes, so the record written
+   * is a document row against the form's own template and the contract file
+   * index reads it as Generated, never as an upload. A pack write that fails
+   * never loses the download; it is reported as it happened. This is prototype
+   * retention, not a write-back to NCMS.
    */
   const fileIntoPack = async (input: {
     bytes: Uint8Array;
@@ -482,27 +483,16 @@ function FormPage() {
       const file = new File([input.bytes as unknown as BlobPart], input.fileName, {
         type: input.contentType,
       });
-      await uploadAttachment({
+      await fileGeneratedExport({
         acquisitionId,
+        templateId: q.data?.templateId ?? null,
         key: input.key,
         label: input.label,
         file,
         actor: who,
+        formRevision: pinnedRevision ?? null,
       });
-      try {
-        await supabase.from("audit_log").insert({
-          acquisition_id: acquisitionId,
-          actor: who,
-          action: "Official form draft filed",
-          field: input.label,
-          old_value: null,
-          new_value: input.note ?? input.fileName,
-          reason: "A generated draft was filed on the contract file for the evidence pack",
-        } as never);
-      } catch {
-        // Soft: the audit note never holds the file.
-      }
-      return " The draft is also filed on the contract file, in the evidence pack.";
+      return " The draft is also filed on the contract file as a generated document.";
     } catch (error) {
       const why = error instanceof Error ? error.message : "the pack write did not finish";
       return ` The download is on your machine, but filing it on the contract file did not finish: ${why}`;
