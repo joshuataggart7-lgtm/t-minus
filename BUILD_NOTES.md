@@ -2145,3 +2145,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
   untouched. No address is invented; an empty record stays empty.
 - OF347 and SF30 adapters are exported and data-ready; no export UI this ship.
 - Forms remain non-Live. No Adobe verification claim.
+
+
+## §8 Lineage overlay
+The form preview can outline where each filled value came from. Scope comes from the §6 mapping rows, joined by field name; a recorded research finding names its source and date when one is stored. The overlay is off by default, is preview only, and changes no exported bytes. Turning it on writes one audit row with the counts. Nothing invents a person, a date or a citation.
