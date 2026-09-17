@@ -26,6 +26,7 @@ import {
   readSectionUpload,
   sectionDiffSentence,
   type SectionDiff,
+  type SectionDiffRow,
   type SectionUpload,
 } from "@/lib/regulation-sections";
 
@@ -576,6 +577,67 @@ function DiffTable({
               </tr>
             ),
           )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The staged text difference, citation by citation. Text is not rewritten here. */
+function SectionDiffTable({
+  heading,
+  rows,
+  kind,
+}: {
+  heading: string;
+  rows: SectionDiffRow[];
+  kind: "added" | "changed" | "removed";
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <div className="mt-8">
+      <h3 className="text-[16px] font-medium">
+        {heading} ({rows.length})
+      </h3>
+      <table className="mt-3 w-full border-collapse text-[13px]">
+        <caption className="sr-only">{heading}</caption>
+        <thead>
+          <tr className="border-b border-border text-left">
+            <th scope="col" className="py-2 pr-4">
+              Citation
+            </th>
+            <th scope="col" className="py-2 pr-4">
+              Corpus
+            </th>
+            <th scope="col" className="py-2 pr-4">
+              Loaded now
+            </th>
+            <th scope="col" className="py-2">
+              In the file
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key} className="border-b border-border align-top">
+              <th scope="row" className="py-2 pr-4 text-left font-normal">
+                {r.citation}
+              </th>
+              <td className="py-2 pr-4">{r.corpus}</td>
+              <td className="py-2 pr-4">
+                {r.existing
+                  ? `${r.existing.corpus_revision} · ${r.existing.text.length} characters`
+                  : "not loaded"}
+              </td>
+              <td className="py-2">
+                {kind === "removed"
+                  ? "not in the file"
+                  : r.incoming
+                    ? `${r.incoming.corpus_revision} · ${r.incoming.text.length} characters`
+                    : "not in the file"}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
