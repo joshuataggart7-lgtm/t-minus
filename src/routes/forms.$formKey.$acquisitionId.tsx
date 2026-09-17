@@ -727,19 +727,24 @@ function FormPage() {
             </button>
           </div>
           {formTemplateId ? (
-            <details className="mb-4 max-w-[80ch] text-[13px] text-muted-foreground">
-              <summary className="cursor-pointer">Legacy XFA and data file routes (not recommended)</summary>
-              <div className="mt-3 flex flex-wrap gap-3">
+            <details className="mb-4 max-w-[80ch] text-[12px] leading-5 text-muted-foreground">
+              <summary className="cursor-pointer text-[12px]">
+                Legacy XFA and data file routes (not recommended)
+              </summary>
+              <p className="mt-2">
+                Not for the walkthrough recording: these two produce the blank-face path.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-lg border border-border px-2 py-1 text-[12px]"
                   onClick={() => void exportPopulated()}
                 >
                   Export form PDF (legacy)
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-lg border border-border px-2 py-1 text-[12px]"
                   onClick={exportData}
                 >
                   Export data file for Import Data (legacy)
