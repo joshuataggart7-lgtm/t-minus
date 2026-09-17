@@ -535,6 +535,37 @@ function FormPage() {
     }
   };
 
+  /**
+   * OF 347 and SF 30 on their official blanks, the same AcroForm route the
+   * SF 1449 takes. Signature blocks stay empty for the contracting officer.
+   */
+  const exportOfficialOther = async (formId: "of347" | "sf30") => {
+    if (!formCtx) return;
+    try {
+      const revision = pinnedRevision ?? currentFormRevision(formId);
+      const bytes = await generateOfficialFormPdf(formId, formCtx, { formRevision: revision });
+      const label = formId === "of347" ? "OF 347" : "SF 30";
+      const fileName = `${formKey}-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
+      downloadPdfBytes(bytes, fileName);
+      const base =
+        `${label} official PDF exported on blank revision ${revision}. ` +
+        "It is the official blank with the record's values written into its own fields, so Adobe Reader, Chrome and Preview all show them and the fields stay editable. Signature blocks stay empty for the contracting officer.";
+      setMessage(base);
+      const filed = await fileIntoPack({
+        bytes,
+        fileName,
+        contentType: "application/pdf",
+        key: `${formKey}-official`,
+        label: `${label} official draft`,
+        note: `Blank revision ${revision}`,
+      });
+      setMessage(base + filed);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The form did not export.");
+    }
+  };
+
+
   /** The RFP cover letter in Word, written into the NASA master. */
   const exportRfpCover = async () => {
     if (!formCtx) return;
