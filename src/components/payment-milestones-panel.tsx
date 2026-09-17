@@ -225,6 +225,8 @@ export function PaymentMilestonesPanel({
         ) : null}
       </div>
 
+      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{PAYMENT_PLAN_LABEL}</p>
+
       {rows.length === 0 ? (
         <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
           {PAYMENT_MILESTONES_EMPTY} The contracting office records a milestone when the payment
