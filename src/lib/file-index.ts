@@ -219,6 +219,8 @@ export function buildFileIndex(
   for (const d of documents) {
     const tpl = d.template_id ? tplById.get(d.template_id) : undefined;
     if (!tpl) continue;
+    // P1-6: a version retired from the file is not part of the index.
+    if ((d.field_values as { __retired?: unknown } | null | undefined)?.__retired) continue;
     // A memorandum for record is filed under the tab the contracting officer
     // picked when saving it, not under the template's own tab. A template with
     // no tab of its own is still listed, under "N/A".
