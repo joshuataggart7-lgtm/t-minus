@@ -12,9 +12,10 @@ import { useTriggerConfig } from "@/lib/use-trigger-config";
 
 import { cn } from "@/lib/utils";
 import {
-  BellRing, BookOpenCheck, BriefcaseBusiness, Building2, Calculator, ChevronDown,
-  ClipboardCheck, FileClock, FileInput, Files, Gauge, LayoutDashboard, Megaphone,
-  PanelLeft, Radio, ScrollText, SearchCheck, ShieldCheck, TriangleAlert,
+  BarChart3, BookOpenCheck, Building2, Calculator, CalendarClock, ChevronDown,
+  CircleCheckBig, ClipboardCheck, Database, FilePlus2, FolderOpen, Gauge, History,
+  Inbox, Layers, LayoutTemplate, Megaphone, Newspaper, PanelLeft, Radar, Rocket,
+  ScrollText, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
 
