@@ -129,6 +129,7 @@ export function ClausePicker({
             that once sat inside it are prescribed on their own and shown here separately. Clauses the matrices
             show as removed are not offered and cannot be applied.
           </p>
+          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{RFO_RESERVED_212_LINE}</p>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
           <table className="mt-3 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Recommended clauses, why each is included, and whether it is selected</caption>
