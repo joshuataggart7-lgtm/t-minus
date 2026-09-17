@@ -85,6 +85,9 @@
   --chrome-muted: #aeb8c7;
   --chrome-structure: #0b3d91;
   --accent-cyan: #22d3ee;
+  --chrome-elevated: #0d131d;
+  --shadow-elevate: 0 1px 1px rgba(15, 42, 91, 0.04), 0 10px 26px -18px rgba(15, 42, 91, 0.35);
+  --shadow-console: 0 24px 60px -28px rgba(4, 10, 24, 0.85);
 
   /* mission clock panel */
   --panel: #0f2a5b;
