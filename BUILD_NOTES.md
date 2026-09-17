@@ -2610,3 +2610,11 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - The JOFOC Word export now writes Item 6 as named-source sentences: System for Award Management (SAM.gov), USAspending, SBA size standards, and prior T-Minus actions under the record NAICS when present. Raw dates, counts, service errors, API labels, and endpoint tags stay out of the signed body.
 - The amount-driven signature ladder remains live-threshold based. Sample 2 at the recorded $820,000 value selects Band 1 only: L. Park technical representative and Joshua Taggart contracting officer, with other signature bands removed and signature lines blank.
 - Protected surfaces stayed locked: no SF1449/OF347/SF30/pdf-lib/packSentences/file-index changes, no sample fact/clock/citation/clause changes, no external writes, and no Clock B.
+
+## Soft Walk — SF 30 dense fill for A-2026-0090
+- SF 30 keeps the deleteXFA to pdf-lib AcroForm path on the official blank; no XFA write path, no invented field names.
+- Mapping rows aligned to the blank's own geometry: Code[0] issued by, Code[2] administered by, Code[1] contractor.
+- Block 8 stays empty on a multiple-award vehicle; no holder is named.
+- Block 14 continuation writes to page 2 only when the recorded prose runs past block 14.
+- Accounting reads a recorded funding line only; no money or accounting string is invented.
+- A "Blocks left empty, and why" list on the SF 30 form page names each honest blank.
