@@ -2098,3 +2098,26 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Forms page: secondary button "Export RFP cover (Word)". SF 1449 AcroForm export stays the primary PDF route; SF 1449/SF 30 remain non-Live and no Adobe verification is claimed.
 - Verified in-browser against A-2027-0101-shaped fields: no split markers, 0 markers left in the output, letterhead/styles/footers untouched.
 - Honest gap: the 97 HQ templates on disk carry prose "Insert …" placeholders, not `[[MARKER]]` masters. This ship proves the technique on the one genuine master only; authoring or converting markers into the remaining masters is later work.
+
+## Soft §6 — Field scope (one ship)
+
+- `FormFieldMapping` now carries optional `scope` ("organization" | "acquisition" |
+  "contract" | "transaction"). Future table column: form_field_mappings(..., scope).
+  Missing scope reads as `transaction`, so nothing inherits by accident.
+- Every row in `src/lib/form-field-mappings.json` is tagged (230 rows, 0 untagged),
+  from the supplied path→scope list; unlisted paths fall to the prefix rules
+  (issuing/administering/payment office = organization; acquisition.*, requisition.*,
+  solicitation.number/method = acquisition; contract.number/id_code, contractor.*,
+  award.total_amount = contract; everything else transaction).
+  Counts: transaction 169, acquisition 27, contract 18, organization 16.
+  SF1449 77/16/7/6, SF30 30/1/4/4, OF347 62/10/7/6 (transaction/acquisition/contract/organization).
+- `src/lib/field-scope.ts`: INHERIT_ON_NEW_DOCUMENT (acquisition + contract),
+  INHERIT_ON_NEW_ORDER (organization + acquisition + contract), scopeOf,
+  mappingsInheritable, mappingsTransactionOnly, shouldInheritPath, pathScopeTable,
+  splitPathsByInheritance, countByScope.
+- PDF fill is unchanged: applyFormMappings ignores scope. Scope is inheritance only.
+- Soft UI: `NewOrderPanel` on the acquisition file page, shown when a contract number
+  is recorded. "Start a new order from this contract" opens the plan (what copies vs
+  what starts blank, with example paths). "Record this plan" writes one audit row:
+  "Prototype: inheritance plan ready; full create follows." No acquisition is created,
+  no sample file is written, no clock or hold changes.
