@@ -1941,5 +1941,32 @@
     "record_path": "schedule.5.amount",
     "type": "money",
     "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page1[0].Date[0]",
+    "record_path": "offer.date_signed",
+    "type": "date",
+    "note": "Offeror signature date. Empty until a person signs.",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page1[0].Date[1]",
+    "record_path": "award.date_signed",
+    "type": "date",
+    "note": "Award signature date. Empty until the contracting officer signs.",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf1449",
+    "revision": "11/2021",
+    "pdf_field": "topmostSubform[0].Page1[0].Date[2]",
+    "record_path": "offer.acceptance_date",
+    "type": "date",
+    "note": "Offer acceptance date. Empty until recorded.",
+    "scope": "transaction"
   }
 ]
