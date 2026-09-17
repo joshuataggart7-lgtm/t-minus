@@ -44,12 +44,12 @@ export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
       { title: "Generated form · T-Minus" },
       {
         name: "description",
-        content: "NF 1787 and NF 1787A filled from the acquisition record, previewed and exported.",
+        content: "NF 1787, NF 1787A, SF 1449, SF 30, SF 33, SF 26 and OF 347 filled from the acquisition record, previewed and exported.",
       },
       { property: "og:title", content: "Generated form · T-Minus" },
       {
         property: "og:description",
-        content: "NF 1787 and NF 1787A filled from the acquisition record, previewed and exported.",
+        content: "NF 1787, NF 1787A, SF 1449, SF 30, SF 33, SF 26 and OF 347 filled from the acquisition record, previewed and exported.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
