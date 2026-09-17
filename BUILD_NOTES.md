@@ -2415,3 +2415,35 @@ Visual-only evolution of the navy Mission Clock band on the Executive Overview. 
 - P0.4: demo - don't open clause delta on A-2026-0090 / IDIQ vehicle
   (contradictory seeded clause set). Documented rather than re-seeded, to keep
   the Sample walk safe.
+
+## Verify chunk — Sample 1 regulatory walk (read-only, no regressions found)
+
+Checked against the seeded record; no code changes were needed.
+
+1. Companion gates on A-2027-0101 (value 1,450,000; competitive; no IT; no
+   hardware deliverable): aviation safety applies (NF 1707 Section 5.V answered
+   yes — NPR 7900.3 / NPD 7900.4E / NPR 8715.3 Ch. 7) and NF 1787 small business
+   coordination applies (value above the micro-purchase threshold), cited
+   "NFS 1819.202-70 (binding); NFS CG 1819.11, guidance". No false positives:
+   technical evaluation report reads Not applicable (not sole source above the
+   threshold), CIO / IT authorization and Section 508 read Not applicable
+   (includes_it false), NPA reads Not applicable (below $7M), ANOSCA Not
+   applicable (below $30M).
+2. Clause picker: 52.212-5 is skipped in the packet builder and the sanitizer;
+   52.212-3 has no applying rule and is skipped as well, so neither can be
+   selected. The P0.3 reserved line is visible under the picker intro and the
+   fuller RFO_RESERVED_212_NOTE disclosure (Tables 12-2 / 12-3, PCD 26-03B, reps
+   and certs in SAM under FAR 52.204-7) is available beside it.
+3. NCMS handoff and format scaffold cite NFS 1804.171 throughout; no NFS CG
+   1804.11 reference remains anywhere in the app. Price reasonableness reads
+   RFO FAR 12.204(a) (with FAR 13.106-3 where simplified procedures apply). The
+   commercial simplified phase citations use FAR 12.603 / RFO FAR 12.201-1 /
+   FAR 13.302-3; the only FAR 15.504 citation sits in the Part 15 negotiated
+   phase map and never reaches a commercial file.
+4. Sample 2 (A-2027-0102): JOFOC authority on the record reads 41 U.S.C. 1901
+   (FAR 12.102 procedures; only one responsible source under RFO FAR 6.103-1);
+   the technical evaluation report gate applies (sole source at $820,000, above
+   the simplified acquisition threshold); the P0.3 reserved note is the same
+   shared string and shows on this file too.
+
+No residual citation bugs found in this pass.
