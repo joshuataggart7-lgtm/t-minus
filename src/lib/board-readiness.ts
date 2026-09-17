@@ -17,6 +17,8 @@ export type BoardReadiness = {
   factorCount: number;
   evidenceCount: number;
   competitive: boolean;
+  /** Real receipts counted off the record. Null when the count was not read. */
+  receiptCount: number | null;
 };
 
 export function boardReadiness({
@@ -25,12 +27,14 @@ export function boardReadiness({
   m,
   factors,
   clarificationCount,
+  receiptCount = null,
 }: {
   shell: MethodShell | null | undefined;
   l: SectionLRow | null | undefined;
   m: SectionMRow | null | undefined;
   factors: FactorRow[];
   clarificationCount: number;
+  receiptCount?: number | null;
 }): BoardReadiness {
   return {
     lamp: lmConsistencyCheck({ shell, l, m, factors }),
@@ -38,8 +42,10 @@ export function boardReadiness({
     factorCount: factors.length,
     evidenceCount: factors.filter(factorHasEvidence).length,
     competitive: shell?.competitive ?? false,
+    receiptCount,
   };
 }
+
 
 export function boardReadinessItems(readiness: BoardReadiness): { label: string; value: string }[] {
   return [
