@@ -151,7 +151,9 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       number: str(mod["mod_number"]),
       effective_date: str(mod["effective_date"]),
       project_number: str(a["acquisition_id"]),
-      description: str(mod["description"]),
+      description: str(mod["description"]).slice(0, 1600),
+      // A continuation page only when the recorded prose runs past block 14.
+      description_continued: str(mod["description"]).slice(1600),
       amends_solicitation: amends,
       modifies_contract: !amends,
       offer_period_changes: false,
