@@ -33,6 +33,23 @@ const field = (path: string, label: string, value: FormValue, gap?: string) =>
 const issuedBy = (a: Record<string, unknown>): string =>
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
 
+/** Text broken into at most `rows` lines of about `width` characters. */
+const wrapLines = (text: string, width: number, rows: number): string[] => {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(/\s+/).filter(Boolean)) {
+    if (!line) line = word;
+    else if (line.length + 1 + word.length <= width) line = `${line} ${word}`;
+    else {
+      lines.push(line);
+      line = word;
+    }
+    if (lines.length === rows) break;
+  }
+  if (line && lines.length < rows) lines.push(line);
+  return lines.slice(0, rows);
+};
+
 /** SF 1449, filled from the acquisition record. */
 export function buildSf1449(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
