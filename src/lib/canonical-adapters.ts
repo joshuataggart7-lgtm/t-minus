@@ -61,10 +61,10 @@ export function partyFromSam(entity: unknown): PartyAddress {
   const e = entity as Record<string, unknown>;
   const reg = (e["entityRegistration"] ?? e) as Record<string, unknown>;
   const core = (e["coreData"] ?? {}) as Record<string, unknown>;
-  const phys = ((core["physicalAddress"] ??
+  const phys = (core["physicalAddress"] ??
     core["mailingAddress"] ??
     reg["physicalAddress"] ??
-    {}) as Record<string, unknown>) ?? {};
+    {}) as Record<string, unknown>;
   const name = str(reg["legalBusinessName"] ?? reg["legalName"] ?? e["legalBusinessName"]);
   const street = str(phys["addressLine1"] ?? phys["streetAddress"] ?? phys["street"]);
   const city = str(phys["city"] ?? phys["cityName"]);
