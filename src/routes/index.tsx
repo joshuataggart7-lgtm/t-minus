@@ -366,7 +366,7 @@ export function ExecutiveOverview() {
           <>
             {/* The one bold element: deep navy Mission Clock band, large still figures. */}
             <div className="rounded-xl bg-panel px-6 py-6 text-panel-foreground sm:px-8">
-              <PortfolioScan metrics={metrics} />
+              <PortfolioScan metrics={metrics} missions={q.data?.missions ?? []} />
               <div className="flex items-baseline justify-between gap-4">
                 <p className="text-[13px] text-panel-muted" data-numeric>
                   Across {metrics.length} acquisitions
