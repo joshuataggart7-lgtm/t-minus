@@ -2070,3 +2070,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - W5 fidelity: the shared Board snapshot now carries the record-derived method voice across cockpit and briefing, separates factor and evidence empties, keeps sole-source evaluation explicit, uses an exact uncapped record count for receipts, and omits that line when the count read fails. Advisory only; no clock, hold, phase, required-document, seed, form, or external-write behavior changed.
 
 - Wave 6 pilot harden: shared Pilot known gaps line on Today and Work queue; calm empty states on the weekly digest and reporting views (CSV download disabled when a view holds no rows). Advisory only; no seeds, clocks, forms, or external writes touched.
+- NF 1707 overlay is blank-driven: paths read from the blank's own XFA packets, Intake answers written only where the blank carries the field, Import Data companion unchanged.

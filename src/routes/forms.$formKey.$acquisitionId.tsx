@@ -6,6 +6,9 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
 import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
+import { blankXfaPaths } from "@/lib/xfa-blank-paths";
+import { withNf1707Answers } from "@/lib/nf1707-form";
+import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { daysBetween, todayISO } from "@/lib/intake";
@@ -189,7 +192,7 @@ function FormPage() {
     },
   });
 
-  const form = useMemo(() => {
+  const baseForm = useMemo(() => {
     if (!q.data?.acq || !isFormKey(formKey)) return null;
     const acq = q.data.acq;
     const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
@@ -241,6 +244,32 @@ function FormPage() {
     };
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);
+
+  /**
+   * NF 1707 is a pure XFA blank, so its paths are read from the blank's own
+   * packets rather than from an AcroForm layer. The questions are labelled
+   * from the seeded field export.
+   */
+  const nf1707Blank = useQuery({
+    queryKey: ["nf1707-blank"],
+    enabled: formKey === "nf-1707",
+    staleTime: Infinity,
+    queryFn: async () => {
+      const [paths, rows] = await Promise.all([
+        blankXfaPaths("/forms/NF1707.pdf"),
+        supabase.from("nf1707_fields").select("*"),
+      ]);
+      const labels = new Map<string, string>();
+      for (const row of (rows.data ?? []) as Nf1707Field[]) labels.set(answerKey(row), fieldLabel(row));
+      return { paths, labels };
+    },
+  });
+
+  const form = useMemo(() => {
+    if (!baseForm || formKey !== "nf-1707" || !nf1707Blank.data) return baseForm;
+    const answers = (q.data?.acq?.["nf1707_answers"] ?? {}) as Record<string, unknown>;
+    return withNf1707Answers(baseForm, answers, nf1707Blank.data.labels, nf1707Blank.data.paths);
+  }, [baseForm, formKey, nf1707Blank.data, q.data]);
 
   // The same fallback the file page uses: the forecast's anticipated award
   // date stands in when no target award date is entered.
@@ -458,7 +487,12 @@ function FormPage() {
             </p>
             {formKey === "nf-1707" ? (
               <p className="mt-2">
-                NF 1707 fills its header only; Sections 1 to 12 are answered on Intake, not on this form.
+                NF 1707 carries no widget layer, so its field paths are read from the blank itself. The
+                header and every Intake answer the blank has a field for are written; an answer with no
+                field on the blank stays on Intake rather than being placed under a guessed name.
+                Signature, concurrence and approval blocks stay blank for the Approvals step. The filled
+                preview is for a person to check the fields in desktop Reader; it is not an Adobe
+                verification, and nothing here holds a phase.
               </p>
             ) : null}
             <p className="mt-2">
