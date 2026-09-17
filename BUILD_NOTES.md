@@ -2578,7 +2578,7 @@ No residual citation bugs found in this pass.
 
 - Exec Overview portfolio scan chips: mission/title heading, quieter tabular A-number, phase chip, existing countdownView face (T-/HOLD/FORECAST/T+ tones unchanged), optional hold reason. Dense dark console cards with cyan hover accent. No form, clock, seed, or citation changes.
 
-- Soft Walk: JOFOC Word now Roger-fills `public/forms/JOFOC_MASTER.docx` (NASA HQ cite-fixed JOFOC (7) package + Soft Walk markers) instead of building docx from scratch. One CO certification/signature block (no TR, advocate, or multi-tier lines); Prototype footer retained. PDF path unchanged; Soft Walk forms untouched.
+- Soft Walk: JOFOC Word fills the NASA OP master `public/forms/JOFOC_MASTER.docx` instead of building docx from scratch. Who signs is amount-driven: `selectJofocSigBand` reads the live JOFOC approval-tier thresholds (same names as `jofocApprovalTier`, fallbacks 900,000 / 20,000,000 / 150,000,000) and prints exactly one `SIG_BAND_*` page — the three unused bands delete. Signature lines stay blank (typed name and title only, never auto-inked). Soft Walk `co_name` fills `[[CO_NAME]]` on the active band only; it does not collapse the ladder. Prototype footer retained; PDF path unchanged; Soft Walk forms untouched.
 
 ## Soft Walk #2 — ORBIT chrome + scanning (chrome only)
 Left rail: clearer meaning-mapped icons, labels always visible (icon-only only when
