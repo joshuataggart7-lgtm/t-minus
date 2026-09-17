@@ -2071,3 +2071,4 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 - Wave 6 pilot harden: shared Pilot known gaps line on Today and Work queue; calm empty states on the weekly digest and reporting views (CSV download disabled when a view holds no rows). Advisory only; no seeds, clocks, forms, or external writes touched.
 - NF 1707 overlay is blank-driven: paths read from the blank's own XFA packets, Intake answers written only where the blank carries the field, Import Data companion unchanged.
+- Copy finish: stripped engineer internals (widget layer, XFA packets, AcroForm, XFA files) from NF 1707 help, Award handoff, and Pilot known gaps copy. Reads calm to a CO; no logic, cites, or forms touched.
