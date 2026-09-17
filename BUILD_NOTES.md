@@ -2473,3 +2473,10 @@ No residual citation bugs found in this pass.
 - Contracting officer of record on A-2027-0101 restored to J. Rivera (fictional CO) on the file header, evaluation and PNM sign-off; the signed-in admin name is never written onto the synthetic file.
 - P0.3 reserved-clause note stays visible on the Sample 1 clause packet.
 - PNM citations unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files.
+
+## P0 Walk fix — exclusions, Why panel, dates
+- The nightly exclusions sweep matches by exact UEI only and never reads an entity registration response as exclusion evidence. It never writes clock_state, hold_reason, hold_owner or hold_started_at. A real exclusion record now raises a review flag on the record (scenario._exclusion_review with cause, UEI, source and time) and audits "Exclusion review flag set — CO review".
+- A clean live SAM.gov read ("No active exclusion") on the record clears that review flag automatically and audits the UEI and the time — from the live check on the file page and from the sweep itself. Neither path touches the clock.
+- Why, for an exclusion question, names cause, vendor UEI, source and the time read, with the clearing step, instead of the generic hold text.
+- Calendar formatting accepts a full timestamp as well as a date, so "Last check" shows a real date on Sample 1 and Sample 2 instead of Invalid Date.
+- Unchanged and confirmed: FAR 13.106-3(d) on the simplified unsuccessful-quoter letters with no Part 15 debriefing or Source Selection Statement, JAZ procurement office, CO email bound from the users row, the 52.212-5 Reserved note on the Sample 1 clause packet, and the withheld clause delta on A-2026-0090.
