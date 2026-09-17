@@ -153,14 +153,17 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const v = ctx.values ?? {};
   const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
   const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
+  const priorLabel = `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`;
   const sources: string[] = [];
-  uniquePush(sources, "System for Award Management (SAM.gov)");
-  uniquePush(sources, "USAspending");
-  uniquePush(sources, "SBA size standards");
-  uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
-  for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
-  if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
-  if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
+  // One label per named source; "prior T-Minus actions" is normalized so it cannot appear twice.
+  const pushSource = (raw: string) => uniquePush(sources, /^prior T-Minus actions/i.test(raw.trim()) ? priorLabel : raw);
+  pushSource("System for Award Management (SAM.gov)");
+  pushSource("USAspending");
+  pushSource("SBA size standards");
+  pushSource(priorLabel);
+  for (const line of researchLog) pushSource(sourceName(str(line.source)));
+  if (ctx.sizeStandard) pushSource("SBA size standards");
+  if (ctx.priorTminusActionCount) pushSource(priorLabel);
   if (!sources.length) {
     const fallback = humanizeMarketResearch(cleanProse(str(v["market_research"])));
     if (fallback && !/\bAPI\b|endpoint|JSON|service error|not available|\d+\s+results?\b|\d{4}-\d{2}-\d{2}/i.test(fallback)) {
