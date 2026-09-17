@@ -1484,6 +1484,7 @@ function DocumentPage() {
   const sectionBody = (s: SectionDef) =>
     methodKnown ? sectionStandingText(s, citationValues) : s.standingText;
   const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
+  const badgeTextState = useCitationTextState(badgeCite);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
