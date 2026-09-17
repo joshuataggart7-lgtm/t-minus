@@ -174,7 +174,7 @@ function FormPage() {
       const versions = templateId
         ? await supabase
             .from("documents")
-            .select("version,saved_at,saved_by")
+            .select("version,saved_at,saved_by,field_values")
             .eq("acquisition_id", acquisitionId)
             .eq("template_id", templateId)
             .order("version", { ascending: false })
@@ -185,7 +185,7 @@ function FormPage() {
       return {
         clins,
         templateId,
-        versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null }[],
+        versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null; field_values?: unknown }[],
         findings: Object.fromEntries(
           (research.data ?? []).map((f) => [
             f.target,
