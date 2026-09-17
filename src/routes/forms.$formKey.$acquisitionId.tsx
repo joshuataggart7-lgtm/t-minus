@@ -24,6 +24,7 @@ import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedul
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
+import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
 
 export const Route = createFileRoute("/forms/$formKey/$acquisitionId")({
   head: () => ({
@@ -90,6 +91,9 @@ function FormPage() {
   const { authState, user } = useRole();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
+  // Soft §8: the lineage overlay is off until the reader turns it on, so the
+  // preview reads exactly as before by default.
+  const [showLineage, setShowLineage] = useState(false);
 
   // A read receipt for this visit. Soft tracking only; a failure is silent and
   // nothing on the file is held by it.
@@ -282,6 +286,31 @@ function FormPage() {
     const answers = (q.data?.acq?.["nf1707_answers"] ?? {}) as Record<string, unknown>;
     return withNf1707Answers(baseForm, answers, nf1707Blank.data.labels, nf1707Blank.data.paths);
   }, [baseForm, formKey, nf1707Blank.data, q.data]);
+
+  /** Where each filled preview value came from. Preview only; exports unchanged. */
+  const lineage = useMemo(
+    () => (form ? lineageForFormSections(formKey, form.sections, q.data?.findings) : {}),
+    [form, formKey, q.data?.findings],
+  );
+  const lineageCounts = useMemo(() => countLineage(lineage), [lineage]);
+
+  /** One audit row when the overlay is opened. A failure is silent. */
+  const noteLineageViewed = async () => {
+    try {
+      const who = await signedInName(user.name);
+      await supabase.from("audit_log").insert({
+        acquisition_id: acquisitionId,
+        actor: who,
+        action: "Lineage overlay viewed",
+        field: formKey,
+        old_value: null,
+        new_value: `${lineageCounts.inherited} inherited, ${lineageCounts.overridden} overridden, ${lineageCounts.manual} entered for this document`,
+        reason: "Reader opened the overlay showing where the values on this form came from",
+      } as never);
+    } catch {
+      // Soft: the overlay never holds the file.
+    }
+  };
 
   // The same fallback the file page uses: the forecast's anticipated award
   // date stands in when no target award date is entered.
@@ -496,6 +525,19 @@ function FormPage() {
             >
               View filled preview
             </button>
+            <button
+              type="button"
+              aria-pressed={showLineage}
+              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              title="Outline the values on the preview that came from the shared acquisition record or from a recorded source."
+              onClick={() => {
+                const next = !showLineage;
+                setShowLineage(next);
+                if (next) void noteLineageViewed();
+              }}
+            >
+              {showLineage ? "Hide where values came from" : "Show where values came from"}
+            </button>
             {formKey === "sf-1449" ? (
               <button
                 type="button"
@@ -594,6 +636,25 @@ function FormPage() {
           >
             Export preview
           </h2>
+          {showLineage ? (
+            <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
+              <span
+                className="mr-2 inline-block rounded px-2 py-[2px]"
+                style={{ outline: "2px solid #1976d2", background: "#eaf4ff", color: "#1D1D1F" }}
+              >
+                Inherited
+              </span>
+              <span
+                className="mr-2 inline-block rounded px-2 py-[2px]"
+                style={{ outline: "2px dashed #1976d2", background: "#eaf4ff", color: "#1D1D1F" }}
+              >
+                Overridden
+              </span>
+              <span className="mr-2">Everything else was entered for this document.</span>
+              {lineageCounts.inherited} inherited, {lineageCounts.overridden} overridden,{" "}
+              {lineageCounts.manual} entered here. Hover a value to read where it came from.
+            </p>
+          ) : null}
           {form.sections.map((section) => (
             <section key={section.title} className="mb-6 max-w-[80ch] border border-border bg-background p-4">
               <h3 className="text-[18px] leading-6 font-medium">{section.title}</h3>
@@ -604,7 +665,22 @@ function FormPage() {
                 {section.fields.map((field) => (
                   <div key={field.path} className="mb-2 grid grid-cols-[1fr_1.4fr] gap-3 text-[15px]">
                     <dt className="text-muted-foreground">{field.label}</dt>
-                    <dd className="tabular-nums">
+                    <dd
+                      className="tabular-nums"
+                      title={showLineage ? lineage[field.path]?.tooltip : undefined}
+                      style={
+                        showLineage &&
+                        lineage[field.path] &&
+                        lineage[field.path]?.status !== "manual"
+                          ? {
+                              outline: `2px ${lineage[field.path]?.status === "overridden" ? "dashed" : "solid"} #1976d2`,
+                              background: "#eaf4ff",
+                              borderRadius: 4,
+                              padding: "0 4px",
+                            }
+                          : undefined
+                      }
+                    >
                       {typeof field.value === "boolean"
                         ? field.value
                           ? "Checked"
