@@ -76,27 +76,23 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   // single lot at the face amount when no single CLIN line multiplies out; how
   // the work is measured stays in the block 20 narrative. The number of IGCE
   // estimate rows behind the file does not change the face line.
-  const qty = firstClin?.quantity ?? null;
-  const unitPrice = firstClin?.unitPrice ?? null;
-  const multipliesOut =
-    qty !== null && unitPrice !== null && price > 0 && Math.abs(qty * unitPrice - price) < 0.5;
-  const singleLotLine = !multipliesOut && commercial && price > 0;
-  const lineQuantity = multipliesOut ? String(qty) : singleLotLine ? "1" : "";
-  const lineUnit = multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "";
-  const lineUnitPrice = multipliesOut ? dollars(unitPrice) : singleLotLine ? dollars(price) : "";
-  // Block 20 carries the requirement description and the period of
-  // performance. The CLIN description is not appended when the requirement
-  // description already carries the narrative.
+  const priced = faceLine(firstClin, price, commercial);
+  const lineQuantity = priced.quantity;
+  const lineUnit = priced.unit;
+  const lineUnitPrice = priced.unit_price;
+  const lineAmount = priced.amount;
+  // Block 20 carries the short requirement title on the priced row and the
+  // narrative beneath it.
+  const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  // Each schedule row on the blank is one line, so the narrative is wrapped
-  // across the rows the blank carries.
-  const scheduleLines = wrapLines(narrative, 52, 8);
+  const scheduleLines = [wrapLines(title, 52, 1)[0] ?? "", ...wrapLines(narrative, 52, 7)];
 
   // Block 10 carries a number, not prose. A total small business set-aside is
   // the whole requirement.
   const partialSetAside = /partial/i.test(setAside);
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
   const setAsidePercent = totalSmallBusiness ? "100" : "";
+  const saFlags = setAsideFlags(setAside);
 
   const sections: FormSection[] = [
     {
