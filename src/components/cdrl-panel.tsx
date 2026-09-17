@@ -7,6 +7,10 @@ import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
 import {
   CDRL_EMPTY,
+  CDRL_LABEL,
+  cdrlForPacket,
+  cdrlMethodNote,
+  cdrlPackNotes,
   cdrlText,
   createCdrl,
   deleteCdrl,
@@ -64,11 +68,14 @@ export function CdrlPanel({
   canWrite,
   actor,
   onBanner,
+  facts,
 }: {
   acquisitionId: string;
   canWrite: boolean;
   actor: string;
   onBanner: (s: string) => void;
+  /** The record, read only for the muted method-aware line. */
+  facts?: Record<string, unknown> | null;
 }) {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -82,6 +89,9 @@ export function CdrlPanel({
     queryFn: () => loadCdrl(acquisitionId),
   });
   const rows = q.data ?? [];
+  // Advisory only: these notes never hold a phase or block an exit.
+  const packNotes = cdrlPackNotes(cdrlForPacket(rows));
+  const methodNote = cdrlMethodNote(facts ?? null);
 
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ["cdrl", acquisitionId] });
