@@ -212,7 +212,7 @@ function FormPage() {
             },
           ]),
         ) as FindingMap,
-        acq: row ? { ...row, modifications: (mods.data ?? []) } : row,
+        acq: (row ? { ...row, modifications: mods.data ?? [] } : row) as Record<string, unknown> | null,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
         size: (size.data ?? null) as Record<string, unknown> | null,
