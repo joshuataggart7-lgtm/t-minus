@@ -270,7 +270,9 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
 
     dpas: { is_rated_order: Boolean(str(a["dpas_rating"])), rating: str(a["dpas_rating"]) },
     delivery: {
-      see_schedule: true,
+      // Ticked only when the requirement truly runs past the face rows.
+      see_schedule: continuesBeyondFace,
+
       deliver_to: { name_address: place, code: "" },
     },
     administering_office: { name_address: officeName, code: str(a["center_code"]) },
