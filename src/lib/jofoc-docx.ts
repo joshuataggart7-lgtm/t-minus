@@ -288,13 +288,11 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    // Commercial sole source under FAR 12.102 prints one statute only:
-    // 41 U.S.C. 1901. Never both statutes, and never a 10 U.S.C. stem.
-    const commercial12102 = /FAR\s*12\.102/i.test(authority);
-    const statuteNumber =
-      !commercial12102 && /41\s*U\.?\s*S\.?\s*C\.?\s*1903/i.test(authority) ? "1903" : "1901";
+    // Commercial sole source prints exactly one statute — whichever the record
+    // carries (1901 or 1903). Never both statutes, and never a 10 U.S.C. stem.
+    const statuteNumber = /41\s*U\.?\s*S\.?\s*C\.?\s*1903/i.test(authority) ? "1903" : "1901";
     const remainder = authority
-      .replace(/41\s*U\.?\s*S\.?\s*C\.?\s*190[13](\s*(?:or|and|\/)\s*190[13])?/gi, "")
+      .replace(/41\s*U\.?\s*S\.?\s*C\.?\s*190[13](\s*(?:or|and|\/)\s*(?:41\s*U\.?\s*S\.?\s*C\.?\s*)?190[13])?/gi, "")
       .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")
       .replace(/^[\s,;:.-]+/, "")
       .trim();
