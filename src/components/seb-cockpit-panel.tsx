@@ -19,6 +19,8 @@ import {
   type ClarificationRow,
 } from "@/lib/clarifications";
 import { LM_LAMP_LABEL, LM_LAMP_OK } from "@/lib/lm-consistency";
+import { loadReadReceipts, READ_RECEIPTS_CHIP } from "@/lib/read-receipts";
+
 import {
   FACTOR_EVIDENCE_ADVISORY,
   factorHasEvidence,
@@ -70,6 +72,13 @@ export function SebCockpitPanel({
     enabled: Boolean(acquisitionId),
     queryFn: () => loadClarifications(acquisitionId),
   });
+  // Receipts are only counted, never invented: a failed read leaves the line off.
+  const receiptsQ = useQuery({
+    queryKey: ["read-receipts", acquisitionId],
+    enabled: Boolean(acquisitionId),
+    queryFn: () => loadReadReceipts(acquisitionId),
+  });
+
 
   const [draft, setDraft] = useState<ClarificationDraft>(emptyClarification);
   const [adding, setAdding] = useState(false);
@@ -87,7 +96,9 @@ export function SebCockpitPanel({
     m: mQ.data ?? null,
     factors,
     clarificationCount: clarifications.length,
+    receiptCount: receiptsQ.data ? receiptsQ.data.length : null,
   });
+
   const lamp = readiness.lamp;
 
   const addClarification = useMutation({
@@ -477,6 +488,18 @@ export function SebCockpitPanel({
           The evidence map is advisory and does not hold the file, a phase or a document.
         </p>
       </section>
+
+      {/* 4 — pointer to the read receipts that sit directly below on the Board path. */}
+      <section className="mt-4 border-t border-border pt-4">
+        <h5 className="text-[15px] font-medium">Read receipts</h5>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          {receiptsQ.data && receiptsQ.data.length > 0
+            ? `${receiptsQ.data.length} recorded. Who opened what is listed in the read receipts just below.`
+            : "None yet. Opens are listed in the read receipts just below as people read documents on this file."}{" "}
+          {READ_RECEIPTS_CHIP}
+        </p>
+      </section>
+
     </div>
   );
 }
