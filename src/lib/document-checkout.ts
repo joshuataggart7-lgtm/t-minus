@@ -19,6 +19,23 @@ export function isExpired(checkedOutAt: string) {
   return Date.now() - new Date(checkedOutAt).getTime() > CHECKOUT_MINUTES * 60_000;
 }
 
+/**
+ * Two display names that read as the same person. Case, punctuation and extra
+ * spacing are ignored, so "Joshua Taggart" and "joshua  taggart" match. Two
+ * genuinely different names never match.
+ */
+export function samePersonName(a: string | null | undefined, b: string | null | undefined) {
+  const norm = (v: string | null | undefined) =>
+    String(v ?? "")
+      .toLowerCase()
+      .replace(/[.,'`’-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const left = norm(a);
+  return Boolean(left) && left === norm(b);
+}
+
+
 /** Short local time for the label, e.g. "9:14 a.m." */
 export function checkoutTime(iso: string) {
   const d = new Date(iso);
