@@ -398,6 +398,16 @@ function FormPage() {
   const exportOfficialAcroform = async () => {
     if (!formCtx) return;
     try {
+      // The schedule is checked against the total before anything is written.
+      // A draft may still be needed, so the reader is asked rather than stopped.
+      const check = validateSf1449ClinReconciliation(sf1449CtxToRogerData(formCtx));
+      if (!check.ok) {
+        const goOn = window.confirm(`${check.message}\n\nGenerate the draft anyway?`);
+        if (!goOn) {
+          setMessage(`${check.message} Nothing was exported.`);
+          return;
+        }
+      }
       const bytes = await generateOfficialSf1449Pdf(formCtx);
       downloadPdfBytes(bytes, `sf-1449-${acquisitionId}-official.pdf`);
       setMessage(
