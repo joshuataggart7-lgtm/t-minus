@@ -364,6 +364,7 @@ function TodayPage() {
           </Section>
         </div>
       )}
+      <PilotKnownGapsLine className="mt-10" />
     </AppShell>
   );
 }
