@@ -6,7 +6,7 @@
 export const PILOT_KNOWN_GAPS: { title: string; body: string }[] = [
   {
     title: "Official form field checks are done by a person",
-    body: "Filled previews and PDF exports are for a human field check in desktop Adobe Acrobat Reader. A blank form in Chrome or PDF.js is expected for XFA files. Nothing here is an Adobe verification.",
+    body: "Filled previews and PDF exports are for a human field check in desktop Adobe Acrobat Reader. A blank form in Chrome or PDF.js is expected for this kind of form. Nothing here is an Adobe verification.",
   },
   {
     title: "No write-back to NCMS",
