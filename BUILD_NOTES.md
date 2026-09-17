@@ -2511,3 +2511,25 @@ No residual citation bugs found in this pass.
 - A-2027-0101 comparables: the recorded check (16 Sep 2026 14:34 UTC) carries five
   T-Minus prior actions, labelled "from T-Minus prior actions — live feed
   unavailable". The PNM paragraph reports them; nothing invented.
+
+## PCD adoption deepening + Blackout / Draft RFP notice groups
+
+- `src/lib/pcd-adoption.ts`: added `PCD_MATRIX_BASELINE` (read from `about.ts`
+  `SEED_SOURCES` — NFS interim rule Jul 23 2026, PCD 26-03B clause matrix,
+  NFS applicability matrix; no new date invented), `PCD_BASELINE_VS_FILE_NOTE`
+  distinguishing the policy issuance date from the file's
+  `regulatory_baseline_date`, and `COMPANION_GUIDE_TIER_NOTE` which states the
+  Companion Guide is process guidance, never binding, and reuses
+  `NFS_CG_NOT_LOADED_NOTE`.
+- `deviationStatusLine` now reports open/pending/blank status as "still open —
+  no decision is recorded". No votes counted, no board outcome inferred. Empty
+  case still reads "No deviation request is on this file."
+- `src/components/pcd-adoption-panel.tsx`: shows the matrix baseline rows plus
+  both notes alongside the file baseline date. Advisory; no holds.
+- `src/lib/market-research.functions.ts`: `blackoutNotices` and
+  `draftRfpNotices` filtered out of the same read-only SAM.gov notice search.
+- `src/components/market-research-engine.tsx`: shared `NoticeGroup` renders
+  Sources Sought, Blackout notice and Draft RFP groups, each with the honest
+  empty state "No Blackout / Draft RFP notices loaded for this ... window" and
+  the reminder that T-Minus never posts to SAM.gov. Soft advisory only.
+- No seed rewrites (0101/0102/0103), no clock or hold changes.
