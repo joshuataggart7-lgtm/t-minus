@@ -204,8 +204,10 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.amount1",
           "Amount (block 24)",
-          dollars(price || a["estimated_value"]),
-          price ? undefined : "Estimated value shown; the award amount replaces it at award.",
+          lineAmount,
+          lineAmount
+            ? undefined
+            : "The priced columns stay blank: the recorded line does not reconcile to the amount.",
         ),
         // The narrative continues on the rows below. Those rows carry text
         // only; the priced line is line one.
