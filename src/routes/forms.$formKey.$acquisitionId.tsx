@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { mappingsFor } from "@/lib/form-field-mappings";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -185,7 +186,15 @@ function FormPage() {
       // The schedule on the file. Seeded once from the estimate when the file
       // has one and no schedule yet; figures are never invented.
       const clins = await ensureClinScheduleFromIgce(acquisitionId);
+      // P0-2: the modifications recorded on this file, so the SF 30 reads its
+      // own mod number. No modification is invented when the table is empty.
+      const mods = await supabase
+        .from("contract_modifications")
+        .select("mod_number,mod_type,authority_text,description,sf30_13a,sf30_13b,sf30_13c,sf30_13d,created_at")
+        .eq("acquisition_id", acquisitionId)
+        .order("created_at", { ascending: true });
       return {
+        modifications: (mods.data ?? []) as Record<string, unknown>[],
         clins,
         templateId,
         versions: (versions.data ?? []) as { version: number | null; saved_at: string | null; saved_by: string | null; field_values?: unknown }[],
@@ -203,7 +212,7 @@ function FormPage() {
             },
           ]),
         ) as FindingMap,
-        acq: row,
+        acq: (row ? { ...row, modifications: mods.data ?? [] } : row) as Record<string, unknown> | null,
         missionName: (mission.data as { name?: string } | null)?.name ?? missionId,
         evidence: evidence.data ?? null,
         size: (size.data ?? null) as Record<string, unknown> | null,
@@ -346,6 +355,12 @@ function FormPage() {
   const pinnedRevision = formTemplateId
     ? pinnedRevisionFrom(latest?.field_values) ?? currentFormRevision(formTemplateId)
     : null;
+  // P0-4/P0-1: a blank with no mapping rows would export empty, so it reads
+  // Planned rather than Ready.
+  const officialExportStatus =
+    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0
+      ? "Ready"
+      : "Planned";
 
   const save = useMutation({
     mutationFn: async () => {
@@ -615,7 +630,7 @@ function FormPage() {
         {formTemplateId === "sf1449"
           ? " · official PDF export: Live"
           : formTemplateId
-            ? " · official PDF export: Ready"
+            ? ` · official PDF export: ${officialExportStatus}`
             : ""}
 
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}

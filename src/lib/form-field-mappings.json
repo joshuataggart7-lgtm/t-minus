@@ -903,7 +903,7 @@
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].AmendmentNo[0]",
-    "record_path": "modification.amendment_number",
+    "record_path": "modification.number",
     "type": "text",
     "scope": "transaction"
   },
@@ -911,7 +911,7 @@
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].AmendmentNo[1]",
-    "record_path": "modification.amendment_number",
+    "record_path": "solicitation.number",
     "type": "text",
     "scope": "transaction"
   },
@@ -919,7 +919,7 @@
     "form_id": "sf30",
     "revision": "11/2016",
     "pdf_field": "topmostSubform[0].Page1[0].ModificationNo[0]",
-    "record_path": "modification.number",
+    "record_path": "contract.number",
     "type": "text",
     "scope": "transaction"
   },
@@ -1234,7 +1234,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].PAGE[0]",
     "record_path": "pagination.page",
     "type": "text",
@@ -1242,7 +1242,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].OFPAGE[0]",
     "record_path": "pagination.pages",
     "type": "text",
@@ -1250,7 +1250,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].TOTALPAGES[0]",
     "record_path": "pagination.total_pages",
     "type": "text",
@@ -1258,7 +1258,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ORDERDATE[0]",
     "record_path": "order.date",
     "type": "date",
@@ -1266,7 +1266,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CONTRACTNO[0]",
     "record_path": "contract.number",
     "type": "text",
@@ -1274,7 +1274,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ORDERNO[0]",
     "record_path": "order.number",
     "type": "text",
@@ -1282,7 +1282,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].REQUISITION[0]",
     "record_path": "requisition.number",
     "type": "text",
@@ -1290,7 +1290,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].REGUISIT[0]",
     "record_path": "requisition.reference",
     "type": "text",
@@ -1298,7 +1298,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].REF[0]",
     "record_path": "order.reference",
     "type": "text",
@@ -1306,7 +1306,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ISSUEADDRESS[0]",
     "record_path": "issuing_office.name_address",
     "type": "text",
@@ -1316,23 +1316,23 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CONTRACTNAME[0]",
-    "record_path": "solicitation.contact.name",
+    "record_path": "contractor.name",
     "type": "text",
     "scope": "transaction"
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].COMPANYNAME[0]",
-    "record_path": "contractor.name",
+    "record_path": "contractor.company_name",
     "type": "text",
     "scope": "contract"
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STREET[0]",
     "record_path": "contractor.street",
     "type": "text",
@@ -1340,7 +1340,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CITY[0]",
     "record_path": "contractor.city",
     "type": "text",
@@ -1348,7 +1348,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STATE[0]",
     "record_path": "contractor.state",
     "type": "text",
@@ -1356,7 +1356,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ZIPCODE[0]",
     "record_path": "contractor.zip",
     "type": "text",
@@ -1364,7 +1364,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ACCOUNT[0]",
     "record_path": "accounting.data",
     "type": "text",
@@ -1373,7 +1373,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CONSIGNEENAME[0]",
     "record_path": "delivery.consignee.name",
     "type": "text",
@@ -1381,7 +1381,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STREETADDRESS[0]",
     "record_path": "delivery.consignee.street",
     "type": "text",
@@ -1389,7 +1389,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CITY[1]",
     "record_path": "delivery.consignee.city",
     "type": "text",
@@ -1397,7 +1397,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STATE2[0]",
     "record_path": "delivery.consignee.state",
     "type": "text",
@@ -1405,7 +1405,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ZIPCODE2[0]",
     "record_path": "delivery.consignee.zip",
     "type": "text",
@@ -1413,7 +1413,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SHIPVIA[0]",
     "record_path": "delivery.ship_via",
     "type": "text",
@@ -1421,7 +1421,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].FOB[0]",
     "record_path": "delivery.fob",
     "type": "text",
@@ -1429,7 +1429,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].DELIVERDATE[0]",
     "record_path": "delivery.deliver_by",
     "type": "date",
@@ -1437,7 +1437,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].INSPECT[0]",
     "record_path": "delivery.inspection_point",
     "type": "text",
@@ -1445,7 +1445,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ACCEPT[0]",
     "record_path": "delivery.acceptance_point",
     "type": "text",
@@ -1453,7 +1453,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].GOVT[0]",
     "record_path": "delivery.government_bl",
     "type": "text",
@@ -1461,7 +1461,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].DISCOUNT[0]",
     "record_path": "offer.discount_terms",
     "type": "text",
@@ -1469,7 +1469,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SHIPPING[0]",
     "record_path": "payment.shipping_point",
     "type": "text",
@@ -1477,7 +1477,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].INVOICE[0]",
     "record_path": "payment.invoice_to",
     "type": "text",
@@ -1486,7 +1486,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].NAME21A[0]",
     "record_path": "payment.office.name",
     "type": "text",
@@ -1494,7 +1494,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STREET21B[0]",
     "record_path": "payment.office.street",
     "type": "text",
@@ -1502,7 +1502,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].CITY21C[0]",
     "record_path": "payment.office.city",
     "type": "text",
@@ -1510,7 +1510,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].STATE21D[0]",
     "record_path": "payment.office.state",
     "type": "text",
@@ -1518,7 +1518,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ZIPCODE[1]",
     "record_path": "payment.office.zip",
     "type": "text",
@@ -1526,7 +1526,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].GROSS[0]",
     "record_path": "award.gross_amount",
     "type": "money",
@@ -1534,7 +1534,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].GRANDTOTAL[0]",
     "record_path": "award.total_amount",
     "type": "money",
@@ -1542,7 +1542,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].NAME3[0]",
     "record_path": "signer.contracting_officer",
     "type": "text",
@@ -1550,7 +1550,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].PURCHASE[0]",
     "record_path": "order.kind",
     "type": "check",
@@ -1560,7 +1560,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].DELIVERY[0]",
     "record_path": "order.kind",
     "type": "check",
@@ -1570,7 +1570,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SMALL[0]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1580,7 +1580,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].WOMEN[0]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1590,7 +1590,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].WOMEN[1]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1600,7 +1600,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].HUBZONE[0]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1610,7 +1610,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].DISADVANTAGE[0]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1620,7 +1620,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].DISADVANTAGE[1]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1630,7 +1630,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SERVICE[0]",
     "record_path": "acquisition.set_aside_program",
     "type": "check",
@@ -1640,7 +1640,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].OTHERTHAN[0]",
     "record_path": "acquisition.restriction",
     "type": "check",
@@ -1650,7 +1650,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO1[0]",
     "record_path": "schedule.0.item_number",
     "type": "text",
@@ -1658,7 +1658,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES1[0]",
     "record_path": "schedule.0.description",
     "type": "text",
@@ -1667,7 +1667,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY1[0]",
     "record_path": "schedule.0.quantity",
     "type": "text",
@@ -1675,7 +1675,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT1[0]",
     "record_path": "schedule.0.unit",
     "type": "text",
@@ -1683,7 +1683,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE1[0]",
     "record_path": "schedule.0.unit_price",
     "type": "money",
@@ -1691,7 +1691,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT1[0]",
     "record_path": "schedule.0.amount",
     "type": "money",
@@ -1699,7 +1699,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO2[0]",
     "record_path": "schedule.1.item_number",
     "type": "text",
@@ -1707,7 +1707,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES2[0]",
     "record_path": "schedule.1.description",
     "type": "text",
@@ -1716,7 +1716,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY2[0]",
     "record_path": "schedule.1.quantity",
     "type": "text",
@@ -1724,7 +1724,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT2[0]",
     "record_path": "schedule.1.unit",
     "type": "text",
@@ -1732,7 +1732,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE2[0]",
     "record_path": "schedule.1.unit_price",
     "type": "money",
@@ -1740,7 +1740,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT2[0]",
     "record_path": "schedule.1.amount",
     "type": "money",
@@ -1748,7 +1748,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO3[0]",
     "record_path": "schedule.2.item_number",
     "type": "text",
@@ -1756,7 +1756,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES3[0]",
     "record_path": "schedule.2.description",
     "type": "text",
@@ -1765,7 +1765,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY3[0]",
     "record_path": "schedule.2.quantity",
     "type": "text",
@@ -1773,7 +1773,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT3[0]",
     "record_path": "schedule.2.unit",
     "type": "text",
@@ -1781,7 +1781,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE3[0]",
     "record_path": "schedule.2.unit_price",
     "type": "money",
@@ -1789,7 +1789,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT3[0]",
     "record_path": "schedule.2.amount",
     "type": "money",
@@ -1797,7 +1797,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO4[0]",
     "record_path": "schedule.3.item_number",
     "type": "text",
@@ -1805,7 +1805,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES4[0]",
     "record_path": "schedule.3.description",
     "type": "text",
@@ -1814,7 +1814,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY4[0]",
     "record_path": "schedule.3.quantity",
     "type": "text",
@@ -1822,7 +1822,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT4[0]",
     "record_path": "schedule.3.unit",
     "type": "text",
@@ -1830,7 +1830,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE4[0]",
     "record_path": "schedule.3.unit_price",
     "type": "money",
@@ -1838,7 +1838,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT4[0]",
     "record_path": "schedule.3.amount",
     "type": "money",
@@ -1846,7 +1846,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO5[0]",
     "record_path": "schedule.4.item_number",
     "type": "text",
@@ -1854,7 +1854,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES5[0]",
     "record_path": "schedule.4.description",
     "type": "text",
@@ -1863,7 +1863,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY5[0]",
     "record_path": "schedule.4.quantity",
     "type": "text",
@@ -1871,7 +1871,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT5[0]",
     "record_path": "schedule.4.unit",
     "type": "text",
@@ -1879,7 +1879,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE5[0]",
     "record_path": "schedule.4.unit_price",
     "type": "money",
@@ -1887,7 +1887,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT5[0]",
     "record_path": "schedule.4.amount",
     "type": "money",
@@ -1895,7 +1895,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].ITEMNO6[0]",
     "record_path": "schedule.5.item_number",
     "type": "text",
@@ -1903,7 +1903,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].SUPPLIES6[0]",
     "record_path": "schedule.5.description",
     "type": "text",
@@ -1912,7 +1912,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].QUANTITY6[0]",
     "record_path": "schedule.5.quantity",
     "type": "text",
@@ -1920,7 +1920,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNIT6[0]",
     "record_path": "schedule.5.unit",
     "type": "text",
@@ -1928,7 +1928,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].UNITPRICE6[0]",
     "record_path": "schedule.5.unit_price",
     "type": "money",
@@ -1936,7 +1936,7 @@
   },
   {
     "form_id": "of347",
-    "revision": "04/2006",
+    "revision": "02/2012",
     "pdf_field": "F[0].P1[0].AMOUNT6[0]",
     "record_path": "schedule.5.amount",
     "type": "money",
