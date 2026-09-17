@@ -2654,3 +2654,9 @@ effective date, keyboard focus on open and Escape to close. Nova makes no record
 existing cite-or-refuse server behavior. Placed in the app-shell header, document and form action areas,
 and beside acquisition-file hold/document rows. Orby untouched. Soft Walk forms (OF347, SF30, market
 research memo, SF1449 schedule packSentences) and the regulatory corpus untouched.
+
+## Soft Walk P0 — JOFOC Item 4 single authority
+- Commercial sole source (41 U.S.C. 1901/1903 or FAR 12.102 face) prints exactly one statute, taken from the record: 1903 when the record cites 1903, otherwise 1901. The FAR 12.102 override that forced 1901 is gone.
+- An embedded FAR 6.103-n basis mention inside a 41 U.S.C./12.102 authority no longer selects the Title 10 path; AUTHORITY_10USC_STEM, AUTHORITY_10USC_LINE and AUTHORITY_OR_TOKEN stay empty so applyMarkers deletes those paragraphs.
+- Item 8 prose keeps one "prior T-Minus actions" label and states the search date and headline result count in a sentence.
+- No letterhead, no word/media, no headers on the JOFOC master. SF1449, OF347, SF30 and corpus untouched.
