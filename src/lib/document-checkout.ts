@@ -102,19 +102,16 @@ export async function claimCheckout(args: {
   if (existing.error) throw new Error(existing.error.message);
 
   const row = existing.data as Checkout | null;
+  // The same account already holds it: nothing changes.
   if (row && row.user_id === userId) return row;
-  // P0-3: the same person signed in again, under a second account row with the
-  // same display name, is not a second person. They keep their own document.
-  if (row && !isExpired(row.checked_out_at) && sameperson(row.user_name, userName)) {
-    await supabase
-      .from("document_checkouts")
-      .update({ released_at: new Date().toISOString() })
-      .eq("checkout_id", row.checkout_id);
-  } else if (row && !isExpired(row.checked_out_at)) {
-    return row;
-  }
+
   if (row) {
-    // Thirty minutes passed; the check-out lapses and the document is free.
+    const lapsed = isExpired(row.checked_out_at);
+    // P0-3: the same person signed in again, under a different account row
+    // with the same display name, is not a second person. They take their own
+    // document back rather than being locked out of it.
+    const samePerson = samePersonName(row.user_name, userName);
+    if (!lapsed && !samePerson) return row;
     await supabase
       .from("document_checkouts")
       .update({ released_at: new Date().toISOString() })
@@ -122,11 +119,13 @@ export async function claimCheckout(args: {
     await logCheckout(
       args.acquisitionId,
       args.phase,
-      row.user_name,
+      lapsed ? row.user_name : userName,
       "Document check-out released",
       args.documentName,
-      `Check-out by ${row.user_name} lapsed`,
-      `No save within ${CHECKOUT_MINUTES} minutes`,
+      lapsed ? `Check-out by ${row.user_name} lapsed` : `Check-out by ${row.user_name} taken back`,
+      lapsed
+        ? `No save within ${CHECKOUT_MINUTES} minutes`
+        : "Same person opened the document in another session",
     );
   }
 
