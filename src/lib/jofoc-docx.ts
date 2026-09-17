@@ -288,7 +288,14 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    authority41Line = authority || "41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)";
+    // Commercial 41 U.S.C. path prints exactly one statute: 1901 or 1903, never both, never a 10 U.S.C. stem.
+    const statuteNumber = /41\s*U\.?\s*S\.?\s*C\.?\s*1903/i.test(authority) ? "1903" : "1901";
+    const remainder = authority
+      .replace(/41\s*U\.?\s*S\.?\s*C\.?\s*190[13](\s*(?:or|and|\/)\s*190[13])?/gi, "")
+      .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")
+      .replace(/^[\s,;:.-]+/, "")
+      .trim();
+    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (FAR 12.102 procedures)"}`;
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);
