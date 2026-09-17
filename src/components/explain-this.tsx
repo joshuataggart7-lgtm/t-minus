@@ -14,6 +14,9 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
   const id = useId();
   const corpus = useCiteCorpus();
   const cite = citeStatus(explanation.citation, corpus.rows, corpus.state);
+  // The loaded regulation corpus wins: never say the text is not loaded when
+  // regulation_sections already resolves this citation.
+  const textState = useCitationTextState(explanation.citation);
 
   useEffect(() => {
     if (!open) return;
