@@ -99,12 +99,19 @@ const postawardSuccessful: TemplateDef = {
     note: "Sent after telephone notification, with the signed source selection statement enclosed.",
   },
   lead: "Letter notifying the successful offeror of the selection decision and the debriefing period.",
+  // METHOD GATE: on a commercial simplified or FAR 13.5 file the part 15
+  // debriefing period does not run, so the letter does not promise one.
+  leadFor: noticeCitation(
+    "Letter notifying the successful offeror of the selection decision and the debriefing period.",
+    "Letter notifying the successful quoter that its quotation was accepted and an award has been made.",
+  ),
   sections: [
     letterHeader("The successful offeror's point of contact, from the evaluation record."),
     {
       id: "selection",
       title: "Selection",
       citation: "FAR 15.504",
+      citationFor: noticeCitation("FAR 15.504", "FAR 13.106-3(d)"),
       tier: "binding",
       fields: [
         X("company_name", "Successful offeror company name"),
@@ -118,21 +125,35 @@ const postawardSuccessful: TemplateDef = {
       id: "debriefing",
       title: "Debriefing",
       citation: "FAR 15.506(a)(1)",
+      citationFor: noticeCitation("FAR 15.506(a)(1)", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "Pursuant to FAR 15.506, offerors may request a postaward debriefing in writing within three calendar days of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+      standingTextFor: noticeCitation(
+        "Pursuant to FAR 15.506, offerors may request a postaward debriefing in writing within three calendar days of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On written request, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
+      ),
       fields: [],
     },
     {
       id: "closing",
       title: "Closing and signature",
       citation: "FAR 15.506(b)",
+      citationFor: noticeCitation("FAR 15.506(b)", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "NASA would like to express its appreciation for the time and effort that went into your proposal submittal and we look forward to working with you on the contract named above. For additional information, please contact the undersigned by telephone or e-mail.",
+      standingTextFor: noticeCitation(
+        "NASA would like to express its appreciation for the time and effort that went into your proposal submittal and we look forward to working with you on the contract named above. For additional information, please contact the undersigned by telephone or e-mail.",
+        "NASA would like to express its appreciation for the time and effort that went into your quotation and we look forward to working with you on the award named above. For additional information, please contact the undersigned by telephone or e-mail.",
+      ),
       fields: [
         ...coContact,
-        T("enclosures", "Enclosure(s)", "Source Selection Statement, and any additional Center enclosures."),
+        T(
+          "enclosures",
+          "Enclosure(s)",
+          "On a negotiated acquisition, the Source Selection Statement and any additional Center enclosures. A simplified acquisition has no source selection statement; leave this blank unless the Center encloses something with the letter.",
+        ),
       ],
     },
   ],

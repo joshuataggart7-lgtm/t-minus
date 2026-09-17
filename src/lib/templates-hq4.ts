@@ -629,19 +629,19 @@ const npaNotification: TemplateDef = {
   tab: "70",
   layout: "memo",
   badge: {
-    citation: "FAR 5.3; FAR 5.302; NFS 1805.3; NFS 1805.302",
+    citation: "FAR 5.3; FAR 5.302; NFS CG 1805.3; NFS CG 1805.302",
     tier: "guidance",
     revision: "HQ 03/2026 revision",
     effective: "2026-08-14",
-    note: "For actions $7M to $30M. Effective 23 March 2026, actions of $30M and above, or deemed significant interest, are announced through the ANOSCA application.",
+    note: "For actions $7M to $30M. Effective 23 March 2026, actions of $30M and above, or deemed significant interest, are announced through the ANOSCA application. Interim NFS part 1805 is reserved, so the 1805 process language here is Companion Guide guidance, not binding CFR text.",
   },
   lead: "Notification of a procurement action, marked Controlled Unclassified Information.",
   sections: [
     {
       id: "heading",
       title: "NASA Notification of Procurement Action",
-      citation: "NFS 1805.3",
-      tier: "binding",
+      citation: "NFS CG 1805.3",
+      tier: "guidance",
       fields: [
         S("variant", "Notification route", [
           "NASA Notification of Procurement Action, for Actions $7M to $30M",
@@ -685,8 +685,8 @@ const npaNotification: TemplateDef = {
     {
       id: "action_detail",
       title: "3–12. Action detail",
-      citation: "NFS 1805.302",
-      tier: "binding",
+      citation: "NFS CG 1805.302",
+      tier: "guidance",
       fields: [
         T("awardee", "3. Name and Full Address of Awardee (if applicable):"),
         T("value_table", "4. Contract Value/Planned Value, by CLIN:"),
