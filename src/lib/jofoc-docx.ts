@@ -166,7 +166,7 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
     uniquePush(sources, "SBA size standards");
     uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   }
-  const scope = naics ? ` for NAICS ${naics}` : "";
+  const scope = naics && !sources.some((source) => source.includes(`NAICS ${naics}`)) ? ` for NAICS ${naics}` : "";
   return `Market research was conducted using ${joinList(sources)}${scope}. Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
 }
 
