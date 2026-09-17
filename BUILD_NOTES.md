@@ -2073,3 +2073,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - NF 1707 overlay is blank-driven: paths read from the blank's own XFA packets, Intake answers written only where the blank carries the field, Import Data companion unchanged.
 - Copy finish: stripped engineer internals (widget layer, XFA packets, AcroForm, XFA files) from NF 1707 help, Award handoff, and Pilot known gaps copy. Reads calm to a CO; no logic, cites, or forms touched.
 - SF 1449: CLIN line prints only when quantity x unit price equals the amount; commercial single-line files print one lot at the face amount, block 20 narrative wraps across the schedule rows, block 9 code and office name are separate, block 10 carries a percent, and TOTALAWARD is filled. Data file now emits sibling occurrences so indexed fields bind.
+
+## SF 1449 Lot gate fix (soft follow-up)
+- `buildSf1449` Lot packaging now fires for any commercial FFP face whose first CLIN does not multiply out, regardless of how many IGCE estimate rows sit behind the file (A-2027-0101 has many). The `length <= 1` check is removed; the face still prints ITEM 0001 = qty 1 / Lot / unit price = amount / amount, and no quantity is invented from hours.
+- Block 20 narrative keeps the requirement description and period of performance only; the CLIN description is no longer appended when the requirement description already carries the narrative.
