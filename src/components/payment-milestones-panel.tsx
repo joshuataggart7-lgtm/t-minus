@@ -9,6 +9,7 @@ import { loadClinSchedule } from "@/lib/clin-schedule";
 import {
   PAYMENT_AMOUNT_BLANK,
   PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_MILESTONES_EMPTY_NOTE,
   PAYMENT_PLAN_LABEL,
   paymentMilestonesForPacket,
   paymentPlanNotes,
