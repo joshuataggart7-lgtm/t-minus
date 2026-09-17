@@ -51,7 +51,7 @@ import {
   type PollRow,
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
-import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
@@ -81,7 +81,7 @@ import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
-import { ShowTheText } from "@/components/show-the-text";
+import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 import { Nova } from "@/components/nova";
 import type { FindingMap } from "@/lib/research-findings";
 import {
@@ -1484,6 +1484,7 @@ function DocumentPage() {
   const sectionBody = (s: SectionDef) =>
     methodKnown ? sectionStandingText(s, citationValues) : s.standingText;
   const badgeCiteStatus = citeStatus(badgeCite, citeCorpus.rows, citeCorpus.state);
+  const badgeTextState = useCitationTextState(badgeCite);
 
   const runDraft = async (key: string) => {
     setDraftingKey(key);
@@ -1583,7 +1584,9 @@ function DocumentPage() {
         <p className="mt-1 text-[13px] text-muted-foreground">
           {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
         </p>
-        {badgeCiteStatus.kind === "stub" ? (
+        {badgeTextState === "heading" ? (
+          <p className="mt-1 text-[13px] text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+        ) : badgeCiteStatus.kind === "stub" && badgeTextState === "none" ? (
           <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
         ) : null}
         <p className="mt-1">

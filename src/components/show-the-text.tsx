@@ -7,7 +7,12 @@
 
 import { useId, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { citationHasCompanionGuide, citationTokens, useCiteCorpus } from "@/lib/cite-stub";
+import {
+  CITE_HEADING_ONLY_NOTE,
+  citationHasCompanionGuide,
+  citationTokens,
+  useCiteCorpus,
+} from "@/lib/cite-stub";
 import { formatRefDate, tierLabel, type RegRefRow } from "@/lib/regulation-sidebar";
 import {
   formatRetrieved,
@@ -56,7 +61,26 @@ export function useLiveSections() {
   return { rows: q.data, loading: q.isPending, failed: q.isError };
 }
 
+/** What the loaded corpus actually holds for one citation:
+ *  "body" verbatim text, "heading" heading only, "none" nothing resolved. */
+export function citationTextState(
+  citation: string | null | undefined,
+  rows: RegulationSection[] | undefined,
+): "body" | "heading" | "none" {
+  const resolved = resolveSections(citation, rows);
+  if (resolved.length === 0) return "none";
+  return resolved.some((s) => String(s.text ?? "").trim().length > 0) ? "body" : "heading";
+}
+
+/** The same state, loaded for the session, for callers that only show a note. */
+export function useCitationTextState(citation: string | null | undefined): "body" | "heading" | "none" | "loading" {
+  const sections = useLiveSections();
+  if (sections.loading) return "loading";
+  return citationTextState(citation, sections.rows);
+}
+
 function SectionBlock({ s }: { s: RegulationSection }) {
+  const body = String(s.text ?? "").trim();
   return (
     <li>
       <p className="font-medium">
@@ -73,7 +97,11 @@ function SectionBlock({ s }: { s: RegulationSection }) {
           <span className="border border-border px-2 py-0.5 text-[12px]">Non-binding practice guidance</span>
         )}
       </p>
-      <p className="mt-2 whitespace-pre-wrap">{s.text}</p>
+      {body ? (
+        <p className="mt-2 whitespace-pre-wrap">{body}</p>
+      ) : (
+        <p className="mt-2 text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+      )}
       <a
         href={s.source_url}
         target="_blank"

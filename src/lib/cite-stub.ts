@@ -17,6 +17,11 @@ export const CITE_CORPUS_UNLOADED_NOTE =
 export const NFS_CG_NOT_LOADED_NOTE =
   "NFS Companion Guide text is not loaded in this prototype.";
 
+/** Shown when the loaded corpus carries the section heading but no body text.
+ *  Never say "not loaded" for a citation the corpus already resolves. */
+export const CITE_HEADING_ONLY_NOTE =
+  "Heading loaded; body text not yet ingested for this section. Read the authority at its official source before relying on it.";
+
 /** True when a citation names the NFS Companion Guide (NFS CG / Companion Guide). */
 export function citationHasCompanionGuide(citation: string | null | undefined): boolean {
   return /NFS\s+CG|\bCompanion Guide\b/i.test(String(citation ?? ""));

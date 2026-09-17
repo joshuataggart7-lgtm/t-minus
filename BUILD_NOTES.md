@@ -2590,3 +2590,17 @@ primary action; "Prototype. Not an official NASA system." stays legible. Countdo
 chips: awarded-elapsed now carries a cyan AWARDED badge so T+ never reads as red
 OVERDUE. Work surfaces: page-title accent rule and a whisper of elevation only.
 No forms, exports, citations, clocks, holds or record logic touched.
+
+## Soft Walk — clause-delta note + Show-me-the-text honesty
+- A-2026-0090 (IDIQ parent and orders under it): the two conflicting notes are consolidated into one
+  shared `IDIQ_CLAUSE_DELTA_WITHHELD_NOTE` (clause-packet.ts), used on the clause packet, the SF 30
+  panel, and the modifications panel. The delta is withheld and not shown; the "don't open" /
+  "illustrative delta" wording is removed. No clause-delta UI was re-enabled.
+- Show me the text: when `regulation_sections` resolves a heading for a citation, the global
+  "full FAR/RFO/NFS text is not loaded" stub is no longer shown. Body present renders verbatim with
+  corpus, retrieved_at, binding badge and official link; heading-only says "heading loaded; body text
+  not yet ingested". Unresolved citations stay unresolved with the official link; NFS CG stays honest.
+- FAR Part 10 verbatim bodies (Part 10, 10.000, 10.001, 10.001(a)-(f), 10.002, corpus far_rfo,
+  revision RFO-PDF-2026-09-17) were already ingested and match the supplied seed file; no re-ingest
+  and no invented FAR 10.002(e).
+- Forms untouched: AcroForm/pdf-lib, SF1449/SF30/OF347, packSentences, file index, JOFOC Word master.

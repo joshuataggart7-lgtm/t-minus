@@ -48,7 +48,12 @@ import {
 } from "@/lib/launch-sequence";
 import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { awardConfidence, historyFrom } from "@/lib/confidence";
-import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
+import {
+  IDIQ_CLAUSE_DELTA_WITHHELD_NOTE,
+  PACKET_CANDIDATE_NUMBERS,
+  RFO_RESERVED_212_NOTE,
+  selectPacketClauses,
+} from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
@@ -3265,9 +3270,7 @@ function FilePage() {
                   ) : null}
                   {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
                     <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
-                      Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don’t open the clause
-                      delta on this file during the walkthrough — the packet below is illustrative, not the
-                      reconciled vehicle clause set.
+                      {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
                     </p>
                   ) : null}
                   {acq ? (
@@ -3732,10 +3735,7 @@ function FilePage() {
                     </p>
                     {clauseDeltaWithheld ? (
                       <p className="mt-2 border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
-                        Demo note: clause reconciliation for this IDIQ vehicle is not complete, so the clause delta
-                        is withheld on this file. It is not shown on screen and is not part of the walkthrough. The
-                        vehicle clause set is reconciled against the matrices before any modification is written in
-                        NCMS.
+                        {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
                       </p>
                     ) : (
                       <>

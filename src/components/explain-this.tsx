@@ -1,7 +1,7 @@
 import { useEffect, useId, useState } from "react";
 import type { Explanation } from "@/lib/explain";
-import { citeStatus, useCiteCorpus } from "@/lib/cite-stub";
-import { ShowTheText } from "@/components/show-the-text";
+import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 
 /**
  * "Explain this": a side panel that shows why a flag, hold, or status fired,
@@ -14,6 +14,9 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
   const id = useId();
   const corpus = useCiteCorpus();
   const cite = citeStatus(explanation.citation, corpus.rows, corpus.state);
+  // The loaded regulation corpus wins: never say the text is not loaded when
+  // regulation_sections already resolves this citation.
+  const textState = useCitationTextState(explanation.citation);
 
   useEffect(() => {
     if (!open) return;
@@ -70,7 +73,11 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
             <p className="mt-1">{explanation.rule ?? "Not recorded"}</p>
             <p className="mt-3 font-medium">Citation</p>
             <p className="mt-1 text-muted-foreground">{explanation.citation ?? "Not recorded"}</p>
-            {cite.kind === "stub" ? <p className="mt-1 text-muted-foreground">{cite.note}</p> : null}
+            {textState === "heading" ? (
+              <p className="mt-1 text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+            ) : cite.kind === "stub" && textState === "none" ? (
+              <p className="mt-1 text-muted-foreground">{cite.note}</p>
+            ) : null}
             {explanation.citation ? (
               <p className="mt-1">
                 <ShowTheText citation={explanation.citation} />
