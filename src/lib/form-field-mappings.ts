@@ -60,7 +60,12 @@ export const FORM_FIELD_MAPPINGS: FormFieldMapping[] = rowsJson as FormFieldMapp
 
 /** The rows for one form, all revisions when none is named. */
 export function mappingsFor(formId: string, revision?: string): FormFieldMapping[] {
-  return FORM_FIELD_MAPPINGS.filter(
+  const exact = FORM_FIELD_MAPPINGS.filter(
     (row) => row.form_id === formId && (!revision || row.revision === revision),
   );
+  if (exact.length || !revision) return exact;
+  // P0-1: a revision that carries no rows falls back to every row this form
+  // has, so an export is never written against an empty set. No field name is
+  // invented by this: the rows still come from the blank itself.
+  return FORM_FIELD_MAPPINGS.filter((row) => row.form_id === formId);
 }

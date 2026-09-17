@@ -25,16 +25,22 @@ const TEMPLATE_ALIASES: Record<string, string> = {
 const liveKeyFor = (name: string) =>
   TEMPLATES.find((t) => t.name === name)?.key ?? TEMPLATE_ALIASES[name] ?? null;
 
+/** P0-4: the library records a working template as "live" or "current". */
+const isLiveStatus = (status: string | null) => {
+  const s = (status ?? "").trim().toLowerCase();
+  return s === "live" || s === "current";
+};
+
 function statusLabel(status: string | null) {
   if (!status) return "Planned";
-  if (status === "live") return "Live";
-  if (status.startsWith("build next")) return "Build next";
+  if (isLiveStatus(status)) return "Live";
+  if (status.toLowerCase().startsWith("build next")) return "Build next";
   return "Planned";
 }
 
 function statusColor(status: string | null) {
-  if (status === "live") return "var(--ontrack)";
-  if (status?.startsWith("build next")) return "var(--attention)";
+  if (isLiveStatus(status)) return "var(--ontrack)";
+  if ((status ?? "").toLowerCase().startsWith("build next")) return "var(--attention)";
   return "var(--muted-foreground)";
 }
 

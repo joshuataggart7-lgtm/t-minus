@@ -74,6 +74,44 @@ const wrapLines = (text: string, width: number, rows: number): string[] => {
   return lines.slice(0, rows);
 };
 
+/**
+ * Narrative packed into whole sentences across at most `rows` lines.
+ * A sentence that will not fit is left off and the last line is marked so the
+ * reader is sent on rather than shown a half sentence.
+ */
+const packSentences = (
+  text: string,
+  width: number,
+  rows: number,
+): { lines: string[]; truncated: boolean } => {
+  const sentences = (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [])
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const marker = "(see continuation sheet)";
+  let kept = "";
+  let truncated = false;
+  for (const sentence of sentences) {
+    const next = kept ? `${kept} ${sentence}` : sentence;
+    if (wrapLines(next, width, rows + 1).length > rows) {
+      truncated = true;
+      break;
+    }
+    kept = next;
+  }
+  if (!kept) {
+    // Not even the first sentence fits: wrap it and mark the continuation.
+    const lines = wrapLines(text, width, rows);
+    if (lines.length) lines[lines.length - 1] = marker;
+    return { lines, truncated: Boolean(text.trim()) };
+  }
+  const lines = wrapLines(kept, width, rows);
+  if (truncated) {
+    if (lines.length < rows) lines.push(marker);
+    else lines[lines.length - 1] = marker;
+  }
+  return { lines, truncated };
+};
+
 /** The set-aside programmes block 10 carries, one key only. */
 export type SetAsideProgramme = "wosb" | "edwosb" | "sdvosb" | "hubzone" | "eight_a" | "small_business";
 
@@ -214,9 +252,11 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   // page one; only what does not fit sends the reader to the continuation.
   const title = str(a["title"]) || str(firstClin?.description) || description;
   const narrative = [description, pop ? `Period of performance ${pop}.` : ""].filter(Boolean).join(" ");
-  const allNarrativeLines = wrapLines(narrative, 52, 64);
-  const narrativeLines = allNarrativeLines.slice(0, 7);
-  const continuesBeyondFace = allNarrativeLines.length > narrativeLines.length;
+  // P0-3: the face rows carry whole sentences. Nothing is cut mid-sentence;
+  // what does not fit is marked as continuing.
+  const packed = packSentences(narrative, 52, 7);
+  const narrativeLines = packed.lines;
+  const continuesBeyondFace = packed.truncated;
 
   // Blocks 27a and 27b: whether addenda are attached is the officer's answer,
   // read from the record when it carries one and left blank when it does not.

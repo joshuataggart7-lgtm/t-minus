@@ -107,8 +107,9 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const data: RogerFormData = {
     pagination: { page: "1", pages: "1" },
     modification: {
+      // P0-2: block 2 carries the recorded modification number only. The
+      // contract number belongs in block 10 and is never reused here.
       number: str(mod["mod_number"]),
-      amendment_number: amends ? str(a["solicitation_number"]) : str(a["contract_number"]),
       effective_date: str(mod["effective_date"]),
       project_number: str(a["acquisition_id"]),
       description: str(mod["description"]),
@@ -119,10 +120,10 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       offer_period_not_extended: false,
       copies: "",
       copies_returned: "",
-      item_13a: kind.includes("change order"),
-      item_13b: kind.includes("administrative"),
-      item_13c: kind.includes("supplemental") || kind.includes("mutual"),
-      item_13d: kind.includes("other"),
+      item_13a: Boolean(mod["sf30_13a"]) || kind.includes("change order"),
+      item_13b: Boolean(mod["sf30_13b"]) || kind.includes("administrative"),
+      item_13c: Boolean(mod["sf30_13c"]) || kind.includes("supplemental") || kind.includes("mutual"),
+      item_13d: Boolean(mod["sf30_13d"]) || kind.includes("other"),
       item_13a_authority: str(mod["authority_text"]),
       item_13c_authority: str(mod["authority_text"]),
       item_13d_authority: str(mod["authority_text"]),
@@ -136,7 +137,11 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       number: str(a["contract_number"]),
       award_effective_date: str(a["award_date"]),
     },
-    solicitation: { issue_date: str(a["solicitation_issue_date"]) },
+    solicitation: {
+      // Block 9A only when a solicitation is being amended.
+      number: amends ? str(a["solicitation_number"]) : "",
+      issue_date: str(a["solicitation_issue_date"]),
+    },
     issuing_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     administering_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     contractor: {
