@@ -170,7 +170,7 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       contractor_signature_required: false,
       contractor_signature_not_required: false,
     },
-    requisition: { number: str(a["pr_number"]) },
+    requisition: { number: str(a["pr_number"]) || str(mod["requisition_number"]) },
     contract: {
       id_code: str(a["contract_id_code"]),
       number: str(a["contract_number"]),
@@ -184,11 +184,11 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     issuing_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     administering_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     contractor: {
-      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
-      facility_code: str(a["awardee_cage"]) || str(a["intended_awardee_cage"]),
+      name_address: contractorName,
+      code: contractorCode,
+      facility_code: contractorCage,
     },
-    accounting: { data: str(a["funding_source"]) },
+    accounting: { data: str(a["funding_source"]) || str(mod["funds_line"]) },
     // Signature blocks stay empty; only the officer of record's name prints.
     signer: { contracting_officer: str(a["co_name"]), name_title: "" },
   };
