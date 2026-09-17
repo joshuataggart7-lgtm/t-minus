@@ -153,14 +153,17 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const v = ctx.values ?? {};
   const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
   const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
+  const priorLabel = `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`;
   const sources: string[] = [];
-  uniquePush(sources, "System for Award Management (SAM.gov)");
-  uniquePush(sources, "USAspending");
-  uniquePush(sources, "SBA size standards");
-  uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
-  for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
-  if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
-  if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
+  // One label per named source; "prior T-Minus actions" is normalized so it cannot appear twice.
+  const pushSource = (raw: string) => uniquePush(sources, /^prior T-Minus actions/i.test(raw.trim()) ? priorLabel : raw);
+  pushSource("System for Award Management (SAM.gov)");
+  pushSource("USAspending");
+  pushSource("SBA size standards");
+  pushSource(priorLabel);
+  for (const line of researchLog) pushSource(sourceName(str(line.source)));
+  if (ctx.sizeStandard) pushSource("SBA size standards");
+  if (ctx.priorTminusActionCount) pushSource(priorLabel);
   if (!sources.length) {
     const fallback = humanizeMarketResearch(cleanProse(str(v["market_research"])));
     if (fallback && !/\bAPI\b|endpoint|JSON|service error|not available|\d+\s+results?\b|\d{4}-\d{2}-\d{2}/i.test(fallback)) {
@@ -172,7 +175,27 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
     uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   }
   const scope = naics && !sources.some((source) => source.includes(`NAICS ${naics}`)) ? ` for NAICS ${naics}` : "";
-  return `Market research was conducted using ${joinList(sources)}${scope}. Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
+  // Recorded search date and headline count, written as prose when the record holds them.
+  const searchDate = humanDate(
+    researchLog
+      .map((line) => str(line.ran_at) || str(line.ranAt))
+      .filter(Boolean)
+      .sort()
+      .pop() ?? "",
+  );
+  const topCount = researchLog
+    .map((line) => Number(line.result_count ?? line.count ?? NaN))
+    .filter((n) => Number.isFinite(n) && n >= 0)
+    .sort((a, b) => b - a)[0];
+  const detail =
+    searchDate || topCount !== undefined
+      ? ` The research was performed${searchDate ? ` on ${searchDate}` : ""}${
+          topCount !== undefined
+            ? `, and the broadest search returned ${topCount} ${topCount === 1 ? "candidate source" : "candidate sources"}`
+            : ""
+        }.`
+      : "";
+  return `Market research was conducted using ${joinList(sources)}${scope}.${detail} Those sources were reviewed to identify capable sources, small business status, prior related awards, and whether another source could meet the mission need. The basis for the sole-source conclusion is recorded in item 5.`;
 }
 
 function thresholdValue(thresholds: JofocThresholdRow[] | undefined, name: string, fallback: number): number {
@@ -265,7 +288,14 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    authority41Line = authority || "41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)";
+    // Commercial 41 U.S.C. path prints exactly one statute: 1901 or 1903, never both, never a 10 U.S.C. stem.
+    const statuteNumber = /41\s*U\.?\s*S\.?\s*C\.?\s*1903/i.test(authority) ? "1903" : "1901";
+    const remainder = authority
+      .replace(/41\s*U\.?\s*S\.?\s*C\.?\s*190[13](\s*(?:or|and|\/)\s*190[13])?/gi, "")
+      .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")
+      .replace(/^[\s,;:.-]+/, "")
+      .trim();
+    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (FAR 12.102 procedures)"}`;
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);

@@ -2626,3 +2626,8 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - Bracketed drafting instructions such as “DO NOT delete the FAR references...” are stripped from JOFOC marker values and are absent from the master.
 - Protected surfaces stayed locked: SF1449, OF347, SF30, sample clocks, sample facts, ORBIT chrome, regulation corpus, clauses, and external-write boundaries were not touched.
 
+
+## Soft Walk JOFOC Item 4 — single statutory authority
+- `jofocMarkers` on the commercial FAR 12.102 / 41 U.S.C. path now prints exactly one statute (1901 or 1903) in `[[AUTHORITY_41USC_LINE]]`; `[[AUTHORITY_10USC_STEM]]`, `[[AUTHORITY_10USC_LINE]]`, and `[[AUTHORITY_OR_TOKEN]]` stay empty so applyMarkers deletes those paragraphs. Embedded FAR 6.103-1 basis text no longer implies a Title 10 path, and no dangling 10 U.S.C. 3204(a) stem can print.
+- Item 8: "prior T-Minus actions" is normalized to one label (no duplicate), and the recorded search date plus headline result count are written as prose when the record holds them.
+- Untouched: SF1449 / OF347 / SF30, Band 1 signature ladder, sample money, clocks, corpus, ORBIT.
