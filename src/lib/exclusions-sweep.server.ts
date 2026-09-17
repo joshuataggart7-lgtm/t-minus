@@ -128,7 +128,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
 
   const open = await supabaseAdmin
     .from("acquisition_facts")
-    .select("acquisition_id,vendor_uei,vendor_legal_name,clock_state,hold_reason,hold_owner,co_name,status")
+    .select("acquisition_id,vendor_uei,vendor_legal_name,clock_state,hold_reason,hold_owner,co_name,status,scenario")
     .order("acquisition_id");
   if (open.error) throw new Error(open.error.message);
 
