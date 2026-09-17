@@ -736,18 +736,32 @@ export function checkboxAcroValue(on: boolean): "/1" | "/Off" {
   return on ? "/1" : "/Off";
 }
 
+/**
+ * A path segment may name an occurrence, for example TextField1[4]. The blank
+ * numbers repeated fields from zero, so the data file has to carry that many
+ * siblings for the value to land on the right one: the earlier occurrences are
+ * written empty. A segment with no index is a single element, as before.
+ */
 export function xfaDatasets(form: GeneratedForm): string {
-  type Node = { children: Map<string, Node>; value?: string };
+  type Node = { children: Map<string, Node[]>; value?: string };
   const root: Node = { children: new Map() };
   const escape = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const newNode = (): Node => ({ children: new Map() });
   for (const section of form.sections) {
     for (const field of section.fields) {
-      const parts = field.path.split(".").map((p) => p.replace(/\[\d+\]$/, ""));
       let node = root;
-      for (const part of parts) {
-        if (!node.children.has(part)) node.children.set(part, { children: new Map() });
-        node = node.children.get(part)!;
+      for (const part of field.path.split(".")) {
+        const match = /^(.*?)\[(\d+)\]$/.exec(part);
+        const name = match ? match[1]! : part;
+        const index = match ? Number(match[2]) : 0;
+        let siblings = node.children.get(name);
+        if (!siblings) {
+          siblings = [];
+          node.children.set(name, siblings);
+        }
+        while (siblings.length <= index) siblings.push(newNode());
+        node = siblings[index]!;
       }
       node.value =
         typeof field.value === "boolean" ? checkboxXfaValue(field.value) : field.value;
@@ -755,7 +769,9 @@ export function xfaDatasets(form: GeneratedForm): string {
   }
   const render = (node: Node): string => {
     if (!node.children.size) return escape(node.value ?? "");
-    return [...node.children.entries()].map(([name, child]) => `<${name}>${render(child)}</${name}>`).join("");
+    return [...node.children.entries()]
+      .map(([name, siblings]) => siblings.map((child) => `<${name}>${render(child)}</${name}>`).join(""))
+      .join("");
   };
   return `<?xml version="1.0" encoding="UTF-8"?><xfa:datasets xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/"><xfa:data>${render(
     root,
