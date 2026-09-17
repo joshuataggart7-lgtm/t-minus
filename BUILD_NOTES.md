@@ -2382,3 +2382,36 @@ Visual-only evolution of the navy Mission Clock band on the Executive Overview. 
 - Demo click path added to the file page More menu: "Filled SF 1449 for signature" on SF 1449-shell files (Sample 1 A-2027-0101) and "Filled SF 30 for signature" once a contract number is recorded (A-2026-0090).
 - Every form page now carries the banner: prototype, sample where seeded, filled from the T-Minus record for review and signature, not the NCMS document of record (NFS 1804.171).
 - FPDS filling sheet (SHA 40f9f05c) unchanged; it remains a fill aid, not a live FPDS submission.
+
+## P0 before morning (Claude audit)
+
+- P0.1 (data, applied outside code — honored by code, not undone): Evaluation of
+  Quotations v2 on A-2027-0101 carries real public UEIs — Corsair Aviation, LLC
+  (recommended) UEI HCH5G9HLMVZ5, CAGE 7K7J6; Strategic Aviation LLC UEI
+  SK4DHMRD7M13; SciFly, LLC UEI R7LBZTAG8N98. acquisition_facts for A-2027-0101
+  carries vendor_legal_name / vendor_uei / vendor_cage and proposed_price
+  1,385,000, so Checks -> Record vendor lists A-2027-0101 - CORSAIR AVIATION,
+  LLC - HCH5G9HLMVZ5.
+- P0.2 Ref line: the PNM memo header seeds __method from acquisition_method +
+  contract_format before badgeCitation runs, so a simplified file prints
+  "RFO FAR 12.204(a); FAR 13.106-3(b)(3)" and never FAR 15.406-3 alone.
+  Verified in place this chunk.
+- P0.2 export strip: cleanExportText (template-engine.ts) and the memoParagraphs
+  clean (nf1858.ts) strip the literal "Draft, confirm." prefix and mid-string
+  occurrences as well as "Drafted from the record, confirm." On-screen drafted
+  field flags and AI-draft banners are unchanged. Verified in place this chunk.
+- P0.3 reserved note: the clause picker now shows, unfolded under the intro,
+  "52.212-3 and 52.212-5 are Reserved under RFO FAR Part 12/52; statutory and EO
+  terms are prescribed independently via Tables 12-2 and 12-3 (NASA PCD 26-03B /
+  clause matrix disposition)." It is a note, not a selectable clause line. No
+  52.212-5 checkbox shell, no claim that content folded into 52.212-4.
+- P0.3 reasons: each formerly bundled clause reason now adds "Prescribed on its
+  own under RFO FAR 12.205; see FAR Tables 12-2 (provisions) and 12-3
+  (clauses)." No table row numbers are invented. 52.212-1, 52.212-2 and
+  52.212-4 stay on the Sample 1 packet.
+- Funds check: acquisition_facts.funds_certified is true for A-2027-0102 and
+  docSatisfied reads true/yes/1 from the record regardless of attachments, so
+  the Solicitation/Quote row reads certified. No hold was invented.
+- P0.4: demo - don't open clause delta on A-2026-0090 / IDIQ vehicle
+  (contradictory seeded clause set). Documented rather than re-seeded, to keep
+  the Sample walk safe.
