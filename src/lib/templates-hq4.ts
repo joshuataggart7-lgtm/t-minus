@@ -633,7 +633,7 @@ const npaNotification: TemplateDef = {
     tier: "guidance",
     revision: "HQ 03/2026 revision",
     effective: "2026-08-14",
-    note: "For actions $7M to $30M. Effective 23 March 2026, actions of $30M and above, or deemed significant interest, are announced through the ANOSCA application.",
+    note: "For actions $7M to $30M. Effective 23 March 2026, actions of $30M and above, or deemed significant interest, are announced through the ANOSCA application. Interim NFS part 1805 is reserved, so the 1805 process language here is Companion Guide guidance, not binding CFR text.",
   },
   lead: "Notification of a procurement action, marked Controlled Unclassified Information.",
   sections: [
