@@ -430,7 +430,10 @@ export function AwardHandoffPanel({
           </section>
 
           <section>
-            <Head n={8}>Payment milestones</Head>
+            <Head n={8}>Payment milestones — invoice plan</Head>
+            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              {PAYMENT_PLAN_LABEL}
+            </p>
             {scaffold.paymentMilestones.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 {PAYMENT_MILESTONES_EMPTY}
