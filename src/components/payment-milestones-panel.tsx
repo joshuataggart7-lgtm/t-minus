@@ -207,7 +207,7 @@ export function PaymentMilestonesPanel({
   return (
     <div className="mt-3 border border-border bg-muted/20 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h4 className="text-[15px] font-medium">Payment milestones</h4>
+        <h4 className="text-[15px] font-medium">Payment milestones — invoice plan</h4>
         <span className="text-[13px] text-muted-foreground">
           Read in the handoff packet, not in a separate spreadsheet.
         </span>
