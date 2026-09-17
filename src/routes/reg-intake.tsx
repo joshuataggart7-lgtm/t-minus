@@ -13,6 +13,43 @@ import {
   type Diff,
   type DiffRow,
 } from "@/lib/reg-intake";
+import {
+  applySectionDiff,
+  BINDING_CORPORA,
+  daysSince,
+  diffSections,
+  filesCitingChangedSections,
+  GUIDANCE_CORPORA,
+  loadLiveSections,
+  oldestRetrievedByCorpus,
+  parseSectionFile,
+  readSectionUpload,
+  sectionDiffSentence,
+  type SectionDiff,
+  type SectionUpload,
+} from "@/lib/regulation-sections";
+
+/** The two text intake types. Both stage a difference before anything is written. */
+const TEXT_TYPES = [
+  {
+    id: "regulation_text",
+    label: "Regulation text",
+    fileHint: "regulation_sections.jsonl",
+    binding: true,
+    corpora: BINDING_CORPORA as readonly string[],
+  },
+  {
+    id: "practice_guidance",
+    label: "Practice guidance",
+    fileHint: "practice_guidance.jsonl",
+    binding: false,
+    corpora: GUIDANCE_CORPORA as readonly string[],
+  },
+] as const;
+
+type TextTypeId = (typeof TEXT_TYPES)[number]["id"];
+
+const isTextType = (id: string): id is TextTypeId => TEXT_TYPES.some((t) => t.id === id);
 
 type LooseTable = {
   select: (cols: string) => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
