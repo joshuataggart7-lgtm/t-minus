@@ -1,4 +1,5 @@
 # Phase exit
+- [ ] Ship ORBIT visual identity Chunk 1: dark shared chrome, light workspace, cyan active/focus treatment, and legible prototype notice
 - [x] Exclude Offered rows from blockers, holds, hero actions, and exit gates
 - [x] Add validated phase exit with linked missing requirements and audit entry
 - [x] Replace Exit, Scrub, Remove, Record vote, and Open poll confirmations with in-page dialogs
