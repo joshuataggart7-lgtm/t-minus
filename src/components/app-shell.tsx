@@ -56,6 +56,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
     return next;
   });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const openAcquisitionId = /^\/files\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
   const allItems = navFor(roles);
@@ -96,22 +97,22 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
       >
         Skip to main content
       </a>
-      <header className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-border bg-background px-4 py-2 md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] md:py-0 sm:px-6">
+      <header className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure bg-chrome px-4 py-2 text-chrome-foreground md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] md:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
-            className="rounded-lg border border-border p-2 text-muted-foreground hover:text-foreground"
+            className="rounded-lg border border-chrome-structure p-2 text-chrome-muted hover:text-chrome-foreground"
           >
             <PanelLeft className="size-4" aria-hidden="true" />
           </button>
-          <Link to="/" className="flex min-w-0 items-baseline gap-2" onClick={onWordmarkClick}>
-            <span className="shrink-0 text-[18px] leading-6 font-semibold text-foreground">T-Minus</span>
-            <span className="hidden truncate text-[13px] text-muted-foreground xl:block">Mission Acquisition Acceleration</span>
+          <Link to="/" className="flex min-w-0 items-baseline gap-2 border-l-2 border-chrome-structure pl-3" onClick={onWordmarkClick}>
+            <span className="shrink-0 text-[18px] leading-6 font-semibold text-chrome-foreground">T-Minus</span>
+            <span className="hidden truncate text-[13px] text-chrome-muted xl:block">Mission Acquisition Acceleration</span>
           </Link>
         </div>
-        <div className="col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
+        <div className="app-chrome-search col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
         <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-3 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
           {presenter ? null : <AnnouncementBanner />}
           {isAdministrator ? (
@@ -120,15 +121,15 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               onClick={() => setPresenter(!presenter)}
               aria-pressed={presenter}
               className={cn(
-                "shrink-0 rounded-lg border border-border px-3 py-1.5 text-[13px]",
-                presenter ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+                "shrink-0 rounded-lg border border-chrome-structure px-3 py-1.5 text-[13px]",
+                presenter ? "text-chrome-foreground" : "text-chrome-muted",
               )}
             >
               Presenter
             </button>
           ) : null}
           {isAnonymous ? (
-            <span className="rounded-lg border border-border px-2 py-1 text-[13px] text-muted-foreground">
+            <span className="rounded-lg border border-chrome-structure px-2 py-1 text-[13px] text-chrome-muted">
               Demo
             </span>
           ) : null}
@@ -139,7 +140,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 id="role-toggle"
                 value={role}
                  onChange={(e) => setRole(e.target.value as PersonaRole)}
-                className="max-w-56 rounded-lg border border-border bg-background px-3 py-2 text-[13px] text-foreground"
+                className="max-w-56 rounded-lg border border-chrome-structure bg-chrome px-3 py-2 text-[13px] text-chrome-foreground"
               >
                 {SEEDED_USERS.map((u) => (
                   <option key={u.role} value={u.role}>
@@ -153,7 +154,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <Link
               to="/center-config"
               hash="my-record"
-              className="shrink-0 max-w-40 truncate text-[13px] text-foreground hover:text-primary"
+              className="shrink-0 max-w-40 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground"
               title="Open my record"
             >
               {user.name}
@@ -163,12 +164,12 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
             >
               {roles.slice(0, 1).map((assignedRole) => (
-                <span key={assignedRole} className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                <span key={assignedRole} className="shrink-0 rounded-lg border border-chrome-structure px-2 py-0.5 text-[11px] text-chrome-muted">
                   {ROLE_LABELS[assignedRole]}
                 </span>
               ))}
               {roles.length > 1 ? (
-                <span className="shrink-0 rounded-lg border border-border px-2 py-0.5 text-[11px] text-muted-foreground" data-numeric>
+                <span className="shrink-0 rounded-lg border border-chrome-structure px-2 py-0.5 text-[11px] text-chrome-muted" data-numeric>
                   +{roles.length - 1}
                 </span>
               ) : null}
@@ -177,7 +178,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           <button
             type="button"
             onClick={() => void signOut()}
-            className="shrink-0 text-[13px] text-foreground hover:text-primary"
+            className="shrink-0 text-[13px] text-chrome-foreground hover:text-chrome-foreground"
           >
             Sign out
           </button>
@@ -190,7 +191,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <nav
           aria-label="Main"
           className={cn(
-            "min-h-[calc(100vh-56px)] shrink-0 border-r border-border bg-background transition-[width] duration-150 ease-out max-[1099px]:w-14",
+            "min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure bg-chrome text-chrome-foreground transition-[width] duration-150 ease-out max-[1099px]:w-14",
             collapsed ? "w-14" : "w-60",
           )}
         >
@@ -200,7 +201,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               if (!groupItems.length) return null;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className="flex w-full items-center justify-between px-4 py-2 text-[11px] font-medium uppercase text-muted-foreground max-[1099px]:sr-only">
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className="flex w-full items-center justify-between px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted max-[1099px]:sr-only">
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
                 <ul className={cn(!expanded && "hidden", "max-[1099px]:block")}>
@@ -215,14 +216,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                     className={cn(
                       "flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
                       active
-                        ? "border-primary font-medium text-foreground"
-                        : "border-transparent text-muted-foreground hover:text-foreground",
+                        ? "border-accent-cyan font-medium text-accent-cyan"
+                        : "border-transparent text-chrome-muted hover:text-chrome-foreground",
                     )}
                   >
                     <Icon className="size-4 shrink-0" aria-hidden="true" />
                     <span className={cn("truncate max-[1099px]:sr-only", collapsed && "sr-only")}>{item.label}</span>
                     {!collapsed && item.note ? (
-                      <span className="block text-[12px] text-muted-foreground">{item.note}</span>
+                      <span className="block text-[12px] text-chrome-muted">{item.note}</span>
                     ) : null}
                   </Link>
 
@@ -230,10 +231,22 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               );
             })}</ul></section>;
             })}
+            {openAcquisitionId ? (
+              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0 max-[1099px]:hidden")}>
+                <p className="px-1 text-[11px] font-medium uppercase tracking-[0.12em] text-chrome-muted">Open file</p>
+                <Link
+                  to="/files/$acquisitionId"
+                  params={{ acquisitionId: openAcquisitionId }}
+                  className="mt-2 block border-l-2 border-accent-cyan px-3 py-2 text-[13px] font-medium text-accent-cyan"
+                >
+                  {openAcquisitionId}
+                </Link>
+              </section>
+            ) : null}
           </div>
         </nav>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 bg-canvas">
           <main
             id="main-content"
             tabIndex={-1}
@@ -252,9 +265,9 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <PresenterScreensBeat />
             {children}
           </main>
-          <footer className="px-4 pb-8 text-[13px] text-muted-foreground sm:px-8">
+          <footer className="border-t border-chrome-structure bg-chrome px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
             Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
-            <Link to="/about" className="text-primary">
+            <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
               About T-Minus
             </Link>
           </footer>
