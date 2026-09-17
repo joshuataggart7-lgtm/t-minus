@@ -237,7 +237,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
       see_schedule: true,
       deliver_to: { name_address: place, code: "" },
     },
-    administering_office: { name_address: office, code: str(a["center_code"]) },
+    administering_office: { name_address: officeName, code: str(a["center_code"]) },
     contractor: {
       name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
       code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
