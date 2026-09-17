@@ -709,7 +709,22 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
 /** OF 347, Order for Supplies or Services. Page 1 only; the back stays empty. */
 export function buildOf347(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
-  const rows = schedule(ctx);
+  // P0-1: the same face the AcroForm export prints. One row per line item
+  // number; a commercial firm fixed price file prints one lot at the award
+  // face so the printed lines sum to the grand total.
+  const face = of347Face(ctx);
+  const rows: FormClin[] = face.lot
+    ? [
+        {
+          clinNumber: "0001",
+          description: str(a["title"]) || str(a["description_of_requirement"]),
+          quantity: 1,
+          unit: "Lot",
+          unitPrice: face.total,
+          extendedPrice: face.total,
+        } as FormClin,
+      ]
+    : face.rows;
   const shown = rows.slice(0, 13);
   const parent = parentContract(a);
   const deliveryOrder =
@@ -717,8 +732,10 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     /order under idiq|delivery order|task order/i.test(
       `${str(a["contract_format"])} ${str(a["acquisition_profile"])}`,
     );
-  const total = scheduleTotal(rows) ?? (Number(a["award_amount"]) || Number(a["estimated_value"]) || null);
-  const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
+  const total = face.total;
+  // A place of performance is not a ship-to. Consignee prints only from a
+  // recorded ship-to; inspection and acceptance stay empty.
+  const shipTo = str(a["ship_to_name"]) || str(a["consignee_name"]);
   const setAside = str(a["set_aside"]).toLowerCase();
 
   const clinFields = shown.flatMap((r, i) => {
