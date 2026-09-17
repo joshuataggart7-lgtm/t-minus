@@ -201,7 +201,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const method = commercial ? "rfq" : "rfp";
   const coName = str(a["co_name"]);
 
-  return {
+  const data: RogerSf1449Data = {
     requisition: { number: str(a["pr_number"]) || str(a["acquisition_id"]) },
     pagination: { page: "1", pages: "" },
     contract: {
