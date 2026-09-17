@@ -98,7 +98,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
 
   // The priced line, then the narrative rows beneath it.
-  const schedule = scheduleLines.map((line, i) => {
+  const schedule: Record<string, string>[] = scheduleLines.map((line, i) => {
     if (i > 0) return { description: line };
     return {
       item: "0001",
