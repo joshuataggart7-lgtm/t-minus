@@ -17,6 +17,7 @@
 import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { faceLine, setAsideFlags } from "@/lib/official-acroform-sf1449";
+import { of347Face } from "@/lib/of347-face";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -799,7 +800,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
       title: "Blocks 6 to 8. Ship to, contractor and type of order",
       citation: "FAR 13.307",
       fields: [
-        field("F.P1.CONSIGNEENAME", "Name of consignee (block 6a)", place, place ? undefined : "No ship-to on the record."),
+        field("F.P1.CONSIGNEENAME", "Name of consignee (block 6a)", shipTo, shipTo ? undefined : "No ship-to on the record; the place of performance is not printed as a consignee."),
         field("F.P1.SHIPVIA", "Ship via (block 6f)", ""),
         field(
           "F.P1.CONTRACTNAME",
