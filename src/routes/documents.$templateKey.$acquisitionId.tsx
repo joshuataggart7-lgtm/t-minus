@@ -2079,6 +2079,14 @@ function DocumentPage() {
                     void generateJofocDocx(exportContext)
                       .then((bytes) => downloadDocxBytes(bytes, `jofoc-${acquisitionId}.docx`))
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                  } else if (
+                    (def.key === "limited-sources-justification" || def.key === "lsj") &&
+                    exportContext
+                  ) {
+                    // The LSJ is written into the NASA OP Word master, not built from scratch.
+                    void generateLsjDocx(exportContext)
+                      .then((bytes) => downloadDocxBytes(bytes, `lsj-${acquisitionId}.docx`))
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                   } else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
                 }}
               >
