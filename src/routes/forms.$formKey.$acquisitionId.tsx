@@ -498,13 +498,23 @@ function FormPage() {
               title="Recommended route for free Adobe Reader: open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file. The blank keeps its own rights."
               onClick={exportData}
             >
-              Export data file for Import Data
+              Export data file for Import Data{formKey === "sf-1449" ? " (legacy)" : ""}
             </button>
           </div>
           <p className="mb-4 text-[13px] text-muted-foreground">
             Prefer the preview below in the browser; open the form PDF in Adobe desktop.
           </p>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+            {formKey === "sf-1449" ? (
+              <p className="mb-2">
+                Export official PDF is the first route to try. It is the official blank with its dynamic
+                layer removed and the record's values written into the form's own fields, so Adobe
+                Reader, Chrome and Preview all show them and the fields stay editable. It is still a
+                prototype export, not an Adobe-verified form, and signature blocks stay empty for the
+                contracting officer. The two exports below are the older Import Data route and stay here
+                as a fallback.
+              </p>
+            ) : null}
             <p>
               The recommended route in free Adobe Reader is the data file. Open the blank form from this
               app{form?.pdf ? ` (${form.pdf})` : ""}, then choose Forms or Manage Form Data, Import Data,
