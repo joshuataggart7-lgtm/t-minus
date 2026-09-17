@@ -52,6 +52,8 @@ export function countdownView(m: AcqMetrics): CountdownView {
       mode: "launched",
       days: m.daysSinceAward ?? 0,
       prefix: "T+",
+      // Cyan AWARDED, so elapsed-since-award never reads like red OVERDUE.
+      badge: "AWARDED",
       caption: "days since award",
       tone: "cyan",
     };
