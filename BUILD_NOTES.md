@@ -2372,3 +2372,13 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
 ## ORBIT Chunk 5 — Executive Overview data hero
 
 Visual-only evolution of the navy Mission Clock band on the Executive Overview. Above the priority-mission rows, the same navy surface now carries a portfolio scan strip: a Launch countdown · Portfolio row of per-acquisition chips (acquisition id, T−/T+ days in tabular numerals, HOLD/FORECAST/OVERDUE badges) driven by the existing countdownView() honesty rules — cyan healthy, muted+amber HOLD, cyan FORECAST, cyan T+ after award, red OVERDUE T+ only; each chip links to the acquisition file. Below it a quiet phase-distribution list (phase label, bar, count) derived only from metrics[].currentPhase — no new date math, no invented hours/minutes. The quiet status summary remains below the band; no competing white hero card, no decorative imagery. Soft Walk forms, regulation corpus, Nova, clocks, seeds, and exports untouched.
+
+## Official blanks and signature-ready fills (Joshua green light)
+
+- Masters in the repo, verified byte-identical to the GSA originals on this date:
+  - `public/forms/SF1449.pdf` — SF 1449, current revision **11/2021** (FAR 53.212). Source: https://www.gsa.gov/system/files/SF1449-21.pdf (md5 bfaf2c5cad05246dfd7184b45aa03a4e). Not the SF1449-12a variant.
+  - `public/forms/SF30.pdf` — SF 30, current revision **11/2016** (FAR 53.243). Source: https://www.gsa.gov/system/files/SF30-16c.pdf (md5 9d0076c2f99b0eab84901bc4e0bb59a7).
+- Filled SF 1449 and SF 30 are generated on those official blanks (XFA layer removed, AcroForm fields written from `acquisition_facts`). Signature and CO date blocks stay empty. Nothing is invented: PIID, UEI, vendor, dollars and dates print only when the record carries them.
+- Demo click path added to the file page More menu: "Filled SF 1449 for signature" on SF 1449-shell files (Sample 1 A-2027-0101) and "Filled SF 30 for signature" once a contract number is recorded (A-2026-0090).
+- Every form page now carries the banner: prototype, sample where seeded, filled from the T-Minus record for review and signature, not the NCMS document of record (NFS 1804.171).
+- FPDS filling sheet (SHA 40f9f05c) unchanged; it remains a fill aid, not a live FPDS submission.

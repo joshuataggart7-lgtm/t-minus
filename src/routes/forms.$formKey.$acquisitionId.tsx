@@ -665,6 +665,13 @@ function FormPage() {
 
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
+      {/* Every filled export says what it is and what it is not. */}
+      <p className="mb-6 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
+        Prototype. Not an official NASA system.
+        {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
+        signature — not the NCMS document of record (NFS 1804.171). Signature blocks are left empty. Fields the record
+        does not carry read “Not recorded on this file.”
+      </p>
       <p className="mb-6 text-[15px]">
         <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
           Back to the file
