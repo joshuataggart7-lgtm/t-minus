@@ -21,6 +21,13 @@ import rowsJson from "./form-field-mappings.json";
 
 export type MappingType = "text" | "check" | "money" | "date";
 
+/**
+ * Soft §6: which level a recorded value belongs to. A future table carries it
+ * as form_field_mappings(..., scope). A row without a scope is read as
+ * "transaction", so nothing inherits by accident.
+ */
+export type FieldScope = "organization" | "acquisition" | "contract" | "transaction";
+
 export type MappingMatch =
   | "eq"
   | "includes"
