@@ -140,11 +140,27 @@ export function faceLine(
   return { quantity: "", unit: "", unit_price: "", amount: "" };
 }
 
+/**
+ * The recorded answer to an "ARE / ARE NOT attached" pair, read from the file.
+ * Nothing is assumed: when the record says nothing, both boxes stay empty for
+ * the contracting officer rather than printing "are not attached".
+ */
+export function addendaFlag(value: unknown): boolean | null {
+  if (value === true) return true;
+  if (value === false) return false;
+  const t = str(value).toLowerCase();
+  if (!t) return null;
+  if (/^(y|yes|true|are|attached|are attached)$/.test(t)) return true;
+  if (/^(n|no|false|are not|not attached|are not attached)$/.test(t)) return false;
+  return null;
+}
+
 /** A money string read back as a number. */
 const moneyValue = (v: unknown): number => {
   const n = Number(String(v ?? "").replace(/[^0-9.-]/g, ""));
   return Number.isFinite(n) ? n : 0;
 };
+
 
 /**
  * Whether the schedule lines add up to the total the form carries. Soft: this
