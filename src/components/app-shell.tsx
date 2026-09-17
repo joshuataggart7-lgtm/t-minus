@@ -271,7 +271,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <PresenterScreensBeat />
             {children}
           </main>
-          <footer className="border-t border-chrome-structure bg-chrome px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
+          <footer className="chrome-surface border-t-2 border-chrome-structure px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
             Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
             <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
               About T-Minus
