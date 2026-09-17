@@ -189,7 +189,7 @@ function FormPage() {
     },
   });
 
-  const form = useMemo(() => {
+  const baseForm = useMemo(() => {
     if (!q.data?.acq || !isFormKey(formKey)) return null;
     const acq = q.data.acq;
     const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
@@ -241,6 +241,32 @@ function FormPage() {
     };
     return buildForm(formKey, ctx);
   }, [q.data, formKey, acquisitionId]);
+
+  /**
+   * NF 1707 is a pure XFA blank, so its paths are read from the blank's own
+   * packets rather than from an AcroForm layer. The questions are labelled
+   * from the seeded field export.
+   */
+  const nf1707Blank = useQuery({
+    queryKey: ["nf1707-blank"],
+    enabled: formKey === "nf-1707",
+    staleTime: Infinity,
+    queryFn: async () => {
+      const [paths, rows] = await Promise.all([
+        blankXfaPaths("/forms/NF1707.pdf"),
+        supabase.from("nf1707_fields").select("*"),
+      ]);
+      const labels = new Map<string, string>();
+      for (const row of (rows.data ?? []) as Nf1707Field[]) labels.set(answerKey(row), fieldLabel(row));
+      return { paths, labels };
+    },
+  });
+
+  const form = useMemo(() => {
+    if (!baseForm || formKey !== "nf-1707" || !nf1707Blank.data) return baseForm;
+    const answers = (q.data?.acq?.["nf1707_answers"] ?? {}) as Record<string, unknown>;
+    return withNf1707Answers(baseForm, answers, nf1707Blank.data.labels, nf1707Blank.data.paths);
+  }, [baseForm, formKey, nf1707Blank.data, q.data]);
 
   // The same fallback the file page uses: the forecast's anticipated award
   // date stands in when no target award date is entered.
