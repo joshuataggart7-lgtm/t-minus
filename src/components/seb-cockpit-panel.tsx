@@ -70,6 +70,13 @@ export function SebCockpitPanel({
     enabled: Boolean(acquisitionId),
     queryFn: () => loadClarifications(acquisitionId),
   });
+  // Receipts are only counted, never invented: a failed read leaves the line off.
+  const receiptsQ = useQuery({
+    queryKey: ["read-receipts", acquisitionId],
+    enabled: Boolean(acquisitionId),
+    queryFn: () => loadReadReceipts(acquisitionId),
+  });
+
 
   const [draft, setDraft] = useState<ClarificationDraft>(emptyClarification);
   const [adding, setAdding] = useState(false);
