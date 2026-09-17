@@ -90,7 +90,10 @@ const packSentences = (
   const sentences = (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? [])
     .map((s) => s.trim())
     .filter(Boolean);
-  const marker = "(see continuation sheet)";
+  // The order carries no generated continuation sheet, so the marker points at
+  // the requirement description on the file rather than at a page that does
+  // not exist.
+  const marker = "(description continues in the requirement on file)";
 
   /** The sentences that fit in `limit` lines, and those left over. */
   const fit = (limit: number): { kept: string; rest: string } => {
