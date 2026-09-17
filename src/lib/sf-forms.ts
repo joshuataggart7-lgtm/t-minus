@@ -255,7 +255,17 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
       title: "Blocks 1 to 8. Identification",
       citation: "FAR 43.301; FAR 53.243",
       fields: [
-        field("topmostSubform.AmendmentNo", "Amendment or modification number (block 2)", str(mod["mod_number"])),
+        // P0-2: block 2 carries the recorded modification number only. When no
+        // modification is recorded the block stays empty; the contract number
+        // belongs in block 10A and is never reused here.
+        field(
+          "topmostSubform.AmendmentNo",
+          "Amendment or modification number (block 2)",
+          str(mod["mod_number"]),
+          str(mod["mod_number"])
+            ? undefined
+            : "No modification is recorded on this file, so block 2 prints empty. A number is never invented.",
+        ),
         field("topmostSubform.EffectiveDate", "Effective date (block 3)", str(mod["effective_date"])),
         field("topmostSubform.ReqNumber", "Requisition or purchase request number (block 4)", str(a["pr_number"])),
         field("topmostSubform.ProjectNo", "Project number (block 5)", str(a["acquisition_id"])),
