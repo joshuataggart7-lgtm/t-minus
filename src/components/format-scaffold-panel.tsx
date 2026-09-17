@@ -2,7 +2,11 @@ import { useState } from "react";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY, sectionJSummary } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
-import { PAYMENT_MILESTONES_EMPTY } from "@/lib/payment-milestones";
+import {
+  PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentPlanNotes,
+} from "@/lib/payment-milestones";
 
 /**
  * The contract format scaffold an officer carries into NCMS. SF 1449
