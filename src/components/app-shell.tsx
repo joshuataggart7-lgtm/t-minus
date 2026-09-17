@@ -26,15 +26,18 @@ const NAV_GROUPS = [
   { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
 ] as const;
 
+// Icons are chosen so the meaning reads at a glance beside the label.
 const NAV_ICONS: Record<string, LucideIcon> = {
-  "Executive Overview": LayoutDashboard, Today: Gauge, "Reviewer inbox": ClipboardCheck,
-  "Requester portal": FileInput, "Work Queue": BriefcaseBusiness, Files, Intake: FileInput,
-  Estimate: Calculator, Templates: ScrollText, Checks: SearchCheck, Deviations: ShieldCheck,
-  "Audit Log": FileClock, Watch: Radio, "Directive compliance": ClipboardCheck,
-  "Clause changes": BookOpenCheck, Escalations: TriangleAlert, "Leadership digest": Gauge,
-  "Reporting views": Gauge, Simulate: Gauge, "Center configuration": Building2,
-  Announcements: Megaphone, "Seed status": BellRing, "Regulatory data intake": FileInput,
-  "PGPD queue": Files,
+  "Executive Overview": Rocket, Today: CalendarClock, "Reviewer inbox": Inbox,
+  "Requester portal": Send, "Work Queue": ClipboardCheck, Files: FolderOpen,
+  Intake: FilePlus2, Estimate: Calculator, Templates: LayoutTemplate,
+  Checks: CircleCheckBig, Deviations: ShieldAlert, "Audit Log": History,
+  Watch: Radar, "Directive compliance": ShieldCheck, "Clause changes": BookOpenCheck,
+  Escalations: TriangleAlert, "Leadership digest": Newspaper,
+  "Reporting views": BarChart3, Simulate: Gauge, "Center configuration": Building2,
+  Announcements: Megaphone, "Seed status": Database,
+  "Regulatory data intake": ScrollText, "PGPD queue": Layers,
+  Configuration: SlidersHorizontal,
 };
 
 // Survives route remounts so the click run isn't reset by navigation.
