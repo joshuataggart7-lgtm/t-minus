@@ -93,7 +93,7 @@ export function AuthScreen() {
           </div>
         ) : (
           <form
-            className="mt-8 space-y-4"
+            className="console-panel mt-8 space-y-4 rounded-xl border border-white/10 p-5"
             onSubmit={(e) => {
               e.preventDefault();
               if (mode === "magic") void magicLink();
@@ -101,7 +101,7 @@ export function AuthScreen() {
             }}
           >
             <div>
-              <label htmlFor="auth-email" className="block text-[13px] text-muted-foreground">
+              <label htmlFor="auth-email" className="block text-[13px] text-chrome-muted">
                 Email
               </label>
               <input
@@ -111,13 +111,13 @@ export function AuthScreen() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+                className="mt-1 w-full rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2 text-[15px] text-chrome-foreground"
               />
             </div>
 
             {mode === "password" ? (
               <div>
-                <label htmlFor="auth-password" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="auth-password" className="block text-[13px] text-chrome-muted">
                   Password
                 </label>
                 <input
@@ -127,7 +127,7 @@ export function AuthScreen() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+                  className="mt-1 w-full rounded-lg border border-white/20 bg-white/[0.06] px-3 py-2 text-[15px] text-chrome-foreground"
                 />
               </div>
             ) : null}
@@ -136,7 +136,7 @@ export function AuthScreen() {
               <button
                 type="submit"
                 disabled={busy}
-                className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                className="rounded-lg bg-accent-cyan px-4 py-2 text-[15px] font-medium text-[color:var(--chrome)]"
               >
                 {mode === "magic" ? "Email me a magic link" : "Sign in"}
               </button>
@@ -146,14 +146,14 @@ export function AuthScreen() {
                     type="button"
                     disabled={busy}
                     onClick={() => void signUp()}
-                    className="rounded-lg border border-border bg-background px-4 py-2 text-[15px]"
+                    className="rounded-lg border border-white/25 px-4 py-2 text-[15px] text-chrome-foreground hover:bg-white/10"
                   >
                     Create account
                   </button>
                   <button
                     type="button"
                     onClick={() => setMode("magic")}
-                    className="text-[15px] text-primary underline"
+                    className="text-[15px] text-accent-cyan underline"
                   >
                     Email me a magic link
                   </button>
@@ -162,7 +162,7 @@ export function AuthScreen() {
                 <button
                   type="button"
                   onClick={() => setMode("password")}
-                  className="text-[15px] text-primary underline"
+                  className="text-[15px] text-accent-cyan underline"
                 >
                   Use a password
                 </button>
@@ -170,7 +170,7 @@ export function AuthScreen() {
               <button
                 type="button"
                 onClick={() => setMode("choose")}
-                className="text-[15px] text-muted-foreground underline"
+                className="text-[15px] text-chrome-muted underline"
               >
                 Back
               </button>
@@ -179,17 +179,17 @@ export function AuthScreen() {
         )}
 
         {error ? (
-          <p role="alert" className="mt-6 text-[15px]" style={{ color: "var(--risk)" }}>
+          <p role="alert" className="mt-6 text-[15px]" style={{ color: "#ff8f7f" }}>
             At risk: {error}
           </p>
         ) : null}
         {message ? (
-          <p role="status" className="mt-6 text-[15px] text-muted-foreground">
+          <p role="status" className="mt-6 text-[15px] text-chrome-muted">
             {message}
           </p>
         ) : null}
 
-        <p className="mt-12 text-[13px] text-muted-foreground">
+        <p className="mt-12 text-[13px] text-chrome-muted">
           Prototype. Not an official NASA system.
         </p>
       </main>
