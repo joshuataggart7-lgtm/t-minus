@@ -1,18 +1,17 @@
-# ORBIT visual identity — Chunk 1
+# Soft Walk value-gate fixes
 
 ## Build
-- Add semantic dark-chrome and electric-cyan tokens while keeping the working canvas light.
-- Restyle the shared top strip and left navigation as near-black console chrome.
-- Use cyan only for the active navigation state and visible keyboard focus.
-- Keep page content, tables, forms, and documents on a dense near-white surface.
-- Keep the prototype disclaimer legible in the dark footer treatment.
-- Add a compact open-file context link under navigation when viewing an acquisition file.
+- Add the honest `P00001` modification to A-2026-0090 through the existing modification data path, retaining Block 10A’s contract number and Ready status.
+- Render an empty SF 30 Block 2 as blank with its existing gap note, never as “Not recorded.”
+- Bind the market-research Word signature to the same record-based contracting officer as the FROM line.
+- Clean repeated trailing source words and explain existing source-count de-duplication without changing totals.
+- Suppress stale uploaded SF 1449 rows when a generated official SF 1449 is present.
 
 ## Guardrails
-- Change presentation and interaction styling only; no record, clock, citation, form, export, or workflow logic changes.
-- Do not add imagery, insignia, glow, starfields, countdowns, phase rails, or later-chunk concepts.
+- Do not change OF 347 face/math, the SF 1449 schedule packer or continuation marker, clocks, phases, citations, ORBIT, or regulation corpus.
+- Preserve Sample 1/2 facts except the requested A-2026-0090 demo modification.
 
 ## Validation
-- Run the existing TypeScript check.
-- Verify the shared shell and an open acquisition file at desktop and mobile widths.
-- Append the selected cyan hex and scope note to BUILD_NOTES, then publish.
+- Verify SF 30 preview/export values, memo export text/signature, and file-index behavior.
+- Recheck OF 347 `$1,385,000` Lot/Grand Total and protected SF 1449 schedule output remain unchanged.
+- Run the focused type check, append BUILD_NOTES, publish once, and report the resulting revision.

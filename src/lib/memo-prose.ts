@@ -13,7 +13,7 @@ const SOURCE_NAMES: [RegExp, string][] = [
   [/SAM\.gov\s+Entity\s+Management(?:\s+API)?/gi, "SAM.gov entity search"],
   [/SAM\.gov\s+Opportunit(?:y|ies)(?:\s+API)?/gi, "SAM.gov notices"],
   [/SAM\.gov\s+Exclusions?(?:\s+API)?/gi, "SAM.gov exclusions"],
-  [/USA\s?spending(?:\.gov)?(?:\s+Awards?)?(?:\s+API)?/gi, "USAspending award history"],
+  [/\bUSA\s?spending(?:\.gov)?(?:\s+Awards?)?(?:\s+API)?\b(?!\s+award history)/gi, "USAspending award history"],
   [/FPDS(?:-NG)?(?:\s+API)?/gi, "FPDS award history"],
   [/GSA\s+(?:CALC\+?|Calc\+?)(?:\s+API)?/gi, "GSA CALC+ labor rates"],
 ];
@@ -57,6 +57,9 @@ function humanLine(line: string): string {
     out = `${source}${what}, searched ${parts[1]}, ${count}.`;
   }
   return out
+    // Source normalization can meet already-humanized saved prose. Collapse
+    // only this known trailing source word rather than changing valid emphasis.
+    .replace(/\bhistory(?:\s+history)+\b/gi, "history")
     .replace(/\s+([,.;:])/g, "$1")
     .replace(/,\s*,/g, ",")
     .replace(/\s{2,}/g, " ")

@@ -1174,9 +1174,11 @@ function DocumentPage() {
     });
     const storedHeader = saved?.memo_header;
     setMemoOn(on);
-    setMemoHeader(
-      storedHeader && typeof storedHeader === "object" ? { ...built, ...(storedHeader as MemoHeader) } : built,
-    );
+    const merged = storedHeader && typeof storedHeader === "object" ? { ...built, ...(storedHeader as MemoHeader) } : built;
+    // A market-research memorandum is signed by the contracting officer named
+    // on the current file. An older saved header must not leave a second name
+    // below a FROM line that has already followed the record.
+    setMemoHeader(def.key === "market-research-memo" ? { ...merged, signatureName: built.signatureName } : merged);
   }, [def, q.data, memoHeader, acquisitionId, coRecord, enclosures, board]);
 
   // Situation memo starter: the unexpected-event purpose is chosen for the

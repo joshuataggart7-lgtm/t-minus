@@ -250,6 +250,18 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
     if (/[.!?]/.test(prompt)) return line;
     return line.slice(at + 2).trim();
   };
+  const bodyText = doc.blocks.flatMap((b) => b.lines).join("\n");
+  const entityCounts = [...bodyText.matchAll(/SAM\.gov entity search[^\n]*?returned\s+(\d[\d,]*)\s+results?/gi)]
+    .map((m) => Number(String(m[1] ?? "").replace(/,/g, "")))
+    .filter(Number.isFinite);
+  const uniqueMatch = /(\d[\d,]*)\s+(?:sources?|registrants?)\s+were identified/i.exec(bodyText);
+  const uniqueCount = uniqueMatch ? Number(uniqueMatch[1]!.replace(/,/g, "")) : null;
+  const needsDedupeNote =
+    uniqueCount !== null &&
+    entityCounts.length > 1 &&
+    entityCounts.reduce((sum, count) => sum + count, 0) > uniqueCount &&
+    !/de-duplicated across (?:the )?sources and geographies/i.test(bodyText);
+
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
     .map((b) => {
@@ -260,7 +272,14 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
         const intro = prose.slice(0, sourceStart + 1).join(" ");
         return { text: `${b.heading}. ${intro}`.trim(), lines: prose.slice(sourceStart + 1) };
       }
-      return { text: `${b.heading}. ${prose.join(" ")}`.trim(), lines: [] };
+      const text = `${b.heading}. ${prose.join(" ")}`.trim();
+      return {
+        text:
+          needsDedupeNote && /findings/i.test(b.heading)
+            ? `${text} This figure is de-duplicated across sources and geographies, so an entity found more than once is counted once.`
+            : text,
+        lines: [],
+      };
     })
     .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }

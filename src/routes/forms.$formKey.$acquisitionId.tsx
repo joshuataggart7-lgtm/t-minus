@@ -894,7 +894,10 @@ function FormPage() {
                         ? field.value
                           ? "Checked"
                           : "Not checked"
-                        : field.value || <span className="text-muted-foreground">Not recorded</span>}
+                        : field.value ||
+                          (formKey === "sf-30" && field.path === "topmostSubform.AmendmentNo" ? null : (
+                            <span className="text-muted-foreground">Not recorded</span>
+                          ))}
                       {field.gap ? (
                         <span className="block text-[13px] text-muted-foreground">{field.gap}</span>
                       ) : null}

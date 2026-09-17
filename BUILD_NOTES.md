@@ -2293,3 +2293,18 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
   file rather than a continuation sheet the prototype does not generate.
 - File index (P1-6): retired versions are skipped, and a stale hand-uploaded
   SF 1449 is not listed once the official export is on the file.
+
+## Soft Walk value gates — SF 30, memorandum, file index
+
+- A-2026-0090 now carries fictional demo modification P00001 through the
+  existing modification record. SF 30 Block 2 receives P00001, while Block
+  10A remains contract 80ARC26D0090. No authority or citation was invented,
+  and the template remains Ready.
+- The A-2027-0101 market-research memorandum now takes its signature name from
+  the same record-derived contracting officer as FROM: Joshua Taggart. Source
+  prose collapses repeated USAspending history wording, and explains that the
+  unique entity figure is de-duplicated across sources and geographies.
+- A Generated official SF 1449 now suppresses stale Uploaded SF 1449 rows in
+  the contract file index, including older prototype uploads.
+- OF 347 face arithmetic and delivery blocks, SF 1449 sentence packing, and
+  the continuation marker were not changed.

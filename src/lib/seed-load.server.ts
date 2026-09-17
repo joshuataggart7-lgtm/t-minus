@@ -140,6 +140,30 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   });
   await put("acquisition_facts", acqRows, "acquisition_id");
 
+  // This fictional post-award sample needs one recorded modification so the
+  // official SF 30 can demonstrate Block 2 without borrowing the contract
+  // number or inventing authority text. Keep it idempotent across resets.
+  await put(
+    "contract_modifications",
+    [
+      {
+        acquisition_id: "A-2026-0090",
+        mod_number: "P00001",
+        mod_type: "other",
+        sf30_13a: false,
+        sf30_13b: false,
+        sf30_13c: false,
+        sf30_13d: false,
+        authority_text: null,
+        description: "Fictional demo modification recorded for SF 30 value verification.",
+        clause_delta: [],
+        state: "draft",
+        is_seed: true,
+      },
+    ],
+    "acquisition_id,mod_number",
+  );
+
   await wipe(db, "thresholds", "threshold_id");
   await put(
     "thresholds",
