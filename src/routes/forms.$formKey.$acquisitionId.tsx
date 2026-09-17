@@ -339,6 +339,27 @@ function FormPage() {
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
 
+  // P0 fold-in: an official export is only Ready when the blank itself loads.
+  // Mapping rows alone are not enough: a missing blank exports nothing.
+  const blankFormId = isFormKey(formKey) ? routeKeyToFormId(formKey) : null;
+  const blankAvailable = useQuery({
+    queryKey: ["official-blank", blankFormId],
+    enabled: Boolean(blankFormId),
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const template = resolveFormTemplate(blankFormId!, null);
+      try {
+        const head = await fetch(template.storage_path, { method: "HEAD" });
+        if (head.ok) return true;
+        const get = await fetch(template.storage_path);
+        return get.ok;
+      } catch {
+        return false;
+      }
+    },
+  });
+
+
   if (!isFormKey(formKey)) {
     return (
       <AppShell>
