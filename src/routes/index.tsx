@@ -67,6 +67,103 @@ function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
   );
 }
 
+/** Chip tone for a portfolio countdown, reusing the Chunk 2 honesty rules. */
+function chipDigitColor(view: CountdownView): string {
+  if (view.tone === "red") return "var(--atrisk)";
+  if (view.tone === "muted") return "var(--panel-muted)";
+  return "var(--accent-cyan)";
+}
+
+/**
+ * Portfolio scan strip inside the navy Mission Clock band (ORBIT Chunk 5).
+ * Every figure is read from the already-computed AcqMetrics via countdownView;
+ * no new date math, no invented hours or minutes.
+ */
+function PortfolioScan({ metrics }: { metrics: AcqMetrics[] }) {
+  const chips = useMemo(
+    () =>
+      metrics.map((m) => ({ acq: m.acq.acquisition_id, view: countdownView(m) })),
+    [metrics],
+  );
+
+  const phases = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const m of metrics) {
+      const phase = m.currentPhase ?? "Not started";
+      counts.set(phase, (counts.get(phase) ?? 0) + 1);
+    }
+    const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    const max = Math.max(1, ...rows.map(([, n]) => n));
+    return { rows, max };
+  }, [metrics]);
+
+  return (
+    <div className="mb-6 border-b border-panel-muted/25 pb-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-panel-muted">
+        Launch countdown · Portfolio
+      </p>
+      <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-3" aria-label="Portfolio countdowns">
+        {chips.map(({ acq, view }) => (
+          <li key={acq}>
+            <Link
+              to="/files/$acquisitionId"
+              params={{ acquisitionId: acq }}
+              title={`${acq} — ${view.caption}`}
+              className="inline-flex items-baseline gap-2 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
+            >
+              <span className="text-[12px] text-panel-muted">{acq}</span>
+              {view.days === null ? (
+                <span className="text-[13px] text-panel-muted">
+                  {view.mode === "stopped" ? "Stopped" : "Not started"}
+                </span>
+              ) : (
+                <span
+                  className="text-[17px] font-semibold [font-variant-numeric:tabular-nums]"
+                  style={{ color: chipDigitColor(view) }}
+                  data-numeric
+                >
+                  {view.prefix} {view.days}
+                </span>
+              )}
+              {view.badge ? (
+                <span
+                  className="rounded px-1 text-[10px] font-semibold tracking-wide"
+                  style={
+                    view.mode === "hold"
+                      ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
+                      : view.mode === "overdue"
+                        ? { color: "#ffffff", backgroundColor: "var(--atrisk)" }
+                        : { color: "var(--panel)", backgroundColor: "var(--accent-cyan)" }
+                  }
+                >
+                  {view.badge}
+                </span>
+              ) : null}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {phases.rows.length > 0 ? (
+        <ul className="mt-5 space-y-1.5" aria-label="Phase distribution">
+          {phases.rows.map(([phase, n]) => (
+            <li key={phase} className="flex items-center gap-3">
+              <span className="w-40 shrink-0 truncate text-[12px] text-panel-muted">{phase}</span>
+              <span
+                aria-hidden="true"
+                className="h-1.5 rounded-sm bg-panel-muted/40"
+                style={{ width: `${Math.max(3, (n / phases.max) * 100)}%`, maxWidth: "100%" }}
+              />
+              <span className="text-[12px] text-panel-foreground" data-numeric>
+                {n}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 
 export function ExecutiveOverview() {
   const { authState } = useRole();
