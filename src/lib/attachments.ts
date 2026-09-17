@@ -197,3 +197,65 @@ export async function saveIgceClins(acquisitionId: string, clins: SheetClin[]): 
   const { error } = await supabase.from("igce_clins").insert(rows as never);
   if (error) throw new Error(error.message);
 }
+
+/**
+ * P1-C: an official PDF or Word draft this app generated is kept on the file as
+ * a generated document, not as an upload. The bytes go to the same private
+ * bucket, but the record written is a `documents` row carrying the form's
+ * template, so the contract file index reads it as Generated with the source
+ * it actually had.
+ */
+export async function fileGeneratedExport(input: {
+  acquisitionId: string;
+  templateId: string | null;
+  key: string;
+  label: string;
+  file: File;
+  actor: string;
+  formRevision?: string | null;
+}): Promise<{ storagePath: string }> {
+  const actor = await signedInName(input.actor);
+  if (input.file.size > 20 * 1024 * 1024) throw new Error(`${input.file.name} is larger than 20 MB.`);
+  const path = `${input.acquisitionId}/${input.key}/${Date.now()}-${safeName(input.file.name)}`;
+  const upload = await supabase.storage.from("attachments").upload(path, input.file, {
+    contentType: input.file.type || "application/octet-stream",
+    upsert: false,
+  });
+  if (upload.error) throw new Error(upload.error.message);
+
+  const savedAt = new Date().toISOString();
+  const { error } = await supabase.from("documents").insert({
+    acquisition_id: input.acquisitionId,
+    template_id: input.templateId,
+    field_values: {
+      kind: "official-export",
+      doc_key: input.key,
+      doc_label: input.label,
+      file_name: input.file.name,
+      storage_path: path,
+      content_type: input.file.type || null,
+      ...(input.formRevision ? { form_revision: input.formRevision } : {}),
+    } as never,
+    version: 1,
+    saved_by: actor,
+    saved_at: savedAt,
+    ai_model: "T-Minus form engine (official blank, record values, no model)",
+    ai_generated_at: savedAt,
+  } as never);
+  if (error) {
+    await supabase.storage.from("attachments").remove([path]);
+    throw new Error(error.message);
+  }
+
+  await supabase.from("audit_log").insert({
+    acquisition_id: input.acquisitionId,
+    actor,
+    action: "Official form draft filed",
+    field: input.label,
+    old_value: null,
+    new_value: input.file.name,
+    reason: `${input.label} was generated from the record and filed on the contract file`,
+  } as never);
+
+  return { storagePath: path };
+}

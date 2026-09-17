@@ -25,7 +25,7 @@ import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
-import { uploadAttachment } from "@/lib/attachments";
+import { fileGeneratedExport } from "@/lib/attachments";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
@@ -463,11 +463,12 @@ function FormPage() {
 
 
   /**
-   * Soft §10: a generated draft is kept on the file, not only in the reader's
-   * Downloads folder. The bytes already downloaded are written into the
-   * evidence pack as an attachment. A pack write that fails never loses the
-   * download; it is reported as it happened. This is prototype retention, not
-   * a write-back to NCMS.
+   * Soft §10, P1-C: a generated draft is kept on the file, not only in the
+   * reader's Downloads folder. This app made the bytes, so the record written
+   * is a document row against the form's own template and the contract file
+   * index reads it as Generated, never as an upload. A pack write that fails
+   * never loses the download; it is reported as it happened. This is prototype
+   * retention, not a write-back to NCMS.
    */
   const fileIntoPack = async (input: {
     bytes: Uint8Array;
@@ -482,27 +483,16 @@ function FormPage() {
       const file = new File([input.bytes as unknown as BlobPart], input.fileName, {
         type: input.contentType,
       });
-      await uploadAttachment({
+      await fileGeneratedExport({
         acquisitionId,
+        templateId: q.data?.templateId ?? null,
         key: input.key,
         label: input.label,
         file,
         actor: who,
+        formRevision: pinnedRevision ?? null,
       });
-      try {
-        await supabase.from("audit_log").insert({
-          acquisition_id: acquisitionId,
-          actor: who,
-          action: "Official form draft filed",
-          field: input.label,
-          old_value: null,
-          new_value: input.note ?? input.fileName,
-          reason: "A generated draft was filed on the contract file for the evidence pack",
-        } as never);
-      } catch {
-        // Soft: the audit note never holds the file.
-      }
-      return " The draft is also filed on the contract file, in the evidence pack.";
+      return " The draft is also filed on the contract file as a generated document.";
     } catch (error) {
       const why = error instanceof Error ? error.message : "the pack write did not finish";
       return ` The download is on your machine, but filing it on the contract file did not finish: ${why}`;
@@ -737,19 +727,24 @@ function FormPage() {
             </button>
           </div>
           {formTemplateId ? (
-            <details className="mb-4 max-w-[80ch] text-[13px] text-muted-foreground">
-              <summary className="cursor-pointer">Legacy XFA and data file routes (not recommended)</summary>
-              <div className="mt-3 flex flex-wrap gap-3">
+            <details className="mb-4 max-w-[80ch] text-[12px] leading-5 text-muted-foreground">
+              <summary className="cursor-pointer text-[12px]">
+                Legacy XFA and data file routes (not recommended)
+              </summary>
+              <p className="mt-2">
+                Not for the walkthrough recording: these two produce the blank-face path.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-lg border border-border px-2 py-1 text-[12px]"
                   onClick={() => void exportPopulated()}
                 >
                   Export form PDF (legacy)
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-lg border border-border px-2 py-1 text-[12px]"
                   onClick={exportData}
                 >
                   Export data file for Import Data (legacy)

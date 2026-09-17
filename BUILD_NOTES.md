@@ -2201,3 +2201,25 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
 - **P0-2 SF 30 block 2.** `AmendmentNo[0]` → `modification.number`, `AmendmentNo[1]` → `solicitation.number`, `ModificationNo[0]` → `contract.number`. `sf30CtxToRogerData` no longer writes the contract number into block 2; block 13 checks come from the recorded `sf30_13a/b/c/d`. The form route loads `contract_modifications` for the file; the table is empty today, so block 2 prints empty, which is honest. No mod is seeded.
 - **P0-3 SF 1449 schedule overflow.** Face narrative is packed from whole sentences only. When something will not fit, `delivery.see_schedule` is set and the last face line reads `(see continuation sheet)`. CLIN arithmetic and faceLine rules unchanged.
 - **P0-4 Templates status truth.** SF 1449, SF 30, NF 1787 and NF 1787A are `live` in the library; `statusLabel`/`statusColor` and the counts read `live` and `current` (case-insensitive) as Live.
+
+## Soft Walk P1 follow-on (after P0 27c72d39)
+
+- P1-A One CO source of truth: the Enterprise/ORBIT Teams transcript no longer
+  hardcodes "J. Rivera (fictional CO)"; it prints the title, center and
+  `co_name` recorded on A-2027-0101 (Joshua Taggart). Memo Route/From, SF 1449
+  `contractingofficer`, SF 30 `NameandTitleOfficer` and Overview owner were
+  already record-derived from `acquisition_facts.co_name`; the signed-in person
+  is never substituted. Files outside Sample 1/2/0090 keep their own recorded CO.
+- P1-B Market research findings prose: when the searches return the same entity
+  in more than one geography or source, the paragraph 5 sentence now says the
+  figure is de-duplicated and an entity found more than once is counted once.
+  No new number is introduced. The stored A-2027-0101 finding carries the same
+  sentence.
+- P1-C Official exports file as Generated: `fileGeneratedExport` stores the
+  bytes and writes a `documents` row against the form's template with
+  `field_values.kind = "official-export"`, so the contract file index shows
+  origin Generated. No `document_attachments` row is written for these.
+- P1-D Legacy XFA/XDP block is quieter: smaller label and buttons, with a line
+  saying those routes produce the blank-face path and are not for the recording.
+- P1-E `/files/$acquisitionId` shows the loading note until the record is in
+  hand, so a client navigation no longer flashes an empty file.
