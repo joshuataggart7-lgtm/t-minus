@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { mappingsFor } from "@/lib/form-field-mappings";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -354,6 +355,12 @@ function FormPage() {
   const pinnedRevision = formTemplateId
     ? pinnedRevisionFrom(latest?.field_values) ?? currentFormRevision(formTemplateId)
     : null;
+  // P0-4/P0-1: a blank with no mapping rows would export empty, so it reads
+  // Planned rather than Ready.
+  const officialExportStatus =
+    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0
+      ? "Ready"
+      : "Planned";
 
   const save = useMutation({
     mutationFn: async () => {
@@ -623,7 +630,7 @@ function FormPage() {
         {formTemplateId === "sf1449"
           ? " · official PDF export: Live"
           : formTemplateId
-            ? " · official PDF export: Ready"
+            ? ` · official PDF export: ${officialExportStatus}`
             : ""}
 
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
