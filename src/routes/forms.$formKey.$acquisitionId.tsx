@@ -422,8 +422,9 @@ function FormPage() {
       blocks.push({ text: section.title, bold: true, size: 12, gap: 2 });
       if (section.citation) blocks.push({ text: section.citation, size: 9, gap: 4 });
       for (const field of section.fields) {
+        // An empty block reads as prose, never as a filled dash.
         const value =
-          typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value || "—";
+          typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value || "Not recorded";
         blocks.push({ text: `${field.label}: ${value}`, size: 11, indent: 12, gap: 2 });
       }
       blocks.push({ text: "", gap: 8 });
