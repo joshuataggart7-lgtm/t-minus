@@ -2308,3 +2308,32 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
   the contract file index, including older prototype uploads.
 - OF 347 face arithmetic and delivery blocks, SF 1449 sentence packing, and
   the continuation marker were not changed.
+
+## Regulation text corpus via /reg-intake (Soft Walk GREEN)
+
+- New table `regulation_sections` holds verbatim regulation and guidance text
+  with corpus, corpus_revision, citation, parent_citation, heading, binding,
+  source_url, retrieved_at, effective_date, superseded_at and sha256. Live
+  indexes on (corpus, citation), (citation) and (corpus, retrieved_at).
+  Read: any signed-in user. Write: HQ or administrator only.
+- Rows are never updated in place. A new load stamps `superseded_at` on the
+  live rows it replaces and inserts the new text, so documents written under
+  earlier text stay readable.
+- `/reg-intake` keeps all five CSV datasets and the staged-diff-before-write
+  pipe, and adds two JSONL types: Regulation text (binding, corpora far_rfo /
+  nfs / pcd) and Practice guidance (never binding, corpora far_companion /
+  nfs_companion / buying_guide). sha256 is computed when the file omits it.
+  The page shows the oldest live retrieved_at per corpus as a reminder; there
+  is no fetch on a schedule. On accept it lists live files citing a section
+  whose text changed and writes the audit line.
+- "Show me the text" now resolves a citation against live sections by exact
+  citation string, shows verbatim text with corpus, retrieval date, source
+  link and a binding or "Non-binding practice guidance" badge. A precise
+  paragraph citation is never widened to its parent section, so FAR 10.002(e)
+  stays honestly unresolved while naming FAR 10.002 as what is loaded.
+  Unresolved citations keep the official regulatory_refs link; no regulation
+  text is ever generated.
+- Seeded FAR Part 10 from the public RFO PDF (10 sections, corpus far_rfo,
+  revision RFO-PDF-2026-09-17) and one non-binding FAR Companion excerpt.
+- Untouched: OF347, SF30, memo, file index, SF1449 schedule, clocks (FLAG-only),
+  samples.

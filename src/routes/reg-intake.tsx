@@ -13,6 +13,44 @@ import {
   type Diff,
   type DiffRow,
 } from "@/lib/reg-intake";
+import {
+  applySectionDiff,
+  BINDING_CORPORA,
+  daysSince,
+  diffSections,
+  filesCitingChangedSections,
+  GUIDANCE_CORPORA,
+  loadLiveSections,
+  oldestRetrievedByCorpus,
+  parseSectionFile,
+  readSectionUpload,
+  sectionDiffSentence,
+  type SectionDiff,
+  type SectionDiffRow,
+  type SectionUpload,
+} from "@/lib/regulation-sections";
+
+/** The two text intake types. Both stage a difference before anything is written. */
+const TEXT_TYPES = [
+  {
+    id: "regulation_text",
+    label: "Regulation text",
+    fileHint: "regulation_sections.jsonl",
+    binding: true,
+    corpora: BINDING_CORPORA as readonly string[],
+  },
+  {
+    id: "practice_guidance",
+    label: "Practice guidance",
+    fileHint: "practice_guidance.jsonl",
+    binding: false,
+    corpora: GUIDANCE_CORPORA as readonly string[],
+  },
+] as const;
+
+type TextTypeId = (typeof TEXT_TYPES)[number]["id"];
+
+const isTextType = (id: string): id is TextTypeId => TEXT_TYPES.some((t) => t.id === id);
 
 type LooseTable = {
   select: (cols: string) => Promise<{ data: unknown[] | null; error: { message: string } | null }>;
@@ -52,7 +90,8 @@ function RegIntakePage() {
   const qc = useQueryClient();
   const isHq = hasRole("hq");
 
-  const [datasetId, setDatasetId] = useState(DATASETS[0]!.id);
+  const [datasetId, setDatasetId] = useState<string>(DATASETS[0]!.id);
+  const textType = isTextType(datasetId) ? TEXT_TYPES.find((t) => t.id === datasetId)! : null;
   const dataset = datasetById(datasetId);
   const [fileName, setFileName] = useState<string | null>(null);
   const [text, setText] = useState<string | null>(null);
@@ -61,10 +100,11 @@ function RegIntakePage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
+  const [sectionRows, setSectionRows] = useState<SectionUpload[] | null>(null);
 
   const q = useQuery({
     queryKey: ["reg-intake", dataset.table],
-    enabled: authState === "signed-in",
+    enabled: authState === "signed-in" && !textType,
     queryFn: async () => {
       const { data, error } = await table(dataset.table).select("*");
       if (error) throw new Error(error.message);
@@ -72,8 +112,27 @@ function RegIntakePage() {
     },
   });
 
+  const live = useQuery({
+    queryKey: ["regulation-sections-live"],
+    enabled: authState === "signed-in",
+    queryFn: loadLiveSections,
+  });
+
+  const reminders = useMemo(() => {
+    const rows = live.data ?? [];
+    const loaded = oldestRetrievedByCorpus(rows);
+    const seen = new Set(loaded.map((l) => l.corpus));
+    const all = [...BINDING_CORPORA, ...GUIDANCE_CORPORA];
+    return all.map((corpus) => {
+      const hit = loaded.find((l) => l.corpus === corpus);
+      if (!seen.has(corpus) || !hit) return `${corpus} text not loaded`;
+      const days = daysSince(hit.retrieved_at);
+      return `${corpus} text last loaded ${days === null ? "on an unrecorded date" : `${days} day${days === 1 ? "" : "s"} ago`}`;
+    });
+  }, [live.data]);
+
   const incoming = useMemo(() => {
-    if (!text) return null;
+    if (!text || textType) return null;
     try {
       // The file is read exactly as written; the effective date is recorded
       // with the change rather than written into rows that leave it blank.
@@ -81,16 +140,22 @@ function RegIntakePage() {
     } catch {
       return null;
     }
-  }, [text, dataset]);
+  }, [text, dataset, textType]);
 
   const diff: Diff | null = useMemo(() => {
     if (!incoming || !q.data) return null;
     return diffDataset(dataset, incoming, q.data);
   }, [incoming, q.data, dataset]);
 
+  const sectionDiff: SectionDiff | null = useMemo(() => {
+    if (!textType || !sectionRows || !live.data) return null;
+    return diffSections(sectionRows, live.data);
+  }, [textType, sectionRows, live.data]);
+
   const pick = async (file: File | null) => {
     setMessage(null);
     setProblem(null);
+    setSectionRows(null);
     if (!file) {
       setFileName(null);
       setText(null);
@@ -99,6 +164,71 @@ function RegIntakePage() {
     const body = await file.text();
     setFileName(file.name);
     setText(body);
+    if (textType) {
+      try {
+        const parsed = parseSectionFile(body);
+        setSectionRows(await readSectionUpload(parsed, textType.binding, textType.corpora));
+      } catch (e) {
+        setSectionRows(null);
+        setProblem(
+          `${e instanceof Error ? e.message : String(e)} Check the file is one section per line and upload it again.`,
+        );
+      }
+    }
+  };
+
+  /** Text intake: supersede what is replaced, insert the new text, log it. */
+  const applySections = async () => {
+    if (!sectionDiff || !textType) return;
+    setBusy(true);
+    setMessage(null);
+    setProblem(null);
+    const now = new Date().toISOString();
+    const actor = user.name;
+    try {
+      await applySectionDiff(sectionDiff);
+      const summary = sectionDiffSentence(textType.label, sectionDiff);
+      const touched = [...sectionDiff.changed, ...sectionDiff.removed, ...sectionDiff.added].map((r) => r.citation);
+      let citing: string[] = [];
+      try {
+        citing = await filesCitingChangedSections(
+          [...sectionDiff.changed, ...sectionDiff.removed].map((r) => r.citation),
+        );
+      } catch {
+        citing = [];
+      }
+      const citingLine =
+        citing.length > 0
+          ? `Live files citing changed sections: ${citing.join(", ")}.`
+          : "No live file cites a section whose text changed.";
+
+      const { error: logError } = await supabase.from("audit_log").insert([
+        {
+          acquisition_id: null,
+          actor,
+          action: "Regulation text applied",
+          field: "regulation_sections",
+          old_value: `${live.data?.length ?? 0} live sections`,
+          new_value: `${summary} ${citingLine}`,
+          reason: reason.trim() || fileName,
+          logged_at: now,
+        },
+      ] as never);
+      if (logError) throw new Error(logError.message);
+
+      setMessage(
+        `${summary} ${touched.length} citation${touched.length === 1 ? "" : "s"} touched. Superseded text stays readable. ${citingLine}`,
+      );
+      setText(null);
+      setFileName(null);
+      setSectionRows(null);
+      await qc.invalidateQueries({ queryKey: ["regulation-sections-live"] });
+    } catch (e) {
+      setProblem(
+        `${e instanceof Error ? e.message : String(e)} Check that you are signed in as HQ, then apply again.`,
+      );
+    }
+    setBusy(false);
   };
 
   const apply = async () => {
@@ -210,6 +340,7 @@ function RegIntakePage() {
                   setDatasetId(e.target.value);
                   setText(null);
                   setFileName(null);
+                  setSectionRows(null);
                   setMessage(null);
                   setProblem(null);
                 }}
@@ -217,6 +348,11 @@ function RegIntakePage() {
                 {DATASETS.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.label} ({d.fileHint})
+                  </option>
+                ))}
+                {TEXT_TYPES.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.label} ({t.fileHint})
                   </option>
                 ))}
               </select>
@@ -235,12 +371,12 @@ function RegIntakePage() {
             </div>
             <div>
               <label htmlFor="file" className="text-[14px]">
-                File (comma separated values)
+                {textType ? "File (one section per line)" : "File (comma separated values)"}
               </label>
               <input
                 id="file"
                 type="file"
-                accept=".csv,text/csv"
+                accept={textType ? ".jsonl,.json,application/json" : ".csv,text/csv"}
                 className={field}
                 onChange={(e) => void pick(e.target.files?.[0] ?? null)}
               />
@@ -261,12 +397,24 @@ function RegIntakePage() {
         </section>
       ) : null}
 
-      {q.isLoading ? (
+      <section className="mt-8 max-w-[80ch]">
+        <h2 className="section-title">Regulation and guidance text loaded</h2>
+        <p className="mt-2 text-muted-foreground">
+          Text is loaded by hand. There is no fetch on a schedule, so re-upload when a new revision is issued.
+        </p>
+        <ul className="mt-2 list-disc pl-5 text-[13px] leading-[18px] text-muted-foreground">
+          {reminders.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      </section>
+
+      {q.isLoading && !textType ? (
         <div className="mt-8">
           <LoadingNote what="the loaded regulatory data" />
         </div>
       ) : null}
-      {q.error ? (
+      {q.error && !textType ? (
         <div className="mt-8">
           <ErrorNote message={`${(q.error as Error).message} Reload the page to try again.`} />
         </div>
@@ -285,9 +433,55 @@ function RegIntakePage() {
 
       {isHq && !text ? (
         <div className="mt-8">
-          <EmptyState sentence={`Nothing is staged. ${dataset.table} holds ${q.data?.length ?? 0} rows today.`} />
+          <EmptyState
+            sentence={
+              textType
+                ? `Nothing is staged. ${(live.data ?? []).filter((r) => textType.corpora.includes(r.corpus)).length} live sections are loaded for ${textType.label.toLowerCase()} today.`
+                : `Nothing is staged. ${dataset.table} holds ${q.data?.length ?? 0} rows today.`
+            }
+          />
         </div>
       ) : null}
+
+      {sectionDiff && textType ? (
+        <section className="mt-10">
+          <h2 className="section-title">Difference against the loaded text</h2>
+          <p className="mt-2 max-w-[80ch] text-muted-foreground">
+            {sectionDiffSentence(textType.label, sectionDiff)} Replaced and removed sections are marked superseded, not
+            deleted, so documents written under the earlier text stay readable.
+            {textType.binding ? "" : " Every section in this file loads as non-binding practice guidance."}
+          </p>
+          <SectionDiffTable heading="Replaced sections" rows={sectionDiff.changed} kind="changed" />
+          <SectionDiffTable heading="New sections" rows={sectionDiff.added} kind="added" />
+          <SectionDiffTable heading="Sections no longer in the file" rows={sectionDiff.removed} kind="removed" />
+          {isHq ? (
+            <div className="mt-8 flex items-center gap-4">
+              <button
+                type="button"
+                disabled={
+                  busy || sectionDiff.added.length + sectionDiff.changed.length + sectionDiff.removed.length === 0
+                }
+                onClick={() => void applySections()}
+                className="rounded-lg border border-border px-3 py-2 text-[14px] text-primary hover:border-primary disabled:opacity-60"
+              >
+                {busy ? "Applying" : "Apply the text"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setText(null);
+                  setFileName(null);
+                  setSectionRows(null);
+                }}
+                className="rounded-lg border border-border px-3 py-2 text-[14px] hover:border-primary"
+              >
+                Discard the upload
+              </button>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
 
       {diff ? (
         <section className="mt-10">
@@ -383,6 +577,67 @@ function DiffTable({
               </tr>
             ),
           )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** The staged text difference, citation by citation. Text is not rewritten here. */
+function SectionDiffTable({
+  heading,
+  rows,
+  kind,
+}: {
+  heading: string;
+  rows: SectionDiffRow[];
+  kind: "added" | "changed" | "removed";
+}) {
+  if (rows.length === 0) return null;
+  return (
+    <div className="mt-8">
+      <h3 className="text-[16px] font-medium">
+        {heading} ({rows.length})
+      </h3>
+      <table className="mt-3 w-full border-collapse text-[13px]">
+        <caption className="sr-only">{heading}</caption>
+        <thead>
+          <tr className="border-b border-border text-left">
+            <th scope="col" className="py-2 pr-4">
+              Citation
+            </th>
+            <th scope="col" className="py-2 pr-4">
+              Corpus
+            </th>
+            <th scope="col" className="py-2 pr-4">
+              Loaded now
+            </th>
+            <th scope="col" className="py-2">
+              In the file
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key} className="border-b border-border align-top">
+              <th scope="row" className="py-2 pr-4 text-left font-normal">
+                {r.citation}
+              </th>
+              <td className="py-2 pr-4">{r.corpus}</td>
+              <td className="py-2 pr-4">
+                {r.existing
+                  ? `${r.existing.corpus_revision} · ${r.existing.text.length} characters`
+                  : "not loaded"}
+              </td>
+              <td className="py-2">
+                {kind === "removed"
+                  ? "not in the file"
+                  : r.incoming
+                    ? `${r.incoming.corpus_revision} · ${r.incoming.text.length} characters`
+                    : "not in the file"}
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
