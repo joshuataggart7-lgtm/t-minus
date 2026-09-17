@@ -2480,3 +2480,10 @@ No residual citation bugs found in this pass.
 - Why, for an exclusion question, names cause, vendor UEI, source and the time read, with the clearing step, instead of the generic hold text.
 - Calendar formatting accepts a full timestamp as well as a date, so "Last check" shows a real date on Sample 1 and Sample 2 instead of Invalid Date.
 - Unchanged and confirmed: FAR 13.106-3(d) on the simplified unsuccessful-quoter letters with no Part 15 debriefing or Source Selection Statement, JAZ procurement office, CO email bound from the users row, the 52.212-5 Reserved note on the Sample 1 clause packet, and the withheld clause delta on A-2026-0090.
+
+## AC-W4.5 — SF 33 / SF 26 / OF 347 official fills
+- Official blanks in public/forms/ (SF33.pdf, SF26.pdf, OF347.pdf) are byte-identical to the supplied GSA files; field maps kept under docs/forms/.
+- buildSf33, buildSf26 and buildOf347 sit beside buildSf1449 and buildSf30 on the same XFA path (xfaDatasets, incremental export and companion data file). No second PDF stack.
+- recommendedOfficialForm: a recorded modification points at SF 30; a record naming SF 26 points at SF 26; commercial streamlined (Sample 1) points at SF 1449, never forced to SF 33; an order under an existing contract or a simplified purchase points at OF 347; everything else negotiated in the uniform format points at SF 33. A suggestion only — every other form stays reachable.
+- Signature fields are never filled on any of the three; offeror and contractor blocks stay empty; missing government fields are flagged as gaps rather than guessed.
+- The forms page description now names SF 33, SF 26 and OF 347.
