@@ -14,7 +14,11 @@ import { Link } from "@tanstack/react-router";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY } from "@/lib/cdrl";
-import { PAYMENT_MILESTONES_EMPTY } from "@/lib/payment-milestones";
+import {
+  PAYMENT_MILESTONES_EMPTY,
+  PAYMENT_PLAN_LABEL,
+  paymentPlanNotes,
+} from "@/lib/payment-milestones";
 
 const NCMS_CHIP = "NCMS is the system of record. T-Minus does not write to NCMS.";
 
