@@ -101,7 +101,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const schedule: Record<string, string>[] = scheduleLines.map((line, i) => {
     if (i > 0) return { description: line };
     return {
-      item: "0001",
+      item_number: "0001",
       description: line,
       quantity: multipliesOut ? String(qty) : singleLotLine ? "1" : "",
       unit: multipliesOut ? str(firstClin?.unit) : singleLotLine ? "Lot" : "",
@@ -110,7 +110,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     };
   });
   if (schedule.length === 0) {
-    schedule.push({ item: "0001", amount: dollars(price || a["estimated_value"]) });
+    schedule.push({ item_number: "0001", amount: dollars(price || a["estimated_value"]) });
   }
 
   const method = commercial ? "rfq" : "rfp";
@@ -118,29 +118,28 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
 
   return {
     requisition: { number: str(a["pr_number"]) || str(a["acquisition_id"]) },
-    pagination: { page_of: "1" },
+    pagination: { page: "1", pages: "" },
     contract: {
       number: str(a["contract_number"]),
-      order_number: str(a["order_number"]),
+      // The award date is completed by the contracting officer.
+      award_effective_date: "",
     },
+    order: { number: str(a["order_number"]) },
     solicitation: {
       number: str(a["solicitation_number"]),
-      contact_name: coName,
-      contact_phone: str(a["co_phone"]),
+      issue_date: str(a["solicitation_issue_date"]),
+      offer_due_local: str(a["offers_due"]),
+      contact: { name: coName, phone: str(a["co_phone"]) },
       method,
     },
-    issuing_office: { code: str(a["center_code"]), name: office },
+    issuing_office: { code: str(a["center_code"]), name_address: office },
 
-    set_aside: {
-      raw: setAside,
-      type: setAside,
-      unrestricted: !setAside,
-      is_set_aside: Boolean(setAside),
+    acquisition: {
+      restriction: setAside ? "set_aside" : "unrestricted",
+      set_aside_program: totalSmallBusiness ? `small_business_total ${setAside}` : setAside,
       // Block 10 carries a number, never prose.
-      percent: totalSmallBusiness ? "100" : "",
-    },
-    naics: {
-      code: str(a["naics_code"]),
+      set_aside_percent: totalSmallBusiness ? "100" : "",
+      naics: str(a["naics_code"]),
       size_standard: ctx.sizeStandard
         ? ctx.sizeStandard.standardType === "employees"
           ? `${ctx.sizeStandard.employees ?? ""} employees`
@@ -148,29 +147,38 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
         : "",
     },
 
-    delivery: { rating: str(a["dpas_rating"]), deliver_to: place },
-    administration: { office, code: str(a["center_code"]) },
-    contractor: {
-      address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
-      phone: str(a["awardee_phone"]) || str(a["intended_awardee_phone"]),
+    dpas: { is_rated_order: Boolean(str(a["dpas_rating"])), rating: str(a["dpas_rating"]) },
+    delivery: {
+      see_schedule: true,
+      deliver_to: { name_address: place, code: "" },
     },
-    payment: { office: str(a["payment_office"]), discount_terms: str(a["discount_terms"]) },
+    administering_office: { name_address: office, code: str(a["center_code"]) },
+    contractor: {
+      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
+      facility_code: str(a["awardee_cage"]) || str(a["intended_awardee_cage"]),
+      phone: str(a["awardee_phone"]) || str(a["intended_awardee_phone"]),
+      remittance_differs: false,
+    },
+    payment: { office: { code: "", name_address: str(a["payment_office"]) } },
 
     schedule,
     accounting: { data: str(a["funding_source"]) },
-    award: {
-      total: dollars(price),
-      // The award date is completed by the contracting officer.
-      date: "",
+    award: { total_amount: dollars(price) },
+    offer: {
+      copies: "",
+      reference: "",
+      exceptions: "",
+      discount_terms: str(a["discount_terms"]),
     },
-    offer: { copies: "", reference: "", exceptions: "" },
+    invoice: { see_addendum: commercial },
 
     clauses: {
       mode: commercial ? "addendum" : "schedule",
-      see_addendum: commercial,
-      see_schedule: !commercial,
-      this_contract: false,
+      box1_0: false,
+      box1_1: false,
+      box1_2: false,
+      box1_3: false,
       are1: false,
       arenot1: commercial,
       are2: false,
