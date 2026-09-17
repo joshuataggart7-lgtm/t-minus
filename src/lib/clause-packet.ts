@@ -553,5 +553,9 @@ export function sanitizeClauseSelection(
  * Surfaced once (progressive disclosure) from the clause picker / handoff
  * block; keep the wording calm and citation-backed.
  */
+/** One-line reason note shown beside the picker on a commercial file. */
+export const RFO_RESERVED_212_LINE =
+  "52.212-3 and 52.212-5 are Reserved under RFO FAR Part 12/52; statutory and EO terms are prescribed independently via Tables 12-2 and 12-3 (NASA PCD 26-03B / clause matrix disposition).";
+
 export const RFO_RESERVED_212_NOTE =
   "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause content is prescribed through FAR Tables 12-2 and 12-3 and each clause's own prescription rather than the old 52.212-5 checkbox paragraph. Offeror representations and certifications for commercial buys are made in SAM (with FAR 52.204-7 on the packet), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able here.";
