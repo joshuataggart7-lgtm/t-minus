@@ -315,6 +315,12 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     },
     ...narrativeLines.map((line) => ({ description: line })),
   ];
+  // Rows 1 to 8 are the face of the form; rows 9 and beyond are the back page.
+  // Empty rows keep the continuation text on the rows the reader is sent to.
+  if (continuationLines.length) {
+    while (schedule.length < 8) schedule.push({ description: "" });
+    for (const line of continuationLines) schedule.push({ description: line });
+  }
 
   const method = commercial ? "rfq" : "rfp";
   const coName = str(a["co_name"]);
