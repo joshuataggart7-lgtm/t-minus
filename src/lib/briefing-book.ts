@@ -216,7 +216,9 @@ function boardReadinessPage(input: BriefingInput, mark: string): string {
   return `<section class="page">
   <div>
     <h2>Board readiness</h2>
-    <p class="sub">The same advisory snapshot shown in the Evaluation cockpit.</p>
+    <p><span class="chip">${esc(readiness.methodLabel)}</span></p>
+    <p class="sub" style="margin-top:8px">${esc(readiness.methodVoice)}</p>
+    <p class="sub" style="margin-top:8px">The same advisory snapshot shown in the Evaluation cockpit.</p>
     <table style="margin-top:20px"><tbody>${rows}</tbody></table>
     ${findings}
     <p class="sub" style="margin-top:20px">Briefing aid only. Nothing here holds the file or a phase exit.</p>

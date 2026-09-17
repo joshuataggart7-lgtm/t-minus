@@ -58,6 +58,16 @@ export async function loadReadReceipts(acquisitionId: string): Promise<ReadRecei
   return (data ?? []) as unknown as ReadReceiptRow[];
 }
 
+/** Exact record count for Board snapshots; null is handled by callers on read failure. */
+export async function loadReadReceiptCount(acquisitionId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("document_read_receipts")
+    .select("receipt_id", { count: "exact", head: true })
+    .eq("acquisition_id", acquisitionId);
+  if (error) throw new Error(error.message);
+  return count ?? 0;
+}
+
 export async function loadReceiptsForDoc(
   acquisitionId: string,
   docKind: ReceiptKind,

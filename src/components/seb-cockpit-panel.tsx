@@ -19,7 +19,7 @@ import {
   type ClarificationRow,
 } from "@/lib/clarifications";
 import { LM_LAMP_LABEL, LM_LAMP_OK } from "@/lib/lm-consistency";
-import { loadReadReceipts, READ_RECEIPTS_CHIP } from "@/lib/read-receipts";
+import { loadReadReceiptCount, READ_RECEIPTS_CHIP } from "@/lib/read-receipts";
 
 import {
   FACTOR_EVIDENCE_ADVISORY,
@@ -73,10 +73,10 @@ export function SebCockpitPanel({
     queryFn: () => loadClarifications(acquisitionId),
   });
   // Receipts are only counted, never invented: a failed read leaves the line off.
-  const receiptsQ = useQuery({
-    queryKey: ["read-receipts", acquisitionId],
+  const receiptCountQ = useQuery({
+    queryKey: ["read-receipt-count", acquisitionId],
     enabled: Boolean(acquisitionId),
-    queryFn: () => loadReadReceipts(acquisitionId),
+    queryFn: () => loadReadReceiptCount(acquisitionId),
   });
 
 
@@ -96,7 +96,7 @@ export function SebCockpitPanel({
     m: mQ.data ?? null,
     factors,
     clarificationCount: clarifications.length,
-    receiptCount: receiptsQ.data ? receiptsQ.data.length : null,
+    receiptCount: receiptCountQ.data ?? null,
   });
 
   const lamp = readiness.lamp;
@@ -186,7 +186,15 @@ export function SebCockpitPanel({
 
       {/* Board brief — one scannable strip, counts only, never a gate. */}
       <section className="mt-3 break-inside-avoid" aria-label="Board brief">
-        <h5 className="text-[15px] font-medium">Board brief</h5>
+        <div className="flex flex-wrap items-center gap-2">
+          <h5 className="text-[15px] font-medium">Board brief</h5>
+          <span className="rounded-lg border border-border px-2 py-[2px] text-[12px] text-muted-foreground">
+            {readiness.methodLabel}
+          </span>
+        </div>
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          {readiness.methodVoice}
+        </p>
         <dl className="mt-1 max-w-[80ch] divide-y divide-border border-y border-border text-[13px] leading-[18px]">
           {readinessItems.map((item) => (
             <div key={item.label} className="flex flex-wrap items-baseline justify-between gap-4 py-1">
@@ -493,8 +501,10 @@ export function SebCockpitPanel({
       <section className="mt-4 border-t border-border pt-4">
         <h5 className="text-[15px] font-medium">Read receipts</h5>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-          {receiptsQ.data && receiptsQ.data.length > 0
-            ? `${receiptsQ.data.length} recorded. Who opened what is listed in the read receipts just below.`
+          {receiptCountQ.isError
+            ? "Receipt counts are omitted when the record cannot be read. The receipts panel below remains the source of truth."
+            : receiptCountQ.data !== undefined && receiptCountQ.data > 0
+            ? `${receiptCountQ.data} recorded. Who opened what is listed in the read receipts just below.`
             : "None yet. Opens are listed in the read receipts just below as people read documents on this file."}{" "}
           {READ_RECEIPTS_CHIP}
         </p>
