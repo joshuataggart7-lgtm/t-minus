@@ -859,7 +859,7 @@ function FormPage() {
                         ? field.value
                           ? "Checked"
                           : "Not checked"
-                        : field.value || "—"}
+                        : field.value || <span className="text-muted-foreground">Not recorded</span>}
                       {field.gap ? (
                         <span className="block text-[13px] text-muted-foreground">{field.gap}</span>
                       ) : null}
