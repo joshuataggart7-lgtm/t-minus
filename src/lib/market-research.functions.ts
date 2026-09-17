@@ -38,6 +38,10 @@ export type ResearchRunView = {
   noticeCount: number;
   /** Sources Sought notices found in the same read-only SAM.gov search. */
   sourcesSought: { title: string; posted: string; setAside: string }[];
+  /** Blackout notices in the same read-only search, named as their own group. */
+  blackoutNotices: { title: string; posted: string; setAside: string }[];
+  /** Draft RFP / draft solicitation notices in the same read-only search. */
+  draftRfpNotices: { title: string; posted: string; setAside: string }[];
   /** True when a notices window was actually searched. */
   noticesSearched: boolean;
   awardCount: number;
