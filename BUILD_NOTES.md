@@ -2065,3 +2065,5 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 ## Handoff honesty polish
 
 - Award handoff, NF 1098 assembly, payment milestones, and CDRL empty/advisory lines now use the same calm record-first wording. NF 1098 explicitly remains a checklist from the record, not a filled agency form; Adobe field checks stay human-only, NCMS remains the system of record, and no advisory holds a file or phase exit.
+
+- Wave 5 Board path deepen: boardReadiness now carries a real read-receipt count (null when unread, never invented); cockpit shows a Read receipts line and pointer to the panel below; briefing book Board readiness page prints the same snapshot. Advisory only — nothing holds a file or phase exit.
