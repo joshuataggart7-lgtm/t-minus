@@ -13,6 +13,7 @@ import { currentFormRevision, resolveFormTemplate, type FormTemplateId } from "@
 import { withCanonical } from "@/lib/canonical-adapters";
 import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
+import { dedupeClins, of347Face } from "@/lib/of347-face";
 
 export type RogerFormData = Record<string, unknown>;
 
@@ -91,12 +92,14 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
       zip: str(a["awardee_postal_code"]),
     },
     delivery: {
-      consignee: { name: place, street: "", city: "", state: "", zip: "" },
+      // Consignee only when a real ship-to is recorded. Inspection and
+      // acceptance stay empty: the record carries no dedicated field for them.
+      consignee: { name: shipTo, street: "", city: "", state: "", zip: "" },
       ship_via: "",
       fob: "",
       deliver_by: str(a["period_of_performance_end"]),
-      inspection_point: place,
-      acceptance_point: place,
+      inspection_point: "",
+      acceptance_point: "",
       government_bl: "",
     },
     acquisition: {
