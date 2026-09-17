@@ -14,6 +14,7 @@ import { withCanonical } from "@/lib/canonical-adapters";
 import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
+import { isMultipleAward } from "@/lib/award-holders";
 
 export type RogerFormData = Record<string, unknown>;
 
@@ -125,6 +126,12 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const mod = mods.length ? mods[mods.length - 1]! : {};
   const amends = !str(a["contract_number"]);
   const kind = str(mod["mod_type"]).toLowerCase();
+  // Block 8 names a contractor only when one is recorded for this action. On a
+  // multiple-award vehicle no single holder is picked.
+  const single = !isMultipleAward(a);
+  const contractorName = single ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) : "";
+  const contractorCode = single ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) : "";
+  const contractorCage = single ? str(a["awardee_cage"]) || str(a["intended_awardee_cage"]) : "";
 
   const data: RogerFormData = {
     pagination: { page: "1", pages: "1" },
@@ -134,7 +141,9 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       number: str(mod["mod_number"]),
       effective_date: str(mod["effective_date"]),
       project_number: str(a["acquisition_id"]),
-      description: str(mod["description"]),
+      description: str(mod["description"]).slice(0, 1600),
+      // A continuation page only when the recorded prose runs past block 14.
+      description_continued: str(mod["description"]).slice(1600),
       amends_solicitation: amends,
       modifies_contract: !amends,
       offer_period_changes: false,
@@ -153,7 +162,7 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       contractor_signature_required: false,
       contractor_signature_not_required: false,
     },
-    requisition: { number: str(a["pr_number"]) },
+    requisition: { number: str(a["pr_number"]) || str(mod["requisition_number"]) },
     contract: {
       id_code: str(a["contract_id_code"]),
       number: str(a["contract_number"]),
@@ -167,11 +176,11 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     issuing_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     administering_office: { code: str(a["center_code"]), name_address: officeOf(a) },
     contractor: {
-      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
-      facility_code: str(a["awardee_cage"]) || str(a["intended_awardee_cage"]),
+      name_address: contractorName,
+      code: contractorCode,
+      facility_code: contractorCage,
     },
-    accounting: { data: str(a["funding_source"]) },
+    accounting: { data: str(a["funding_source"]) || str(mod["funds_line"]) },
     // Signature blocks stay empty; only the officer of record's name prints.
     signer: { contracting_officer: str(a["co_name"]), name_title: "" },
   };

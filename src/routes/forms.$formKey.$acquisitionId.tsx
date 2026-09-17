@@ -19,6 +19,7 @@ import {
   validateSf1449ClinReconciliation,
 } from "@/lib/official-acroform-sf1449";
 import { generateOfficialFormPdf } from "@/lib/official-acroform-forms";
+import { sf30HonestBlanks } from "@/lib/sf30-blanks";
 import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 
 import { daysBetween, todayISO } from "@/lib/intake";
@@ -847,6 +848,24 @@ function FormPage() {
             <p role="status" className="mb-6 text-[15px]">
               {message}
             </p>
+          ) : null}
+
+          {formKey === "sf-30" && formCtx ? (
+            <section className="mb-6 max-w-[80ch] border border-border bg-background p-4">
+              <h3 className="text-[18px] leading-6 font-medium">Blocks left empty, and why</h3>
+              <p className="mb-3 text-[13px] text-muted-foreground">
+                Nothing below is a fault. The record does not carry these values, so the official form prints
+                them empty rather than showing a placeholder.
+              </p>
+              <dl>
+                {sf30HonestBlanks(formCtx).map((row) => (
+                  <div key={row.block} className="mb-2 grid grid-cols-[1fr_1.4fr] gap-3 text-[15px]">
+                    <dt className="text-muted-foreground">{row.block}</dt>
+                    <dd>{row.reason}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
           ) : null}
 
           <h2

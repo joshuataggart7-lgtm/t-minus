@@ -18,6 +18,7 @@ import type { FormClin, FormCtx, FormSection, FormValue, GeneratedForm } from "@
 import { isStreamlined } from "@/lib/format-scaffold";
 import { faceLine, packSentences, setAsideFlags } from "@/lib/official-acroform-sf1449";
 import { of347Face } from "@/lib/of347-face";
+import { isMultipleAward } from "@/lib/award-holders";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -274,9 +275,16 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.NameandAddress",
           "Name and address of contractor (block 8)",
-          str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+          isMultipleAward(a) ? "" : str(a["awardee_name"]) || str(a["intended_awardee_name"]),
+          isMultipleAward(a)
+            ? "This is a multiple-award vehicle. No single contractor of record is recorded for this modification, so block 8 prints empty and no holder is named."
+            : undefined,
         ),
-        field("topmostSubform.FacilityCode", "Unique entity identifier (block 8)", str(a["awardee_uei"])),
+        field(
+          "topmostSubform.FacilityCode",
+          "Unique entity identifier (block 8)",
+          isMultipleAward(a) ? "" : str(a["awardee_uei"]),
+        ),
         field("topmostSubform.Page", "Page (block 1)", "1"),
         field("topmostSubform.Pages", "Of pages (block 1)", "1"),
       ],
