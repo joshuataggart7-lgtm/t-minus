@@ -5,6 +5,7 @@ import { signedInName } from "@/lib/account-name";
 import { storedClauseList } from "@/lib/clause-impact";
 import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import {
+  RFO_RESERVED_212_LINE,
   RFO_RESERVED_212_NOTE,
   removedClauseNumbers,
   sanitizeClauseSelection,
