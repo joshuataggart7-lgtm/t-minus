@@ -57,6 +57,9 @@ const dollars = (v: unknown): string => {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 };
 
+/** Rows the official back page carries for the block 20 continuation (9-36). */
+const CONTINUATION_ROWS = 28;
+
 /** Text broken into at most `rows` lines of about `width` characters. */
 const wrapLines = (text: string, width: number, rows: number): string[] => {
   const lines: string[] = [];
