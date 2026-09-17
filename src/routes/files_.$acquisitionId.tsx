@@ -2462,6 +2462,12 @@ function FilePage() {
 
       <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
 
+      <NewOrderPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+      />
+
       <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
 
       <ModificationsPanel
