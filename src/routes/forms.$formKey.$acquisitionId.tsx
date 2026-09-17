@@ -33,6 +33,7 @@ import {
   currentFormRevision,
   FORM_REVISION_KEY,
   pinnedRevisionFrom,
+  resolveFormTemplate,
   routeKeyToFormId,
 } from "@/lib/form-templates";
 
