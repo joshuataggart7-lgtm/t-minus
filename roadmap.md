@@ -30,4 +30,4 @@
 - [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)
 
 # ORBIT visual identity
-- [ ] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters
+- [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters

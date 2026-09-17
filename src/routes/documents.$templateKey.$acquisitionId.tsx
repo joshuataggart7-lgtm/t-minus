@@ -80,6 +80,7 @@ import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofo
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
 import { tabRank } from "@/lib/file-index";
 import { ShowTheText } from "@/components/show-the-text";
+import { Nova } from "@/components/nova";
 import type { FindingMap } from "@/lib/research-findings";
 import {
   buildMemoDoc,
@@ -1494,9 +1495,12 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
-      <p className="mb-4 text-[13px] text-muted-foreground">
-        <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
-      </p>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Nova acquisitionId={acquisitionId} documentLabel={def.name} />
+        <p className="text-[13px] text-muted-foreground">
+          <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
+        </p>
+      </div>
 
       {/* A standalone draft is taken outside the launch sequence. It saves and
           exports like any document and adds no required row to the file. */}

@@ -28,6 +28,7 @@ import { signedInName } from "@/lib/account-name";
 import { fileGeneratedExport } from "@/lib/attachments";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
+import { Nova } from "@/components/nova";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
 import {
   currentFormRevision,
@@ -647,9 +648,12 @@ function FormPage() {
         title={FORM_NAMES[formKey]}
         lead={`Filled from the record of ${acquisitionId}. Signatures and concurrence come from the Approvals step.`}
       />
-      <p className="mb-2 text-[13px] text-muted-foreground">
-        <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
-      </p>
+      <div className="mb-2 flex flex-wrap items-center gap-3">
+        <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
+        <p className="text-[13px] text-muted-foreground">
+          <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
+        </p>
+      </div>
       <p className="mb-6 text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
         {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}

@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
+import { Nova } from "@/components/nova";
 import { PresenterScreensBeat } from "@/components/presenter-screens-beat";
 import { usePresenter, setPresenter } from "@/lib/presenter";
 import { useTriggerConfig } from "@/lib/use-trigger-config";
@@ -56,7 +57,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
     return next;
   });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const openAcquisitionId = /^\/files\/([^/]+)/.exec(pathname)?.[1] ?? null;
+  const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
   const allItems = navFor(roles);
@@ -115,6 +116,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <div className="app-chrome-search col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
         <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-3 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
           {presenter ? null : <AnnouncementBanner />}
+          <Nova acquisitionId={openAcquisitionId} />
           {isAdministrator ? (
             <button
               type="button"
