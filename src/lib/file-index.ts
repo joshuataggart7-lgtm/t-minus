@@ -73,7 +73,16 @@ export type IndexDocRow = {
   issue_on_nf1858?: boolean | null;
   memo_header?: { to?: string } | null;
   /** Saved values; a memorandum for record carries the tab the CO picked. */
-  field_values?: { __tab?: string; __official_final?: boolean; __official_filed_at?: string; __official_filed_by?: string } | null;
+  field_values?: {
+    __tab?: string;
+    __official_final?: boolean;
+    __official_filed_at?: string;
+    __official_filed_by?: string;
+    __retired?: unknown;
+    kind?: string;
+    doc_key?: string;
+    doc_label?: string;
+  } | null;
 };
 
 export type IndexTemplateRow = {
@@ -182,11 +191,16 @@ export function buildFileIndex(
   // P1-6: once the official SF 1449 export is on the file, an earlier hand
   // upload of the same form is stale and is not listed a second time.
   const isSf1449 = (label: string) => /sf\s*[- ]?1449/i.test(label);
-  const hasOfficialSf1449 = attachments.some(
+  const hasGeneratedOfficialSf1449 = documents.some((d) => {
+    const values = d.field_values;
+    if (!values || values.__retired || values.kind !== "official-export") return false;
+    return values.doc_key === "sf-1449-official" || isSf1449(values.doc_label ?? "");
+  });
+  const hasOfficialSf1449Upload = attachments.some(
     (a) => isSf1449(a.doc_label) && /official/i.test(a.doc_label),
   );
   const liveAttachments = hasOfficialSf1449
-    ? attachments.filter((a) => !isSf1449(a.doc_label) || /official/i.test(a.doc_label))
+    ? attachments.filter((a) => !isSf1449(a.doc_label) || (!hasGeneratedOfficialSf1449 && /official/i.test(a.doc_label)))
     : attachments;
 
   for (const a of liveAttachments) {

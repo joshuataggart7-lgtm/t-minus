@@ -57,6 +57,9 @@ function humanLine(line: string): string {
     out = `${source}${what}, searched ${parts[1]}, ${count}.`;
   }
   return out
+    // Source normalization can meet already-humanized saved prose. Collapse
+    // only this known trailing source word rather than changing valid emphasis.
+    .replace(/\bhistory(?:\s+history)+\b/gi, "history")
     .replace(/\s+([,.;:])/g, "$1")
     .replace(/,\s*,/g, ",")
     .replace(/\s{2,}/g, " ")
