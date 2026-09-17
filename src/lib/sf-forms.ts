@@ -120,7 +120,14 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
           str(a["solicitation_number"]),
           str(a["solicitation_number"]) ? undefined : "Assigned in NCMS when the solicitation issues.",
         ),
-        field("topmostSubform.issuedbycode", "Issued by (block 9)", issuedBy(a) || TO_COMPLETE("record the issuing office")),
+        // Block 9 carries the office code in the code box and the office name
+        // in the address box beside it.
+        field("topmostSubform.issuedbycode", "Issued by code (block 9)", str(a["center_code"])),
+        field(
+          "topmostSubform.TextField1[4]",
+          "Issued by (block 9)",
+          issuedBy(a) || TO_COMPLETE("record the issuing office"),
+        ),
         field("topmostSubform.contactname", "Point of contact (block 7)", str(a["co_name"])),
         field("topmostSubform.contactphone", "Telephone (block 7)", str(a["co_phone"])),
         field("topmostSubform.pagenumber", "Page of pages (block 3)", "1"),
