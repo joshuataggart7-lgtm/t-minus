@@ -19,6 +19,7 @@ import {
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
+import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -430,11 +431,7 @@ function WorkQueuePage() {
                   {c.daysInPhase ?? "—"}
                 </td>
                 <td className="p-2" data-numeric>
-                  {c.m.clockState === "launched"
-                    ? `${c.m.daysSinceAward ?? 0} since award`
-                    : c.m.clockState === "scrubbed"
-                      ? "Clock stopped"
-                      : (c.days ?? "Clock not started")}
+                  <LaunchCountdownCompact view={countdownView(c.m)} />
                   {c.m.clockState === "launched" || c.m.clockState === "scrubbed" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
@@ -481,11 +478,7 @@ function CardView({ c }: { c: Card }) {
         </div>
         <div className="shrink-0 text-right">
           <p className="text-[28px] leading-8 font-semibold" data-numeric>
-            {c.m.clockState === "launched"
-              ? (c.m.daysSinceAward ?? 0)
-              : c.m.clockState === "scrubbed"
-                ? "—"
-                : (c.days ?? "—")}
+            <LaunchCountdownCompact view={countdownView(c.m)} />
           </p>
           <p className="text-[12px] text-muted-foreground">
             {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}

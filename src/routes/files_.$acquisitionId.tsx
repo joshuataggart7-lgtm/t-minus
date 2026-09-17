@@ -167,6 +167,7 @@ import { SituationMemoPanel } from "@/components/situation-memo-panel";
 import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
+import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
   buildModificationPacket,
@@ -2072,20 +2073,28 @@ function FilePage() {
           </div>
           <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
             <div className="min-w-0 sm:min-w-32">
-            <p className={presenter ? "text-[48px] leading-[52px] font-semibold" : "text-[40px] leading-[44px] font-semibold"} data-numeric>
-              {effectiveState === "launched" ? (lifecycle?.daysSinceAward ?? 0) : effectiveState === "scrubbed" ? "Stopped" : days === null ? "Not started" : days}
-            </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              {effectiveState === "launched"
-                ? "Days since award"
-                : effectiveState === "scrubbed"
-                  ? "Countdown"
-                  : days === null
-                    ? "No target award date recorded"
-                    : hasTargetAward
-                      ? "Calendar days to target award date"
-                      : "Calendar days to the forecast award date"}
-            </p>
+            <LaunchCountdown
+              view={
+                lifecycle
+                  ? countdownView(lifecycle)
+                  : effectiveState === "launched"
+                    ? { mode: "launched", days: 0, prefix: "T+", badge: null, caption: "days since award", holdReason: null, tone: "cyan" }
+                    : effectiveState === "scrubbed"
+                      ? { mode: "stopped", days: null, prefix: null, badge: null, caption: "Clock stopped", holdReason: null, tone: "muted" }
+                      : days === null
+                        ? { mode: "not-started", days: null, prefix: null, badge: null, caption: "No target award date recorded", holdReason: null, tone: "muted" }
+                        : {
+                            mode: hasTargetAward ? "running" : "forecast",
+                            days: Math.max(0, days),
+                            prefix: "T−",
+                            badge: hasTargetAward ? null : "FORECAST",
+                            caption: hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
+                            holdReason: null,
+                            tone: "cyan",
+                          }
+              }
+              acquisitionId={acquisitionId}
+            />
             {effectiveState !== "launched" && effectiveState !== "scrubbed" && days !== null && !hasTargetAward ? (
               <p className="mt-1 text-[13px] text-muted-foreground">
                 The forecast stands in because no target award date is recorded on this file.
