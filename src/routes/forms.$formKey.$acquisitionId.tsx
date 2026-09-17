@@ -517,7 +517,7 @@ function FormPage() {
       downloadPdfBytes(bytes, fileName);
       setMessage(
         `Official PDF exported on blank revision ${revision}. ` +
-          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable. This is a prototype export, not an Adobe-verified form, and signature blocks stay empty for the contracting officer.",
+          "It is the official blank with the record's values written into its fields, so Adobe Reader, Chrome and Preview all show them. The fields stay editable, and signature blocks and the award date stay empty for the contracting officer.",
       );
       const filed = await fileIntoPack({
         bytes,
