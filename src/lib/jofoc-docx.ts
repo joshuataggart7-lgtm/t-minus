@@ -154,6 +154,10 @@ export function jofocMarketResearchProse(ctx: JofocDocxContext): string {
   const researchLog = ((ctx.researchLog ?? []) as JofocResearchLogLine[]).filter(Boolean);
   const naics = cleanProse(str(v["naics_code"])) || researchLog.map((line) => queryNaics(str(line.query))).find(Boolean) || "";
   const sources: string[] = [];
+  uniquePush(sources, "System for Award Management (SAM.gov)");
+  uniquePush(sources, "USAspending");
+  uniquePush(sources, "SBA size standards");
+  uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
   for (const line of researchLog) uniquePush(sources, sourceName(str(line.source)));
   if (ctx.sizeStandard) uniquePush(sources, "SBA size standards");
   if (ctx.priorTminusActionCount) uniquePush(sources, `prior T-Minus actions${naics ? ` under NAICS ${naics}` : ""}`);
