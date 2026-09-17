@@ -71,3 +71,67 @@ export function buildNf1707Form(ctx: FormCtx): GeneratedForm {
     ],
   };
 }
+
+/**
+ * Sections 1 to 12 from the Intake answers, bound to the paths the blank
+ * itself carries.
+ *
+ * The answer keys are section.subform.field_name, as Intake stores them. The
+ * path is looked up in the blank's own XFA packets; an answer the blank has no
+ * field for stays on Intake and is never written under a guessed path. Empty
+ * answers are left out. Signature, concurrence and approval blocks stay blank.
+ */
+export function withNf1707Answers(
+  form: GeneratedForm,
+  answers: Record<string, unknown>,
+  labels: Map<string, string>,
+  paths: BlankPaths,
+): GeneratedForm {
+  if (!paths.size) return form;
+
+  const header = form.sections[0];
+  const boundHeader = header
+    ? {
+        ...header,
+        fields: header.fields.map((field) => {
+          const leaf = field.path.split(".").pop() ?? "";
+          const path = pathForLeaf(paths, leaf);
+          return path && path !== field.path ? { ...field, path } : field;
+        }),
+      }
+    : header;
+
+  const fields: FormField[] = [];
+  let unmapped = 0;
+  for (const [key, raw] of Object.entries(answers)) {
+    const value = str(raw);
+    if (!value) continue;
+    const parts = key.split(".");
+    if (parts.length < 3) continue;
+    const leaf = parts[parts.length - 1]!;
+    const subform = parts[parts.length - 2]!;
+    const path = pathForSubformLeaf(paths, subform, leaf);
+    if (!path) {
+      unmapped += 1;
+      continue;
+    }
+    fields.push({ path, label: labels.get(key) ?? leaf, value });
+  }
+  fields.sort((a, b) => a.path.localeCompare(b.path));
+
+  const answered = form.sections[1];
+  const citation = fields.length
+    ? `Answered on Intake. Values read as the form carries them: 1 yes, 0 no, 2 not applicable.${
+        unmapped ? ` ${unmapped} answer${unmapped === 1 ? "" : "s"} stay on Intake; this blank has no field for them.` : ""
+      }`
+    : "Answered on Intake. No answers on this file map to a field on the blank yet.";
+
+  return {
+    ...form,
+    sections: [
+      ...(boundHeader ? [boundHeader] : []),
+      ...(answered ? [{ ...answered, citation, fields }] : []),
+      ...form.sections.slice(2),
+    ],
+  };
+}
