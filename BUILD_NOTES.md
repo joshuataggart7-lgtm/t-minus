@@ -2639,3 +2639,10 @@ No forms, exports, citations, clocks, holds or record logic touched.
 
 ## Soft Walk — SF 30 block 13 honesty (P0-2 residual)
 - Block 13D is ticked only when the record carries the authority the block asks the writer to specify. Where the authority is genuinely unknown, block 13 is left unmarked rather than ticked and blank; the gap shows on the form page. A named modification type still selects its own block and authority. Nothing is invented; block 14 description is separate.
+
+## Soft Walk — LSJ Word (limited-sources-justification)
+- Installed `public/forms/LSJ_MASTER.docx` (sha256 b6d7cde219931fdcf0c0fa9ccb29fd0eea3ea00f8b7df828e6caa210dfe71950) and `src/lib/lsj-docx.ts`.
+- Export Word on `/documents/limited-sources-justification/<id>` now writes into the NASA OP master via applyMarkers; the scratch Packer path no longer runs for LSJ.
+- Amount-driven signature ladder: exactly one SIG_BAND_* prints, inactive bands delete. Signature underscore lines stay blank.
+- Authority lines are the Batch2 FAR 8.401(b)/GSAM face strings only; FAR 8.104(b) never printed.
+- SF1449, SF30, OF347, JOFOC master and generator untouched.
