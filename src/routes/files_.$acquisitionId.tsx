@@ -56,6 +56,8 @@ import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
 import { ReadReceiptsPanel } from "@/components/read-receipts-panel";
+import { loadReadReceipts } from "@/lib/read-receipts";
+
 import { ClauseChangeBanner } from "@/components/clause-change-banner";
 import { SolicitationKlmPanel } from "@/components/solicitation-klm-panel";
 import { SectionJPanel } from "@/components/section-j-panel";
