@@ -378,11 +378,18 @@ function FormPage() {
     ? pinnedRevisionFrom(latest?.field_values) ?? currentFormRevision(formTemplateId)
     : null;
   // P0-4/P0-1: a blank with no mapping rows would export empty, so it reads
-  // Planned rather than Ready.
-  const officialExportStatus =
-    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0
+  // Planned rather than Ready. P0 fold-in: Ready also requires the blank
+  // itself to load, so the badge never promises a file that is not there.
+  const hasMappings = Boolean(
+    formTemplateId && mappingsFor(formTemplateId, pinnedRevision ?? undefined).length > 0,
+  );
+  const officialExportStatus = !hasMappings
+    ? "Planned"
+    : blankAvailable.data === true
       ? "Ready"
-      : "Planned";
+      : blankAvailable.data === false
+        ? "Planned, the blank form file is not available in this build"
+        : "checking the blank form";
 
   const save = useMutation({
     mutationFn: async () => {
