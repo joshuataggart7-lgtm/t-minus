@@ -222,7 +222,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   const band = selectJofocSigBand(estimated, classJustification, ctx.thresholds);
   const authority = value("authority");
   const is41 = /41\s*U\.?\s*S\.?\s*C\.?\s*190[13]/i.test(authority) || /FAR\s*12\.102/i.test(authority);
-  const is10 = /10\s*U\.?\s*S\.?\s*C\.?\s*3204/i.test(authority) || /FAR\s*6\.103/i.test(authority);
+  const is10 = !is41 && (/10\s*U\.?\s*S\.?\s*C\.?\s*3204/i.test(authority) || /FAR\s*6\.103/i.test(authority));
   const isUrgency = /6\.103-2/.test(authority);
   const isFollowOn = /6\.103-1/.test(authority);
 
