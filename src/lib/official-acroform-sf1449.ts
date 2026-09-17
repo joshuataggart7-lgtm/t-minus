@@ -17,6 +17,7 @@
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { mappingsFor } from "@/lib/form-field-mappings";
+import { withCanonical } from "@/lib/canonical-adapters";
 import {
   applyFormMappings,
   displayDate,
@@ -201,7 +202,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const method = commercial ? "rfq" : "rfp";
   const coName = str(a["co_name"]);
 
-  return {
+  const data: RogerSf1449Data = {
     requisition: { number: str(a["pr_number"]) || str(a["acquisition_id"]) },
     pagination: { page: "1", pages: "" },
     contract: {
@@ -275,6 +276,14 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     // Signature blocks stay empty: a person signs them.
     signer: { contracting_officer: coName, name: "", title: "" },
   };
+
+  // The party blocks are written through the one normalised record, so the
+  // address the form prints is joined from the parts the record carries. An
+  // entity payload on the file is preferred where one exists. Nothing already
+  // on the bag is blanked, and the schedule, set-aside and block 9 and 10
+  // values above are untouched.
+  const samEntity = (a as Record<string, unknown>)["sam_entity"] ?? null;
+  return withCanonical("sf1449", data, { samEntity });
 }
 
 /**

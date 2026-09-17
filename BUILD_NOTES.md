@@ -2121,3 +2121,27 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
   what starts blank, with example paths). "Record this plan" writes one audit row:
   "Prototype: inheritance plan ready; full create follows." No acquisition is created,
   no sample file is written, no clock or hold changes.
+
+## Soft §7 — Canonical record and per-form adapters (one ship)
+
+- `src/lib/canonical-adapters.ts`: CanonicalRecord (contract, contractor,
+  issuing_office, administering_office, payment_office, delivery, terms,
+  classification), `toCanonical(formId, data, { samEntity })`,
+  `fromCanonical(formId, canonical)`, `joinNameAddress` (outbound only),
+  `partyFromSam` (structured parts when an entity payload is on the record,
+  `{}` when absent), `mergeAdapted`, `withCanonical`, `adapterPaths`.
+- Address rule: Roger Forms Studio used `splitNameAddress` to break a block
+  address back into parts. T-Minus forbids that as the primary inbound path —
+  it guesses at the record. Discrete fields and SAM structured components come
+  first; a block-only address stays whole on `name_address`; the block a form
+  prints is joined on the way out.
+- `mergeAdapted` is an empty-safe deep merge: an unrecorded adapted value never
+  blanks a value the bag already carries.
+- SF1449: `sf1449CtxToRogerData` now ends with
+  `withCanonical("sf1449", data, { samEntity: acq.sam_entity ?? null })`, so
+  contractor / issuing office / administering office / deliver-to / payment
+  office / NAICS and size standard read through the canonical record. Schedule,
+  CLIN face-line arithmetic, set-aside flags and Block 9/10 logic from §3–§4 are
+  untouched. No address is invented; an empty record stays empty.
+- OF347 and SF30 adapters are exported and data-ready; no export UI this ship.
+- Forms remain non-Live. No Adobe verification claim.
