@@ -448,13 +448,24 @@ function FormPage() {
             >
               View filled preview
             </button>
+            {formKey === "sf-1449" ? (
+              <button
+                type="button"
+                className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
+                style={{ background: "var(--primary, #0B3D91)" }}
+                title="The official blank filled so the values show in Adobe Reader, Chrome and Preview. Signatures stay empty."
+                onClick={() => void exportOfficialAcroform()}
+              >
+                Export official PDF (AcroForm)
+              </button>
+            ) : null}
             <button
               type="button"
               className="rounded-lg border border-border px-3 py-2 text-[15px]"
-              title="Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
+              title="Legacy Import Data route. Open in Adobe Acrobat or Reader on the desktop. Free Reader used to close this kind of fill; this build leaves the blank's usage rights off the export so Reader can open it to view and print. Signatures stay empty."
               onClick={() => void exportPopulated()}
             >
-              Export form PDF
+              Export form PDF{formKey === "sf-1449" ? " (legacy)" : ""}
             </button>
             <button
               type="button"
