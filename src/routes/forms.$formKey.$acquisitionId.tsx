@@ -17,7 +17,9 @@ import {
   sf1449CtxToRogerData,
   validateSf1449ClinReconciliation,
 } from "@/lib/official-acroform-sf1449";
+import { generateOfficialFormPdf } from "@/lib/official-acroform-forms";
 import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
+
 import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
