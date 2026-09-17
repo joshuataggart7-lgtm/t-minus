@@ -48,7 +48,12 @@ import {
 } from "@/lib/launch-sequence";
 import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { awardConfidence, historyFrom } from "@/lib/confidence";
-import { PACKET_CANDIDATE_NUMBERS, RFO_RESERVED_212_NOTE, selectPacketClauses } from "@/lib/clause-packet";
+import {
+  IDIQ_CLAUSE_DELTA_WITHHELD_NOTE,
+  PACKET_CANDIDATE_NUMBERS,
+  RFO_RESERVED_212_NOTE,
+  selectPacketClauses,
+} from "@/lib/clause-packet";
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
