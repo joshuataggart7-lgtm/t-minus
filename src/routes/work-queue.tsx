@@ -19,6 +19,7 @@ import {
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
+import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -477,11 +478,7 @@ function CardView({ c }: { c: Card }) {
         </div>
         <div className="shrink-0 text-right">
           <p className="text-[28px] leading-8 font-semibold" data-numeric>
-            {c.m.clockState === "launched"
-              ? (c.m.daysSinceAward ?? 0)
-              : c.m.clockState === "scrubbed"
-                ? "—"
-                : (c.days ?? "—")}
+            <LaunchCountdownCompact view={countdownView(c.m)} />
           </p>
           <p className="text-[12px] text-muted-foreground">
             {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}
