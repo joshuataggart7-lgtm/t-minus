@@ -278,14 +278,17 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   // occupies its own row alone.
   const packed = packSentences(narrative, 52, 7);
   const narrativeLines = packed.lines;
-  const continuesBeyondFace = packed.truncated;
-  // Soft Walk guard: the final content line is a whole sentence, so it ends
-  // with terminal punctuation; the marker row, when present, stands alone.
-  if (packed.truncated) {
-    const last = narrativeLines[narrativeLines.length - 1] ?? "";
-    const content = narrativeLines[narrativeLines.length - 2] ?? "";
-    console.assert(/\(description continues/.test(last), "SF1449: marker row must stand alone");
-    console.assert(/[.!?]$/.test(content.trim()), "SF1449: final content line must end a sentence");
+  // P0-1: the official form already carries continuation rows on the back
+  // (schedule 9 to 36). What does not fit on the face prints there, so the
+  // marker on the face points at rows that really carry the rest of the text.
+  const continuationLines = packed.rest ? wrapLines(packed.rest, 52, CONTINUATION_ROWS) : [];
+  const continuesBeyondFace = continuationLines.length > 0;
+  if (continuesBeyondFace) {
+    narrativeLines[narrativeLines.length - 1] = "(continued on the schedule, block 20, page 2)";
+  } else if (packed.truncated) {
+    // Nothing spilled onto the back, so the face must not promise a
+    // continuation that is not there.
+    narrativeLines.pop();
   }
 
   // Blocks 27a and 27b: whether addenda are attached is the officer's answer,
