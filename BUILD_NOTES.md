@@ -2223,3 +2223,29 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
   saying those routes produce the blank-face path and are not for the recording.
 - P1-E `/files/$acquisitionId` shows the loading note until the record is in
   hand, so a client navigation no longer flashes an empty file.
+
+## Soft Walk METHOD GATE (after P0 27c72d39, P1 1e68866c)
+
+- Postaward notification, successful offeror: the letter was the last notice
+  still fixed on part 15. It now reads the file's method like the unsuccessful
+  letter does. On a commercial simplified / FAR 13.5 / part 12 file the lead,
+  the selection, debriefing and closing citations, and the debriefing and
+  closing text print under FAR 13.106-3(d): no part 15 debriefing period is
+  promised, and the enclosure help says a simplified acquisition has no source
+  selection statement, so the line stays blank rather than naming a document
+  that does not exist. A real part 15 file keeps the part 15 wording.
+- Price negotiation memorandum and unsuccessful letter were already
+  method-aware (RFO FAR 12.204(a) / FAR 13.106-3(b)(3) and FAR 13.106-3(d));
+  no change was needed and none was made.
+- NASA Notification of Procurement Action: interim NFS part 1805 is reserved,
+  so the 1805.3 / 1805.302 citations now read NFS CG and the sections are
+  marked guidance, with the badge note saying why. No NFS section number was
+  invented or added.
+- Checked and already correct, so left alone: the Limited Sources Justification
+  cites FAR 8.401(b) with the GSAM pointers, not FAR 8.104(b); no generator
+  cites FAR 6.301(b)(2) for urgency; the JOFOC badge already records the
+  FAR 6.1030 to FAR 6.103 correction; the ANOSCA / notification scenario rows
+  already cite NFS CG 1805.31 and 1805.32.
+- Honest gap left standing: where a commercial companion citation is not loaded
+  in the app's regulatory rows, the letter leaves the line for the contracting
+  officer rather than borrowing a part 15 citation.
