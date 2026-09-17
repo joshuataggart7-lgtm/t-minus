@@ -157,8 +157,13 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
             </p>
             <p className="mt-2 text-[13px] text-muted-foreground">
               {scaffold.paymentMilestones.length === 0
-                ? PAYMENT_MILESTONES_EMPTY
-                : `${scaffold.paymentMilestones.length} payment milestone${scaffold.paymentMilestones.length === 1 ? "" : "s"} recorded on this file; the handoff packet carries them.`}
+                ? `${PAYMENT_MILESTONES_EMPTY} ${PAYMENT_PLAN_LABEL}`
+                : `Invoice plan: ${scaffold.paymentMilestones.length} payment milestone${scaffold.paymentMilestones.length === 1 ? "" : "s"} recorded on this file; the handoff packet carries them.`}
+              {paymentPlanNotes(scaffold.paymentMilestones).map((n) => (
+                <span key={n} className="block">
+                  {n}
+                </span>
+              ))}
             </p>
           </section>
 
