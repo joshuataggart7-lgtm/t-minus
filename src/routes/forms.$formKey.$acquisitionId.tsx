@@ -25,7 +25,7 @@ import { daysBetween, todayISO } from "@/lib/intake";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
-import { uploadAttachment } from "@/lib/attachments";
+import { fileGeneratedExport } from "@/lib/attachments";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
