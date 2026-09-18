@@ -39,7 +39,9 @@ export function useRowKeys(containerRef: React.RefObject<HTMLElement | null>) {
         return;
       }
 
-      const row = current ?? rows[0];
+      // E and W act on the focused row only. With nothing focused they do
+      // nothing, so a stray keystroke never moves the reader off the list.
+      const row = current;
       if (!row) return;
       const action = row.querySelector<HTMLElement>(`[data-row-action="${key === "e" ? "exit" : "write"}"]`);
       if (!action) return;
