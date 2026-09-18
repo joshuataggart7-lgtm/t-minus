@@ -199,8 +199,11 @@ export function buildFileIndex(
   const hasOfficialSf1449Upload = attachments.some(
     (a) => isSf1449(a.doc_label) && /official/i.test(a.doc_label),
   );
+  // A hand upload marked official is the signed copy someone filed: it stays on
+  // the index either way. Only unmarked drafts drop out once an official
+  // version exists.
   const liveAttachments = hasGeneratedOfficialSf1449 || hasOfficialSf1449Upload
-    ? attachments.filter((a) => !isSf1449(a.doc_label) || (!hasGeneratedOfficialSf1449 && /official/i.test(a.doc_label)))
+    ? attachments.filter((a) => !isSf1449(a.doc_label) || /official|signed|award/i.test(a.doc_label))
     : attachments;
 
   for (const a of liveAttachments) {
