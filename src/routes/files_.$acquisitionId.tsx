@@ -371,6 +371,8 @@ function FilePage() {
           .maybeSingle();
         mission = m.data;
       }
+      // A failed read is an error, not an endless wait.
+      if (acq.error) throw acq.error;
       return {
         acq: acq.data as AcqRow | null,
         centers: centers ?? [],
