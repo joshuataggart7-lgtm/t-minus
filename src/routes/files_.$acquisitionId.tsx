@@ -2026,10 +2026,29 @@ function FilePage() {
   // P1-E: on a client navigation the record arrives a moment after the route
   // does. Until it is in hand the page says it is loading rather than painting
   // an empty file that reads like a record with nothing on it.
-  if (q.isLoading || (!acq && !q.isError)) {
+  if (q.isLoading || q.isFetching && !q.data) {
     return (
       <AppShell>
         <LoadingNote what="the acquisition file" />
+      </AppShell>
+    );
+  }
+
+  // The record could not be read or does not exist: say so and offer the way
+  // back rather than waiting forever.
+  if (q.isError || !acq) {
+    return (
+      <AppShell>
+        <ErrorNote
+          message={
+            q.isError
+              ? "The acquisition file did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded."
+              : `No acquisition file was found for ${acquisitionId}. Check the link, or open Files to pick a record.`
+          }
+        />
+        <Link to="/files" className="mt-4 inline-block text-[15px] text-primary">
+          Back to Files
+        </Link>
       </AppShell>
     );
   }
