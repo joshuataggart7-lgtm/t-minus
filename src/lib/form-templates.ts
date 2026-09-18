@@ -9,7 +9,7 @@
  * effective_date, superseded_at, mapping_profile, source). Soft keeps the
  * registry as code rows in the same shape until that table exists.
  */
-export type FormTemplateId = "sf1449" | "sf30" | "of347";
+export type FormTemplateId = "sf1449" | "sf30" | "of347" | "sf26" | "sf33";
 
 export type FormTemplateEntry = {
   form_id: FormTemplateId;
@@ -28,6 +28,8 @@ export const BUILTIN_FORM_REVISIONS: Record<FormTemplateId, string> = {
   sf1449: "11/2021",
   sf30: "11/2016",
   of347: "02/2012",
+  sf26: "12/2022",
+  sf33: "12/2022",
 };
 
 export const FORM_TEMPLATES: FormTemplateEntry[] = [
@@ -58,6 +60,24 @@ export const FORM_TEMPLATES: FormTemplateEntry[] = [
     effective_date: "2012-02-01",
     superseded_at: null,
   },
+  {
+    form_id: "sf26",
+    revision: "12/2022",
+    storage_path: "/forms/SF26.pdf",
+    source: "Official GSA blank held with the prototype",
+    mapping_profile: "sf26-v1",
+    effective_date: "2022-12-01",
+    superseded_at: null,
+  },
+  {
+    form_id: "sf33",
+    revision: "12/2022",
+    storage_path: "/forms/SF33.pdf",
+    source: "Official GSA blank held with the prototype",
+    mapping_profile: "sf33-v1",
+    effective_date: "2022-12-01",
+    superseded_at: null,
+  },
 ];
 
 export function currentFormRevision(formId: FormTemplateId): string {
@@ -86,6 +106,8 @@ export function routeKeyToFormId(formKey: string): FormTemplateId | null {
   if (formKey === "sf-1449") return "sf1449";
   if (formKey === "sf-30") return "sf30";
   if (formKey === "of-347") return "of347";
+  if (formKey === "sf-26") return "sf26";
+  if (formKey === "sf-33") return "sf33";
   return null;
 }
 

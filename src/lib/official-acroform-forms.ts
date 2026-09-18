@@ -16,6 +16,7 @@ import { setAsideKey } from "@/lib/official-acroform-sf1449";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
 import { modAuthorityText, sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
+import { buildSf26, buildSf33 } from "@/lib/sf-forms";
 
 export type RogerFormData = Record<string, unknown>;
 
@@ -222,8 +223,35 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   return withCanonical("sf30", data, { samEntity: (a as Record<string, unknown>)["sam_entity"] ?? null });
 }
 
-/** The record for one of these two blanks. */
-export function ctxToRogerData(formId: "of347" | "sf30", ctx: FormCtx): RogerFormData {
+/**
+ * SF 26 and SF 33 read the same values the filled preview shows, so the page a
+ * person reads and the official blank can never drift apart. Each field on the
+ * preview carries the name the blank itself uses, so the mapping rows read
+ * them under face.<field name>. A value the record does not carry stays empty,
+ * and the gap is shown on the form page rather than filled with a guess.
+ * Signature blocks, the SF 33 offeror blocks 12 to 18 and the SF 26
+ * contractor-signed blocks 19A to 19C carry no mapping row at all.
+ */
+export function faceCtxToRogerData(formId: "sf26" | "sf33", ctx: FormCtx): RogerFormData {
+  const form = formId === "sf26" ? buildSf26(ctx) : buildSf33(ctx);
+  const face: Record<string, unknown> = {};
+  for (const section of form.sections) {
+    for (const f of section.fields) {
+      const leaf = f.path.split(".").pop()!.replace(/\[\d+\]$/, "");
+      const empty = f.value === "" || f.value === false || f.value === undefined;
+      if (leaf in face && empty) continue;
+      face[leaf] = f.value;
+    }
+  }
+  return { face };
+}
+
+/** The record for one of these blanks. */
+export function ctxToRogerData(
+  formId: "of347" | "sf30" | "sf26" | "sf33",
+  ctx: FormCtx,
+): RogerFormData {
+  if (formId === "sf26" || formId === "sf33") return faceCtxToRogerData(formId, ctx);
   return formId === "of347" ? of347CtxToRogerData(ctx) : sf30CtxToRogerData(ctx);
 }
 

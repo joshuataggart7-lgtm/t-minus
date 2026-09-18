@@ -2220,5 +2220,1292 @@
     "type": "text",
     "multiline": true,
     "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].DISCOUNT[0]",
+    "record_path": "face.DISCOUNT",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SHIP11[0]",
+    "record_path": "face.SHIP11",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CONTR2[0]",
+    "record_path": "face.CONTR2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].RATING[0]",
+    "record_path": "face.RATING",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGE1[0]",
+    "record_path": "face.PAGE1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG2OF2[0]",
+    "record_path": "face.PG2OF2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].REQUISITION4[0]",
+    "record_path": "face.REQUISITION4",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CODE5[0]",
+    "record_path": "face.CODE5",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CODE6[0]",
+    "record_path": "face.CODE6",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ADMIN6[0]",
+    "record_path": "face.ADMIN6",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ISSUED5[0]",
+    "record_path": "face.ISSUED5",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NAMEADDY7[0]",
+    "record_path": "face.NAMEADDY7",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].FOBORIGIN[0]",
+    "record_path": "face.FOBORIGIN",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].OTHER[0]",
+    "record_path": "face.OTHER",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].AWARD18[0]",
+    "record_path": "face.AWARD18",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CONT17[0]",
+    "record_path": "face.CONT17",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NUMCOPY[0]",
+    "record_path": "face.NUMCOPY",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SOLMUN[0]",
+    "record_path": "face.SOLMUN",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NAMECONTRACTING[0]",
+    "record_path": "face.NAMECONTRACTING",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].INVOICE[0]",
+    "record_path": "face.INVOICE",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CODE1[0]",
+    "record_path": "face.CODE1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CODE2[0]",
+    "record_path": "face.CODE2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ACCOUNTING14[0]",
+    "record_path": "face.ACCOUNTING14",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ACCOUNTING1[0]",
+    "record_path": "face.ACCOUNTING1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ITEMNO1[0]",
+    "record_path": "face.ITEMNO1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ITEMNO2[0]",
+    "record_path": "face.ITEMNO2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ITEMNO3[0]",
+    "record_path": "face.ITEMNO3",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ITEMNO4[0]",
+    "record_path": "face.ITEMNO4",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ITEMNO5[0]",
+    "record_path": "face.ITEMNO5",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F151[0]",
+    "record_path": "face.F151",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F152[0]",
+    "record_path": "face.F152",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F153[0]",
+    "record_path": "face.F153",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F154[0]",
+    "record_path": "face.F154",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F155[0]",
+    "record_path": "face.F155",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SUPPLIESSERVICES1[0]",
+    "record_path": "face.SUPPLIESSERVICES1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SUPPLIESSERVICES2[0]",
+    "record_path": "face.SUPPLIESSERVICES2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SUPPLIESSERVICES3[0]",
+    "record_path": "face.SUPPLIESSERVICES3",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SUPPLIESSERVICES4[0]",
+    "record_path": "face.SUPPLIESSERVICES4",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E151[0]",
+    "record_path": "face.E151",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E152[0]",
+    "record_path": "face.E152",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E153[0]",
+    "record_path": "face.E153",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E154[0]",
+    "record_path": "face.E154",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E155[0]",
+    "record_path": "face.E155",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D151[0]",
+    "record_path": "face.D151",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D152[0]",
+    "record_path": "face.D152",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D153[0]",
+    "record_path": "face.D153",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D154[0]",
+    "record_path": "face.D154",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D155[0]",
+    "record_path": "face.D155",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESA[0]",
+    "record_path": "face.PAGESA",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESB[0]",
+    "record_path": "face.PAGESB",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESC[0]",
+    "record_path": "face.PAGESC",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESD[0]",
+    "record_path": "face.PAGESD",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESE[0]",
+    "record_path": "face.PAGESE",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESF[0]",
+    "record_path": "face.PAGESF",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESG[0]",
+    "record_path": "face.PAGESG",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESH[0]",
+    "record_path": "face.PAGESH",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESI[0]",
+    "record_path": "face.PAGESI",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESJ[0]",
+    "record_path": "face.PAGESJ",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESK[0]",
+    "record_path": "face.PAGESK",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESL[0]",
+    "record_path": "face.PAGESL",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAGESM[0]",
+    "record_path": "face.PAGESM",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15I[0]",
+    "record_path": "face.G15I",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15J[0]",
+    "record_path": "face.G15J",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15K[0]",
+    "record_path": "face.G15K",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15L[0]",
+    "record_path": "face.G15L",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15M[0]",
+    "record_path": "face.G15M",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15A[0]",
+    "record_path": "face.G15A",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15B[0]",
+    "record_path": "face.G15B",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15C[0]",
+    "record_path": "face.G15C",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15D[0]",
+    "record_path": "face.G15D",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15E[0]",
+    "record_path": "face.G15E",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15F[0]",
+    "record_path": "face.G15F",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15G[0]",
+    "record_path": "face.G15G",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G15H[0]",
+    "record_path": "face.G15H",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].AUTHORITY41[0]",
+    "record_path": "face.AUTHORITY41",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].AUTHORITY10[0]",
+    "record_path": "face.AUTHORITY10",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F15TOTAL[0]",
+    "record_path": "face.F15TOTAL",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CODE7[0]",
+    "record_path": "face.CODE7",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].FACILITYCODE7[0]",
+    "record_path": "face.FACILITYCODE7",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].EFECTDATE3[0]",
+    "record_path": "face.EFECTDATE3",
+    "type": "date",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C151[0]",
+    "record_path": "face.C151",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C152[0]",
+    "record_path": "face.C152",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C153[0]",
+    "record_path": "face.C153",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C154[0]",
+    "record_path": "face.C154",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C155[0]",
+    "record_path": "face.C155",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SUPPLIESSERVICES5[0]",
+    "record_path": "face.SUPPLIESSERVICES5",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].USC10Paren[0]",
+    "record_path": "face.USC10Paren",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf26",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].USC3304aParen[0]",
+    "record_path": "face.USC3304aParen",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].USC253[0]",
+    "record_path": "face.USC253",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].USC2304[0]",
+    "record_path": "face.USC2304",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SEALED[0]",
+    "record_path": "face.SEALED",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NEGOTIATED[0]",
+    "record_path": "face.NEGOTIATED",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].RATING[0]",
+    "record_path": "face.RATING",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG1[0]",
+    "record_path": "face.PG1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG2[0]",
+    "record_path": "face.PG2",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].REQUNUM[0]",
+    "record_path": "face.REQUNUM",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].FOFFERTOADDY[0]",
+    "record_path": "face.FOFFERTOADDY",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ISSUECODE[0]",
+    "record_path": "face.ISSUECODE",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ISSUEDBY[0]",
+    "record_path": "face.ISSUEDBY",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CONTRACTNUM[0]",
+    "record_path": "face.CONTRACTNUM",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SOLICITATION[0]",
+    "record_path": "face.SOLICITATION",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].SEALEDOFFERS[0]",
+    "record_path": "face.SEALEDOFFERS",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].LOCATEDIN[0]",
+    "record_path": "face.LOCATEDIN",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].UNTIL[0]",
+    "record_path": "face.UNTIL",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NAME10A[0]",
+    "record_path": "face.NAME10A",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].EMAIL[0]",
+    "record_path": "face.EMAIL",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11A[0]",
+    "record_path": "face.PG11A",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11B[0]",
+    "record_path": "face.PG11B",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11C[0]",
+    "record_path": "face.PG11C",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11D[0]",
+    "record_path": "face.PG11D",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11E[0]",
+    "record_path": "face.PG11E",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11F[0]",
+    "record_path": "face.PG11F",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11G[0]",
+    "record_path": "face.PG11G",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11H[0]",
+    "record_path": "face.PG11H",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11M[0]",
+    "record_path": "face.PG11M",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11L[0]",
+    "record_path": "face.PG11L",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11J[0]",
+    "record_path": "face.PG11J",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11I[0]",
+    "record_path": "face.PG11I",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].I11[0]",
+    "record_path": "face.I11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].J11[0]",
+    "record_path": "face.J11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].K11[0]",
+    "record_path": "face.K11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].L11[0]",
+    "record_path": "face.L11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].M11[0]",
+    "record_path": "face.M11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].A11[0]",
+    "record_path": "face.A11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].B11[0]",
+    "record_path": "face.B11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].C11[0]",
+    "record_path": "face.C11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].D11[0]",
+    "record_path": "face.D11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].E11[0]",
+    "record_path": "face.E11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].F11[0]",
+    "record_path": "face.F11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].G11[0]",
+    "record_path": "face.G11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].H11[0]",
+    "record_path": "face.H11",
+    "type": "check",
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].DEPOSITORYDATE[0]",
+    "record_path": "face.DEPOSITORYDATE",
+    "type": "date",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].AREACODE1[0]",
+    "record_path": "face.AREACODE1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].NUMBER1[0]",
+    "record_path": "face.NUMBER1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].EXT1[0]",
+    "record_path": "face.EXT1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].DateISSUED[0]",
+    "record_path": "face.DateISSUED",
+    "type": "date",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ACCITEM[0]",
+    "record_path": "face.ACCITEM",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].APPROPRIATION[0]",
+    "record_path": "face.APPROPRIATION",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].INVOICEITEM[0]",
+    "record_path": "face.INVOICEITEM",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAYMENTCODE[0]",
+    "record_path": "face.PAYMENTCODE",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PAYMENTDate[0]",
+    "record_path": "face.PAYMENTDate",
+    "type": "date",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].AWARDDATE[0]",
+    "record_path": "face.AWARDDATE",
+    "type": "date",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].LIABILITY1[0]",
+    "record_path": "face.LIABILITY1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].ADMINISTEREDBY[0]",
+    "record_path": "face.ADMINISTEREDBY",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].CONTRACTINGOFFICER[0]",
+    "record_path": "face.CONTRACTINGOFFICER",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].PG11K[0]",
+    "record_path": "face.PG11K",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
+  },
+  {
+    "form_id": "sf33",
+    "revision": "12/2022",
+    "pdf_field": "topmostSubform[0].Page1[0].LIABILITY1[1]",
+    "record_path": "face.LIABILITY1",
+    "type": "text",
+    "font_size": 8,
+    "scope": "transaction"
   }
 ]
