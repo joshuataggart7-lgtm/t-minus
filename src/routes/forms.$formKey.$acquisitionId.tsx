@@ -578,7 +578,7 @@ function FormPage() {
    * OF 347 and SF 30 on their official blanks, the same AcroForm route the
    * SF 1449 takes. Signature blocks stay empty for the contracting officer.
    */
-  const exportOfficialOther = async (formId: "of347" | "sf30") => {
+  const exportOfficialOther = async (formId: "of347" | "sf30" | "sf26" | "sf33") => {
     if (!formCtx) return;
     if (blankAvailable.data === false) {
       setMessage(
@@ -589,7 +589,14 @@ function FormPage() {
     try {
       const revision = pinnedRevision ?? currentFormRevision(formId);
       const bytes = await generateOfficialFormPdf(formId, formCtx, { formRevision: revision });
-      const label = formId === "of347" ? "OF 347" : "SF 30";
+      const label =
+        formId === "of347"
+          ? "OF 347"
+          : formId === "sf26"
+            ? "SF 26"
+            : formId === "sf33"
+              ? "SF 33"
+              : "SF 30";
       const fileName = `${formKey}-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
       downloadPdfBytes(bytes, fileName);
       const base =
