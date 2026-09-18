@@ -2660,3 +2660,15 @@ research memo, SF1449 schedule packSentences) and the regulatory corpus untouche
 - An embedded FAR 6.103-n basis mention inside a 41 U.S.C./12.102 authority no longer selects the Title 10 path; AUTHORITY_10USC_STEM, AUTHORITY_10USC_LINE and AUTHORITY_OR_TOKEN stay empty so applyMarkers deletes those paragraphs.
 - Item 8 prose keeps one "prior T-Minus actions" label and states the search date and headline result count in a sentence.
 - No letterhead, no word/media, no headers on the JOFOC master. SF1449, OF347, SF30 and corpus untouched.
+
+## Soft Walk — LSJ Word verification (tip after 0ad0725c)
+
+Verified by generating real LSJ_MASTER.docx bytes and reading word/document.xml back:
+- 0 unresolved `[[...]]` markers remain after applyMarkers (master holds 193 markers, all resolved).
+- Exactly one SIG_BAND_* survives; the rest resolve to "" and their paragraphs delete.
+  $1,385,000 selects GT_900K_LE_20M (CO + Competition Advocate); HCA/SPE pages absent.
+- Exactly one authority line prints, FAR 8.401(b)/GSAM 538.7104-*; zero 8.104(b).
+- LSJ_AUTH_CITATIONS matches the Soft Walk Batch2 pack verbatim for all six keys.
+- [[CO_NAME]] = record co_name (Joshua Taggart on the samples); signature rules stay blank.
+Export path: /documents/limited-sources-justification/<id> -> Export Word -> generateLsjDocx -> applyMarkers.
+No Scratch Packer. SF1449 / OF347 / SF30 / JOFOC untouched.
