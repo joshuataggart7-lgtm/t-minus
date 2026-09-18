@@ -99,6 +99,8 @@ export function mappingFormId(formKey: string): string | null {
   if (formKey === "sf-1449") return "sf1449";
   if (formKey === "sf-30") return "sf30";
   if (formKey === "of-347") return "of347";
+  if (formKey === "sf-26") return "sf26";
+  if (formKey === "sf-33") return "sf33";
   return null;
 }
 
