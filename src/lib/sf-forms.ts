@@ -250,7 +250,36 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
   const mods = Array.isArray(a["modifications"]) ? (a["modifications"] as Record<string, unknown>[]) : [];
   const mod = mods.length ? mods[mods.length - 1]! : {};
   const isAmendment = !str(a["contract_number"]);
-  const description = str(mod["description"]) || TO_COMPLETE("describe the amendment or modification");
+  const description = str(mod["description"]);
+  const multipleAward = isMultipleAward(a);
+  const postAward =
+    a["post_award"] && typeof a["post_award"] === "object"
+      ? (a["post_award"] as Record<string, unknown>)
+      : {};
+  const administeringOffice =
+    str(a["administering_office_name_address"]) ||
+    str(a["administering_office"]) ||
+    str(a["administered_by"]) ||
+    str(postAward["administering_office_name_address"]) ||
+    str(postAward["administering_office"]) ||
+    str(postAward["administered_by"]);
+  const recordedAuthority = str(mod["authority_text"]);
+  const modType = str(mod["mod_type"]);
+  const namedType = ["administrative", "funding", "option_exercise", "change_order", "supplemental", "termination"].includes(modType);
+  const block13 = namedType
+    ? modType === "change_order"
+      ? "a"
+      : modType === "administrative"
+        ? "b"
+        : modType === "supplemental"
+          ? "c"
+          : recordedAuthority
+            ? "d"
+            : ""
+    : recordedAuthority
+      ? "d"
+      : "";
+  const pageCount = description.length > 1600 ? "2" : "1";
 
   const sections: FormSection[] = [
     {
@@ -271,23 +300,25 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
         field("topmostSubform.EffectiveDate", "Effective date (block 3)", str(mod["effective_date"])),
         field("topmostSubform.ReqNumber", "Requisition or purchase request number (block 4)", str(a["pr_number"])),
         field("topmostSubform.ProjectNo", "Project number (block 5)", str(a["acquisition_id"])),
-        field("topmostSubform.IssuedBy", "Issued by (block 6)", issuedBy(a)),
-        field("topmostSubform.AdministeredBy", "Administered by (block 7)", issuedBy(a)),
+        field("topmostSubform.Code[0]", "Issued by code (block 6)", str(a["issuing_office_code"]) || str(a["center_code"])),
+        field("topmostSubform.IssuedBy", "Issued by (block 6)", str(a["issuing_office_name_address"]) || str(a["issuing_office"]) || issuedBy(a)),
+        field("topmostSubform.Code[2]", "Administered by code (block 7)", str(a["administering_office_code"]) || str(postAward["administering_office_code"])),
+        field("topmostSubform.AdministeredBy", "Administered by (block 7)", administeringOffice),
         field(
           "topmostSubform.NameandAddress",
           "Name and address of contractor (block 8)",
-          isMultipleAward(a) ? "" : str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-          isMultipleAward(a)
+          multipleAward ? "" : str(a["awardee_name"]) || str(a["intended_awardee_name"]) || str(a["vendor_legal_name"]),
+          multipleAward
             ? "This is a multiple-award vehicle. No single contractor of record is recorded for this modification, so block 8 prints empty and no holder is named."
             : undefined,
         ),
         field(
           "topmostSubform.FacilityCode",
           "Unique entity identifier (block 8)",
-          isMultipleAward(a) ? "" : str(a["awardee_uei"]),
+          multipleAward ? "" : str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || str(a["vendor_uei"]),
         ),
         field("topmostSubform.Page", "Page (block 1)", "1"),
-        field("topmostSubform.Pages", "Of pages (block 1)", "1"),
+        field("topmostSubform.Pages", "Of pages (block 1)", pageCount),
       ],
     },
     {
@@ -312,32 +343,39 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.CheckBox13A",
           "Change order under the changes clause (block 13A)",
-          str(mod["mod_type"]).toLowerCase().includes("change"),
+          block13 === "a",
         ),
         field(
           "topmostSubform.CheckBox13B",
           "Administrative change (block 13B)",
-          str(mod["mod_type"]).toLowerCase().includes("administrative"),
+          block13 === "b",
         ),
         field(
           "topmostSubform.CheckBox13C",
           "Supplemental agreement, entered into under the authority of (block 13C)",
-          str(mod["mod_type"]).toLowerCase().includes("supplemental") ||
-            str(mod["mod_type"]).toLowerCase().includes("bilateral"),
+          block13 === "c",
         ),
-        field("topmostSubform.C13", "Authority for a supplemental agreement (block 13C)", str(mod["authority"])),
+        field("topmostSubform.C13", "Authority for a supplemental agreement (block 13C)", block13 === "c" ? recordedAuthority : ""),
+        field("topmostSubform.CheckBox13D", "Other authority (block 13D)", block13 === "d"),
+        field("topmostSubform.D13", "Other authority text (block 13D)", block13 === "d" ? recordedAuthority : ""),
         field(
           "topmostSubform.Is",
           "Contractor is required to sign this document (block 16)",
-          !str(mod["mod_type"]).toLowerCase().includes("administrative"),
+          false,
+          "The record does not state whether the contractor must sign; neither choice is selected.",
         ),
         field(
           "topmostSubform.IsNot",
           "Contractor is not required to sign this document (block 16)",
-          str(mod["mod_type"]).toLowerCase().includes("administrative"),
+          false,
         ),
-        field("topmostSubform.Description", "Description of amendment or modification (block 14)", description),
-        field("topmostSubform.NameandTitleOfficer", "Name and title of contracting officer (block 16A)", str(a["co_name"])),
+        field(
+          "topmostSubform.Description",
+          "Description of amendment or modification (block 14)",
+          description,
+          description ? undefined : "No modification description is recorded; block 14 stays empty.",
+        ),
+        field("topmostSubform.NameandTitleOfficer", "Name and title of contracting officer (block 16A)", resolveOfficerName(a, ctx.coName)),
         field("topmostSubform.NameandTitleSigner", "Name and title of contractor signer (block 15A)", ""),
       ],
     },

@@ -29,6 +29,26 @@ export function sf30HonestBlanks(ctx: FormCtx): Sf30Blank[] {
   if (!str(a["pr_number"]) && !str(mod["requisition_number"])) {
     out.push({ block: "Block 4, requisition number", reason: "No purchase request number is on the file." });
   }
+  const postAward =
+    a["post_award"] && typeof a["post_award"] === "object"
+      ? (a["post_award"] as Record<string, unknown>)
+      : {};
+  const administeringOffice =
+    str(a["administering_office_name_address"]) ||
+    str(a["administering_office"]) ||
+    str(a["administered_by"]) ||
+    str(postAward["administering_office_name_address"]) ||
+    str(postAward["administering_office"]) ||
+    str(postAward["administered_by"]);
+  const administeringCode =
+    str(a["administering_office_code"]) || str(postAward["administering_office_code"]);
+  if (!administeringOffice || !administeringCode) {
+    out.push({
+      block: "Block 7, administered by",
+      reason:
+        "No administering office or office code is recorded for this modification. The issuing office is not repeated as an assumption.",
+    });
+  }
   if (isMultipleAward(a)) {
     out.push({
       block: "Block 8, contractor",
@@ -51,6 +71,18 @@ export function sf30HonestBlanks(ctx: FormCtx): Sf30Blank[] {
     out.push({
       block: "Block 13, authority",
       reason: "No authority text is recorded on the modification. A FAR or NFS citation is never invented.",
+    });
+  }
+  if (!str(mod["contractor_signature_required"]) && !str(mod["contractor_signature_not_required"])) {
+    out.push({
+      block: "Block 16, contractor signature requirement",
+      reason: "The record does not state whether the contractor must sign, so neither choice is selected.",
+    });
+  }
+  if (!str(mod["description"])) {
+    out.push({
+      block: "Block 14, description",
+      reason: "No amendment or modification description is recorded. Prose is never generated to fill the block.",
     });
   }
   out.push({
