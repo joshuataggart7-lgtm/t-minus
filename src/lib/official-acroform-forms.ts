@@ -16,7 +16,7 @@ import { applyFormMappings } from "@/lib/apply-form-mappings";
 import { setAsideKey } from "@/lib/official-acroform-sf1449";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
-import { modAuthorityText, sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
+import { sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
 import { buildSf26, buildSf33 } from "@/lib/sf-forms";
 
 export type RogerFormData = Record<string, unknown>;
@@ -31,6 +31,38 @@ const num = (v: unknown): number | null => {
 /** The office name the record carries, centre and branch. */
 const officeOf = (a: Record<string, unknown>): string =>
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
+
+/** A named office carried explicitly by the record, including post-award data. */
+function recordedOffice(
+  a: Record<string, unknown>,
+  kind: "issuing" | "administering",
+): { code: string; nameAddress: string } {
+  const postAward =
+    a["post_award"] && typeof a["post_award"] === "object"
+      ? (a["post_award"] as Record<string, unknown>)
+      : {};
+  if (kind === "issuing") {
+    return {
+      code: str(a["issuing_office_code"]) || str(postAward["issuing_office_code"]) || str(a["center_code"]),
+      nameAddress:
+        str(a["issuing_office_name_address"]) ||
+        str(a["issuing_office"]) ||
+        str(postAward["issuing_office_name_address"]) ||
+        str(postAward["issuing_office"]) ||
+        officeOf(a),
+    };
+  }
+  return {
+    code: str(a["administering_office_code"]) || str(postAward["administering_office_code"]),
+    nameAddress:
+      str(a["administering_office_name_address"]) ||
+      str(a["administering_office"]) ||
+      str(a["administered_by"]) ||
+      str(postAward["administering_office_name_address"]) ||
+      str(postAward["administering_office"]) ||
+      str(postAward["administered_by"]),
+  };
+}
 
 /**
  * The schedule rows on the file, in print order, as the mapping rows read them.
@@ -133,8 +165,14 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   // multiple-award vehicle no single holder is picked.
   const single = !isMultipleAward(a);
   const contractorName = single ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) : "";
-  const contractorCode = single ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) : "";
-  const contractorCage = single ? str(a["awardee_cage"]) || str(a["intended_awardee_cage"]) : "";
+  const contractorCode = single
+    ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || str(a["vendor_uei"])
+    : "";
+  const contractorCage = single
+    ? str(a["awardee_cage"]) || str(a["intended_awardee_cage"]) || str(a["vendor_cage"])
+    : "";
+  const issuingOffice = recordedOffice(a, "issuing");
+  const administeringOffice = recordedOffice(a, "administering");
 
   // Block 13: the recorded flags rule. Where none is recorded, the block for
   // the recorded modification type is used, so the ticked box and the
@@ -152,10 +190,10 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     : namedType
       ? { a: byType.sf30_13a, b: byType.sf30_13b, c: byType.sf30_13c, d: byType.sf30_13d }
       : { a: false, b: false, c: false, d: false };
-  // The authority is read from the record, or derived for a named type. A type
-  // the list does not name leaves the blank empty rather than printing a guess.
-  const authorityText =
-    str(mod["authority_text"]) || (namedType ? modAuthorityText(str(mod["mod_type"]), a) : "");
+  // Authority text is printed only when the modification record carries it.
+  // The modification type may identify the correct category, but it is never
+  // used to manufacture a FAR, NFS or contract-clause authority.
+  const authorityText = str(mod["authority_text"]);
   // A type the list does not name belongs in block 13D, but only when the
   // record carries the authority that block asks the writer to specify.
   if (!recordedBlocks && !namedType && authorityText) block13 = { a: false, b: false, c: false, d: true };
@@ -209,8 +247,11 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       number: amends ? str(a["solicitation_number"]) : "",
       issue_date: str(a["solicitation_issue_date"]),
     },
-    issuing_office: { code: str(a["center_code"]), name_address: officeOf(a) },
-    administering_office: { code: str(a["center_code"]), name_address: officeOf(a) },
+    issuing_office: { code: issuingOffice.code, name_address: issuingOffice.nameAddress },
+    administering_office: {
+      code: administeringOffice.code,
+      name_address: administeringOffice.nameAddress,
+    },
     contractor: {
       name_address: contractorName,
       code: contractorCode,
@@ -218,7 +259,7 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     },
     accounting: { data: str(a["funding_source"]) || str(mod["funds_line"]) },
     // Signature blocks stay empty; only the officer of record's name prints.
-    signer: { contracting_officer: str(a["co_name"]), name_title: "" },
+    signer: { contracting_officer: resolveOfficerName(a, ctx.coName), name_title: "" },
   };
 
   return withCanonical("sf30", data, { samEntity: (a as Record<string, unknown>)["sam_entity"] ?? null });
