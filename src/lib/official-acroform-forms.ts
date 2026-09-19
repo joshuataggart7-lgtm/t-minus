@@ -237,11 +237,25 @@ export function faceCtxToRogerData(formId: "sf26" | "sf33", ctx: FormCtx): Roger
   const face: Record<string, unknown> = {};
   for (const section of form.sections) {
     for (const f of section.fields) {
-      const leaf = f.path.split(".").pop()!.replace(/\[\d+\]$/, "");
+      const pathLeaf = f.path.split(".").pop();
+      if (!pathLeaf) continue;
+      const leaf = pathLeaf.replace(/\[\d+\]$/, "");
       const empty = f.value === "" || f.value === false || f.value === undefined;
       if (leaf in face && empty) continue;
       face[leaf] = f.value;
     }
+  }
+
+  // P0-0: bind the officer of record directly to the official face fields.
+  // These are printed names only; no signature or signature-date field is
+  // mapped. Prefer the acquisition row and retain FormCtx as the safe fallback
+  // used by callers that already resolved the officer before building the form.
+  const coName = str(ctx.acq["co_name"]) || str(ctx.coName);
+  if (formId === "sf26") {
+    face["NAMECONTRACTING"] = coName;
+  } else {
+    face["NAME10A"] = coName;
+    face["CONTRACTINGOFFICER"] = coName;
   }
   return { face };
 }
