@@ -7,6 +7,7 @@
  * and contracting officer date blocks stay empty: a person signs them.
  */
 
+import { resolveOfficerName } from "@/lib/softwalk-samples";
 import type { FormCtx } from "@/lib/nf1787";
 import { mappingsFor } from "@/lib/form-field-mappings";
 import { currentFormRevision, resolveFormTemplate, type FormTemplateId } from "@/lib/form-templates";
@@ -250,7 +251,7 @@ export function faceCtxToRogerData(formId: "sf26" | "sf33", ctx: FormCtx): Roger
   // These are printed names only; no signature or signature-date field is
   // mapped. Prefer the acquisition row and retain FormCtx as the safe fallback
   // used by callers that already resolved the officer before building the form.
-  const coName = str(ctx.acq["co_name"]) || str(ctx.coName);
+  const coName = resolveOfficerName(ctx.acq, ctx.coName);
   if (formId === "sf26") {
     face["NAMECONTRACTING"] = coName;
   } else {

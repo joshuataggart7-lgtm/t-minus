@@ -19,6 +19,7 @@ import { isStreamlined } from "@/lib/format-scaffold";
 import { faceLine, packSentences, setAsideFlags } from "@/lib/official-acroform-sf1449";
 import { of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
+import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -394,6 +395,7 @@ const parentContract = (a: Record<string, unknown>): string => str(a["parent_con
 /** SF 33, Solicitation, Offer and Award. Government blocks only. */
 export function buildSf33(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
+  const officer = resolveOfficerName(a, ctx.coName);
   const rows = schedule(ctx);
   const method = `${str(a["acquisition_method"])} ${str(a["contract_format"])}`.toLowerCase();
   const sealed = /sealed|invitation for bid|\bifb\b/.test(method);
@@ -467,8 +469,8 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.NAME10A",
           "For information call, name (block 10A)",
-          str(a["co_name"]),
-          str(a["co_name"]) ? undefined : TO_COMPLETE("record the point of contact"),
+          officer,
+          officer ? undefined : TO_COMPLETE("record the point of contact"),
         ),
         field("topmostSubform.AREACODE1", "Area code (block 10B)", phone.replace(/\D/g, "").slice(0, 3)),
         field("topmostSubform.NUMBER1", "Telephone number (block 10B)", phone.replace(/\D/g, "").slice(3, 10)),
@@ -531,8 +533,8 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.CONTRACTINGOFFICER",
           "Name of contracting officer (block 26)",
-          str(a["co_name"]),
-          str(a["co_name"]) ? undefined : TO_COMPLETE("record the contracting officer"),
+          officer,
+          officer ? undefined : TO_COMPLETE("record the contracting officer"),
         ),
         field(
           "topmostSubform.AWARDDATE",
@@ -556,6 +558,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
 /** SF 26, Award/Contract. Government blocks only; rows 1 to 5 of the schedule. */
 export function buildSf26(ctx: FormCtx): GeneratedForm {
   const a = ctx.acq;
+  const officer = resolveOfficerName(a, ctx.coName);
   const rows = schedule(ctx);
   const shown = rows.slice(0, 5);
   const method = `${str(a["acquisition_method"])} ${str(a["contract_format"])}`.toLowerCase();
@@ -709,7 +712,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.NAMECONTRACTING",
           "Name of contracting officer (block 20A)",
-          str(a["co_name"]),
+          officer,
           "Blocks 19A to 19C and both signature blocks stay empty; the contractor and the contracting officer sign.",
         ),
       ],
@@ -959,7 +962,7 @@ export function recommendedOfficialForm(
   if (/sf 26|sf26/.test(format)) {
     return { key: "sf-26", why: "The record names SF 26 as the award form." };
   }
-  if (isStreamlined(facts)) {
+  if (isStreamlined(facts) || isSoftWalkCommercialSample(facts)) {
     return {
       key: "sf-1449",
       why: "Commercial, streamlined format on the record (FAR 12.204(a)).",
