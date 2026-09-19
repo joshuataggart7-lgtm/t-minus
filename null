@@ -1,4 +1,0 @@
-ls: cannot access 'tests/*.test.ts': No such file or directory
-ls: cannot access 'tests/*.spec.ts': No such file or directory
-ls: cannot access 'src/**/*.test.ts': No such file or directory
-ls: cannot access 'src/**/*.spec.ts': No such file or directory
