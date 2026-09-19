@@ -1671,6 +1671,15 @@ const jofocUrgency: TemplateDef = {
         },
       ],
     },
+    {
+      id: "posting",
+      title: "Posting after award",
+      citation: "FAR 6.301(b)(1)",
+      tier: "binding",
+      standingText:
+        "After contract award, the contracting officer posts a redacted copy of this justification to the Government Point of Entry. The justification is made publicly available within 30 calendar days after contract award in accordance with FAR 6.301(b)(1). Before posting, the contracting officer completes the electronic document posting checklist described in NFS Companion Guide 1804.102, and prepares this justification using the process in NFS Companion Guide 1806.15(a); the Companion Guide is process guidance, and Interim NFS Part 1806 is reserved.",
+      fields: [],
+    },
     jofocCommonSignature("JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION, UNUSUAL AND COMPELLING URGENCY"),
   ],
 

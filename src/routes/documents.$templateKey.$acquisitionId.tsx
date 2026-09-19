@@ -77,6 +77,7 @@ import {
   approvingOfficialTitle,
 } from "@/lib/template-engine";
 import { generateJofocDocx } from "@/lib/jofoc-docx";
+import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
@@ -2075,7 +2076,18 @@ function DocumentPage() {
               <DropdownMenuItem
                 onSelect={() => {
                   if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
-                  else if (def.key === "jofoc" && exportContext) {
+                  else if (def.key === "jofoc-urgency" && exportContext) {
+                    // Urgency justification is written into the NASA OP urgency master.
+                    if (!isUrgencyJofocPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an unusual and compelling urgency authority, so the urgency justification was not written. Record the urgency authority first.",
+                      );
+                    } else {
+                      void generateJofocUrgencyDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-urgency-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "jofoc" && exportContext) {
                     // The JOFOC is written into the NASA Word master, not built from scratch.
                     void generateJofocDocx(exportContext)
                       .then((bytes) => downloadDocxBytes(bytes, `jofoc-${acquisitionId}.docx`))
