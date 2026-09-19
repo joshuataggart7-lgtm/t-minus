@@ -73,6 +73,12 @@ export function sf30HonestBlanks(ctx: FormCtx): Sf30Blank[] {
       reason: "No authority text is recorded on the modification. A FAR or NFS citation is never invented.",
     });
   }
+  if (!str(mod["contractor_signature_required"]) && !str(mod["contractor_signature_not_required"])) {
+    out.push({
+      block: "Block 16, contractor signature requirement",
+      reason: "The record does not state whether the contractor must sign, so neither choice is selected.",
+    });
+  }
   if (!str(mod["description"])) {
     out.push({
       block: "Block 14, description",

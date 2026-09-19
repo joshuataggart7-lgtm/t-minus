@@ -172,6 +172,8 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     : "";
   const issuingOffice = recordedOffice(a, "issuing");
   const administeringOffice = recordedOffice(a, "administering");
+  const description = str(mod["description"]);
+  const pageCount = description.length > 1600 ? "2" : "1";
 
   // Block 13: the recorded flags rule. Where none is recorded, the block for
   // the recorded modification type is used, so the ticked box and the
@@ -204,16 +206,16 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
 
 
   const data: RogerFormData = {
-    pagination: { page: "1", pages: "1" },
+    pagination: { page: "1", pages: pageCount },
     modification: {
       // P0-2: block 2 carries the recorded modification number only. The
       // contract number belongs in block 10 and is never reused here.
       number: str(mod["mod_number"]),
       effective_date: str(mod["effective_date"]),
       project_number: str(a["acquisition_id"]),
-      description: str(mod["description"]).slice(0, 1600),
+      description: description.slice(0, 1600),
       // A continuation page only when the recorded prose runs past block 14.
-      description_continued: str(mod["description"]).slice(1600),
+      description_continued: description.slice(1600),
       amends_solicitation: amends,
       modifies_contract: !amends,
       offer_period_changes: false,

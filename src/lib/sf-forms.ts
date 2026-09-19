@@ -279,6 +279,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
     : recordedAuthority
       ? "d"
       : "";
+  const pageCount = description.length > 1600 ? "2" : "1";
 
   const sections: FormSection[] = [
     {
@@ -317,7 +318,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
           multipleAward ? "" : str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || str(a["vendor_uei"]),
         ),
         field("topmostSubform.Page", "Page (block 1)", "1"),
-        field("topmostSubform.Pages", "Of pages (block 1)", "1"),
+        field("topmostSubform.Pages", "Of pages (block 1)", pageCount),
       ],
     },
     {
