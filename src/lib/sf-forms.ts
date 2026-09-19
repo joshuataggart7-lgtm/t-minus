@@ -360,12 +360,13 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.Is",
           "Contractor is required to sign this document (block 16)",
-          !str(mod["mod_type"]).toLowerCase().includes("administrative"),
+          false,
+          "The record does not state whether the contractor must sign; neither choice is selected.",
         ),
         field(
           "topmostSubform.IsNot",
           "Contractor is not required to sign this document (block 16)",
-          str(mod["mod_type"]).toLowerCase().includes("administrative"),
+          false,
         ),
         field(
           "topmostSubform.Description",

@@ -160,7 +160,6 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const mods = Array.isArray(a["modifications"]) ? (a["modifications"] as Record<string, unknown>[]) : [];
   const mod = mods.length ? mods[mods.length - 1]! : {};
   const amends = !str(a["contract_number"]);
-  const kind = str(mod["mod_type"]).toLowerCase();
   // Block 8 names a contractor only when one is recorded for this action. On a
   // multiple-award vehicle no single holder is picked.
   const single = !isMultipleAward(a);
@@ -226,9 +225,8 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       item_13b: block13.b,
       item_13c: block13.c,
       item_13d: block13.d,
-      // P0-2: the authority prints in the blank next to the box that is
-      // ticked, read from the record. Nothing is invented: where the covering
-      // clause is not on the record, the authority helper says so plainly.
+      // The authority prints beside the selected category only when that exact
+      // text is on the modification record. No placeholder citation is used.
       item_13a_authority: block13.a ? authorityText : "",
       item_13c_authority: block13.c ? authorityText : "",
       item_13d_authority: block13.d ? authorityText : "",
