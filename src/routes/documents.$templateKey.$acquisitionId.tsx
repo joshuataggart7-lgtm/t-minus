@@ -77,6 +77,7 @@ import {
   approvingOfficialTitle,
 } from "@/lib/template-engine";
 import { generateJofocDocx } from "@/lib/jofoc-docx";
+import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
