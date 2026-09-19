@@ -2672,3 +2672,25 @@ Verified by generating real LSJ_MASTER.docx bytes and reading word/document.xml 
 - [[CO_NAME]] = record co_name (Joshua Taggart on the samples); signature rules stay blank.
 Export path: /documents/limited-sources-justification/<id> -> Export Word -> generateLsjDocx -> applyMarkers.
 No Scratch Packer. SF1449 / OF347 / SF30 / JOFOC untouched.
+
+## Soft Walk P1 stretch (after fe4c60a1) — Batch2 cite verify + Part-token check
+
+Ship A — verified on the live tip, no rewrite needed (verify-only; nothing was edited):
+- LSJ face lines are FAR 8.401(b) / GSAM 538.7104-*. Zero occurrences of 8.104(b) as a face cite
+  (src/lib/lsj-docx.ts, src/lib/templates-hq4.ts).
+- No FAR 6.301(b)(2) exists anywhere in src; the urgency JOFOC path cites 10 U.S.C. 3204(a)(2),
+  FAR 6.103-2 and FAR 6.104-1(a)(n). Nothing emits the wrong 30-day posting paragraph.
+- JOFOC badge and face cite FAR 6.103. "FAR 6.1030" survives only as a recorded HQ-template
+  correction entry ("FAR 6.1030 to FAR 6.103") and in the seed defect note — never as a live cite.
+- NPA/ANOSCA carry NFS Companion Guide process labels and say Interim NFS part 1805 is reserved,
+  so the 1805 process language is guidance, not binding CFR text.
+- Sample 1 (A-2027-0101, FAR 13.5 commercial simplified, SF 1449 streamlined) resolves the PNM
+  price-reasonableness cite to RFO FAR 12.204(a) with FAR 13.106-3; the Part 15 (15.406-3 /
+  15.404-1) branch is not taken. Same for Sample 2.
+
+Ship B — citationTokens() already recognises "FAR Part N", "NFS Part N" and "NFS CG Part N"
+(the Part keyword is optional in the token regex, and the token keeps the Part form so it matches
+the corpus row). Live corpus check: FAR Part 10 resolves to a loaded far_rfo row; NFS 1810 /
+NFS Part 1810 and NFS CG 1810.12(c) resolve to their own loaded rows. resolveSections still refuses
+to widen a precise cite such as FAR 10.002(e) to its parent, so missing paragraphs stay honest
+stubs. No body text was invented and no corpus row was added or edited in this ship.
