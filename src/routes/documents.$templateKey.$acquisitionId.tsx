@@ -2149,7 +2149,18 @@ function DocumentPage() {
             <DropdownMenuContent align="start" className="w-44">
               <DropdownMenuItem
                 onSelect={() => {
-                  if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
+                  if (def.key === "ppm" && exportContext) {
+                    // The prenegotiation position is written into the NASA OP master.
+                    if (!isPpmPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generatePpmDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
                     if (!isJofoc8aPath(exportContext)) {
