@@ -2828,6 +2828,7 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
     }
   }
   // Carried so a section citation can follow the record's acquisition method.
+  // (helper defined below)
   out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
   if (def.key === "jofoc") {
     const competition = String(acq["competition"] ?? "").toLowerCase();
