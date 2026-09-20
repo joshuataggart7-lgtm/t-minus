@@ -19,6 +19,20 @@ const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
   return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
 };
 
+/** Three-way notice routing: Part 15 negotiated, Part 12 commercial, and
+ *  simplified noncommercial. The postaward notification letters separate the
+ *  last two: a commercial file notifies under RFO FAR 12.301, a simplified
+ *  noncommercial file under FAR 13.301. */
+const noticeCitation3 =
+  (part15: string, commercial: string, simplifiedNoncommercial: string) => (v: Values) => {
+    const method = v["__method"] ?? "";
+    const simplified = /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+    if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
+    if (!simplified) return part15;
+    return /\b12\b|commercial/i.test(method) ? commercial : simplifiedNoncommercial;
+  };
+
+
 const T = (key: string, label: string, help?: string): FieldDef => ({
   key,
   label,
