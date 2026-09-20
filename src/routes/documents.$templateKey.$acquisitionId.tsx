@@ -86,6 +86,8 @@ import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
 import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
+  generatePostawardSuccessCompanionDocx,
+  generatePostawardUnsuccessCompanionDocx,
   isPart15NotificationPath,
   simplifiedNoticeCitation,
 } from "@/lib/postaward-letters-docx";
