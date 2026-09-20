@@ -83,6 +83,13 @@ import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgenc
 import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
+import {
+  generatePostawardSuccessDocx,
+  generatePostawardUnsuccessDocx,
+  isPart15NotificationPath,
+  simplifiedNoticeCitation,
+} from "@/lib/postaward-letters-docx";
+
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
