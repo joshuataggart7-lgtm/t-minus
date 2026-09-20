@@ -919,7 +919,7 @@ const pnm: TemplateDef = {
           kind: "select",
           required: true,
           options: [
-            "Not required; commercial products or services (FAR 15.403-1(b)(3))",
+            "Not required; commercial products or services",
             "Not required; adequate price competition",
             "Required and obtained",
           ],
