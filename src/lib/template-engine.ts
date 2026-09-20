@@ -949,10 +949,10 @@ const pnm: TemplateDef = {
           : "FAR 15.406-3; FAR 15.408-2; NFS CG 1815.48; NFS CG 1815.49",
       tier: "binding",
       standingText:
-        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written.",
+        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written.",
       standingTextFor: (v) =>
         simplifiedValues(v)
-          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written."
+          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written."
           : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by FAR 15.406-3, following the format at FAR 15.408-2 and the process in NFS CG 1815.48 and NFS CG 1815.49.",
       fields: [
         {
