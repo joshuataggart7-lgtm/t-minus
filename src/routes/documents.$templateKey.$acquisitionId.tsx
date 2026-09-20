@@ -1136,6 +1136,21 @@ function DocumentPage() {
       const options = def.sections.find((x) => x.id === "item4")?.fields[0]?.options ?? [];
       if (!options.includes(filled["authority"] ?? "")) filled["authority"] = jofocAuthorityDefault(q.data.acq);
     }
+    // The urgency justification gate reads the authority and competition from
+    // the record; carry them into the values so the export can be written
+    // without retyping facts already on file.
+    if (def.key === "jofoc-urgency") {
+      if (!filled["authority"]) {
+        const recorded = String(
+          q.data.acq["jofoc_authority_citation"] ?? q.data.acq["acquisition_method"] ?? "",
+        ).trim();
+        if (recorded) filled["authority"] = recorded;
+      }
+      if (!filled["competition_type"]) {
+        const competition = String(q.data.acq["competition"] ?? "").trim();
+        if (competition) filled["competition_type"] = competition;
+      }
+    }
     // The public notice prints the authority as a citation, never the
     // internal picker note the record stores.
     if (def.key === "sam-notice") {

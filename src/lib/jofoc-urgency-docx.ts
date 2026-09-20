@@ -69,7 +69,7 @@ export function jofocUrgencyMarkers(ctx: JofocDocxContext): MarkerMap {
   map["[[URGENCY_NOT_DELAY]]"] = value("urgency_not_delay") || KEEP;
   map["[[NOTICE_URGENCY_EXEMPTION]]"] =
     value("notice_exemption") ||
-    "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d).";
+    "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d). This justification for other than full and open competition, approved under FAR 6.301(b)(1), will be posted within 30 days after contract award as required by FAR 6.305.";
   map["[[MARKET_RESEARCH_PROSE]]"] = shared["[[MARKET_RESEARCH_PROSE]]"] || KEEP;
 
   return map;
