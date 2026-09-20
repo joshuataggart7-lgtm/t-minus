@@ -2842,12 +2842,17 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
         def.sections.flatMap((s) => s.fields).find((f) => f.key === "authority")?.options ?? [];
       const stored = String(out["authority"] ?? "").trim();
       if (!stored || !options.includes(stored)) {
-        const method = String(acq["acquisition_method"] ?? "").toLowerCase();
-        const commercial = /12\.102|13\.5|commercial simplified/.test(method);
-        out["authority"] =
-          options.find((o) =>
-            commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
-          ) ?? stored;
+        const matched = matchAuthorityOption(stored, options);
+        if (matched) out["authority"] = matched;
+        else if (stored) out["authority"] = stored;
+        else {
+          const method = String(acq["acquisition_method"] ?? "").toLowerCase();
+          const commercial = /12\.102|13\.5|commercial simplified/.test(method);
+          out["authority"] =
+            options.find((o) =>
+              commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
+            ) ?? stored;
+        }
       }
     }
   }
