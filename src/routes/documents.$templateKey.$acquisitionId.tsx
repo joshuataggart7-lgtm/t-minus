@@ -1170,6 +1170,19 @@ function DocumentPage() {
         filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
       }
     }
+    // The prenegotiation position memorandum is a Part 15 document; its gate
+    // reads the method, the competition and the value from the record.
+    if (def.key === "ppm") {
+      if (!filled["acquisition_method"]) {
+        filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
+      }
+      if (!filled["competition_type"]) {
+        filled["competition_type"] = String(q.data.acq["competition"] ?? "").trim();
+      }
+      if (!filled["estimated_value"]) {
+        filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
+      }
+    }
     if (def.key === "jofoc-urgency") {
       if (!filled["authority"]) {
         const recorded = String(
