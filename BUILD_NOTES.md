@@ -2702,3 +2702,19 @@ stubs. No body text was invented and no corpus row was added or edited in this s
 - Added fictional urgency demonstration record A-2027-0118 (FAR 15 negotiated, sole source, 10 U.S.C. 3204(a)(2) / RFO FAR 6.103-2, CO Joshua Taggart) to t-minus-seed/acquisitions.json and the live table so the urgency justification path can be exported.
 - documents.$templateKey: jofoc-urgency prefill now carries the recorded authority (jofoc_authority_citation / acquisition_method) and competition into the form values so isUrgencyJofocPath evaluates the record instead of an empty form. Competitive Sample 1 still refuses (gate reads full-and-open without 6.103-2).
 - jofoc-urgency-docx.ts: default notice text now records the FAR 6.301(b)(1) urgency justification with 30-day posting per FAR 6.305. Verified exported .docx: zero leftover markers, one amount-driven signature page, Joshua Taggart on the active band, no 6.301(b)(2), no history log.
+
+## Soft Walk P1-5 — Postaward notification letters (successful and unsuccessful)
+
+- Masters installed from the HQ OP Word templates: `public/forms/POSTAWARD_SUCCESS_MASTER.docx`
+  and `public/forms/POSTAWARD_UNSUCCESS_MASTER.docx`. Instruction pages, colour-coded drafter
+  notes and the document history logs are stripped; the letterhead, styles, footers and the
+  template version identifier stay as the masters write them. Build script:
+  `scripts/build-postaward-masters.py`.
+- `src/lib/postaward-letters-docx.ts` fills the masters through `applyMarkers` (no scratch OOXML)
+  and carries the method gate: `isPart15NotificationPath` is false on a commercial or simplified
+  file, and `simplifiedNoticeCitation` names RFO FAR 12.301 (commercial) or FAR 13.301
+  (simplified noncommercial) instead.
+- Citations corrected on the two letters: successful = FAR 15.207-1(a) / FAR 15.301-1(a)(1) with
+  NFS CG 1815.29, 1815.31, 1815.32; unsuccessful = FAR 15.207-2(b) / FAR 15.301-1 with NFS CG
+  1815.28. The stale FAR 15.502-7, 15.506 and 15.504 references on these letters are gone
+  (`templates-hq6.ts`, `email-drafts.ts`, `scenario.ts`).
