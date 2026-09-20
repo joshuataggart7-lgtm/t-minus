@@ -76,6 +76,7 @@ import {
   type Values,
   technicalRepresentative,
   approvingOfficialTitle,
+  matchAuthorityOption,
 } from "@/lib/template-engine";
 import { generateJofocDocx } from "@/lib/jofoc-docx";
 import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
