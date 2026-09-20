@@ -1086,7 +1086,7 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
       }, the period of performance recorded for it and prior prices paid for the same service.`
     : gap("state how the independent Government cost estimate was built");
   if (isSimplifiedCommercial(a))
-    out["cost_pricing_data"] = "Not required; commercial products or services (FAR 15.403-1(b)(3))";
+    out["cost_pricing_data"] = "Not required; commercial products or services";
   if (ctx.today) out["determined_on"] = ctx.today;
   // On a sole-source file there is no competition to compare against, so the
   // vendor, the price and the analysis technique come from the record.
