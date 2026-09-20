@@ -2200,11 +2200,6 @@ function DocumentPage() {
                     // notice on a commercial or simplified file.
                     const successful = def.key === "postaward-letter-successful";
                     const part15 = isPart15NotificationPath(exportContext);
-                    if (!part15) {
-                      setMessage(
-                        `This file does not record a FAR Part 15 negotiated acquisition, so the ${simplifiedNoticeCitation(exportContext)} companion notice was written instead of the Part 15 letter. A brief explanation of the award decision is given on written request under FAR 13.106-3(d).`,
-                      );
-                    }
                     const write = part15
                       ? successful
                         ? generatePostawardSuccessDocx(exportContext)
@@ -2213,12 +2208,19 @@ function DocumentPage() {
                         ? generatePostawardSuccessCompanionDocx(exportContext)
                         : generatePostawardUnsuccessCompanionDocx(exportContext);
                     void write
-                      .then((bytes) =>
+                      .then((bytes) => {
                         downloadDocxBytes(
                           bytes,
-                          `${successful ? "postaward-successful" : "postaward-unsuccessful"}-${acquisitionId}.docx`,
-                        ),
-                      )
+                          `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
+                        );
+                        if (!part15) {
+                          setMessage(
+                            successful
+                              ? `The ${simplifiedNoticeCitation(exportContext)} successful-offeror companion notice was written.`
+                              : "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
+                          );
+                        }
+                      })
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                   } else if (def.key === "ppm" && exportContext) {
 
