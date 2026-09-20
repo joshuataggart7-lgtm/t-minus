@@ -86,6 +86,8 @@ import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
 import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
+  generatePostawardSuccessCompanionDocx,
+  generatePostawardUnsuccessCompanionDocx,
   isPart15NotificationPath,
   simplifiedNoticeCitation,
 } from "@/lib/postaward-letters-docx";
@@ -2193,25 +2195,31 @@ function DocumentPage() {
                       def.key === "postaward-letter-unsuccessful") &&
                     exportContext
                   ) {
-                    // The notification letters are written into the NASA OP masters.
-                    if (!isPart15NotificationPath(exportContext)) {
+                    // The notification letters are written into the NASA OP masters
+                    // on a Part 15 file, and as the Part 12 or Part 13 companion
+                    // notice on a commercial or simplified file.
+                    const successful = def.key === "postaward-letter-successful";
+                    const part15 = isPart15NotificationPath(exportContext);
+                    if (!part15) {
                       setMessage(
-                        `This file does not record a FAR Part 15 negotiated acquisition, so the Part 15 notification letter was not written. A commercial or simplified file notifies under ${simplifiedNoticeCitation(exportContext)} and gives a brief explanation of the award decision on written request under FAR 13.106-3(d).`,
+                        `This file does not record a FAR Part 15 negotiated acquisition, so the ${simplifiedNoticeCitation(exportContext)} companion notice was written instead of the Part 15 letter. A brief explanation of the award decision is given on written request under FAR 13.106-3(d).`,
                       );
-                    } else {
-                      const successful = def.key === "postaward-letter-successful";
-                      const write = successful
-                        ? generatePostawardSuccessDocx(exportContext)
-                        : generatePostawardUnsuccessDocx(exportContext);
-                      void write
-                        .then((bytes) =>
-                          downloadDocxBytes(
-                            bytes,
-                            `${successful ? "postaward-successful" : "postaward-unsuccessful"}-${acquisitionId}.docx`,
-                          ),
-                        )
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
+                    const write = part15
+                      ? successful
+                        ? generatePostawardSuccessDocx(exportContext)
+                        : generatePostawardUnsuccessDocx(exportContext)
+                      : successful
+                        ? generatePostawardSuccessCompanionDocx(exportContext)
+                        : generatePostawardUnsuccessCompanionDocx(exportContext);
+                    void write
+                      .then((bytes) =>
+                        downloadDocxBytes(
+                          bytes,
+                          `${successful ? "postaward-successful" : "postaward-unsuccessful"}-${acquisitionId}.docx`,
+                        ),
+                      )
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                   } else if (def.key === "ppm" && exportContext) {
 
                     // The prenegotiation position is written into the NASA OP master.

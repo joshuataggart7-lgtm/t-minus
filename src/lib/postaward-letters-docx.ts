@@ -190,3 +190,125 @@ export async function generatePostawardSuccessDocx(ctx: PostawardDocxContext): P
 export async function generatePostawardUnsuccessDocx(ctx: PostawardDocxContext): Promise<Uint8Array> {
   return await writeFromMaster(POSTAWARD_UNSUCCESS_MASTER_URL, postawardUnsuccessMarkers(ctx));
 }
+
+/* ------------------------------------------------------------------ *
+ * Part 12 / Part 13 companion notifications.
+ *
+ * A commercial or simplified file is not dressed in Part 15 prose, but it
+ * still notifies. The companion letters are written plainly from the record:
+ *   Successful   — award notice; RFO FAR 12.301 on a commercial file,
+ *                  FAR 13.301 on a simplified noncommercial file.
+ *   Unsuccessful — notice that the quotation was not selected, with the brief
+ *                  explanation available on written request under
+ *                  FAR 13.106-3(d).
+ * No Part 15 citation appears on either face. Signature ink stays blank.
+ * ------------------------------------------------------------------ */
+
+async function buildCompanionDocx(
+  ctx: PostawardDocxContext,
+  successful: boolean,
+): Promise<Uint8Array> {
+  const { Document, Packer, Paragraph, TextRun } = await import("docx");
+  const v = ctx.values ?? {};
+  const acq = ctx.acq ?? {};
+  const value = (key: string) => cleanProse(str(v[key]));
+  const co = officerBlock(ctx);
+  const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
+  const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
+  const company = value("company_name") || str(acq["vendor_legal_name"]) || "Not recorded";
+  const solicitation = value("solicitation_number") || "Not recorded";
+  const citation = simplifiedNoticeCitation(ctx);
+
+  const serif = { font: "Times New Roman", size: 24 } as const;
+  const p = (text: string, opts: { bold?: boolean; after?: number } = {}) =>
+    new Paragraph({
+      spacing: { after: opts.after ?? 200 },
+      children: [new TextRun({ ...serif, text, bold: opts.bold ?? false })],
+    });
+
+  const lines: InstanceType<typeof Paragraph>[] = [];
+  lines.push(p("National Aeronautics and Space Administration", { bold: true, after: 0 }));
+  lines.push(p(center, { after: 0 }));
+  lines.push(p(str(ctx.centerAddress), { after: 360 }));
+  lines.push(p(value("letter_date") || str(ctx.preparedDate), { after: 360 }));
+  const addressee = value("addressee") || company;
+  for (const line of addressee.split(/\n+/).map((l) => l.trim()).filter(Boolean)) {
+    lines.push(p(line, { after: 0 }));
+  }
+  lines.push(p("", { after: 240 }));
+  lines.push(
+    p(
+      `Subject:  Notification for Solicitation No. ${solicitation} for the ${title} acquisition`,
+      { bold: true },
+    ),
+  );
+  lines.push(p(`Dear ${value("poc_name") || company}:`));
+
+  if (successful) {
+    lines.push(
+      p(
+        `The National Aeronautics and Space Administration (NASA) ${center} has awarded a contract to ${company} under the subject solicitation. The contract ${value("contract_number") || str(acq["contract_number"]) || "Not recorded"} has an effective date of ${value("effective_date") || "Not recorded"}.`,
+      ),
+    );
+    lines.push(
+      p(
+        `This notification is provided under ${citation}. This acquisition was conducted using simplified procedures; the Part 15 postaward debriefing procedures do not apply.`,
+      ),
+    );
+  } else {
+    lines.push(
+      p(
+        `This notification is to inform ${company} that the National Aeronautics and Space Administration (NASA) ${center} has awarded a contract under the subject solicitation and your quotation was not selected for award.`,
+      ),
+    );
+    lines.push(
+      p(
+        `Award was made to ${value("awardees") || str(acq["vendor_legal_name"]) || "Not recorded"} at a total value of ${value("contract_value") || str(acq["estimated_value"]) || "Not recorded"}.`,
+      ),
+    );
+    lines.push(
+      p(
+        `This notification is provided under ${citation}. This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).`,
+      ),
+    );
+  }
+
+  lines.push(
+    p(
+      `For additional information, please contact the undersigned at ${co.phone || "Not recorded"} or by e-mail at ${co.email || "Not recorded"}.`,
+      { after: 480 },
+    ),
+  );
+  lines.push(p("Sincerely,", { after: 720 }));
+  lines.push(p(co.name || "Not recorded", { after: 0 }));
+  lines.push(p("Contracting Officer", { after: 0 }));
+
+  const doc = new Document({
+    sections: [
+      {
+        properties: {
+          page: {
+            size: { width: 12240, height: 15840 },
+            margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 },
+          },
+        },
+        children: lines,
+      },
+    ],
+  });
+  return new Uint8Array(await Packer.toBuffer(doc));
+}
+
+/** The commercial or simplified successful-offeror companion notice. */
+export async function generatePostawardSuccessCompanionDocx(
+  ctx: PostawardDocxContext,
+): Promise<Uint8Array> {
+  return await buildCompanionDocx(ctx, true);
+}
+
+/** The commercial or simplified unsuccessful-quoter companion notice. */
+export async function generatePostawardUnsuccessCompanionDocx(
+  ctx: PostawardDocxContext,
+): Promise<Uint8Array> {
+  return await buildCompanionDocx(ctx, false);
+}
