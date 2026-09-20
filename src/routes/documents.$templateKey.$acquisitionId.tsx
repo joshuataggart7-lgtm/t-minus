@@ -83,6 +83,13 @@ import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgenc
 import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
+import {
+  generatePostawardSuccessDocx,
+  generatePostawardUnsuccessDocx,
+  isPart15NotificationPath,
+  simplifiedNoticeCitation,
+} from "@/lib/postaward-letters-docx";
+
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
@@ -1183,6 +1190,14 @@ function DocumentPage() {
         filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
       }
     }
+    // The postaward notification letters are Part 15 notices; their gate reads
+    // the method from the record rather than from the form.
+    if (def.key === "postaward-letter-successful" || def.key === "postaward-letter-unsuccessful") {
+      if (!filled["acquisition_method"]) {
+        filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
+      }
+    }
+
     if (def.key === "jofoc-urgency") {
       if (!filled["authority"]) {
         const recorded = String(
@@ -2173,7 +2188,32 @@ function DocumentPage() {
             <DropdownMenuContent align="start" className="w-44">
               <DropdownMenuItem
                 onSelect={() => {
-                  if (def.key === "ppm" && exportContext) {
+                  if (
+                    (def.key === "postaward-letter-successful" ||
+                      def.key === "postaward-letter-unsuccessful") &&
+                    exportContext
+                  ) {
+                    // The notification letters are written into the NASA OP masters.
+                    if (!isPart15NotificationPath(exportContext)) {
+                      setMessage(
+                        `This file does not record a FAR Part 15 negotiated acquisition, so the Part 15 notification letter was not written. A commercial or simplified file notifies under ${simplifiedNoticeCitation(exportContext)} and gives a brief explanation of the award decision on written request under FAR 13.106-3(d).`,
+                      );
+                    } else {
+                      const successful = def.key === "postaward-letter-successful";
+                      const write = successful
+                        ? generatePostawardSuccessDocx(exportContext)
+                        : generatePostawardUnsuccessDocx(exportContext);
+                      void write
+                        .then((bytes) =>
+                          downloadDocxBytes(
+                            bytes,
+                            `${successful ? "postaward-successful" : "postaward-unsuccessful"}-${acquisitionId}.docx`,
+                          ),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "ppm" && exportContext) {
+
                     // The prenegotiation position is written into the NASA OP master.
                     if (!isPpmPath(exportContext)) {
                       setMessage(

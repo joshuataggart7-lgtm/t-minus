@@ -19,6 +19,20 @@ const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
   return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
 };
 
+/** Three-way notice routing: Part 15 negotiated, Part 12 commercial, and
+ *  simplified noncommercial. The postaward notification letters separate the
+ *  last two: a commercial file notifies under RFO FAR 12.301, a simplified
+ *  noncommercial file under FAR 13.301. */
+const noticeCitation3 =
+  (part15: string, commercial: string, simplifiedNoncommercial: string) => (v: Values) => {
+    const method = v["__method"] ?? "";
+    const simplified = /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+    if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
+    if (!simplified) return part15;
+    return /\b12\b|commercial/i.test(method) ? commercial : simplifiedNoncommercial;
+  };
+
+
 const T = (key: string, label: string, help?: string): FieldDef => ({
   key,
   label,
@@ -88,14 +102,16 @@ const postawardSuccessful: TemplateDef = {
   tab: "069",
   layout: "memo",
   badge: {
-    citation: "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
-    citationFor: noticeCitation(
-      "FAR 15.506(a)(1); FAR 15.506(b); FAR 15.504; NFS 1815.308; NFS 1815.506",
-      "RFO FAR 12.201-1 (commercial simplified procedures); FAR 13.106-3(d)",
+    citation:
+      "FAR 15.207-1(a); FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
+    citationFor: noticeCitation3(
+      "FAR 15.207-1(a); FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
+      "RFO FAR 12.301",
+      "FAR 13.301",
     ),
     tier: "binding",
-    revision: "HQ base issuance 09/2020, revision 02/2025",
-    effective: "2025-02-01",
+    revision: "HQ base issuance 09/2020, revisions 02/2025 and 04/2026",
+    effective: "2026-04-01",
     note: "Sent after telephone notification, with the signed source selection statement enclosed.",
   },
   lead: "Letter notifying the successful offeror of the selection decision and the debriefing period.",
@@ -110,8 +126,8 @@ const postawardSuccessful: TemplateDef = {
     {
       id: "selection",
       title: "Selection",
-      citation: "FAR 15.504",
-      citationFor: noticeCitation("FAR 15.504", "FAR 13.106-3(d)"),
+      citation: "FAR 15.207-1(a)",
+      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "FAR 13.301"),
       tier: "binding",
       fields: [
         X("company_name", "Successful offeror company name"),
@@ -124,13 +140,16 @@ const postawardSuccessful: TemplateDef = {
     {
       id: "debriefing",
       title: "Debriefing",
-      citation: "FAR 15.506(a)(1)",
-      citationFor: noticeCitation("FAR 15.506(a)(1)", "FAR 13.106-3(d)"),
+      citation: "FAR 15.301-1(a)(1); NFS CG 1815.31",
+      citationFor: noticeCitation(
+        "FAR 15.301-1(a)(1); NFS CG 1815.31",
+        "FAR 13.106-3(d)",
+      ),
       tier: "binding",
       standingText:
-        "Pursuant to FAR 15.506, offerors may request a postaward debriefing in writing within three calendar days of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+        "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
       standingTextFor: noticeCitation(
-        "Pursuant to FAR 15.506, offerors may request a postaward debriefing in writing within three calendar days of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+        "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
         "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On written request, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
       ),
       fields: [],
@@ -138,9 +157,10 @@ const postawardSuccessful: TemplateDef = {
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.506(b)",
-      citationFor: noticeCitation("FAR 15.506(b)", "FAR 13.106-3(d)"),
+      citation: "FAR 15.207-1(a)",
+      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "FAR 13.301"),
       tier: "binding",
+
       standingText:
         "NASA would like to express its appreciation for the time and effort that went into your proposal submittal and we look forward to working with you on the contract named above. For additional information, please contact the undersigned by telephone or e-mail.",
       standingTextFor: noticeCitation(
@@ -166,10 +186,11 @@ const postawardUnsuccessful: TemplateDef = {
   tab: "069",
   layout: "memo",
   badge: {
-    citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+    citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
     citationFor: noticeCitation(
-      "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; FAR 15.502-7; NFS CG 1815.28",
+      "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
       "FAR 13.106-3(d) (notification to unsuccessful quoters)",
+
     ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revisions 02/2025 and 03/2026",
@@ -250,8 +271,8 @@ const postawardUnsuccessful: TemplateDef = {
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.502-7",
-      citationFor: noticeCitation("FAR 15.502-7", "FAR 13.106-3(d)"),
+      citation: "FAR 15.207-2(b)",
+      citationFor: noticeCitation("FAR 15.207-2(b)", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",

@@ -43,7 +43,7 @@ export function emailCiteForMethod(acq: Facts | null): {
         methodLabel: "simplified commercial procedures",
       }
       : {
-        unsuccessful: "FAR 15.506(a)",
+        unsuccessful: "FAR 15.207-2",
         priceReasonableness: "FAR 15.404-1",
         methodLabel: "negotiated procedures",
       };
