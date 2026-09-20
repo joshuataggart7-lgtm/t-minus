@@ -82,6 +82,7 @@ import { generateJofocDocx } from "@/lib/jofoc-docx";
 import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
 import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
+import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
@@ -1169,6 +1170,19 @@ function DocumentPage() {
         filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
       }
     }
+    // The prenegotiation position memorandum is a Part 15 document; its gate
+    // reads the method, the competition and the value from the record.
+    if (def.key === "ppm") {
+      if (!filled["acquisition_method"]) {
+        filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
+      }
+      if (!filled["competition_type"]) {
+        filled["competition_type"] = String(q.data.acq["competition"] ?? "").trim();
+      }
+      if (!filled["estimated_value"]) {
+        filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
+      }
+    }
     if (def.key === "jofoc-urgency") {
       if (!filled["authority"]) {
         const recorded = String(
@@ -1327,6 +1341,8 @@ function DocumentPage() {
     def,
     values,
     acquisitionId,
+    // The record itself, so a method gate can read the file rather than the form.
+    acq: q.data.acq as Record<string, unknown>,
     coName: String(q.data.acq["co_name"] ?? coRecord?.name ?? ""),
     coTitle: "Contracting Officer",
     approvingOfficialTitle: approvingOfficialTitle(
@@ -2133,7 +2149,18 @@ function DocumentPage() {
             <DropdownMenuContent align="start" className="w-44">
               <DropdownMenuItem
                 onSelect={() => {
-                  if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
+                  if (def.key === "ppm" && exportContext) {
+                    // The prenegotiation position is written into the NASA OP master.
+                    if (!isPpmPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generatePpmDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
                     if (!isJofoc8aPath(exportContext)) {
