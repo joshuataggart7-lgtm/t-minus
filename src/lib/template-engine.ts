@@ -818,11 +818,12 @@ const pnm: TemplateDef = {
   name: "Price Negotiation Memorandum (PNM)",
   tab: "065",
   badge: {
-    citation: "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
+    citation:
+      "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
     citationFor: (v) =>
       simplifiedValues(v)
         ? "RFO FAR 12.204(a); FAR 13.106-3(b)(3)"
-        : "FAR 15.406-3",
+        : "FAR 15.406-3; FAR 15.408-2; FAR 15.407; FAR 15.403; NFS CG 1815.48; NFS CG 1815.49",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
@@ -929,9 +930,17 @@ const pnm: TemplateDef = {
       id: "determination",
       title: "Determination of price reasonableness",
       citation: "RFO FAR 12.204(a); FAR 13.106-3",
+      citationFor: (v) =>
+        simplifiedValues(v)
+          ? "RFO FAR 12.204(a); FAR 13.106-3"
+          : "FAR 15.406-3; FAR 15.408-2; NFS CG 1815.48; NFS CG 1815.49",
       tier: "binding",
       standingText:
         "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written.",
+      standingTextFor: (v) =>
+        simplifiedValues(v)
+          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written."
+          : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by FAR 15.406-3, following the format at FAR 15.408-2 and the process in NFS CG 1815.48 and NFS CG 1815.49.",
       fields: [
         {
           key: "determination",
