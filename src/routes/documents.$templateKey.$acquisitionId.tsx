@@ -1328,6 +1328,8 @@ function DocumentPage() {
     def,
     values,
     acquisitionId,
+    // The record itself, so a method gate can read the file rather than the form.
+    acq: q.data.acq as Record<string, unknown>,
     coName: String(q.data.acq["co_name"] ?? coRecord?.name ?? ""),
     coTitle: "Contracting Officer",
     approvingOfficialTitle: approvingOfficialTitle(
