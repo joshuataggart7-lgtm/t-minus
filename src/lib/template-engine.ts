@@ -955,7 +955,7 @@ const pnm: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 13.106-3(b)(3)",
+    citation: "FAR 4.801",
     blocks: ["Contracting officer", "Date"],
     note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
   }),
