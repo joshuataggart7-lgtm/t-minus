@@ -1098,9 +1098,16 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
     if (uei) out["vendor_uei"] = uei;
     if (price) out["quoted_price"] = price;
     out["technique"] = "Comparison with the independent government cost estimate";
-    out["negotiation_summary"] = `Price reasonableness was established under FAR 13.106-3(a), comparing the proposed price of ${
+    const priceProseCite = isSimplifiedCommercial(a)
+      ? { analysis: "FAR 13.106-3(a)", record: "This memorandum is the determination of record under FAR 12.209." }
+      : {
+          analysis: "FAR 15.404-1",
+          record:
+            "This memorandum is the documentation of negotiation required by FAR 15.406-3, in the format at FAR 15.408-2 and the process in NFS CG 1815.48.",
+        };
+    out["negotiation_summary"] = `Price reasonableness was established under ${priceProseCite.analysis}, comparing the proposed price of ${
       dollars(a["proposed_price"]) || "the amount on the record"
-    } with the independent Government cost estimate and with prior prices paid for the same service. This memorandum is the determination of record under FAR 12.209. Drafted from the record, confirm.`;
+    } with the independent Government cost estimate and with prior prices paid for the same service. ${priceProseCite.record} Drafted from the record, confirm.`;
   }
   if (!evaluation) return out;
   const name = str(evaluation["recommended_quoter"]);
