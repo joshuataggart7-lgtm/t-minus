@@ -1310,7 +1310,11 @@ function DocumentPage() {
   const errors = def ? validate(def, values) : {};
   const errorCount = Object.keys(errors).length;
   const rendered = def ? renderDocument(def, values, acquisitionId, signature) : null;
-  const memoDoc = rendered && memoHeader ? buildMemoDoc(rendered, memoHeader) : null;
+  // Export from the same method-aware values used by the on-screen Binding
+  // line. Saved versions can predate __method; they must not select stale
+  // generic standing text in the signed Word memorandum.
+  const exportRendered = def ? renderDocument(def, citationValues, acquisitionId, signature) : null;
+  const memoDoc = exportRendered && memoHeader ? buildMemoDoc(exportRendered, memoHeader) : null;
   const exportContext = def && q.data?.acq ? {
     def,
     values,
@@ -2164,7 +2168,7 @@ function DocumentPage() {
                     void generateLsjDocx(exportContext)
                       .then((bytes) => downloadDocxBytes(bytes, `lsj-${acquisitionId}.docx`))
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                  } else if (rendered) void exportDocx(rendered, `${def.key}-${acquisitionId}`, exportContext);
+                  } else if (exportRendered) void exportDocx(exportRendered, `${def.key}-${acquisitionId}`, exportContext);
                 }}
               >
                 Export Word
@@ -2177,7 +2181,7 @@ function DocumentPage() {
                     );
                     return;
                   }
-                  if (rendered) void exportPdf(rendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
+                  if (exportRendered) void exportPdf(exportRendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
                     setMessage("The PDF did not export. Try again, or export Word."),
                   );
                 }}
