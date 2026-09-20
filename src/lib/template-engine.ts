@@ -949,10 +949,10 @@ const pnm: TemplateDef = {
           : "FAR 15.406-3; FAR 15.408-2; NFS CG 1815.48; NFS CG 1815.49",
       tier: "binding",
       standingText:
-        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written.",
+        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written.",
       standingTextFor: (v) =>
         simplifiedValues(v)
-          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a). No separate price reasonableness determination is written."
+          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written."
           : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by FAR 15.406-3, following the format at FAR 15.408-2 and the process in NFS CG 1815.48 and NFS CG 1815.49.",
       fields: [
         {
@@ -2807,6 +2807,33 @@ export function money(n: number | null | undefined): string {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
+/**
+ * The offered option that names the same authority the record already carries.
+ * The recorded citation is read for its FAR 6.103-x subsection, its
+ * 10 U.S.C. 3204(a)(n) paragraph, or its 41 U.S.C. 1901/1903 basis, so a file
+ * keeps the authority on its record instead of opening on another one. A
+ * recorded authority with no matching option, such as the 8(a) path at
+ * 15 U.S.C. 637(a), is left as written.
+ */
+export function matchAuthorityOption(stored: string, options: string[]): string | undefined {
+  const text = String(stored ?? "").trim();
+  if (!text) return undefined;
+  if (options.includes(text)) return text;
+  const far = /6\.103-(\d)/.exec(text)?.[1];
+  const usc = /3204\(a\)\((\d)\)/.exec(text)?.[1];
+  const paragraph = usc ?? far;
+  if (/637\(a\)|19\.208|19\.108/.test(text)) return undefined;
+  if (paragraph) {
+    const hit = options.find(
+      (o) => o.includes(`3204(a)(${paragraph})`) || o.includes(`6.103-${paragraph}`),
+    );
+    if (hit) return hit;
+  }
+  if (/41 U\.S\.C\. 1903/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1903"));
+  if (/41 U\.S\.C\. 1901/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1901"));
+  return undefined;
+}
+
 /** Pre-fill every field that exists on the record. */
 export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values {
   const out: Values = {};
@@ -2828,6 +2855,7 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
     }
   }
   // Carried so a section citation can follow the record's acquisition method.
+  // (helper defined below)
   out["__method"] = `${String(acq["acquisition_method"] ?? "")} ${String(acq["contract_format"] ?? "")}`.trim();
   if (def.key === "jofoc") {
     const competition = String(acq["competition"] ?? "").toLowerCase();
@@ -2842,12 +2870,17 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
         def.sections.flatMap((s) => s.fields).find((f) => f.key === "authority")?.options ?? [];
       const stored = String(out["authority"] ?? "").trim();
       if (!stored || !options.includes(stored)) {
-        const method = String(acq["acquisition_method"] ?? "").toLowerCase();
-        const commercial = /12\.102|13\.5|commercial simplified/.test(method);
-        out["authority"] =
-          options.find((o) =>
-            commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
-          ) ?? stored;
+        const matched = matchAuthorityOption(stored, options);
+        if (matched) out["authority"] = matched;
+        else if (stored) out["authority"] = stored;
+        else {
+          const method = String(acq["acquisition_method"] ?? "").toLowerCase();
+          const commercial = /12\.102|13\.5|commercial simplified/.test(method);
+          out["authority"] =
+            options.find((o) =>
+              commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),
+            ) ?? stored;
+        }
       }
     }
   }

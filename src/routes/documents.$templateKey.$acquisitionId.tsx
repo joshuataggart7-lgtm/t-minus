@@ -76,6 +76,7 @@ import {
   type Values,
   technicalRepresentative,
   approvingOfficialTitle,
+  matchAuthorityOption,
 } from "@/lib/template-engine";
 import { generateJofocDocx } from "@/lib/jofoc-docx";
 import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
@@ -1136,7 +1137,13 @@ function DocumentPage() {
     // note on the record is carried into item 5 instead of the picker.
     if (def.key === "jofoc") {
       const options = def.sections.find((x) => x.id === "item4")?.fields[0]?.options ?? [];
-      if (!options.includes(filled["authority"] ?? "")) filled["authority"] = jofocAuthorityDefault(q.data.acq);
+      const recorded = filled["authority"] ?? "";
+      if (!options.includes(recorded)) {
+        // A recorded authority keeps its own basis: it is matched to the option
+        // that names it, or left as written when no option does.
+        filled["authority"] = matchAuthorityOption(recorded, options) ?? recorded ?? jofocAuthorityDefault(q.data.acq);
+        if (!filled["authority"]) filled["authority"] = jofocAuthorityDefault(q.data.acq);
+      }
     }
     // The urgency justification gate reads the authority and competition from
     // the record; carry them into the values so the export can be written
@@ -1829,7 +1836,14 @@ function DocumentPage() {
                       <option value="">Choose one</option>
                       {(f.key === "offeror_slot" && quoterSlots.length
                         ? quoterSlots.filter((r) => !r.awarded).map((r) => ({ value: r.slot, label: `${r.slot} — ${r.name}` }))
-                        : (f.options ?? []).map((o) => ({ value: o, label: o }))
+                        : // A value on the record that is not one of the offered
+                          // choices is still shown, so the file keeps what it records.
+                          [
+                            ...(f.options ?? []),
+                            ...((values[f.key] ?? "") && !(f.options ?? []).includes(values[f.key] ?? "")
+                              ? [values[f.key] ?? ""]
+                              : []),
+                          ].map((o) => ({ value: o, label: o }))
                       ).map((o) => (
                         <option key={o.value} value={o.value}>
                           {o.label}
