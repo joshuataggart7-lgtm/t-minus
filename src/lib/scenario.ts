@@ -519,7 +519,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "postaward-letter-successful",
         label: "Postaward notification letter to the successful offeror",
-        citation: "FAR 15.506(a)(1)",
+        citation: "FAR 15.207-1(a)",
         phase: "Award",
         state: "required",
         templateKey: "postaward-letter-successful",

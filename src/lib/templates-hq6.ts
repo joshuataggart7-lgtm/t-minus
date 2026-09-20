@@ -271,8 +271,8 @@ const postawardUnsuccessful: TemplateDef = {
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.502-7",
-      citationFor: noticeCitation("FAR 15.502-7", "FAR 13.106-3(d)"),
+      citation: "FAR 15.207-2(b)",
+      citationFor: noticeCitation("FAR 15.207-2(b)", "FAR 13.106-3(d)"),
       tier: "binding",
       standingText:
         "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",
