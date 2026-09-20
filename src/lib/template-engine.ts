@@ -839,7 +839,7 @@ const pnm: TemplateDef = {
     note: "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated.",
     noteFor: (v) =>
       simplifiedValues(v)
-        ? "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated."
+        ? "This memorandum records the price reasonableness finding under RFO FAR 12.204(a), with the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is generated."
         : "This memorandum is the documentation of negotiation under FAR 15.406-3. No separate price reasonableness determination is generated.",
   },
   lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
