@@ -63,6 +63,7 @@ import {
   renderDocument,
   templateByKey,
   badgeCitation,
+  badgeNote,
   validate,
   sectionCitation,
   sectionStandingText,
@@ -1525,6 +1526,7 @@ function DocumentPage() {
   // method-dependent citation is never guessed from empty values.
   const methodKnown = Boolean(citationValues["__method"]);
   const badgeCite = methodKnown ? badgeCitation(def, citationValues) : def.badge.citation;
+  const badgeNoteText = methodKnown ? badgeNote(def, citationValues) : def.badge.note;
   const sectionCite = (s: SectionDef) => (methodKnown ? sectionCitation(s, citationValues) : s.citation);
   // The standing body follows the same method test as the citation, so a
   // simplified file never reads Part 15 prose.
@@ -1639,9 +1641,9 @@ function DocumentPage() {
         <p className="mt-1">
           <ShowTheText citation={badgeCite} />
         </p>
-        {def.badge.note ? (
+        {badgeNoteText ? (
           <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
-            <p>{def.badge.note}</p>
+            <p>{badgeNoteText}</p>
             {def.badge.corrections?.length ? (
               <TooltipProvider>
                 <Tooltip>

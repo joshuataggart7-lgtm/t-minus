@@ -68,6 +68,13 @@ export function sectionStandingText(s: SectionDef, v: Values): string | undefine
 }
 
 /** The citation printed on the template badge for this record. */
+export function badgeNote(
+  def: { badge: { note?: string; noteFor?: (v: Values) => string } },
+  v: Values,
+): string | undefined {
+  return def.badge.noteFor ? def.badge.noteFor(v) : def.badge.note;
+}
+
 export function badgeCitation(def: { badge: { citation: string; citationFor?: (v: Values) => string } }, v: Values): string {
   return def.badge.citationFor ? def.badge.citationFor(v) : def.badge.citation;
 }
@@ -93,6 +100,8 @@ export type TemplateDef = {
     /** Machine-readable HQ revision date, used to spot newer guidance. */
     effective?: string;
     note?: string;
+    /** Note that depends on the record's acquisition method. */
+    noteFor?: (v: Values) => string;
     corrections?: string[];
   };
   lead: string;
@@ -828,6 +837,10 @@ const pnm: TemplateDef = {
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
     note: "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated.",
+    noteFor: (v) =>
+      simplifiedValues(v)
+        ? "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated."
+        : "This memorandum is the documentation of negotiation under FAR 15.406-3. No separate price reasonableness determination is generated.",
   },
   lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
   sections: [
@@ -919,7 +932,7 @@ const pnm: TemplateDef = {
           kind: "select",
           required: true,
           options: [
-            "Not required; commercial products or services (FAR 15.403-1(b)(3))",
+            "Not required; commercial products or services",
             "Not required; adequate price competition",
             "Required and obtained",
           ],
@@ -955,7 +968,7 @@ const pnm: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 13.106-3(b)(3)",
+    citation: "FAR 4.801",
     blocks: ["Contracting officer", "Date"],
     note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
   }),
@@ -3115,7 +3128,7 @@ export function renderDocument(
   }
   return {
     title: `${def.name} — ${acquisitionId}`,
-    badgeLine: `${badgeCitation(def, v)} · ${def.badge.tier} · ${def.badge.revision}${def.badge.note ? ` · ${def.badge.note}` : ""}`,
+    badgeLine: `${badgeCitation(def, v)} · ${def.badge.tier} · ${def.badge.revision}${badgeNote(def, v) ? ` · ${badgeNote(def, v)}` : ""}`,
     blocks,
   };
 }
