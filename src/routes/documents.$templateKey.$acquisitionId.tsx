@@ -1485,6 +1485,30 @@ function DocumentPage() {
     );
   }
 
+  // PPM is a Part 15 prenegotiation document. Refuse the page itself on a
+  // commercial or simplified record so the user never sees an exportable
+  // Part 15 form on the wrong acquisition path.
+  if (def.key === "ppm" && exportContext && !isPpmPath(exportContext)) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Prenegotiation position memorandum not available"
+          lead={`${acquisitionId} · this record is not on a Part 15 negotiation path.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          A prenegotiation position memorandum requires a Part 15 negotiation path. Record Part 15 on the
+          acquisition before opening or exporting this memorandum. Commercial and simplified files record price
+          reasonableness under Parts 12 and 13 instead.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
   // The nonresponsibility memo exists only on that finding. On a finding of
   // responsible, the signature on the SF 1449 is the determination.
   if (def.key === "nonresponsibility" && q.data?.acq && q.data.acq["responsibility_finding"] !== "nonresponsibility") {
