@@ -296,7 +296,11 @@ async function buildCompanionDocx(
       },
     ],
   });
-  return new Uint8Array(await Packer.toBuffer(doc));
+  // `toBuffer` is the Node-oriented packer path and fails in the browser.
+  // Match the working memo exports: package as a Blob, then expose its bytes
+  // to the shared download helper.
+  const blob = await Packer.toBlob(doc);
+  return new Uint8Array(await blob.arrayBuffer());
 }
 
 /** The commercial or simplified successful-offeror companion notice. */
