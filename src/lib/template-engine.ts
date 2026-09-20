@@ -2807,6 +2807,33 @@ export function money(n: number | null | undefined): string {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
+/**
+ * The offered option that names the same authority the record already carries.
+ * The recorded citation is read for its FAR 6.103-x subsection, its
+ * 10 U.S.C. 3204(a)(n) paragraph, or its 41 U.S.C. 1901/1903 basis, so a file
+ * keeps the authority on its record instead of opening on another one. A
+ * recorded authority with no matching option, such as the 8(a) path at
+ * 15 U.S.C. 637(a), is left as written.
+ */
+export function matchAuthorityOption(stored: string, options: string[]): string | undefined {
+  const text = String(stored ?? "").trim();
+  if (!text) return undefined;
+  if (options.includes(text)) return text;
+  const far = /6\.103-(\d)/.exec(text)?.[1];
+  const usc = /3204\(a\)\((\d)\)/.exec(text)?.[1];
+  const paragraph = usc ?? far;
+  if (/637\(a\)|19\.208|19\.108/.test(text)) return undefined;
+  if (paragraph) {
+    const hit = options.find(
+      (o) => o.includes(`3204(a)(${paragraph})`) || o.includes(`6.103-${paragraph}`),
+    );
+    if (hit) return hit;
+  }
+  if (/41 U\.S\.C\. 1903/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1903"));
+  if (/41 U\.S\.C\. 1901/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1901"));
+  return undefined;
+}
+
 /** Pre-fill every field that exists on the record. */
 export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values {
   const out: Values = {};
