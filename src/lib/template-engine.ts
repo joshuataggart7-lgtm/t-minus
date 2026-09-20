@@ -818,11 +818,12 @@ const pnm: TemplateDef = {
   name: "Price Negotiation Memorandum (PNM)",
   tab: "065",
   badge: {
-    citation: "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
+    citation:
+      "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
     citationFor: (v) =>
       simplifiedValues(v)
         ? "RFO FAR 12.204(a); FAR 13.106-3(b)(3)"
-        : "FAR 15.406-3",
+        : "FAR 15.406-3; FAR 15.408-2; FAR 15.407; FAR 15.403; NFS CG 1815.48; NFS CG 1815.49",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
