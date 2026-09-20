@@ -1183,6 +1183,14 @@ function DocumentPage() {
         filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
       }
     }
+    // The postaward notification letters are Part 15 notices; their gate reads
+    // the method from the record rather than from the form.
+    if (def.key === "postaward-letter-successful" || def.key === "postaward-letter-unsuccessful") {
+      if (!filled["acquisition_method"]) {
+        filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
+      }
+    }
+
     if (def.key === "jofoc-urgency") {
       if (!filled["authority"]) {
         const recorded = String(
