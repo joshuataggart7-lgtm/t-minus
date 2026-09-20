@@ -114,7 +114,7 @@ export function jofoc8aMarkers(ctx: JofocDocxContext): MarkerMap {
     "[[ACTION_NATURE_PROSE]]": action,
     "[[ESTIMATED_VALUE_PROSE]]": estimated ? `The estimated value is ${moneyProse(estimated)}.` : KEEP,
     "[[AUTHORITY_8A_LINE]]":
-      "The statutory authority permitting other than full and open competition is 15 U.S.C. 637(a), as implemented by FAR 19.108-7 and FAR 19.208-2(a).",
+      "The statutory authority permitting other than full and open competition is 15 U.S.C. 637(a), as implemented by FAR 6.103-5(e), FAR 19.108-7, and FAR 19.208-2(a)(1).",
     "[[AUTHORITY_8A_RATIONALE]]": rationale
       ? `The rationale supporting the use of 15 U.S.C. 637(a) is ${rationale.replace(/^The rationale[^.]*is\s*/i, "")}`
       : KEEP,
