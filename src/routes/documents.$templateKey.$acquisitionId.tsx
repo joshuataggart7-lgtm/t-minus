@@ -1313,7 +1313,15 @@ function DocumentPage() {
   // Export from the same method-aware values used by the on-screen Binding
   // line. Saved versions can predate __method; they must not select stale
   // generic standing text in the signed Word memorandum.
-  const exportRendered = def ? renderDocument(def, citationValues, acquisitionId, signature) : null;
+  const documentValues = {
+    ...values,
+    __method:
+      values["__method"] ||
+      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
+        q.data?.acq?.["contract_format"] ?? "",
+      )}`.trim(),
+  };
+  const exportRendered = def ? renderDocument(def, documentValues, acquisitionId, signature) : null;
   const memoDoc = exportRendered && memoHeader ? buildMemoDoc(exportRendered, memoHeader) : null;
   const exportContext = def && q.data?.acq ? {
     def,
@@ -1525,14 +1533,7 @@ function DocumentPage() {
 
   // Citations follow the method on the record, whether or not the values
   // carry it yet.
-  const citationValues = {
-    ...values,
-    __method:
-      values["__method"] ||
-      `${String(q.data?.acq?.["acquisition_method"] ?? "")} ${String(
-        q.data?.acq?.["contract_format"] ?? "",
-      )}`.trim(),
-  };
+  const citationValues = documentValues;
   // Until the record has loaded, the template's own citation stands; a
   // method-dependent citation is never guessed from empty values.
   const methodKnown = Boolean(citationValues["__method"]);
