@@ -78,6 +78,7 @@ import {
 } from "@/lib/template-engine";
 import { generateJofocDocx } from "@/lib/jofoc-docx";
 import { generateJofocUrgencyDocx, isUrgencyJofocPath } from "@/lib/jofoc-urgency-docx";
+import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
@@ -1139,6 +1140,27 @@ function DocumentPage() {
     // The urgency justification gate reads the authority and competition from
     // the record; carry them into the values so the export can be written
     // without retyping facts already on file.
+    // The 8(a) justification gate reads the socioeconomic path, the
+    // competition and the value from the record.
+    if (def.key === "jofoc-8a-over-30m") {
+      if (!filled["acquisition_method"]) {
+        filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
+      }
+      if (!filled["set_aside"]) {
+        filled["set_aside"] = String(
+          q.data.acq["set_aside"] ?? q.data.acq["socioeconomic_program"] ?? "",
+        ).trim();
+      }
+      if (!filled["competition_type"]) {
+        filled["competition_type"] = String(q.data.acq["competition"] ?? "").trim();
+      }
+      if (!filled["authority"]) {
+        filled["authority"] = String(q.data.acq["jofoc_authority_citation"] ?? "").trim();
+      }
+      if (!filled["estimated_value"]) {
+        filled["estimated_value"] = String(q.data.acq["estimated_value"] ?? "").trim();
+      }
+    }
     if (def.key === "jofoc-urgency") {
       if (!filled["authority"]) {
         const recorded = String(
@@ -2091,7 +2113,18 @@ function DocumentPage() {
               <DropdownMenuItem
                 onSelect={() => {
                   if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
-                  else if (def.key === "jofoc-urgency" && exportContext) {
+                  else if (def.key === "jofoc-8a-over-30m" && exportContext) {
+                    // The 8(a) justification is written into the NASA OP master.
+                    if (!isJofoc8aPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an 8(a) sole source action above $30 million, so the justification was not written. Record the 8(a) sole source path and the estimated value first.",
+                      );
+                    } else {
+                      void generateJofoc8aDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-8a-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "jofoc-urgency" && exportContext) {
                     // Urgency justification is written into the NASA OP urgency master.
                     if (!isUrgencyJofocPath(exportContext)) {
                       setMessage(
