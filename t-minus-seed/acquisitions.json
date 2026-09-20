@@ -647,6 +647,7 @@
     "mission_directorate_code": "SMD",
     "mission_directorate_name": "Science Mission Directorate",
     "is_reimbursable": false,
-    "is_package_complete": false
+    "is_package_complete": false,
+    "set_aside": "8(a) sole source"
   }
 ]
