@@ -139,7 +139,14 @@ export function downloadDocxBytes(bytes: Uint8Array, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = filename;
+  link.download = filename.endsWith(".docx") ? filename : `${filename}.docx`;
+  link.style.display = "none";
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  // Chrome resolves blob downloads asynchronously. Keep the URL alive long
+  // enough for its download manager to persist the named file.
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, 10_000);
 }
