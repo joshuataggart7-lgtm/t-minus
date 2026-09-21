@@ -131,8 +131,12 @@ EDITS = {
     89: "[[CO_NAME]]",
 }
 
+# The HQ master binary, staged from the upload:
+#   cp "/mnt/user-uploads/Set-Aside_Preaward_Apparent_Successful_Offeror_Notification-2.docx" /tmp/sa/src.docx
+SRC = sys.argv[1] if len(sys.argv) > 1 else "/tmp/sa/src.docx"
+
 process(
-    "/tmp/sa/src.docx",
+    SRC,
     "/dev-server/public/forms/SETASIDE_PREAWARD_MASTER.docx",
     51,
     EDITS,
