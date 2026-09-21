@@ -14,6 +14,7 @@
 - The attached HQ Draft Request For Proposal cover letter is copied into a marker master; the HQ source remains unchanged. Instruction pages and the Document History Log are removed while the letterhead, styles, relationships, footer version identifier, and blank signature line remain.
 - `drfp-cover-letter` exports through `applyMarkers` as `drfp-cover-{acquisition-id}.docx`. Only recorded or saved values print; unresolved optional passages are removed instead of emitting placeholders.
 - The Word path is limited to competed FAR Part 15 negotiated acquisitions. Commercial, simplified, and sole-source files show an honest refusal instead of receiving Part 15 language. Readiness meters, clocks, external-write boundaries, and all existing form and memorandum export paths are unchanged.
+- A fictional competed Part 15 fixture, `A-2027-0121` (cryospheric field campaign science support, Ames Research Center, contracting officer Joshua Taggart), carries the draft RFP cover proof. `A-2027-0103` keeps its own recorded officer and is never relabelled; recorded officers always take precedence over sample defaults.
 
 ## B1. Foundation
 
