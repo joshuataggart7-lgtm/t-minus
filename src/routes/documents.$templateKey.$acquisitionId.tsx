@@ -858,6 +858,8 @@ function DocumentPage() {
       // On a sole-source file the price the single source proposed is held on
       // the record, entered in the Solicitation/Quote phase.
       quoted_price: acq?.["proposed_price"] ?? answerValue(/quote|proposed_price/i),
+      negotiated_price: answerValue(/negotiated_price/i),
+      determination: answerValue(/price_determination_statement|price_reasonableness_determination/i),
       proposal_received: acq?.["proposed_price_received"] ?? "",
     } as Record<string, unknown>;
   }, [q.data]);
@@ -1165,6 +1167,9 @@ function DocumentPage() {
     // The 8(a) justification gate reads the socioeconomic path, the
     // competition and the value from the record.
     if (def.key === "jofoc-8a-over-30m") {
+      // This justification describes the acquisition program itself; do not
+      // borrow the broader mission name shared by unrelated demonstration files.
+      filled["program_name"] = String(q.data.acq["title"] ?? "").trim();
       if (!filled["acquisition_method"]) {
         filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
       }

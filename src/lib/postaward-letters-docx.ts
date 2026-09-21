@@ -93,35 +93,35 @@ export function postawardSuccessMarkers(ctx: PostawardDocxContext): MarkerMap {
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
-  const company = value("company_name") || str(acq["vendor_legal_name"]) || "Not recorded";
+  const company = value("company_name") || str(acq["vendor_legal_name"]);
   const addressee = value("addressee");
   const addressLines = addressee.split(/\n+/).map((l) => l.trim()).filter(Boolean);
 
   return {
     "[[CENTER_NAME]]": center,
     "[[CENTER_ADDRESS]]": str(ctx.centerAddress) || KEEP,
-    "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || "Not recorded",
-    "[[POC_NAME]]": value("poc_name") || "Not recorded",
+    "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || KEEP,
+    "[[POC_NAME]]": value("poc_name") || KEEP,
     "[[POC_TITLE]]": addressLines[0] ?? KEEP,
     "[[OFFEROR_NAME]]": company,
     "[[OFFEROR_STREET]]": addressLines[1] ?? KEEP,
     "[[OFFEROR_CITY_STATE_ZIP]]": addressLines[2] ?? KEEP,
-    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || "Not recorded",
+    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || KEEP,
     "[[ACQ_TITLE]]": title,
     "[[ACQ_TITLE_SHORT]]": title,
-    "[[SALUTATION_NAME]]": value("poc_name") || company,
+    "[[SALUTATION_NAME]]": value("poc_name") || company || KEEP,
     "[[CENTER_NAME_BODY]]": center,
     "[[CENTER_NAME_BODY2]]": center,
-    "[[COMPANY_NAME]]": company,
-    "[[CONTRACT_NUMBER]]": value("contract_number") || str(acq["contract_number"]) || "Not recorded",
-    "[[EFFECTIVE_DATE]]": value("effective_date") || "Not recorded",
-    "[[CO_EMAIL]]": co.email || "Not recorded",
+    "[[COMPANY_NAME]]": company || KEEP,
+    "[[CONTRACT_NUMBER]]": value("contract_number") || str(acq["contract_number"]) || KEEP,
+    "[[EFFECTIVE_DATE]]": value("effective_date") || KEEP,
+    "[[CO_EMAIL]]": co.email || KEEP,
     // The authority for this notification, from the master's own reference
     // list: FAR 15.207-1(a) with the NFS CG debriefing process.
     "[[NOTICE_AUTHORITY_LINE]]":
       "This notification is provided under FAR 15.207-1(a). Debriefings are conducted under FAR 15.301-1(b) and (c) and the NASA Procurement Debriefing Guide (NFS CG 1815.31); NFS CG 1815.29 carries the notification process and NFS CG 1815.32 applies to major system acquisitions.",
-    "[[CO_PHONE]]": co.phone || "Not recorded",
-    "[[CO_NAME]]": co.name || "Not recorded",
+    "[[CO_PHONE]]": co.phone || KEEP,
+    "[[CO_NAME]]": co.name || KEEP,
     "[[CO_TITLE]]": "Contracting Officer",
     "[[ENCLOSURE_1]]": value("enclosures") || "Source Selection Statement",
   };
@@ -135,34 +135,34 @@ export function postawardUnsuccessMarkers(ctx: PostawardDocxContext): MarkerMap 
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
-  const company = value("company_name") || "Not recorded";
+  const company = value("company_name");
 
   return {
-    "[[LETTER_DATE]]": value("letter_date") || str(ctx.preparedDate) || "Not recorded",
-    "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || "Not recorded",
-    "[[OFFEROR_ADDRESS_BLOCK]]": value("addressee") || company,
-    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || "Not recorded",
+    "[[LETTER_DATE]]": value("letter_date") || str(ctx.preparedDate) || KEEP,
+    "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || KEEP,
+    "[[OFFEROR_ADDRESS_BLOCK]]": value("addressee") || company || KEEP,
+    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || KEEP,
     "[[ACQ_TITLE]]": title,
-    "[[SALUTATION_NAME]]": value("poc_name") || company,
-    "[[COMPANY_NAME]]": company,
-    "[[COMPANY_NAME_2]]": company,
+    "[[SALUTATION_NAME]]": value("poc_name") || company || KEEP,
+    "[[COMPANY_NAME]]": company || KEEP,
+    "[[COMPANY_NAME_2]]": company || KEEP,
     "[[CENTER_NAME_BODY]]": center,
     // FAR 15.207-2(b) is the written notification requirement on a negotiated
     // acquisition. The stale FAR 15.502-7 reference is not carried here.
     "[[NOTICE_AUTHORITY_LINE]]":
       "Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
-    "[[OFFERORS_SOLICITED]]": value("offerors_solicited") || "Not recorded",
-    "[[PROPOSALS_RECEIVED]]": value("proposals_received") || "Not recorded",
-    "[[AWARDEES]]": value("awardees") || "Not recorded",
-    "[[CONTRACT_VALUE]]": value("contract_value") || str(acq["estimated_value"]) || "Not recorded",
+    "[[OFFERORS_SOLICITED]]": value("offerors_solicited") || KEEP,
+    "[[PROPOSALS_RECEIVED]]": value("proposals_received") || KEEP,
+    "[[AWARDEES]]": value("awardees") || KEEP,
+    "[[CONTRACT_VALUE]]": value("contract_value") || str(acq["estimated_value"]) || KEEP,
     "[[VALUE_PERIOD]]": value("value_period") || KEEP,
     "[[EVALUATION_FACTORS]]": value("selection_rationale") || "as stated in the solicitation",
-    "[[SELECTED_OFFEROR]]": value("awardees") || str(acq["vendor_legal_name"]) || "Not recorded",
-    "[[CO_EMAIL]]": co.email || "Not recorded",
+    "[[SELECTED_OFFEROR]]": value("awardees") || str(acq["vendor_legal_name"]) || KEEP,
+    "[[CO_EMAIL]]": co.email || KEEP,
     "[[PROPOSAL_DISPOSITION]]":
       "One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
-    "[[CO_PHONE]]": co.phone || "Not recorded",
-    "[[CO_NAME]]": co.name || "Not recorded",
+    "[[CO_PHONE]]": co.phone || KEEP,
+    "[[CO_NAME]]": co.name || KEEP,
     "[[CO_TITLE]]": "Contracting Officer",
     "[[ENCLOSURE_1]]": value("enclosures") || "Source Selection Statement",
   };
@@ -215,8 +215,8 @@ async function buildCompanionDocx(
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
-  const company = value("company_name") || str(acq["vendor_legal_name"]) || "Not recorded";
-  const solicitation = value("solicitation_number") || "Not recorded";
+  const company = value("company_name") || str(acq["vendor_legal_name"]);
+  const solicitation = value("solicitation_number");
   const citation = simplifiedNoticeCitation(ctx);
 
   const serif = { font: "Times New Roman", size: 24 } as const;
@@ -230,24 +230,21 @@ async function buildCompanionDocx(
   lines.push(p("National Aeronautics and Space Administration", { bold: true, after: 0 }));
   lines.push(p(center, { after: 0 }));
   lines.push(p(str(ctx.centerAddress), { after: 360 }));
-  lines.push(p(value("letter_date") || str(ctx.preparedDate), { after: 360 }));
+  const letterDate = value("letter_date") || str(ctx.preparedDate);
+  if (letterDate) lines.push(p(letterDate, { after: 360 }));
   const addressee = value("addressee") || company;
   for (const line of addressee.split(/\n+/).map((l) => l.trim()).filter(Boolean)) {
     lines.push(p(line, { after: 0 }));
   }
   lines.push(p("", { after: 240 }));
-  lines.push(
-    p(
-      `Subject:  Notification for Solicitation No. ${solicitation} for the ${title} acquisition`,
-      { bold: true },
-    ),
-  );
-  lines.push(p(`Dear ${value("poc_name") || company}:`));
+  lines.push(p(`Subject:  Notification${solicitation ? ` for Solicitation No. ${solicitation}` : ""} for the ${title} acquisition`, { bold: true }));
+  const salutation = value("poc_name") || company;
+  if (salutation) lines.push(p(`Dear ${salutation}:`));
 
   if (successful) {
     lines.push(
       p(
-        `The National Aeronautics and Space Administration (NASA) ${center} has awarded a contract to ${company} under the subject solicitation. The contract ${value("contract_number") || str(acq["contract_number"]) || "Not recorded"} has an effective date of ${value("effective_date") || "Not recorded"}.`,
+        `The National Aeronautics and Space Administration (NASA) ${center} has awarded a contract${company ? ` to ${company}` : ""} under the subject solicitation.${value("contract_number") || str(acq["contract_number"]) ? ` The contract number is ${value("contract_number") || str(acq["contract_number"])}.` : ""}${value("effective_date") ? ` The contract has an effective date of ${value("effective_date")}.` : ""}`,
       ),
     );
     lines.push(
@@ -258,29 +255,25 @@ async function buildCompanionDocx(
   } else {
     lines.push(
       p(
-        `This notification is to inform ${company} that the National Aeronautics and Space Administration (NASA) ${center} has awarded a contract under the subject solicitation and your quotation was not selected for award.`,
+        `This notification is to inform${company ? ` ${company}` : " you"} that the National Aeronautics and Space Administration (NASA) ${center} has awarded a contract under the subject solicitation and your quotation was not selected for award.`,
       ),
     );
+    const awardee = value("awardees") || str(acq["vendor_legal_name"]);
+    const contractValue = value("contract_value") || str(acq["estimated_value"]);
+    if (awardee || contractValue) {
+      lines.push(p(`Award was made${awardee ? ` to ${awardee}` : ""}${contractValue ? ` at a total value of ${contractValue}` : ""}.`));
+    }
     lines.push(
       p(
-        `Award was made to ${value("awardees") || str(acq["vendor_legal_name"]) || "Not recorded"} at a total value of ${value("contract_value") || str(acq["estimated_value"]) || "Not recorded"}.`,
-      ),
-    );
-    lines.push(
-      p(
-        `This notification is provided under ${citation}. This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).`,
+        "This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
       ),
     );
   }
 
-  lines.push(
-    p(
-      `For additional information, please contact the undersigned at ${co.phone || "Not recorded"} or by e-mail at ${co.email || "Not recorded"}.`,
-      { after: 480 },
-    ),
-  );
+  const contactMethods = [co.phone ? `at ${co.phone}` : "", co.email ? `by e-mail at ${co.email}` : ""].filter(Boolean);
+  lines.push(p(`For additional information, please contact the undersigned${contactMethods.length ? ` ${contactMethods.join(" or ")}` : ""}.`, { after: 480 }));
   lines.push(p("Sincerely,", { after: 720 }));
-  lines.push(p(co.name || "Not recorded", { after: 0 }));
+  lines.push(p(co.name || KEEP, { after: 0 }));
   lines.push(p("Contracting Officer", { after: 0 }));
 
   const doc = new Document({
