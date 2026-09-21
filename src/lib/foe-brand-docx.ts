@@ -156,7 +156,10 @@ export function foeBrandMarkers(ctx: FoeBrandContext): MarkerMap {
     supplies + ".",
   ].join(" ");
 
-  const estValue = estimate ? `The total estimated value of the proposed order is ${estimate}.` : "";
+  const money = /^[0-9.]+$/.test(estimate)
+    ? `$${Number.parseFloat(estimate).toLocaleString("en-US")}`
+    : estimate;
+  const estValue = money ? `The total estimated value of the proposed order is ${money}.` : "";
   const popText = pop ? `The estimated period of performance is ${pop}.` : "";
 
   const brandAuthority = [
