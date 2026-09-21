@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
@@ -239,6 +239,10 @@ function DocumentPage() {
 
 
   const [values, setValues] = useState<Values>({});
+  const companionDocxRef = useRef<{
+    key: string;
+    bytes: Uint8Array;
+  } | null>(null);
   const [touched, setTouched] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [comment, setComment] = useState("");
@@ -1381,6 +1385,36 @@ function DocumentPage() {
       value: t.value === null || t.value === undefined ? null : Number(t.value),
     })),
   } : undefined;
+  const companionPrefetchKey = useMemo(
+    () =>
+      def &&
+      (def.key === "postaward-letter-successful" || def.key === "postaward-letter-unsuccessful")
+        ? `${def.key}:${JSON.stringify(values)}`
+        : "",
+    [def, values],
+  );
+  useEffect(() => {
+    if (!exportContext || !companionPrefetchKey || isPart15NotificationPath(exportContext)) {
+      companionDocxRef.current = null;
+      return;
+    }
+    let cancelled = false;
+    companionDocxRef.current = null;
+    const generate =
+      def?.key === "postaward-letter-successful"
+        ? generatePostawardSuccessCompanionDocx
+        : generatePostawardUnsuccessCompanionDocx;
+    void generate(exportContext)
+      .then((bytes) => {
+        if (!cancelled) companionDocxRef.current = { key: companionPrefetchKey, bytes };
+      })
+      .catch(() => {
+        if (!cancelled) companionDocxRef.current = null;
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [companionPrefetchKey, def?.key, exportContext]);
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
   const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -2200,30 +2234,38 @@ function DocumentPage() {
                     // notice on a commercial or simplified file.
                     const successful = def.key === "postaward-letter-successful";
                     const part15 = isPart15NotificationPath(exportContext);
+                    if (!part15) {
+                      const prefetched = companionDocxRef.current;
+                      if (!prefetched || prefetched.key !== companionPrefetchKey) {
+                        setMessage("The Word file did not export. Try again, or export PDF.");
+                        return;
+                      }
+                      downloadDocxBytes(
+                        prefetched.bytes,
+                        `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
+                      );
+                      if (successful) {
+                        setMessage(
+                          `The successful-offeror companion notice was written under ${simplifiedNoticeCitation(exportContext)}.`,
+                        );
+                      } else {
+                        setMessage(
+                          "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
+                        );
+                      }
+                      return;
+                    }
                     const write = part15
                       ? successful
                         ? generatePostawardSuccessDocx(exportContext)
                         : generatePostawardUnsuccessDocx(exportContext)
-                      : successful
-                        ? generatePostawardSuccessCompanionDocx(exportContext)
-                        : generatePostawardUnsuccessCompanionDocx(exportContext);
+                      : Promise.reject(new Error("The companion notice was not prefetched."));
                     void write
                       .then((bytes) => {
                         downloadDocxBytes(
                           bytes,
                           `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
                         );
-                        if (!part15) {
-                          if (successful) {
-                            setMessage(
-                              `The successful-offeror companion notice was written under ${simplifiedNoticeCitation(exportContext)}.`,
-                            );
-                          } else {
-                            setMessage(
-                              "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
-                            );
-                          }
-                        }
                       })
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                   } else if (def.key === "ppm" && exportContext) {
