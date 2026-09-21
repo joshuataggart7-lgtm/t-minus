@@ -611,18 +611,24 @@
     "contract_format": "SF 26 / SF 33",
     "co_name": "Joshua Taggart",
     "co_code": "JAZ",
-    "vendor_legal_name": "",
-    "vendor_uei": "",
+    "vendor_legal_name": "Stratospheric Response Aviation LLC (fictional)",
+    "vendor_uei": "DEMOSRA00118",
     "regulatory_baseline_date": "2026-08-01",
     "center_name": "Ames Research Center",
     "mission_directorate_code": "SMD",
     "mission_directorate_name": "Science Mission Directorate",
     "is_reimbursable": false,
-    "is_package_complete": false
+    "is_package_complete": false,
+    "proposed_price": 2900000,
+    "proposed_price_received": "2027-03-15",
+    "nf1707_answers": {
+      "negotiated_price": 2750000,
+      "price_determination_statement": "The negotiated price of $2,750,000 is fair and reasonable based on comparison with the independent government cost estimate and documented negotiations."
+    }
   },
   {
     "acquisition_id": "A-2027-0119",
-    "mission_id": "M4",
+    "mission_id": "M7",
     "is_critical_path": false,
     "title": "Sole source 8(a) ground data processing and archive services, 2027-2032 (fictional)",
     "center_code": "ARC",
