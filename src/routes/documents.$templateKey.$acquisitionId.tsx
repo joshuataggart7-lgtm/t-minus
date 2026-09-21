@@ -96,6 +96,7 @@ import {
   generateOptionExerciseDocx,
   isOptionExercisePath,
 } from "@/lib/option-exercise-docx";
+import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
@@ -1790,6 +1791,33 @@ function DocumentPage() {
     );
   }
 
+  // The brand-name justification belongs to a FAR Part 16 ordering path. The
+  // protected commercial samples are refused rather than shown this face.
+  if (
+    def.key === "fair-opportunity-brand-name" &&
+    exportContext &&
+    isSoftWalkCommercialSample({ acquisition_id: acquisitionId })
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Brand name justification not available"
+          lead={`${acquisitionId} · fair opportunity and brand name exceptions do not apply to this commercial or simplified acquisition.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ justification is written on an order placed under a multiple-award contract, where fair
+          opportunity would otherwise apply. Record the ordering vehicle and the brand-name item before
+          opening or exporting it.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
 
 
 
@@ -2470,6 +2498,17 @@ function DocumentPage() {
                         .then((bytes) =>
                           downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
                         )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
+                    // The brand-name justification is written into the NASA OP master.
+                    if (!isFoeBrandPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an order placed under a multiple-award contract with a brand-name basis, so the justification was not written. Record the ordering vehicle and the brand-name item first; commercial and simplified files do not use this face.",
+                      );
+                    } else {
+                      void generateFoeBrandDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `foe-brand-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (def.key === "option-justification" && exportContext) {
