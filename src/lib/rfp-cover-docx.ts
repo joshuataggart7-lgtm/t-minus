@@ -134,18 +134,36 @@ export async function generateRfpCoverDocx(ctx: FormCtx): Promise<Uint8Array> {
 /** Save .docx bytes to the reader's machine. */
 export function downloadDocxBytes(bytes: Uint8Array, filename: string): void {
   const safeFilename = filename.toLowerCase().endsWith(".docx") ? filename : `${filename}.docx`;
-  // A File carries the intended name as well as the DOCX media type. Chrome
-  // still receives the explicit download attribute below, while the named
-  // File prevents companion exports from falling back to the blob URL UUID.
-  const file = new File([bytes as unknown as BlobPart], safeFilename, {
-    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  });
-  const url = URL.createObjectURL(file);
+  const copy = bytes.slice();
+  const docxMediaType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
   const link = document.createElement("a");
-  link.setAttribute("href", url);
+
   link.setAttribute("download", safeFilename);
   link.download = safeFilename;
   link.style.display = "none";
+
+  // Small generated letters use a data URL so Chrome receives the filename
+  // in the same navigation as the bytes instead of persisting a blob UUID.
+  if (copy.byteLength <= 512 * 1024) {
+    let binary = "";
+    for (let offset = 0; offset < copy.byteLength; offset += 32_768) {
+      binary += String.fromCharCode(...copy.subarray(offset, offset + 32_768));
+    }
+    link.setAttribute("href", `data:${docxMediaType};base64,${window.btoa(binary)}`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    return;
+  }
+
+  // A File carries the intended name as well as the DOCX media type. Chrome
+  // still receives the explicit download attribute below, while the named
+  // File prevents companion exports from falling back to the blob URL UUID.
+  const file = new File([copy as unknown as BlobPart], safeFilename, {
+    type: docxMediaType,
+  });
+  const url = URL.createObjectURL(file);
+  link.setAttribute("href", url);
   document.body.appendChild(link);
   link.click();
   // Chrome resolves blob downloads asynchronously. Keep the URL alive long
