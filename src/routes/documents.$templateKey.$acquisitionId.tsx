@@ -89,6 +89,10 @@ import {
 } from "@/lib/setaside-preaward-docx";
 import { generateDrfpCoverDocx, isDrfpCoverPath } from "@/lib/drfp-cover-docx";
 import {
+  generateOptionJustificationDocx,
+  isOptionJustificationPath,
+} from "@/lib/option-justification-docx";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
