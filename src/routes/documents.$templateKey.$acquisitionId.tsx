@@ -93,6 +93,11 @@ import {
   isOptionJustificationPath,
 } from "@/lib/option-justification-docx";
 import {
+  generateOptionExerciseDocx,
+  isOptionExercisePath,
+} from "@/lib/option-exercise-docx";
+import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
@@ -1758,6 +1763,33 @@ function DocumentPage() {
     );
   }
 
+  // An option is exercised on an awarded contract. The protected commercial
+  // samples are refused rather than shown this determination.
+  if (
+    def.key === "option-exercise-determination" &&
+    exportContext &&
+    isSoftWalkCommercialSample({ acquisition_id: acquisitionId })
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Option exercise determination not available"
+          lead={`${acquisitionId} · this record is not on a path that exercises a contract option.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ determination is written on an awarded contract that carries an option, under FAR 17.204
+          and NFS CG 1817.27 and 1817.28. Record the awarded contract and the option being exercised before
+          opening or exporting it.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
 
 
 
@@ -2425,6 +2457,19 @@ function DocumentPage() {
                     } else {
                       void generateDrfpCoverDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "option-exercise-determination" && exportContext) {
+                    // The determination is written into the NASA OP master.
+                    if (!isOptionExercisePath(exportContext)) {
+                      setMessage(
+                        "This file does not record an awarded contract with an option to exercise, so the determination was not written. Record the contract number and the option first.",
+                      );
+                    } else {
+                      void generateOptionExerciseDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
+                        )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (def.key === "option-justification" && exportContext) {

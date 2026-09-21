@@ -729,5 +729,43 @@
       "deliverable": "services",
       "vehicle": "new"
     }
+  },
+  {
+    "acquisition_id": "A-2027-0122",
+    "mission_id": "M6",
+    "is_critical_path": false,
+    "title": "Airborne instrument operations support services, Option Year 2",
+    "description_of_requirement": "Awarded, negotiated contract for airborne instrument operations support. Option Year 2 is being exercised under the terms of the contract, with a written determination for the contract file.",
+    "center_code": "ARC",
+    "center_name": "Ames Research Center",
+    "estimated_value": 9400000,
+    "acquisition_method": "FAR 15 negotiated, competitive",
+    "competition": "Full and open competition",
+    "contract_type": "CPFF",
+    "contract_format": "Uniform Contract Format (FAR 15.204)",
+    "current_phase": "Administration",
+    "clock_state": "running",
+    "hold_reason": "",
+    "hold_owner": "",
+    "funding_fiscal_year": "FY28",
+    "need_date": "2028-03-01",
+    "period_of_performance_start": "2026-03-01",
+    "period_of_performance_end": "2031-02-28",
+    "target_award_date": "2026-02-10",
+    "funds_certified": true,
+    "co_name": "Joshua Taggart",
+    "place_of_performance": "Moffett Field, California",
+    "naics_code": "541715",
+    "is_package_complete": true,
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate",
+    "scenario": {
+      "commercial": false,
+      "contract_type": "CPFF",
+      "deliverable": "services",
+      "vehicle": "option"
+    },
+    "contract_number": "80SAMPLE2026C0122",
+    "vendor_legal_name": "Meridian Airborne Science Services, LLC"
   }
 ]
