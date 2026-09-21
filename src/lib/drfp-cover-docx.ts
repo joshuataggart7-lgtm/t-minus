@@ -131,7 +131,7 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
     "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || KEEP,
     "[[SOLICITATION_NUMBER]]": value("solicitation_number") || KEEP,
     "[[ACQ_TITLE]]": title,
-    "[[INTRO]]": `You are invited to review and comment on the National Aeronautics and Space Administration (NASA) ${center} ${title} draft solicitation.${scope ? ` The principal purpose of this requirement is to provide ${scope}.` : ""}`,
+    "[[INTRO]]": `You are invited to review and comment on the National Aeronautics and Space Administration (NASA) ${center} ${title} draft solicitation. This DRFP supports exchanges with industry under FAR 15.201 and NFS 1815.201, including NFS 1815.201(c)(6)(A).${scope ? ` The principal purpose of this requirement is to provide ${scope}.` : ""}`,
     "[[COMMENTS_REQUEST]]": `Potential offerors are encouraged to comment on all aspects of the draft solicitation, including the requirements, schedules, proposal instructions, evaluation approaches, and perceived safety, occupational health, security including information technology security, environmental, export control, or other programmatic risk issues associated with performance of the work. Potential offerors should identify any unnecessary or inefficient requirements.${commentFocus ? ` The Government also requests comment on ${commentFocus}.` : ""}`,
     "[[COMPETITION_CONTRACT_POP]]": competitionParts.join(" ") || KEEP,
     "[[FINAL_RFP_SCHEDULE]]": scheduleParts.length ? `${scheduleParts.join(" ")}.` : "",
