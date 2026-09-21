@@ -40,3 +40,4 @@
 - [x] Set-aside preaward apparent successful offeror notification from the NASA master, with the FAR 15.206-1(b)(1) / 19.201-2 / NFS CG 1815.28 face, a Part 15 set-aside method gate, and a named Word export
 - [x] Draft RFP cover letter from the HQ master, with a competed Part 15 method gate, clean optional passages, blank signature ink, and a named Word export
 - [x] Option justification memorandum from the HQ master, with the FAR 17.201-1 / 17.201-2 / NFS CG 1817.25 face, a negotiated or sealed bid method gate, blank signature ink, and a named Word export
+- [x] Option exercise determination from the HQ master, with the FAR 17.204 / NFS CG 1817.27 / 1817.28 face, an awarded-contract-with-option gate, blank signature ink, and a named Word export

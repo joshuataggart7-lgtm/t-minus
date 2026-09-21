@@ -2745,3 +2745,17 @@ stubs. No body text was invented and no corpus row was added or edited in this s
   files (Sample 1, A-2027-0101) are refused. Demonstration fixture: A-2027-0120.
 - Word-face citation repair: both successful and unsuccessful retained letter prose prints the exact text
   `NFS CG 1815.28`; the citation is not confined to the on-screen regulatory card.
+
+## Option exercise determination master (Soft Walk P1-3)
+- Source: HQ "Option Exercise Determination" Word master, supplied as an upload; the HQ original is not edited.
+- Installed as `public/forms/OPTION_EXERCISE_MASTER.docx`, built by `scripts/build-option-exercise-master.py`
+  (body starts at the determination heading; instruction pages and the Document History Log removed,
+  red drafter notes and highlights stripped, findings turned into whole `[[MARKER]]` runs, letterhead,
+  styles and footer version identifier kept, both signature lines left blank).
+- Filled by `src/lib/option-exercise-docx.ts` through `applyMarkers`, mirroring the option justification pipeline.
+- Face citations come from the HQ source only: FAR 17.204, FAR 17.204-1(b)(2) and (b)(3)(i)-(vi), FAR Part 5,
+  FAR Part 6, NFS CG 1817.27 and NFS CG 1817.28. The consideration paragraph drops when nothing is recorded.
+- Gate: an awarded contract carrying an option. Protected commercial samples A-2027-0101 and A-2027-0102 refuse
+  with an honest not-available page; A-2027-0103 keeps its recorded officer and refuses for want of a contract option.
+- Demonstration fixture: A-2027-0122 (Joshua Taggart, contract 80SAMPLE2026C0122, Option Year 2).
+- Named download: `option-exercise-<acquisition id>.docx` through the existing `downloadDocxBytes` path.
