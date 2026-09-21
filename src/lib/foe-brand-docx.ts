@@ -125,7 +125,8 @@ export function foeBrandMarkers(ctx: FoeBrandContext): MarkerMap {
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
   const program = [title, ctx.acquisitionId].filter(Boolean).join(" · ");
   const contract = value("vehicle") || value("contract_number") || str(acq["contract_number"]);
-  const center = value("center") || str(acq["center"]);
+  const center =
+    value("center_name") || value("center") || str(acq["center_name"]) || str(acq["center"]);
   const techRep = value("technical_representative") || value("cor_name") || str(acq["cor_name"]);
   const item = value("brand_item") || value("brand_name_item") || str(acq["brand_name_item"]);
   const supplies = value("supplies_services") || value("requirement") || title;
