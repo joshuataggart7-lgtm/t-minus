@@ -2214,11 +2214,15 @@ function DocumentPage() {
                           `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
                         );
                         if (!part15) {
-                          setMessage(
-                            successful
-                              ? `The ${simplifiedNoticeCitation(exportContext)} successful-offeror companion notice was written.`
-                              : "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
-                          );
+                          if (successful) {
+                            setMessage(
+                              `The successful-offeror companion notice was written under ${simplifiedNoticeCitation(exportContext)}.`,
+                            );
+                          } else {
+                            setMessage(
+                              "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
+                            );
+                          }
                         }
                       })
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
