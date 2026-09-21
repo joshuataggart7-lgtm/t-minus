@@ -15,6 +15,13 @@
       "when": 1790028182801,
       "tag": "0001_seed_option_exercise_joshua_fixture_a_2027_0122",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790029549730,
+      "tag": "0002_seed_foe_brand_joshua_fixture_a_2027_0123",
+      "breakpoints": true
     }
   ]
 }

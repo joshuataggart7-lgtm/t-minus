@@ -2759,3 +2759,5 @@ stubs. No body text was invented and no corpus row was added or edited in this s
   with an honest not-available page; A-2027-0103 keeps its recorded officer and refuses for want of a contract option.
 - Demonstration fixture: A-2027-0122 (Joshua Taggart, contract 80SAMPLE2026C0122, Option Year 2).
 - Named download: `option-exercise-<acquisition id>.docx` through the existing `downloadDocxBytes` path.
+
+- Soft Walk P1-4: Fair Opportunity Exception, Brand Name Justification wired to the HQ marker master at public/forms/FOE_BRAND_MASTER.docx (scripts/build-foe-brand-master.py, src/lib/foe-brand-docx.ts). Generic FAR 16.507-6(b)(1)-(6) exception block removed on the brand-name path; one signature band prints, chosen by order value; fixture A-2027-0123 (Joshua Taggart, order value $750,000, band up to $900K). Samples 1 and 2 refuse; A-2027-0103 keeps its recorded officer. No meter change.
