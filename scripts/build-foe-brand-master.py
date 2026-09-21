@@ -54,9 +54,25 @@ def build_para(paragraph, text):
 
 HCA_LINE = 'Head of Contracting Activity'
 
+SEC1 = '1. Nature and/or description of the action being approved (FAR 16.507-6(d)(2)(ii)):'
+SEC2 = ('2. Description of the supplies or services required to meet the agency\u2019s needs '
+        '(including the estimated value) (FAR 16.507-6(d)(2)(iii)):')
+SEC4 = ('4. Determination that the anticipated cost to the Government will be fair and reasonable '
+        '(FAR 16.507-6(d)(2)(v)):')
+SEC5 = '5. Other Facts supporting the justification (FAR 16.507-6(d)(2)(vi)):'
+SEC6 = ('6. A statement of the actions, if any, the agency may take to remove or overcome any barriers '
+        'that led to the restricted consideration before any subsequent acquisition for the supplies or '
+        'services is made (FAR 16.507-6(d)(2)(vii)):')
+
 EDITS = {
     # Face
+    54: '[[CENTER_NAME]]',
     55: '[[DOC_TITLE]]',
+    57: SEC1,
+    59: SEC2,
+    97: SEC4,
+    101: SEC5,
+    105: SEC6,
     56: '[[PROGRAM_ACQ_ID]]',
     58: '[[NATURE]]',
     60: '[[SUPPLIES_SERVICES]]',
