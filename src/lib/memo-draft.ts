@@ -1097,6 +1097,17 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
     if (vendor) out["vendor_legal_name"] = vendor;
     if (uei) out["vendor_uei"] = uei;
     if (price) out["quoted_price"] = price;
+    // The negotiated price and the determination are held on the intake
+    // answers when they have been recorded; they are never invented here.
+    const answers = (a["nf1707_answers"] ?? null) as Record<string, unknown> | null;
+    const answer = (match: RegExp) => {
+      const hit = Object.entries(answers ?? {}).find(([k, v]) => match.test(k) && v !== null && v !== "");
+      return hit ? String(hit[1]) : "";
+    };
+    const negotiated = str(a["negotiated_price"]) || answer(/negotiated_price/i);
+    const determination = answer(/price_determination_statement|price_reasonableness_determination/i);
+    if (negotiated) out["negotiated_price"] = negotiated;
+    if (determination) out["determination"] = determination;
     out["technique"] = "Comparison with the independent government cost estimate";
     const priceProseCite = isSimplifiedCommercial(a)
       ? { analysis: "FAR 13.106-3(a)", record: "This memorandum is the determination of record under FAR 12.209." }
