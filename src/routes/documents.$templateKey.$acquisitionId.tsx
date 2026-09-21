@@ -93,6 +93,10 @@ import {
   isOptionJustificationPath,
 } from "@/lib/option-justification-docx";
 import {
+  generateOptionExerciseDocx,
+  isOptionExercisePath,
+} from "@/lib/option-exercise-docx";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
