@@ -97,6 +97,7 @@ import {
   isOptionExercisePath,
 } from "@/lib/option-exercise-docx";
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
+import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
