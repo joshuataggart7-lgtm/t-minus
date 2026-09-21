@@ -1167,6 +1167,9 @@ function DocumentPage() {
     // The 8(a) justification gate reads the socioeconomic path, the
     // competition and the value from the record.
     if (def.key === "jofoc-8a-over-30m") {
+      // This justification describes the acquisition program itself; do not
+      // borrow the broader mission name shared by unrelated demonstration files.
+      filled["program_name"] = String(q.data.acq["title"] ?? "").trim();
       if (!filled["acquisition_method"]) {
         filled["acquisition_method"] = String(q.data.acq["acquisition_method"] ?? "").trim();
       }
