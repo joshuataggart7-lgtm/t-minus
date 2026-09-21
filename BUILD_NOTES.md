@@ -9,6 +9,12 @@
 
 - Soft SEB / briefing polish: the Evaluation cockpit and exported briefing book now share one Board readiness summary for L↔M findings, clarifications, and evaluation-factor evidence. Empty states are brief and honest; all results remain advisory and never hold a file or phase exit. Sample records, clocks, seeds, external-write boundaries, and form export paths were unchanged.
 
+## DRFP cover letter OP Word master (Soft Walk P1-1)
+
+- The attached HQ Draft Request For Proposal cover letter is copied into a marker master; the HQ source remains unchanged. Instruction pages and the Document History Log are removed while the letterhead, styles, relationships, footer version identifier, and blank signature line remain.
+- `drfp-cover-letter` exports through `applyMarkers` as `drfp-cover-{acquisition-id}.docx`. Only recorded or saved values print; unresolved optional passages are removed instead of emitting placeholders.
+- The Word path is limited to competed FAR Part 15 negotiated acquisitions. Commercial, simplified, and sole-source files show an honest refusal instead of receiving Part 15 language. Readiness meters, clocks, external-write boundaries, and all existing form and memorandum export paths are unchanged.
+
 ## B1. Foundation
 
 Decisions taken where the specification left room, kept to the simplest option

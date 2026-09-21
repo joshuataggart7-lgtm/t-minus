@@ -87,6 +87,7 @@ import {
   generateSetAsidePreawardDocx,
   isSetAsidePreawardPath,
 } from "@/lib/setaside-preaward-docx";
+import { generateDrfpCoverDocx, isDrfpCoverPath } from "@/lib/drfp-cover-docx";
 import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
@@ -1703,6 +1704,29 @@ function DocumentPage() {
     );
   }
 
+  // A DRFP cover is used only for a competed FAR Part 15 negotiated path.
+  // Commercial, simplified, and sole-source records get an honest refusal.
+  if (def.key === "drfp-cover-letter" && exportContext && !isDrfpCoverPath(exportContext)) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Draft RFP cover letter not available"
+          lead={`${acquisitionId} · this record is not on a competed FAR Part 15 negotiated path.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ Draft RFP cover letter is for competed negotiated acquisitions. Record the FAR Part 15
+          competitive path before opening or exporting it. Commercial, simplified, and sole-source files do not
+          receive this Part 15 cover.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
 
 
   const runDraft = async (key: string) => {
@@ -2358,6 +2382,16 @@ function DocumentPage() {
                         .then((bytes) =>
                           downloadDocxBytes(bytes, `setaside-preaward-${acquisitionId}.docx`),
                         )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "drfp-cover-letter" && exportContext) {
+                    if (!isDrfpCoverPath(exportContext)) {
+                      setMessage(
+                        "This file is not on a competed FAR Part 15 negotiated path, so the Draft RFP cover letter was not written.",
+                      );
+                    } else {
+                      void generateDrfpCoverDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
