@@ -2347,6 +2347,19 @@ function DocumentPage() {
                         .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
+                  } else if (def.key === "setaside-preaward-notification" && exportContext) {
+                    // The set-aside preaward notice is written into the NASA OP master.
+                    if (!isSetAsidePreawardPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generateSetAsidePreawardDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `setaside-preaward-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
                   } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
