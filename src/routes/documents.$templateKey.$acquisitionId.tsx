@@ -84,6 +84,10 @@ import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
 import {
+  generateSetAsidePreawardDocx,
+  isSetAsidePreawardPath,
+} from "@/lib/setaside-preaward-docx";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
