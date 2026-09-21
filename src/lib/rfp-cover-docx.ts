@@ -133,13 +133,18 @@ export async function generateRfpCoverDocx(ctx: FormCtx): Promise<Uint8Array> {
 
 /** Save .docx bytes to the reader's machine. */
 export function downloadDocxBytes(bytes: Uint8Array, filename: string): void {
-  const blob = new Blob([bytes as unknown as BlobPart], {
+  const safeFilename = filename.toLowerCase().endsWith(".docx") ? filename : `${filename}.docx`;
+  // A File carries the intended name as well as the DOCX media type. Chrome
+  // still receives the explicit download attribute below, while the named
+  // File prevents companion exports from falling back to the blob URL UUID.
+  const file = new File([bytes as unknown as BlobPart], safeFilename, {
     type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   });
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(file);
   const link = document.createElement("a");
-  link.href = url;
-  link.download = filename.endsWith(".docx") ? filename : `${filename}.docx`;
+  link.setAttribute("href", url);
+  link.setAttribute("download", safeFilename);
+  link.download = safeFilename;
   link.style.display = "none";
   document.body.appendChild(link);
   link.click();
@@ -148,5 +153,5 @@ export function downloadDocxBytes(bytes: Uint8Array, filename: string): void {
   window.setTimeout(() => {
     link.remove();
     URL.revokeObjectURL(url);
-  }, 10_000);
+  }, 60_000);
 }
