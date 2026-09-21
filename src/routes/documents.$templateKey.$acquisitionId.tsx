@@ -96,6 +96,7 @@ import {
   generateOptionExerciseDocx,
   isOptionExercisePath,
 } from "@/lib/option-exercise-docx";
+import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
