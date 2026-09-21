@@ -2427,6 +2427,19 @@ function DocumentPage() {
                         .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
+                  } else if (def.key === "option-justification" && exportContext) {
+                    // The option justification is written into the NASA OP master.
+                    if (!isOptionJustificationPath(exportContext)) {
+                      setMessage(
+                        "This file is not on a negotiated or sealed bid solicitation path, so the option justification was not written. Commercial and simplified files do not use this memorandum.",
+                      );
+                    } else {
+                      void generateOptionJustificationDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-justification-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
                   } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
