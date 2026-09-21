@@ -16,6 +16,14 @@
 - The Word path is limited to competed FAR Part 15 negotiated acquisitions. Commercial, simplified, and sole-source files show an honest refusal instead of receiving Part 15 language. Readiness meters, clocks, external-write boundaries, and all existing form and memorandum export paths are unchanged.
 - A fictional competed Part 15 fixture, `A-2027-0121` (cryospheric field campaign science support, Ames Research Center, contracting officer Joshua Taggart), carries the draft RFP cover proof. `A-2027-0103` keeps its own recorded officer and is never relabelled; recorded officers always take precedence over sample defaults.
 
+## Option justification OP Word master (Soft Walk P1-2)
+
+- The attached HQ Option Justification template is copied into a marker master at `public/forms/OPTION_JUST_MASTER.docx` by `scripts/build-option-just-master.py`; the HQ source is not edited. Instruction pages and the Document History Log are removed; letterhead, styles, footer version identifier and the blank signature line remain.
+- `option-justification` exports through `applyMarkers` as `option-justification-{acquisition-id}.docx`. The face carries the HQ citations only: FAR 17.201-1, FAR 17.201-2 and the NFS CG 1817.25 format. Empty passages drop their paragraph instead of printing a stand-in, and the signature ink stays blank.
+- The Word path is limited to negotiated or sealed bid solicitation records. Commercial and simplified files — including Soft Walk Samples 1 and 2 — show an honest refusal.
+- `A-2027-0121` (contracting officer Joshua Taggart) carries the proof. `A-2027-0103` keeps its own recorded officer, J. Rivera, and is never relabelled.
+
+
 ## B1. Foundation
 
 Decisions taken where the specification left room, kept to the simplest option
