@@ -130,7 +130,7 @@ export function setAsidePreawardMarkers(ctx: SetAsidePreawardContext): MarkerMap
 
     // Unsuccessful offeror paragraphs; emptied on the successful variant.
     "[[UNSUCCESS_INTRO]]": unsuccessful
-      ? "In accordance with FAR 15.206-1(b)(1), this is a notification that the apparent successful offeror for the subject solicitation is:"
+      ? "In accordance with FAR 15.206-1(b)(1), this notification follows NFS CG 1815.28 and identifies the apparent successful offeror for the subject solicitation:"
       : "",
     "[[UNSUCCESS_SELECTED_OFFEROR]]": unsuccessful ? selectedAddress || KEEP : "",
     "[[UNSUCCESS_REVISIONS]]": unsuccessful

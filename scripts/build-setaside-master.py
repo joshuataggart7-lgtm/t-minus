@@ -120,7 +120,7 @@ EDITS = {
     62: "[[OFFEROR_CITY_STATE_ZIP]]",
     63: "SUBJECT:  Preaward Notification for Solicitation No. [[SOLICITATION_NUMBER]] for the [[ACQ_TITLE]] Acquisition",
     64: "Dear [[SALUTATION_NAME]]:",
-    69: "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that [[SUCCESS_COMPANY_NAME]] has been selected as the apparent successful offeror for the [[SUCCESS_ACQ_NAME]] acquisition. Other offerors are being notified in accordance with FAR 19.201-2.",
+    69: "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that [[SUCCESS_COMPANY_NAME]] has been selected as the apparent successful offeror for the [[SUCCESS_ACQ_NAME]] acquisition. Other offerors are being notified in accordance with FAR 19.201-2. This notification follows NFS CG 1815.28.",
     71: "No response to this letter is required. If there are no protests to [[SUCCESS_OFFEROR_NAME]]\u2019s small business size status, the Government intends to proceed with formal contract award to [[SUCCESS_OFFEROR_NAME_2]] on or near [[SUCCESS_AWARD_DATE]].",
     75: "[[UNSUCCESS_INTRO]]",
     77: "[[UNSUCCESS_SELECTED_OFFEROR]]",

@@ -2728,3 +2728,5 @@ stubs. No body text was invented and no corpus row was added or edited in this s
 - Face: FAR 15.206-1(b)(1), FAR 19.201-2 and 19.201-2(d)(1), NFS CG 1815.28.
 - Method gate: Part 15 negotiated plus a small business set-aside on the record. Commercial and simplified
   files (Sample 1, A-2027-0101) are refused. Demonstration fixture: A-2027-0120.
+- Word-face citation repair: both successful and unsuccessful retained letter prose prints the exact text
+  `NFS CG 1815.28`; the citation is not confined to the on-screen regulatory card.
