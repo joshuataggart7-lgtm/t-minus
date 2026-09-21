@@ -2427,6 +2427,19 @@ function DocumentPage() {
                         .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
+                  } else if (def.key === "option-exercise-determination" && exportContext) {
+                    // The determination is written into the NASA OP master.
+                    if (!isOptionExercisePath(exportContext)) {
+                      setMessage(
+                        "This file does not record an awarded contract with an option to exercise, so the determination was not written. Record the contract number and the option first.",
+                      );
+                    } else {
+                      void generateOptionExerciseDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
                   } else if (def.key === "option-justification" && exportContext) {
                     // The option justification is written into the NASA OP master.
                     if (!isOptionJustificationPath(exportContext)) {
