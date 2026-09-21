@@ -1082,6 +1082,31 @@ function DocumentPage() {
   // Pre-fill from the record, or from the latest saved version.
   useEffect(() => {
     if (!def || !q.data?.acq || touched) return;
+    const acqRow = q.data.acq;
+    // Facts the record already answers are forced onto the form whichever way
+    // it opened: from a stored version or from a fresh draft.
+    const forceRecordFacts = (input: Values): Values => {
+      const next = { ...input };
+      const fact = (key: string) => String(acqRow[key] ?? "").trim();
+      const sam = (key: string) => String((samFacts as Record<string, unknown>)[key] ?? "").trim();
+      const fillBlank = (key: string, value: string) => {
+        if (value && !String(next[key] ?? "").trim()) next[key] = value;
+      };
+      if (def.key === "jofoc-8a-over-30m") {
+        // This justification names the acquisition program itself, never the
+        // broader mission shared with unrelated demonstration files.
+        const title = fact("title");
+        if (title) next["program_name"] = title;
+      }
+      if (def.key === "pnm") {
+        fillBlank("vendor_legal_name", fact("vendor_legal_name") || sam("sam_legal_name"));
+        fillBlank("vendor_uei", fact("vendor_uei") || sam("sam_uei"));
+        fillBlank("quoted_price", sam("quoted_price"));
+        fillBlank("negotiated_price", sam("negotiated_price"));
+        fillBlank("determination", sam("determination"));
+      }
+      return next;
+    };
     const latest = q.data.versions[0]?.field_values;
     if (latest && typeof latest === "object") {
       const stored = { ...(latest as Values) };
@@ -1132,7 +1157,7 @@ function DocumentPage() {
       // the way in, and the field still shows its chip.
       const storedMarked = markedKeys(stored);
       if (storedMarked.length) setDraftedFields((prev) => new Set([...prev, ...storedMarked]));
-      setValues(stripDraftMarks(stored));
+      setValues(forceRecordFacts(stripDraftMarks(stored)));
       return;
     }
     const filled = prefill(def, {
@@ -1255,7 +1280,7 @@ function DocumentPage() {
       drafted["contract_value"] = draft["contract_value"];
     }
     setDraftedFields(new Set([...draftedKeys(drafted, draft), ...markedKeys(drafted)]));
-    setValues(stripDraftMarks(drafted));
+    setValues(forceRecordFacts(stripDraftMarks(drafted)));
   }, [def, q.data, touched, acquisitionId, samFacts, draftCtx, noticeFacts, search.offeror, quoterSlots]);
 
   // NF 1858: the flag and the header come from the saved version when there is
