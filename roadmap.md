@@ -43,3 +43,4 @@
 - [x] Option exercise determination from the HQ master, with the FAR 17.204 / NFS CG 1817.27 / 1817.28 face, an awarded-contract-with-option gate, blank signature ink, and a named Word export
 
 - Soft Walk P1-4 Fair Opportunity Exception (Brand Name) Word export landed: HQ master, method gate, signature ladder, fixture A-2027-0123.
+- Soft Walk P1-5 — UCA / Letter Contract Justification wired to the HQ master with fixture A-2027-0124. Done.

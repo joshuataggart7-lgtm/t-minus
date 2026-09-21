@@ -2761,3 +2761,19 @@ stubs. No body text was invented and no corpus row was added or edited in this s
 - Named download: `option-exercise-<acquisition id>.docx` through the existing `downloadDocxBytes` path.
 
 - Soft Walk P1-4: Fair Opportunity Exception, Brand Name Justification wired to the HQ marker master at public/forms/FOE_BRAND_MASTER.docx (scripts/build-foe-brand-master.py, src/lib/foe-brand-docx.ts). Generic FAR 16.507-6(b)(1)-(6) exception block removed on the brand-name path; one signature band prints, chosen by order value; fixture A-2027-0123 (Joshua Taggart, order value $750,000, band up to $900K). Samples 1 and 2 refuse; A-2027-0103 keeps its recorded officer. No meter change.
+
+## Soft Walk P1-5 — UCA / Letter Contract Justification (HQ 05/2026)
+
+`public/forms/UCA_JUST_MASTER.docx` is built by `scripts/build-uca-just-master.py`
+from the HQ original (body starts at paragraph 87). Instruction pages and the
+Document History Log are removed; letterhead, styles and the footer version
+identifier are kept. The master takes the letter-contract branch of the HQ face:
+the UCA-only purpose paragraphs, scope statement, government estimate,
+contract-type not-to-exceed language, the FAR 52.243-6 block and the UCA
+signature page are removed there. `src/lib/uca-just-docx.ts` fills the markers;
+`isUcaJustPath` refuses the protected commercial samples and Part 12/13 files.
+Export Word on template key `uca-letter-contract` writes
+`uca-just-{acquisitionId}.docx`. Fixture `A-2027-0124` (Joshua Taggart,
+letter contract, $2,500,000) seeds through
+`drizzle/migrations/0003_seed_uca_joshua_fixture_a_2027_0124.sql`. Face cites
+are FAR 16.603 and NFS CG 1816.65 / 1816.66 only. Signature ink stays blank.

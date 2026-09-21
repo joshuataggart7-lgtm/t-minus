@@ -97,6 +97,7 @@ import {
   isOptionExercisePath,
 } from "@/lib/option-exercise-docx";
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
+import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
@@ -1791,6 +1792,32 @@ function DocumentPage() {
     );
   }
 
+  // The letter contract justification belongs to an undefinitized action path.
+  // The protected commercial samples are refused rather than shown this face.
+  if (
+    def.key === "uca-letter-contract" &&
+    exportContext &&
+    isSoftWalkCommercialSample({ acquisition_id: acquisitionId })
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Letter contract justification not available"
+          lead={`${acquisitionId} · undefinitized actions and letter contracts do not apply to this commercial or simplified acquisition.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ justification is written on an undefinitized contract action or a letter contract, under
+          FAR 16.603 and NFS CG 1816.65 and 1816.66. Record that action before opening or exporting it.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
   // The brand-name justification belongs to a FAR Part 16 ordering path. The
   // protected commercial samples are refused rather than shown this face.
   if (
@@ -2498,6 +2525,17 @@ function DocumentPage() {
                         .then((bytes) =>
                           downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
                         )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "uca-letter-contract" && exportContext) {
+                    // The letter contract justification is written into the NASA OP master.
+                    if (!isUcaJustPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an undefinitized action or a letter contract, so the justification was not written. Record the action first; commercial and simplified files do not use this face.",
+                      );
+                    } else {
+                      void generateUcaJustDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
