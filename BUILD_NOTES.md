@@ -2718,3 +2718,13 @@ stubs. No body text was invented and no corpus row was added or edited in this s
   NFS CG 1815.29, 1815.31, 1815.32; unsuccessful = FAR 15.207-2(b) / FAR 15.301-1 with NFS CG
   1815.28. The stale FAR 15.502-7, 15.506 and 15.504 references on these letters are gone
   (`templates-hq6.ts`, `email-drafts.ts`, `scenario.ts`).
+
+## Set-aside preaward notification master (Soft Walk P0)
+- Source: HQ "Set-Aside Preaward Apparent Successful Offeror Notification" Word master (base issuance 01/2021, revision 04/2026), supplied as an upload.
+- Installed as `public/forms/SETASIDE_PREAWARD_MASTER.docx`, built by `scripts/build-setaside-master.py`:
+  instruction pages and the document history log removed, red drafter notes and highlights stripped,
+  fill-ins turned into whole `[[MARKER]]` runs, footer template version identifier kept, signature ink blank.
+- Filled by `src/lib/setaside-preaward-docx.ts` through `applyMarkers`, the same pattern as the Postaward and PPM OP masters.
+- Face: FAR 15.206-1(b)(1), FAR 19.201-2 and 19.201-2(d)(1), NFS CG 1815.28.
+- Method gate: Part 15 negotiated plus a small business set-aside on the record. Commercial and simplified
+  files (Sample 1, A-2027-0101) are refused. Demonstration fixture: A-2027-0120.
