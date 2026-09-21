@@ -88,7 +88,7 @@ export function ucaJustMarkers(ctx: UcaJustContext): MarkerMap {
 
   const officer = value("co_name") || resolveOfficerName(acq, ctx.coName);
   const title = value("acquisition_name") || str(acq["title"]) || ctx.acquisitionId;
-  const center = value("center_name") || str(acq["center_name"]) || str(acq["center"]);
+  const center = str(acq["center_name"]) || value("center_name") || str(acq["center"]);
   const contractor =
     value("contractor_address") || value("contractor_name") || str(acq["vendor_legal_name"]);
   const place = value("place_of_performance") || str(acq["place_of_performance"]);
