@@ -300,22 +300,22 @@ const setAsidePreaward: TemplateDef = {
   layout: "memo",
   badge: {
     citation:
-      "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+      "FAR 15.206-1(b)(1); FAR 19.201-2; FAR 19.201-2(d)(1); NFS CG 1815.28",
     citationFor: noticeCitation(
-      "FAR 15.503(a)(2); FAR 15.503(a)(2)(ii); FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
-      "FAR 19.302; FAR 19.302(d)(1); NFS 1805.303-72(a)(3)",
+      "FAR 15.206-1(b)(1); FAR 19.201-2; FAR 19.201-2(d)(1); NFS CG 1815.28",
+      "FAR 19.201-2; FAR 19.201-2(d)(1)",
     ),
     tier: "binding",
-    revision: "HQ base issuance 01/2021",
-    effective: "2021-01-04",
-    note: "A NASA Notification of Contract Action is submitted three business days before this notice is issued (NFS 1805.303-72(a)(3)).",
+    revision: "HQ base issuance 01/2021, revision 04/2026",
+    effective: "2026-04-01",
+    note: "The preaward notice runs on a FAR Part 15 negotiated set-aside; NFS CG 1815.28 carries the NASA notification process.",
   },
   lead: "Preaward notice on a set-aside: to the apparent successful offeror, or to the unsuccessful offerors.",
   sections: [
     {
       id: "variant",
       title: "Which notice this is",
-      citation: "FAR 15.503(a)(2)",
+      citation: "FAR 15.206-1(b)(1)",
       tier: "binding",
       fields: [
         S(
@@ -330,7 +330,7 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "opening",
       title: "Opening",
-      citation: "FAR 15.503",
+      citation: "FAR 15.206-1(b)",
       tier: "binding",
       standingText:
         "In reference to proposals submitted in response to the subject solicitation, the Government has completed evaluations and has selected an offeror.",
@@ -339,11 +339,11 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "successful",
       title: "Notice to the apparent successful offeror",
-      citation: "FAR 15.503(a)(2); FAR 19.302",
+      citation: "FAR 15.206-1(b)(1); FAR 19.201-2",
       tier: "binding",
       showIf: (v: Values) => v["notice_variant"] !== "Unsuccessful offeror",
       standingText:
-        "In accordance with Federal Acquisition Regulation (FAR) 15.503(a)(2), the purpose of this letter is to provide written notification that the offeror named below has been selected as the apparent successful offeror for the contract named above. Other offerors are being notified in accordance with FAR 19.302. No response to this letter is required. If there are no protests to the offeror's small business size status, the Government intends to proceed with formal contract award on or near the anticipated award date stated below.",
+        "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that the offeror named below has been selected as the apparent successful offeror for the acquisition named above. Other offerors are being notified in accordance with FAR 19.201-2. No response to this letter is required. If there are no protests to the offeror's small business size status, the Government intends to proceed with formal contract award on or near the anticipated award date stated below.",
       fields: [
         X("selected_offeror", "Apparent successful offeror"),
         D("anticipated_award_date", "Anticipated award date", "target_award_date"),
@@ -352,22 +352,23 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "unsuccessful",
       title: "Notice to the unsuccessful offerors",
-      citation: "FAR 15.503(a)(2)(ii); FAR 19.302(d)(1)",
+      citation: "FAR 15.206-1(b)(1); FAR 19.201-2(d)(1)",
       tier: "binding",
       showIf: (v: Values) => v["notice_variant"] === "Unsuccessful offeror",
       standingText:
-        "This is a notification that the apparent successful offeror for the subject solicitation is named below. In accordance with FAR 15.503(a)(2)(ii) and FAR 19.302(d)(1), the Government will not consider subsequent revisions and a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the Contracting Officer in writing by the close of business of the fifth business day after receipt of this letter. If no size status or small business status challenge is received within five business days of this letter, a post-award notification will be sent with information on how to request a debriefing along with the Source Selection Statement detailing the Government's selection decision.",
+        "In accordance with FAR 15.206-1(b)(1), this is a notification that the apparent successful offeror for the subject solicitation is named below. The Government will not consider subsequent revisions to your proposal. In accordance with FAR 19.201-2(d)(1), a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the contracting officer in writing by the close of business of the fifth business day after receipt of this letter. If no size status or small business status challenge is received within five business days of this letter, a postaward notification will be sent with information on how to request a debriefing along with the Source Selection Statement detailing the Government's selection decision.",
       fields: [T("selected_offeror_address", "Name and address of selected offeror")],
     },
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.503",
+      citation: "FAR 15.206-1(b)",
       tier: "binding",
       standingText: "For additional information, please contact the undersigned by telephone or e-mail.",
       fields: coContact,
     },
   ],
+
 };
 
 // ------------------------------------------- 4. Postaward conference report

@@ -84,6 +84,10 @@ import { generateJofoc8aDocx, isJofoc8aPath } from "@/lib/jofoc-8a-docx";
 import { generateLsjDocx } from "@/lib/lsj-docx";
 import { generatePpmDocx, isPpmPath } from "@/lib/ppm-docx";
 import {
+  generateSetAsidePreawardDocx,
+  isSetAsidePreawardPath,
+} from "@/lib/setaside-preaward-docx";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
@@ -1671,6 +1675,36 @@ function DocumentPage() {
     );
   }
 
+  // The set-aside preaward notice runs on a Part 15 negotiated set-aside only.
+  // A commercial or simplified file is refused rather than shown Part 15 prose.
+  if (
+    def.key === "setaside-preaward-notification" &&
+    exportContext &&
+    !isSetAsidePreawardPath(exportContext)
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Set-aside preaward notification not available"
+          lead={`${acquisitionId} · this record is not on a Part 15 negotiated set-aside.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The preaward notice to the apparent successful offeror runs under FAR 15.206-1(b)(1) with the size
+          status challenge period at FAR 19.201-2(d)(1). Record a FAR Part 15 negotiated path and a small
+          business set-aside on the acquisition before opening or exporting this notice. Commercial and
+          simplified files notify under Parts 12 and 13 instead.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
+
+
   const runDraft = async (key: string) => {
     setDraftingKey(key);
     setMessage(null);
@@ -2311,6 +2345,19 @@ function DocumentPage() {
                     } else {
                       void generatePpmDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "setaside-preaward-notification" && exportContext) {
+                    // The set-aside preaward notice is written into the NASA OP master.
+                    if (!isSetAsidePreawardPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generateSetAsidePreawardDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `setaside-preaward-${acquisitionId}.docx`),
+                        )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
