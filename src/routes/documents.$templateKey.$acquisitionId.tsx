@@ -1096,7 +1096,10 @@ function DocumentPage() {
         // This justification names the acquisition program itself, never the
         // broader mission shared with unrelated demonstration files.
         const title = fact("title");
-        if (title) next["program_name"] = title;
+        if (title) {
+          next["program_name"] = title;
+          next["acquisition_identifier"] = `${title} (${acquisitionId})`;
+        }
       }
       if (def.key === "pnm") {
         fillBlank("vendor_legal_name", fact("vendor_legal_name") || sam("sam_legal_name"));
