@@ -35,3 +35,6 @@
 # ORBIT visual identity
 - [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters
 - [x] Ship Chunk 5 Executive Overview data hero: portfolio countdown strip and phase distribution inside the navy Mission Clock band
+
+# Preaward notices
+- [x] Set-aside preaward apparent successful offeror notification from the NASA master, with the FAR 15.206-1(b)(1) / 19.201-2 / NFS CG 1815.28 face, a Part 15 set-aside method gate, and a named Word export
