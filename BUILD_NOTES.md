@@ -2777,3 +2777,15 @@ Export Word on template key `uca-letter-contract` writes
 letter contract, $2,500,000) seeds through
 `drizzle/migrations/0003_seed_uca_joshua_fixture_a_2027_0124.sql`. Face cites
 are FAR 16.603 and NFS CG 1816.65 / 1816.66 only. Signature ink stays blank.
+
+## Soft Walk P1-6 — Blackout Notice (HQ 04/2026)
+
+`public/forms/BLACKOUT_MASTER.docx` is built from the supplied HQ original by
+`scripts/build-blackout-master.py`. The instruction pages and Document History
+Log are removed; letterhead, styles, footer version identifier, and blank
+signature underscore remain. `src/lib/blackout-docx.ts` fills isolated markers
+and gates the existing `blackout-notice` key to a competed Part 15 final-RFP or
+solicitation path. Fixture `A-2027-0121` is reused without changing its record.
+Export Word writes `blackout-{acquisitionId}.docx`. The Word face uses only the
+HQ references FAR 15.101, NFS CG 1815.11(i), NFS CG 1815.27(b), and NASA Source
+Selection Guide §3.24. This closes Soft Walk P1 OP Word-master row 6. No meter change.
