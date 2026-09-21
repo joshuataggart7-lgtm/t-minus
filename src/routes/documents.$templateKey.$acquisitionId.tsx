@@ -1727,6 +1727,35 @@ function DocumentPage() {
     );
   }
 
+  // Options are justified on a negotiated or sealed bid solicitation path.
+  // Commercial and simplified files are refused rather than shown this memo.
+  if (
+    def.key === "option-justification" &&
+    exportContext &&
+    !isOptionJustificationPath(exportContext)
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Option justification not available"
+          lead={`${acquisitionId} · this record is not on a solicitation path that justifies options.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ option justification is written before a negotiated or sealed bid solicitation includes
+          options, under FAR 17.201-1 and FAR 17.201-2 in the format at NFS CG 1817.25. Record that path on the
+          acquisition before opening or exporting it. Commercial and simplified files do not use this memorandum.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
+
+
 
 
   const runDraft = async (key: string) => {
