@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789979930818,
+      "tag": "0000_seed_drfp_joshua_fixture_a_2027_0121",
+      "breakpoints": true
+    }
+  ]
+}
