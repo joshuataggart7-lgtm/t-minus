@@ -1675,6 +1675,36 @@ function DocumentPage() {
     );
   }
 
+  // The set-aside preaward notice runs on a Part 15 negotiated set-aside only.
+  // A commercial or simplified file is refused rather than shown Part 15 prose.
+  if (
+    def.key === "setaside-preaward-notification" &&
+    exportContext &&
+    !isSetAsidePreawardPath(exportContext)
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Set-aside preaward notification not available"
+          lead={`${acquisitionId} · this record is not on a Part 15 negotiated set-aside.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The preaward notice to the apparent successful offeror runs under FAR 15.206-1(b)(1) with the size
+          status challenge period at FAR 19.201-2(d)(1). Record a FAR Part 15 negotiated path and a small
+          business set-aside on the acquisition before opening or exporting this notice. Commercial and
+          simplified files notify under Parts 12 and 13 instead.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
+
+
   const runDraft = async (key: string) => {
     setDraftingKey(key);
     setMessage(null);
