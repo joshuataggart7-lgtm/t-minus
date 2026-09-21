@@ -2500,6 +2500,17 @@ function DocumentPage() {
                         )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
+                  } else if (def.key === "uca-letter-contract" && exportContext) {
+                    // The letter contract justification is written into the NASA OP master.
+                    if (!isUcaJustPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an undefinitized action or a letter contract, so the justification was not written. Record the action first; commercial and simplified files do not use this face.",
+                      );
+                    } else {
+                      void generateUcaJustDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
                   } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
                     // The brand-name justification is written into the NASA OP master.
                     if (!isFoeBrandPath(exportContext)) {
