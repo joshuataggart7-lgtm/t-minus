@@ -10,6 +10,7 @@
 - [x] RFO citation punch list: NFS 1804.171, FAR 12.204(a), 52.212-3 pack logic, Sample 1 Part 12 notices
 - [x] Restore Joshua Taggart as sole CO on Soft Walk Samples 1/2 and 0090 outputs; verify protected form and memo paths
 - [x] Persist named Sample 1 postaward companion DOCX downloads by prebuilding bytes before Export; completion notices remain held
+- [x] Correct Sample 1 companion body blanks and unsuccessful authority; restore A-2027-0118 PNM facts and A-2027-0119 program link
 
 # Market research persistence
 - [x] Prevent incomplete research runs from becoming the latest run

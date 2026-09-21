@@ -858,6 +858,8 @@ function DocumentPage() {
       // On a sole-source file the price the single source proposed is held on
       // the record, entered in the Solicitation/Quote phase.
       quoted_price: acq?.["proposed_price"] ?? answerValue(/quote|proposed_price/i),
+      negotiated_price: answerValue(/negotiated_price/i),
+      determination: answerValue(/price_determination_statement|price_reasonableness_determination/i),
       proposal_received: acq?.["proposed_price_received"] ?? "",
     } as Record<string, unknown>;
   }, [q.data]);

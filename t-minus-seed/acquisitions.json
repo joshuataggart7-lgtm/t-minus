@@ -100,8 +100,14 @@
     "hardware_deliverable": false,
     "includes_it": false,
     "enterprise_psl_check": "Closest PSL A-102.7 Aircraft reviewed; contracted flight services for a NASA payload, not support of NASA aircraft; outside PSL scope. CO confirmation recorded.",
-    "vendor_legal_name": "",
-    "vendor_uei": "",
+    "vendor_legal_name": "Stratospheric Response Aviation LLC (fictional)",
+    "vendor_uei": "DEMOSRA00118",
+    "proposed_price": 2900000,
+    "proposed_price_received": "2027-03-15",
+    "nf1707_answers": {
+      "negotiated_price": 2750000,
+      "price_determination_statement": "The negotiated price of $2,750,000 is fair and reasonable based on comparison with the independent government cost estimate and documented negotiations."
+    },
     "vendor_cage": "",
     "co_name": "Joshua Taggart",
     "co_code": "ARC-JAZ-01",
@@ -389,7 +395,7 @@
   },
   {
     "acquisition_id": "A-2027-0107",
-    "mission_id": "M4",
+    "mission_id": "M7",
     "is_critical_path": true,
     "title": "Commercial Aviation Services: hurricane overflight platform, 2027 season",
     "center_code": "ARC",

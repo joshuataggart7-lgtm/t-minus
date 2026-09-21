@@ -215,8 +215,8 @@ async function buildCompanionDocx(
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
-  const company = value("company_name") || str(acq["vendor_legal_name"]) || "Not recorded";
-  const solicitation = value("solicitation_number") || "Not recorded";
+  const company = value("company_name") || str(acq["vendor_legal_name"]);
+  const solicitation = value("solicitation_number");
   const citation = simplifiedNoticeCitation(ctx);
 
   const serif = { font: "Times New Roman", size: 24 } as const;
@@ -230,24 +230,21 @@ async function buildCompanionDocx(
   lines.push(p("National Aeronautics and Space Administration", { bold: true, after: 0 }));
   lines.push(p(center, { after: 0 }));
   lines.push(p(str(ctx.centerAddress), { after: 360 }));
-  lines.push(p(value("letter_date") || str(ctx.preparedDate), { after: 360 }));
+  const letterDate = value("letter_date") || str(ctx.preparedDate);
+  if (letterDate) lines.push(p(letterDate, { after: 360 }));
   const addressee = value("addressee") || company;
   for (const line of addressee.split(/\n+/).map((l) => l.trim()).filter(Boolean)) {
     lines.push(p(line, { after: 0 }));
   }
   lines.push(p("", { after: 240 }));
-  lines.push(
-    p(
-      `Subject:  Notification for Solicitation No. ${solicitation} for the ${title} acquisition`,
-      { bold: true },
-    ),
-  );
-  lines.push(p(`Dear ${value("poc_name") || company}:`));
+  lines.push(p(`Subject:  Notification${solicitation ? ` for Solicitation No. ${solicitation}` : ""} for the ${title} acquisition`, { bold: true }));
+  const salutation = value("poc_name") || company;
+  if (salutation) lines.push(p(`Dear ${salutation}:`));
 
   if (successful) {
     lines.push(
       p(
-        `The National Aeronautics and Space Administration (NASA) ${center} has awarded a contract to ${company} under the subject solicitation. The contract ${value("contract_number") || str(acq["contract_number"]) || "Not recorded"} has an effective date of ${value("effective_date") || "Not recorded"}.`,
+        `The National Aeronautics and Space Administration (NASA) ${center} has awarded a contract${company ? ` to ${company}` : ""} under the subject solicitation.${value("contract_number") || str(acq["contract_number"]) ? ` The contract number is ${value("contract_number") || str(acq["contract_number"])}.` : ""}${value("effective_date") ? ` The contract has an effective date of ${value("effective_date")}.` : ""}`,
       ),
     );
     lines.push(
@@ -258,29 +255,25 @@ async function buildCompanionDocx(
   } else {
     lines.push(
       p(
-        `This notification is to inform ${company} that the National Aeronautics and Space Administration (NASA) ${center} has awarded a contract under the subject solicitation and your quotation was not selected for award.`,
+        `This notification is to inform${company ? ` ${company}` : " you"} that the National Aeronautics and Space Administration (NASA) ${center} has awarded a contract under the subject solicitation and your quotation was not selected for award.`,
       ),
     );
+    const awardee = value("awardees") || str(acq["vendor_legal_name"]);
+    const contractValue = value("contract_value") || str(acq["estimated_value"]);
+    if (awardee || contractValue) {
+      lines.push(p(`Award was made${awardee ? ` to ${awardee}` : ""}${contractValue ? ` at a total value of ${contractValue}` : ""}.`));
+    }
     lines.push(
       p(
-        `Award was made to ${value("awardees") || str(acq["vendor_legal_name"]) || "Not recorded"} at a total value of ${value("contract_value") || str(acq["estimated_value"]) || "Not recorded"}.`,
-      ),
-    );
-    lines.push(
-      p(
-        `This notification is provided under ${citation}. This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).`,
+        "This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
       ),
     );
   }
 
-  lines.push(
-    p(
-      `For additional information, please contact the undersigned at ${co.phone || "Not recorded"} or by e-mail at ${co.email || "Not recorded"}.`,
-      { after: 480 },
-    ),
-  );
+  const contactMethods = [co.phone ? `at ${co.phone}` : "", co.email ? `by e-mail at ${co.email}` : ""].filter(Boolean);
+  lines.push(p(`For additional information, please contact the undersigned${contactMethods.length ? ` ${contactMethods.join(" or ")}` : ""}.`, { after: 480 }));
   lines.push(p("Sincerely,", { after: 720 }));
-  lines.push(p(co.name || "Not recorded", { after: 0 }));
+  lines.push(p(co.name || KEEP, { after: 0 }));
   lines.push(p("Contracting Officer", { after: 0 }));
 
   const doc = new Document({

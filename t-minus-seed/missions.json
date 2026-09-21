@@ -76,5 +76,18 @@
     "leadership_note": "NOAA-funded airborne lidar buy. Not the Arctic Snow Depth Campaign.",
     "mission_directorate_code": null,
     "mission_directorate_name": "Science Mission Directorate"
+  },
+  {
+    "mission_id": "M7",
+    "name": "ARC 8(a) Ground Data Processing and Archive Services, 2027–2032",
+    "program": "8(a) ground data processing and archive services (fictional project)",
+    "center_code": "ARC",
+    "milestone": "Sole-source 8(a) award",
+    "milestone_date": "2027-07-01",
+    "priority": 7,
+    "program_owner": "Avery Morgan (fictional)",
+    "leadership_note": "Fictional $48.5 million 8(a) demonstration program.",
+    "mission_directorate_code": "SMD",
+    "mission_directorate_name": "Science Mission Directorate"
   }
 ]

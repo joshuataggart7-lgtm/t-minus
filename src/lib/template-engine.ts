@@ -878,7 +878,7 @@ const pnm: TemplateDef = {
         { key: "igce_basis", label: "Basis of the IGCE", kind: "textarea", required: true },
         { key: "quoted_price", label: "Quoted price", kind: "money", bind: "quoted_price", required: true },
         { key: "estimated_value", label: "Estimated value of record", kind: "readonly", bind: "estimated_value" },
-        { key: "negotiated_price", label: "Negotiated price", kind: "money", required: true },
+        { key: "negotiated_price", label: "Negotiated price", kind: "money", bind: "negotiated_price", required: true },
         {
           key: "price_variance",
           label: "Difference from the IGCE, and why",
@@ -959,6 +959,7 @@ const pnm: TemplateDef = {
           key: "determination",
           label: "Determination statement",
           kind: "textarea",
+          bind: "determination",
           required: true,
           help: "Plain statement that the negotiated price is fair and reasonable, and the basis for it.",
         },
