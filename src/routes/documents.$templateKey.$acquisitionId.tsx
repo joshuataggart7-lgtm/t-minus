@@ -98,6 +98,7 @@ import {
 } from "@/lib/option-exercise-docx";
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
 import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
+import { generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
@@ -1818,6 +1819,29 @@ function DocumentPage() {
     );
   }
 
+  // A blackout notice is issued for a competed Part 15 final solicitation.
+  // Commercial, simplified, and other non-blackout paths get an honest refusal.
+  if (def.key === "blackout-notice" && exportContext && !isBlackoutPath(exportContext)) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Blackout notice not applicable"
+          lead={`${acquisitionId} · this record is not on a competed Part 15 final-solicitation blackout path.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ blackout notice is issued when a final RFP or solicitation is released for a competitive
+          acquisition. It is not applicable for this commercial or simplified acquisition. Record the competed
+          Part 15 final-solicitation path before opening or exporting this notice.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
   // The brand-name justification belongs to a FAR Part 16 ordering path. The
   // protected commercial samples are refused rather than shown this face.
   if (
@@ -2536,6 +2560,17 @@ function DocumentPage() {
                     } else {
                       void generateUcaJustDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "blackout-notice" && exportContext) {
+                    // The notice is written into the genuine HQ blackout master.
+                    if (!isBlackoutPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a competed Part 15 final-solicitation blackout path, so the notice was not written. Commercial and simplified acquisitions do not use this face.",
+                      );
+                    } else {
+                      void generateBlackoutDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `blackout-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
