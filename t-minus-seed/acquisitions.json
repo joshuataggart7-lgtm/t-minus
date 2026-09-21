@@ -410,14 +410,8 @@
     "contract_type": "FFP",
     "contract_format": "SF 1449 streamlined",
     "co_name": "Center CO (fictional)",
-    "vendor_legal_name": "Stratospheric Response Aviation LLC (fictional)",
-    "vendor_uei": "DEMOSRA00118",
-    "proposed_price": 2900000,
-    "proposed_price_received": "2027-03-15",
-    "nf1707_answers": {
-      "negotiated_price": 2750000,
-      "price_determination_statement": "The negotiated price of $2,750,000 is fair and reasonable based on comparison with the independent government cost estimate and documented negotiations."
-    },
+    "vendor_legal_name": "",
+    "vendor_uei": "",
     "regulatory_baseline_date": "2026-08-01",
     "center_name": "Ames Research Center",
     "mission_directorate_code": "SMD",
