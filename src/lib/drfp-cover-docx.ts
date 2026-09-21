@@ -116,7 +116,7 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
   const performanceParts = [
     awardDate ? `The anticipated contract award date is ${awardDate}.` : "",
     effectiveDate ? `The contract effective date is ${effectiveDate}.` : "",
-    place ? `The contract will be performed ${place}.` : "",
+    place ? `The contract will be performed at ${place}.` : "",
   ].filter(Boolean);
 
   return {
@@ -141,7 +141,9 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
     "[[SECURITY]]": security ? `7. A ${security} facilities clearance is required for this acquisition in accordance with the DD Form 254, Contract Security Classification Specification.${securityTiming ? ` ${securityTiming}` : ""}` : "",
     "[[EFSS]]": "",
     "[[OTHER_EMPHASIS]]": value("other_emphasis"),
-    "[[OMBUDSMAN]]": value("ombudsman") || KEEP,
+    // An empty marker removes the whole Ombudsman paragraph. Never print an
+    // empty name or a generic stand-in on a formal cover letter.
+    "[[OMBUDSMAN]]": value("ombudsman"),
     "[[OMBUDSMAN_LINK]]": "",
     "[[DISCLAIMER]]": `This DRFP is not a solicitation, and NASA is not requesting proposals. This DRFP does not commit NASA ${center} to pay any proposal preparation costs, nor does it obligate NASA ${center} to procure or contract for this requirement. This request is not an authorization to proceed and does not authorize payment for any charges incurred by the offeror for performing any of the work called for in this solicitation.`,
     "[[COMMENT_INSTRUCTIONS]]": `Any comments regarding the DRFP should be submitted electronically in writing to ${officer || "the Contracting Officer"}${email ? ` at ${email}` : ""}${commentDays ? ` within ${commentDays} calendar days after release of this DRFP` : ""}. If a respondent believes comments contain confidential, proprietary, competition-sensitive, or business information, they must be marked appropriately. The Government will consider all comments received in preparation for the Final RFP. This draft does not request proposals.`,
