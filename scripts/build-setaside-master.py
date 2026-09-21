@@ -61,6 +61,9 @@ def process(src, dst, keep_from, edits, drops):
     os.makedirs(tmp)
     with zipfile.ZipFile(src) as z:
         z.extractall(tmp)
+    # Word may leave an unreferenced recovery payload in the package. It is not
+    # part of the document and fails strict relationship validation.
+    shutil.rmtree(os.path.join(tmp, "[trash]"), ignore_errors=True)
     path = os.path.join(tmp, "word/document.xml")
     xml = open(path, encoding="utf8").read()
     els = list(re.finditer(r"<w:(p|tbl)\b.*?</w:\1>", xml, re.S))
