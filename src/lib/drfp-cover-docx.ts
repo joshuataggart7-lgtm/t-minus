@@ -10,7 +10,7 @@
  * them; signature ink always remains blank.
  */
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
-import { resolveOfficerName } from "@/lib/softwalk-samples";
+import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 import type { ExportContext } from "@/lib/template-engine";
 
 export const DRFP_COVER_MASTER_URL = "/forms/DRFP_COVER_MASTER.docx";
@@ -60,6 +60,12 @@ function methodText(ctx: DrfpCoverContext): string {
 
 /** True only for a competed FAR Part 15 negotiated acquisition. */
 export function isDrfpCoverPath(ctx: DrfpCoverContext): boolean {
+  // Protected Soft Walk Samples 1 and 2 are commercial streamlined files.
+  // Refuse them even if a stale live row has lost its method fields.
+  if (isSoftWalkCommercialSample({
+    ...(ctx.acq ?? {}),
+    acquisition_id: ctx.acquisitionId,
+  })) return false;
   const method = methodText(ctx);
   if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
   if (/sole[- ]?source|non-?competitive|8\(a\) direct/i.test(method)) return false;
