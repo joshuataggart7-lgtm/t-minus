@@ -89,6 +89,10 @@ import {
 } from "@/lib/setaside-preaward-docx";
 import { generateDrfpCoverDocx, isDrfpCoverPath } from "@/lib/drfp-cover-docx";
 import {
+  generateOptionJustificationDocx,
+  isOptionJustificationPath,
+} from "@/lib/option-justification-docx";
+import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
   generatePostawardSuccessCompanionDocx,
@@ -1727,6 +1731,35 @@ function DocumentPage() {
     );
   }
 
+  // Options are justified on a negotiated or sealed bid solicitation path.
+  // Commercial and simplified files are refused rather than shown this memo.
+  if (
+    def.key === "option-justification" &&
+    exportContext &&
+    !isOptionJustificationPath(exportContext)
+  ) {
+    return (
+      <AppShell>
+        <PageHeader
+          title="Option justification not available"
+          lead={`${acquisitionId} · this record is not on a solicitation path that justifies options.`}
+        />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+          The HQ option justification is written before a negotiated or sealed bid solicitation includes
+          options, under FAR 17.201-1 and FAR 17.201-2 in the format at NFS CG 1817.25. Record that path on the
+          acquisition before opening or exporting it. Commercial and simplified files do not use this memorandum.
+        </p>
+        <p className="mt-6">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the acquisition file
+          </Link>
+        </p>
+      </AppShell>
+    );
+  }
+
+
+
 
 
   const runDraft = async (key: string) => {
@@ -2392,6 +2425,19 @@ function DocumentPage() {
                     } else {
                       void generateDrfpCoverDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "option-justification" && exportContext) {
+                    // The option justification is written into the NASA OP master.
+                    if (!isOptionJustificationPath(exportContext)) {
+                      setMessage(
+                        "This file is not on a negotiated or sealed bid solicitation path, so the option justification was not written. Commercial and simplified files do not use this memorandum.",
+                      );
+                    } else {
+                      void generateOptionJustificationDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-justification-${acquisitionId}.docx`),
+                        )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
                   } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
