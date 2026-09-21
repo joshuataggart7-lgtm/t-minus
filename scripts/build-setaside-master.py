@@ -61,6 +61,9 @@ def process(src, dst, keep_from, edits, drops):
     os.makedirs(tmp)
     with zipfile.ZipFile(src) as z:
         z.extractall(tmp)
+    # Word may leave an unreferenced recovery payload in the package. It is not
+    # part of the document and fails strict relationship validation.
+    shutil.rmtree(os.path.join(tmp, "[trash]"), ignore_errors=True)
     path = os.path.join(tmp, "word/document.xml")
     xml = open(path, encoding="utf8").read()
     els = list(re.finditer(r"<w:(p|tbl)\b.*?</w:\1>", xml, re.S))
@@ -120,7 +123,7 @@ EDITS = {
     62: "[[OFFEROR_CITY_STATE_ZIP]]",
     63: "SUBJECT:  Preaward Notification for Solicitation No. [[SOLICITATION_NUMBER]] for the [[ACQ_TITLE]] Acquisition",
     64: "Dear [[SALUTATION_NAME]]:",
-    69: "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that [[SUCCESS_COMPANY_NAME]] has been selected as the apparent successful offeror for the [[SUCCESS_ACQ_NAME]] acquisition. Other offerors are being notified in accordance with FAR 19.201-2.",
+    69: "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that [[SUCCESS_COMPANY_NAME]] has been selected as the apparent successful offeror for the [[SUCCESS_ACQ_NAME]] acquisition. Other offerors are being notified in accordance with FAR 19.201-2. This notification follows NFS CG 1815.28.",
     71: "No response to this letter is required. If there are no protests to [[SUCCESS_OFFEROR_NAME]]\u2019s small business size status, the Government intends to proceed with formal contract award to [[SUCCESS_OFFEROR_NAME_2]] on or near [[SUCCESS_AWARD_DATE]].",
     75: "[[UNSUCCESS_INTRO]]",
     77: "[[UNSUCCESS_SELECTED_OFFEROR]]",
