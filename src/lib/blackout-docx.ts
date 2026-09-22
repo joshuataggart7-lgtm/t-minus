@@ -9,6 +9,10 @@ import type { ExportContext } from "@/lib/template-engine";
 
 export const BLACKOUT_MASTER_URL = "/forms/BLACKOUT_MASTER.docx";
 
+/** The one visible refusal sentence, shown on the page and on an export attempt. */
+export const BLACKOUT_UNAVAILABLE =
+  "Blackout Notice unavailable: this record is not on the applicable competed Part 15 final-solicitation release / blackout path.";
+
 export type BlackoutContext = ExportContext & {
   acq?: Record<string, unknown> | undefined;
 };

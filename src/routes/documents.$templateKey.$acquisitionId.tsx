@@ -98,7 +98,7 @@ import {
 } from "@/lib/option-exercise-docx";
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
 import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
-import { generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
+import { BLACKOUT_UNAVAILABLE, generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
@@ -2565,9 +2565,7 @@ function DocumentPage() {
                   } else if (def.key === "blackout-notice" && exportContext) {
                     // The notice is written into the genuine HQ blackout master.
                     if (!isBlackoutPath(exportContext)) {
-                      setMessage(
-                        "This file does not record a competed Part 15 final-solicitation blackout path, so the notice was not written. Commercial and simplified acquisitions do not use this face.",
-                      );
+                      setMessage(BLACKOUT_UNAVAILABLE);
                     } else {
                       void generateBlackoutDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `blackout-${acquisitionId}.docx`))
