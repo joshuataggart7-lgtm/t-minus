@@ -33,7 +33,6 @@
 - [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)
 
 # ORBIT visual identity
-- [ ] Ship Phase 2 Executive Overview r2 as one Mission Control environment with trajectory, anomaly rail, clock depth, and honest days-returned visualization
 - [x] Ship Phase 2 Executive Overview Mission Control POC as a visual-only extraction with existing metrics and tabs unchanged
 - [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters
 - [x] Ship Chunk 5 Executive Overview data hero: portfolio countdown strip and phase distribution inside the navy Mission Clock band
