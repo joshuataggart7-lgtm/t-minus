@@ -1826,14 +1826,12 @@ function DocumentPage() {
   if (def.key === "blackout-notice" && exportContext && !isBlackoutPath(exportContext)) {
     return (
       <AppShell>
-        <PageHeader
-          title="Blackout notice not applicable"
-          lead={`${acquisitionId} · this record is not on a competed Part 15 final-solicitation blackout path.`}
-        />
-        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+        <PageHeader title="Blackout notice not applicable" lead={acquisitionId} />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">{BLACKOUT_UNAVAILABLE}</p>
+        <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px]">
           The HQ blackout notice is issued when a final RFP or solicitation is released for a competitive
-          acquisition. It is not applicable for this commercial or simplified acquisition. Record the competed
-          Part 15 final-solicitation path before opening or exporting this notice.
+          acquisition. Record the competed Part 15 final-solicitation path before opening or exporting this
+          notice.
         </p>
         <p className="mt-6">
           <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
