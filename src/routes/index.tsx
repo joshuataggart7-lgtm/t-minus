@@ -29,7 +29,6 @@ import {
   formatDate,
   holdSince,
   missionDriver,
-  urgencyRank,
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
