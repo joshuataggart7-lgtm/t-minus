@@ -119,6 +119,9 @@
   --mc-grid-line: oklch(0.62 0.12 220 / 0.08);
   --mc-cyan-soft: oklch(0.82 0.13 209);
   --mc-glow: oklch(0.78 0.15 211 / 0.2);
+  --mc-signal-green: oklch(0.72 0.17 149);
+  --mc-signal-red: oklch(0.62 0.2 30);
+  --mc-signal-amber: oklch(0.76 0.14 76);
 }
 
 @layer base {
@@ -229,9 +232,18 @@
   border: 1px solid var(--mc-line);
   border-radius: var(--radius);
   background:
-    linear-gradient(150deg, color-mix(in oklab, var(--mc-elevated) 88%, var(--accent-cyan)) 0%, var(--mc-surface) 44%, var(--mc-field) 100%);
+    linear-gradient(145deg, color-mix(in oklab, var(--mc-elevated) 92%, var(--accent-cyan)) 0%, var(--mc-surface) 38%, var(--mc-field) 100%);
   color: var(--mc-foreground);
   padding: 1.5rem;
+}
+
+@utility mc-command-beacon {
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 38%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-cyan));
+  opacity: 0.8;
 }
 
 @utility mc-grid {
@@ -260,10 +272,10 @@
 }
 
 @utility mc-stat-block {
-  min-height: 7.5rem;
+  min-height: 8.5rem;
   border-bottom: 1px solid var(--mc-line);
-  padding: 1rem;
-  &:last-child { border-bottom: 0; }
+  padding: 1.15rem 1rem 1rem;
+  background: color-mix(in oklab, var(--mc-surface) 60%, transparent);
 }
 
 @utility mc-stat-xl {
@@ -283,6 +295,41 @@
   letter-spacing: 0;
 }
 
+@utility mc-stat-index {
+  color: color-mix(in oklab, var(--mc-muted) 52%, transparent);
+  font-size: 10px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+@utility mc-status-pip {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+@utility mc-board-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  color: var(--mc-muted);
+  font-size: 12px;
+  & strong {
+    color: var(--mc-foreground);
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 500;
+  }
+}
+
+@utility mc-live-marker {
+  width: 22px;
+  height: 1px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--mc-glow);
+}
+
 @utility mc-label-light {
   color: var(--muted-foreground);
   font-size: 11px;
@@ -293,15 +340,33 @@
 }
 
 @utility mc-scan-card {
+  position: relative;
   min-width: 0;
-  min-height: 12.5rem;
+  min-height: 12rem;
   background: color-mix(in oklab, var(--mc-surface) 92%, transparent);
-  padding: 1rem;
-  transition: background-color 150ms ease, box-shadow 150ms ease;
+  padding: 1.15rem;
+  transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
   &:hover {
     background: var(--mc-elevated);
     box-shadow: inset 0 2px 0 var(--accent-cyan);
+    transform: translateY(-1px);
   }
+}
+
+@utility mc-card-sequence {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.75rem;
+  color: color-mix(in oklab, var(--mc-muted) 25%, transparent);
+  font-size: 10px;
+  line-height: 16px;
+}
+
+@utility mc-phase-rule {
+  width: 12px;
+  height: 1px;
+  background: currentColor;
+  color: var(--accent-cyan);
 }
 
 @utility mc-scan-card-hold {
@@ -377,16 +442,30 @@
 @utility mc-tone-amber { & .mc-stat-xl { color: var(--mc-amber); } }
 @utility mc-tone-red { & .mc-stat-xl { color: var(--atrisk); } }
 
+@utility mc-tone-green { & .mc-status-pip { color: var(--mc-signal-green); } }
+@utility mc-tone-amber { & .mc-status-pip { color: var(--mc-signal-amber); } }
+@utility mc-tone-red { & .mc-status-pip { color: var(--mc-signal-red); } }
+@utility mc-tone-cyan { & .mc-status-pip { color: var(--accent-cyan); } }
+
+@utility mc-scan-card-go { box-shadow: inset 2px 0 0 color-mix(in oklab, var(--ontrack) 64%, transparent); }
+@utility mc-scan-card-watch { box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-amber) 70%, transparent); }
+@utility mc-scan-card-hold { box-shadow: inset 2px 0 0 color-mix(in oklab, var(--atrisk) 70%, transparent); }
+@utility mc-scan-card-launched { box-shadow: inset 2px 0 0 color-mix(in oklab, var(--accent-cyan) 70%, transparent); }
+
 @media (min-width: 640px) {
   .mc-command-field { padding: 2rem; }
 }
 
 @media (min-width: 480px) {
   .mc-stat-block { border-right: 1px solid var(--mc-line); }
+  .mc-stat-block:nth-child(2n) { border-right: 0; }
+  .mc-stat-block:nth-last-child(-n + 2) { border-bottom: 0; }
 }
 
 @media (min-width: 1024px) {
   .mc-stat-block { border-bottom: 0; }
+  .mc-stat-block:nth-child(2n) { border-right: 1px solid var(--mc-line); }
+  .mc-stat-block:last-child { border-right: 0; }
 }
 
 /* Work surfaces: calm paper with a whisper of elevation, never glow. */

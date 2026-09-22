@@ -4,7 +4,7 @@ import { countdownView } from "@/components/launch-countdown";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 
-export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; mission: MissionRow | null }) {
+export function AcquisitionScanCard({ metric, mission, index }: { metric: AcqMetrics; mission: MissionRow | null; index: number }) {
   const view = countdownView(metric);
   const state = missionControlState(metric);
   const acquisitionTitle = String(metric.acq.title ?? "").trim();
@@ -19,9 +19,10 @@ export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; m
     <Link
       to="/files/$acquisitionId"
       params={{ acquisitionId: metric.acq.acquisition_id }}
-      className={cn("mc-scan-card group", view.mode === "hold" && "mc-scan-card-hold")}
+      className={cn("mc-scan-card group", `mc-scan-card-${state.toLowerCase()}`, view.mode === "hold" && "mc-scan-card-hold")}
       aria-label={`${title}, ${state}, ${view.caption}`}
     >
+      <span className="mc-card-sequence" aria-hidden="true" data-numeric>{String(index).padStart(2, "0")}</span>
       <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="line-clamp-2 text-[15px] leading-5 font-medium text-mc-foreground group-hover:text-accent-cyan">
@@ -34,7 +35,7 @@ export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; m
         <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
       </div>
 
-      <div className="mt-5 flex items-end justify-between gap-3">
+      <div className="mt-6 flex items-end justify-between gap-3">
         <div>
           {view.days === null ? (
             <p className="text-[20px] font-semibold text-mc-muted">{view.mode === "stopped" ? "Stopped" : "Not started"}</p>
@@ -49,7 +50,10 @@ export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; m
       </div>
 
       <div className="mt-4 border-t border-mc-line pt-3">
-        <p className="mc-label">{metric.currentPhase ?? "Not started"}</p>
+        <div className="flex items-center gap-2">
+          <span className="mc-phase-rule" aria-hidden="true" />
+          <p className="mc-label">{metric.currentPhase ?? "Not started"}</p>
+        </div>
         <p className="mt-1 truncate text-[12px] text-mc-muted" title={statusLine}>{statusLine}</p>
       </div>
     </Link>

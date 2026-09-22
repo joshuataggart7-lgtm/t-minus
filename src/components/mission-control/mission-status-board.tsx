@@ -23,20 +23,20 @@ export function MissionStatusBoard({ metrics }: { metrics: AcqMetrics[] }) {
 
   return (
     <section aria-labelledby="mission-status-heading">
-      <div className="mb-4 flex items-end justify-between gap-4">
+      <div className="mb-5 flex items-end justify-between gap-4">
         <div>
           <p className="mc-label">Portfolio state</p>
-          <h2 id="mission-status-heading" className="mt-1 text-[18px] font-medium text-mc-foreground">
-            Mission status board
+          <h2 id="mission-status-heading" className="mt-1 text-[22px] leading-7 font-medium text-mc-foreground">
+            Mission readiness
           </h2>
         </div>
-        <p className="text-[12px] text-mc-muted" data-numeric>{metrics.length} acquisition files</p>
+        <p className="mc-board-total" data-numeric><strong>{metrics.length}</strong><span>acquisition files</span></p>
       </div>
-      <div className="grid grid-cols-1 border-y border-mc-line min-[480px]:grid-cols-2 lg:grid-cols-4">
-        <McStatBlock label="GO" value={counts.GO} tone="green" />
-        <McStatBlock label="WATCH" value={counts.WATCH} tone="amber" />
-        <McStatBlock label="HOLD" value={counts.HOLD} tone="red" />
-        <McStatBlock label="LAUNCHED" value={counts.LAUNCHED} tone="cyan" />
+      <div className="grid grid-cols-2 border-y border-mc-line lg:grid-cols-4">
+        <McStatBlock label="GO" value={counts.GO} tone="green" index="01" />
+        <McStatBlock label="WATCH" value={counts.WATCH} tone="amber" index="02" />
+        <McStatBlock label="HOLD" value={counts.HOLD} tone="red" index="03" />
+        <McStatBlock label="LAUNCHED" value={counts.LAUNCHED} tone="cyan" index="04" />
       </div>
     </section>
   );

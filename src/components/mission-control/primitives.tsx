@@ -19,15 +19,23 @@ export function McStatBlock({
   label,
   value,
   tone = "cyan",
+  index,
 }: {
   label: string;
   value: number;
   tone?: "cyan" | "green" | "amber" | "red";
+  index?: string;
 }) {
   return (
     <div className={cn("mc-stat-block", `mc-tone-${tone}`)}>
-      <p className="mc-stat-xl" data-numeric>{value}</p>
-      <p className="mc-label">{label}</p>
+      <div className="flex items-start justify-between gap-4">
+        <p className="mc-stat-xl" data-numeric>{value}</p>
+        {index ? <span className="mc-stat-index" aria-hidden="true">{index}</span> : null}
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <span className="mc-status-pip" aria-hidden="true" />
+        <p className="mc-label">{label}</p>
+      </div>
     </div>
   );
 }
