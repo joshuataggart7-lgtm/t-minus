@@ -897,19 +897,19 @@ const blackoutNotice: TemplateDef = {
   tab: "039",
   layout: "memo",
   badge: {
-    citation: "FAR 15.201(f); NFS 1815.201(f)(i); NFS 1815.201(f)(ii); NFS 1815.370(a)",
+    citation: "FAR 15.101",
     tier: "binding",
     revision: "HQ 01/2025 revision",
     effective: "2025-01-01",
-    note: "Issued to NASA personnel when the solicitation is released to industry.",
+    note: "Issued to NASA personnel when the solicitation is released to industry. Process guidance: NFS CG 1815.11(i); NFS CG 1815.27(b).",
   },
   lead: "Notice to NASA personnel that communications with industry on this acquisition have stopped.",
   sections: [
     {
       id: "notice_header",
       title: "Notice",
-      citation: "NFS 1815.201(f)",
-      tier: "binding",
+      citation: "NFS CG 1815.11(i)",
+      tier: "guidance",
       fields: [
         { key: "to_line", label: "TO", kind: "readonly", default: "NASA Civil Servants" },
         X("program_office", "FROM: Office of Procurement and the program or project office this activity supports"),
@@ -921,7 +921,7 @@ const blackoutNotice: TemplateDef = {
     {
       id: "release",
       title: "Release to industry",
-      citation: "FAR 5.102",
+      citation: "FAR 15.101",
       tier: "binding",
       standingText:
         "The solicitation is located at the Governmentwide point of entry (GPE) (https://SAM.gov) and can be found by entering the solicitation number into the \u201ckeywords\u201d field.",
@@ -930,8 +930,8 @@ const blackoutNotice: TemplateDef = {
     {
       id: "blackout",
       title: "Blackout",
-      citation: "NFS 1815.201(f)(i)",
-      tier: "binding",
+      citation: "NFS CG 1815.11(i)",
+      tier: "guidance",
       standingText:
         "Effective immediately, all NASA personnel will cease communications with industry concerning this acquisition. This \u201cblackout\u201d period of communication with industry will continue through the receipt and evaluation of proposals, the award of the contract, and the release of the evaluation board from its responsibilities.\n\nNASA personnel shall refer anyone seeking information regarding this acquisition to the designated Contracting Officer identified below. Improper communication could jeopardize the integrity or successful completion of this acquisition. Therefore, compliance with the above will ensure the dissemination of uniform responses to all inquiries and eliminate the possibility of preferential treatment of any prospective offeror. This blackout notice is not intended to terminate all communication with offerors. The designated Contracting Officer should continue to provide information as long as it does not create an unfair competitive advantage or reveal proprietary data.\n\nNASA personnel who may be responsible for the administration of existing contracts or agreements that may be related to this acquisition shall, at all times, be fully aware of the extremely sensitive nature of this acquisition and maintain compliance with the blackout notice. While it is recognized that some NASA personnel have a need to communicate with prospective offerors relative to the conduct of current ongoing contract work, any communication is limited solely to existing contracts or agreements and shall not be expanded into matters relating to this acquisition. Under no circumstances shall this acquisition be discussed. It is important that all NASA personnel adhere to this notice to ensure that all offerors are treated fairly and impartially.",
       fields: [
@@ -942,8 +942,8 @@ const blackoutNotice: TemplateDef = {
     {
       id: "nasa_resources",
       title: "Permitted communications about NASA resources",
-      citation: "NFS 1815.201(f)(ii)",
-      tier: "binding",
+      citation: "NFS CG 1815.27(b)",
+      tier: "guidance",
       standingText:
         "These communications shall not include assistance in preparing the company's proposal, providing advice or opinions on the company's solution or approach for performing the work and/or discussion of any information regarding the competition or its technical requirements. In addition, Centers must firewall NASA personnel participating in communications regarding the availability of NASA resources to ensure those employees will not participate directly or indirectly in the evaluation of proposals on behalf of the Agency. The cooperation of the NASA workforce with this notice is appreciated.",
       fields: [
@@ -955,8 +955,8 @@ const blackoutNotice: TemplateDef = {
     {
       id: "signature",
       title: "Signature",
-      citation: "NFS 1815.201(f)",
-      tier: "binding",
+      citation: "NFS CG 1815.11(i)",
+      tier: "guidance",
       fields: [X("sig_name", "Name"), X("sig_title", "Position Title")],
     },
   ],
