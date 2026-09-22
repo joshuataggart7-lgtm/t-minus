@@ -2562,9 +2562,11 @@ function DocumentPage() {
                         .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
-                  } else if (def.key === "blackout-notice" && exportContext) {
+                  } else if (def.key === "blackout-notice") {
                     // The notice is written into the genuine HQ blackout master.
-                    if (!isBlackoutPath(exportContext)) {
+                    // Without the record in hand the method cannot be read, so
+                    // the honest refusal stands rather than a generic document.
+                    if (!exportContext || !isBlackoutPath(exportContext)) {
                       setMessage(BLACKOUT_UNAVAILABLE);
                     } else {
                       void generateBlackoutDocx(exportContext)
