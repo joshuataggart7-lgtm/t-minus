@@ -35,6 +35,7 @@ import {
 import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
 import { PhaseDistribution } from "@/components/mission-control/phase-distribution";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
+import { DaysReturned } from "@/components/mission-control/days-returned";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -192,20 +193,23 @@ export function ExecutiveOverview() {
         )}
       </section>
 
-      {computedAt ? (
-        <p className="-mt-6 mb-8 text-[13px] text-muted-foreground" data-numeric>
-          Computed at {computedAt}
-        </p>
-      ) : null}
+      <div className="mc-overview-environment mc-grid">
+        {computedAt ? (
+          <div className="mc-refresh-line" data-numeric>
+            <span className="mc-scan-pulse" aria-hidden="true" />
+            Portfolio scan refreshed {computedAt}
+          </div>
+        ) : null}
 
-      <div className="mb-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
-        <PhaseDistribution metrics={metrics} />
+        <div className="grid gap-px border-b border-mc-line bg-mc-line lg:grid-cols-[0.8fr_1.2fr]">
+          <PhaseDistribution metrics={metrics} />
+          <DaysReturned metrics={metrics} />
+        </div>
         <AttentionSeverityList metrics={metrics} missions={q.data?.missions ?? []} />
-      </div>
 
-      <WatchCard items={q.data?.watch ?? []} />
+        <div className="mc-watch-wrap"><WatchCard items={q.data?.watch ?? []} /></div>
 
-      <div role="tablist" aria-label="Overview detail" className="mb-6 flex gap-6 border-b border-border">
+      <div role="tablist" aria-label="Overview detail" className="mc-tabs">
         {(["acquisitions", "centers", "enterprise"] as const).map((t) => (
           <button
             key={t}
@@ -215,8 +219,8 @@ export function ExecutiveOverview() {
             onClick={() => setTab(t)}
             className={
               tab === t
-                ? "-mb-px border-b-2 border-primary px-1 pb-2 text-[15px] font-medium text-foreground"
-                : "-mb-px border-b-2 border-transparent px-1 pb-2 text-[15px] text-muted-foreground hover:text-foreground"
+                ? "mc-tab mc-tab-active"
+                : "mc-tab"
             }
           >
             {t === "acquisitions" ? "Acquisitions" : t === "centers" ? "Centers" : "Enterprise"}
@@ -245,6 +249,7 @@ export function ExecutiveOverview() {
       ) : (
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
       )}
+      </div>
     </AppShell>
   );
 }
@@ -447,16 +452,6 @@ function ClockBoard({
   );
   const launchedThisQuarter = launchedThisQuarterRows.length;
 
-  const daysReturned = useMemo(() => {
-    const map = new Map<string, number>();
-    let total = 0;
-    for (const m of launchedThisQuarterRows) {
-      const center = String(m.acq.center_code ?? "Unassigned");
-      map.set(center, (map.get(center) ?? 0) + m.timeSavedDays);
-      total += m.timeSavedDays;
-    }
-    return { byCenter: [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])), total };
-  }, [launchedThisQuarterRows]);
   const scrubbed = metrics.filter((m) => m.clockState === "scrubbed").length;
 
   const modTasksQ = useQuery({ queryKey: ["clause-mod-tasks"], queryFn: loadModTasks });
@@ -522,31 +517,6 @@ function ClockBoard({
           </div>
         ))}
       </div>
-
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Days returned to missions</h3>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        Method: planned days minus actual days across completed phases, summed over files launched this quarter, by Center.
-      </p>
-      {daysReturned.byCenter.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No file has launched this quarter.</p>
-      ) : (
-        <div className="mt-3 max-w-[70ch]">
-          <p className="text-[28px] leading-[34px] font-semibold" data-numeric>
-            {daysReturned.total}
-          </p>
-          <p className="mt-1 text-[13px] text-muted-foreground">Days returned to missions this quarter</p>
-          <ul className="mt-3 space-y-1 border-t border-border pt-3">
-            {daysReturned.byCenter.map(([center, days]) => (
-              <li key={center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
-                <span>{center}</span>
-                <span data-numeric>
-                  {Math.abs(days)} {days >= 0 ? "ahead of" : "behind"} plan
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Clause change mods, done against due</h3>
       <p className="mt-1 text-[13px] text-muted-foreground">
