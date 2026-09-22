@@ -1,3 +1,9 @@
+## ORBIT Phase 2 product-design north star — September 22, 2026
+
+- Raised the Executive Overview command surface toward a best-in-class commercial product standard while retaining the NASA Mission Control identity.
+- Improved hierarchy, status instrumentation, scan density, and interaction detail using only existing record-derived metrics.
+- Kept the change visual-only and confined to the Executive Overview; Soft Walk behavior, clocks, documents, fixtures, and meters remain unchanged.
+
 ## ORBIT Chunk 4 — Nova
 
 - Renamed the visible cited-draft assistant to Nova without changing the cite-or-refuse answer path.
