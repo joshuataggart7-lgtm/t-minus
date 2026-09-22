@@ -5,6 +5,12 @@
 - Nova panels name their workspace, file, document, or row scope; show sources; and state that drafts are not written to the record.
 - Nova has no automatic opening, avatar, animation, microphone, speech, or record mutation. Orby remains a separate hidden easter egg.
 
+## ORBIT Phase 2 — Executive Overview Mission Control POC
+
+- Replaced the Executive Overview's single SaaS-style clock band with a near-black mission-control scanning field: a GO / WATCH / HOLD / LAUNCHED status board, mission-first acquisition scans, and compact countdown faces.
+- Extracted the new visual composition into `src/components/mission-control/` with reusable panel, stat, and bar primitives. Phase distribution and leadership attention now read as visual rows rather than long callout prose.
+- Every displayed state, countdown, phase, blocker, owner, and next action still comes from the existing `computeMetrics` and `countdownView` results. Queries, clock math, tabs, records, roles, forms, exports, and Soft Walk paths were not changed.
+
 # T-Minus build notes
 
 - Soft SEB / briefing polish: the Evaluation cockpit and exported briefing book now share one Board readiness summary for L↔M findings, clarifications, and evaluation-factor evidence. Empty states are brief and honest; all results remain advisory and never hold a file or phase exit. Sample records, clocks, seeds, external-write boundaries, and form export paths were unchanged.
