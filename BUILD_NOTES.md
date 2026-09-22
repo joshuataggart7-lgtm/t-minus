@@ -2789,3 +2789,5 @@ solicitation path. Fixture `A-2027-0121` is reused without changing its record.
 Export Word writes `blackout-{acquisitionId}.docx`. The Word face uses only the
 HQ references FAR 15.101, NFS CG 1815.11(i), NFS CG 1815.27(b), and NASA Source
 Selection Guide §3.24. This closes Soft Walk P1 OP Word-master row 6. No meter change.
+
+- Soft Walk Blackout r1: live `/documents/blackout-notice/{id}` now gates on `isBlackoutPath` with the exact refusal sentence and no download on Samples 1 and 2; Word export is always `blackout-{id}.docx` from BLACKOUT_MASTER; prepared date reads the America/Chicago calendar date; UI citations reconciled to the HQ face (FAR 15.101; NFS CG 1815.11(i); NFS CG 1815.27(b)). Fixture A-2027-0121. No meter change.

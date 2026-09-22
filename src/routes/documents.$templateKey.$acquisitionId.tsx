@@ -98,7 +98,7 @@ import {
 } from "@/lib/option-exercise-docx";
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
 import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
-import { generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
+import { BLACKOUT_UNAVAILABLE, generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
 import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
@@ -1423,7 +1423,9 @@ function DocumentPage() {
     technicalRepresentativeName: technicalRepresentative(q.data.acq as Record<string, unknown>),
     centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
     centerAddress: q.data.center?.address_line ?? "",
-    preparedDate: new Date(`${todayISO()}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" }),
+    // The prepared date is the Center working calendar date, read in Central
+    // time, so a late-evening export never prints tomorrow from UTC.
+    preparedDate: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "America/Chicago" }),
     organizationCode: String(q.data.acq["co_code"] ?? q.data.acq["requester_org_code"] ?? q.data.acq["branch_code"] ?? q.data.acq["org_code"] ?? ""),
     additionalApprovalRequired: Boolean(signature && signature.blocks.length > 2),
     researchLog: q.data.researchLog,
@@ -1824,14 +1826,12 @@ function DocumentPage() {
   if (def.key === "blackout-notice" && exportContext && !isBlackoutPath(exportContext)) {
     return (
       <AppShell>
-        <PageHeader
-          title="Blackout notice not applicable"
-          lead={`${acquisitionId} · this record is not on a competed Part 15 final-solicitation blackout path.`}
-        />
-        <p className="max-w-[80ch] text-[15px] leading-[22px]">
+        <PageHeader title="Blackout notice not applicable" lead={acquisitionId} />
+        <p className="max-w-[80ch] text-[15px] leading-[22px]">{BLACKOUT_UNAVAILABLE}</p>
+        <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px]">
           The HQ blackout notice is issued when a final RFP or solicitation is released for a competitive
-          acquisition. It is not applicable for this commercial or simplified acquisition. Record the competed
-          Part 15 final-solicitation path before opening or exporting this notice.
+          acquisition. Record the competed Part 15 final-solicitation path before opening or exporting this
+          notice.
         </p>
         <p className="mt-6">
           <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
@@ -2562,12 +2562,12 @@ function DocumentPage() {
                         .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
-                  } else if (def.key === "blackout-notice" && exportContext) {
+                  } else if (def.key === "blackout-notice") {
                     // The notice is written into the genuine HQ blackout master.
-                    if (!isBlackoutPath(exportContext)) {
-                      setMessage(
-                        "This file does not record a competed Part 15 final-solicitation blackout path, so the notice was not written. Commercial and simplified acquisitions do not use this face.",
-                      );
+                    // Without the record in hand the method cannot be read, so
+                    // the honest refusal stands rather than a generic document.
+                    if (!exportContext || !isBlackoutPath(exportContext)) {
+                      setMessage(BLACKOUT_UNAVAILABLE);
                     } else {
                       void generateBlackoutDocx(exportContext)
                         .then((bytes) => downloadDocxBytes(bytes, `blackout-${acquisitionId}.docx`))

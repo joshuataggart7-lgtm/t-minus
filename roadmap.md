@@ -45,3 +45,5 @@
 - Soft Walk P1-4 Fair Opportunity Exception (Brand Name) Word export landed: HQ master, method gate, signature ladder, fixture A-2027-0123.
 - Soft Walk P1-5 — UCA / Letter Contract Justification wired to the HQ master with fixture A-2027-0124. Done.
 - [x] Soft Walk P1-6 — Blackout Notice wired to the HQ master using competed Part 15 fixture A-2027-0121; final P1 OP Word-master row closed.
+
+- [x] Soft Walk Blackout r1 remediation — route gate, exact refusal, CT date, HQ-face citations (A-2027-0121)
