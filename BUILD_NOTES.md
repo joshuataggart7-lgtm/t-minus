@@ -35,7 +35,6 @@
 - The Word path is limited to negotiated or sealed bid solicitation records. Commercial and simplified files — including Soft Walk Samples 1 and 2 — show an honest refusal.
 - `A-2027-0121` (contracting officer Joshua Taggart) carries the proof. `A-2027-0103` keeps its own recorded officer, J. Rivera, and is never relabelled.
 
-
 ## B1. Foundation
 
 Decisions taken where the specification left room, kept to the simplest option
@@ -74,23 +73,23 @@ that preserves the demo path.
 
 ### Verified seed counts
 
-| Table | Source rows | Loaded | Notes |
-|-------|------------|--------|-------|
-| users | 5 | 5 | Seeded Auth users |
-| centers | 4 | 4 | |
-| branches | 8 | 8 | |
-| missions | 5 | 5 | |
-| acquisition_facts | 12 | 12 | |
-| thresholds | 27 | 27 | |
-| phase_plan | 25 | 25 | |
-| review_rules | 14 | 14 | |
-| enterprise_strategies | 28 | 28 | |
-| regulatory_refs | 62 | 62 | Spec said 63; source CSV has 62 data rows |
-| templates | 98 | 98 | |
-| clauses | 1,359 | 1,359 | Surrogate `row_id` primary key; `clause_number` indexed, non-unique |
-| clause_matrix_2603b | 819 | 819 | |
-| nfs_clause_matrix | 125 | 125 | |
-| nf1707_fields | 271 | 271 | |
+| Table                 | Source rows | Loaded | Notes                                                               |
+| --------------------- | ----------- | ------ | ------------------------------------------------------------------- |
+| users                 | 5           | 5      | Seeded Auth users                                                   |
+| centers               | 4           | 4      |                                                                     |
+| branches              | 8           | 8      |                                                                     |
+| missions              | 5           | 5      |                                                                     |
+| acquisition_facts     | 12          | 12     |                                                                     |
+| thresholds            | 27          | 27     |                                                                     |
+| phase_plan            | 25          | 25     |                                                                     |
+| review_rules          | 14          | 14     |                                                                     |
+| enterprise_strategies | 28          | 28     |                                                                     |
+| regulatory_refs       | 62          | 62     | Spec said 63; source CSV has 62 data rows                           |
+| templates             | 98          | 98     |                                                                     |
+| clauses               | 1,359       | 1,359  | Surrogate `row_id` primary key; `clause_number` indexed, non-unique |
+| clause_matrix_2603b   | 819         | 819    |                                                                     |
+| nfs_clause_matrix     | 125         | 125    |                                                                     |
+| nf1707_fields         | 271         | 271    |                                                                     |
 
 ### Known deviations
 
@@ -154,16 +153,17 @@ that preserves the demo path.
   callout; the seed value was restored afterwards.
 
 ## B8. Work Queue (execution)
+
 - `src/routes/work-queue.tsx` is a five-column board (Ready, In progress, Blocked, Awaiting Go/No-go, Launched) plus a list toggle over the same computed data.
 - Column is derived, never dragged: launched -> Launched, hold -> Blocked, any pending poll -> Awaiting Go/No-go, started -> In progress, otherwise Ready. Scrubbed files are not shown.
 - Card fields: title, mission, owner (co_name), current phase, next task, dependency (hold reason/owner or pending reviewer), days in phase, days to award, status word.
 - Filters: mine, my branch, my Center, by mission. Seeded users carry a Center but no branch, so "My branch" reads the branch of the files the signed-in person owns; recorded here as the simplest choice that keeps the demo path working.
 - Verified as the specialist: A-2027-0101 sits in Blocked with the missing IGCE as the dependency; putting A-2027-0102 on hold moved it to Blocked with the hold reason and owner, and the record was restored afterwards.
 
-
 ## B9. Accessibility and polish
 
 Accessibility
+
 - Skip link ("Skip to main content") as the first tab stop on every page; `<main id="main-content" tabIndex={-1}>` receives focus when it is used.
 - Global `:focus-visible` ring (2px NASA blue, 2px offset) confirmed on all focusable elements; a scripted pass over every focusable control found none without a visible ring.
 - Collapsed left rail now keeps the full label for screen readers (`sr-only`) behind the visible single letter.
@@ -176,6 +176,7 @@ Accessibility
 - Keyboard-only pass along the demo path: skip link → rail → role toggle → filters → file → poll controls, all reachable and operable.
 
 Polish
+
 - Loading, error, and empty states standardised through `LoadingNote`, `ErrorNote`, and `EmptyState`. Every error names the next step (refresh, clear the filters, check Seed status). Every empty state is one sentence and one action (Clear the filters, Show everything, Start an intake).
 - Consistent page padding (16px on small screens, 32px from `sm` up) on main and footer; header wraps instead of overflowing.
 - Executive Overview mission rows collapse to two columns from `sm` and to the full five-column clock from `lg`; checked at 834x1112 with no horizontal overflow.
@@ -502,6 +503,7 @@ fields filled and the badge showing the HQ effective date.
   counts.
 
 ## E14. NF 1098 file index
+
 - `src/lib/file-index.ts` builds the contract file index from saved documents, keyed on each template's NF 1098 tab.
 - Required tabs are derived, not hard-coded: core tabbed records (JOFOC 015, Technical Evaluation Report 054, PNM 065, COR appointment 074, CPARS input 099) whose phase appears in the acquisition type's phase plan sequence.
 - The index appears on every acquisition file (tabs present with version counts, then required tabs with no document) and in the NEAR export index page.
@@ -623,6 +625,7 @@ to the award date. The page is labelled as fictional prototype data and carries
 the prototype footer.
 
 ## E25. Center scoreboard
+
 A Centers tab on the Executive Overview (`src/components/centers-tab.tsx`). All figures are
 computed from the files: lead time by phase by Center from recorded phase actuals against the
 phase plan, holds by reason by Center from each file's hold reason, template currency (a saved
@@ -632,6 +635,7 @@ time" rather than an invented figure. Verified: ARC, GSFC, JSC and MSFC show com
 KSC has no files loaded.
 
 ## E24. Set-aside evidence assistant
+
 Verified on A-2027-0101: SAM.gov returned live entities for NAICS 481219 in CA; the SBA size
 status is read from `assertions.goodsAndServices.naicsList[].sbaSmallBusiness` ("Y" small,
 "E" small under a NAICS exception, "N" other than small). Nine small businesses found, Rule of
@@ -639,6 +643,7 @@ Two met (FAR 19.502-2). The subaward endpoint returned 404, so labelled fictiona
 shown. Test rows were removed after the check.
 
 ## E26. Teams bot (production path)
+
 - Added a card on the Executive Overview Enterprise tab describing the production Microsoft Teams bot as planned (not built).
 - The card includes a description of the production behavior (mention bot with a PR number, answers with clock line/status/owner/file link, reads the same role-based data as the Overview, nothing stored in Teams) and a mock transcript using sample acquisition A-2027-0101 (PR 4200999101).
 - Marked with a "Planned" badge.
@@ -660,6 +665,7 @@ The About page reads this list at build time. Keep the format
 `- status | name | one line`, where status is live, next, planned, or not built.
 
 <!-- feature-status:start -->
+
 - live | Executive Overview (Mission Clock) | Priority projects, statuses, blockers, callouts, Centers and Enterprise tabs.
 - live | Work Queue | Five-column board and list view for the team, with filters.
 - live | Intake (NF 1707) | The form, validation, red flags, the estimate, and Start the clock.
@@ -677,6 +683,7 @@ The About page reads this list at build time. Keep the format
 - planned | NCMS write-back | Sending the handoff packet into NCMS rather than downloading it.
 - not built | Solicitation and contract authoring | NCMS remains the document of record (NFS CG 1804.11).
 - not built | Payments, invoicing, and property | Handled by the systems of record.
+
 <!-- feature-status:end -->
 
 ## E28. About page, sources, build stamp, feedback
@@ -1074,6 +1081,7 @@ Shipped in one chunk on top of D1+D2. No seed changes to A-2027-0101 or A-2027-0
 Accuracy pass on the D3–D5 scaffolds plus a two-page briefing book extension. No seed changes to A-2027-0101 or A-2027-0102, no new holds, D1/D2 sanitize rules untouched.
 
 Shipped
+
 - `src/lib/format-scaffold.ts` now reads sole source through the shared `isSoleSourceRecord` helper instead of its own regex, so the scaffold agrees with the memo, NF 1787 and research paths.
 - CLIN 0001 no longer invents a quantity or unit of issue ("1 Lot"/"Each"); it carries the record's description and estimated value and says the officer sets quantity, unit and price. The IGCE placeholder line is unchanged and still labelled.
 - The SF 1449 "Delivery/acceptance" block only claims the statement of work carries it when a SOW is on the file; otherwise it reads "Not recorded".
@@ -1088,13 +1096,16 @@ Deferred: order-specific IDIQ/BPA writing screens, SEB suite / slide theater, SA
 ## 16 Sep 2026 — Offered rows verified non-binding, research fix confirmed live, gate evidence from documents
 
 Offered (optional) rows
+
 - Audited every path that could make an offered row behave like a required one: the hero next action, the blocker on the metrics record, the hold cause, the phase-completion test that decides the current phase, the exit gate, and the exit dialog's missing list. All six already skip `optional` rows, so no behaviour change was needed; this round is the verification that closes the roadmap item rather than new code.
 - Verified in the demo: A-2027-0101 shows two Offered rows and its blocker is the required price negotiation memorandum, not an offered row; A-2027-0102 shows two Offered rows and reads "Ready to exit Solicitation/Quote". Neither file gained a hold, and the No-go hold path on Sample 2 is untouched.
 
 Market research persistence
+
 - Confirmed the shipped fix is live rather than re-opening the architecture: the latest A-2027-0101 run (16 Sep 2026) carries ten log rows including "GSA CALC+ ceiling labour rates", alongside the SAM entity, SAM opportunities, SBA size standard, prior-actions and USAspending sources. Earlier runs retain their logs. No residual display bug was found, so nothing was changed.
 
 Companion gate evidence
+
 - `src/lib/companion-gates.ts`: gates that have a document of their own now read a saved or attached copy as evidence, the same way a recorded vote is. Notification of procurement action reads `npa-notification`, ANOSCA reads `anosca`, and the procurement strategy meeting reads the signature page, addendum, executive presentation or written acquisition plan. Gates without a document of their own (CIO/IT, Section 508, aviation safety) still read only the poll. Gates remain a checklist and still never place a hold.
 
 Deferred: the fuller validated phase exit with linked requirements and audit beyond the offered-row rule, the confirmation-dialog rewrite, order-specific IDIQ/BPA screens, the SEB suite, SAM Awards entitlement, FOUO hierarchy, and the open security finding.
@@ -1127,6 +1138,7 @@ Verification: TypeScript clean; both samples walked in demo mode with no console
 ## 16 Sep 2026 — FPDS filling sheet (fill aid)
 
 Shipped
+
 - New helper `src/lib/fpds-filling-sheet.ts` builds an FPDS field list from
   `acquisition_facts` only: document identity (PIID, parent IDV, PR, title),
   vendor (legal name, UEI, CAGE), classification (PSC with its note, NAICS,
@@ -1146,6 +1158,7 @@ Shipped
 - Audit entry "FPDS filling sheet exported" with recorded/confirm/blank counts.
 
 Not claimed / deferred
+
 - No FPDS connection or submission, no NCMS write-back, no FedRAMP, no real
   SAM publish. NCMS stays the peer system for the award document; the binding
   citation remains NFS 1804.171.
@@ -1154,6 +1167,7 @@ Not claimed / deferred
 - Deferred: PDF-native output, FPDS-NG code validation, obligation tracking.
 
 Verified
+
 - Sample 2 (A-2027-0102): 24 recorded, 2 to confirm, 3 blank — vendor name,
   UEI DEMOMFS00001 and CAGE DEMO1 all read from the record.
 - Sample 1 (A-2027-0101): 19 recorded, 0 to confirm, 10 blank — vendor, PIID,
@@ -1166,6 +1180,7 @@ live FPDS / real SAM publish. RFO citation fixes (NFS 1804.171, FAR 12.204(a),
 52.212-5 blocked, 52.212-3 not packed, Part 12 framing on Sample 1) untouched.
 
 Rewritten (`src/lib/memo-draft.ts`, `src/lib/explain.ts`):
+
 - Saved versions: a save with no recorded version number now reads "A new
   version of the X was saved on <date> by <person>" instead of "saved as version
   not recorded".
@@ -1180,6 +1195,7 @@ Rewritten (`src/lib/memo-draft.ts`, `src/lib/explain.ts`):
   seats get their own sentence. Banner reason text itself is unchanged.
 
 Verified on A-2027-0101 and A-2027-0102 (demo mode, 1440px, no console errors):
+
 - Both files load clean; A-0101 shows the PNM as the current blocker, A-0102
   shows "Ready to exit Solicitation/Quote". Neither is on hold.
 - Validated exit refusal list, exit audit of completed requirements, and the
@@ -1205,6 +1221,7 @@ Authoritative stack: FAR as overhauled (RFO), interim NFS carrying PCD 26-03B
 process/guidance only, active PIC/PN/PCD overlays.
 
 Fixes in this chunk:
+
 - Technical evaluation gate (`src/lib/companion-gates.ts`) no longer cites
   "NFS CG 1815.3". It now cites FAR 13.106-2 for the evaluation itself and
   NFS CG 1815.45(b) labelled as guidance (Companion Guide process for the
@@ -1274,16 +1291,19 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
   FAR 13.106-3(d) on the commercial simplified file. No vendors invented.
 
 ## P0.2 — PNM reference and export cleanliness (16 Sep 2026)
+
 - PNM reference line and visible citation badge on simplified files read RFO FAR 12.204(a); FAR 13.106-3(b)(3), seeded from the record's acquisition method and contract format. Genuine Part 15 files still route to FAR 15.406-3.
 - Exported PNM / Word / PDF / NF 1858 text strips the literal "Draft, confirm." flags; the on-screen "Drafted from the record — confirm." hints remain.
 - Verified on A-2027-0101 and A-2027-0102 PNM routes; no console errors.
 
 ## P0.4 IDIQ clause note (16 Sep 2026)
+
 - A-2026-0090 / orders under IDIQ: full vehicle clause reconciliation deferred as risky this turn.
 - Instead the Solicitation/Quote and Award clause packet on IDIQ parent and order files shows a calm on-screen note: "Demo note: clause reconciliation for this IDIQ vehicle is not complete. Don't open the clause delta on this file during the walkthrough."
 - Sample 1/2 seeds untouched; no new holds; no NCMS/FedRAMP/live FPDS claims.
 
 ## Tier-1 #3 Sample 1 postaward letters (16 Sep 2026)
+
 - A-2027-0101 postaward letters are drawn from the saved evaluation of quotations, never invented.
   - Successful: CORSAIR AVIATION, LLC, award amount $1,385,000 (recommended quoter / recommended price).
   - Unsuccessful: one letter per unsuccessful quoter — STRATEGIC AVIATION LLC (UEI SK4DHMRD7M13, $1,462,000, Acceptable) and SCIFLY, LLC (UEI R7LBZTAG8N98, $1,521,500, Acceptable).
@@ -1309,6 +1329,7 @@ Verify: sign in, open `/files/A-2027-0101` or `/files/A-2027-0102`, expand the
 launch sequence and click "Why this row" / "Why?" on any row.
 
 ## 2026-09-16 — Tier-1 #5 file story line
+
 - `fileStory` in `src/lib/explain.ts` renders one calm sentence under the file
   header, assembled from recorded facts (acquisition type words, mission name
   and milestone date, current phase/state) — the same facts the audit trail
@@ -1485,6 +1506,7 @@ inferred and no external system is written.
   is redirected to their own desk. Administrator sees all desks.
 
 Click paths (Try the demo, then the role toggle in the header):
+
 - Requester: role toggle → Requester → left rail → Requester portal.
 - Reviewer: role toggle → Reviewer → left rail → Reviewer inbox →
   Vote on this review → Go or No-go with a note.
@@ -1497,6 +1519,7 @@ SF30 clause delta. No seed facts were rewritten, no holds added and no
 NCMS, SAM, FPDS or email write was introduced.
 
 ## UX Presenter declutter (CoS green light)
+
 - When Presenter mode is ON, AnnouncementBanner is not rendered in the header (bell control and urgent portal both hidden); urgent-announcement-slot stays empty so no "Urgent: ..." line appears under the header. Non-Presenter behavior unchanged.
 - Click path: Admin toggle Presenter on -> no bell/urgent banner under header; Presenter off -> banner and urgent line work as before.
 
@@ -1690,6 +1713,7 @@ the requester LOE/WBS ask, the hidden A-2026-0090 clause delta, and Sample 1/2
 evaluation and UEI facts.
 
 ## AC-W4-CLIN — editable schedule of line items (Wave 4 P0 #1)
+
 - New table `acquisition_clins` (line item number, description, optional quantity/unit/unit price/amount, source, sort order). Read by anyone signed in; specialists add, edit and remove. Audit log records "CLIN added", "CLIN edited" and "CLIN deleted".
 - New `src/lib/clin-schedule.ts`: load, seed-once from `igce_clins` when the schedule is empty (never overwrites an existing schedule), CRUD with audit entries, and `scheduleToScaffoldClins` for the scaffold and packet.
 - `buildFormatScaffold` no longer invents CLIN 0001 or an IGCE placeholder 0002. It takes the schedule; an empty schedule prints as empty with an honest line.
@@ -1726,6 +1750,7 @@ evaluation and UEI facts.
   Sample 3 path) instead of `FAR 15.101-2`; Part 12/13 LPTA cite stays `FAR 13.106-2(b)`.
 
 ## AC-W4-ATTACH-J — Section J is the list of attachments (Wave 4 P0)
+
 - New `src/lib/section-j.ts`: `attachmentsForSectionJ` orders the file's real `document_attachments` rows by NF 1098 tab, then label, then when they were attached; blank tabs read "—". Empty list wording is "None attached." — never clause wording.
 - New `SectionJPanel` on the file page in Solicitation/quote and Award, visible without opening the scaffold. Columns: NF 1098 tab | Label | File name. Title reads "Attachments for the handoff" on SF 1449 files, "Section J — List of attachments" on UCF files.
 - Format scaffold carries `attachments`; the scaffold panel prints the same table, and the UCF A–M table's Section J cell now summarises the attachments ("N files on the record; see the list of attachments below.") and only mentions clauses separately as "Clauses placed in Section J by the matrices" when the matrices actually placed any.
@@ -1734,6 +1759,7 @@ evaluation and UEI facts.
 - AC-W4-CDRL deferred: not shipped this turn.
 
 ## AC-W4-CDRL — CDRL / data requirements (Wave 4)
+
 - New table `acquisition_cdrl`: item number, title, frequency, as-of, distribution, DRD reference, note, order. Signed-in users read; specialists, officers and administrators write. RLS mirrors `acquisition_clins`.
 - New `CdrlPanel` sits immediately under the Section J attachments panel on Solicitation/quote and Award, visually distinct (tinted block, heading "CDRL / data requirements"). Add, edit and delete with the specialist write gate; blanks print "Not recorded".
 - Empty state reads "No CDRL items on this file." — never clause wording. Section J attachments list is untouched.
@@ -1742,6 +1768,7 @@ evaluation and UEI facts.
 - Samples 1 and 2 (A-2027-0101, A-2027-0102) have no CDRL rows: nothing seeded, no deliverables, DRD text or citations invented anywhere. No clock or hold change, no NCMS write-back.
 
 ## AC-W4-AWARD — Award handoff view (Wave 4)
+
 - New `AwardHandoffPanel` on the Solicitation/quote and Award phases, sitting between the format scaffold and the "Download the handoff packet" link. Collapsed by default on Solicitation/quote, open by default on Award.
 - Assembles, in the same order as the local NCMS handoff packet, from the existing sources only: (1) SF 1449 blocks or UCF cover blocks with the format source and method label, (2) line items from `acquisition_clins`, (3) Sections L and M from `solicitation_l` / `solicitation_m` / `solicitation_m_factors` with the sole-source suppression already in place, (4) the ordered clause selection with each reason and matrix fill-in, (5) Section J attachments from `document_attachments`, (6) CDRL rows from `acquisition_cdrl`, (7) an unsigned signature block.
 - Nothing is invented: empty schedule, attachments and CDRL print their honest empty wording; signature rows read "Signed in NCMS" and carry no name or date. Chip on the panel: NCMS is the system of record, T-Minus does not write to NCMS.
@@ -1750,6 +1777,7 @@ evaluation and UEI facts.
 - Verify: Files → A-2027-0101 → Award → Award handoff → Open the Award handoff; compare with Download the handoff packet.
 
 ## AC-W4-PAY — payment milestones tied to CLINs
+
 - New table `payment_milestones` (event required; due_logic, clin_id/clin_number, amount, percent, notes, sort_order optional). RLS mirrors `acquisition_clins`: authenticated read, specialist/administrator write. Origin + updated_at triggers.
 - `src/lib/payment-milestones.ts`: load/create/update/delete, blank fields print "Not recorded", rows with neither amount nor percent are flagged "Neither an amount nor a percentage is recorded."
 - `PaymentMilestonesPanel` sits above the CDRL panel on the solicitation/quote and award area; CLIN picker offers only line items already on the schedule — no CLIN is invented.
@@ -1759,6 +1787,7 @@ evaluation and UEI facts.
 - Verify: Files → A-2027-0101 → Documents/handoff area → Payment milestones; Open the Award handoff → Payment milestones section.
 
 ## WALK 99 P1 — identity, portal redirect, reviewer hero doc
+
 - `t-minus-seed/acquisitions.json`: `co_name` = Joshua Taggart on A-2027-0101 and A-2027-0102 only. Rivera unchanged on 0090/0104 and the rest. No phase, clock_state, hold, or requester change.
 - `src/routes/requester-portal.tsx` (new): `/requester-portal` redirects to `/requester`. The working route is unchanged.
 - `src/routes/today.tsx`: administrator with no CO-owned files and no files at their Center now sees all prototype files, with a muted note; owner of record stays visible on each row.
@@ -1784,7 +1813,7 @@ evaluation and UEI facts.
   single mission. A-2026-0090 reads as a parent vehicle that orders are placed
   against; child orders keep their mission support line.
 - `t-minus-seed/acquisitions.json`: A-2026-0090 only — `commercial_determination:
-  "commercial service"`, matching the vehicle panel. Samples 1 and 2 untouched.
+"commercial service"`, matching the vehicle panel. Samples 1 and 2 untouched.
 - `src/routes/files_.$acquisitionId.tsx`: the FAR 52.212-5 Reserved note now
   shows on every simplified commercial file regardless of phase, above the launch
   sequence. Sample 1 shows it at Price Reasonableness. The note inside the NCMS
@@ -1809,6 +1838,7 @@ evaluation and UEI facts.
 - No NCMS write-back, no FedRAMP claim, no live FPDS. Sample 1 and Sample 2 facts untouched; A-2026-0090 clause delta stays hidden. SF 18 and Wave 5 SEB out of scope. Security findings still deferred.
 
 ## AC-W5-SEB (Wave 5 tranche 1) — advisory SEB cockpit
+
 - New `src/lib/lm-consistency.ts`: `lmConsistencyCheck({shell,l,m,factors})` returns `{status,findings}`. Soft reads only — LPTA vs best-value wording mismatch between L and M, best-value with no factors recorded, competitive L/M content on a sole-source shell. Never gates phase exit, hold, clock or required docs. Empty L/M stays quiet ("L and M look consistent on the record").
 - New `clarifications` table (acquisition_id, sent_on, topic, recipients, notes) + `src/lib/clarifications.ts`. Read for signed-in; insert/update/delete for specialist/administrator, matching CDRL policy pattern. Audit entries are insert-only. No traffic seeded — Sample 1/2 are empty with "No clarifications recorded on this file."
 - `solicitation_m_factors.evidence_note` (nullable text) added; `FactorRow`/`FactorInput` extended, `saveFactorEvidence` writes only that column with an audit line. Soft warn text: "Advisory: no evidence linked to this factor yet — does not hold the file."
@@ -1849,6 +1879,7 @@ evaluation and UEI facts.
 ## Wave 6 — pilot harden + regulation change banner stub
 
 Pilot harden (smoke first, code only where something was actually wrong):
+
 - Signed-in browser pass over A-2027-0101, A-2027-0102, /requester, /today,
   /reviewer-inbox, /clause-changes and /forms/sf-1449/A-2027-0101. No console or
   page errors on any of them. Sample 1 and Sample 2 both still read
@@ -1868,6 +1899,7 @@ Pilot harden (smoke first, code only where something was actually wrong):
   the reviewer inbox fallback to open polls.
 
 Regulation change banner stub (`src/components/clause-change-banner.tsx`):
+
 - Reads only open rows from clause_mod_tasks for that acquisition_id. Zero open
   rows renders nothing at all; loading and error states render nothing.
 - One line naming the count and up to three clause numbers with their change kind,
@@ -1900,6 +1932,7 @@ receipts, Award handoff) at Price Reasonableness; Sample 2 unchanged.
 ## UX — Mission Clock craft
 
 Visual-only polish of the Overview Mission Clock navy band:
+
 - Status words now render in sentence case on the navy band and the quiet
   status summary below it ("At risk", "On track", "Needs attention",
   "Launched"). Color+word pairing and StatusMark/statusColor are unchanged.
@@ -1909,22 +1942,26 @@ Visual-only polish of the Overview Mission Clock navy band:
   py-5 to py-6 (first/last trimmed) for a bit more gap between the five rows.
   Day figures unchanged at ~48/600 feel. Navy stays the one bold element;
   no seals, rockets, or chrome added.
-No logic changes: urgency ranking, metrics, clocks, holds, and Walk paths are
-untouched. Samples unchanged (Joshua Taggart, running); factory panels stay
-visible at Price Reasonableness. Verified via signed-in browser on the Overview.
+  No logic changes: urgency ranking, metrics, clocks, holds, and Walk paths are
+  untouched. Samples unchanged (Joshua Taggart, running); factory panels stay
+  visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 
 ## Walk polish — desk demo fixtures
+
 - Today desk: after CO-owned matching, a signed-in requester sees files where they are the requester of record, labelled "Showing files where you are the requester of record." Marsh → Sample 1 only. Specialist/Admin paths unchanged; Joshua Taggart stays CO.
 - Reviewer inbox: all-pending fallback copy softened ("No open review names you as the reviewer of record … listed for the walk. The reviewer of record on each row is shown beside it. The hero document still follows that office."). No poll seeds rewritten; heroDocForReviewer and read-receipts unchanged.
 - Requester portal own-file match for Dr. Elena Marsh (fictional) → A-2027-0101 verified as already correct; no seed or record changes. Advisories remain non-gating.
 
 ## UX — panel-muted contrast bump
+
 - src/styles.css `--panel-muted` `#ccd6f0` → `#dce4f7` for clearer secondary lines on navy `#0f2a5b`, still calm. Visual only; no logic, Walk, or Sample changes.
 
 ## Innovator leftover #4 — peer-link strip polish
+
 - `src/routes/files_.$acquisitionId.tsx` Related actions section: `aria-label` "Peer systems" + quiet "Peer systems" lead in muted 13px; NCMS button label "NCMS packet (local — planned write-back)"; footer honesty line "NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov." NEAR export, Checks link, last-check stamp kept. Strip not hidden in Presenter mode. Walk, Samples, holds, clocks unchanged.
 
 ## Presenter screens-you'd-open beat card (2026-09-16)
+
 - New `PresenterScreensBeat` mounted at main content start in AppShell; visible only in Presenter mode, dismissible, calm border card.
 - Copy names NCMS · NEAR · email · spreadsheet vs one T-Minus file; honesty footer: local packet only, T-Minus writes nothing to NCMS, NEAR, or SAM.gov. No write-back claim; Peer systems strip untouched.
 - Dismiss remembered via sessionStorage `tminus-presenter-screens-beat`; resets on Presenter OFF→ON so each demo pass shows the beat again.
@@ -1960,20 +1997,24 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - These notes never hold a file or block a phase exit; Samples 0101/0102 keep zero payment rows and an honest empty state with a soft CLIN-schedule hint.
 
 ## Wave 4 depth #2 — Award handoff polish (2026-09-16)
+
 - Soft readiness strip on open: cover "K of N not recorded", schedule/attachments/CDRL/payment counts or honest empties, "Signatures: blank on purpose — signed in NCMS"; advisory only, never holds or gates.
 - Honest human Adobe Reader field-check sentence beside the suggested-form link; blank XFA in Chrome/PDF.js expected; no Adobe-verified or Roger-ready claim. NCMS chip kept; no invented rows, no clock/seed changes.
 
 ## Wave 4 P1 pair — IDIQ order scaffold + situation memo
+
 - Order profiles (order_under_idiq / fss_order) now show an order scaffold: parent contract number or "Not recorded", fair opportunity or recorded exception with FAR 16.505(b) cite (never invented), format/method from the record, a soft "not a stand-alone Part 15 award" chip, and a note that order line items are order specific and the parent ceiling is never an order CLIN. Advisory only; no clause delta surfaced, 0090 delta stays hidden.
 - New `src/lib/situation-memo.ts` + `SituationMemoPanel` on the file page: five fixed events, memo shell from record facts only (id, title, CO, center, phase, vendor), blank narrative lines, RFO-pending citation placeholders, copy to clipboard with an optional audit_log entry. Honest "No situation memo started." before a pick.
 - No sample clock_state/phase/seed changes, no invented CLINs or payments, no external writes.
 
 ## Wave 4 P1 — Tables 12-2 / 12-3 fill-ins
+
 - New `src/lib/table-12-fillins.ts` + `Table12FillinsPanel` under the clause packet: for commercial / SF 1449 / Part 12 files only, rows are a strict subset of the matrix-backed recommended clauses (52.212-3 and Reserved 52.212-5 excluded), tagged Table 12-2 (provision), Table 12-3 (clause), or "Table not confirmed — verify in RFO Part 12" when placement is not settled. NFS clauses carry Interim NFS matrix wording and an "NFS matrix: fill-in required" flag read from `nfs_clause_matrix.fill_in = 'X'`.
 - Fill-in slots read from the record only (period of performance, place, CO, value, NAICS, set-aside, contract type, parent contract number, ordering period); anything missing reads "Not recorded". No FAR or NFS body is written.
 - Confirm writes audit only (`Table 12 fill-ins confirmed`, field `table_12_fillins`) with a blanks summary; it never applies clauses, never writes to NCMS, and never holds phase exit. Non-commercial files show the honest empty line. No sample clock/phase/seed changes.
 
 ## Wave 5 SEB/board light deepen (2026-09-16)
+
 - Evaluation cockpit gains an advisory board-readiness snapshot: clarifications count, evidence-note coverage, L↔M lamp state, and quiet read-receipt note. Counts only; never gates board, file, hold, or phase exit.
 - Empty fairness ledger adds a soft line: "Fairness ledger is empty until the office records a clarification." No clarifications, evidence, or scores invented on Samples; clocks, phases, seeds unchanged.
 
@@ -1984,6 +2025,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - `AWARD_HANDOFF_POINTER` now names Section K alongside CLIN, L/M, clauses, Section J and signatures. Soft only; nothing gates phase exit and NCMS remains the system of record.
 
 ## W4.6 — NF 1098 full assembly polish
+
 - Added `src/lib/nf1098-assembly.ts` and `Nf1098AssemblyPanel`: NF 1098 tabs present (version/date) and required tabs with nothing filed, plus advisory enclosure rows from the record (line items, Section K, L/M, Section J, CDRL, payment milestones, clauses applied of recommended, signatures blank on purpose — signed in NCMS).
 - Evidence pack now carries `assembly/nf1098-assembly-checklist.html` and `.csv` from the same builder, and the cover `index.html` gained a Contract-file assembly section with counts and a pointer.
 - Advisory only: missing tabs never hold phase exit, no documents or enclosures invented on Samples, no NCMS write-back.
@@ -1991,12 +2033,14 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - 2026-09-16: Briefing book now carries a Contract-file assembly counts block (present/missing tabs, recorded/not recorded enclosures) from the same buildNf1098Assembly input as the file page; Award handoff pointer mentions the NF 1098 assembly checklist beside Section K and L/M. Advisory only — NCMS is SoR, no write-back, no gates. Sample clocks/seeds unchanged.
 
 ## Wave 6 — pilot harden (2026-09-16)
+
 - Smoke read of Samples: A-2027-0101 running / Price Reasonableness, A-2027-0102 running / Solicitation-Quote, both CO Joshua Taggart with 12 and 10 CLINs; A-2026-0090 launched / Administration. Payment, CDRL and Section K rows are zero on all three — honest empty, nothing invented, no clock/phase/seed change.
 - Award handoff reads every scaffold list defensively (blocks, CLINs, attachments, CDRL, payment) so a partial record renders instead of throwing, and adds one soft line when no enclosures are recorded: the packet prints cover blocks only. Advisory, never gates a phase.
 - The Adobe honesty line now shows whether or not a form is suggested — one quiet line, no duplicate, no Adobe verification claim and no field-binding work reopened.
 - New `PilotKnownGaps` card on About plus `docs/PILOT_KNOWN_GAPS.md`: human-only Adobe field QA, no NCMS write-back (NFS 1804.171 SoR), FPDS sheet is a fill aid not a submission, staff-PII finding deferred and open, advisories never hold a phase exit.
 
 ## Wave 6 follow-on — Pilot known gaps on file walk
+
 - File page Peer systems strip now carries a quiet muted 13px Pilot known gaps line + link to /about (Adobe human-only · no NCMS write-back · FPDS fill aid · advisories never hold exit); PresenterScreensBeat adds one bullet pointing at About. Presenter mode keeps it visible.
 
 - Option exercise: SF 30 block 13 authority now reads from modAuthorityText("option_exercise") instead of the administrative FAR 43.103(b)(1) string; Administration block adds the advisory FAR 17.207 checklist (notice, determination, FPDS, SF 30 handoff) with status read only from recorded dates, an honest exercise-window line, and a pointer to Modifications > New modification > Option exercise. Soft only; no phase gate, no NCMS or FPDS write.
@@ -2004,17 +2048,20 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Comparables fallback: local rows label "from T-Minus prior actions — live feed unavailable"; PNM drafts comparables_summary from the recorded check or, when none, prior T-Minus actions on the same NAICS/PSC (draft only, no writes, no invented figures).
 
 ## Successor-clock polish (#24)
+
 - Launched files with a PoP end and no linked successor now state the follow-on must start by the computed date (same phase-plan formula) with a pointer to Intake; Overview method copy and the file section both state the clock is advisory only — no holds, no auto-created files.
 - Clause fill-ins now read from the record (CO, period of performance, place, ordering period, 52.217-9 notice lead) via src/lib/clause-fillins.ts; shown in the clause picker, format scaffold, handoff packet and Award handoff, with honest "Not recorded" blanks. 52.212-3 / 52.212-5 stay off. Advisory only; NCMS remains the system of record.
 - COR / task order request scaffold on awarded, IDIQ and launched Administration files: requester and appointed COR read from the record, short ask plus narrative saved under post_award.cor_to_request with an audit line, copyable memo to file. Advisory only; no NCMS write-back.
 
 ## Claude 07:30 P1 — seed persistence for Sample 3, Reserved note verify
+
 - Seed fixtures now carry mission M6 "NOAA Airborne Lidar Support FY27–FY31" and A-2027-0103 retargeted to M6 with need_date 2026-11-01, PoP 2026-11-01/2031-12-31, reimbursable IAA-NOAA-27-0114 scenario. A reseed no longer puts 0103 back on M1 / Arctic Snow Depth / 2027-03-15.
 - Verified A-2027-0101 and A-2027-0102 unchanged (0101 M1 / need 2027-03-01, 0102 M2); no clock, phase, CO or mission edits.
 - Verified RFO_RESERVED_212_NOTE still renders on the Sample 1 commercial Part 12 / SF 1449 path (file page Reserved clause note and handoff clause list). No checkbox block; 52.212-3 and 52.212-5 stay off the packet.
 - Auth untouched. Note for the record: a Lovable publish can drop signed-in sessions; that is a publish side effect, not a Wave 4 change.
 
 ## Claude #18 — email drafts from the record, deepened
+
 - New "Requester — missing IGCE" draft, written from the record (id, title, phase, need date, target award date, the Required row's own citation) and offered first when the estimate is outstanding. Unavailable with an honest note when the file already carries an IGCE (A-2027-0101 and A-2027-0102); available on A-2027-0103, where igce_attached is false.
 - Added `emailCiteForMethod(acq)` so draft citations stay method-correct in one place: simplified/commercial files use FAR 13.106-3(d) and FAR 13.106-3; negotiated files use FAR 15.506(a) and FAR 15.404-1. No Part 15 citation ever lands on a simplified file.
 - Requester nudge now orders the IGCE row first; vendor notice uses the method-correct unsuccessful line, and the successful line stays a courtesy with NCMS as the document of record.
@@ -2028,6 +2075,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Clause picker calm copy: the none-applied branch now reads "N recommended from the matrix for this method" with a plain sentence (recommended from the PCD/NFS matrices for this buy type; CO chooses; nothing applied until chosen and applied). Soft copy only — never holds a Walk exit. 52.212-3/5 remain Reserved/absent. No seed, clock, phase, or external-write changes.
 
 ## Claude #32–#35 (soft)
+
 - #32 One CO per file: documents now take the contracting officer from `acquisition_facts.co_name` always. When no user row matches that name the name still prints and email/phone stay blank; the signed-in persona is never substituted as the file's CO. Audit `actor` still records who clicked.
 - #33 CALC+ now runs only for FSS/FAR 8.4 schedule buys or labor-hour / T&M priced requirements. Service PSC and "services/flights" title triggers removed, so Sample 1 (V1A1 aviation charter) records the honest skip line instead of fetching schedule hourly rates. Other market-research paths unchanged.
 - #34 "Explain this" now opens a right-side panel (Escape or Close to dismiss) instead of expanding inline, so the officer never loses their place. Same content: why / rule / citation / what clears it.
@@ -2036,6 +2084,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - NFS Companion Guide not-loaded note: ShowTheText now surfaces a quiet muted line ("NFS Companion Guide text is not loaded in this prototype.") whenever a citation names the Companion Guide (NFS CG / Companion Guide). Soft advisory only; no body text invented; no Walk holds. HEAD ~8382cd3b.
 
 ## CoS priority — award honesty, SEB brief, requester LOE
+
 - Award handoff: completeness strip is now "Packet completeness — advisory" and adds clause count with the number carrying a Not recorded fill-in, L/M line count, and Section K checklist/SAM status; it states no form is Adobe verified. Clause fill-ins render as label/value lines with blanks flagged "Not recorded — blank" (advisory only; 52.212-3 / 52.212-5 stay Reserved and absent). Signature values read "Blank — signed in NCMS" / "Not recorded — completed in NCMS" with one note that T-Minus stores no signature and does not write to NCMS.
 - Capacity item skipped: no FPDS handoff sheet status or NF1098 missing-tab count added — neither exists on the format scaffold, and nothing was invented.
 - SEB cockpit: board readiness snapshot compressed into one scannable "Board brief" list (L↔M state plus finding count, clarifications count or none recorded, factor evidence n/n or sole-source/no factors, read receipts "Per-document status below" — no aggregate number invented). Empty states tightened; detail sections unchanged; print-friendly with break-inside-avoid.
@@ -2045,9 +2094,11 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Center configuration: routing CSV gained a downloadable template and a note that applying replaces only matching routing rows; a new reviewer roster CSV (center_code, reviewer_role, name; optional title, email) validates centers and existing reviewer roles, previews every line, skips seeded demo roster names without overwriting them, and audits each applied change. No review rule citation is created and no acquisition is touched.
 
 ## Policy-impact simulator advisory banner
+
 - Added a calm advisory banner "Advisory only — no open file is changed by this screen." on /simulate; tightened the no-files-affected empty state to "No open file's rows would change under this what-if." Soft only; no seed/clock changes.
 
 ## Class deviation / PCD adoption tracker (advisory) — 2026-09-16
+
 - New "Regulatory baseline & deviations (advisory)" panel on the file page (src/lib/pcd-adoption.ts, src/components/pcd-adoption-panel.tsx): shows the file's regulatory_baseline_date and any linked deviation_requests (type, citation, status/decision) exactly as recorded; empty state "No deviation request is on this file." Never claims RFO Part adoption (links acquisition.gov/far-overhaul); PCD 26-03B noted as the locked clause-matrix/Reserved source only. Never holds a file or blocks a phase exit.
 - Companion gates panel now states Companion Guide citations are process guidance, not binding NFS. Typecheck passed; sample files 0101/0102/0103/0090 all 200. Sample seeds/clocks untouched.
 
@@ -2071,9 +2122,11 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - NF 1707 and NF 1098 still have no public blank; the pilot known gaps note stands.
 
 ## 2026-09-16
+
 - Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
 
 ## 2026-09-16
+
 - Official file copy Route: omit empty THRU row (no "Not recorded") per NF 1858 formatting prompt §A.2.
 
 - NEAR crosswalk landed as `src/lib/near-crosswalk.ts` (NEAR File Structure Checklist.xlsx · Crosswalk WSC v3.3, Apr 24) with the honest template-to-unique-id map and lookup helpers.
@@ -2087,6 +2140,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - P0 form bind fix: exported XFA data now nests each field under the page subform the blank uses (derived from the blank field names, so SF 1449 Page1/Page2 and SF 30 follow the same rule). Booleans still export 1/0; no AcroForm widget fill path exists, so no state mapping was needed. SF 1449 blocks 21 to 23 read line 0001 of the schedule on the file. Perms-strip and Import Data path unchanged; SF 1449 and SF 30 stay non-Live and are not Adobe-verified.
 
 ## Forms: checkbox layers and blank-driven page nesting (2026-09-16)
+
 - Added `checkboxXfaValue` (`"1"`/`"0"`) and `checkboxAcroValue` (`"/1"`/`"/Off"`) next to `xfaDatasets` in `src/lib/nf1787.ts`; `xfaDatasets` now calls `checkboxXfaValue`. Reader Import Data binds the XFA datasets layer; the AcroForm widget states on the GSA blanks are `/1` and `/Off`. No AcroForm widget fill engine was added.
 - Page-subform nesting is driven by the blank's own field names (`blankPagePaths` / `withPagePaths`), not a hardcoded Page1, and `boundDatasets` applies it to every form: SF 1449, SF 30, SF 33, SF 26, OF 347. Smoke: SF30 `CheckBox9` -> `Page1`, SF33 `SEALED` -> `Page1`, SF26 `FOBORIGIN` -> `Page1`, OF347 `SMALL` -> `F.P1` (OF 347 uses `F/P1`, handled without a special case).
 - CLIN smoke on A-2027-0101: `buildSf1449` + `blankPagePaths` + `withPagePaths` + `xfaDatasets` nests under `topmostSubform > Page1` and writes `quantity1` 160, `unit1` hour, `unitprice1` $3,600 from schedule CLIN 0001. Recorded values only; blank when the schedule does not carry them.
@@ -2109,6 +2163,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - SF 1449: CLIN line prints only when quantity x unit price equals the amount; commercial single-line files print one lot at the face amount, block 20 narrative wraps across the schedule rows, block 9 code and office name are separate, block 10 carries a percent, and TOTALAWARD is filled. Data file now emits sibling occurrences so indexed fields bind.
 
 ## SF 1449 Lot gate fix (soft follow-up)
+
 - `buildSf1449` Lot packaging now fires for any commercial FFP face whose first CLIN does not multiply out, regardless of how many IGCE estimate rows sit behind the file (A-2027-0101 has many). The `length <= 1` check is removed; the face still prints ITEM 0001 = qty 1 / Lot / unit price = amount / amount, and no quantity is invented from hours.
 - Block 20 narrative keeps the requirement description and period of performance only; the CLIN description is no longer appended when the requirement description already carries the narrative.
 
@@ -2118,6 +2173,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - Soft: the SF 1449 / SF 30 / OF 347 field mappings now sit in `src/lib/form-field-mappings.json` (229 rows: sf1449 105, sf30 39, of347 85), every pdf_field checked against the official blank at generation time; the SF 1449 adapter emits the nested record paths those rows read. SF 30 and OF 347 are data only, no export button; forms stay non-Live with no Adobe check.
 
 ## §3 + §4 — SF 1449 block 9/10/20 defects and CLIN reconciliation (soft)
+
 - Block 9: code box carries the short centre code only; the centre name and branch go in the name/address block.
 - Block 10: percent is a number ("100") or empty, never prose.
 - Set-aside boxes now come from an explicit programme enum (edwosb > wosb > sdvosb > hubzone > 8(a) > small business), one box only. EDWOSB no longer also ticks WOSB. 8(a) mapped to ACHECKBOX[0]; the substring and roger_sb2 rows are gone.
@@ -2126,6 +2182,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - validateSf1449ClinReconciliation compares schedule amounts to the total; the official AcroForm export asks before generating a draft that does not add up.
 
 ## §5 — RFP cover letter in Word from the genuine NASA master (Soft)
+
 - Added `public/forms/RFP_COVER_MASTER.docx` (sha256 4e5e9a04…c1c3a, 58,571 bytes) — Roger's genuine NASA RFP cover master, 38 `[[MARKER]]` runs. Not embedded as base64 in source.
 - Added `src/lib/apply-docx-markers.ts`: `applyMarkers` (JSZip → rewrite only `word/document.xml` → DEFLATE rezip; empty value deletes the ancestor `<w:p>`), Soft `lintMarkersSplit` naming any marker split across runs, and `readDocumentXml`.
 - Added `src/lib/rfp-cover-docx.ts`: marker map ported Softly from Roger's `rfpMarkers` onto FormCtx/acquisition fields; optional passages (phase-in, property, site visit, OCI, security, AI, draft RFP, past performance, SEB, CAGE, price exhibits, blackout) stay empty so their paragraphs disappear. `generateRfpCoverDocx` + `downloadDocxBytes`.
@@ -2140,7 +2197,7 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
   Missing scope reads as `transaction`, so nothing inherits by accident.
 - Every row in `src/lib/form-field-mappings.json` is tagged (230 rows, 0 untagged),
   from the supplied path→scope list; unlisted paths fall to the prefix rules
-  (issuing/administering/payment office = organization; acquisition.*, requisition.*,
+  (issuing/administering/payment office = organization; acquisition._, requisition._,
   solicitation.number/method = acquisition; contract.number/id_code, contractor.*,
   award.total_amount = contract; everything else transaction).
   Counts: transaction 169, acquisition 27, contract 18, organization 16.
@@ -2180,11 +2237,12 @@ visible at Price Reasonableness. Verified via signed-in browser on the Overview.
 - OF347 and SF30 adapters are exported and data-ready; no export UI this ship.
 - Forms remain non-Live. No Adobe verification claim.
 
-
 ## §8 Lineage overlay
+
 The form preview can outline where each filled value came from. Scope comes from the §6 mapping rows, joined by field name; a recorded research finding names its source and date when one is stored. The overlay is off by default, is preview only, and changes no exported bytes. Turning it on writes one audit row with the counts. Nothing invents a person, a date or a citation.
 
 ## Soft §9 — Pinned blank revision (form_templates registry)
+
 - `src/lib/form-templates.ts` holds the registry in the shape a future table
   `form_templates (form_id, revision, storage_path, sha256, effective_date, superseded_at, mapping_profile, source)` will carry.
 - Builtin revisions: SF 1449 11/2021 (`/forms/SF1449.pdf`), SF 30 11/2016 (`/forms/SF30.pdf`), OF 347 02/2012 (`/forms/OF347.pdf`).
@@ -2194,11 +2252,13 @@ The form preview can outline where each filled value came from. Scope comes from
 - SF 1449 and SF 30 remain non-Live; no Adobe field-by-field check has been made. §10 not started.
 
 ## Soft §10 — Generated draft into the evidence pack
+
 - After the SF 1449 official AcroForm export, the same bytes are filed on the contract file through `uploadAttachment` (`sf-1449-official`, "SF 1449 official draft (prototype)"), with an extra `Official form draft filed` audit row naming the blank revision from §9. The RFP cover letter follows the same path (`rfp-cover`).
 - The download always happens first. A failed pack write reports honestly and never loses the file.
 - This is prototype retention on the file, not a write-back to NCMS. A true server-side (Edge) generate remains a follow-on; this ship generates in the browser and writes into the pack.
 
 ## Roger Soft Walk §§1–10 complete — remaining gaps
+
 1. SF Live / Adobe field-by-field verification gate: not done. SF 1449 and SF 30 stay non-Live and no Adobe claim is made.
 2. Edge vs client generate: this ship generates in the browser and files into the pack; server-side generate is a follow-on.
 3. OF 347 and SF 30 official export: data and mappings only, no export UI.
@@ -2225,6 +2285,7 @@ Ship SHA: `e1c76d74279f96dfe305ca9f37bbaa3c3c771254` (HEAD).
 - No countdown, phase rail, assistant rename, Executive Overview imagery, form/export behavior, record data, citations, or clock behavior changed in this chunk.
 
 ## ORBIT Chunk 2 — Launch Countdown face
+
 - New `src/components/launch-countdown.tsx`: `countdownView(m: AcqMetrics)` pure read-only helper plus `LaunchCountdown` (full face, dark chrome panel, tabular digits) and `LaunchCountdownCompact` (Work Queue / Today rows). Days-only honesty: metrics carry whole days, so the face renders `T− N days` and never fabricates hours/minutes.
 - Color rules: running = cyan #22D3EE (digits; darker cyan #0e7490 for compact digits on the light canvas for legibility); hold = muted digits + amber HOLD badge + reason from `hold.reason`; no target date = cyan T− with FORECAST badge (days to the existing `forecastAwardDate`, same fallback math the file header already used); launched = T+ days since award, never red; past target while not launched = T+ N with OVERDUE badge in NASA/at-risk red; scrubbed = muted "Clock stopped". A healthy countdown never renders red; `T− -N` never renders (clamped).
 - Wired: acquisition file header (replaces the plain calendar-days figure; acquisition number sits beside the label), Work Queue table cells and card faces, Today "Three things to do next" rows. Executive Overview Mission Clock hero untouched. Successor clock left as-is (shown only where already computed). No clock, hold, award, citation, form, export, or seed logic changed; no new data fetches.
@@ -2476,17 +2537,20 @@ Checked against the seeded record; no code changes were needed.
 No residual citation bugs found in this pass.
 
 ## P0.2 / P0.4 — PNM Ref citation + export strip + demo note
+
 - NF 1858 memo header Ref/badge on simplified files resolves to **RFO FAR 12.204(a); FAR 13.106-3(b)(3)** — never bare FAR 15.406-3. Verified live on A-2027-0101 in demo mode (badge line reads "RFO FAR 12.204(a); FAR 13.106-3(b)(3) · Binding", no pair leak, no Part 15 citation).
 - Export stripping of "Draft, confirm." present in both `template-engine.ts` `cleanExportText` and `nf1858.ts` `memoParagraphs`; on-screen "Drafted from the record — confirm." stays UI-only.
 - demo: don't open clause delta on A-2026-0090 / IDIQ vehicle (contradictory seeded clause set).
 
 ## UX P1 — Button merge / PNM hero label / Overview status casing
+
 - `button.tsx`: `cn(buttonVariants({ variant, size }), className)` — className no longer passed into `buttonVariants`, so caller `whitespace-normal` wins over base `whitespace-nowrap` via twMerge. Hero CTAs no longer truncate/cramp.
 - File hero action labels: `pnm` generator → "Write the PNM"; `market-research-memo` → "Write the memorandum"; `nf-1787`/`nf-1787a` retained; IGCE/SOW-PWS attach labels retained. Labels only — no attach/generate behavior changed.
 - Executive Overview `MissionClockRow`: status rendered via `statusWord()` (sentence case: "At risk" / "Needs attention" / "On track" / "Launched"), no `uppercase`/`tracking-wide` on the status word; color marker paired with the word. Summary cards already sentence case.
 - Smoke: `/` and `/files/A-2027-0101` returned 200. Sample 1/2 seeds untouched.
 
 ## Sample 1 QA — PNM draft chips, prefill, index tab 065
+
 - Draft wording ("Drafted from the record, confirm." / "Draft, confirm.") is stripped from prefilled and stored field bodies on the document form; the flag stays as a chip beside the field. Applies to the PNM negotiation summary and determination statement.
 - PNM prefill on simplified commercial files already fills Basis of the IGCE, Certified cost or pricing data ("Not required; commercial products or services (FAR 15.403-1(b)(3))") and Date of determination from the record; unchanged.
 - PNM cites unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files, never a bare FAR 15.406-3.
@@ -2495,6 +2559,7 @@ No residual citation bugs found in this pass.
 - P0.3 reserved-clause note stays visible on the Sample 1 clause packet UI.
 
 ## Walk QA Sample 1 — unstick
+
 - PNM body text carries no draft wording; the "Drafted from the record — confirm." flag is a chip beside the field only (document form, prefilled and stored values alike).
 - A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (FAR 15.403-1(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI HCH5G9HLMVZ5, prices and clock are untouched.
 - Contracting officer of record on A-2027-0101 restored to J. Rivera (fictional CO) on the file header, evaluation and PNM sign-off; the signed-in admin name is never written onto the synthetic file.
@@ -2502,6 +2567,7 @@ No residual citation bugs found in this pass.
 - PNM citations unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files.
 
 ## P0 Walk fix — exclusions, Why panel, dates
+
 - The nightly exclusions sweep matches by exact UEI only and never reads an entity registration response as exclusion evidence. It never writes clock_state, hold_reason, hold_owner or hold_started_at. A real exclusion record now raises a review flag on the record (scenario._exclusion_review with cause, UEI, source and time) and audits "Exclusion review flag set — CO review".
 - A clean live SAM.gov read ("No active exclusion") on the record clears that review flag automatically and audits the UEI and the time — from the live check on the file page and from the sweep itself. Neither path touches the clock.
 - Why, for an exclusion question, names cause, vendor UEI, source and the time read, with the clearing step, instead of the generic hold text.
@@ -2509,6 +2575,7 @@ No residual citation bugs found in this pass.
 - Unchanged and confirmed: FAR 13.106-3(d) on the simplified unsuccessful-quoter letters with no Part 15 debriefing or Source Selection Statement, JAZ procurement office, CO email bound from the users row, the 52.212-5 Reserved note on the Sample 1 clause packet, and the withheld clause delta on A-2026-0090.
 
 ## AC-W4.5 — SF 33 / SF 26 / OF 347 official fills
+
 - Official blanks in public/forms/ (SF33.pdf, SF26.pdf, OF347.pdf) are byte-identical to the supplied GSA files; field maps kept under docs/forms/.
 - buildSf33, buildSf26 and buildOf347 sit beside buildSf1449 and buildSf30 on the same XFA path (xfaDatasets, incremental export and companion data file). No second PDF stack.
 - recommendedOfficialForm: a recorded modification points at SF 30; a record naming SF 26 points at SF 26; commercial streamlined (Sample 1) points at SF 1449, never forced to SF 33; an order under an existing contract or a simplified purchase points at OF 347; everything else negotiated in the uniform format points at SF 33. A suggestion only — every other form stays reachable.
@@ -2516,6 +2583,7 @@ No residual citation bugs found in this pass.
 - The forms page description now names SF 33, SF 26 and OF 347.
 
 ## Today desk — administrator view (QA fail fix)
+
 - `src/routes/today.tsx`: an administrator now always sees every prototype file,
   with the files that list them as contracting officer read first. The previous
   rule only fell back to all files when no file named them as CO, so
@@ -2527,11 +2595,12 @@ No residual citation bugs found in this pass.
   no target award date; A-2027-0102 running / Solicitation/Quote.
 
 ## Checks this turn
+
 - nextAction already resolves to the file hero label when a Required document is
   missing (`metrics.ts:326`, `nextAction: heroLabel ?? nextDecision`).
 - File header never claims a target award date it does not have: with none
   recorded the countdown reads `FORECAST · days to the forecast award date; no
-  target recorded`, or `No target award date recorded` when no forecast exists.
+target recorded`, or `No target award date recorded` when no forecast exists.
 - A-2026-0090: vehicle `idiq_award` → profile `idiq_parent` → clause delta stays
   hard-hidden on the file page and the modifications panel. Story text is the
   multiple-award IDIQ vehicle, no Arctic campaign wording.
@@ -2562,6 +2631,7 @@ No residual citation bugs found in this pass.
 - No seed rewrites (0101/0102/0103), no clock or hold changes.
 
 ## P0 form BIND fix (SF1449 / SF30 Import Data)
+
 - Verified the data file nests each field under the page subform read from the
   official blank: `<topmostSubform><Page1><reqnumber>…`. Page comes from the
   blank's own field names, so SF30 (and any page-2 field) binds without a
@@ -2577,6 +2647,7 @@ No residual citation bugs found in this pass.
   SF30 remain non-Live and are not Adobe-verified.
 
 ## Soft §2 — form_field_mappings as data
+
 - `src/lib/form-field-mappings.json` now carries 233 rows: sf1449 109, sf30 39,
   of347 85. Added the three date boxes the SF 1449 list named (Date[0], Date[1],
   Date[2]); each stays empty until a person signs or a date is recorded.
@@ -2592,6 +2663,7 @@ No residual citation bugs found in this pass.
   not Adobe-verified. Clocks stay FLAG-only.
 
 ## Soft Walk P0 — Joshua Taggart output lock
+
 - Live records verified: A-2026-0090, A-2027-0101 and A-2027-0102 name
   Joshua Taggart as contracting officer; A-2027-0103 remains J. Rivera
   (fictional CO). No clock or phase changed.
@@ -2608,6 +2680,7 @@ No residual citation bugs found in this pass.
 - Soft Walk: JOFOC Word fills the NASA OP master `public/forms/JOFOC_MASTER.docx` instead of building docx from scratch. Who signs is amount-driven: `selectJofocSigBand` reads the live JOFOC approval-tier thresholds (same names as `jofocApprovalTier`, fallbacks 900,000 / 20,000,000 / 150,000,000) and prints exactly one `SIG_BAND_*` page — the three unused bands delete. Signature lines stay blank (typed name and title only, never auto-inked). Soft Walk `co_name` fills `[[CO_NAME]]` on the active band only; it does not collapse the ladder. Prototype footer retained; PDF path unchanged; Soft Walk forms untouched.
 
 ## Soft Walk #2 — ORBIT chrome + scanning (chrome only)
+
 Left rail: clearer meaning-mapped icons, labels always visible (icon-only only when
 the rail is collapsed), letterspaced group headings, electric-cyan active item with a
 quiet cyan wash. Chrome: layered near-black gradient on the top strip, rail and footer;
@@ -2619,6 +2692,7 @@ OVERDUE. Work surfaces: page-title accent rule and a whisper of elevation only.
 No forms, exports, citations, clocks, holds or record logic touched.
 
 ## Soft Walk — clause-delta note + Show-me-the-text honesty
+
 - A-2026-0090 (IDIQ parent and orders under it): the two conflicting notes are consolidated into one
   shared `IDIQ_CLAUSE_DELTA_WITHHELD_NOTE` (clause-packet.ts), used on the clause packet, the SF 30
   panel, and the modifications panel. The delta is withheld and not shown; the "don't open" /
@@ -2633,12 +2707,14 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - Forms untouched: AcroForm/pdf-lib, SF1449/SF30/OF347, packSentences, file index, JOFOC Word master.
 
 ## Soft Walk P0-1 — JOFOC OP master and Item 6 honesty
+
 - `public/forms/JOFOC_MASTER.docx` was rebuilt from the authoritative HQ OP JOFOC (7) package while keeping no headers and no word/media. The live export still fetches `/forms/JOFOC_MASTER.docx`, lints marker runs, and applies marker replacement only.
 - The JOFOC Word export now writes Item 6 as named-source sentences: System for Award Management (SAM.gov), USAspending, SBA size standards, and prior T-Minus actions under the record NAICS when present. Raw dates, counts, service errors, API labels, and endpoint tags stay out of the signed body.
 - The amount-driven signature ladder remains live-threshold based. Sample 2 at the recorded $820,000 value selects Band 1 only: L. Park technical representative and Joshua Taggart contracting officer, with other signature bands removed and signature lines blank.
 - Protected surfaces stayed locked: no SF1449/OF347/SF30/pdf-lib/packSentences/file-index changes, no sample fact/clock/citation/clause changes, no external writes, and no Clock B.
 
 ## Soft Walk — SF 30 dense fill for A-2026-0090
+
 - SF 30 keeps the deleteXFA to pdf-lib AcroForm path on the official blank; no XFA write path, no invented field names.
 - Mapping rows aligned to the blank's own geometry: Code[0] issued by, Code[2] administered by, Code[1] contractor.
 - Block 8 stays empty on a multiple-award vehicle; no holder is named.
@@ -2647,27 +2723,31 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - A "Blocks left empty, and why" list on the SF 30 form page names each honest blank.
 
 ## Soft Walk JOFOC residual — Item 8 and authority correction
+
 - Replaced `public/forms/JOFOC_MASTER.docx` with the supplied residual HQ JOFOC (7) markerized master. It has no headers and no `word/media`; the footer carries `Rev.: 4/2026`.
 - Market research remains under Item 8 / `FAR 6.104-1(a)(8)` with named-source prose only: SAM.gov, USAspending, SBA size standards, and prior T-Minus actions under the record NAICS. Raw dates, counts, service errors, API labels, and endpoint tags stay out of the signed body.
 - Item 4 now accepts recorded `41 U.S.C. 1901` or `41 U.S.C. 1903`; the empty fallback is neutral (`41 U.S.C. 1901 or 1903 (FAR 12.102 procedures)`).
 - Bracketed drafting instructions such as “DO NOT delete the FAR references...” are stripped from JOFOC marker values and are absent from the master.
 - Protected surfaces stayed locked: SF1449, OF347, SF30, sample clocks, sample facts, ORBIT chrome, regulation corpus, clauses, and external-write boundaries were not touched.
 
-
 ## Soft Walk JOFOC Item 4 — single statutory authority
+
 - `jofocMarkers` on the commercial FAR 12.102 / 41 U.S.C. path now prints exactly one statute (1901 or 1903) in `[[AUTHORITY_41USC_LINE]]`; `[[AUTHORITY_10USC_STEM]]`, `[[AUTHORITY_10USC_LINE]]`, and `[[AUTHORITY_OR_TOKEN]]` stay empty so applyMarkers deletes those paragraphs. Embedded FAR 6.103-1 basis text no longer implies a Title 10 path, and no dangling 10 U.S.C. 3204(a) stem can print.
 - Item 8: "prior T-Minus actions" is normalized to one label (no duplicate), and the recorded search date plus headline result count are written as prose when the record holds them.
 - Untouched: SF1449 / OF347 / SF30, Band 1 signature ladder, sample money, clocks, corpus, ORBIT.
 
 ## Soft Walk — P0 generator fixes (SF1449 continuation, SF30 block 13, JOFOC Item 4)
+
 - SF 1449: the official back-page rows (schedule 9 to 36) are now mapped. Text that does not fit on the face prints there and the face marker reads "(continued on the schedule, block 20, page 2)". Where everything fits, no continuation marker is printed at all. Receiving report blocks 32-42 are untouched.
 - SF 30: block 13 boxes and the authority blank beside them are derived together. A recorded flag rules; a named modification type selects its own block and authority text; an unnamed type stays in 13D with the blank left empty rather than a guess.
 - JOFOC: a commercial sole source under FAR 12.102 prints exactly one statute, 41 U.S.C. 1901, with the 10 U.S.C. stem, line and "or" markers empty so those paragraphs delete.
 
 ## Soft Walk — SF 30 block 13 honesty (P0-2 residual)
+
 - Block 13D is ticked only when the record carries the authority the block asks the writer to specify. Where the authority is genuinely unknown, block 13 is left unmarked rather than ticked and blank; the gap shows on the form page. A named modification type still selects its own block and authority. Nothing is invented; block 14 description is separate.
 
 ## Soft Walk — LSJ Word (limited-sources-justification)
+
 - Installed `public/forms/LSJ_MASTER.docx` (sha256 b6d7cde219931fdcf0c0fa9ccb29fd0eea3ea00f8b7df828e6caa210dfe71950) and `src/lib/lsj-docx.ts`.
 - Export Word on `/documents/limited-sources-justification/<id>` now writes into the NASA OP master via applyMarkers; the scratch Packer path no longer runs for LSJ.
 - Amount-driven signature ladder: exactly one SIG_BAND_* prints, inactive bands delete. Signature underscore lines stay blank.
@@ -2675,6 +2755,7 @@ No forms, exports, citations, clocks, holds or record logic touched.
 - SF1449, SF30, OF347, JOFOC master and generator untouched.
 
 ## ORBIT Chunk 4 — Nova (visual/interaction only)
+
 Nova ships as a quiet, click-only cited-answer panel: outline control (no auto-open, no audio, no avatar),
 scoped label from acquisition / document / row context, AI-draft disclosure, source list with tier and
 effective date, keyboard focus on open and Escape to close. Nova makes no record writes and reuses the
@@ -2683,6 +2764,7 @@ and beside acquisition-file hold/document rows. Orby untouched. Soft Walk forms 
 research memo, SF1449 schedule packSentences) and the regulatory corpus untouched.
 
 ## Soft Walk P0 — JOFOC Item 4 single authority
+
 - Commercial sole source (41 U.S.C. 1901/1903 or FAR 12.102 face) prints exactly one statute, taken from the record: 1903 when the record cites 1903, otherwise 1901. The FAR 12.102 override that forced 1901 is gone.
 - An embedded FAR 6.103-n basis mention inside a 41 U.S.C./12.102 authority no longer selects the Title 10 path; AUTHORITY_10USC_STEM, AUTHORITY_10USC_LINE and AUTHORITY_OR_TOKEN stay empty so applyMarkers deletes those paragraphs.
 - Item 8 prose keeps one "prior T-Minus actions" label and states the search date and headline result count in a sentence.
@@ -2691,18 +2773,20 @@ research memo, SF1449 schedule packSentences) and the regulatory corpus untouche
 ## Soft Walk — LSJ Word verification (tip after 0ad0725c)
 
 Verified by generating real LSJ_MASTER.docx bytes and reading word/document.xml back:
+
 - 0 unresolved `[[...]]` markers remain after applyMarkers (master holds 193 markers, all resolved).
 - Exactly one SIG_BAND_* survives; the rest resolve to "" and their paragraphs delete.
   $1,385,000 selects GT_900K_LE_20M (CO + Competition Advocate); HCA/SPE pages absent.
 - Exactly one authority line prints, FAR 8.401(b)/GSAM 538.7104-*; zero 8.104(b).
 - LSJ_AUTH_CITATIONS matches the Soft Walk Batch2 pack verbatim for all six keys.
 - [[CO_NAME]] = record co_name (Joshua Taggart on the samples); signature rules stay blank.
-Export path: /documents/limited-sources-justification/<id> -> Export Word -> generateLsjDocx -> applyMarkers.
-No Scratch Packer. SF1449 / OF347 / SF30 / JOFOC untouched.
+  Export path: /documents/limited-sources-justification/<id> -> Export Word -> generateLsjDocx -> applyMarkers.
+  No Scratch Packer. SF1449 / OF347 / SF30 / JOFOC untouched.
 
 ## Soft Walk P1 stretch (after fe4c60a1) — Batch2 cite verify + Part-token check
 
 Ship A — verified on the live tip, no rewrite needed (verify-only; nothing was edited):
+
 - LSJ face lines are FAR 8.401(b) / GSAM 538.7104-*. Zero occurrences of 8.104(b) as a face cite
   (src/lib/lsj-docx.ts, src/lib/templates-hq4.ts).
 - No FAR 6.301(b)(2) exists anywhere in src; the urgency JOFOC path cites 10 U.S.C. 3204(a)(2),
@@ -2747,6 +2831,7 @@ stubs. No body text was invented and no corpus row was added or edited in this s
   (`templates-hq6.ts`, `email-drafts.ts`, `scenario.ts`).
 
 ## Set-aside preaward notification master (Soft Walk P0)
+
 - Source: HQ "Set-Aside Preaward Apparent Successful Offeror Notification" Word master (base issuance 01/2021, revision 04/2026), supplied as an upload.
 - Installed as `public/forms/SETASIDE_PREAWARD_MASTER.docx`, built by `scripts/build-setaside-master.py`:
   instruction pages and the document history log removed, red drafter notes and highlights stripped,
@@ -2759,6 +2844,7 @@ stubs. No body text was invented and no corpus row was added or edited in this s
   `NFS CG 1815.28`; the citation is not confined to the on-screen regulatory card.
 
 ## Option exercise determination master (Soft Walk P1-3)
+
 - Source: HQ "Option Exercise Determination" Word master, supplied as an upload; the HQ original is not edited.
 - Installed as `public/forms/OPTION_EXERCISE_MASTER.docx`, built by `scripts/build-option-exercise-master.py`
   (body starts at the determination heading; instruction pages and the Document History Log removed,
@@ -2807,3 +2893,10 @@ Selection Guide §3.24. This closes Soft Walk P1 OP Word-master row 6. No meter 
 ## ORBIT Phase 2 — Executive Overview r2
 
 Presentation-only Mission Control refinement. The Executive Overview now carries one dark operational environment from the flight-director GO/WATCH/HOLD/LAUNCHED rail through a record-derived lifecycle trajectory, deeper T− mission cards, lifecycle accumulation, anomaly rows, and an honest days-returned visualization. All values continue to come from existing acquisition, phase, hold, award, and `computeMetrics` data. Motion is limited to scanning and state cues and respects reduced-motion preferences. No workflow, clock, document, role, schema, seed, audit, or Soft Walk behavior changed.
+
+## ORBIT Phase 2 — Executive Overview r3 NASA identity
+
+- Added an Executive-only NASA / T-Minus procurement mission-control masthead using the authorized `public/brand/nasa-insignia.png` asset, with Ames Research Center and Office of Procurement identity.
+- Reserved NASA red `#FC3D21` for the masthead underline and rare identity marks only. HOLD, OVERDUE, errors, and destructive actions continue to use the separate operational red token.
+- Grouped recorded Soft Walk phases into a readable procurement lifecycle trajectory without changing phase records or creating telemetry. Mission cards now expose the latest existing audit event alongside their existing clock, phase, gate, award, variance, and owner details.
+- No workflow, clock math, document, form, fixture, role, schema, audit-write, or Soft Walk behavior changed.

@@ -3,18 +3,35 @@ import type { AcqMetrics, MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 
-export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
-  const phaseOrder = new Map<string, number>();
-  for (const metric of metrics) {
-    for (const phase of metric.phases) {
-      const current = phaseOrder.get(phase.phase);
-      if (current === undefined || phase.order < current) phaseOrder.set(phase.phase, phase.order);
-    }
-  }
-  const phases = [...phaseOrder].sort((a, b) => a[1] - b[1]).map(([phase]) => phase);
+const LIFECYCLE = [
+  { label: "Requirement / Intake", phases: ["Intake"] },
+  { label: "Market Research", phases: ["Market Research"] },
+  { label: "Strategy", phases: ["JOFOC", "Fair Opportunity"] },
+  { label: "Solicitation", phases: ["Synopsis", "Solicitation/Quote"] },
+  { label: "Evaluation", phases: ["Technical Evaluation"] },
+  { label: "Negotiation", phases: ["Price Reasonableness", "Responsibility Check"] },
+  { label: "Go / No-go", phases: ["Go/No-go Poll"] },
+  { label: "Award", phases: ["Award", "FPDS-NG Report"] },
+  { label: "Administration", phases: ["Administration"] },
+  { label: "Closeout", phases: ["Closeout"] },
+] as const;
+
+function lifecycleIndex(metric: AcqMetrics) {
+  return LIFECYCLE.findIndex((stage) =>
+    stage.phases.some((phase) => phase === metric.currentPhase),
+  );
+}
+
+export function MissionTrajectory({
+  metrics,
+  missions,
+}: {
+  metrics: AcqMetrics[];
+  missions: MissionRow[];
+}) {
   const rows = [...metrics].sort((a, b) => {
-    const aIndex = phases.indexOf(a.currentPhase ?? "");
-    const bIndex = phases.indexOf(b.currentPhase ?? "");
+    const aIndex = lifecycleIndex(a);
+    const bIndex = lifecycleIndex(b);
     return bIndex - aIndex;
   });
 
@@ -23,15 +40,21 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       <div className="mc-section-heading">
         <div>
           <p className="mc-label">Mission trajectory</p>
-          <h2 id="trajectory-heading" className="mc-heading">Portfolio flight path</h2>
+          <h2 id="trajectory-heading" className="mc-heading">
+            Portfolio flight path
+          </h2>
         </div>
-        <p className="mc-section-note">Recorded lifecycle position</p>
+        <p className="mc-section-note">Recorded phases grouped into the mission lifecycle</p>
       </div>
 
       <div className="mc-trajectory-scroll">
-        <div className="mc-trajectory-grid" style={{ gridTemplateColumns: `minmax(13rem, 1.35fr) repeat(${Math.max(phases.length, 1)}, minmax(4.5rem, 1fr))` }}>
+        <div className="mc-trajectory-grid">
           <div className="mc-trajectory-corner mc-label">Mission</div>
-          {phases.map((phase) => <div key={phase} className="mc-trajectory-phase">{phase}</div>)}
+          {LIFECYCLE.map((stage) => (
+            <div key={stage.label} className="mc-trajectory-phase">
+              {stage.label}
+            </div>
+          ))}
           {rows.map((metric) => {
             const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
             const state = missionControlState(metric);
@@ -44,14 +67,38 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               >
                 <span className="mc-trajectory-name">
                   <strong>{mission?.name || String(metric.acq.title ?? "Untitled mission")}</strong>
-                  <span data-numeric>{metric.acq.acquisition_id} · {state}</span>
+                  <span data-numeric>
+                    {metric.acq.acquisition_id} · {state}
+                  </span>
                 </span>
-                {phases.map((phaseName) => {
-                  const phase = metric.phases.find((item) => item.phase === phaseName);
-                  const active = phase?.status === "current";
+                {LIFECYCLE.map((stage) => {
+                  const groupedPhases = metric.phases.filter((item) =>
+                    stage.phases.some((phase) => phase === item.phase),
+                  );
+                  const active = groupedPhases.some((phase) => phase.status === "current");
+                  const complete =
+                    groupedPhases.length > 0 &&
+                    groupedPhases.every((phase) => phase.status === "complete");
+                  const recordedNames = groupedPhases.map((phase) => phase.phase).join(", ");
                   return (
-                    <span key={phaseName} className={cn("mc-trajectory-cell", active && `mc-trajectory-current mc-trajectory-${state.toLowerCase()}`)}>
-                      <span className={cn("mc-trajectory-node", phase?.status === "complete" && "mc-trajectory-complete", active && "mc-trajectory-active")} />
+                    <span
+                      key={stage.label}
+                      title={
+                        recordedNames ||
+                        `${stage.label}: no phase recorded for this acquisition type`
+                      }
+                      className={cn(
+                        "mc-trajectory-cell",
+                        active && `mc-trajectory-current mc-trajectory-${state.toLowerCase()}`,
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "mc-trajectory-node",
+                          complete && "mc-trajectory-complete",
+                          active && "mc-trajectory-active",
+                        )}
+                      />
                     </span>
                   );
                 })}
