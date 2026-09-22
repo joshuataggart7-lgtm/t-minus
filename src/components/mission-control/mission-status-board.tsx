@@ -32,7 +32,7 @@ export function MissionStatusBoard({ metrics }: { metrics: AcqMetrics[] }) {
         </div>
         <p className="mc-board-total" data-numeric><strong>{metrics.length}</strong><span>acquisition files</span></p>
       </div>
-      <div className="grid grid-cols-2 border-y border-mc-line lg:grid-cols-4">
+      <div className="mc-status-rail">
         <McStatBlock label="GO" value={counts.GO} tone="green" index="01" />
         <McStatBlock label="WATCH" value={counts.WATCH} tone="amber" index="02" />
         <McStatBlock label="HOLD" value={counts.HOLD} tone="red" index="03" />

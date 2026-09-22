@@ -2803,3 +2803,7 @@ HQ references FAR 15.101, NFS CG 1815.11(i), NFS CG 1815.27(b), and NASA Source
 Selection Guide §3.24. This closes Soft Walk P1 OP Word-master row 6. No meter change.
 
 - Soft Walk Blackout r1: live `/documents/blackout-notice/{id}` now gates on `isBlackoutPath` with the exact refusal sentence and no download on Samples 1 and 2; Word export is always `blackout-{id}.docx` from BLACKOUT_MASTER; prepared date reads the America/Chicago calendar date; UI citations reconciled to the HQ face (FAR 15.101; NFS CG 1815.11(i); NFS CG 1815.27(b)). Fixture A-2027-0121. No meter change.
+
+## ORBIT Phase 2 — Executive Overview r2
+
+Presentation-only Mission Control refinement. The Executive Overview now carries one dark operational environment from the flight-director GO/WATCH/HOLD/LAUNCHED rail through a record-derived lifecycle trajectory, deeper T− mission cards, lifecycle accumulation, anomaly rows, and an honest days-returned visualization. All values continue to come from existing acquisition, phase, hold, award, and `computeMetrics` data. Motion is limited to scanning and state cues and respects reduced-motion preferences. No workflow, clock, document, role, schema, seed, audit, or Soft Walk behavior changed.

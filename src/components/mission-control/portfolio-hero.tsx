@@ -1,6 +1,7 @@
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
 import { AcquisitionScanCard } from "./acquisition-scan-card";
 import { MissionStatusBoard } from "./mission-status-board";
+import { MissionTrajectory } from "./mission-trajectory";
 
 export function PortfolioHero({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
   return (
@@ -8,6 +9,7 @@ export function PortfolioHero({ metrics, missions }: { metrics: AcqMetrics[]; mi
       <div className="mc-command-beacon" aria-hidden="true" />
       <div className="relative z-10">
         <MissionStatusBoard metrics={metrics} />
+        <MissionTrajectory metrics={metrics} missions={missions} />
         <div className="mt-8 flex items-end justify-between gap-4 border-b border-mc-line pb-3">
           <div>
             <p className="mc-label">Acquisition scan</p>

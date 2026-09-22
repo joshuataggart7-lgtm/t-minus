@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { AcqMetrics } from "@/lib/metrics";
-import { McBarRow, McPanel } from "./primitives";
+import { McPanel } from "./primitives";
 
 export function PhaseDistribution({ metrics }: { metrics: AcqMetrics[] }) {
   const phases = useMemo(() => {
@@ -11,17 +11,24 @@ export function PhaseDistribution({ metrics }: { metrics: AcqMetrics[] }) {
     }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
   }, [metrics]);
-  const max = Math.max(1, ...phases.map(([, value]) => value));
+  const total = Math.max(1, phases.reduce((sum, [, value]) => sum + value, 0));
 
   return (
-    <McPanel aria-labelledby="phase-distribution-heading" className="bg-background">
-      <p className="mc-label-light">Portfolio distribution</p>
-      <h2 id="phase-distribution-heading" className="mt-1 text-[18px] font-medium">Acquisitions by phase</h2>
+    <McPanel aria-labelledby="phase-distribution-heading" className="mc-ops-panel">
+      <p className="mc-label">Lifecycle accumulation</p>
+      <h2 id="phase-distribution-heading" className="mc-heading">Phase movement</h2>
       {phases.length ? (
-        <ul className="mt-5 space-y-3">
-          {phases.map(([phase, value]) => <McBarRow key={phase} label={phase} value={value} max={max} />)}
+        <ul className="mc-phase-accumulation">
+          {phases.map(([phase, value], index) => (
+            <li key={phase} style={{ flexGrow: Math.max(1, value) }}>
+              <span className="mc-phase-step" aria-hidden="true"><i /></span>
+              <span className="mc-phase-index" data-numeric>{String(index + 1).padStart(2, "0")}</span>
+              <strong>{phase}</strong>
+              <span data-numeric>{value} · {Math.round((value / total) * 100)}%</span>
+            </li>
+          ))}
         </ul>
-      ) : <p className="mt-4 text-muted-foreground">No acquisition phases are available.</p>}
+      ) : <p className="mt-4 text-mc-muted">No acquisition phases are available.</p>}
     </McPanel>
   );
 }

@@ -267,21 +267,20 @@
 }
 
 @utility mc-panel {
-  border-top: 2px solid var(--border);
-  padding-top: 1rem;
+  min-width: 0;
 }
 
 @utility mc-stat-block {
-  min-height: 8.5rem;
-  border-bottom: 1px solid var(--mc-line);
-  padding: 1.15rem 1rem 1rem;
-  background: color-mix(in oklab, var(--mc-surface) 60%, transparent);
+  min-width: 0;
+  border-right: 1px solid var(--mc-line);
+  padding: 0.85rem 1rem;
 }
 
 @utility mc-stat-xl {
   color: var(--accent-cyan);
-  font-size: 48px;
-  line-height: 52px;
+  margin-left: auto;
+  font-size: 34px;
+  line-height: 38px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -303,8 +302,8 @@
 }
 
 @utility mc-status-pip {
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   background: currentColor;
   box-shadow: 0 0 10px currentColor;
 }
@@ -342,7 +341,7 @@
 @utility mc-scan-card {
   position: relative;
   min-width: 0;
-  min-height: 12rem;
+  min-height: 20rem;
   background: color-mix(in oklab, var(--mc-surface) 92%, transparent);
   padding: 1.15rem;
   transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
@@ -372,6 +371,246 @@
 @utility mc-scan-card-hold {
   filter: saturate(0.68);
 }
+
+@utility mc-heading {
+  margin-top: 0.25rem;
+  color: var(--mc-foreground);
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+@utility mc-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+@utility mc-section-note {
+  color: var(--mc-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@utility mc-status-rail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-block: 1px solid var(--mc-line);
+  background: color-mix(in oklab, var(--mc-field) 78%, transparent);
+}
+
+@utility mc-microgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 0.9rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--mc-line);
+  & div { min-width: 0; }
+  & dt {
+    color: color-mix(in oklab, var(--mc-muted) 72%, transparent);
+    font-size: 9px;
+    line-height: 14px;
+    text-transform: uppercase;
+  }
+  & dd {
+    overflow: hidden;
+    color: var(--mc-foreground);
+    font-size: 11px;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@utility mc-trajectory {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--mc-line);
+}
+
+@utility mc-trajectory-scroll {
+  overflow-x: auto;
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
+}
+
+@utility mc-trajectory-grid {
+  display: grid;
+  min-width: 58rem;
+  border: 1px solid var(--mc-line);
+  background: color-mix(in oklab, var(--mc-field) 78%, transparent);
+}
+
+@utility mc-trajectory-corner {
+  padding: 0.65rem 0.8rem;
+  border-right: 1px solid var(--mc-line);
+  border-bottom: 1px solid var(--mc-line);
+}
+
+@utility mc-trajectory-phase {
+  overflow: hidden;
+  padding: 0.65rem 0.35rem;
+  border-bottom: 1px solid var(--mc-line);
+  color: var(--mc-muted);
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@utility mc-trajectory-name {
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  border-right: 1px solid var(--mc-line);
+  border-bottom: 1px solid color-mix(in oklab, var(--mc-line) 64%, transparent);
+  background: color-mix(in oklab, var(--mc-surface) 78%, transparent);
+  & strong, & span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  & strong { color: var(--mc-foreground); font-size: 11px; line-height: 16px; font-weight: 500; }
+  & span { color: var(--mc-muted); font-size: 9px; line-height: 14px; }
+}
+
+@utility mc-trajectory-cell {
+  position: relative;
+  min-height: 3.25rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--mc-line) 64%, transparent);
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    content: "";
+    background: color-mix(in oklab, var(--mc-muted) 22%, transparent);
+  }
+}
+
+@utility mc-trajectory-current {
+  background: color-mix(in oklab, var(--accent-cyan) 7%, transparent);
+}
+
+@utility mc-trajectory-node {
+  position: absolute;
+  z-index: 1;
+  top: calc(50% - 3px);
+  left: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--mc-muted);
+  border-radius: 999px;
+  background: var(--mc-field);
+}
+
+@utility mc-trajectory-complete { background: var(--accent-cyan); border-color: var(--accent-cyan); }
+@utility mc-trajectory-active { width: 10px; height: 10px; top: calc(50% - 5px); left: calc(50% - 5px); background: var(--accent-cyan); border-color: var(--accent-cyan); box-shadow: 0 0 12px var(--mc-glow); }
+@utility mc-trajectory-hold { & .mc-trajectory-active { background: var(--atrisk); border-color: var(--atrisk); } }
+@utility mc-trajectory-watch { & .mc-trajectory-active { background: var(--mc-amber); border-color: var(--mc-amber); } }
+
+@utility mc-overview-environment {
+  position: relative;
+  overflow: hidden;
+  margin-top: -2rem;
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--mc-line);
+  border-top: 0;
+  background: linear-gradient(180deg, var(--mc-field), color-mix(in oklab, var(--mc-field) 92%, var(--chrome)));
+  color: var(--mc-foreground);
+}
+
+@utility mc-refresh-line {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--mc-line);
+  color: var(--mc-muted);
+  font-size: 10px;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+@utility mc-scan-pulse {
+  width: 1.75rem;
+  height: 1px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--mc-glow);
+  animation: mc-scan 2.8s ease-in-out infinite;
+}
+
+@keyframes mc-scan { 0%, 100% { opacity: 0.35; transform: scaleX(0.45); transform-origin: left; } 50% { opacity: 1; transform: scaleX(1); transform-origin: left; } }
+
+@utility mc-ops-panel {
+  padding: 1.5rem;
+  background: color-mix(in oklab, var(--mc-surface) 72%, transparent);
+}
+
+@utility mc-phase-accumulation {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  margin-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  & li { min-width: 7rem; padding-right: 1px; }
+  & strong, & span { display: block; }
+  & strong { margin-top: 0.5rem; color: var(--mc-foreground); font-size: 11px; line-height: 16px; font-weight: 500; }
+  & li > span:last-child { color: var(--mc-muted); font-size: 10px; line-height: 15px; }
+}
+
+@utility mc-phase-step {
+  position: relative;
+  height: 2.5rem;
+  border-top: 1px solid var(--mc-line);
+  background: color-mix(in oklab, var(--accent-cyan) 5%, transparent);
+  &::after { position: absolute; top: -4px; right: -4px; width: 7px; height: 7px; content: ""; border: 1px solid var(--accent-cyan); border-radius: 999px; background: var(--mc-field); }
+  & i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, color-mix(in oklab, var(--accent-cyan) 4%, transparent), color-mix(in oklab, var(--accent-cyan) 14%, transparent)); }
+}
+
+@utility mc-phase-index { margin-top: 0.35rem; color: var(--accent-cyan); font-size: 9px; line-height: 14px; }
+
+@utility mc-days-returned {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: color-mix(in oklab, var(--mc-surface) 72%, transparent);
+}
+
+@utility mc-return-orbit {
+  display: grid;
+  width: 8rem;
+  height: 8rem;
+  align-content: center;
+  border: 1px solid var(--mc-line);
+  border-radius: 999px;
+  box-shadow: inset 0 0 24px color-mix(in oklab, var(--accent-cyan) 8%, transparent);
+  text-align: center;
+}
+
+@utility mc-return-value { color: var(--accent-cyan); font-size: 36px; line-height: 40px; font-weight: 600; }
+@utility mc-return-caption { padding-inline: 1rem; color: var(--mc-muted); font-size: 9px; line-height: 13px; text-transform: uppercase; }
+@utility mc-return-centers { grid-column: 1 / -1; border-top: 1px solid var(--mc-line); padding-top: 0.75rem; & p { display: flex; justify-content: space-between; gap: 1rem; color: var(--mc-muted); font-size: 11px; line-height: 18px; } & strong { color: var(--mc-foreground); font-weight: 500; } }
+
+@utility mc-anomaly-list { margin-top: 1rem; border-block: 1px solid var(--mc-line); }
+@utility mc-anomaly-row { display: grid; gap: 0.75rem; padding: 0.9rem 0; border-bottom: 1px solid color-mix(in oklab, var(--mc-line) 64%, transparent); transition: background-color 150ms ease; &:hover { background: color-mix(in oklab, var(--accent-cyan) 5%, transparent); } }
+@utility mc-anomaly-data { min-width: 0; & small, & strong { display: block; } & small { color: color-mix(in oklab, var(--mc-muted) 72%, transparent); font-size: 9px; line-height: 14px; text-transform: uppercase; } & strong { overflow: hidden; color: var(--mc-foreground); font-size: 11px; line-height: 16px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; } }
+
+@utility mc-watch-wrap { padding: 0 1.5rem; & section { margin: 0; max-width: none; border-color: var(--mc-line); color: var(--mc-foreground); } & p { color: var(--mc-muted); } & a { color: var(--accent-cyan); } }
+@utility mc-tabs { display: flex; gap: 1.5rem; margin: 1.5rem; border-bottom: 1px solid var(--mc-line); }
+@utility mc-tab { margin-bottom: -1px; border-bottom: 2px solid transparent; padding: 0 0.25rem 0.6rem; color: var(--mc-muted); font-size: 14px; line-height: 20px; &:hover { color: var(--mc-foreground); } }
+@utility mc-tab-active { border-color: var(--accent-cyan); color: var(--mc-foreground); }
+
+.mc-overview-environment > div:last-child:not(.mc-tabs),
+.mc-overview-environment > section:last-child { padding: 0 1.5rem 1.5rem; }
+
+.mc-overview-environment h2,
+.mc-overview-environment h3 { color: var(--mc-foreground); }
+.mc-overview-environment .text-muted-foreground { color: var(--mc-muted); }
+.mc-overview-environment .text-primary { color: var(--accent-cyan); }
+.mc-overview-environment .border-border { border-color: var(--mc-line); }
+.mc-overview-environment .bg-background { background-color: color-mix(in oklab, var(--mc-surface) 82%, transparent); }
 
 @utility mc-countdown {
   color: var(--accent-cyan);
@@ -456,17 +695,9 @@
   .mc-command-field { padding: 2rem; }
 }
 
-@media (min-width: 480px) {
-  .mc-stat-block { border-right: 1px solid var(--mc-line); }
-  .mc-stat-block:nth-child(2n) { border-right: 0; }
-  .mc-stat-block:nth-last-child(-n + 2) { border-bottom: 0; }
-}
-
-@media (min-width: 1024px) {
-  .mc-stat-block { border-bottom: 0; }
-  .mc-stat-block:nth-child(2n) { border-right: 1px solid var(--mc-line); }
-  .mc-stat-block:last-child { border-right: 0; }
-}
+@media (min-width: 640px) { .mc-anomaly-row { grid-template-columns: 5rem minmax(12rem, 1.3fr) minmax(6rem, 0.55fr) minmax(7rem, 0.65fr) minmax(12rem, 1.25fr); align-items: center; } }
+@media (min-width: 1024px) { .mc-status-rail { grid-template-columns: repeat(4, minmax(0, 1fr)); } .mc-stat-block:last-child { border-right: 0; } }
+@media (max-width: 639px) { .mc-command-field { padding: 1rem; } .mc-overview-environment { margin-top: -2rem; } .mc-days-returned { grid-template-columns: 1fr; } .mc-return-orbit { width: 7rem; height: 7rem; } .mc-anomaly-data { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 0.5rem; } .mc-tabs { overflow-x: auto; margin-inline: 1rem; } }
 
 /* Work surfaces: calm paper with a whisper of elevation, never glow. */
 @utility surface-raised {
