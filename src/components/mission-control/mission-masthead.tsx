@@ -2,11 +2,7 @@ export function MissionMasthead() {
   return (
     <header className="mc-masthead" aria-labelledby="executive-overview-title">
       <div className="mc-masthead-brand">
-        <img
-          src="/brand/nasa-insignia.png"
-          alt="NASA"
-          className="mc-masthead-insignia"
-        />
+        <img src="/brand/nasa-insignia.png" alt="NASA" className="mc-masthead-insignia" />
         <div className="min-w-0">
           <p className="mc-masthead-kicker">NASA · T–MINUS</p>
           <h1 id="executive-overview-title" className="mc-masthead-title">

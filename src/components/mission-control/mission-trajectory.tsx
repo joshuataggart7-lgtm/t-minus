@@ -17,10 +17,18 @@ const LIFECYCLE = [
 ] as const;
 
 function lifecycleIndex(metric: AcqMetrics) {
-  return LIFECYCLE.findIndex((stage) => stage.phases.some((phase) => phase === metric.currentPhase));
+  return LIFECYCLE.findIndex((stage) =>
+    stage.phases.some((phase) => phase === metric.currentPhase),
+  );
 }
 
-export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
+export function MissionTrajectory({
+  metrics,
+  missions,
+}: {
+  metrics: AcqMetrics[];
+  missions: MissionRow[];
+}) {
   const rows = [...metrics].sort((a, b) => {
     const aIndex = lifecycleIndex(a);
     const bIndex = lifecycleIndex(b);
@@ -32,7 +40,9 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       <div className="mc-section-heading">
         <div>
           <p className="mc-label">Mission trajectory</p>
-          <h2 id="trajectory-heading" className="mc-heading">Portfolio flight path</h2>
+          <h2 id="trajectory-heading" className="mc-heading">
+            Portfolio flight path
+          </h2>
         </div>
         <p className="mc-section-note">Recorded phases grouped into the mission lifecycle</p>
       </div>
@@ -40,7 +50,11 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       <div className="mc-trajectory-scroll">
         <div className="mc-trajectory-grid">
           <div className="mc-trajectory-corner mc-label">Mission</div>
-          {LIFECYCLE.map((stage) => <div key={stage.label} className="mc-trajectory-phase">{stage.label}</div>)}
+          {LIFECYCLE.map((stage) => (
+            <div key={stage.label} className="mc-trajectory-phase">
+              {stage.label}
+            </div>
+          ))}
           {rows.map((metric) => {
             const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
             const state = missionControlState(metric);
@@ -53,20 +67,38 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               >
                 <span className="mc-trajectory-name">
                   <strong>{mission?.name || String(metric.acq.title ?? "Untitled mission")}</strong>
-                  <span data-numeric>{metric.acq.acquisition_id} · {state}</span>
+                  <span data-numeric>
+                    {metric.acq.acquisition_id} · {state}
+                  </span>
                 </span>
                 {LIFECYCLE.map((stage) => {
-                  const groupedPhases = metric.phases.filter((item) => stage.phases.some((phase) => phase === item.phase));
+                  const groupedPhases = metric.phases.filter((item) =>
+                    stage.phases.some((phase) => phase === item.phase),
+                  );
                   const active = groupedPhases.some((phase) => phase.status === "current");
-                  const complete = groupedPhases.length > 0 && groupedPhases.every((phase) => phase.status === "complete");
+                  const complete =
+                    groupedPhases.length > 0 &&
+                    groupedPhases.every((phase) => phase.status === "complete");
                   const recordedNames = groupedPhases.map((phase) => phase.phase).join(", ");
                   return (
                     <span
                       key={stage.label}
-                      title={recordedNames || `${stage.label}: no phase recorded for this acquisition type`}
-                      className={cn("mc-trajectory-cell", active && `mc-trajectory-current mc-trajectory-${state.toLowerCase()}`)}
+                      title={
+                        recordedNames ||
+                        `${stage.label}: no phase recorded for this acquisition type`
+                      }
+                      className={cn(
+                        "mc-trajectory-cell",
+                        active && `mc-trajectory-current mc-trajectory-${state.toLowerCase()}`,
+                      )}
                     >
-                      <span className={cn("mc-trajectory-node", complete && "mc-trajectory-complete", active && "mc-trajectory-active")} />
+                      <span
+                        className={cn(
+                          "mc-trajectory-node",
+                          complete && "mc-trajectory-complete",
+                          active && "mc-trajectory-active",
+                        )}
+                      />
                     </span>
                   );
                 })}

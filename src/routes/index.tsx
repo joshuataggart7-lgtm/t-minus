@@ -18,7 +18,11 @@ import {
   withinDays,
 } from "@/lib/watch";
 import { SmallBusinessPanel } from "@/components/small-business-panel";
-import { CentersTab, type CenterDocumentRow, type CenterTemplateRow } from "@/components/centers-tab";
+import {
+  CentersTab,
+  type CenterDocumentRow,
+  type CenterTemplateRow,
+} from "@/components/centers-tab";
 import { successorRows } from "@/lib/successor";
 import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/aging";
 import type { ThresholdRow } from "@/lib/small-business";
@@ -59,7 +63,6 @@ export const Route = createFileRoute("/")({
   component: ExecutiveOverview,
 });
 
-
 export function ExecutiveOverview() {
   const { authState } = useRole();
   const [tab, setTab] = useState<"acquisitions" | "centers" | "enterprise">("acquisitions");
@@ -69,7 +72,19 @@ export function ExecutiveOverview() {
     enabled: authState === "signed-in",
     refetchInterval: 5000,
     queryFn: async () => {
-      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, watchRows, refs] = await Promise.all([
+      const [
+        missions,
+        acqs,
+        plan,
+        rules,
+        overrides,
+        thresholds,
+        strategies,
+        polls,
+        log,
+        watchRows,
+        refs,
+      ] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
@@ -88,11 +103,15 @@ export function ExecutiveOverview() {
       ]);
       const [centers, users, documents, templateRows] = await Promise.all([
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
-        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
+        supabase
+          .from("users")
+          .select("name,role,title,center_code,supervisor_name,supervisor_email"),
         supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
         supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);
-      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
+      const attachments = await supabase
+        .from("document_attachments")
+        .select("acquisition_id,doc_key");
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -142,7 +161,7 @@ export function ExecutiveOverview() {
     if (!q.data) return [];
     return q.data.acqs.map((acq) =>
       computeMetrics(acq, {
-          attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
+        attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
         plan: q.data.plan,
@@ -183,7 +202,9 @@ export function ExecutiveOverview() {
   // Stamped when this page loads, so a reader knows how fresh the figures are.
   const [computedAt, setComputedAt] = useState("");
   useEffect(() => {
-    setComputedAt(new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }));
+    setComputedAt(
+      new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }),
+    );
   }, []);
 
   return (
@@ -203,7 +224,11 @@ export function ExecutiveOverview() {
         ) : missionRows.length === 0 ? (
           <p className="text-muted-foreground">No priority projects are loaded yet.</p>
         ) : (
-          <PortfolioHero metrics={metrics} missions={q.data?.missions ?? []} latestEvents={latestEvents} />
+          <PortfolioHero
+            metrics={metrics}
+            missions={q.data?.missions ?? []}
+            latestEvents={latestEvents}
+          />
         )}
       </section>
 
@@ -221,48 +246,52 @@ export function ExecutiveOverview() {
         </div>
         <AttentionSeverityList metrics={metrics} missions={q.data?.missions ?? []} />
 
-        <div className="mc-watch-wrap"><WatchCard items={q.data?.watch ?? []} /></div>
+        <div className="mc-watch-wrap">
+          <WatchCard items={q.data?.watch ?? []} />
+        </div>
 
-      <div role="tablist" aria-label="Overview detail" className="mc-tabs">
-        {(["acquisitions", "centers", "enterprise"] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
-            className={
-              tab === t
-                ? "mc-tab mc-tab-active"
-                : "mc-tab"
-            }
-          >
-            {t === "acquisitions" ? "Acquisitions" : t === "centers" ? "Centers" : "Enterprise"}
-          </button>
-        ))}
-      </div>
+        <div role="tablist" aria-label="Overview detail" className="mc-tabs">
+          {(["acquisitions", "centers", "enterprise"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              role="tab"
+              aria-selected={tab === t}
+              onClick={() => setTab(t)}
+              className={tab === t ? "mc-tab mc-tab-active" : "mc-tab"}
+            >
+              {t === "acquisitions" ? "Acquisitions" : t === "centers" ? "Centers" : "Enterprise"}
+            </button>
+          ))}
+        </div>
 
-      {tab === "acquisitions" ? (
-        <ClockBoard
-          metrics={metrics}
-          plan={q.data?.plan ?? []}
-          thresholds={ref.thresholds}
-          polls={q.data?.polls ?? []}
-          centers={q.data?.centers ?? []}
-          users={q.data?.users ?? []}
-        />
-      ) : tab === "centers" ? (
-        <CentersTab
-          metrics={metrics}
-          polls={q.data?.polls ?? []}
-          centers={q.data?.centers ?? []}
-          users={q.data?.users ?? []}
-          documents={q.data?.documents ?? []}
-          templates={q.data?.templates ?? []}
-        />
-      ) : (
-        <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
-      )}
+        {tab === "acquisitions" ? (
+          <ClockBoard
+            metrics={metrics}
+            plan={q.data?.plan ?? []}
+            thresholds={ref.thresholds}
+            polls={q.data?.polls ?? []}
+            centers={q.data?.centers ?? []}
+            users={q.data?.users ?? []}
+          />
+        ) : tab === "centers" ? (
+          <CentersTab
+            metrics={metrics}
+            polls={q.data?.polls ?? []}
+            centers={q.data?.centers ?? []}
+            users={q.data?.users ?? []}
+            documents={q.data?.documents ?? []}
+            templates={q.data?.templates ?? []}
+          />
+        ) : (
+          <EnterpriseTab
+            metrics={metrics}
+            missionRows={missionRows}
+            log={q.data?.log ?? []}
+            polls={q.data?.polls ?? []}
+            rules={q.data?.rules ?? []}
+          />
+        )}
       </div>
     </AppShell>
   );
@@ -295,7 +324,10 @@ function AgingPanel({
   centers: CenterRow[];
   users: UserRow[];
 }) {
-  const rows = useMemo(() => agingByCenter(agingItems(acqs, polls, centers, users)), [acqs, polls, centers, users]);
+  const rows = useMemo(
+    () => agingByCenter(agingItems(acqs, polls, centers, users)),
+    [acqs, polls, centers, users],
+  );
   const total = rows.reduce((n, r) => n + r.holds + r.polls, 0);
 
   return (
@@ -315,19 +347,33 @@ function AgingPanel({
         <table className="mt-3 w-full max-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">Center</th>
-              <th scope="col" className="p-2">Aging holds</th>
-              <th scope="col" className="p-2">Aging polls</th>
-              <th scope="col" className="p-2">Aging after</th>
+              <th scope="col" className="p-2">
+                Center
+              </th>
+              <th scope="col" className="p-2">
+                Aging holds
+              </th>
+              <th scope="col" className="p-2">
+                Aging polls
+              </th>
+              <th scope="col" className="p-2">
+                Aging after
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.centerCode} className="border-b border-border last:border-0">
                 <td className="p-2">{r.centerCode}</td>
-                <td className="p-2" data-numeric>{r.holds}</td>
-                <td className="p-2" data-numeric>{r.polls}</td>
-                <td className="p-2" data-numeric>{r.thresholdDays} days</td>
+                <td className="p-2" data-numeric>
+                  {r.holds}
+                </td>
+                <td className="p-2" data-numeric>
+                  {r.polls}
+                </td>
+                <td className="p-2" data-numeric>
+                  {r.thresholdDays} days
+                </td>
               </tr>
             ))}
           </tbody>
@@ -351,12 +397,15 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
     <>
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Successor clock</h3>
       <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-        Method: the period of performance end date less the summed planned days in the phase plan for
-        that acquisition type, plus a 30-day transition allowance. A file is flagged once that date has passed with no successor file
-        linked to it. Advisory only — it never places a hold, and no successor file is created automatically.
+        Method: the period of performance end date less the summed planned days in the phase plan
+        for that acquisition type, plus a 30-day transition allowance. A file is flagged once that
+        date has passed with no successor file linked to it. Advisory only — it never places a hold,
+        and no successor file is created automatically.
       </p>
       {rows.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No launched file records a period of performance end.</p>
+        <p className="mt-2 text-muted-foreground">
+          No launched file records a period of performance end.
+        </p>
       ) : (
         <>
           <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
@@ -368,12 +417,24 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
           <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">Acquisition</th>
-                <th scope="col" className="p-2">Period of performance ends</th>
-                <th scope="col" className="p-2">Planned days</th>
-                <th scope="col" className="p-2">Successor must start by</th>
-                <th scope="col" className="p-2">Successor file</th>
-                <th scope="col" className="p-2">Standing</th>
+                <th scope="col" className="p-2">
+                  Acquisition
+                </th>
+                <th scope="col" className="p-2">
+                  Period of performance ends
+                </th>
+                <th scope="col" className="p-2">
+                  Planned days
+                </th>
+                <th scope="col" className="p-2">
+                  Successor must start by
+                </th>
+                <th scope="col" className="p-2">
+                  Successor file
+                </th>
+                <th scope="col" className="p-2">
+                  Standing
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -514,7 +575,9 @@ function ClockBoard({
   return (
     <div>
       <h2 className="text-[18px] leading-6 font-medium">Acquisitions</h2>
-      <p className="mt-1 text-muted-foreground">Every number on this page is computed from the work itself.</p>
+      <p className="mt-1 text-muted-foreground">
+        Every number on this page is computed from the work itself.
+      </p>
 
       <div className="mt-6 grid gap-8 sm:grid-cols-4">
         {[
@@ -532,7 +595,9 @@ function ClockBoard({
         ))}
       </div>
 
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Clause change mods, done against due</h3>
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">
+        Clause change mods, done against due
+      </h3>
       <p className="mt-1 text-[13px] text-muted-foreground">
         Modifications required by a clause change, by Center.{" "}
         <Link to="/clause-changes" className="text-primary">
@@ -545,7 +610,10 @@ function ClockBoard({
       ) : (
         <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
           {modCounts.map((c) => (
-            <li key={c.center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
+            <li
+              key={c.center}
+              className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]"
+            >
               <span>{c.center}</span>
               <span data-numeric>
                 {c.done} done of {c.due} due
@@ -586,10 +654,18 @@ function ClockBoard({
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">Acquisition</th>
-              <th scope="col" className="p-2">Reason</th>
-              <th scope="col" className="p-2">Responsible role</th>
-              <th scope="col" className="p-2">Days on hold</th>
+              <th scope="col" className="p-2">
+                Acquisition
+              </th>
+              <th scope="col" className="p-2">
+                Reason
+              </th>
+              <th scope="col" className="p-2">
+                Responsible role
+              </th>
+              <th scope="col" className="p-2">
+                Days on hold
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -615,18 +691,30 @@ function ClockBoard({
         </table>
       )}
 
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Lead time by phase against the phase plan</h3>
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">
+        Lead time by phase against the phase plan
+      </h3>
       {leadByPhase.length === 0 ? (
         <p className="mt-2 text-muted-foreground">No phase has recorded time yet.</p>
       ) : (
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">Phase</th>
-              <th scope="col" className="p-2">Files measured</th>
-              <th scope="col" className="p-2">Planned days</th>
-              <th scope="col" className="p-2">Actual days</th>
-              <th scope="col" className="p-2">Against plan</th>
+              <th scope="col" className="p-2">
+                Phase
+              </th>
+              <th scope="col" className="p-2">
+                Files measured
+              </th>
+              <th scope="col" className="p-2">
+                Planned days
+              </th>
+              <th scope="col" className="p-2">
+                Actual days
+              </th>
+              <th scope="col" className="p-2">
+                Against plan
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -645,7 +733,9 @@ function ClockBoard({
                     {r.actual}
                   </td>
                   <td className="p-2" data-numeric>
-                    {delta === 0 ? "On plan" : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}
+                    {delta === 0
+                      ? "On plan"
+                      : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}
                   </td>
                 </tr>
               );
@@ -742,8 +832,8 @@ function EnterpriseTab({
     <div>
       <h2 className="text-[18px] leading-6 font-medium">Enterprise</h2>
       <p className="mt-1 max-w-[80ch] text-muted-foreground">
-        The ORBIT prototype with fictional data. Its workforce tabs are unchanged. Executive summary,
-        project status, and recurring actions read live from T-Minus.
+        The ORBIT prototype with fictional data. Its workforce tabs are unchanged. Executive
+        summary, project status, and recurring actions read live from T-Minus.
       </p>
 
       <section className="mt-6 rounded-lg border border-border bg-background p-5">
@@ -751,10 +841,10 @@ function EnterpriseTab({
           <div>
             <h3 className="text-[15px] font-medium">Microsoft Teams bot</h3>
             <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
-              A production Teams bot so mission leaders ask T-Minus in the flow of work.
-              Mention the bot with a PR number and it answers with the file&apos;s clock line,
-              status, owner, and a link to the file. It reads the same data as the Executive
-              Overview; nothing is stored in Teams.
+              A production Teams bot so mission leaders ask T-Minus in the flow of work. Mention the
+              bot with a PR number and it answers with the file&apos;s clock line, status, owner,
+              and a link to the file. It reads the same data as the Executive Overview; nothing is
+              stored in Teams.
             </p>
           </div>
           <span className="shrink-0 rounded-full border border-border px-3 py-1 text-[12px] font-medium text-muted-foreground">
@@ -773,8 +863,8 @@ function EnterpriseTab({
             <p className="text-foreground">
               <span className="font-medium">T-Minus</span>
               <br />
-              PR 4200999101 is A-2027-0101, {sample?.acq.title ?? "Commercial Aviation Services"}.
-              {" "}Center {sample?.acq.center_code ?? "ARC"}, owner{" "}
+              PR 4200999101 is A-2027-0101, {sample?.acq.title ??
+                "Commercial Aviation Services"}. Center {sample?.acq.center_code ?? "ARC"}, owner{" "}
               {String(
                 (sample?.acq as Record<string, unknown> | undefined)?.["co_name"] ?? "",
               ).trim() || "not recorded"}
@@ -797,8 +887,8 @@ function EnterpriseTab({
             </p>
           </div>
           <p className="mt-3 text-[12px] text-muted-foreground">
-            Sample uses fictional acquisition A-2027-0101. The production bot would answer
-            for any PR the caller can see under the same role-based access.
+            Sample uses fictional acquisition A-2027-0101. The production bot would answer for any
+            PR the caller can see under the same role-based access.
           </p>
         </div>
       </section>
