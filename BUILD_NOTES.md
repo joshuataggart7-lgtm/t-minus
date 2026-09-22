@@ -2807,3 +2807,10 @@ Selection Guide §3.24. This closes Soft Walk P1 OP Word-master row 6. No meter 
 ## ORBIT Phase 2 — Executive Overview r2
 
 Presentation-only Mission Control refinement. The Executive Overview now carries one dark operational environment from the flight-director GO/WATCH/HOLD/LAUNCHED rail through a record-derived lifecycle trajectory, deeper T− mission cards, lifecycle accumulation, anomaly rows, and an honest days-returned visualization. All values continue to come from existing acquisition, phase, hold, award, and `computeMetrics` data. Motion is limited to scanning and state cues and respects reduced-motion preferences. No workflow, clock, document, role, schema, seed, audit, or Soft Walk behavior changed.
+
+## ORBIT Phase 2 — Executive Overview r3 NASA identity
+
+- Added an Executive-only NASA / T-Minus procurement mission-control masthead using the authorized `public/brand/nasa-insignia.png` asset, with Ames Research Center and Office of Procurement identity.
+- Reserved NASA red `#FC3D21` for the masthead underline and rare identity marks only. HOLD, OVERDUE, errors, and destructive actions continue to use the separate operational red token.
+- Grouped recorded Soft Walk phases into a readable procurement lifecycle trajectory without changing phase records or creating telemetry. Mission cards now expose the latest existing audit event alongside their existing clock, phase, gate, award, variance, and owner details.
+- No workflow, clock math, document, form, fixture, role, schema, audit-write, or Soft Walk behavior changed.

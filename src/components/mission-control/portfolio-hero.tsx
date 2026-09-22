@@ -3,7 +3,17 @@ import { AcquisitionScanCard } from "./acquisition-scan-card";
 import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
 
-export function PortfolioHero({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
+type LatestEvent = { action: string; loggedAt: string };
+
+export function PortfolioHero({
+  metrics,
+  missions,
+  latestEvents,
+}: {
+  metrics: AcqMetrics[];
+  missions: MissionRow[];
+  latestEvents: Record<string, LatestEvent>;
+}) {
   return (
     <section className="mc-command-field mc-grid mc-glow-rim" aria-label="Mission control portfolio">
       <div className="mc-command-beacon" aria-hidden="true" />
@@ -27,6 +37,7 @@ export function PortfolioHero({ metrics, missions }: { metrics: AcqMetrics[]; mi
               metric={metric}
               mission={missions.find((mission) => mission.mission_id === metric.acq.mission_id) ?? null}
               index={index + 1}
+              latestEvent={latestEvents[metric.acq.acquisition_id] ?? null}
             />
           ))}
         </div>

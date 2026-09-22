@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +36,7 @@ import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
 import { PhaseDistribution } from "@/components/mission-control/phase-distribution";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 import { DaysReturned } from "@/components/mission-control/days-returned";
+import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -166,6 +167,19 @@ export function ExecutiveOverview() {
       .filter((r) => r.driver) as { mission: MissionRow; driver: AcqMetrics }[];
   }, [q.data, metrics]);
 
+  const latestEvents = useMemo(() => {
+    const events: Record<string, { action: string; loggedAt: string }> = {};
+    for (const row of q.data?.log ?? []) {
+      const acquisitionId = String(row.acquisition_id ?? "");
+      if (!acquisitionId || events[acquisitionId]) continue;
+      events[acquisitionId] = {
+        action: String(row.action ?? "Activity recorded"),
+        loggedAt: String(row.logged_at ?? ""),
+      };
+    }
+    return events;
+  }, [q.data?.log]);
+
   // Stamped when this page loads, so a reader knows how fresh the figures are.
   const [computedAt, setComputedAt] = useState("");
   useEffect(() => {
@@ -174,7 +188,7 @@ export function ExecutiveOverview() {
 
   return (
     <AppShell wide>
-      <PageHeader title="Executive Overview" lead="T-Minus turns acquisition time into mission readiness." />
+      <MissionMasthead />
 
       {q.isError ? (
         <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
@@ -189,7 +203,7 @@ export function ExecutiveOverview() {
         ) : missionRows.length === 0 ? (
           <p className="text-muted-foreground">No priority projects are loaded yet.</p>
         ) : (
-          <PortfolioHero metrics={metrics} missions={q.data?.missions ?? []} />
+          <PortfolioHero metrics={metrics} missions={q.data?.missions ?? []} latestEvents={latestEvents} />
         )}
       </section>
 
