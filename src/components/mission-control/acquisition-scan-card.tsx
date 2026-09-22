@@ -7,7 +7,8 @@ import { missionControlState } from "./mission-status-board";
 export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; mission: MissionRow | null }) {
   const view = countdownView(metric);
   const state = missionControlState(metric);
-  const title = String(metric.acq.title ?? "").trim() || mission?.name || "Untitled acquisition";
+  const acquisitionTitle = String(metric.acq.title ?? "").trim();
+  const title = mission?.name || acquisitionTitle || "Untitled mission";
   const statusLine = metric.hold
     ? `${metric.hold.reason} · ${metric.hold.owner}`
     : metric.blocker !== "None"
@@ -27,7 +28,7 @@ export function AcquisitionScanCard({ metric, mission }: { metric: AcqMetrics; m
             {title}
           </h3>
           <p className="mt-1 truncate text-[11px] text-mc-muted" data-numeric>
-            {metric.acq.acquisition_id}{mission?.name && mission.name !== title ? ` · ${mission.name}` : ""}
+            {metric.acq.acquisition_id}{acquisitionTitle && acquisitionTitle !== title ? ` · ${acquisitionTitle}` : ""}
           </p>
         </div>
         <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
