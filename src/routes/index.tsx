@@ -24,18 +24,18 @@ import { agingItems, agingByCenter, type CenterRow, type UserRow } from "@/lib/a
 import type { ThresholdRow } from "@/lib/small-business";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import {
-  callout,
   computeMetrics,
   awardDateFor,
   formatDate,
   holdSince,
   missionDriver,
-  statusColor,
   urgencyRank,
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
-import { countdownView, type CountdownView } from "@/components/launch-countdown";
+import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
+import { PhaseDistribution } from "@/components/mission-control/phase-distribution";
+import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -57,149 +57,6 @@ export const Route = createFileRoute("/")({
   }),
   component: ExecutiveOverview,
 });
-
-
-function StatusWordTag({ status }: { status: AcqMetrics["status"] }) {
-  return (
-    <StatusMark color={statusColor(status)} className="text-[15px] leading-[22px]">
-      {status}
-    </StatusMark>
-  );
-}
-
-/** Chip tone for a portfolio countdown, reusing the Chunk 2 honesty rules. */
-function chipDigitColor(view: CountdownView): string {
-  if (view.tone === "red") return "var(--atrisk)";
-  if (view.tone === "muted") return "var(--panel-muted)";
-  return "var(--accent-cyan)";
-}
-
-/**
- * Portfolio scan strip inside the navy Mission Clock band (ORBIT Chunk 5).
- * Every figure is read from the already-computed AcqMetrics via countdownView;
- * no new date math, no invented hours or minutes.
- */
-function PortfolioScan({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
-  const chips = useMemo(
-    () =>
-      metrics.map((m) => {
-        const mission = missions.find((x) => x.mission_id === m.acq.mission_id) ?? null;
-        const title = (m.acq.title ?? "").trim();
-        return {
-          acq: m.acq.acquisition_id,
-          heading: title || mission?.name || m.acq.acquisition_id,
-          mission: mission?.name ?? null,
-          phase: m.currentPhase ?? "Not started",
-          hold: m.hold,
-          view: countdownView(m),
-        };
-      }),
-    [metrics, missions],
-  );
-
-  const phases = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const m of metrics) {
-      const phase = m.currentPhase ?? "Not started";
-      counts.set(phase, (counts.get(phase) ?? 0) + 1);
-    }
-    const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const max = Math.max(1, ...rows.map(([, n]) => n));
-    return { rows, max };
-  }, [metrics]);
-
-  return (
-    <div className="mb-6 border-b border-panel-muted/25 pb-6">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-panel-muted">
-        Launch countdown · Portfolio
-      </p>
-      <ul
-        className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-        aria-label="Portfolio countdowns"
-      >
-        {chips.map(({ acq, heading, mission, phase, hold, view }) => (
-          <li key={acq}>
-            <Link
-              to="/files/$acquisitionId"
-              params={{ acquisitionId: acq }}
-              title={`${heading} — ${acq} — ${view.caption}`}
-              className="block h-full rounded-lg border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_14px_28px_-22px_rgba(0,0,0,0.9)] transition-colors hover:border-[color:var(--accent-cyan)]/60 hover:bg-white/[0.09] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            >
-              <p className="truncate text-[15px] leading-[22px] font-medium text-panel-foreground">
-                {heading}
-              </p>
-              <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-[12px] text-panel-muted">
-                <span data-numeric className="[font-variant-numeric:tabular-nums]">
-                  {acq}
-                </span>
-                {mission && mission !== heading ? <span>· {mission}</span> : null}
-              </p>
-              <p className="mt-2">
-                <span className="inline-block rounded border border-panel-muted/40 px-1.5 py-0.5 text-[11px] text-panel-muted">
-                  {phase}
-                </span>
-              </p>
-              <p className="mt-2 flex items-baseline gap-2">
-                {view.days === null ? (
-                  <span className="text-[13px] text-panel-muted">
-                    {view.mode === "stopped" ? "Stopped" : "Not started"}
-                  </span>
-                ) : (
-                  <span
-                    className="text-[22px] font-semibold [font-variant-numeric:tabular-nums]"
-                    style={{ color: chipDigitColor(view) }}
-                    data-numeric
-                  >
-                    {view.prefix} {view.days}
-                  </span>
-                )}
-                {view.days !== null ? (
-                  <span className="text-[12px] text-panel-muted">days</span>
-                ) : null}
-                {view.badge ? (
-                  <span
-                    className="rounded px-1 text-[10px] font-semibold tracking-wide"
-                    style={
-                      view.mode === "hold"
-                        ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
-                        : view.mode === "overdue"
-                          ? { color: "#ffffff", backgroundColor: "var(--atrisk)" }
-                          : { color: "var(--panel)", backgroundColor: "var(--accent-cyan)" }
-                    }
-                  >
-                    {view.badge}
-                  </span>
-                ) : null}
-              </p>
-              {hold ? (
-                <p className="mt-1.5 truncate text-[12px] text-panel-muted">
-                  On hold — {hold.reason}
-                </p>
-              ) : null}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {phases.rows.length > 0 ? (
-        <ul className="mt-5 space-y-1.5" aria-label="Phase distribution">
-          {phases.rows.map(([phase, n]) => (
-            <li key={phase} className="flex items-center gap-3">
-              <span className="w-40 shrink-0 truncate text-[12px] text-panel-muted">{phase}</span>
-              <span
-                aria-hidden="true"
-                className="h-1.5 rounded-sm bg-panel-muted/40"
-                style={{ width: `${Math.max(3, (n / phases.max) * 100)}%`, maxWidth: "100%" }}
-              />
-              <span className="text-[12px] text-panel-foreground" data-numeric>
-                {n}
-              </span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  );
-}
 
 
 export function ExecutiveOverview() {
@@ -309,42 +166,11 @@ export function ExecutiveOverview() {
       .filter((r) => r.driver) as { mission: MissionRow; driver: AcqMetrics }[];
   }, [q.data, metrics]);
 
-  const callouts = useMemo(
-    () =>
-      missionRows
-        .filter((r) => r.driver.status !== "On Track")
-        .sort((a, b) => urgencyRank(a.driver) - urgencyRank(b.driver))
-        .map((r) => ({ id: r.mission.mission_id, acq: r.driver.acq.acquisition_id, text: callout(r.driver, r.mission) })),
-    [missionRows],
-  );
-
   // Stamped when this page loads, so a reader knows how fresh the figures are.
   const [computedAt, setComputedAt] = useState("");
   useEffect(() => {
     setComputedAt(new Date().toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }));
   }, []);
-
-  const summary = useMemo(() => {
-    const today = todayISO();
-    const qStart = quarterStart(today);
-    const count = (s: AcqMetrics["status"]) => metrics.filter((m) => m.status === s).length;
-    const launchedTotal = count("Launched");
-    const launchedThisQuarter = metrics.filter(
-      (m) =>
-        m.clockState === "launched" &&
-        m.awardDate &&
-        m.awardDate >= qStart &&
-        m.awardDate <= today,
-    ).length;
-    return [
-      { label: "At risk", count: count("At Risk"), color: "var(--atrisk)" },
-      { label: "Needs attention", count: count("Needs Attention"), color: "var(--attention)" },
-      { label: "On track", count: count("On Track"), color: "var(--ontrack)" },
-      { label: "Launched", count: launchedTotal, color: "var(--ontrack)" },
-      { label: "Launched this quarter", count: launchedThisQuarter, color: "var(--panel-muted)" },
-    ];
-  }, [metrics]);
-
 
   return (
     <AppShell wide>
@@ -363,34 +189,7 @@ export function ExecutiveOverview() {
         ) : missionRows.length === 0 ? (
           <p className="text-muted-foreground">No priority projects are loaded yet.</p>
         ) : (
-          <>
-            {/* The one bold element: deep navy Mission Clock band, large still figures. */}
-            <div className="console-panel rounded-xl border border-white/10 px-6 py-6 text-panel-foreground sm:px-8">
-              <PortfolioScan metrics={metrics} missions={q.data?.missions ?? []} />
-              <div className="flex items-baseline justify-between gap-4">
-                <p className="text-[13px] text-panel-muted" data-numeric>
-                  Across {metrics.length} acquisitions
-                </p>
-              </div>
-              <ul className="mt-2 divide-y divide-panel-muted/25">
-                {missionRows.map(({ mission, driver }) => (
-                  <MissionClockRow key={mission.mission_id} mission={mission} driver={driver} />
-                ))}
-              </ul>
-            </div>
-            {/* Quiet status summary below the hero — no competing card chrome. */}
-            <ul aria-label="Status summary" className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
-              {summary.map((s) => (
-                <li key={s.label} className="flex items-baseline gap-2 text-[13px] text-muted-foreground">
-                  <span aria-hidden="true" className="size-2 self-center rounded-[2px]" style={{ background: s.color }} />
-                  <span data-numeric className="text-[15px] font-semibold text-foreground">
-                    {s.count}
-                  </span>
-                  {s.label}
-                </li>
-              ))}
-            </ul>
-          </>
+          <PortfolioHero metrics={metrics} missions={q.data?.missions ?? []} />
         )}
       </section>
 
@@ -400,29 +199,10 @@ export function ExecutiveOverview() {
         </p>
       ) : null}
 
-      <section aria-label="What leadership needs to know now" className="mb-10">
-        <h2 className="section-title text-[18px] leading-6 font-medium">What leadership needs to know now</h2>
-        {q.isLoading ? (
-          <LoadingNote what="the leadership callouts" />
-        ) : callouts.length === 0 ? (
-          <p className="mt-3 text-muted-foreground">Every priority project is On track.</p>
-        ) : (
-          <ul className="mt-3 space-y-3">
-            {callouts.map((c) => (
-              <li key={c.id}>
-                <Link
-                  to="/files/$acquisitionId"
-                  params={{ acquisitionId: c.acq }}
-                  className="block max-w-[80ch] border-l-2 py-1 pl-3 text-[15px] leading-[22px] text-foreground"
-                  style={{ borderColor: "var(--atrisk)" }}
-                >
-                  {c.text}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="mb-10 grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+        <PhaseDistribution metrics={metrics} />
+        <AttentionSeverityList metrics={metrics} missions={q.data?.missions ?? []} />
+      </div>
 
       <WatchCard items={q.data?.watch ?? []} />
 
@@ -467,161 +247,6 @@ export function ExecutiveOverview() {
         <EnterpriseTab metrics={metrics} missionRows={missionRows} log={q.data?.log ?? []} polls={q.data?.polls ?? []} rules={q.data?.rules ?? []} />
       )}
     </AppShell>
-  );
-}
-
-/** Colour of the rule and word on the navy panel, paired with the status word. */
-function panelStatusColor(status: AcqMetrics["status"]) {
-  if (status === "Launched") return "var(--panel-muted)";
-  return statusColor(status);
-}
-
-/** Sentence-case wording for the status word on the navy band. */
-function statusWord(status: AcqMetrics["status"]) {
-  switch (status) {
-    case "At Risk":
-      return "At risk";
-    case "Needs Attention":
-      return "Needs attention";
-    case "On Track":
-      return "On track";
-    case "Launched":
-      return "Launched";
-  }
-}
-
-/** Short, always-fitting wording for a blocker or next decision. */
-function shortReason(text: string) {
-  // Drop parentheticals and section prefixes; they never fit on one line.
-  const t = String(text ?? "")
-    .replace(/\s*\([^)]*\)/g, "")
-    .replace(/^[A-Za-z ]+:\s*/, "")
-    .trim();
-
-  const vote = /^(.+?)\s+has not voted$/i.exec(t);
-  if (vote) return `Awaiting ${vote[1]!.trim().split(/\s+/)[0]!.toLowerCase()} review`;
-
-  const missing = /^(.+?)\s+is missing$/i.exec(t);
-  if (missing) return `${abbreviate(missing[1]!)} missing`;
-
-  const exit = /^Exit\s+(.+)$/i.exec(t);
-  if (exit) return `Exit ${exit[1]}`;
-
-  return t.length > 24 ? `${abbreviate(t)}` : t;
-}
-
-/** Three or more words become initials, the way COs write them. */
-function abbreviate(label: string) {
-  // Known document names print as their document, never as initials.
-  if (/sow|pws|statement of work|performance work/i.test(label)) return "SOW/PWS";
-  const words = label.trim().split(/\s+/);
-  if (label.length <= 22) return label;
-  const useful = words.filter((w) => !/^(of|the|and|or|for|a|an|to)$/i.test(w));
-  if (useful.length >= 3) return useful.map((w) => w[0]!.toUpperCase()).join("");
-  return `${label.slice(0, 21)}…`;
-}
-
-/** One priority project card with a status rail. */
-function MissionClockRow({ mission, driver }: { mission: MissionRow; driver: AcqMetrics }) {
-  const [expanded, setExpanded] = useState(false);
-  const color = panelStatusColor(driver.status);
-
-
-  const holdDays = driver.blockerSince ? Math.max(0, daysBetween(driver.blockerSince, todayISO())) : null;
-  const onTrack = driver.status === "On Track";
-  const fullLine = onTrack
-    ? `Next: ${driver.nextDecision}`
-    : [driver.blocker, driver.blockerOwner ?? null, holdDays === null ? null : `${holdDays} days`]
-        .filter(Boolean)
-        .join(" · ");
-  const shortLine = onTrack
-    ? `Next: ${shortReason(driver.nextDecision)}`
-    : [
-        shortReason(driver.blocker),
-        driver.blockerOwner
-          ? String(driver.blockerOwner)
-              .replace(/\s*\([^)]*\)/g, "")
-              .replace(/^[A-Za-z /]+:\s*/, "")
-              .trim()
-          : null,
-        holdDays === null ? null : `${holdDays}d`,
-      ]
-        .filter(Boolean)
-        .join(" · ");
-
-  return (
-    <li className="py-6 first:pt-1 last:pb-1">
-      <div className="grid items-end gap-x-8 gap-y-3 sm:grid-cols-[auto_minmax(0,1fr)] xl:grid-cols-[auto_minmax(0,1.4fr)_minmax(0,1fr)]">
-        <div className="min-w-0">
-          {driver.clockState === "launched" ? (
-            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" data-numeric>
-              {driver.daysSinceAward ?? 0}
-            </p>
-          ) : driver.clockState === "scrubbed" ? (
-            <p className="text-[18px] leading-6 font-medium text-panel-muted">Clock stopped</p>
-          ) : driver.daysToAward === null ? (
-            <p className="text-[18px] leading-6 font-medium text-panel-muted">Clock not started</p>
-          ) : driver.daysToAward < 0 ? (
-            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" style={{ color }} data-numeric>
-              {Math.abs(driver.daysToAward)}
-            </p>
-          ) : (
-            <p className="text-[40px] leading-[44px] font-semibold xl:text-[48px] xl:leading-[52px]" data-numeric>
-              {driver.daysToAward}
-            </p>
-          )}
-          {driver.clockState === "launched" || (driver.clockState !== "scrubbed" && driver.daysToAward !== null) ? (
-            <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
-              {driver.clockState === "launched"
-                ? `Days since award · ${formatDate(driver.awardDate)}`
-                : (driver.daysToAward ?? 0) < 0
-                  ? "Days past the award target"
-                  : "Days to award"}
-            </p>
-          ) : null}
-          <p className="mt-1 text-[15px] leading-[22px] font-medium" style={{ color }}>
-            {statusWord(driver.status)}
-          </p>
-        </div>
-
-        <div className="min-w-0">
-          <Link
-            to="/files/$acquisitionId"
-            params={{ acquisitionId: driver.acq.acquisition_id }}
-            className="block rounded text-[18px] leading-6 font-medium text-panel-foreground underline-offset-4 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
-          >
-            {mission.name}
-          </Link>
-          <p className="mt-1 text-[13px] leading-[18px] text-panel-muted" data-numeric>
-            {mission.milestone ?? "Milestone"} · Mission date {formatDate(mission.milestone_date)}
-          </p>
-          <p className="mt-2 text-[13px] leading-[18px] text-panel-muted">
-            {driver.currentPhase ?? "Not started"} · {driver.nextAction}
-          </p>
-        </div>
-
-        <div className="min-w-0 sm:col-span-2 xl:col-span-1">
-          <button
-            type="button"
-            onClick={() => setExpanded((e) => !e)}
-            aria-expanded={expanded}
-            title={fullLine}
-            className="block w-full text-left text-[15px] leading-[22px] text-panel-foreground"
-          >
-            {expanded ? fullLine : shortLine}
-          </button>
-          <p className="mt-1 break-words text-[13px] leading-[18px] text-panel-muted" data-numeric>
-            {driver.status === "Launched"
-              ? `${Math.abs(driver.timeSavedDays)} days ${driver.timeSavedDays >= 0 ? "ahead of" : "behind"} plan`
-              : driver.scheduleImpactDays === null
-                ? "Schedule impact unknown"
-                : driver.scheduleImpactDays >= 0
-                  ? `${driver.scheduleImpactDays} days of margin to the mission date`
-                  : `${Math.abs(driver.scheduleImpactDays)} days past the mission date`}
-          </p>
-        </div>
-      </div>
-    </li>
   );
 }
 
