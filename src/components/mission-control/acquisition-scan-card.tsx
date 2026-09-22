@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import type { AcqMetrics, MissionRow } from "@/lib/metrics";
+import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
+import { daysBetween, todayISO } from "@/lib/intake";
 import { countdownView } from "@/components/launch-countdown";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
@@ -14,6 +15,12 @@ export function AcquisitionScanCard({ metric, mission, index }: { metric: AcqMet
     : metric.blocker !== "None"
       ? metric.blocker
       : metric.nextAction;
+  const current = metric.phases.find((phase) => phase.status === "current");
+  const holdDays = metric.clockState === "hold" && metric.blockerSince
+    ? Math.max(0, daysBetween(metric.blockerSince, todayISO()))
+    : null;
+  const owner = metric.blockerOwner ?? String(metric.acq.co_name ?? mission?.program_owner ?? "Unassigned");
+  const variance = metric.scheduleImpactDays;
 
   return (
     <Link
@@ -56,6 +63,14 @@ export function AcquisitionScanCard({ metric, mission, index }: { metric: AcqMet
         </div>
         <p className="mt-1 truncate text-[12px] text-mc-muted" title={statusLine}>{statusLine}</p>
       </div>
+
+      <dl className="mc-microgrid">
+        <div><dt>Target award</dt><dd>{formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}</dd></div>
+        <div><dt>{holdDays === null ? "Phase time" : "Hold duration"}</dt><dd data-numeric>{holdDays === null ? (current?.actual_days === null || current?.actual_days === undefined ? `${current?.planned_days ?? 0}d planned` : `${current.actual_days}/${current.planned_days}d`) : `${holdDays}d`}</dd></div>
+        <div><dt>Variance</dt><dd data-numeric>{variance === null ? "No mission date" : `${variance >= 0 ? "+" : ""}${variance}d`}</dd></div>
+        <div><dt>Owner</dt><dd title={owner}>{owner}</dd></div>
+        <div className="col-span-2"><dt>Next gate</dt><dd title={metric.nextDecision}>{metric.nextDecision}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}</dd></div>
+      </dl>
     </Link>
   );
 }
