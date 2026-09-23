@@ -26,6 +26,7 @@ function stageIndex(metric: AcqMetrics) {
 export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
   const [selectedId, setSelectedId] = useState(metrics[0]?.acq.acquisition_id ?? "");
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
+  const [tipStage, setTipStage] = useState<number | null>(null);
   const metric = metrics.find((item) => item.acq.acquisition_id === selectedId) ?? metrics[0];
 
   useEffect(() => {
@@ -48,7 +49,13 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
   const view = countdownView(metric);
   const state = missionControlState(metric);
   const activeIndex = stageIndex(metric);
+  const nextIndex = activeIndex < 0 ? 0 : Math.min(activeIndex + 1, LIFECYCLE.length - 1);
   const title = mission?.name || String(metric.acq.title ?? "Untitled mission");
+  const consequence = metric.hold
+    ? `${metric.hold.reason} · owner: ${metric.hold.owner}`
+    : metric.blocker !== "None"
+      ? metric.blocker
+      : metric.nextAction;
 
   return (
     <section className="mc-featured-flight" aria-labelledby="trajectory-heading">
@@ -85,6 +92,13 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         </div>
       </div>
 
+      <div className="mc-traj-legend" aria-label="Trajectory state legend">
+        <span><i className="is-complete" />Completed</span>
+        <span><i className="is-current" />Current</span>
+        <span><i className="is-blocked" />Blocked</span>
+        <span><i className="is-projected" />Projected</span>
+      </div>
+
       <div className="mc-featured-track" role="list" aria-label={`${title} lifecycle`}>
         {LIFECYCLE.map((stage, index) => {
           const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
@@ -96,23 +110,31 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               key={stage.label}
               type="button"
               variant="ghost"
-              className={cn("mc-featured-gate", complete && "is-complete", current && "is-current", future && "is-future", current && state === "HOLD" && "is-hold")}
+              className={cn("mc-featured-gate", complete && "is-complete", current && "is-current", future && "is-future", index === nextIndex && "is-next", current && state === "HOLD" && "is-hold")}
               aria-pressed={evidence?.index === index}
               onClick={() => setSelectedStage(index)}
+              onFocus={() => setTipStage(index)}
+              onBlur={() => setTipStage(null)}
+              onMouseEnter={() => setTipStage(index)}
+              onMouseLeave={() => setTipStage(null)}
             >
               <span className="mc-gate-node" aria-hidden="true" />
               <span>{stage.label}</span>
+              {tipStage === index ? (
+                <span className="mc-gate-tip"><b>Preview</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join(" · ") : "No recorded phase evidence"}</span>
+              ) : null}
             </Button>
           );
         })}
       </div>
 
       {evidence ? (
-        <div className="mc-gate-evidence">
+        <div className={cn("mc-gate-evidence", state === "HOLD" && evidence.index === activeIndex && "is-blocked-evidence") }>
           <div>
             <p className="mc-label">Selected gate</p>
             <h3>{evidence.stage.label}</h3>
             <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
+            {state === "HOLD" && evidence.index === activeIndex ? <p className="mc-gate-consequence">{consequence}</p> : null}
           </div>
           <div className="mc-evidence-facts">
             <p><span>Next gate</span><strong>{metric.nextDecision}</strong></p>
