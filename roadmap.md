@@ -33,6 +33,7 @@
 - [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)
 
 # ORBIT visual identity
+- [x] Apply Lock D Craft R3 to the Executive Overview with mission strips, explicit trajectory states, scope preview, and Nova provenance
 - [x] Apply Executive Overview Lock D: light NASA canopy, focused navy mission surface, featured evidence path, and airy light scan
 - [x] Ship Phase 2 Executive Overview Mission Control POC as a visual-only extraction with existing metrics and tabs unchanged
 - [x] Ship Chunk 4 Nova: scoped cited-draft panel in chrome, document/form headers, and key acquisition-file Why clusters

@@ -2,7 +2,7 @@ import type { AcqMetrics, MissionRow } from "@/lib/metrics";
 import { AcquisitionScanCard } from "./acquisition-scan-card";
 import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
-import { Nova } from "@/components/nova";
+import { NovaProvenance } from "./nova-provenance";
 
 type LatestEvent = { action: string; loggedAt: string };
 
@@ -22,13 +22,7 @@ export function PortfolioHero({
         <div className="relative z-10">
         <MissionStatusBoard metrics={metrics} />
         <MissionTrajectory metrics={metrics} missions={missions} />
-          <div className="mc-nova-strip">
-            <div>
-              <p className="mc-label">Nova attention</p>
-              <p>Ask against loaded rules and records. Drafts are never written to the file.</p>
-            </div>
-            <Nova className="mc-nova-action" />
-          </div>
+          <NovaProvenance />
         </div>
       </div>
       <div className="mc-scan-surface">
@@ -44,7 +38,10 @@ export function PortfolioHero({
             Record-derived portfolio scan
           </div>
         </div>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mc-strip-table" role="table" aria-label="Priority acquisitions">
+          <div className="mc-strip-head" role="row">
+            <span>ID</span><span>Status</span><span>Mission</span><span>Clock</span><span>Phase</span><span>Next</span><span>Var</span>
+          </div>
           {metrics.map((metric, index) => (
             <AcquisitionScanCard
               key={metric.acq.acquisition_id}

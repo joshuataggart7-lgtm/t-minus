@@ -1,4 +1,8 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+
 export function MissionMasthead() {
+  const [scopeOpen, setScopeOpen] = useState(false);
   return (
     <header className="mc-masthead" aria-labelledby="executive-overview-title">
       <div className="mc-masthead-brand">
@@ -10,9 +14,21 @@ export function MissionMasthead() {
           </h1>
         </div>
       </div>
-      <div className="mc-masthead-office">
-        <p>Ames Research Center</p>
-        <p>Office of Procurement</p>
+      <div className="mc-scope-preview">
+        <Button
+          type="button"
+          variant="ghost"
+          className="mc-masthead-office"
+          aria-expanded={scopeOpen}
+          onClick={() => setScopeOpen((open) => !open)}
+        >
+          <span>Scope</span>
+          <strong>Ames Research Center · Office of Procurement</strong>
+        </Button>
+        <div className="mc-scope-tip" data-open={scopeOpen || undefined}>
+          <span>Preview</span>
+          Enterprise → Center → Office → Acquisition
+        </div>
       </div>
       <p className="mc-masthead-purpose">T-Minus turns acquisition time into mission readiness.</p>
     </header>

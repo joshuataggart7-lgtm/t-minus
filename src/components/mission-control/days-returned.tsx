@@ -37,11 +37,11 @@ export function DaysReturned({ metrics }: { metrics: AcqMetrics[] }) {
       </div>
       <div className="mc-return-orbit">
         <div className="mc-return-value" data-numeric>{summary.total}</div>
-        <div className="mc-return-caption">days returned to missions</div>
+        <div className="mc-return-caption">{summary.total === 0 ? "No returns recorded" : "days returned to missions"}</div>
       </div>
       <div className="mc-return-centers">
         {summary.rows.length === 0 ? (
-          <p><strong>Zero recorded.</strong><span>No file has launched this quarter.</span></p>
+          <p><strong>Current quarter</strong><span>No file has launched this quarter.</span></p>
         ) : summary.rows.map(([center, days]) => (
           <p key={center}><strong>{center}</strong><span data-numeric>{Math.abs(days)} {days >= 0 ? "ahead of" : "behind"} plan</span></p>
         ))}
