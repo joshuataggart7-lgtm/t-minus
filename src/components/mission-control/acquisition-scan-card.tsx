@@ -33,6 +33,8 @@ export function AcquisitionScanCard({
   const owner =
     metric.blockerOwner ?? String(metric.acq.co_name ?? mission?.program_owner ?? "Unassigned");
   const variance = metric.scheduleImpactDays;
+  const blocking = metric.hold?.reason ?? (metric.blocker !== "None" ? metric.blocker : "None recorded");
+  const phaseSegments = metric.phases.length ? metric.phases : [];
 
   return (
     <Link
@@ -45,112 +47,57 @@ export function AcquisitionScanCard({
       )}
       aria-label={`${title}, ${state}, ${view.caption}`}
     >
+      <span className="mc-strip-accent" aria-hidden="true" />
+      <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>
+      <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
+      <div className="mc-strip-mission">
+        <h3>{title}</h3>
+        <p>{acquisitionTitle && acquisitionTitle !== title ? acquisitionTitle : owner}</p>
+      </div>
+      <div className={cn("mc-strip-clock", `mc-strip-clock-${state.toLowerCase()}`)}>
+          {view.days === null ? (
+            <strong>
+              {view.mode === "stopped" ? "Stopped" : "Not started"}
+            </strong>
+          ) : (
+            <strong data-numeric>
+              {view.prefix}
+              {view.days}
+            </strong>
+          )}
+        <small>{view.badge ?? view.caption}</small>
+      </div>
+      <div className="mc-strip-phase">
+        <strong>{metric.currentPhase ?? "Not started"}</strong>
+        <span className="mc-mini-lifecycle" aria-hidden="true">
+          {phaseSegments.map((phase) => (
+            <i key={phase.phase} className={cn(phase.status === "complete" && "is-complete", phase.status === "current" && "is-current")} />
+          ))}
+        </span>
+      </div>
+      <div className="mc-strip-next">
+        <small>Next gate</small>
+        <strong>{metric.nextDecision}</strong>
+      </div>
+      <div className="mc-strip-variance" data-numeric>
+        {variance === null || variance === 0 ? "—" : `${variance > 0 ? "+" : ""}${variance}d`}
+      </div>
+
+      <div className="mc-strip-disclosure">
+        <span className="mc-preview-label">Preview</span>
+        <dl>
+          <div><dt>Evidence</dt><dd>{current ? `${current.docs.length} required items in ${current.phase}` : "No current phase evidence"}</dd></div>
+          <div><dt>Blocking</dt><dd>{blocking}</dd></div>
+          <div><dt>Next action</dt><dd>{metric.nextAction}</dd></div>
+          <div><dt>Target award</dt><dd>{formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}</dd></div>
+          <div><dt>{holdDays === null ? "Phase time" : "Hold duration"}</dt><dd data-numeric>{holdDays === null ? (current?.actual_days === null || current?.actual_days === undefined ? `${current?.planned_days ?? 0}d planned` : `${current.actual_days}/${current.planned_days}d`) : `${holdDays}d`}</dd></div>
+          <div><dt>Last event</dt><dd>{latestEvent ? `${latestEvent.action} · ${formatDate(latestEvent.loggedAt.slice(0, 10))}` : "Not recorded"}</dd></div>
+        </dl>
+        <p className="sr-only">Open acquisition file</p>
+      </div>
       <span className="mc-card-sequence" aria-hidden="true" data-numeric>
         {String(index).padStart(2, "0")}
       </span>
-      <div className="mc-card-primary flex min-w-0 items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="line-clamp-2 text-[17px] leading-6 font-semibold text-mc-foreground group-hover:text-accent-cyan">
-            {title}
-          </h3>
-          <p className="mt-1 truncate text-[11px] text-mc-muted" data-numeric>
-            {metric.acq.acquisition_id}
-            {acquisitionTitle && acquisitionTitle !== title ? ` · ${acquisitionTitle}` : ""}
-          </p>
-        </div>
-        <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
-      </div>
-
-      <div className="mc-card-clock mt-6 flex items-end justify-between gap-3">
-        <div>
-          {view.days === null ? (
-            <p className="text-[20px] font-semibold text-mc-muted">
-              {view.mode === "stopped" ? "Stopped" : "Not started"}
-            </p>
-          ) : (
-            <p
-              className={cn(
-                "mc-countdown",
-                view.tone === "red" && "text-atrisk",
-                view.tone === "muted" && "text-mc-muted",
-              )}
-              data-numeric
-            >
-              {view.prefix}
-              {view.days}
-            </p>
-          )}
-          <p className="mt-1 text-[11px] text-mc-muted">{view.caption}</p>
-        </div>
-        {view.badge ? (
-          <span
-            className={cn(
-              "mc-badge",
-              view.mode === "hold" && "mc-badge-hold",
-              view.mode === "overdue" && "mc-badge-overdue",
-            )}
-          >
-            {view.badge}
-          </span>
-        ) : null}
-      </div>
-
-      <div className="mc-card-phase mt-4 border-t border-mc-line pt-3">
-        <div className="flex items-center gap-2">
-          <span className="mc-phase-rule" aria-hidden="true" />
-          <p className="mc-card-phase-name">{metric.currentPhase ?? "Not started"}</p>
-        </div>
-        <p className="mt-1 truncate text-[12px] text-mc-muted" title={statusLine}>
-          {statusLine}
-        </p>
-      </div>
-
-      <div className="mc-card-disclosure">
-        <p>Work · audit detail</p>
-        <dl className="mc-microgrid">
-        <div>
-          <dt>Target award</dt>
-          <dd>
-            {formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}
-          </dd>
-        </div>
-        <div>
-          <dt>{holdDays === null ? "Phase time" : "Hold duration"}</dt>
-          <dd data-numeric>
-            {holdDays === null
-              ? current?.actual_days === null || current?.actual_days === undefined
-                ? `${current?.planned_days ?? 0}d planned`
-                : `${current.actual_days}/${current.planned_days}d`
-              : `${holdDays}d`}
-          </dd>
-        </div>
-        <div>
-          <dt>Variance</dt>
-          <dd data-numeric>
-            {variance === null ? "No mission date" : `${variance >= 0 ? "+" : ""}${variance}d`}
-          </dd>
-        </div>
-        <div>
-          <dt>Owner</dt>
-          <dd title={owner}>{owner}</dd>
-        </div>
-        <div>
-          <dt>Next gate</dt>
-          <dd title={metric.nextDecision}>
-            {metric.nextDecision}
-            {metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}
-          </dd>
-        </div>
-        <div>
-          <dt>Last event</dt>
-          <dd title={latestEvent?.action}>
-            {latestEvent
-              ? `${latestEvent.action} · ${formatDate(latestEvent.loggedAt.slice(0, 10))}`
-              : "Not recorded"}
-          </dd>
-        </div>
-        </dl>
-      </div>
     </Link>
   );
 }
