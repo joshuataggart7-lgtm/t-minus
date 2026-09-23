@@ -1,3 +1,10 @@
+## ORBIT Executive Overview Lock D · Craft R3 — September 23, 2026
+
+- Matched the approved Craft R3 direction on the Executive Overview only: compressed mission strips, explicit trajectory states, gate-linked evidence, scope architecture preview, and Nova provenance disclosure.
+- Priority Mission Flow uses only the existing computed status, clock, phase, next decision, variance, blocker, owner, and action fields. Preview labels identify visual affordances that do not claim a connected service or write path.
+- Days Returned keeps its prove-only calculation; zero now reads “No returns recorded.”
+- Soft Walk methods, citations, documents, signatures, roles, audit behavior, schema, clocks, refusals, exports, fixtures, and all other pages were not changed.
+
 ## ORBIT Executive Overview Lock D — September 23, 2026
 
 - Applied the locked D recipe only to the Executive Overview: B's navy mission surface, A's light NASA masthead and warm work surface, and C's airier progressive hierarchy.
