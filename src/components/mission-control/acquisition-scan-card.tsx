@@ -20,11 +20,6 @@ export function AcquisitionScanCard({
   const state = missionControlState(metric);
   const acquisitionTitle = String(metric.acq.title ?? "").trim();
   const title = mission?.name || acquisitionTitle || "Untitled mission";
-  const statusLine = metric.hold
-    ? `${metric.hold.reason} · ${metric.hold.owner}`
-    : metric.blocker !== "None"
-      ? metric.blocker
-      : metric.nextAction;
   const current = metric.phases.find((phase) => phase.status === "current");
   const holdDays =
     metric.clockState === "hold" && metric.blockerSince
