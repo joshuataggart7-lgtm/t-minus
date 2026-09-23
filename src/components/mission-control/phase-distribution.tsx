@@ -14,7 +14,7 @@ export function PhaseDistribution({ metrics }: { metrics: AcqMetrics[] }) {
   const total = Math.max(1, phases.reduce((sum, [, value]) => sum + value, 0));
 
   return (
-    <McPanel aria-labelledby="phase-distribution-heading" className="mc-ops-panel">
+    <McPanel aria-labelledby="phase-distribution-heading" className="mc-ops-panel mc-light-panel">
       <p className="mc-label">Lifecycle accumulation</p>
       <h2 id="phase-distribution-heading" className="mc-heading">Phase movement</h2>
       {phases.length ? (

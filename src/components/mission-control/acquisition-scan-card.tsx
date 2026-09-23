@@ -105,7 +105,9 @@ export function AcquisitionScanCard({
         </p>
       </div>
 
-      <dl className="mc-microgrid">
+      <div className="mc-card-disclosure">
+        <p>Work · audit detail</p>
+        <dl className="mc-microgrid">
         <div>
           <dt>Target award</dt>
           <dd>
@@ -147,7 +149,8 @@ export function AcquisitionScanCard({
               : "Not recorded"}
           </dd>
         </div>
-      </dl>
+        </dl>
+      </div>
     </Link>
   );
 }

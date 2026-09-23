@@ -12,7 +12,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
     .sort((a, b) => urgencyRank(a) - urgencyRank(b));
 
   return (
-    <McPanel aria-labelledby="attention-heading" className="mc-ops-panel">
+    <McPanel aria-labelledby="attention-heading" className="mc-ops-panel mc-anomaly-panel">
       <p className="mc-label">Anomaly rail</p>
       <h2 id="attention-heading" className="mc-heading">Conditions requiring attention</h2>
       {rows.length === 0 ? (

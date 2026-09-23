@@ -232,7 +232,7 @@ export function ExecutiveOverview() {
         )}
       </section>
 
-      <div className="mc-overview-environment mc-grid">
+      <div className="mc-overview-environment">
         {computedAt ? (
           <div className="mc-refresh-line" data-numeric>
             <span className="mc-scan-pulse" aria-hidden="true" />
@@ -240,7 +240,7 @@ export function ExecutiveOverview() {
           </div>
         ) : null}
 
-        <div className="grid gap-px border-b border-mc-line bg-mc-line lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="mc-light-ops-grid">
           <PhaseDistribution metrics={metrics} />
           <DaysReturned metrics={metrics} />
         </div>

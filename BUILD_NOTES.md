@@ -1,3 +1,11 @@
+## ORBIT Executive Overview Lock D — September 23, 2026
+
+- Applied the locked D recipe only to the Executive Overview: B's navy mission surface, A's light NASA masthead and warm work surface, and C's airier progressive hierarchy.
+- Portfolio Flight Path now features one selectable acquisition and selectable lifecycle gates. It reveals only phase evidence already derived from the record and links to the real acquisition file; no state or telemetry was added.
+- Mission Readiness, the featured path, Nova attention, and anomaly operations remain navy. Portfolio Scan, Days Returned, phase movement, and detail tabs sit on a warm light executive surface with fewer equal-weight borders.
+- The authorized masthead asset remains `public/brand/nasa-insignia.png`. NASA red `#FC3D21` remains identity-only under the masthead; HOLD, OVERDUE, errors, and destructive actions continue to use operational red.
+- Soft Walk logic, countdown math, documents, forms, citations, fixtures, roles, audit behavior, and other pages were not changed.
+
 ## ORBIT Phase 2 product-design north star — September 22, 2026
 
 - Raised the Executive Overview command surface toward a best-in-class commercial product standard while retaining the NASA Mission Control identity.

@@ -1,5 +1,8 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import type { AcqMetrics, MissionRow } from "@/lib/metrics";
+import { Button } from "@/components/ui/button";
+import { countdownView } from "@/components/launch-countdown";
+import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 
@@ -16,97 +19,112 @@ const LIFECYCLE = [
   { label: "Closeout", phases: ["Closeout"] },
 ] as const;
 
-function lifecycleIndex(metric: AcqMetrics) {
-  return LIFECYCLE.findIndex((stage) =>
-    stage.phases.some((phase) => phase === metric.currentPhase),
-  );
+function stageIndex(metric: AcqMetrics) {
+  return LIFECYCLE.findIndex((stage) => stage.phases.some((phase) => phase === metric.currentPhase));
 }
 
-export function MissionTrajectory({
-  metrics,
-  missions,
-}: {
-  metrics: AcqMetrics[];
-  missions: MissionRow[];
-}) {
-  const rows = [...metrics].sort((a, b) => {
-    const aIndex = lifecycleIndex(a);
-    const bIndex = lifecycleIndex(b);
-    return bIndex - aIndex;
-  });
+export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
+  const [selectedId, setSelectedId] = useState(metrics[0]?.acq.acquisition_id ?? "");
+  const [selectedStage, setSelectedStage] = useState<number | null>(null);
+  const metric = metrics.find((item) => item.acq.acquisition_id === selectedId) ?? metrics[0];
+
+  useEffect(() => {
+    if (metric && !selectedId) setSelectedId(metric.acq.acquisition_id);
+  }, [metric, selectedId]);
+
+  useEffect(() => setSelectedStage(null), [selectedId]);
+
+  const evidence = useMemo(() => {
+    if (!metric) return null;
+    const index = selectedStage ?? Math.max(0, stageIndex(metric));
+    const stage = LIFECYCLE[index];
+    if (!stage) return null;
+    const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
+    return { index, stage, phases };
+  }, [metric, selectedStage]);
+
+  if (!metric) return null;
+  const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
+  const view = countdownView(metric);
+  const state = missionControlState(metric);
+  const activeIndex = stageIndex(metric);
+  const title = mission?.name || String(metric.acq.title ?? "Untitled mission");
 
   return (
-    <section className="mc-trajectory" aria-labelledby="trajectory-heading">
-      <div className="mc-section-heading">
+    <section className="mc-featured-flight" aria-labelledby="trajectory-heading">
+      <div className="mc-featured-heading">
         <div>
-          <p className="mc-label">Mission trajectory</p>
-          <h2 id="trajectory-heading" className="mc-heading">
-            Portfolio flight path
-          </h2>
+          <p className="mc-label">Featured mission trajectory</p>
+          <h2 id="trajectory-heading" className="mc-heading">Portfolio flight path</h2>
         </div>
-        <p className="mc-section-note">Recorded phases grouped into the mission lifecycle</p>
+        <label className="mc-flight-select">
+          <span>Featured acquisition</span>
+          <select value={metric.acq.acquisition_id} onChange={(event) => setSelectedId(event.target.value)}>
+            {metrics.map((item) => {
+              const itemMission = missions.find((row) => row.mission_id === item.acq.mission_id);
+              return <option key={item.acq.acquisition_id} value={item.acq.acquisition_id}>{itemMission?.name || String(item.acq.title ?? item.acq.acquisition_id)}</option>;
+            })}
+          </select>
+        </label>
       </div>
 
-      <div className="mc-trajectory-scroll">
-        <div className="mc-trajectory-grid">
-          <div className="mc-trajectory-corner mc-label">Mission</div>
-          {LIFECYCLE.map((stage) => (
-            <div key={stage.label} className="mc-trajectory-phase">
-              {stage.label}
-            </div>
-          ))}
-          {rows.map((metric) => {
-            const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
-            const state = missionControlState(metric);
-            return (
-              <Link
-                key={metric.acq.acquisition_id}
-                to="/files/$acquisitionId"
-                params={{ acquisitionId: metric.acq.acquisition_id }}
-                className="contents group"
-              >
-                <span className="mc-trajectory-name">
-                  <strong>{mission?.name || String(metric.acq.title ?? "Untitled mission")}</strong>
-                  <span data-numeric>
-                    {metric.acq.acquisition_id} · {state}
-                  </span>
-                </span>
-                {LIFECYCLE.map((stage) => {
-                  const groupedPhases = metric.phases.filter((item) =>
-                    stage.phases.some((phase) => phase === item.phase),
-                  );
-                  const active = groupedPhases.some((phase) => phase.status === "current");
-                  const complete =
-                    groupedPhases.length > 0 &&
-                    groupedPhases.every((phase) => phase.status === "complete");
-                  const recordedNames = groupedPhases.map((phase) => phase.phase).join(", ");
-                  return (
-                    <span
-                      key={stage.label}
-                      title={
-                        recordedNames ||
-                        `${stage.label}: no phase recorded for this acquisition type`
-                      }
-                      className={cn(
-                        "mc-trajectory-cell",
-                        active && `mc-trajectory-current mc-trajectory-${state.toLowerCase()}`,
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "mc-trajectory-node",
-                          complete && "mc-trajectory-complete",
-                          active && "mc-trajectory-active",
-                        )}
-                      />
-                    </span>
-                  );
-                })}
-              </Link>
-            );
-          })}
+      <div className="mc-featured-summary">
+        <div className="min-w-0">
+          <p className="mc-featured-id" data-numeric>{metric.acq.acquisition_id}</p>
+          <h3>{title}</h3>
+          <p>{String(metric.acq.title ?? "")}</p>
+        </div>
+        <div className="mc-featured-clock">
+          <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : `${view.prefix}${view.days}`}</strong>
+          <span>{view.caption}</span>
+        </div>
+        <div className="mc-featured-state">
+          <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
+          <small>Target award</small>
+          <strong data-numeric>{formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}</strong>
         </div>
       </div>
+
+      <div className="mc-featured-track" role="list" aria-label={`${title} lifecycle`}>
+        {LIFECYCLE.map((stage, index) => {
+          const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
+          const complete = phases.length > 0 && phases.every((phase) => phase.status === "complete");
+          const current = index === activeIndex;
+          const future = index > activeIndex;
+          return (
+            <Button
+              key={stage.label}
+              type="button"
+              variant="ghost"
+              className={cn("mc-featured-gate", complete && "is-complete", current && "is-current", future && "is-future", current && state === "HOLD" && "is-hold")}
+              aria-pressed={evidence?.index === index}
+              onClick={() => setSelectedStage(index)}
+            >
+              <span className="mc-gate-node" aria-hidden="true" />
+              <span>{stage.label}</span>
+            </Button>
+          );
+        })}
+      </div>
+
+      {evidence ? (
+        <div className="mc-gate-evidence">
+          <div>
+            <p className="mc-label">Selected gate</p>
+            <h3>{evidence.stage.label}</h3>
+            <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
+          </div>
+          <div className="mc-evidence-facts">
+            <p><span>Next gate</span><strong>{metric.nextDecision}</strong></p>
+            <p><span>Evidence</span><strong>{evidence.phases.reduce((total, phase) => total + phase.docs.length, 0)} required items</strong></p>
+          </div>
+          <Button asChild size="lg" className={cn(state === "HOLD" && "mc-hold-cta")}>
+            <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }}>
+              {state === "HOLD" ? "Open hold evidence" : "Open acquisition file"}
+            </Link>
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }
