@@ -1200,6 +1200,16 @@
 .mc-overview-environment .bg-background {
   background-color: var(--mc-warm-surface);
 }
+.mc-overview-environment .mc-anomaly-panel .mc-heading,
+.mc-overview-environment .mc-anomaly-panel .mc-anomaly-data strong,
+.mc-overview-environment .mc-anomaly-panel .text-mc-foreground {
+  color: var(--mc-foreground);
+}
+.mc-overview-environment .mc-anomaly-panel .mc-label,
+.mc-overview-environment .mc-anomaly-panel .text-mc-muted,
+.mc-overview-environment .mc-anomaly-panel .mc-anomaly-data small {
+  color: var(--mc-muted);
+}
 
 @utility mc-countdown {
   color: var(--accent-cyan);
@@ -1357,6 +1367,9 @@
   }
 }
 @media (min-width: 1024px) {
+  .mc-light-ops-grid {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
   .mc-status-rail {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1391,7 +1404,27 @@
     display: none;
   }
   .mc-overview-environment {
-    margin-top: -2rem;
+    margin-top: 1rem;
+  }
+  .mc-featured-heading,
+  .mc-nova-strip {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .mc-featured-summary,
+  .mc-gate-evidence {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .mc-featured-clock strong {
+    font-size: 34px;
+    line-height: 38px;
+  }
+  .mc-scan-surface {
+    padding: 1.25rem;
+  }
+  .mc-anomaly-panel {
+    margin: 1rem;
   }
   .mc-days-returned {
     grid-template-columns: 1fr;
