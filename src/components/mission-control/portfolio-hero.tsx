@@ -57,7 +57,6 @@ export function PortfolioHero({
             />
           ))}
         </div>
-        </div>
       </div>
     </section>
   );

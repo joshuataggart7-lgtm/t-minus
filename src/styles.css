@@ -122,6 +122,9 @@
   --mc-signal-green: oklch(0.72 0.17 149);
   --mc-signal-red: oklch(0.62 0.2 30);
   --mc-signal-amber: oklch(0.76 0.14 76);
+  --mc-warm-field: oklch(0.97 0.012 82);
+  --mc-warm-surface: oklch(0.995 0.004 82);
+  --mc-warm-line: oklch(0.84 0.018 78);
   /* Identity only: never use this for HOLD, OVERDUE, errors, or destructive actions. */
   --mc-nasa-red: #fc3d21;
 }
@@ -257,16 +260,11 @@
   align-items: center;
   gap: 1rem 2rem;
   overflow: hidden;
-  border: 1px solid var(--mc-line);
+  border: 1px solid var(--mc-warm-line);
   border-bottom: 3px solid var(--mc-nasa-red);
-  background: linear-gradient(
-    115deg,
-    color-mix(in oklab, var(--mc-elevated) 90%, var(--accent-cyan)) 0%,
-    var(--mc-field) 58%,
-    var(--chrome) 100%
-  );
-  color: var(--mc-foreground);
-  padding: 1rem 1.5rem;
+  background: linear-gradient(115deg, var(--mc-warm-surface), var(--mc-warm-field));
+  color: var(--foreground);
+  padding: 1.25rem 1.75rem;
 }
 
 @utility mc-masthead-brand {
@@ -282,23 +280,23 @@
   object-fit: contain;
 }
 @utility mc-masthead-kicker {
-  color: var(--mc-cyan-soft);
+  color: var(--primary);
   font-size: 11px;
   line-height: 16px;
   font-weight: 600;
   text-transform: uppercase;
 }
 @utility mc-masthead-title {
-  color: var(--mc-foreground);
+  color: var(--foreground);
   font-size: 26px;
   line-height: 32px;
   font-weight: 600;
   text-transform: uppercase;
 }
 @utility mc-masthead-office {
-  border-left: 1px solid var(--mc-line);
+  border-left: 1px solid var(--mc-warm-line);
   padding-left: 1.5rem;
-  color: var(--mc-muted);
+  color: var(--muted-foreground);
   font-size: 11px;
   line-height: 17px;
   text-align: right;
@@ -307,9 +305,9 @@
 @utility mc-masthead-purpose {
   grid-column: 1 / -1;
   max-width: 54rem;
-  border-top: 1px solid var(--mc-line);
+  border-top: 1px solid var(--mc-warm-line);
   padding-top: 0.7rem;
-  color: var(--mc-muted);
+  color: var(--muted-foreground);
   font-size: 13px;
   line-height: 19px;
 }
@@ -418,16 +416,17 @@
 @utility mc-scan-card {
   position: relative;
   min-width: 0;
-  min-height: 20rem;
-  background: color-mix(in oklab, var(--mc-surface) 92%, transparent);
-  padding: 1.15rem;
+  min-height: 17rem;
+  border-top: 1px solid var(--mc-warm-line);
+  background: var(--mc-warm-surface);
+  padding: 1.4rem;
   transition:
     background-color 150ms ease,
     box-shadow 150ms ease,
     transform 150ms ease;
   &:hover {
-    background: var(--mc-elevated);
-    box-shadow: inset 0 2px 0 var(--accent-cyan);
+    background: var(--background);
+    box-shadow: 0 12px 26px -24px color-mix(in oklab, var(--foreground) 45%, transparent);
     transform: translateY(-1px);
   }
 }
@@ -442,7 +441,7 @@
   min-height: 4.5rem;
 }
 @utility mc-card-phase-name {
-  color: var(--mc-foreground);
+  color: var(--foreground);
   font-size: 12px;
   line-height: 17px;
   font-weight: 600;
@@ -453,7 +452,7 @@
   position: absolute;
   right: 1rem;
   bottom: 0.75rem;
-  color: color-mix(in oklab, var(--mc-muted) 25%, transparent);
+  color: color-mix(in oklab, var(--muted-foreground) 45%, transparent);
   font-size: 10px;
   line-height: 16px;
 }
@@ -650,16 +649,11 @@
 @utility mc-overview-environment {
   position: relative;
   overflow: hidden;
-  margin-top: -2rem;
+  margin-top: 2rem;
   margin-bottom: 2.5rem;
-  border: 1px solid var(--mc-line);
-  border-top: 0;
-  background: linear-gradient(
-    180deg,
-    var(--mc-field),
-    color-mix(in oklab, var(--mc-field) 92%, var(--chrome))
-  );
-  color: var(--mc-foreground);
+  border: 1px solid var(--mc-warm-line);
+  background: var(--mc-warm-field);
+  color: var(--foreground);
 }
 
 @utility mc-refresh-line {
@@ -667,8 +661,8 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.65rem 1.25rem;
-  border-bottom: 1px solid var(--mc-line);
-  color: var(--mc-muted);
+  border-bottom: 1px solid var(--mc-warm-line);
+  color: var(--muted-foreground);
   font-size: 10px;
   line-height: 16px;
   text-transform: uppercase;
@@ -697,8 +691,8 @@
 }
 
 @utility mc-ops-panel {
-  padding: 1.5rem;
-  background: color-mix(in oklab, var(--mc-surface) 72%, transparent);
+  padding: 2rem;
+  background: var(--mc-warm-surface);
 }
 
 @utility mc-phase-accumulation {
@@ -769,7 +763,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 1.25rem;
   padding: 1.5rem;
-  background: color-mix(in oklab, var(--mc-surface) 72%, transparent);
+  background: var(--mc-warm-surface);
 }
 
 @utility mc-return-orbit {
@@ -777,7 +771,7 @@
   width: 8rem;
   height: 8rem;
   align-content: center;
-  border: 1px solid var(--mc-line);
+  border: 1px solid var(--mc-warm-line);
   border-radius: 999px;
   box-shadow: inset 0 0 24px color-mix(in oklab, var(--accent-cyan) 8%, transparent);
   text-align: center;
@@ -798,7 +792,7 @@
 }
 @utility mc-return-centers {
   grid-column: 1 / -1;
-  border-top: 1px solid var(--mc-line);
+  border-top: 1px solid var(--mc-warm-line);
   padding-top: 0.75rem;
   & p {
     display: flex;
@@ -870,22 +864,22 @@
   display: flex;
   gap: 1.5rem;
   margin: 1.5rem;
-  border-bottom: 1px solid var(--mc-line);
+  border-bottom: 1px solid var(--mc-warm-line);
 }
 @utility mc-tab {
   margin-bottom: -1px;
   border-bottom: 2px solid transparent;
   padding: 0 0.25rem 0.6rem;
-  color: var(--mc-muted);
+  color: var(--muted-foreground);
   font-size: 14px;
   line-height: 20px;
   &:hover {
-    color: var(--mc-foreground);
+    color: var(--foreground);
   }
 }
 @utility mc-tab-active {
-  border-color: var(--accent-cyan);
-  color: var(--mc-foreground);
+  border-color: var(--primary);
+  color: var(--foreground);
 }
 
 .mc-overview-environment > div:last-child:not(.mc-tabs),
@@ -895,19 +889,19 @@
 
 .mc-overview-environment h2,
 .mc-overview-environment h3 {
-  color: var(--mc-foreground);
+  color: var(--foreground);
 }
 .mc-overview-environment .text-muted-foreground {
-  color: var(--mc-muted);
+  color: var(--muted-foreground);
 }
 .mc-overview-environment .text-primary {
-  color: var(--accent-cyan);
+  color: var(--primary);
 }
 .mc-overview-environment .border-border {
-  border-color: var(--mc-line);
+  border-color: var(--mc-warm-line);
 }
 .mc-overview-environment .bg-background {
-  background-color: color-mix(in oklab, var(--mc-surface) 82%, transparent);
+  background-color: var(--mc-warm-surface);
 }
 
 @utility mc-countdown {
