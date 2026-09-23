@@ -105,8 +105,8 @@ export function AcquisitionScanCard({
         </p>
       </div>
 
-      <details className="mc-card-disclosure">
-        <summary>Work and audit detail</summary>
+      <div className="mc-card-disclosure">
+        <p>Work · audit detail</p>
         <dl className="mc-microgrid">
         <div>
           <dt>Target award</dt>
@@ -150,7 +150,7 @@ export function AcquisitionScanCard({
           </dd>
         </div>
         </dl>
-      </details>
+      </div>
     </Link>
   );
 }
