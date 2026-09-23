@@ -776,7 +776,7 @@
 
 @utility mc-strip-table {
   margin-top: 1.25rem;
-  overflow: hidden;
+  overflow-x: auto;
   border-block: 1px solid var(--mc-warm-line);
   border-radius: 1.5rem;
   background: var(--mc-warm-surface);
@@ -1647,9 +1647,13 @@
   .mc-masthead-office {
     border-left: 0;
     border-top: 1px solid var(--mc-line);
+    justify-items: start;
     padding-top: 0.65rem;
     padding-left: 0;
     text-align: left;
+  }
+  .mc-scope-preview {
+    justify-self: stretch;
   }
   .mc-masthead-purpose {
     display: none;
@@ -1658,7 +1662,8 @@
     margin-top: 1rem;
   }
   .mc-featured-heading,
-  .mc-nova-strip {
+  .mc-nova-strip,
+  .mc-nova-provenance {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1673,6 +1678,13 @@
   }
   .mc-scan-surface {
     padding: 1.25rem;
+  }
+  .mc-strip-head,
+  .mc-scan-surface .mc-scan-card {
+    min-width: 64rem;
+  }
+  .mc-strip-disclosure dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .mc-anomaly-panel {
     margin: 1rem;
