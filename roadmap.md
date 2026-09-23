@@ -33,6 +33,7 @@
 - [x] FPDS filling sheet (fill aid; printable, honest blanks, audit on export)
 
 # ORBIT visual identity
+- [x] Restore Lock D Craft R3 fidelity on Executive Overview: non-colliding trajectory grid, semantic readiness colors, restrained shell, and no Phase Movement
 - [x] Apply Lock D Craft R3 to the Executive Overview with mission strips, explicit trajectory states, scope preview, and Nova provenance
 - [x] Apply Executive Overview Lock D: light NASA canopy, focused navy mission surface, featured evidence path, and airy light scan
 - [x] Ship Phase 2 Executive Overview Mission Control POC as a visual-only extraction with existing metrics and tabs unchanged

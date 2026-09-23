@@ -37,7 +37,6 @@ import {
   type MissionRow,
 } from "@/lib/metrics";
 import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
-import { PhaseDistribution } from "@/components/mission-control/phase-distribution";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
@@ -208,7 +207,7 @@ export function ExecutiveOverview() {
   }, []);
 
   return (
-    <AppShell wide>
+    <AppShell wide overviewMode>
       <MissionMasthead />
 
       {q.isError ? (
@@ -241,7 +240,6 @@ export function ExecutiveOverview() {
         ) : null}
 
         <div className="mc-light-ops-grid">
-          <PhaseDistribution metrics={metrics} />
           <DaysReturned metrics={metrics} />
         </div>
         <AttentionSeverityList metrics={metrics} missions={q.data?.missions ?? []} />

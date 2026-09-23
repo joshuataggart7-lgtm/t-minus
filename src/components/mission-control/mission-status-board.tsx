@@ -33,10 +33,10 @@ export function MissionStatusBoard({ metrics }: { metrics: AcqMetrics[] }) {
         <p className="mc-board-total" data-numeric><strong>{metrics.length}</strong><span>acquisition files</span></p>
       </div>
       <div className="mc-status-rail">
-        <McStatBlock label="GO" value={counts.GO} tone="green" index="01" />
-        <McStatBlock label="WATCH" value={counts.WATCH} tone="amber" index="02" />
-        <McStatBlock label="HOLD" value={counts.HOLD} tone="red" index="03" />
-        <McStatBlock label="LAUNCHED" value={counts.LAUNCHED} tone="cyan" index="04" />
+        <McStatBlock label="GO" value={counts.GO} tone="green" index="01" description="On trajectory" />
+        <McStatBlock label="WATCH" value={counts.WATCH} tone="amber" index="02" description="Needs eyes" />
+        <McStatBlock label="HOLD" value={counts.HOLD} tone="red" index="03" description="Evidence gate" />
+        <McStatBlock label="LAUNCHED" value={counts.LAUNCHED} tone="cyan" index="04" description="Post-award" />
       </div>
     </section>
   );

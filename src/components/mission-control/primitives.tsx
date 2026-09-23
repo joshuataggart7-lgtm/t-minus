@@ -20,11 +20,13 @@ export function McStatBlock({
   value,
   tone = "cyan",
   index,
+  description,
 }: {
   label: string;
   value: number;
   tone?: "cyan" | "green" | "amber" | "red";
   index?: string;
+  description?: string;
 }) {
   return (
     <div className={cn("mc-stat-block", `mc-tone-${tone}`)}>
@@ -34,6 +36,7 @@ export function McStatBlock({
         <p className="mc-stat-xl" data-numeric>{value}</p>
         {index ? <span className="mc-stat-index" aria-hidden="true">{index}</span> : null}
       </div>
+      {description ? <p className="mc-stat-description">{description}</p> : null}
     </div>
   );
 }

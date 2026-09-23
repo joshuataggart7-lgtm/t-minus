@@ -1,3 +1,10 @@
+## ORBIT Executive Overview Lock D · Fidelity QA — September 23, 2026
+
+- Restored the frozen Craft R3 hierarchy on the Executive Overview only: equal-width wrapping trajectory gates, semantic GO/WATCH/HOLD/LAUNCHED values and underlines, more deliberate mission-surface spacing, and laptop-safe acquisition strips.
+- Reduced surrounding shell emphasis only for the Executive Overview while retaining every search, notice, Nova, presenter, role, account, and navigation capability.
+- Removed Phase Movement and its decorative percentages from the Overview. Days Returned remains record-derived and keeps the factual “No returns recorded” zero state.
+- Soft Walk methods, citations, documents, signatures, roles, audit behavior, schema, clocks, refusals, exports, fixtures, data logic, and every other page were unchanged.
+
 ## ORBIT Executive Overview Lock D · Craft R3 — September 23, 2026
 
 - Matched the approved Craft R3 direction on the Executive Overview only: compressed mission strips, explicit trajectory states, gate-linked evidence, scope architecture preview, and Nova provenance disclosure.

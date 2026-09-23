@@ -43,7 +43,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 // Survives route remounts so the click run isn't reset by navigation.
 const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null } };
 
-export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
+export function AppShell({ children, wide = false, overviewMode = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean }) {
 
   const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
   useTriggerConfig();
@@ -95,7 +95,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
 
   return (
-    <div className="min-h-screen bg-canvas text-foreground">
+    <div className={cn("min-h-screen bg-canvas text-foreground", overviewMode && "mc-overview-shell")}>
       <a
         href="#main-content"
         className="sr-only rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
@@ -198,7 +198,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           aria-label="Main"
           className={cn(
             "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out",
-            collapsed ? "w-14" : "w-56 lg:w-60",
+            collapsed ? "w-14" : overviewMode ? "w-48" : "w-56 lg:w-60",
           )}
         >
           <div className="py-3">

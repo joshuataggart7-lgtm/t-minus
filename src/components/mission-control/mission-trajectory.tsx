@@ -119,7 +119,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               onMouseLeave={() => setTipStage(null)}
             >
               <span className="mc-gate-node" aria-hidden="true" />
-              <span>{stage.label}</span>
+              <span className="mc-gate-label">{stage.label}</span>
               {tipStage === index ? (
                 <span className="mc-gate-tip"><b>Preview</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join(" · ") : "No recorded phase evidence"}</span>
               ) : null}
