@@ -1,3 +1,9 @@
+## Executive Overview reconciliation foundation C — September 24, 2026
+
+- Changed the featured trajectory's selected-gate evidence into progressive disclosure: the default leadership scan shows record-derived readiness, evidence, approvals, blocker, downstream award rule, next action, and responsible role; the expansion retains the full forensic evidence and event detail.
+- The downstream Administration relationship is explicitly labeled as a rule and remains pre-award only. Missing record values continue to read “Not recorded” or “None recorded.”
+- Lock D chrome, A+B state reconciliation, shared award-date gating, Soft Walk write paths, schema, and other pages were unchanged.
+
 ## Executive Overview reconciliation foundations A+B — September 24, 2026
 
 - Hardened the shared countdown face so T+ and AWARDED require `awardDate`; a stored launched clock state without a recorded actual award falls through to the pre-award target, forecast, hold, or not-recorded paths.

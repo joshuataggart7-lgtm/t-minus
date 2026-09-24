@@ -33,13 +33,19 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
   const [selectedId, setSelectedId] = useState(metrics[0]?.acq.acquisition_id ?? "");
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
   const [tipStage, setTipStage] = useState<number | null>(null);
+  const [detailExpanded, setDetailExpanded] = useState(false);
   const metric = metrics.find((item) => item.acq.acquisition_id === selectedId) ?? metrics[0];
 
   useEffect(() => {
     if (metric && !selectedId) setSelectedId(metric.acq.acquisition_id);
   }, [metric, selectedId]);
 
-  useEffect(() => setSelectedStage(null), [selectedId]);
+  useEffect(() => {
+    setSelectedStage(null);
+    setDetailExpanded(false);
+  }, [selectedId]);
+
+  useEffect(() => setDetailExpanded(false), [selectedStage]);
 
   const evidence = useMemo(() => {
     if (!metric) return null;
@@ -63,6 +69,13 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
     : metric.blocker !== "None"
       ? metric.blocker
       : metric.nextAction;
+  const selectedPrimaryBlocker = evidence?.summary.blocking[0]?.trim() || NR;
+  const administrationRule = metric.awardDate
+    ? NR
+    : "Administration remains unavailable until Award clears and an actual award is recorded.";
+  const upcomingGate = evidence && evidence.index < LIFECYCLE.length - 1
+    ? LIFECYCLE[evidence.index + 1]?.label ?? NR
+    : NR;
 
   return (
     <section className="mc-featured-flight" aria-labelledby="trajectory-heading">
@@ -180,36 +193,65 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
 
       {evidence ? (
         <div className={cn("mc-gate-evidence", state === "HOLD" && evidence.index === activeIndex && "is-blocked-evidence") }>
-          <div>
-            <p className="mc-label">Selected gate</p>
-            <h3>{evidence.stage.label}</h3>
-            <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
-            {state === "HOLD" && evidence.index === activeIndex ? <p className="mc-gate-consequence">{consequence}</p> : null}
+          <div className="mc-gate-glance-heading">
+            <div>
+              <p className="mc-label">Selected gate</p>
+              <h3>{evidence.stage.label}</h3>
+              <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              aria-expanded={detailExpanded}
+              aria-controls="selected-gate-forensic-detail"
+              onClick={() => setDetailExpanded((value) => !value)}
+            >
+              {detailExpanded ? "Collapse detail" : "Expand audit detail"}
+            </Button>
           </div>
-          <div className="mc-evidence-facts">
-            <p><span>Gate readiness</span><strong>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</strong></p>
-            <p><span>Evidence</span><strong data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length} complete</strong></p>
-            <p><span>Approvals</span><strong data-numeric>{evidence.summary.approvalsObtained.length} of {evidence.summary.approvalsRequired.length} obtained</strong></p>
-          </div>
-          <dl className="mc-stage-detail" aria-label={`${evidence.stage.label} stage detail`}>
-            <div><dt>Status</dt><dd>{evidence.summary.status === "not on path" ? "Not on this acquisition path" : evidence.summary.status}</dd></div>
-            <div><dt>Entered</dt><dd data-numeric>{evidence.summary.enteredAt ? formatDate(evidence.summary.enteredAt) : NR}</dd></div>
-            <div><dt>Completed (last recorded event)</dt><dd data-numeric>{evidence.summary.completedAt ? formatDate(evidence.summary.completedAt) : NR}</dd></div>
+
+          <dl className="mc-gate-glance" aria-label={`${evidence.stage.label} leadership scan`}>
+            <div><dt>Gate readiness</dt><dd className={cn("mc-gate-readiness", `is-${evidence.summary.readiness.toLowerCase()}`)}>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</dd></div>
+            <div><dt>Evidence completeness</dt><dd data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length}</dd></div>
+            <div><dt>Approvals</dt><dd data-numeric>{evidence.summary.approvalsObtained.length} of {evidence.summary.approvalsRequired.length}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">FACT</span> Primary blocker</dt><dd>{selectedPrimaryBlocker}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">RULE</span> Downstream consequence</dt><dd>{administrationRule}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">FACT</span> Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
             <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
-            <div><dt>Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
-            <div><dt>Required evidence</dt><dd>{list(evidence.summary.required)}</dd></div>
-            <div><dt>Completed evidence</dt><dd>{list(evidence.summary.completed)}</dd></div>
-            <div><dt>Outstanding evidence</dt><dd>{list(evidence.summary.missing)}</dd></div>
-            <div><dt>Approvals required</dt><dd>{list(evidence.summary.approvalsRequired)}</dd></div>
-            <div><dt>Approvals obtained</dt><dd>{list(evidence.summary.approvalsObtained)}</dd></div>
-            <div><dt>Blocking issues</dt><dd>{list(evidence.summary.blocking)}</dd></div>
-            <div><dt>Advisory issues</dt><dd>{list(evidence.summary.advisory)}</dd></div>
           </dl>
-          <Button asChild size="lg" className={cn(state === "HOLD" && "mc-hold-cta")}>
-            <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }}>
-              {state === "HOLD" ? "Open hold evidence" : "Open acquisition file"}
-            </Link>
-          </Button>
+
+          {detailExpanded ? (
+            <div id="selected-gate-forensic-detail" className="mc-gate-forensic">
+              <div className="mc-gate-forensic-heading">
+                <div>
+                  <p className="mc-label">Audit detail</p>
+                  <h3>Recorded gate evidence</h3>
+                </div>
+                <Button asChild size="lg" className={cn(state === "HOLD" && "mc-hold-cta")}>
+                  <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }}>
+                    {state === "HOLD" ? "Open hold evidence" : "Open acquisition file"}
+                  </Link>
+                </Button>
+              </div>
+              <dl className="mc-stage-detail" aria-label={`${evidence.stage.label} forensic detail`}>
+                <div><dt>Status</dt><dd>{evidence.summary.status === "not on path" ? "Not on this acquisition path" : evidence.summary.status}</dd></div>
+                <div><dt>Entered</dt><dd data-numeric>{evidence.summary.enteredAt ? formatDate(evidence.summary.enteredAt) : NR}</dd></div>
+                <div><dt>Completed (last recorded event)</dt><dd data-numeric>{evidence.summary.completedAt ? formatDate(evidence.summary.completedAt) : NR}</dd></div>
+                <div><dt>Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
+                <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
+                <div><dt>Approvals required</dt><dd>{list(evidence.summary.approvalsRequired)}</dd></div>
+                <div><dt>Evidence completeness</dt><dd data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length}</dd></div>
+                <div><dt>Upcoming gate</dt><dd>{upcomingGate}</dd></div>
+                <div><dt>Required evidence</dt><dd>{list(evidence.summary.required)}</dd></div>
+                <div><dt>Completed evidence</dt><dd>{list(evidence.summary.completed)}</dd></div>
+                <div><dt>Outstanding evidence</dt><dd>{list(evidence.summary.missing)}</dd></div>
+                <div><dt>Approvals obtained</dt><dd>{list(evidence.summary.approvalsObtained)}</dd></div>
+                <div><dt>Advisory issues</dt><dd>{list(evidence.summary.advisory)}</dd></div>
+                <div><dt>Blocking issues</dt><dd>{list(evidence.summary.blocking)}</dd></div>
+              </dl>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </section>
