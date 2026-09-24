@@ -2949,3 +2949,7 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Critical path line: next gate, blocker, owner, target award, days remaining; missing → "Not recorded".
 - Executive exceptions (pre-award only): overdue gate (days in phase > planned), award at risk, missing mandatory evidence, reviewer overdue (pending vote past due date), unsigned approval (pending approval-role vote), unresolved blocker (hold or No-go). Empty: "No active exceptions".
 - Featured panel facts: CO, requesting org (requester_org_code), est. value, method, target/actual award, current/next gate, evidence status.
+
+## Exec Ops P0 follow-up
+- P0-A: Overview featured selector/scan strips use the acquisition's own title as identity; options read `ID — title (mission)`; mission shown secondary.
+- P0-B: File page lifecycle normalizes via `deriveOverviewAcquisitionState`; awardDate only from recorded `Launched` audit event (no target fallback); countdown face uses `overviewCountdownView`. Stored clock_state untouched.

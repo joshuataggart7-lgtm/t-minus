@@ -19,7 +19,7 @@ export function AcquisitionScanCard({
   const view = overviewCountdownView(metric);
   const state = missionControlState(metric);
   const acquisitionTitle = String(metric.acq.title ?? "").trim();
-  const title = mission?.name || acquisitionTitle || "Untitled mission";
+  const title = acquisitionTitle || "Untitled acquisition";
   const current = metric.phases.find((phase) => phase.status === "current");
   const holdDays =
     metric.clockState === "hold" && metric.blockerSince
@@ -47,7 +47,7 @@ export function AcquisitionScanCard({
       <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
       <div className="mc-strip-mission">
         <h3>{title}</h3>
-        <p>{acquisitionTitle && acquisitionTitle !== title ? acquisitionTitle : owner}</p>
+        <p>{mission?.name ? `Mission: ${mission.name}` : owner}</p>
       </div>
       <div className={cn("mc-strip-clock", `mc-strip-clock-${state.toLowerCase()}`)}>
           {view.days === null ? (
