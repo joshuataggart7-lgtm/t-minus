@@ -42,6 +42,9 @@ import {
   newerGuidance,
 } from "@/lib/watch";
 import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { computeMetrics, holdSince } from "@/lib/metrics";
+import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import {
   buildSequence,
   phaseForTemplate,
@@ -390,7 +393,7 @@ function DocumentPage() {
           .eq("acquisition_id", acquisitionId),
         supabase
           .from("documents")
-          .select("template_id,saved_at,version,field_values,templates(name,nf_1098_tab)")
+          .select("acquisition_id,template_id,saved_at,version,field_values,templates(name,nf_1098_tab)")
           .eq("acquisition_id", acquisitionId)
           .order("saved_at", { ascending: true }),
       ]);
@@ -483,7 +486,7 @@ function DocumentPage() {
         .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins");
       const attachments = await supabase
         .from("document_attachments")
-        .select("doc_label,nf_1098_tab,file_name,created_at")
+        .select("acquisition_id,doc_key,doc_label,nf_1098_tab,file_name,created_at")
         .eq("acquisition_id", acquisitionId);
       // The memorandum for record drafts its chronology from the audit trail
       // and the phase plan for this acquisition type.
@@ -525,6 +528,8 @@ function DocumentPage() {
           | null,
         clauseRows: (clauseRows.data ?? []) as ClauseRow[],
         attachments: (attachments.data ?? []) as {
+          acquisition_id: string | null;
+          doc_key: string;
           doc_label: string;
           nf_1098_tab: string | null;
           file_name: string;
@@ -551,6 +556,8 @@ function DocumentPage() {
           ((routing.data ?? []) as MemoRoutingRow[]).find((r) => r.center_code === centerCode) ?? undefined,
         approvals: (approvals.data ?? []) as { approval_role: string; owner_name: string | null; status: string }[],
         fileDocRows: (fileDocs.data ?? []) as {
+          acquisition_id: string | null;
+          template_id: string | null;
           saved_at: string | null;
           version: number | null;
           field_values: unknown;
@@ -991,6 +998,47 @@ function DocumentPage() {
     const pick = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
     return pick(target) ?? pick(forecast);
   }, [q.data?.acq]);
+
+  // Display chrome follows the shared operational award rule. This is kept
+  // separate from awardDate because draft/export context retains its existing
+  // source and behavior.
+  const chromeCountdown = useMemo(() => {
+    if (!q.data?.acq) return null;
+    const log = (q.data.auditRows ?? []).map((row) => ({
+      acquisition_id: acquisitionId,
+      action: row.action,
+      logged_at: row.logged_at,
+    }));
+    const operational = deriveOverviewAcquisitionState(q.data.acq as unknown as AcqRow, log);
+    const templateRows = (q.data.fileDocRows ?? [])
+      .filter((row) => row.template_id && row.templates?.name)
+      .map((row) => ({ template_id: String(row.template_id), name: String(row.templates?.name) }));
+    const ref: RefData = {
+      thresholds: (q.data.thresholds ?? []).map((row) => ({
+        name: row.name,
+        value: row.value === null ? null : Number(row.value),
+        citation: row.citation,
+        note: row.note,
+      })),
+      phasePlan: (q.data.phasePlan ?? []).map((row) => ({
+        acquisition_type: row.acquisition_type,
+        phase: row.phase,
+        planned_days: row.planned_days,
+      })),
+      strategies: [],
+    };
+    const metrics = computeMetrics(operational.acquisition, {
+      plan: q.data.phasePlan ?? [],
+      rules: q.data.rules ?? [],
+      polls: q.data.polls ?? [],
+      ref,
+      holdSince: holdSince(acquisitionId, log),
+      awardDate: operational.actualAwardDate,
+      attachedKeys: keysFrom(q.data.attachments ?? [], acquisitionId),
+      savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),
+    });
+    return overviewCountdownView(metrics);
+  }, [q.data, acquisitionId]);
 
   // Packet documents in the contract file index, in NF 1098 tab order.
   const enclosures = useMemo(() => {
@@ -1475,7 +1523,14 @@ function DocumentPage() {
   // date stands in when the contracting officer has not entered a target.
   const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
-  const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
+  const exportHeaderLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
+  const headerLine = `${acquisitionId} · ${
+    !chromeCountdown
+      ? "Not recorded"
+      : chromeCountdown.days === null
+        ? chromeCountdown.caption
+        : `${chromeCountdown.prefix}${chromeCountdown.days}${chromeCountdown.badge ? ` ${chromeCountdown.badge}` : ""} (${chromeCountdown.caption})`
+  }`;
 
   const save = useMutation({
     mutationFn: async () => {
@@ -2597,7 +2652,7 @@ function DocumentPage() {
                         )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
-                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, headerLine);
+                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, exportHeaderLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
                     if (!isJofoc8aPath(exportContext)) {
@@ -2641,12 +2696,12 @@ function DocumentPage() {
               <DropdownMenuItem
                 onSelect={() => {
                   if (memoOn && memoDoc) {
-                    void exportMemoPdf(memoDoc, headerLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                    void exportMemoPdf(memoDoc, exportHeaderLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
                       setMessage("The PDF did not export. Try again, or export Word."),
                     );
                     return;
                   }
-                  if (exportRendered) void exportPdf(exportRendered, headerLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
+                  if (exportRendered) void exportPdf(exportRendered, exportHeaderLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
                     setMessage("The PDF did not export. Try again, or export Word."),
                   );
                 }}
