@@ -4,6 +4,9 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
+import type { AcqRow } from "@/lib/launch-sequence";
 import {
   NO_OPEN_REVIEW_NOTE,
   NO_SEND_NOTE,
@@ -27,6 +30,22 @@ export function OfficeInvitePanel({
     queryKey: ["office-invite", acquisitionId],
     queryFn: () => loadInviteData(acquisitionId),
   });
+  // Phase from the shared operational remap (award only from a recorded
+  // Launched audit), never raw current_phase / clock_state.
+  const logQ = useQuery({
+    queryKey: ["office-invite-log", acquisitionId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("audit_log")
+        .select("acquisition_id,action,logged_at")
+        .eq("acquisition_id", acquisitionId)
+        .eq("action", "Launched");
+      return data ?? [];
+    },
+  });
+  const phase = acq
+    ? (deriveOverviewAcquisitionState(acq as unknown as AcqRow, logQ.data ?? []).acquisition.current_phase ?? null)
+    : null;
   const [role, setRole] = useState("");
   const [note, setNote] = useState<string | null>(null);
 
@@ -38,7 +57,7 @@ export function OfficeInvitePanel({
     ? inviteText({
         acquisitionId,
         title: (acq?.['title'] as string | null | undefined) ?? null,
-        phase: (acq?.['current_phase'] as string | null | undefined) ?? null,
+        phase: logQ.isSuccess ? phase : null,
         role: chosen,
       })
     : "";

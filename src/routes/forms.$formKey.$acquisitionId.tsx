@@ -22,7 +22,7 @@ import { generateOfficialFormPdf } from "@/lib/official-acroform-forms";
 import { sf30HonestBlanks } from "@/lib/sf30-blanks";
 import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 
-import { daysBetween, todayISO } from "@/lib/intake";
+import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
 import type { AcqRow } from "@/lib/launch-sequence";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
@@ -351,6 +351,11 @@ function FormPage() {
         supabase.from("thresholds").select("*"),
         supabase.from("enterprise_strategies").select("*"),
       ]);
+      const [attachments, documents, templates] = await Promise.all([
+        supabase.from("document_attachments").select("acquisition_id,doc_key").eq("acquisition_id", acquisitionId),
+        supabase.from("documents").select("acquisition_id,template_id,saved_at,version").eq("acquisition_id", acquisitionId),
+        supabase.from("templates").select("template_id,name"),
+      ]);
       return {
         acq: acq.data as unknown as AcqRow | null,
         log: (log.data ?? []) as { acquisition_id: string | null; action: string | null; logged_at: string | null }[],
@@ -359,6 +364,9 @@ function FormPage() {
         polls: (polls.data ?? []) as never[],
         thresholds: (thresholds.data ?? []) as Record<string, unknown>[],
         strategies: (strategies.data ?? []) as Record<string, unknown>[],
+        attachments: (attachments.data ?? []) as { acquisition_id: string | null; doc_key: string }[],
+        documents: (documents.data ?? []) as { acquisition_id: string | null; template_id: string | null }[],
+        templates: (templates.data ?? []) as { template_id: string; name: string }[],
       };
     },
   });
@@ -388,6 +396,8 @@ function FormPage() {
       },
       holdSince: holdSince(acquisitionId, d.log as never),
       awardDate: operational.actualAwardDate,
+      attachedKeys: keysFrom(d.attachments, acquisitionId),
+      savedKeys: savedDocKeys(d.documents, d.templates, acquisitionId),
     });
     return overviewCountdownView(metrics);
   }, [countdownQ.data, acquisitionId]);
