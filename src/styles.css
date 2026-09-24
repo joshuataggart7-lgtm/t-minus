@@ -1946,7 +1946,7 @@
 .mc-gate-readiness.is-ready { color: var(--mc-readiness-go); }
 .mc-gate-readiness.is-attention { color: var(--mc-readiness-watch); }
 .mc-gate-readiness.is-blocked { color: var(--mc-readiness-hold); }
-.mc-stage-detail { display:grid; gap:0.75rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:0.75rem; font-size:13px; line-height:18px; }
+.mc-stage-detail { grid-column: 1 / -1; display:grid; gap:0.75rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:0.75rem; font-size:13px; line-height:18px; }
 .mc-stage-detail dt { color: var(--mc-muted); }
 .mc-stage-detail dd { margin:0; }
 .mc-stage-detail ul { margin:0; padding-left:1rem; list-style:disc; }
