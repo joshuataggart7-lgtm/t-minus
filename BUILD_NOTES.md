@@ -1,3 +1,9 @@
+## Overnight §6 Tip 3 — Requester surfaces — September 24, 2026
+
+- `src/routes/requester.tsx` now derives GO / WATCH / HOLD / LAUNCHED through `explainWorkReadiness`, renders the shared readiness chip and light work-card accent, and maps recorded Present / Missing and hold callouts to Lock D readiness tokens. Owed-item logic, requester filtering, effort display, and writes are unchanged.
+- `src/routes/estimate.tsx` uses the shared light toolbar, control radius, summary surface, spacing, and table wrapper without changing estimator inputs, calculations, queries, or stored intake estimates. `src/styles.css` adds only reusable light `mc-work-summary` and `mc-work-form-section` utilities from the existing token map.
+- FLAG Soft Walk-adjacent: `src/routes/intake.tsx` changed presentation classes only for the sample toolbar, T-Minus record section, controls, scan section, estimate summary, and submit panel. NF 1707 fields, validation, methods, authorities, persistence, uploads, fixtures, and all write paths are untouched. Reverse by restoring the former route classes and removing the two additive CSS utilities; no schema/data changes and no self-GREEN claim.
+
 ## Overnight §6 Tip 2 — Files + file chrome — September 24, 2026
 
 - `src/routes/files.tsx` now derives each row through `deriveOverviewAcquisitionState`, `computeMetrics`, stored attachment/document evidence, and `explainWorkReadiness`. Phase, GO / WATCH / HOLD / LAUNCHED chip, readiness accent, and compact award clock all read the remapped operational record; raw `clock_state` and `current_phase` are no longer displayed.

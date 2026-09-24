@@ -137,7 +137,7 @@ function Field({
 }
 
 const inputClass =
-  "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground";
+  "w-full border border-border bg-background px-3 py-2 text-[15px] text-foreground [border-radius:var(--mc-radius-control)]";
 
 function IntakePage() {
   const { user, hasAnyRole, authState, profile } = useRole();
@@ -605,18 +605,18 @@ function IntakePage() {
         lead="Enter the acquisition once. Every document, check, and record reads from this file."
       />
 
-      <div className="mb-8 flex flex-wrap items-center gap-3">
+      <div className="mc-work-toolbar mb-8 flex flex-wrap items-center">
         <button
           type="button"
           onClick={() => void loadSample("A-2027-0101")}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
+          className="border border-border bg-background px-3 py-2 text-[14px] text-primary [border-radius:var(--mc-radius-control)]"
         >
           Load Sample 1 (competed)
         </button>
         <button
           type="button"
           onClick={() => void loadSample("A-2027-0102")}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-[14px] text-primary"
+          className="border border-border bg-background px-3 py-2 text-[14px] text-primary [border-radius:var(--mc-radius-control)]"
         >
           Load Sample 2 (sole source)
         </button>
@@ -637,11 +637,11 @@ function IntakePage() {
       />
 
       {/* T-Minus section: the facts the paper form does not carry. */}
-      <section className="mb-10 border-t border-border pt-6">
+      <section className="mc-work-form-section mb-10">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-[18px] leading-6 font-medium">T-Minus record</h2>
           <span
-            className="rounded-lg border px-3 py-1 text-[13px] font-medium"
+            className="border px-3 py-1 text-[13px] font-medium [border-radius:var(--mc-radius-control)]"
             style={{ borderColor: packageComplete ? "var(--ontrack)" : "var(--attention)" }}
           >
             Package {packageComplete ? "complete" : "incomplete"}
@@ -1457,7 +1457,7 @@ function IntakePage() {
 
 
       {/* Red-flag scan and submit */}
-      <section className="border-t border-border pt-6">
+      <section className="mc-work-form-section">
         {touched && errorCount > 0 ? (
           <div className="mb-4" role="alert">
             <p className="text-[15px]" style={{ color: "var(--atrisk)" }}>
@@ -1475,13 +1475,13 @@ function IntakePage() {
         <button
           type="button"
           onClick={runScan}
-          className="rounded-lg border border-border bg-background px-4 py-2 text-[15px] text-primary"
+          className="border border-border bg-background px-4 py-2 text-[15px] text-primary [border-radius:var(--mc-radius-control)]"
         >
           Run the red-flag scan
         </button>
 
         {scan && data.data ? (
-          <div className="mt-6 max-w-[80ch] border border-border p-4">
+            <div className="mc-work-summary mt-6 max-w-[80ch]">
             <h2 className="text-[18px] leading-6 font-medium">Expected effort and time to award</h2>
             <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
             <ul className="mt-2 text-[13px] text-muted-foreground">
@@ -1503,7 +1503,7 @@ function IntakePage() {
         ) : null}
 
         {scan ? (
-          <div className="mt-6 rounded-lg border border-border bg-background p-6">
+          <div className="mc-work-summary mt-6">
             <h2 className="text-[18px] leading-6 font-medium">
               {scan.length === 0
                 ? "No red flags. The file is ready."
@@ -1540,7 +1540,7 @@ function IntakePage() {
               type="button"
               disabled={blocking.length > 0 || saving}
               onClick={() => void startTheClock()}
-              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50"
+              className="bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50 [border-radius:var(--mc-radius-control)]"
             >
               {saving ? "Starting" : "Start the clock"}
             </button>

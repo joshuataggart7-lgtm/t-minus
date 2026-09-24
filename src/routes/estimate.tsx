@@ -118,24 +118,25 @@ function EstimatePage() {
 
       {q.data && acq && est ? (
         <>
-          <label className="mb-6 block max-w-[60ch] text-[15px]">
-            Acquisition
-            <select
-              value={acq.acquisition_id}
-              onChange={(e) => setSelected(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-input bg-background px-3 py-2"
-            >
-              {q.data.acqs.map((a) => (
-                <option key={a.acquisition_id} value={a.acquisition_id}>
-                  {a.acquisition_id} — {a.title}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="mc-work-toolbar mb-6 max-w-[80ch]">
+            <label className="block max-w-[60ch] text-[15px]">
+              Acquisition
+              <select
+                value={acq.acquisition_id}
+                onChange={(e) => setSelected(e.target.value)}
+                className="mt-1 block w-full border border-input bg-background px-3 py-2 [border-radius:var(--mc-radius-control)]"
+              >
+                {q.data.acqs.map((a) => (
+                  <option key={a.acquisition_id} value={a.acquisition_id}>
+                    {a.acquisition_id} — {a.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px]">{est.sentence}</p>
+          </div>
 
-          <p className="mb-6 max-w-[80ch] text-[15px] leading-[22px]">{est.sentence}</p>
-
-          <dl className="mb-8 grid max-w-[80ch] grid-cols-2 gap-4 text-[15px] sm:grid-cols-4">
+          <dl className="mc-work-summary mb-8 grid max-w-[80ch] grid-cols-2 text-[15px] sm:grid-cols-4">
             <div>
               <dt className="text-muted-foreground">Months to award</dt>
               <dd data-numeric>{est.monthsToAward}</dd>
@@ -157,7 +158,8 @@ function EstimatePage() {
           </dl>
 
           <h2 className="section-title text-[18px] leading-6 font-medium">Hours by phase</h2>
-          <table className="mt-3 w-full max-w-[80ch] border border-border text-[13px] leading-[18px]">
+          <div className="mc-work-table-wrap mt-3 max-w-[80ch] border border-border bg-background">
+          <table className="w-full text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Phase</th>
@@ -175,6 +177,7 @@ function EstimatePage() {
               ))}
             </tbody>
           </table>
+          </div>
 
           <h2 className="section-title mt-8 text-[18px] leading-6 font-medium">Phases to award</h2>
           <p className="mt-2 max-w-[80ch] text-[15px] leading-[22px]">

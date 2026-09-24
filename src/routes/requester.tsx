@@ -4,9 +4,10 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, type DeskCard } from "@/lib/desk-data";
 import { phaseCitation } from "@/lib/launch-sequence";
-import { statusColor } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RequesterLoe } from "@/components/requester-loe";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
@@ -126,11 +127,16 @@ function RequesterPortal() {
             const openDays = daysSince((acq['created_at'] as string | null) ?? null);
             const holdDays = daysSince((acq['hold_started_at'] as string | null) ?? null);
             const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
+            const readiness = explainWorkReadiness(c.m).state;
             const waitingOnMe =
               c.m.clockState === "hold" &&
               (c.m.blockerOwner ?? "").toLowerCase().includes(user.name.split(" ")[1]?.toLowerCase() ?? "@@");
             return (
-              <section key={id} aria-label={String(acq['title'] ?? id)} className="border-t border-border pt-6 first:border-0 first:pt-0">
+              <section
+                key={id}
+                aria-label={String(acq['title'] ?? id)}
+                className={`mc-work-card ${missionReadinessClass(readiness, "is")}`}
+              >
                 <h2 className="text-[18px] leading-6 font-medium">
                   <Link
                     to="/files/$acquisitionId"
@@ -153,15 +159,7 @@ function RequesterPortal() {
                       <dd>{c.m.currentPhase ?? "Not started"}</dd>
                       <dt className="text-muted-foreground">Clock</dt>
                       <dd>
-                        <StatusMark color={statusColor(c.m.status)}>
-                          {c.m.clockState === "hold"
-                            ? "On hold"
-                            : c.m.clockState === "launched"
-                              ? "Launched"
-                              : "Running"}
-                          {" · "}
-                          {c.m.status}
-                        </StatusMark>
+                        <MissionReadinessChip state={readiness} />
                       </dd>
                       <dt className="text-muted-foreground">Mission</dt>
                       <dd>{c.mission}</dd>
@@ -180,7 +178,7 @@ function RequesterPortal() {
                             {o.label}
                             <span className="block text-[13px] text-muted-foreground">{o.note}</span>
                           </span>
-                          <StatusMark color={o.present ? "var(--ontrack)" : "var(--attention)"}>
+                          <StatusMark color={o.present ? "var(--mc-readiness-go)" : "var(--mc-readiness-watch)"}>
                             {o.present ? "Present" : "Missing"}
                           </StatusMark>
                         </li>
@@ -225,7 +223,7 @@ function RequesterPortal() {
                     <h3 className="text-[15px] font-medium">What happens next</h3>
                     <p className="mt-2 max-w-[70ch] text-[15px] leading-[22px]">{c.m.nextAction}</p>
                     {c.m.hold ? (
-                      <p className="mt-2 max-w-[70ch] border-l-2 pl-3 text-[15px]" style={{ borderColor: "var(--atrisk)" }}>
+                      <p className="mt-2 max-w-[70ch] border-l-2 pl-3 text-[15px]" style={{ borderColor: "var(--mc-readiness-hold)" }}>
                         On hold: {c.m.hold.reason}. Owner {c.m.hold.owner}.
                       </p>
                     ) : null}
