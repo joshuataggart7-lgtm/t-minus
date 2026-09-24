@@ -5,6 +5,11 @@ import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
+import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
+
+const NR = "Not recorded";
+const list = (items: string[]) => (items.length ? <ul>{items.map((i) => <li key={i}>{i}</li>)}</ul> : <span>None recorded</span>);
+const evidenceOf = (m: AcqMetrics) => (m as AcqMetrics & { phaseEvidence?: PhaseEvidence[] }).phaseEvidence;
 
 const LIFECYCLE = [
   { label: "Requirement / Intake", phases: ["Intake"] },
@@ -41,7 +46,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
     const stage = LIFECYCLE[index];
     if (!stage) return null;
     const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
-    return { index, stage, phases };
+    const summary = summarizeGate(metric, stage.phases, evidenceOf(metric), index === stageIndex(metric));
+    return { index, stage, phases, summary };
   }, [metric, selectedStage]);
 
   if (!metric) return null;
@@ -105,6 +111,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           const complete = phases.length > 0 && phases.every((phase) => phase.status === "complete");
           const current = index === activeIndex;
           const future = index > activeIndex;
+          const gate = summarizeGate(metric, stage.phases, evidenceOf(metric), current);
           return (
             <Button
               key={stage.label}
@@ -120,6 +127,9 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             >
               <span className="mc-gate-node" aria-hidden="true" />
               <span className="mc-gate-label">{stage.label}</span>
+              {gate.status !== "not on path" ? (
+                <span className={cn("mc-gate-readiness", `is-${gate.readiness.toLowerCase()}`)}>{gate.readiness}</span>
+              ) : null}
               {tipStage === index ? (
                 <span className="mc-gate-tip"><b>Preview</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join(" · ") : "No recorded phase evidence"}</span>
               ) : null}
@@ -137,9 +147,24 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             {state === "HOLD" && evidence.index === activeIndex ? <p className="mc-gate-consequence">{consequence}</p> : null}
           </div>
           <div className="mc-evidence-facts">
-            <p><span>Next gate</span><strong>{metric.nextDecision}</strong></p>
-            <p><span>Evidence</span><strong>{evidence.phases.reduce((total, phase) => total + phase.docs.length, 0)} required items</strong></p>
+            <p><span>Gate readiness</span><strong>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</strong></p>
+            <p><span>Evidence</span><strong data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length} complete</strong></p>
+            <p><span>Approvals</span><strong data-numeric>{evidence.summary.approvalsObtained.length} of {evidence.summary.approvalsRequired.length} obtained</strong></p>
           </div>
+          <dl className="mc-stage-detail" aria-label={`${evidence.stage.label} stage detail`}>
+            <div><dt>Status</dt><dd>{evidence.summary.status === "not on path" ? "Not on this acquisition path" : evidence.summary.status}</dd></div>
+            <div><dt>Entered</dt><dd data-numeric>{evidence.summary.enteredAt ? formatDate(evidence.summary.enteredAt) : NR}</dd></div>
+            <div><dt>Completed (last recorded event)</dt><dd data-numeric>{evidence.summary.completedAt ? formatDate(evidence.summary.completedAt) : NR}</dd></div>
+            <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
+            <div><dt>Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
+            <div><dt>Required evidence</dt><dd>{list(evidence.summary.required)}</dd></div>
+            <div><dt>Completed evidence</dt><dd>{list(evidence.summary.completed)}</dd></div>
+            <div><dt>Outstanding evidence</dt><dd>{list(evidence.summary.missing)}</dd></div>
+            <div><dt>Approvals required</dt><dd>{list(evidence.summary.approvalsRequired)}</dd></div>
+            <div><dt>Approvals obtained</dt><dd>{list(evidence.summary.approvalsObtained)}</dd></div>
+            <div><dt>Blocking issues</dt><dd>{list(evidence.summary.blocking)}</dd></div>
+            <div><dt>Advisory issues</dt><dd>{list(evidence.summary.advisory)}</dd></div>
+          </dl>
           <Button asChild size="lg" className={cn(state === "HOLD" && "mc-hold-cta")}>
             <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }}>
               {state === "HOLD" ? "Open hold evidence" : "Open acquisition file"}
