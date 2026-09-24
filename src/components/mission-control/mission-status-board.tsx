@@ -2,6 +2,7 @@ import type { AcqMetrics } from "@/lib/metrics";
 import { McStatBlock } from "./primitives";
 import { overviewCountdownView } from "./operational-state";
 import type { ReadinessExplanation } from "./readiness";
+import { StateModelNote } from "./state-contract";
 
 export type MissionControlState = "GO" | "WATCH" | "HOLD" | "LAUNCHED";
 
@@ -50,6 +51,7 @@ export function MissionStatusBoard({
         <McStatBlock label="HOLD" value={counts.HOLD} pressed={active === "HOLD"} onSelect={onSelect ? () => pick("HOLD") : undefined} tone="red" index="03" description="Evidence gate" />
         <McStatBlock label="LAUNCHED" value={counts.LAUNCHED} pressed={active === "LAUNCHED"} onSelect={onSelect ? () => pick("LAUNCHED") : undefined} tone="cyan" index="04" description="Post-award" />
       </div>
+      <StateModelNote />
     </section>
   );
 }

@@ -1,3 +1,9 @@
+## Executive Overview reconciliation foundations A+B — September 24, 2026
+
+- Hardened the shared countdown face so T+ and AWARDED require `awardDate`; a stored launched clock state without a recorded actual award falls through to the pre-award target, forecast, hold, or not-recorded paths.
+- Added a restrained record/rule model note, six-row state contract, and acquisition identity assurance to the frozen Lock D Executive Overview. Portfolio readiness totals remain a live reduction across all loaded acquisitions.
+- No stored `clock_state`, schema, Soft Walk method, citation, document, signature, role, audit write, export, fixture, form, or other-page presentation was changed.
+
 ## Executive Overview operational pass · Phase 1 — September 24, 2026
 
 - Added one Overview-only derived operational state. A recorded `Launched` audit event is now the sole source for actual award, LAUNCHED readiness, T+, and post-award timeline position.

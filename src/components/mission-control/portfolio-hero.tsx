@@ -7,6 +7,7 @@ import { AcquisitionScanCard } from "./acquisition-scan-card";
 import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
 import { NovaProvenance } from "./nova-provenance";
+import { StateContractPanel } from "./state-contract";
 
 type LatestEvent = { action: string; loggedAt: string };
 
@@ -36,6 +37,7 @@ export function PortfolioHero({
         </div>
       </div>
       <div className="mc-scan-surface">
+        <StateContractPanel />
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="mc-label-light">Acquisition scan</p>
@@ -74,6 +76,10 @@ export function PortfolioHero({
             />
           ))}
         </div>
+        <p className="mc-scan-consistency">
+          <span className="mc-recon-chip is-light">RULE</span>
+          The same recorded facts drive this scan, the file countdown and executive exceptions.
+        </p>
       </div>
     </section>
   );
