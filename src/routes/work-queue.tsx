@@ -5,7 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
-import { daysBetween, todayISO, type RefData } from "@/lib/intake";
+import { todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
@@ -13,14 +13,14 @@ import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import {
   computeMetrics,
-  awardDateFor,
   holdSince,
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
-import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
+import { LaunchCountdownCompact } from "@/components/launch-countdown";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -53,15 +53,16 @@ type Card = {
   nextTask: string;
   dependency: string;
   daysInPhase: number | null;
-  /** Days to award, with the need date standing in when no target is set. */
+  /** Recorded target days to award; forecasts never masquerade as targets. */
   days: number | null;
   /** Planned working days and the range prior files of this profile took. */
   confidence: AwardConfidence;
 };
 
 function columnFor(m: AcqMetrics): Column {
-  if (m.clockState === "launched") return "Launched";
-  if (m.clockState === "hold") return "Blocked";
+  const readiness = explainWorkReadiness(m).state;
+  if (readiness === "LAUNCHED") return "Launched";
+  if (readiness === "HOLD") return "Blocked";
   if (m.board.some((b) => b.vote === "pending")) return "Awaiting Go/No-go";
   const started = m.phases.some((p) => p.status === "complete") || m.clockState === "running";
   return started ? "In progress" : "Ready";
@@ -163,8 +164,9 @@ function WorkQueuePage() {
     return q.data.acqs
       .filter((a) => String(a.clock_state ?? "") !== "scrubbed")
       .map((acq) => {
+        const operational = deriveOverviewAcquisitionState(acq, q.data.log);
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
-        const m = computeMetrics(acq, {
+        const m = computeMetrics(operational.acquisition, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
           savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
           roster: q.data.users ?? [],
@@ -174,18 +176,13 @@ function WorkQueuePage() {
           ref,
           mission,
           holdSince: holdSince(acq.acquisition_id, q.data.log),
-          awardDate: awardDateFor(acq.acquisition_id, q.data.log, acq.target_award_date ?? null),
+          awardDate: operational.actualAwardDate,
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;
         const nextTask = m.nextAction;
         const dependency = m.blocker === "None"
           ? "None"
           : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
-        // The file page falls back to the need date when no target award date
-        // is recorded, so a running clock never reads "Clock not started".
-        const running = m.clockState !== "launched" && m.clockState !== "scrubbed";
-        const target =
-          (acq.target_award_date as string | null) ?? ((acq as Record<string, unknown>)["need_date"] as string | null) ?? null;
         return {
           m,
           column: columnFor(m),
@@ -194,7 +191,7 @@ function WorkQueuePage() {
           nextTask,
           dependency,
           daysInPhase: current?.actual_days ?? null,
-          days: m.daysToAward ?? (running && target ? daysBetween(today, target) : null),
+          days: m.daysToAward,
           confidence: awardConfidence(acq as unknown as AcqRow, history, q.data.plan as PhasePlanRow[]),
         };
       });
@@ -434,8 +431,8 @@ function WorkQueuePage() {
                   {c.daysInPhase ?? "—"}
                 </td>
                 <td className="p-2" data-numeric>
-                  <LaunchCountdownCompact view={countdownView(c.m)} />
-                  {c.m.clockState === "launched" || c.m.clockState === "scrubbed" ? null : (
+                  <LaunchCountdownCompact view={overviewCountdownView(c.m)} />
+                  {readiness === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
                     </span>
@@ -476,10 +473,10 @@ function CardView({ c }: { c: Card }) {
         <div className="shrink-0 text-right">
           <MissionReadinessChip state={readiness} className="mb-2" />
           <p className="text-[28px] leading-8 font-semibold" data-numeric>
-            <LaunchCountdownCompact view={countdownView(c.m)} />
+            <LaunchCountdownCompact view={overviewCountdownView(c.m)} />
           </p>
           <p className="text-[12px] text-muted-foreground">
-            {c.m.clockState === "launched" ? "Since award" : c.m.clockState === "scrubbed" ? "Clock stopped" : "To award"}
+            {readiness === "LAUNCHED" ? "Since award" : "To award"}
           </p>
         </div>
       </div>

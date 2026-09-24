@@ -1,3 +1,9 @@
+## Overnight propagate P0/P1 fix — Work Queue + document shell award remap — September 24, 2026
+
+- `src/routes/work-queue.tsx` now derives every card through `deriveOverviewAcquisitionState`, computes metrics from that remapped record, buckets workflow columns from shared readiness, and renders the shared Overview countdown. Phase and target-day sorting come only from remapped metrics; raw `clock_state`, Administration, and `need_date` can no longer manufacture Launched, T+, AWARDED, or target days.
+- FLAG Soft Walk-adjacent display only: `src/routes/documents.$templateKey.$acquisitionId.tsx` now builds its visible header clock through the same operational state, stored attachment/saved-document evidence, metrics, and Overview countdown used by form chrome. Its pre-existing draft/export `awardDate` and export header remain isolated and unchanged, so generators, body fills, signatures, exports, citations, checkout behavior, writes, and document bytes are untouched.
+- The observed `document_checkouts` 409 remains FLAG-only and was not changed. Reverse by restoring the Work Queue raw metric/countdown callers and the document shell's former visible `daysToAward` header; no schema, stored `clock_state`, Soft Walk brain, Lock D system, or audit-write semantics changed, and no self-GREEN claim is made.
+
 ## Overnight §6 Tip 4 — Review/oversight — September 24, 2026
 
 - `src/routes/reviewer-inbox.tsx` now presents each pending review as a light work strip with the shared `explainWorkReadiness` chip and matching accent. Textarea/button radii use the Lock D control token, and No-go uses the HOLD token; vote mutation, audit payload, matching, hero-document, and receipt behavior are unchanged.
