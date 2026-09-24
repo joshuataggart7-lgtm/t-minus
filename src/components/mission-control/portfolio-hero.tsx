@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
+import { ExecutiveExceptions } from "./executive-exceptions";
 import { ReadinessQueue } from "./readiness-queue";
 import type { MissionControlState } from "./mission-status-board";
 import { AcquisitionScanCard } from "./acquisition-scan-card";
@@ -30,6 +31,7 @@ export function PortfolioHero({
         <div className="relative z-10">
         <MissionStatusBoard metrics={metrics} active={filter} onSelect={setFilter} />
         <MissionTrajectory metrics={metrics} missions={missions} />
+          <ExecutiveExceptions metrics={metrics} />
           <NovaProvenance />
         </div>
       </div>

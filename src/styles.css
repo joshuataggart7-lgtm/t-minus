@@ -1950,3 +1950,18 @@
 .mc-stage-detail dt { color: var(--mc-muted); }
 .mc-stage-detail dd { margin:0; }
 .mc-stage-detail ul { margin:0; padding-left:1rem; list-style:disc; }
+
+.mc-critical-path { display:flex; flex-wrap:wrap; align-items:baseline; gap:0.5rem 1.75rem; margin-top:0.75rem; border-block:1px solid var(--mc-line); padding-block:0.75rem; font-size:13px; line-height:18px; }
+.mc-critical-path p { display:flex; flex-direction:column; min-width:0; }
+.mc-critical-path p span, .mc-featured-facts dt { color: var(--mc-muted); font-size:12px; }
+.mc-priority-tier { align-self:center; border:1px solid var(--mc-line); border-radius:8px; padding:2px 8px; font-size:12px; font-weight:600; }
+.mc-priority-tier[data-tier="Mission Critical"] { border-color: var(--mc-readiness-hold); color: var(--mc-readiness-hold); }
+.mc-priority-tier[data-tier="High Priority"] { border-color: var(--mc-readiness-watch); color: var(--mc-readiness-watch); }
+.mc-featured-facts { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.5rem 1.25rem; margin-block:0.75rem; font-size:13px; line-height:18px; }
+.mc-featured-facts dd { margin:0; }
+.mc-exec-exceptions { margin-top:1.25rem; border-top:1px solid var(--mc-line); padding-top:1rem; font-size:13px; line-height:18px; }
+.mc-exec-exceptions ul { display:grid; gap:0.35rem; max-height:14rem; overflow:auto; }
+.mc-exec-exceptions li { display:grid; grid-template-columns: 12rem 7.5rem minmax(0,1fr); gap:0.75rem; }
+.mc-exc-kind { font-weight:600; }
+.mc-exc-id { color: var(--accent-cyan); text-decoration: underline; text-underline-offset: 2px; }
+@media (max-width: 767px) { .mc-exec-exceptions li { grid-template-columns: 1fr; gap:0.1rem; } }

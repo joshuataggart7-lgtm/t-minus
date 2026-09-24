@@ -5,6 +5,7 @@ import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
+import { priorityTier } from "./executive-exceptions";
 import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 
 const NR = "Not recorded";
@@ -97,6 +98,40 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           <strong data-numeric>{formatDate(metric.awardDate ?? (metric.acq.target_award_date ? String(metric.acq.target_award_date) : null))}</strong>
         </div>
       </div>
+
+      {(() => {
+        const r = (metric as AcqMetrics & { readiness?: { targetAward: string | null } }).readiness;
+        const currentGate = summarizeGate(metric, LIFECYCLE[activeIndex]?.phases ?? [], evidenceOf(metric), true);
+        const value = metric.acq.estimated_value;
+        const valueText = value === null || value === undefined || value === "" ? NR : Number(value).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+        const org = String((metric.acq as Record<string, unknown>)["requester_org_code"] ?? "").trim();
+        const target = metric.acq.target_award_date ? String(metric.acq.target_award_date) : null;
+        const blocker = metric.hold ? metric.hold.reason : metric.blocker && metric.blocker !== "None" ? metric.blocker : "None recorded";
+        const owner = metric.blockerOwner?.trim() || String(metric.acq.co_name ?? "").trim() || NR;
+        const days = metric.awardDate ? null : metric.daysToAward;
+        return (
+          <>
+            <div className="mc-critical-path" aria-label="Critical path">
+              <span className="mc-priority-tier" data-tier={priorityTier(mission)}>{priorityTier(mission)}</span>
+              <p><span>Next gate</span><strong>{metric.nextDecision?.trim() || NR}</strong></p>
+              <p><span>Blocker</span><strong>{blocker}</strong></p>
+              <p><span>Owner</span><strong>{owner}</strong></p>
+              <p><span>Target award</span><strong data-numeric>{target ? formatDate(target) : NR}</strong></p>
+              <p><span>Days remaining</span><strong data-numeric>{metric.awardDate ? "Awarded" : days === null ? NR : days < 0 ? `${Math.abs(days)} overdue` : String(days)}</strong></p>
+            </div>
+            <dl className="mc-featured-facts">
+              <div><dt>CO</dt><dd>{String(metric.acq.co_name ?? "").trim() || NR}</dd></div>
+              <div><dt>Requesting org</dt><dd>{org || NR}</dd></div>
+              <div><dt>Est. value</dt><dd data-numeric>{valueText}</dd></div>
+              <div><dt>Acquisition method</dt><dd>{String(metric.acq.acquisition_method ?? "").trim() || NR}</dd></div>
+              <div><dt>{metric.awardDate ? "Actual award" : "Target award"}</dt><dd data-numeric>{metric.awardDate ? formatDate(metric.awardDate) : r?.targetAward ? formatDate(r.targetAward) : NR}</dd></div>
+              <div><dt>Current gate</dt><dd>{LIFECYCLE[activeIndex]?.label ?? (metric.currentPhase || NR)}</dd></div>
+              <div><dt>Next gate</dt><dd>{activeIndex >= 0 && activeIndex < LIFECYCLE.length - 1 ? LIFECYCLE[nextIndex]!.label : NR}</dd></div>
+              <div><dt>Evidence status</dt><dd data-numeric>{currentGate.required.length ? `${currentGate.completed.length} of ${currentGate.required.length} complete · ${currentGate.readiness}` : NR}</dd></div>
+            </dl>
+          </>
+        );
+      })()}
 
       <div className="mc-traj-legend" aria-label="Trajectory state legend">
         <span><i className="is-complete" />Completed</span>
