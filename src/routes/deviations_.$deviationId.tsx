@@ -208,9 +208,9 @@ function DeviationDetail() {
         {DEVIATION_TEMPLATE.citation} · guidance
       </p>
 
-      <section className="mb-8 border border-border bg-background p-6">
+      <section className="mc-work-summary mb-8">
         <p className="text-[15px]" data-numeric>
-          <StatusMark color={clock.decided ? "var(--ontrack)" : clock.state === "Running" ? "var(--attention)" : "var(--muted-foreground)"}>
+          <StatusMark color={clock.decided ? "var(--mc-readiness-go)" : clock.state === "Running" ? "var(--mc-readiness-watch)" : "var(--muted-foreground)"}>
             {clock.state}
           </StatusMark>
         </p>
@@ -230,7 +230,7 @@ function DeviationDetail() {
         {!clock.decided && request.clock_state !== "running" && canWrite ? (
           <button
             type="button"
-            className="mt-4 rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+            className="mt-4 bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
             onClick={() => startClock.mutate()}
             disabled={startClock.isPending}
           >
@@ -260,7 +260,8 @@ function DeviationDetail() {
       <section className="mb-10">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Go / No-go poll</h2>
         <p className="mb-3 text-[15px]">{boardSummary(board)}</p>
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+        <div className="mc-work-table-wrap border border-border bg-background">
+        <table className="w-full text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="px-3 py-2 font-medium">Reviewer</th>
@@ -285,7 +286,7 @@ function DeviationDetail() {
                 </td>
                 <td className="px-3 py-2">
                   <StatusMark
-                    color={b.vote === "Go" ? "var(--ontrack)" : b.vote === "No-go" ? "var(--atrisk)" : "var(--muted-foreground)"}
+                     color={b.vote === "Go" ? "var(--mc-readiness-go)" : b.vote === "No-go" ? "var(--mc-readiness-hold)" : "var(--muted-foreground)"}
                   >
                     {b.vote === "pending" ? "Not voted" : b.vote}
                   </StatusMark>
@@ -299,22 +300,22 @@ function DeviationDetail() {
                     </label>
                     <input
                       id={`reason-${b.reviewer_role}`}
-                      className="mt-1 w-full rounded-lg border border-border bg-background px-2 py-1"
+                      className="mt-1 w-full border border-border bg-background px-2 py-1 [border-radius:var(--mc-radius-control)]"
                       value={reasons[b.reviewer_role] ?? ""}
                       onChange={(e) => setReasons({ ...reasons, [b.reviewer_role]: e.target.value })}
                     />
                     <span className="mt-2 flex gap-2">
                       <button
                         type="button"
-                        className="rounded-lg border border-border px-3 py-1 text-primary"
+                        className="border border-border px-3 py-1 text-primary [border-radius:var(--mc-radius-control)]"
                         onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "Go" })}
                       >
                         Go
                       </button>
                       <button
                         type="button"
-                        className="rounded-lg border border-border px-3 py-1"
-                        style={{ color: "var(--atrisk)" }}
+                        className="border px-3 py-1 [border-radius:var(--mc-radius-control)]"
+                        style={{ borderColor: "var(--mc-readiness-hold)", color: "var(--mc-readiness-hold)" }}
                         onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "No-go" })}
                       >
                         No-go
@@ -326,6 +327,7 @@ function DeviationDetail() {
             ))}
           </tbody>
         </table>
+        </div>
       </section>
 
       {canWrite ? (
@@ -344,22 +346,22 @@ function DeviationDetail() {
               </label>
               <input
                 id="decision-reason"
-                className="mt-1 mb-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+                className="mt-1 mb-3 w-full border border-border bg-background px-3 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
                 value={decisionReason}
                 onChange={(e) => setDecisionReason(e.target.value)}
               />
               <span className="flex gap-2">
                 <button
                   type="button"
-                  className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                  className="bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
                   onClick={() => decide.mutate("approved")}
                 >
                   Approve the deviation
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-4 py-2 text-[15px]"
-                  style={{ color: "var(--atrisk)" }}
+                  className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                  style={{ borderColor: "var(--mc-readiness-hold)", color: "var(--mc-readiness-hold)" }}
                   onClick={() => decide.mutate("denied")}
                 >
                   Deny the deviation

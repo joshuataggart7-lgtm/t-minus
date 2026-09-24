@@ -136,7 +136,8 @@ function EscalationsPage() {
           {items.length === 0 ? (
             <EmptyState sentence="No file is on hold and no poll is waiting on a vote." />
           ) : (
-            <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
+            <div className="mc-work-table-wrap mt-3 border border-border bg-background">
+            <table className="w-full text-[13px] leading-[18px]">
               <thead>
                 <tr className="border-b border-border text-left">
                   <th scope="col" className="p-2">Acquisition</th>
@@ -171,11 +172,11 @@ function EscalationsPage() {
                     </td>
                     <td className="p-2">
                       {item.aging ? (
-                        <StatusMark color="var(--needsattention)" className="text-[13px] leading-[18px]">
+                        <StatusMark color="var(--mc-readiness-watch)" className="text-[13px] leading-[18px]">
                           Aging
                         </StatusMark>
                       ) : (
-                        <StatusMark color="var(--ontrack)" className="text-[13px] leading-[18px]">
+                        <StatusMark color="var(--mc-readiness-go)" className="text-[13px] leading-[18px]">
                           Within the Center window
                         </StatusMark>
                       )}
@@ -184,6 +185,7 @@ function EscalationsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
 
           <h2 className="section-title mt-10 text-[18px] leading-6 font-medium">Supervisor digest</h2>
@@ -215,7 +217,8 @@ function EscalationsPage() {
           <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
             Center policy sets the number of days. The default is {DEFAULT_AGING_DAYS} days.
           </p>
-          <table className="mt-3 w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
+          <div className="mc-work-table-wrap mt-3 max-w-[640px] border border-border bg-background">
+          <table className="w-full text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Center</th>
@@ -237,7 +240,7 @@ function EscalationsPage() {
                       type="number"
                       min={0}
                       max={90}
-                      className="h-9 w-24 rounded-lg border border-border bg-background px-2 text-[13px]"
+                      className="h-9 w-24 border border-border bg-background px-2 text-[13px] [border-radius:var(--mc-radius-control)]"
                       defaultValue={c.aging_threshold_days ?? DEFAULT_AGING_DAYS}
                       disabled={!canConfigure}
                       onBlur={(e) =>
@@ -249,6 +252,7 @@ function EscalationsPage() {
               ))}
             </tbody>
           </table>
+          </div>
           {!canConfigure ? (
             <p className="mt-2 max-w-[70ch] text-[13px] text-muted-foreground">
               Changing these numbers requires HQ or Administrator.

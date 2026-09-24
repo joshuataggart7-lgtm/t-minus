@@ -1,3 +1,9 @@
+## Overnight §6 Tip 4 — Review/oversight — September 24, 2026
+
+- `src/routes/reviewer-inbox.tsx` now presents each pending review as a light work strip with the shared `explainWorkReadiness` chip and matching accent. Textarea/button radii use the Lock D control token, and No-go uses the HOLD token; vote mutation, audit payload, matching, hero-document, and receipt behavior are unchanged.
+- `src/routes/checks.tsx`, `src/routes/deviations.tsx`, and `src/routes/deviations_.$deviationId.tsx` now use shared warm summaries, table wrappers, control radii, and existing readiness color tokens where their recorded status already has a direct visual equivalent. Check/deviation rules and writes are unchanged.
+- Optional light-only polish also applied to `src/routes/digest.tsx` and `src/routes/escalations.tsx`: shared toolbar/table wrappers, control radius, and GO/WATCH display tokens without changing digest posting, escalation calculations, or threshold writes. FLAG review/write-adjacent presentation files: reviewer inbox, checks, both deviation routes, digest, and escalations. Reverse by restoring the former classes and legacy color variables; no schema/data changes and no self-GREEN claim.
+
 ## Overnight §6 Tip 3 — Requester surfaces — September 24, 2026
 
 - `src/routes/requester.tsx` now derives GO / WATCH / HOLD / LAUNCHED through `explainWorkReadiness`, renders the shared readiness chip and light work-card accent, and maps recorded Present / Missing and hold callouts to Lock D readiness tokens. Owed-item logic, requester filtering, effort display, and writes are unchanged.
