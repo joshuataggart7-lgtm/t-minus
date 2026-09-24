@@ -23,6 +23,9 @@ import { sf30HonestBlanks } from "@/lib/sf30-blanks";
 import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 
 import { daysBetween, todayISO } from "@/lib/intake";
+import { computeMetrics, holdSince } from "@/lib/metrics";
+import type { AcqRow } from "@/lib/launch-sequence";
+import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
@@ -333,14 +336,68 @@ function FormPage() {
     }
   };
 
-  // The same fallback the file page uses: the forecast's anticipated award
-  // date stands in when no target award date is entered.
-  const targetDate = ((): string | null => {
-    const pick = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
-    return pick(q.data?.acq?.["target_award_date"]) ?? pick(q.data?.acq?.["need_date"]);
-  })();
-  const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
-  const headerLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
+  // Summary countdown uses the shared Overview award rule: award only from a
+  // recorded Launched audit; need_date never stands in as an award date.
+  const countdownQ = useQuery({
+    queryKey: ["form-countdown", acquisitionId],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      const [acq, log, plan, rules, polls, thresholds, strategies] = await Promise.all([
+        supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
+        supabase.from("audit_log").select("acquisition_id,action,logged_at").eq("acquisition_id", acquisitionId),
+        supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
+        supabase.from("review_rules").select("*"),
+        supabase.from("polls").select("*").eq("acquisition_id", acquisitionId),
+        supabase.from("thresholds").select("*"),
+        supabase.from("enterprise_strategies").select("*"),
+      ]);
+      return {
+        acq: acq.data as unknown as AcqRow | null,
+        log: (log.data ?? []) as { acquisition_id: string | null; action: string | null; logged_at: string | null }[],
+        plan: (plan.data ?? []) as never[],
+        rules: (rules.data ?? []) as never[],
+        polls: (polls.data ?? []) as never[],
+        thresholds: (thresholds.data ?? []) as Record<string, unknown>[],
+        strategies: (strategies.data ?? []) as Record<string, unknown>[],
+      };
+    },
+  });
+  const countdown = useMemo(() => {
+    const d = countdownQ.data;
+    if (!d?.acq) return null;
+    const operational = deriveOverviewAcquisitionState(d.acq, d.log);
+    const metrics = computeMetrics(operational.acquisition, {
+      plan: d.plan,
+      rules: d.rules,
+      polls: d.polls,
+      ref: {
+        thresholds: d.thresholds.map((t) => ({
+          name: (t["name"] as string) ?? null,
+          value: t["value"] == null ? null : Number(t["value"]),
+          citation: (t["citation"] as string) ?? null,
+          note: (t["note"] as string) ?? null,
+        })),
+        phasePlan: (d.plan as { acquisition_type: string | null; phase: string | null; planned_days: number | null }[]),
+        strategies: d.strategies.map((s) => ({
+          psl: String(s["psl"] ?? ""),
+          name: (s["name"] as string) ?? null,
+          buying_location: (s["buying_location"] as string) ?? null,
+          mandatory_vehicles: (s["mandatory_vehicles"] as string) ?? null,
+          required_coordination: (s["required_coordination"] as string) ?? null,
+        })),
+      },
+      holdSince: holdSince(acquisitionId, d.log as never),
+      awardDate: operational.actualAwardDate,
+    });
+    return overviewCountdownView(metrics);
+  }, [countdownQ.data, acquisitionId]);
+  const headerLine = `${acquisitionId} · ${
+    !countdown
+      ? "Not recorded"
+      : countdown.days === null
+        ? countdown.caption
+        : `${countdown.prefix}${countdown.days}${countdown.badge ? ` ${countdown.badge}` : ""} (${countdown.caption})`
+  }`;
 
   // P0 fold-in: an official export is only Ready when the blank itself loads.
   // Mapping rows alone are not enough: a missing blank exports nothing.

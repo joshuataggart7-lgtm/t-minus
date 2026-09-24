@@ -688,13 +688,22 @@ function FilePage() {
   }, [q.data?.documents, q.data?.templates]);
   const savedKeys = useMemo(() => new Set(savedDocs.keys()), [savedDocs]);
 
+  // Display remap only: phases (rail, file index, sidebar) read the same
+  // operational acquisition as the countdown, so clock_state=launched with no
+  // recorded Launched audit never marks Administration current.
   const phases: PhaseView[] = useMemo(
     () =>
       acq
-        ? buildSequence(acq, q.data?.plan ?? [], todayISO(), daysBetween, {
-            attachedKeys: keysFrom(attachments),
-            savedKeys,
-          })
+        ? buildSequence(
+            deriveOverviewAcquisitionState(acq, q.data?.log ?? []).acquisition as typeof acq,
+            q.data?.plan ?? [],
+            todayISO(),
+            daysBetween,
+            {
+              attachedKeys: keysFrom(attachments),
+              savedKeys,
+            },
+          )
         : [],
     [acq, q.data, attachments, savedKeys],
   );

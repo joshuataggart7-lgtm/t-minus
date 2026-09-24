@@ -2971,3 +2971,7 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 ## Exec Ops P0 follow-up
 - P0-A: Overview featured selector/scan strips use the acquisition's own title as identity; options read `ID — title (mission)`; mission shown secondary.
 - P0-B: File page lifecycle normalizes via `deriveOverviewAcquisitionState`; awardDate only from recorded `Launched` audit event (no target fallback); countdown face uses `overviewCountdownView`. Stored clock_state untouched.
+
+## Exec recon P1 fixes (state consistency, reversible)
+- P1-1 FLAG Soft Walk-adjacent: `src/routes/forms.$formKey.$acquisitionId.tsx` summary headerLine now uses deriveOverviewAcquisitionState + computeMetrics + overviewCountdownView (launch-countdown caller). need_date no longer stands in as award. Display only; masters/exports/signing unchanged. Revert: restore the target_award_date ?? need_date block.
+- P1-2 FLAG: `src/routes/files_.$acquisitionId.tsx` phases (rail, file index, sidebar) built from the operational remap, so clock_state=launched without a Launched audit no longer marks Administration NOW. No DB writes.
