@@ -21,15 +21,25 @@ export function McStatBlock({
   tone = "cyan",
   index,
   description,
+  pressed,
+  onSelect,
 }: {
+  pressed?: boolean;
+  onSelect?: () => void;
   label: string;
   value: number;
   tone?: "cyan" | "green" | "amber" | "red";
   index?: string;
   description?: string;
 }) {
+  const Tag = onSelect ? "button" : "div";
   return (
-    <div className={cn("mc-stat-block", `mc-tone-${tone}`)}>
+    <Tag
+      {...(onSelect
+        ? { type: "button" as const, onClick: onSelect, "aria-pressed": !!pressed, "aria-label": `${label}: ${value}. ${pressed ? "Clear filter" : "Filter acquisitions"}` }
+        : {})}
+      className={cn("mc-stat-block", `mc-tone-${tone}`, onSelect && "mc-stat-filter")}
+    >
       <div className="flex items-center gap-3">
         <span className="mc-status-pip" aria-hidden="true" />
         <p className="mc-label">{label}</p>
@@ -37,6 +47,6 @@ export function McStatBlock({
         {index ? <span className="mc-stat-index" aria-hidden="true">{index}</span> : null}
       </div>
       {description ? <p className="mc-stat-description">{description}</p> : null}
-    </div>
+    </Tag>
   );
 }

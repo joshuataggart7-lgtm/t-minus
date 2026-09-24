@@ -108,7 +108,7 @@ export function explainReadiness(metric: AcqMetrics, ctx: ReadinessContext): Rea
       triggers: [
         {
           code: "hold",
-          text: metric.hold?.reason ?? String(metric.acq.hold_reason ?? "").trim() ?? "Hold reason not recorded",
+          text: metric.hold?.reason ?? (String(metric.acq.hold_reason ?? "").trim() || "Hold reason not recorded"),
         },
       ],
     };
