@@ -1,3 +1,9 @@
+## Executive Overview reconciliation foundation D — September 24, 2026
+
+- Recast Executive exceptions as leadership-first compressed strips with a Leadership / Analyst view toggle. Each item still comes only from the existing overdue gate, award risk, mandatory evidence, reviewer, approval, and blocker rules.
+- Only WATCH and HOLD acquisitions can appear. Identity is acquisition-title first, schedule uses the shared reconciled countdown, and the dense analyst table exposes missing evidence and gate age without manufacturing values.
+- Lock D chrome, A+B+C reconciliation, Soft Walk write paths, schema, fixtures, and other pages were unchanged.
+
 ## Executive Overview reconciliation foundation C — September 24, 2026
 
 - Changed the featured trajectory's selected-gate evidence into progressive disclosure: the default leadership scan shows record-derived readiness, evidence, approvals, blocker, downstream award rule, next action, and responsible role; the expansion retains the full forensic evidence and event detail.

@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import type { AcqMetrics, MissionRow } from "@/lib/metrics";
+import { Button } from "@/components/ui/button";
+import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
-import type { ReadinessExplanation } from "./readiness";
+import { cn } from "@/lib/utils";
+import { overviewCountdownView } from "./operational-state";
+import type { ReadinessExplanation, ReadinessState } from "./readiness";
 
 export type PriorityTier = "Mission Critical" | "High Priority" | "Standard" | "Priority not recorded";
 
@@ -15,7 +19,9 @@ export function priorityTier(mission: MissionRow | null | undefined): PriorityTi
 }
 
 type Exception = { kind: string; id: string; detail: string };
+type ExceptionMetric = AcqMetrics & { readiness?: ReadinessExplanation };
 const APPROVAL_ROLE = /approv|contracting officer|procurement officer|source selection|board|\bpeb\b|head of contracting/i;
+const NR = "Not recorded";
 
 export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
   const today = todayISO();
@@ -23,7 +29,8 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
   for (const m of metrics) {
     if (m.awardDate) continue;
     const id = m.acq.acquisition_id;
-    const r = (m as AcqMetrics & { readiness?: ReadinessExplanation }).readiness;
+    const r = (m as ExceptionMetric).readiness;
+    if (r?.state !== "HOLD" && r?.state !== "WATCH") continue;
     const current = m.phases.find((p) => p.status === "current");
     if (current && current.actual_days !== null && current.actual_days > current.planned_days) {
       out.push({ kind: "Overdue gate", id, detail: `${current.phase}: ${current.actual_days} days against ${current.planned_days} planned` });
@@ -54,26 +61,110 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
   return out;
 }
 
+function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
+  const view = overviewCountdownView(metric);
+  const clock = view.days === null || !view.prefix ? NR : `${view.prefix}${view.days}${view.mode === "forecast" ? " forecast" : ""}`;
+  const target = readiness.targetAward ? formatDate(readiness.targetAward) : NR;
+  return `${clock} · target ${target}`;
+}
+
+function primaryBlocker(metric: AcqMetrics, exception: Exception, readiness: ReadinessExplanation) {
+  if (metric.hold?.reason?.trim()) return metric.hold.reason;
+  if (metric.blocker?.trim() && metric.blocker !== "None") return metric.blocker;
+  if (readiness.missingEvidence[0]?.trim()) return readiness.missingEvidence[0];
+  return exception.detail?.trim() || NR;
+}
+
+function provenanceChip(label: "FACT" | "RULE" | "INFERENCE" | "DRAFT") {
+  return <span className="mc-recon-chip is-light">{label}</span>;
+}
+
 export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
+  const [mode, setMode] = useState<"leadership" | "analyst">("leadership");
   const items = deriveExceptions(metrics);
+  const rows = items.flatMap((exception) => {
+    const metric = (metrics as ExceptionMetric[]).find((item) => item.acq.acquisition_id === exception.id);
+    const readiness = metric?.readiness;
+    if (!metric || !readiness || (readiness.state !== "HOLD" && readiness.state !== "WATCH")) return [];
+    const title = String(metric.acq.title ?? "").trim() || "Untitled acquisition";
+    const owner = readiness.nextOwner?.trim() || metric.blockerOwner?.trim() || String(metric.acq.co_name ?? "").trim() || NR;
+    return [{
+      exception,
+      metric,
+      readiness,
+      title,
+      owner,
+      gate: metric.currentPhase?.trim() || NR,
+      schedule: scheduleFor(metric, readiness),
+      blocker: primaryBlocker(metric, exception, readiness),
+      next: readiness.nextAction?.trim() || NR,
+    }];
+  });
+
   return (
     <section className="mc-exec-exceptions" aria-labelledby="exec-exceptions-heading">
-      <div className="flex items-baseline justify-between gap-4">
-        <h3 id="exec-exceptions-heading" className="mc-heading">Executive exceptions</h3>
-        <span className="mc-label" data-numeric>{items.length}</span>
+      <div className="mc-exception-heading">
+        <div>
+          <p className="mc-label">Leadership attention</p>
+          <h3 id="exec-exceptions-heading" className="mc-heading">Executive exceptions <span data-numeric>{rows.length}</span></h3>
+        </div>
+        <div className="mc-exception-mode" aria-label="Exception view">
+          <Button type="button" variant="ghost" size="sm" aria-pressed={mode === "leadership"} onClick={() => setMode("leadership")}>Leadership</Button>
+          <Button type="button" variant="ghost" size="sm" aria-pressed={mode === "analyst"} onClick={() => setMode("analyst")}>Analyst</Button>
+        </div>
       </div>
-      {items.length === 0 ? (
-        <p className="mt-2 text-[13px]">No active exceptions</p>
-      ) : (
-        <ul className="mt-2">
-          {items.map((e, i) => (
-            <li key={`${e.id}-${e.kind}-${i}`}>
-              <span className="mc-exc-kind">{e.kind}</span>
-              <Link to="/files/$acquisitionId" params={{ acquisitionId: e.id }} className="mc-exc-id" data-numeric>{e.id}</Link>
-              <span className="mc-exc-detail">{e.detail}</span>
-            </li>
+      {rows.length === 0 ? (
+        <p className="mc-exception-empty">No active exceptions</p>
+      ) : mode === "leadership" ? (
+        <div className="mc-exception-strips">
+          {rows.map((row, index) => (
+            <article className={cn("mc-exception-strip", `is-${row.readiness.state.toLowerCase()}`)} key={`${row.exception.id}-${row.exception.kind}-${index}`}>
+              <div className="mc-exception-severity">
+                {provenanceChip("RULE")}
+                <strong>{row.readiness.state}</strong>
+                <span>{row.exception.kind}</span>
+              </div>
+              <div className="mc-exception-identity">
+                <Link to="/files/$acquisitionId" params={{ acquisitionId: row.exception.id }} data-numeric>{row.exception.id}</Link>
+                <strong>{row.title}</strong>
+              </div>
+              <dl className="mc-exception-scan">
+                <div><dt>Owner / role</dt><dd>{row.owner}</dd></div>
+                <div><dt>Gate</dt><dd>{row.gate}</dd></div>
+                <div><dt>{provenanceChip(row.readiness.targetAward ? "FACT" : "RULE")} Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
+                <div><dt>{provenanceChip("FACT")} Blocker</dt><dd>{row.blocker}</dd></div>
+                <div><dt>{provenanceChip("FACT")} Next action</dt><dd>{row.next}</dd></div>
+              </dl>
+            </article>
           ))}
-        </ul>
+        </div>
+      ) : (
+        <div className="mc-exception-table-wrap">
+          <table className="mc-exception-table">
+            <thead>
+              <tr>
+                <th scope="col">Sev</th><th scope="col">Acq #</th><th scope="col">Title</th><th scope="col">Owner</th><th scope="col">Gate</th><th scope="col">Schedule</th><th scope="col">Missing #</th><th scope="col">Missing / age</th><th scope="col">Blocker</th><th scope="col">Next</th><th scope="col">Rule kind</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr key={`${row.exception.id}-${row.exception.kind}-analyst-${index}`}>
+                  <td><span className={cn("mc-exception-table-severity", `is-${row.readiness.state.toLowerCase()}`)}>{row.readiness.state}</span></td>
+                  <td><Link to="/files/$acquisitionId" params={{ acquisitionId: row.exception.id }} data-numeric>{row.exception.id}</Link></td>
+                  <td>{row.title}</td>
+                  <td>{row.owner}</td>
+                  <td>{row.gate}</td>
+                  <td data-numeric>{row.schedule}</td>
+                  <td data-numeric>{row.readiness.missingEvidence.length}</td>
+                  <td>{row.readiness.missingEvidence.length ? row.readiness.missingEvidence.join(", ") : "None recorded"}<span>{row.readiness.gateAgeDays === null ? NR : `${row.readiness.gateAgeDays} days in gate`}</span></td>
+                  <td>{row.blocker}</td>
+                  <td>{row.next}</td>
+                  <td>{row.exception.kind}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
