@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
-import { countdownView } from "@/components/launch-countdown";
 import { formatDate, urgencyRank } from "@/lib/metrics";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { McPanel } from "./primitives";
 import { missionControlState } from "./mission-status-board";
+import { overviewCountdownView } from "./operational-state";
 
 export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
   const rows = [...metrics]
@@ -20,7 +20,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
       ) : (
         <ul className="mc-anomaly-list">
           {rows.map((metric) => {
-            const view = countdownView(metric);
+            const view = overviewCountdownView(metric);
             const state = missionControlState(metric);
             const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
             const daysInCondition = metric.blockerSince ? Math.max(0, daysBetween(metric.blockerSince, todayISO())) : null;

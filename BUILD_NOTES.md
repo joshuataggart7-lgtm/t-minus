@@ -1,3 +1,10 @@
+## Executive Overview operational pass · Phase 1 — September 24, 2026
+
+- Added one Overview-only derived operational state. A recorded `Launched` audit event is now the sole source for actual award, LAUNCHED readiness, T+, and post-award timeline position.
+- Pre-award files count down only against the target award date. Once awarded, the recorded actual award date replaces the target for elapsed time and quarter reporting; award day reads T+0.
+- The same derived state feeds Overview status, current phase, readiness, countdown, trajectory, acquisition strips, and Days Returned. Every acquisition resolves to exactly one readiness bucket.
+- No schema, stored `clock_state`, Soft Walk method, citation, document, signature, role, audit, export, fixture, form, or non-Overview page was changed.
+
 ## ORBIT Executive Overview Lock D · Fidelity QA — September 23, 2026
 
 - Restored the frozen Craft R3 hierarchy on the Executive Overview only: equal-width wrapping trajectory gates, semantic GO/WATCH/HOLD/LAUNCHED values and underlines, more deliberate mission-surface spacing, and laptop-safe acquisition strips.

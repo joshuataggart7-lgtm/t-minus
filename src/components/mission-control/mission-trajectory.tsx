@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { countdownView } from "@/components/launch-countdown";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
+import { overviewCountdownView } from "./operational-state";
 
 const LIFECYCLE = [
   { label: "Requirement / Intake", phases: ["Intake"] },
@@ -46,7 +46,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
 
   if (!metric) return null;
   const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
-  const view = countdownView(metric);
+  const view = overviewCountdownView(metric);
   const state = missionControlState(metric);
   const activeIndex = stageIndex(metric);
   const nextIndex = activeIndex < 0 ? 0 : Math.min(activeIndex + 1, LIFECYCLE.length - 1);
@@ -87,8 +87,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         </div>
         <div className="mc-featured-state">
           <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
-          <small>Target award</small>
-          <strong data-numeric>{formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}</strong>
+          <small>{metric.awardDate ? "Actual award" : "Target award"}</small>
+          <strong data-numeric>{formatDate(metric.awardDate ?? (metric.acq.target_award_date ? String(metric.acq.target_award_date) : null))}</strong>
         </div>
       </div>
 
