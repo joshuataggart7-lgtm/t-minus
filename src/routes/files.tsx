@@ -153,9 +153,9 @@ function FilesPage() {
                   </td>
                   <td className="p-2 break-words">
                     {String(acq.title ?? "—")}
-                    {acq.source_tag === "backfilled" ? (
+                    {acq['source_tag'] === "backfilled" ? (
                       <span className="mt-1 block text-[13px] text-muted-foreground">
-                        Backfilled{acq.contract_number ? ` · contract ${acq.contract_number}` : ""}
+                        Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}
                       </span>
                     ) : null}
                   </td>
@@ -164,7 +164,7 @@ function FilesPage() {
                   <td className="p-2">{String(operational.current_phase ?? "—")}</td>
                   <td className="p-2"><MissionReadinessChip state={readiness} /></td>
                   <td className="p-2" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} /></td>
-                  <td className="p-2">{estimateLine(acq.intake_estimate as StoredEstimate | null)}</td>
+                  <td className="p-2">{estimateLine(acq['intake_estimate'] as StoredEstimate | null)}</td>
                 </tr>
               ))}
             </tbody>
