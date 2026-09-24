@@ -1,3 +1,9 @@
+## Overnight §6 Tip 2 — Files + file chrome — September 24, 2026
+
+- `src/routes/files.tsx` now derives each row through `deriveOverviewAcquisitionState`, `computeMetrics`, stored attachment/document evidence, and `explainWorkReadiness`. Phase, GO / WATCH / HOLD / LAUNCHED chip, readiness accent, and compact award clock all read the remapped operational record; raw `clock_state` and `current_phase` are no longer displayed.
+- FLAG Soft Walk-adjacent: `src/routes/files_.$acquisitionId.tsx` changed display chrome only. Its hero now shows the shared readiness chip, its light summary uses the shared control radius, and phase-dot colors use the already-proven effective state plus Lock D readiness tokens. Launch rail/countdown/invite props and logic, writes, generators, signatures, exports, methods, authorities, fixtures, and stored state were untouched.
+- Reverse by restoring the prior Files query/raw columns and removing the hero chip/radius plus readiness-token phase-dot display mapping. No schema or data changes; no self-GREEN claim.
+
 ## Overnight §6 Tip 1 — Today + Work Queue readiness propagate — September 24, 2026
 
 - `src/components/mission-control/readiness.ts` adds the shared `explainWorkReadiness` wrapper around the existing rules, standard watch window, phase-plan aging fallback, and current date; it makes no unproven missing-evidence claim.
