@@ -41,7 +41,7 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
       clock_state: isAwarded ? "launched" : recordedClock === "launched" ? "running" : recordedClock,
       current_phase: isAwarded
         ? (isPostAwardPhase ? recordedPhase : "Administration")
-        : (isPostAwardPhase ? "Award" : acq.current_phase),
+        : (isPostAwardPhase ? "Award" : (acq.current_phase ?? null)),
     },
   };
 }
