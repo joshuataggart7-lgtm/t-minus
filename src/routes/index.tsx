@@ -36,6 +36,7 @@ import {
   type MissionRow,
 } from "@/lib/metrics";
 import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
+import { derivePhaseEvidence } from "@/components/mission-control/gate-evidence";
 import { DEFAULT_WATCH_WINDOW_DAYS, explainReadiness } from "@/components/mission-control/readiness";
 import { docRowKey, docSatisfied, generatorKey } from "@/lib/launch-sequence";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
@@ -197,7 +198,12 @@ export function ExecutiveOverview() {
         watchWindowDays,
         today,
       });
-      return { ...metric, readiness };
+      const phaseEvidence = derivePhaseEvidence(metric, q.data.log, (d) =>
+        d.field || generatorKey(d)
+          ? docSatisfied(d, acq, attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined, savedKeys)
+          : null,
+      );
+      return { ...metric, readiness, phaseEvidence };
     });
   }, [q.data, ref, watchWindowDays]);
 

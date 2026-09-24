@@ -710,10 +710,10 @@
 
 @utility mc-gate-label {
   width: 100%;
-  max-width: 68px;
+  max-width: 80px;
   min-height: 2.5em;
   overflow-wrap: normal;
-  font-size: 8px;
+  font-size: 9.5px;
   line-height: 1.25;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1941,3 +1941,12 @@
   border-block: 1px solid var(--border);
   padding-block: 1.25rem;
 }
+
+.mc-gate-readiness { display:block; margin-top:2px; font-size:8.5px; font-weight:600; letter-spacing:0.04em; opacity:0.85; }
+.mc-gate-readiness.is-ready { color: var(--mc-readiness-go); }
+.mc-gate-readiness.is-attention { color: var(--mc-readiness-watch); }
+.mc-gate-readiness.is-blocked { color: var(--mc-readiness-hold); }
+.mc-stage-detail { display:grid; gap:0.75rem 1.5rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top:0.75rem; font-size:13px; line-height:18px; }
+.mc-stage-detail dt { color: var(--mc-muted); }
+.mc-stage-detail dd { margin:0; }
+.mc-stage-detail ul { margin:0; padding-left:1rem; list-style:disc; }
