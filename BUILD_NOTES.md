@@ -2937,3 +2937,9 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Approval vs reviewer split is by reviewer role name (approval/CO/board roles = approval pending).
 - Readiness cards are filter buttons (same look); HOLD opens the leadership exception queue sorted overdue → nearest target → longest blocked. Missing values read "Not recorded".
 - WATCH subtitle renamed to "Attention required". No schema, Soft Walk, or other-page changes.
+
+## Exec Overview Phase 3 — gate evidence readiness + stage detail
+- New `gate-evidence.ts`: per phase required/completed/missing Required rows (same satisfaction check as metrics; rows with no recorded state count as neither), offered rows = advisory. Approvals = review board entries for the stage's phases; obtained = Go votes.
+- Gate readiness: BLOCKED = hold on current stage, any No-go, or missing Required row on the current stage; READY = complete or nothing outstanding; else ATTENTION.
+- Entered = earliest audit event logged in the phase; Completed = last audit event in a completed phase (labeled "last recorded event"). Absent → "Not recorded".
+- Stage labels 8px → 9.5px, max-width 80px, equal-column wrap grid kept.
