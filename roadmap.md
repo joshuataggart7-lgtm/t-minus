@@ -7,6 +7,7 @@
 - [ ] Verify A-2027-0101, refusal links, audit output, and desktop/mobile dialogs
 
 # Accuracy
+- [x] Reconcile shared countdown award gating and add the Executive Overview model note, state contract, and identity assurance
 - [x] Phase 1 Exec Overview operational pass: unify recorded-award readiness, stage, phase, and timeline derivation without changing stored clock state or Soft Walk behavior
 - [x] Phase 2 Exec Overview operational pass: rule-driven readiness reasons, filterable readiness cards, HOLD exception queue, "Attention required" subtitle
 - [x] Phase 3 Exec Overview operational pass: per-gate evidence readiness (READY/ATTENTION/BLOCKED), larger non-colliding stage labels, click-through stage detail

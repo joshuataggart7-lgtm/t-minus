@@ -46,7 +46,9 @@ function daysUntilISO(iso: string): number {
  */
 export function countdownView(m: AcqMetrics): CountdownView {
   const base = { badge: null, holdReason: null };
-  if (m.clockState === "launched") {
+  // A stored clock state is not an award. The shared operational normalizer
+  // supplies awardDate only from the recorded actual-award event.
+  if (m.awardDate) {
     return {
       ...base,
       mode: "launched",

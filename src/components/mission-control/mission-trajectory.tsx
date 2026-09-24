@@ -99,6 +99,11 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         </div>
       </div>
 
+      <p className="mc-identity-assurance">
+        <span className="mc-recon-chip">FACT</span>
+        Identity match: ID, title, mission, value, method, gates and clock are read from this acquisition record.
+      </p>
+
       {(() => {
         const r = (metric as AcqMetrics & { readiness?: { targetAward: string | null } }).readiness;
         const currentGate = summarizeGate(metric, LIFECYCLE[activeIndex]?.phases ?? [], evidenceOf(metric), true);
