@@ -1924,7 +1924,6 @@
   width: 100%;
   text-align: left;
   font: inherit;
-  color: inherit;
   background: transparent;
   cursor: pointer;
 }
@@ -1934,4 +1933,11 @@
 }
 .mc-stat-filter[aria-pressed="true"] {
   background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.mc-readiness-queue {
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-block: 1px solid var(--border);
+  padding-block: 1.25rem;
 }

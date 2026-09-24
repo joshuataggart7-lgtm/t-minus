@@ -1,4 +1,7 @@
+import { useState } from "react";
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
+import { ReadinessQueue } from "./readiness-queue";
+import type { MissionControlState } from "./mission-status-board";
 import { AcquisitionScanCard } from "./acquisition-scan-card";
 import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
@@ -10,17 +13,22 @@ export function PortfolioHero({
   metrics,
   missions,
   latestEvents,
+  watchWindowDays,
+  onWatchWindowChange,
 }: {
+  watchWindowDays: number;
+  onWatchWindowChange: (days: number) => void;
   metrics: AcqMetrics[];
   missions: MissionRow[];
   latestEvents: Record<string, LatestEvent>;
 }) {
+  const [filter, setFilter] = useState<MissionControlState | null>(null);
   return (
     <section className="mc-lock-d" aria-label="Mission control portfolio">
       <div className="mc-command-field mc-grid mc-glow-rim">
         <div className="mc-command-beacon" aria-hidden="true" />
         <div className="relative z-10">
-        <MissionStatusBoard metrics={metrics} />
+        <MissionStatusBoard metrics={metrics} active={filter} onSelect={setFilter} />
         <MissionTrajectory metrics={metrics} missions={missions} />
           <NovaProvenance />
         </div>
@@ -38,6 +46,16 @@ export function PortfolioHero({
             Record-derived portfolio scan
           </div>
         </div>
+        {filter ? (
+          <ReadinessQueue
+            state={filter}
+            metrics={metrics}
+            missions={missions}
+            watchWindowDays={watchWindowDays}
+            onWatchWindowChange={onWatchWindowChange}
+            onClear={() => setFilter(null)}
+          />
+        ) : null}
         <div className="mc-strip-table" role="table" aria-label="Priority acquisitions">
           <div className="mc-strip-head" role="row">
             <span>ID</span><span>Status</span><span>Mission</span><span>Clock</span><span>Phase</span><span>Next</span><span>Var</span>
