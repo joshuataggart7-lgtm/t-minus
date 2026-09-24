@@ -1,4 +1,5 @@
 import type { AcqMetrics } from "@/lib/metrics";
+import { todayISO } from "@/lib/intake";
 
 /**
  * Rule-driven readiness for the Executive Overview. Every trigger is a
@@ -42,6 +43,17 @@ export type ReadinessContext = {
 };
 
 export const DEFAULT_WATCH_WINDOW_DAYS = 30;
+
+/** Shared readiness context for operational work surfaces. */
+export function explainWorkReadiness(metric: AcqMetrics): ReadinessExplanation {
+  return explainReadiness(metric, {
+    // AcqMetrics does not retain attachment/save sets, so never infer missing evidence here.
+    missingEvidence: [],
+    centerAgingDays: null,
+    watchWindowDays: DEFAULT_WATCH_WINDOW_DAYS,
+    today: todayISO(),
+  });
+}
 
 /** Rules shown to leadership, including the ones the record cannot evaluate yet. */
 export const WATCH_RULES: { label: string; evaluated: boolean }[] = [
