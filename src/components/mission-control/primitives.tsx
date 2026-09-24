@@ -24,8 +24,8 @@ export function McStatBlock({
   pressed,
   onSelect,
 }: {
-  pressed?: boolean;
-  onSelect?: () => void;
+  pressed?: boolean | undefined;
+  onSelect?: (() => void) | undefined;
   label: string;
   value: number;
   tone?: "cyan" | "green" | "amber" | "red";
