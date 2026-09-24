@@ -75,6 +75,12 @@ function primaryBlocker(metric: AcqMetrics, exception: Exception, readiness: Rea
   return exception.detail?.trim() || NR;
 }
 
+function blockerProvenance(metric: AcqMetrics, readiness: ReadinessExplanation): "FACT" | "RULE" {
+  return metric.hold?.reason?.trim() || (metric.blocker?.trim() && metric.blocker !== "None") || readiness.missingEvidence.length
+    ? "FACT"
+    : "RULE";
+}
+
 function provenanceChip(label: "FACT" | "RULE" | "INFERENCE" | "DRAFT") {
   return <span className="mc-recon-chip is-light">{label}</span>;
 }
@@ -97,6 +103,7 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
       gate: metric.currentPhase?.trim() || NR,
       schedule: scheduleFor(metric, readiness),
       blocker: primaryBlocker(metric, exception, readiness),
+      blockerProvenance: blockerProvenance(metric, readiness),
       next: readiness.nextAction?.trim() || NR,
     }];
   });
@@ -132,8 +139,8 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
                 <div><dt>Owner / role</dt><dd>{row.owner}</dd></div>
                 <div><dt>Gate</dt><dd>{row.gate}</dd></div>
                 <div><dt>{provenanceChip(row.readiness.targetAward ? "FACT" : "RULE")} Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
-                <div><dt>{provenanceChip("FACT")} Blocker</dt><dd>{row.blocker}</dd></div>
-                <div><dt>{provenanceChip("FACT")} Next action</dt><dd>{row.next}</dd></div>
+                <div><dt>{provenanceChip(row.blockerProvenance)} Blocker</dt><dd>{row.blocker}</dd></div>
+                <div><dt>{provenanceChip("RULE")} Next action</dt><dd>{row.next}</dd></div>
               </dl>
             </article>
           ))}
