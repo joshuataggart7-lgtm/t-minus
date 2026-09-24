@@ -57,7 +57,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
   const state = missionControlState(metric);
   const activeIndex = stageIndex(metric);
   const nextIndex = activeIndex < 0 ? 0 : Math.min(activeIndex + 1, LIFECYCLE.length - 1);
-  const title = mission?.name || String(metric.acq.title ?? "Untitled mission");
+  const title = String(metric.acq.title ?? "").trim() || "Untitled acquisition";
   const consequence = metric.hold
     ? `${metric.hold.reason} · owner: ${metric.hold.owner}`
     : metric.blocker !== "None"
@@ -76,7 +76,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           <select value={metric.acq.acquisition_id} onChange={(event) => setSelectedId(event.target.value)}>
             {metrics.map((item) => {
               const itemMission = missions.find((row) => row.mission_id === item.acq.mission_id);
-              return <option key={item.acq.acquisition_id} value={item.acq.acquisition_id}>{itemMission?.name || String(item.acq.title ?? item.acq.acquisition_id)}</option>;
+              return <option key={item.acq.acquisition_id} value={item.acq.acquisition_id}>{`${item.acq.acquisition_id} — ${String(item.acq.title ?? "").trim() || "Untitled acquisition"}${itemMission?.name ? ` (${itemMission.name})` : ""}`}</option>;
             })}
           </select>
         </label>
@@ -86,7 +86,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         <div className="min-w-0">
           <p className="mc-featured-id" data-numeric>{metric.acq.acquisition_id}</p>
           <h3>{title}</h3>
-          <p>{String(metric.acq.title ?? "")}</p>
+          <p>{mission?.name ? `Mission: ${mission.name}` : "Mission not recorded"}</p>
         </div>
         <div className="mc-featured-clock">
           <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : `${view.prefix}${view.days}`}</strong>

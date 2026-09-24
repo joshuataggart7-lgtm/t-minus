@@ -174,6 +174,7 @@ import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { awardDateFor, computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
+import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
@@ -737,7 +738,8 @@ function FilePage() {
 
   const lifecycle = useMemo(() => {
     if (!acq) return null;
-    return computeMetrics(acq, {
+    const operational = deriveOverviewAcquisitionState(acq, q.data?.log ?? []);
+    return computeMetrics(operational.acquisition as typeof acq, {
       roster: q.data?.people ?? [],
       plan: q.data?.plan ?? [],
       rules: q.data?.rules ?? [],
@@ -747,7 +749,7 @@ function FilePage() {
         ? { mission_id: String(acq.mission_id ?? ""), name: q.data.mission.name ?? "Mission", program: null, center_code: acq.center_code ?? null, milestone: null, milestone_date: q.data.mission.milestone_date, priority: null, program_owner: null, leadership_note: null }
         : null,
       holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
-      awardDate: awardDateFor(acq.acquisition_id, q.data?.log ?? [], acq.target_award_date ?? null),
+      awardDate: operational.actualAwardDate,
       attachedKeys: keysFrom(attachments),
       savedKeys,
     });
@@ -2130,7 +2132,7 @@ function FilePage() {
             <LaunchCountdown
               view={
                 lifecycle
-                  ? countdownView(lifecycle)
+                  ? overviewCountdownView(lifecycle)
                   : effectiveState === "launched"
                     ? { mode: "launched", days: 0, prefix: "T+", badge: null, caption: "days since award", holdReason: null, tone: "cyan" }
                     : effectiveState === "scrubbed"
