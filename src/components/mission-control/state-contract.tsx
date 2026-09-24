@@ -7,16 +7,16 @@ const CONTRACT_ROWS = [
   "Featured and scan identity facts come from the same acquisition record.",
 ] as const;
 
-function ProvenanceChip({ children }: { children: "FACT" | "RULE" }) {
-  return <span className="mc-recon-chip">{children}</span>;
+function ProvenanceChip({ label }: { label: "FACT" | "RULE" }) {
+  return <span className="mc-recon-chip">{label}</span>;
 }
 
 export function StateModelNote() {
   return (
     <aside className="mc-model-note" aria-label="Readiness model">
       <div>
-        <ProvenanceChip>FACT</ProvenanceChip>
-        <ProvenanceChip>RULE</ProvenanceChip>
+        <ProvenanceChip label="FACT" />
+        <ProvenanceChip label="RULE" />
       </div>
       <p>
         Recorded status resolves to one readiness bucket and each gate resolves to READY,
