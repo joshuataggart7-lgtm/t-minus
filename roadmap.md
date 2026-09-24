@@ -8,6 +8,7 @@
 
 # Accuracy
 - [x] Phase 1 Exec Overview operational pass: unify recorded-award readiness, stage, phase, and timeline derivation without changing stored clock state or Soft Walk behavior
+- [x] Phase 2 Exec Overview operational pass: rule-driven readiness reasons, filterable readiness cards, HOLD exception queue, "Attention required" subtitle
 - [x] RFO citation punch list: NFS 1804.171, FAR 12.204(a), 52.212-3 pack logic, Sample 1 Part 12 notices
 - [x] Restore Joshua Taggart as sole CO on Soft Walk Samples 1/2 and 0090 outputs; verify protected form and memo paths
 - [x] Persist named Sample 1 postaward companion DOCX downloads by prebuilding bytes before Export; completion notices remain held
