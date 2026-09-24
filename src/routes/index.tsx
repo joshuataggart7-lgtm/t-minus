@@ -36,6 +36,8 @@ import {
   type MissionRow,
 } from "@/lib/metrics";
 import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
+import { DEFAULT_WATCH_WINDOW_DAYS, explainReadiness } from "@/components/mission-control/readiness";
+import { docRowKey, docSatisfied, generatorKey } from "@/lib/launch-sequence";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
@@ -156,14 +158,18 @@ export function ExecutiveOverview() {
     [q.data],
   );
 
+  const [watchWindowDays, setWatchWindowDays] = useState(DEFAULT_WATCH_WINDOW_DAYS);
   const metrics: AcqMetrics[] = useMemo(() => {
     if (!q.data) return [];
+    const today = todayISO();
     return q.data.acqs.map((sourceAcq) => {
       const operational = deriveOverviewAcquisitionState(sourceAcq, q.data.log);
       const acq = operational.acquisition;
-      return computeMetrics(acq, {
-        attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
-        savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
+      const attachedKeys = keysFrom(q.data.attachments ?? [], acq.acquisition_id);
+      const savedKeys = savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id);
+      const metric = computeMetrics(acq, {
+        attachedKeys,
+        savedKeys,
         roster: q.data.users ?? [],
         plan: q.data.plan,
         rules: q.data.rules,
@@ -173,8 +179,27 @@ export function ExecutiveOverview() {
         holdSince: holdSince(acq.acquisition_id, q.data.log),
         awardDate: operational.actualAwardDate,
       });
+      // Same Required-row predicate the metrics use for the blocker line.
+      const current = metric.phases.find((p) => p.status === "current");
+      const missingEvidence = (current?.docs ?? [])
+        .filter(
+          (d) =>
+            !d.optional &&
+            (d.field || generatorKey(d)) &&
+            docSatisfied(d, acq, attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined, savedKeys) === false,
+        )
+        .map((d) => d.label);
+      const center = (q.data.centers ?? []).find((c) => c.center_code === acq.center_code);
+      const centerAging = center?.aging_threshold_days;
+      const readiness = explainReadiness(metric, {
+        missingEvidence,
+        centerAgingDays: typeof centerAging === "number" ? centerAging : null,
+        watchWindowDays,
+        today,
+      });
+      return { ...metric, readiness };
     });
-  }, [q.data, ref]);
+  }, [q.data, ref, watchWindowDays]);
 
   const missionRows = useMemo(() => {
     if (!q.data) return [];
@@ -229,6 +254,8 @@ export function ExecutiveOverview() {
             metrics={metrics}
             missions={q.data?.missions ?? []}
             latestEvents={latestEvents}
+            watchWindowDays={watchWindowDays}
+            onWatchWindowChange={setWatchWindowDays}
           />
         )}
       </section>

@@ -2929,3 +2929,11 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Reserved NASA red `#FC3D21` for the masthead underline and rare identity marks only. HOLD, OVERDUE, errors, and destructive actions continue to use the separate operational red token.
 - Grouped recorded Soft Walk phases into a readable procurement lifecycle trajectory without changing phase records or creating telemetry. Mission cards now expose the latest existing audit event alongside their existing clock, phase, gate, award, variance, and owner details.
 - No workflow, clock math, document, form, fixture, role, schema, audit-write, or Soft Walk behavior changed.
+
+## Exec Overview Phase 2 — readiness reasoning + interactive cards
+- New `src/components/mission-control/readiness.ts`: rule-driven GO/WATCH/HOLD/LAUNCHED with trigger text. LAUNCHED = recorded award; HOLD = hold on record; WATCH = any rule met (target award within N days, target passed, reviewer vote outstanding, approval pending, required document incomplete, days in gate over Center aging threshold or phase planned days, forecast misses mission date); else GO. No scores or percentages.
+- Watch window N defaults to 30 days, adjustable in the WATCH list (session only, not stored).
+- "Unresolved question" has no field in the record; it is listed as not tracked rather than invented.
+- Approval vs reviewer split is by reviewer role name (approval/CO/board roles = approval pending).
+- Readiness cards are filter buttons (same look); HOLD opens the leadership exception queue sorted overdue → nearest target → longest blocked. Missing values read "Not recorded".
+- WATCH subtitle renamed to "Attention required". No schema, Soft Walk, or other-page changes.

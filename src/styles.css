@@ -1917,3 +1917,27 @@
   font-size: 15px;
   line-height: 22px;
 }
+
+/* Phase 2: readiness cards act as filters without changing their look. */
+.mc-stat-filter {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.mc-stat-filter:focus-visible {
+  outline: 2px solid var(--mc-cyan, #6ba3ff);
+  outline-offset: -2px;
+}
+.mc-stat-filter[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.mc-readiness-queue {
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-block: 1px solid var(--border);
+  padding-block: 1.25rem;
+}
