@@ -126,6 +126,27 @@
   --mc-readiness-watch: #f0b429;
   --mc-readiness-hold: #ff8a3d;
   --mc-readiness-launched: #6ba3ff;
+  /* Lock D component tokens: additive and scoped to mission-control surfaces. */
+  --mc-font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --mc-font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --mc-type-label: 0.6875rem;
+  --mc-type-data: 0.75rem;
+  --mc-type-heading: 1.125rem;
+  --mc-type-display: 2.875rem;
+  --mc-space-1: 0.25rem;
+  --mc-space-2: 0.5rem;
+  --mc-space-3: 0.75rem;
+  --mc-space-4: 1rem;
+  --mc-space-5: 1.25rem;
+  --mc-space-6: 1.5rem;
+  --mc-space-8: 2rem;
+  --mc-radius-control: 0.5rem;
+  --mc-radius-dialog: 0.75rem;
+  --mc-shadow-work: var(--shadow-elevate);
+  --mc-shadow-mission: var(--shadow-console);
+  --mc-focus: var(--accent-cyan);
+  --mc-empty: var(--mc-muted);
+  --mc-loading: var(--accent-cyan);
   --mc-warm-field: oklch(0.97 0.012 82);
   --mc-warm-surface: oklch(0.995 0.004 82);
   --mc-warm-line: oklch(0.84 0.018 78);
@@ -952,9 +973,10 @@
   width: 4px;
   border-radius: 0 999px 999px 0;
   background: var(--accent-cyan);
-  .mc-scan-card-go & { background: var(--mc-signal-green); }
-  .mc-scan-card-watch & { background: var(--mc-signal-amber); }
-  .mc-scan-card-hold & { background: var(--atrisk); }
+  .mc-scan-card-go & { background: var(--mc-readiness-go); }
+  .mc-scan-card-watch & { background: var(--mc-readiness-watch); }
+  .mc-scan-card-hold & { background: var(--mc-readiness-hold); }
+  .mc-scan-card-launched & { background: var(--mc-readiness-launched); }
 }
 
 @utility mc-strip-id {
@@ -989,9 +1011,10 @@
   & strong { color: var(--primary); font-size: 21px; line-height: 24px; font-weight: 600; }
   & small { margin-top: 0.15rem; color: var(--muted-foreground); font-size: 9px; line-height: 13px; }
 }
-@utility mc-strip-clock-go { & strong { color: var(--ontrack); } }
-@utility mc-strip-clock-watch { & strong { color: var(--attention); } }
-@utility mc-strip-clock-hold { & strong { color: var(--atrisk); } }
+@utility mc-strip-clock-go { & strong { color: var(--mc-readiness-go); } }
+@utility mc-strip-clock-watch { & strong { color: var(--mc-readiness-watch); } }
+@utility mc-strip-clock-hold { & strong { color: var(--mc-readiness-hold); } }
+@utility mc-strip-clock-launched { & strong { color: var(--mc-readiness-launched); } }
 
 @utility mc-strip-phase {
   min-width: 0;
@@ -1334,8 +1357,8 @@
 }
 @utility mc-trajectory-hold {
   & .mc-trajectory-active {
-    background: var(--atrisk);
-    border-color: var(--atrisk);
+    background: var(--mc-readiness-hold);
+    border-color: var(--mc-readiness-hold);
   }
 }
 @utility mc-trajectory-watch {
@@ -1632,16 +1655,16 @@
 }
 
 @utility mc-state-go {
-  color: var(--ontrack);
+  color: var(--mc-readiness-go);
 }
 @utility mc-state-watch {
-  color: var(--mc-amber);
+  color: var(--mc-readiness-watch);
 }
 @utility mc-state-hold {
-  color: var(--atrisk);
+  color: var(--mc-readiness-hold);
 }
 @utility mc-state-launched {
-  color: var(--accent-cyan);
+  color: var(--mc-readiness-launched);
 }
 
 @utility mc-badge {
@@ -1742,16 +1765,16 @@
 }
 
 @utility mc-scan-card-go {
-  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--ontrack) 64%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-readiness-go) 64%, transparent);
 }
 @utility mc-scan-card-watch {
-  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-amber) 70%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-readiness-watch) 70%, transparent);
 }
 @utility mc-scan-card-hold {
-  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--atrisk) 70%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-readiness-hold) 70%, transparent);
 }
 @utility mc-scan-card-launched {
-  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--accent-cyan) 70%, transparent);
+  box-shadow: inset 2px 0 0 color-mix(in oklab, var(--mc-readiness-launched) 70%, transparent);
 }
 
 @media (min-width: 640px) {

@@ -6,6 +6,7 @@ import { todayISO } from "@/lib/intake";
 import { cn } from "@/lib/utils";
 import { overviewCountdownView } from "./operational-state";
 import type { ReadinessExplanation } from "./readiness";
+import { AnalystTableShell, LeadershipExceptionList, LeadershipExceptionStrip, ProvenanceChip } from "./primitives";
 
 export type PriorityTier = "Mission Critical" | "High Priority" | "Standard" | "Priority not recorded";
 
@@ -81,10 +82,6 @@ function blockerProvenance(metric: AcqMetrics, readiness: ReadinessExplanation):
     : "RULE";
 }
 
-function provenanceChip(label: "FACT" | "RULE" | "INFERENCE" | "DRAFT") {
-  return <span className="mc-recon-chip is-light">{label}</span>;
-}
-
 export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
   const [mode, setMode] = useState<"leadership" | "analyst">("leadership");
   const items = deriveExceptions(metrics);
@@ -123,11 +120,11 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
       {rows.length === 0 ? (
         <p className="mc-exception-empty">No active exceptions</p>
       ) : mode === "leadership" ? (
-        <div className="mc-exception-strips">
+        <LeadershipExceptionList>
           {rows.map((row, index) => (
-            <article className={cn("mc-exception-strip", `is-${row.readiness.state.toLowerCase()}`)} key={`${row.exception.id}-${row.exception.kind}-${index}`}>
+            <LeadershipExceptionStrip state={row.readiness.state as "WATCH" | "HOLD"} key={`${row.exception.id}-${row.exception.kind}-${index}`}>
               <div className="mc-exception-severity">
-                {provenanceChip("RULE")}
+                <ProvenanceChip kind="RULE" light />
                 <strong>{row.readiness.state}</strong>
                 <span>{row.exception.kind}</span>
               </div>
@@ -138,16 +135,15 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
               <dl className="mc-exception-scan">
                 <div><dt>Owner / role</dt><dd>{row.owner}</dd></div>
                 <div><dt>Gate</dt><dd>{row.gate}</dd></div>
-                <div><dt>{provenanceChip(row.readiness.targetAward ? "FACT" : "RULE")} Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
-                <div><dt>{provenanceChip(row.blockerProvenance)} Blocker</dt><dd>{row.blocker}</dd></div>
-                <div><dt>{provenanceChip("RULE")} Next action</dt><dd>{row.next}</dd></div>
+                <div><dt><ProvenanceChip kind={row.readiness.targetAward ? "FACT" : "RULE"} light /> Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
+                <div><dt><ProvenanceChip kind={row.blockerProvenance} light /> Blocker</dt><dd>{row.blocker}</dd></div>
+                <div><dt><ProvenanceChip kind="RULE" light /> Next action</dt><dd>{row.next}</dd></div>
               </dl>
-            </article>
+            </LeadershipExceptionStrip>
           ))}
-        </div>
+        </LeadershipExceptionList>
       ) : (
-        <div className="mc-exception-table-wrap">
-          <table className="mc-exception-table">
+        <AnalystTableShell>
             <thead>
               <tr>
                 <th scope="col">Sev</th><th scope="col">Acq #</th><th scope="col">Title</th><th scope="col">Owner</th><th scope="col">Gate</th><th scope="col">Schedule</th><th scope="col">Missing #</th><th scope="col">Missing / age</th><th scope="col">Blocker</th><th scope="col">Next</th><th scope="col">Rule kind</th>
@@ -170,8 +166,7 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
+        </AnalystTableShell>
       )}
     </section>
   );

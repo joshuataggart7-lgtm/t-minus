@@ -1,3 +1,5 @@
+import { ProvenanceChip } from "./primitives";
+
 const CONTRACT_ROWS = [
   "Launched, T+ and Awarded require a recorded Launched audit event.",
   "Before award, T− uses the target date; a forecast may stand in when no target is recorded.",
@@ -7,16 +9,12 @@ const CONTRACT_ROWS = [
   "Featured and scan identity facts come from the same acquisition record.",
 ] as const;
 
-function ProvenanceChip({ label }: { label: "FACT" | "RULE" }) {
-  return <span className="mc-recon-chip">{label}</span>;
-}
-
 export function StateModelNote() {
   return (
     <aside className="mc-model-note" aria-label="Readiness model">
       <div>
-        <ProvenanceChip label="FACT" />
-        <ProvenanceChip label="RULE" />
+        <ProvenanceChip kind="FACT" />
+        <ProvenanceChip kind="RULE" />
       </div>
       <p>
         Recorded status resolves to one readiness bucket and each gate resolves to READY,
@@ -34,7 +32,7 @@ export function StateContractPanel() {
       <div className="mc-state-contract-heading">
         <div>
           <div className="flex items-center gap-2">
-            <span className="mc-recon-chip is-light">RULE</span>
+            <ProvenanceChip kind="RULE" light />
             <p className="mc-label-light">Reconciliation foundation</p>
           </div>
           <h2 id="state-contract-heading">State contract</h2>

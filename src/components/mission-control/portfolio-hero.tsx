@@ -8,6 +8,7 @@ import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
 import { NovaProvenance } from "./nova-provenance";
 import { StateContractPanel } from "./state-contract";
+import { MissionStripTable, ProvenanceChip } from "./primitives";
 
 type LatestEvent = { action: string; loggedAt: string };
 
@@ -60,7 +61,7 @@ export function PortfolioHero({
             onClear={() => setFilter(null)}
           />
         ) : null}
-        <div className="mc-strip-table" role="table" aria-label="Priority acquisitions">
+        <MissionStripTable aria-label="Priority acquisitions">
           <div className="mc-strip-head" role="row">
             <span>ID</span><span>Status</span><span>Mission</span><span>Clock</span><span>Phase</span><span>Next</span><span>Var</span>
           </div>
@@ -75,9 +76,9 @@ export function PortfolioHero({
               latestEvent={latestEvents[metric.acq.acquisition_id] ?? null}
             />
           ))}
-        </div>
+        </MissionStripTable>
         <p className="mc-scan-consistency">
-          <span className="mc-recon-chip is-light">RULE</span>
+          <ProvenanceChip kind="RULE" light />
           The same recorded facts drive this scan, the file countdown and executive exceptions.
         </p>
       </div>

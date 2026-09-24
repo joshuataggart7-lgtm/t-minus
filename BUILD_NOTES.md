@@ -1,3 +1,9 @@
+## Lock D componentize — September 24, 2026
+
+- Consolidated the additive Lock D map in `src/styles.css`: Executive typography, spacing, radii, shadows, Work/Mission surfaces, cyan focus/instrumentation, readiness colors, loading/empty roles, and identity-only NASA red. Executive readiness strips, chips, and clocks now consistently use GO `#2ECC8A`, WATCH `#F0B429`, HOLD `#FF8A3D`, and LAUNCHED `#6BA3FF`.
+- `src/components/mission-control/primitives.tsx` now exports `MissionReadinessChip`, `ProvenanceChip`, `MissionStripTable`, `GateDisclosureShell`, `GateGlance`, `LeadershipExceptionList`, `LeadershipExceptionStrip`, and `AnalystTableShell`, alongside the existing panel/stat primitives. Overview scan, gate progressive disclosure, Nova/state provenance, and leadership exceptions consume those shared parts.
+- Reverse by restoring the local wrappers/chips in the consuming mission-control files and removing the additive Lock D variables. State derivation, filters, countdown helpers, data paths, Soft Walk files, forms, exports, fixtures, schema, and stored `clock_state` were not changed.
+
 ## Executive Overview reconciliation foundation D — September 24, 2026
 
 - Recast Executive exceptions as leadership-first compressed strips with a Leadership / Analyst view toggle. Each item still comes only from the existing overdue gate, award risk, mandatory evidence, reviewer, approval, and blocker rules.
