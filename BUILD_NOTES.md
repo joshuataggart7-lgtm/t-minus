@@ -3007,3 +3007,11 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - P1-2 FLAG: `src/routes/files_.$acquisitionId.tsx` phases (rail, file index, sidebar) built from the operational remap, so clock_state=launched without a Launched audit no longer marks Administration NOW. No DB writes.
 - P1-1b FLAG: form countdown now passes the same attachedKeys/savedKeys evidence as Overview/file, so a false HOLD (and holdDays inflated by "Hold cleared" matching /hold/i) cannot diverge the form header from Overview FORECAST. Revert: drop the three evidence loads and the two opts.
 - P1-2b FLAG: `src/components/office-invite-panel.tsx` invite draft phase from deriveOverviewAcquisitionState (Launched audit read), not raw current_phase. Revert: restore acq['current_phase'].
+
+## Overnight §6 Tip 5 — Documents/Forms light Work Surface — September 24, 2026
+
+- `src/routes/templates.tsx`: Live and Build next markers now use Lock D GO and WATCH tokens; template tables use the shared light table wrapper. Registry, aliases, lookup, and queries are unchanged.
+- FLAG Soft Walk-adjacent — `src/routes/forms.$formKey.$acquisitionId.tsx`: form header metadata, toolbar, notices, and preview sections use shared light Work Surface classes and control radius only. Countdown helpers, form masters, fill/export/sign paths, evidence bytes, fixtures, and writes are unchanged.
+- FLAG Soft Walk-adjacent — `src/routes/documents.$templateKey.index.tsx`: acquisition chooser uses the shared light summary surface; selection data and links are unchanged.
+- FLAG Soft Walk-adjacent — `src/routes/documents.$templateKey.$acquisitionId.tsx`: document header, version metadata, editing sections, signature/memo shells, checkout notice, and action toolbar use shared light Work Surface classes only. Generators, exports, signatures, votes, audits, authorities, method/citation logic, and document writes are unchanged.
+- Reverse: restore the former border/background/radius classes and legacy template status variables. No schema or data reversal is required. No self-GREEN claim.

@@ -58,9 +58,9 @@ function ChooseAcquisition() {
         revision={def.badge.revision}
         defaultCitation={def.badge.citation}
       />
-      <ul className="max-w-[720px]">
+      <ul className="mc-work-summary max-w-[720px]">
         {(q.data ?? []).map((a) => (
-          <li key={a.acquisition_id} className="border-b border-border py-3">
+          <li key={a.acquisition_id} className="border-b border-[var(--mc-warm-line)] py-3 last:border-0">
             <Link
               to="/documents/$templateKey/$acquisitionId"
               params={{ templateKey, acquisitionId: a.acquisition_id }}

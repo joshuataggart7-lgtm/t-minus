@@ -1912,7 +1912,7 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
         <Nova acquisitionId={acquisitionId} documentLabel={def.name} />
         <p className="text-[13px] text-muted-foreground">
           <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
@@ -1963,7 +1963,7 @@ function DocumentPage() {
         </section>
       ) : null}
 
-      <section aria-label="Version badge" className="mb-8 max-w-[80ch] border border-border bg-background p-4">
+      <section aria-label="Version badge" className="mc-work-summary mb-8 max-w-[80ch]">
         <p className="text-[15px] leading-[22px]">
           {def.badge.revision}
           {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
@@ -2039,7 +2039,7 @@ function DocumentPage() {
       {heldByOther && checkout ? (
         <div
           role="status"
-          className="mb-4 max-w-[80ch] border border-border bg-background p-3 text-[15px] leading-[22px]"
+          className="mc-work-form-section mb-4 max-w-[80ch] text-[15px] leading-[22px]"
         >
           <p>
             Checked out by {checkout.user_name} since{" "}
@@ -2209,7 +2209,7 @@ function DocumentPage() {
             </>
           );
           return (
-            <section key={s.id} className="mb-8">
+            <section key={s.id} className="mc-work-form-section mb-8">
               {s.collapsed ? (
                 <details>
                   <summary className="cursor-pointer text-[18px] leading-6 font-medium">{s.title}</summary>
@@ -2227,7 +2227,7 @@ function DocumentPage() {
 
 
         {signature ? (
-          <section className="mb-8 border border-border bg-background p-4">
+          <section className="mc-work-form-section mb-8">
             <h2 className="text-[18px] leading-6 font-medium">Signatures</h2>
             <p className="text-[13px] text-muted-foreground">
               {signature.tierLabel} · {signature.citation} · selected by the estimated value{" "}
@@ -2268,7 +2268,7 @@ function DocumentPage() {
           </section>
         ) : null}
 
-        <section className="mb-8 border border-border bg-background p-4" aria-label="NF 1858 memorandum">
+        <section className="mc-work-form-section mb-8" aria-label="NF 1858 memorandum">
           <div className="flex flex-wrap items-center gap-3">
             <input
               id="issue-on-1858"
@@ -2445,7 +2445,7 @@ function DocumentPage() {
           ) : null}
         </section>
 
-        <div className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="mc-work-toolbar mb-6 flex flex-wrap items-center">
           <Button
             type="submit"
             disabled={!canEdit || save.isPending}
