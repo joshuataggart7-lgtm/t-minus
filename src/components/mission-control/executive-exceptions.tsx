@@ -5,7 +5,7 @@ import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
 import { cn } from "@/lib/utils";
 import { overviewCountdownView } from "./operational-state";
-import type { ReadinessExplanation, ReadinessState } from "./readiness";
+import type { ReadinessExplanation } from "./readiness";
 
 export type PriorityTier = "Mission Critical" | "High Priority" | "Standard" | "Priority not recorded";
 
