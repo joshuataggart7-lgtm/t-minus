@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Nova } from "@/components/nova";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ProvenanceChip, type ProvenanceKind } from "./primitives";
 
 const PROVENANCE = [
   { key: "Fact", detail: "A value read from the loaded acquisition record." },
@@ -30,7 +31,7 @@ export function NovaProvenance() {
               aria-pressed={active === item.key}
               onClick={() => setActive(active === item.key ? null : item.key)}
             >
-              <span aria-hidden="true" />
+              <ProvenanceChip kind={item.key.toUpperCase() as ProvenanceKind} markerOnly />
               {item.key}
             </Button>
           ))}

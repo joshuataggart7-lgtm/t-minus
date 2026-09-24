@@ -4,6 +4,7 @@ import { daysBetween, todayISO } from "@/lib/intake";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
+import { MissionReadinessChip, missionReadinessClass } from "./primitives";
 
 export function AcquisitionScanCard({
   metric,
@@ -37,19 +38,19 @@ export function AcquisitionScanCard({
       params={{ acquisitionId: metric.acq.acquisition_id }}
       className={cn(
         "mc-scan-card group",
-        `mc-scan-card-${state.toLowerCase()}`,
+        missionReadinessClass(state, "mc-scan-card"),
         view.mode === "hold" && "mc-scan-card-hold",
       )}
       aria-label={`${title}, ${state}, ${view.caption}`}
     >
       <span className="mc-strip-accent" aria-hidden="true" />
       <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>
-      <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
+      <MissionReadinessChip state={state} />
       <div className="mc-strip-mission">
         <h3>{title}</h3>
         <p>{mission?.name ? `Mission: ${mission.name}` : owner}</p>
       </div>
-      <div className={cn("mc-strip-clock", `mc-strip-clock-${state.toLowerCase()}`)}>
+      <div className={cn("mc-strip-clock", missionReadinessClass(state, "mc-strip-clock"))}>
           {view.days === null ? (
             <strong>
               {view.mode === "stopped" ? "Stopped" : "Not started"}

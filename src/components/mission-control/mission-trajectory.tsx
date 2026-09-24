@@ -7,6 +7,7 @@ import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
 import { priorityTier } from "./executive-exceptions";
 import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
+import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
 
 const NR = "Not recorded";
 const list = (items: string[]) => (items.length ? <ul>{items.map((i) => <li key={i}>{i}</li>)}</ul> : <span>None recorded</span>);
@@ -106,14 +107,14 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           <span>{view.caption}</span>
         </div>
         <div className="mc-featured-state">
-          <span className={cn("mc-state", `mc-state-${state.toLowerCase()}`)}>{state}</span>
+          <MissionReadinessChip state={state} />
           <small>{metric.awardDate ? "Actual award" : "Target award"}</small>
           <strong data-numeric>{formatDate(metric.awardDate ?? (metric.acq.target_award_date ? String(metric.acq.target_award_date) : null))}</strong>
         </div>
       </div>
 
       <p className="mc-identity-assurance">
-        <span className="mc-recon-chip">FACT</span>
+        <ProvenanceChip kind="FACT" />
         Identity match: ID, title, mission, value, method, gates and clock are read from this acquisition record.
       </p>
 
@@ -192,7 +193,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       </div>
 
       {evidence ? (
-        <div className={cn("mc-gate-evidence", state === "HOLD" && evidence.index === activeIndex && "is-blocked-evidence") }>
+        <GateDisclosureShell blocked={state === "HOLD" && evidence.index === activeIndex}>
           <div className="mc-gate-glance-heading">
             <div>
               <p className="mc-label">Selected gate</p>
@@ -211,15 +212,15 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             </Button>
           </div>
 
-          <dl className="mc-gate-glance" aria-label={`${evidence.stage.label} leadership scan`}>
+          <GateGlance aria-label={`${evidence.stage.label} leadership scan`}>
             <div><dt>Gate readiness</dt><dd className={cn("mc-gate-readiness", `is-${evidence.summary.readiness.toLowerCase()}`)}>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</dd></div>
             <div><dt>Evidence completeness</dt><dd data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length}</dd></div>
             <div><dt>Approvals</dt><dd data-numeric>{evidence.summary.approvalsObtained.length} of {evidence.summary.approvalsRequired.length}</dd></div>
-            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">FACT</span> Primary blocker</dt><dd>{selectedPrimaryBlocker}</dd></div>
-            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">RULE</span> Downstream consequence</dt><dd>{administrationRule}</dd></div>
-            <div className="mc-gate-glance-wide"><dt><span className="mc-recon-chip">FACT</span> Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="FACT" /> Primary blocker</dt><dd>{selectedPrimaryBlocker}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="RULE" /> Downstream consequence</dt><dd>{administrationRule}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="FACT" /> Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
             <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
-          </dl>
+          </GateGlance>
 
           {detailExpanded ? (
             <div id="selected-gate-forensic-detail" className="mc-gate-forensic">
@@ -252,7 +253,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               </dl>
             </div>
           ) : null}
-        </div>
+        </GateDisclosureShell>
       ) : null}
     </section>
   );
