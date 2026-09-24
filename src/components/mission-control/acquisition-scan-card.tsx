@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { daysBetween, todayISO } from "@/lib/intake";
-import { countdownView } from "@/components/launch-countdown";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
+import { overviewCountdownView } from "./operational-state";
 
 export function AcquisitionScanCard({
   metric,
@@ -16,7 +16,7 @@ export function AcquisitionScanCard({
   index: number;
   latestEvent: { action: string; loggedAt: string } | null;
 }) {
-  const view = countdownView(metric);
+  const view = overviewCountdownView(metric);
   const state = missionControlState(metric);
   const acquisitionTitle = String(metric.acq.title ?? "").trim();
   const title = mission?.name || acquisitionTitle || "Untitled mission";
@@ -84,7 +84,7 @@ export function AcquisitionScanCard({
           <div><dt>Evidence</dt><dd>{current ? `${current.docs.length} required items in ${current.phase}` : "No current phase evidence"}</dd></div>
           <div><dt>Blocking</dt><dd>{blocking}</dd></div>
           <div><dt>Next action</dt><dd>{metric.nextAction}</dd></div>
-          <div><dt>Target award</dt><dd>{formatDate(metric.acq.target_award_date ? String(metric.acq.target_award_date) : null)}</dd></div>
+          <div><dt>{metric.awardDate ? "Actual award" : "Target award"}</dt><dd>{formatDate(metric.awardDate ?? (metric.acq.target_award_date ? String(metric.acq.target_award_date) : null))}</dd></div>
           <div><dt>{holdDays === null ? "Phase time" : "Hold duration"}</dt><dd data-numeric>{holdDays === null ? (current?.actual_days === null || current?.actual_days === undefined ? `${current?.planned_days ?? 0}d planned` : `${current.actual_days}/${current.planned_days}d`) : `${holdDays}d`}</dd></div>
           <div><dt>Last event</dt><dd>{latestEvent ? `${latestEvent.action} · ${formatDate(latestEvent.loggedAt.slice(0, 10))}` : "Not recorded"}</dd></div>
         </dl>

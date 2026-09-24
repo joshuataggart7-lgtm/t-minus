@@ -1,11 +1,11 @@
 import type { AcqMetrics } from "@/lib/metrics";
-import { countdownView } from "@/components/launch-countdown";
 import { McStatBlock } from "./primitives";
+import { overviewCountdownView } from "./operational-state";
 
 export type MissionControlState = "GO" | "WATCH" | "HOLD" | "LAUNCHED";
 
 export function missionControlState(metric: AcqMetrics): MissionControlState {
-  const view = countdownView(metric);
+  const view = overviewCountdownView(metric);
   if (view.mode === "launched") return "LAUNCHED";
   if (view.mode === "hold" || (metric.status === "At Risk" && metric.clockState === "hold")) return "HOLD";
   if (metric.status === "Needs Attention" || metric.status === "At Risk" || view.mode === "forecast" || view.mode === "overdue") return "WATCH";

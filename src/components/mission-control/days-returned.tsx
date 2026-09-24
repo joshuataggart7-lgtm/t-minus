@@ -14,9 +14,9 @@ export function DaysReturned({ metrics }: { metrics: AcqMetrics[] }) {
     const start = quarterStart(today);
     const rows = metrics.filter((metric) =>
       metric.clockState === "launched" &&
-      metric.acq.target_award_date &&
-      String(metric.acq.target_award_date) >= start &&
-      String(metric.acq.target_award_date) <= today,
+      metric.awardDate &&
+      metric.awardDate >= start &&
+      metric.awardDate <= today,
     );
     const centers = new Map<string, number>();
     let total = 0;

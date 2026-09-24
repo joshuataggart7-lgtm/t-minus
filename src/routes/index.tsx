@@ -29,7 +29,6 @@ import type { ThresholdRow } from "@/lib/small-business";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import {
   computeMetrics,
-  awardDateFor,
   formatDate,
   holdSince,
   missionDriver,
@@ -40,6 +39,7 @@ import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
+import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -158,8 +158,10 @@ export function ExecutiveOverview() {
 
   const metrics: AcqMetrics[] = useMemo(() => {
     if (!q.data) return [];
-    return q.data.acqs.map((acq) =>
-      computeMetrics(acq, {
+    return q.data.acqs.map((sourceAcq) => {
+      const operational = deriveOverviewAcquisitionState(sourceAcq, q.data.log);
+      const acq = operational.acquisition;
+      return computeMetrics(acq, {
         attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
@@ -169,9 +171,9 @@ export function ExecutiveOverview() {
         ref,
         mission: q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null,
         holdSince: holdSince(acq.acquisition_id, q.data.log),
-        awardDate: awardDateFor(acq.acquisition_id, q.data.log, acq.target_award_date ?? null),
-      }),
-    );
+        awardDate: operational.actualAwardDate,
+      });
+    });
   }, [q.data, ref]);
 
   const missionRows = useMemo(() => {
@@ -519,9 +521,9 @@ function ClockBoard({
   const launchedThisQuarterRows = metrics.filter(
     (m) =>
       m.clockState === "launched" &&
-      m.acq.target_award_date &&
-      String(m.acq.target_award_date) >= qStart &&
-      String(m.acq.target_award_date) <= today,
+      m.awardDate &&
+      m.awardDate >= qStart &&
+      m.awardDate <= today,
   );
   const launchedThisQuarter = launchedThisQuarterRows.length;
 
