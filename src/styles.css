@@ -798,7 +798,7 @@
     color: var(--accent-cyan);
   }
   &.is-hold {
-    color: var(--atrisk);
+    color: var(--mc-readiness-hold);
   }
 }
 
@@ -835,8 +835,8 @@
     box-shadow: 0 0 14px var(--mc-glow);
   }
   .is-hold & {
-    border-color: var(--atrisk);
-    background: var(--atrisk);
+    border-color: var(--mc-readiness-hold);
+    background: var(--mc-readiness-hold);
   }
 }
 
@@ -914,8 +914,8 @@
 }
 
 @utility mc-hold-cta {
-  background: var(--atrisk);
-  color: var(--destructive-foreground);
+  background: var(--mc-readiness-hold);
+  color: var(--mc-field);
 }
 
 @utility mc-nova-strip {
@@ -1107,7 +1107,7 @@
   & i { width: 9px; height: 9px; border: 1px solid var(--mc-muted); border-radius: 999px; }
   & i.is-complete { border-color: var(--accent-cyan); background: var(--accent-cyan); }
   & i.is-current { border: 2px solid var(--mc-foreground); background: var(--accent-cyan); box-shadow: 0 0 8px var(--mc-glow); }
-  & i.is-blocked { border: 2px solid var(--mc-signal-amber); background: transparent; }
+  & i.is-blocked { border: 2px solid var(--mc-readiness-hold); background: transparent; }
   & i.is-projected { border-style: dashed; }
 }
 
@@ -1129,11 +1129,11 @@
 }
 .mc-featured-gate.is-future .mc-gate-node { border-style: dashed; }
 .mc-featured-gate.is-next .mc-gate-node { border-style: solid; border-color: var(--accent-cyan); box-shadow: 0 0 8px var(--mc-glow); }
-.mc-featured-gate.is-hold .mc-gate-node { border: 2px solid var(--mc-signal-amber); background: var(--mc-field); box-shadow: 0 0 0 3px color-mix(in oklab, var(--mc-signal-amber) 18%, transparent); }
+.mc-featured-gate.is-hold .mc-gate-node { border: 2px solid var(--mc-readiness-hold); background: var(--mc-field); box-shadow: 0 0 0 3px color-mix(in oklab, var(--mc-readiness-hold) 18%, transparent); }
 
-.mc-gate-evidence.is-blocked-evidence { position: relative; border: 1px solid color-mix(in oklab, var(--mc-signal-amber) 45%, var(--mc-line)); border-radius: var(--radius); padding: 1rem; }
-.mc-gate-evidence.is-blocked-evidence::before { position: absolute; top: -1.5rem; left: 1.25rem; width: 1px; height: 1.5rem; content: ""; background: var(--mc-signal-amber); }
-@utility mc-gate-consequence { margin-top: 0.4rem; color: var(--mc-signal-amber) !important; }
+.mc-gate-evidence.is-blocked-evidence { position: relative; border: 1px solid color-mix(in oklab, var(--mc-readiness-hold) 45%, var(--mc-line)); border-radius: var(--radius); padding: 1rem; }
+.mc-gate-evidence.is-blocked-evidence::before { position: absolute; top: -1.5rem; left: 1.25rem; width: 1px; height: 1.5rem; content: ""; background: var(--mc-readiness-hold); }
+@utility mc-gate-consequence { margin-top: 0.4rem; color: var(--mc-readiness-hold) !important; }
 
 @utility mc-nova-provenance {
   display: flex;

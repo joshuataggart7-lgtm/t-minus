@@ -31,7 +31,7 @@ export function NovaProvenance() {
               aria-pressed={active === item.key}
               onClick={() => setActive(active === item.key ? null : item.key)}
             >
-              <ProvenanceChip kind={item.key.toUpperCase() as ProvenanceKind} />
+              <ProvenanceChip kind={item.key.toUpperCase() as ProvenanceKind} markerOnly />
               {item.key}
             </Button>
           ))}

@@ -19,7 +19,8 @@ export function MissionReadinessChip({ state, className }: { state: MissionReadi
   return <span className={cn("mc-state", missionReadinessClass(state, "mc-state"), className)}>{state}</span>;
 }
 
-export function ProvenanceChip({ kind, light = false }: { kind: ProvenanceKind; light?: boolean }) {
+export function ProvenanceChip({ kind, light = false, markerOnly = false }: { kind: ProvenanceKind; light?: boolean; markerOnly?: boolean }) {
+  if (markerOnly) return <span aria-hidden="true" />;
   return <span className={cn("mc-recon-chip", light && "is-light")}>{kind}</span>;
 }
 
