@@ -2172,6 +2172,18 @@
 .mc-work-strip.is-launched, .mc-work-card.is-launched, .mc-work-table-row.is-launched > :first-child { border-left-color: var(--mc-readiness-launched); }
 .mc-work-table-row > :first-child { border-left: 3px solid transparent; }
 .mc-work-table-wrap { width: 100%; overflow-x: auto; border-radius: var(--mc-radius-control); }
+.mc-work-summary,
+.mc-work-form-section {
+  border: 1px solid var(--mc-warm-line);
+  border-radius: var(--mc-radius-control);
+  background: var(--mc-warm-surface);
+  padding: var(--mc-space-6);
+}
+.mc-work-summary {
+  gap: var(--mc-space-4);
+  box-shadow: var(--mc-shadow-work);
+}
+.mc-work-summary dd { margin-top: var(--mc-space-1); font-weight: 600; }
 @media (max-width: 1100px) {
   .mc-exception-strip { grid-template-columns:7rem minmax(10rem,0.8fr) minmax(0,2fr); }
   .mc-exception-scan { grid-template-columns:repeat(3,minmax(0,1fr)); }
