@@ -2087,9 +2087,43 @@
 .mc-priority-tier[data-tier="High Priority"] { border-color: var(--mc-readiness-watch); color: var(--mc-readiness-watch); }
 .mc-featured-facts { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:0.5rem 1.25rem; margin-block:0.75rem; font-size:13px; line-height:18px; }
 .mc-featured-facts dd { margin:0; }
-.mc-exec-exceptions { margin-top:1.25rem; border-top:1px solid var(--mc-line); padding-top:1rem; font-size:13px; line-height:18px; }
-.mc-exec-exceptions ul { display:grid; gap:0.35rem; max-height:14rem; overflow:auto; }
-.mc-exec-exceptions li { display:grid; grid-template-columns: 12rem 7.5rem minmax(0,1fr); gap:0.75rem; }
-.mc-exc-kind { font-weight:600; }
-.mc-exc-id { color: var(--accent-cyan); text-decoration: underline; text-underline-offset: 2px; }
-@media (max-width: 767px) { .mc-exec-exceptions li { grid-template-columns: 1fr; gap:0.1rem; } }
+.mc-exec-exceptions { margin-top:1.5rem; border-top:1px solid var(--mc-line); padding-top:1.25rem; font-size:12px; line-height:17px; }
+.mc-exception-heading { display:flex; align-items:end; justify-content:space-between; gap:1rem; }
+.mc-exception-heading h3 span { margin-left:0.35rem; color:var(--mc-muted); font-size:12px; }
+.mc-exception-mode { display:inline-flex; border:1px solid var(--mc-line); border-radius:var(--radius); padding:2px; }
+.mc-exception-mode button { height:1.75rem; color:var(--mc-muted); }
+.mc-exception-mode button[aria-pressed="true"] { background:color-mix(in oklab, var(--accent-cyan) 12%, transparent); color:var(--mc-foreground); }
+.mc-exception-empty { margin-top:0.75rem; color:var(--mc-muted); }
+.mc-exception-strips { display:grid; gap:0.4rem; max-height:24rem; overflow:auto; margin-top:0.85rem; }
+.mc-exception-strip { display:grid; grid-template-columns:7.5rem minmax(11rem,0.85fr) minmax(0,2.5fr); gap:1rem; border-left:3px solid var(--mc-readiness-watch); background:var(--mc-warm-surface); padding:0.8rem 0.9rem; color:var(--foreground); }
+.mc-exception-strip.is-hold { border-left-color:var(--mc-readiness-hold); }
+.mc-exception-strip.is-watch { border-left-color:var(--mc-readiness-watch); }
+.mc-exception-severity { display:flex; min-width:0; flex-direction:column; align-items:flex-start; gap:0.2rem; }
+.mc-exception-severity strong { color:var(--mc-readiness-watch); font-size:11px; }
+.mc-exception-strip.is-hold .mc-exception-severity strong { color:var(--mc-readiness-hold); }
+.mc-exception-severity > span:last-child { color:var(--muted-foreground); font-size:10px; }
+.mc-exception-identity { display:flex; min-width:0; flex-direction:column; gap:0.15rem; }
+.mc-exception-identity a { color:var(--primary); font-weight:600; text-decoration:underline; text-underline-offset:2px; }
+.mc-exception-identity strong { overflow-wrap:anywhere; font-weight:500; }
+.mc-exception-scan { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:0.75rem; }
+.mc-exception-scan div { min-width:0; }
+.mc-exception-scan dt { display:flex; flex-wrap:wrap; align-items:center; gap:0.3rem; color:var(--muted-foreground); font-size:9px; }
+.mc-exception-scan dd { margin-top:0.2rem; overflow-wrap:anywhere; }
+.mc-exception-table-wrap { margin-top:0.85rem; overflow-x:auto; border-block:1px solid var(--mc-line); }
+.mc-exception-table { width:100%; min-width:92rem; border-collapse:collapse; background:var(--mc-warm-surface); color:var(--foreground); font-size:11px; line-height:16px; }
+.mc-exception-table th { padding:0.55rem 0.65rem; color:var(--muted-foreground); font-weight:500; text-align:left; white-space:nowrap; }
+.mc-exception-table td { border-top:1px solid var(--mc-warm-line); padding:0.6rem 0.65rem; vertical-align:top; }
+.mc-exception-table td a { color:var(--primary); font-weight:600; text-decoration:underline; text-underline-offset:2px; white-space:nowrap; }
+.mc-exception-table td span:not(.mc-exception-table-severity) { display:block; color:var(--muted-foreground); }
+.mc-exception-table-severity { color:var(--mc-readiness-watch); font-weight:600; }
+.mc-exception-table-severity.is-hold { color:var(--mc-readiness-hold); }
+@media (max-width: 1100px) {
+  .mc-exception-strip { grid-template-columns:7rem minmax(10rem,0.8fr) minmax(0,2fr); }
+  .mc-exception-scan { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 767px) {
+  .mc-exception-heading { align-items:stretch; flex-direction:column; }
+  .mc-exception-mode { align-self:flex-start; }
+  .mc-exception-strip { grid-template-columns:1fr; }
+  .mc-exception-scan { grid-template-columns:1fr 1fr; }
+}
