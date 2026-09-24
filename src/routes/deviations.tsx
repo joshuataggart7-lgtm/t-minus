@@ -34,12 +34,12 @@ export const Route = createFileRoute("/deviations")({
   component: DeviationsPage,
 });
 
-const inputClass = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]";
+const inputClass = "mt-1 w-full border border-border bg-background px-3 py-2 text-[15px] [border-radius:var(--mc-radius-control)]";
 
 function statusColor(row: DeviationRow) {
-  if (row.decision === "approved") return "var(--ontrack)";
-  if (row.decision === "denied") return "var(--atrisk)";
-  return row.clock_state === "running" ? "var(--attention)" : "var(--muted-foreground)";
+  if (row.decision === "approved") return "var(--mc-readiness-go)";
+  if (row.decision === "denied") return "var(--mc-readiness-hold)";
+  return row.clock_state === "running" ? "var(--mc-readiness-watch)" : "var(--muted-foreground)";
 }
 
 function DeviationsPage() {
@@ -140,7 +140,7 @@ function DeviationsPage() {
         <section className="mb-10">
           <button
             type="button"
-            className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+            className="border border-border px-3 py-2 text-[15px] text-primary [border-radius:var(--mc-radius-control)]"
             onClick={() => setOpen((v) => !v)}
           >
             {open ? "Close the request form" : "New deviation request"}
@@ -148,7 +148,7 @@ function DeviationsPage() {
 
           {open ? (
             <form
-              className="mt-6 max-w-[70ch] border border-border bg-background p-6"
+              className="mc-work-summary mt-6 max-w-[70ch]"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (ready) create.mutate();
@@ -262,7 +262,7 @@ function DeviationsPage() {
               </div>
               <button
                 type="submit"
-                className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50"
+                className="bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50 [border-radius:var(--mc-radius-control)]"
                 disabled={!ready || create.isPending}
               >
                 {create.isPending ? "Saving" : "Save the request"}
@@ -290,7 +290,8 @@ function DeviationsPage() {
       ) : null}
 
       {rows.length ? (
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+        <div className="mc-work-table-wrap border border-border bg-background">
+        <table className="w-full text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="px-3 py-2 font-medium">Request</th>
@@ -327,6 +328,7 @@ function DeviationsPage() {
             })}
           </tbody>
         </table>
+        </div>
       ) : null}
     </AppShell>
   );

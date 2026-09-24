@@ -58,7 +58,7 @@ function ChecksPage() {
     <AppShell>
       <PageHeader title="Checks" lead="Record SAM.gov entity, exclusion, and responsibility results." />
 
-      <div className="mb-8 inline-flex rounded-lg border border-border bg-background p-1" aria-label="Check mode">
+      <div className="mc-work-toolbar mb-8 inline-flex p-1" aria-label="Check mode">
         <Button variant={mode === "record" ? "default" : "ghost"} onClick={() => setMode("record")}>
           Record vendor
         </Button>
@@ -67,14 +67,14 @@ function ChecksPage() {
         </Button>
       </div>
 
-      <section className="mb-8 max-w-3xl border-y border-border py-6">
+      <section className="mc-work-summary mb-8 max-w-3xl">
         {mode === "record" ? (
           <label className="block max-w-2xl text-[15px]">
             Acquisition
             <select
               value={acquisitionId}
               onChange={(event) => setAcquisitionId(event.target.value)}
-              className="mt-2 block w-full rounded-lg border border-input bg-background px-3 py-2"
+              className="mt-2 block w-full border border-input bg-background px-3 py-2 [border-radius:var(--mc-radius-control)]"
             >
               {(acquisitions.data ?? []).map((item) => (
                 <option key={item.acquisition_id} value={item.acquisition_id}>
@@ -91,7 +91,7 @@ function ChecksPage() {
               onChange={(event) => setUei(event.target.value)}
               maxLength={20}
               autoComplete="off"
-              className="mt-2 block w-full rounded-lg border border-input bg-background px-3 py-2"
+              className="mt-2 block w-full border border-input bg-background px-3 py-2 [border-radius:var(--mc-radius-control)]"
               placeholder="Enter UEI"
             />
           </label>
@@ -134,7 +134,7 @@ function CheckResult({ result }: { result: SamCheckView }) {
     ["Integrity records", String(result.integrityRecordsCount)],
   ];
   return (
-    <section className="max-w-3xl" aria-labelledby="check-result-title">
+    <section className="mc-work-summary max-w-3xl" aria-labelledby="check-result-title">
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <h2 id="check-result-title" className="section-title">Entity check result</h2>
         <Badge variant={result.source === "sample" || result.source === "cached" ? "outline" : "secondary"}>
@@ -147,7 +147,7 @@ function CheckResult({ result }: { result: SamCheckView }) {
         </p>
       ) : null}
 
-      <dl className="border-t border-border bg-background">
+      <dl className="overflow-hidden border border-border bg-background [border-radius:var(--mc-radius-control)]">
         {fields.map(([label, value]) => (
           <div key={label} className="grid gap-1 border-b border-border px-3 py-3 sm:grid-cols-[15rem_1fr]">
             <dt className="font-medium">{label}</dt>

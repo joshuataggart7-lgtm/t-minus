@@ -13,6 +13,8 @@ import {
   recordReadReceiptQuietly,
   type ReceiptKind,
 } from "@/lib/read-receipts";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 
 export const Route = createFileRoute("/reviewer-inbox")({
   head: () => ({
@@ -159,16 +161,18 @@ function ReviewerInbox() {
             </p>
           ) : null}
 
-          <ul className="divide-y divide-border border-y border-border">
+          <ul className="space-y-3">
             {rows.map(({ poll, card }) => {
               const id = card.m.acq.acquisition_id;
               const phase = poll.phase ?? "";
               const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
               const due = daysUntil(poll.due_date);
               const isOpen = openPoll === poll.poll_id;
+              const readiness = explainWorkReadiness(card.m).state;
               return (
-                <li key={poll.poll_id} className="py-5">
+                <li key={poll.poll_id} className={`mc-work-strip ${missionReadinessClass(readiness, "is")}`}>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <h2 className="text-[15px] leading-6 font-medium">
                       <Link
                         to="/files/$acquisitionId"
@@ -181,6 +185,8 @@ function ReviewerInbox() {
                         {id}
                       </span>
                     </h2>
+                    <MissionReadinessChip state={readiness} />
+                    </div>
                     <p className="text-[13px] text-muted-foreground" data-numeric>
                       {poll.due_date
                         ? due !== null && due < 0
@@ -248,7 +254,7 @@ function ReviewerInbox() {
                   })()}
 
                   {isOpen ? (
-                    <div className="mt-3 max-w-[70ch] rounded-lg border border-border p-4">
+                    <div className="mt-3 max-w-[70ch] border border-border bg-background p-4 [border-radius:var(--mc-radius-control)]">
                       <label htmlFor={`note-${poll.poll_id}`} className="block text-[13px] text-muted-foreground">
                         Note. A No-go needs a reason.
                       </label>
@@ -257,14 +263,14 @@ function ReviewerInbox() {
                         value={note}
                         onChange={(e) => setNote(e.target.value)}
                         rows={3}
-                        className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
+                        className="mt-1 w-full border border-border bg-background p-2 text-[15px] [border-radius:var(--mc-radius-control)]"
                       />
                       <div className="mt-3 flex flex-wrap gap-3">
                         <button
                           type="button"
                           disabled={vote.isPending}
                           onClick={() => vote.mutate({ row: { poll, card }, choice: "go", reason: note })}
-                          className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                          className="bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
                         >
                           Go
                         </button>
@@ -272,8 +278,8 @@ function ReviewerInbox() {
                           type="button"
                           disabled={vote.isPending}
                           onClick={() => vote.mutate({ row: { poll, card }, choice: "no-go", reason: note })}
-                          className="rounded-lg border px-4 py-2 text-[15px]"
-                          style={{ borderColor: "var(--atrisk)" }}
+                          className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                          style={{ borderColor: "var(--mc-readiness-hold)" }}
                         >
                           No-go
                         </button>
@@ -283,7 +289,7 @@ function ReviewerInbox() {
                             setOpenPoll(null);
                             setNote("");
                           }}
-                          className="rounded-lg border border-border px-4 py-2 text-[15px]"
+                          className="border border-border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
                         >
                           Cancel
                         </button>
@@ -297,7 +303,7 @@ function ReviewerInbox() {
                         setNote("");
                         setBanner(null);
                       }}
-                      className="mt-3 rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+                      className="mt-3 bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
                     >
                       Vote on this review
                     </button>

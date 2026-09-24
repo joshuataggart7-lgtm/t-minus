@@ -187,10 +187,10 @@ function DigestPage() {
             Week of {digest.weekStart} through {digest.weekEnd}. Generated {new Date(digest.generatedAt).toLocaleString()}.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mc-work-toolbar mt-4 flex flex-wrap">
             <button
               type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[13px]"
+              className="border border-border px-3 py-2 text-[13px] [border-radius:var(--mc-radius-control)]"
               onClick={() => {
                 if (!exportDigestPdf(digest)) {
                   setMsg("The print window did not open. Allow pop-ups for this site, then export again.");
@@ -202,7 +202,7 @@ function DigestPage() {
             {hasRole("hq") ? (
               <button
                 type="button"
-                className="rounded-lg border border-border px-3 py-2 text-[13px]"
+                className="border border-border px-3 py-2 text-[13px] [border-radius:var(--mc-radius-control)]"
                 onClick={() => void postAsAnnouncement()}
                 disabled={busy}
               >
