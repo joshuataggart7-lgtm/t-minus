@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
@@ -15,11 +15,12 @@ import {
   computeMetrics,
   awardDateFor,
   holdSince,
-  statusColor,
   type AcqMetrics,
   type MissionRow,
 } from "@/lib/metrics";
 import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
+import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -240,7 +241,7 @@ function WorkQueuePage() {
         lead="Files you own, what each one is waiting on, and when the next decision is due."
       />
 
-      <div className="mb-6 flex flex-wrap items-end gap-4 rounded-xl border border-border bg-background p-4">
+      <div className="mc-work-toolbar mb-6 flex flex-wrap items-end">
         <Link
           to="/intake"
           className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
@@ -256,7 +257,7 @@ function WorkQueuePage() {
             id="scope"
             value={scope}
             onChange={(e) => setScope(e.target.value as typeof scope)}
-            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
           >
             <option value="all">Everything</option>
             <option value="mine">Mine</option>
@@ -273,7 +274,7 @@ function WorkQueuePage() {
             id="mission"
             value={missionId}
             onChange={(e) => setMissionId(e.target.value)}
-            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
           >
             <option value="all">Every mission</option>
             {(q.data?.missions ?? []).map((m) => (
@@ -362,7 +363,7 @@ function WorkQueuePage() {
             id="sort"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
           >
             <option value="owner">Owner</option>
             <option value="phase">Phase</option>
@@ -386,12 +387,14 @@ function WorkQueuePage() {
             </tr>
           </thead>
           <tbody ref={rowsRef}>
-            {sortedList.map((c) => (
+            {sortedList.map((c) => {
+              const readiness = explainWorkReadiness(c.m).state;
+              return (
               <tr
                 key={c.m.acq.acquisition_id}
                 data-row-nav
                 tabIndex={0}
-                className="border-b border-border last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className={`mc-work-table-row ${missionReadinessClass(readiness, "is")} border-b border-border last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
               >
                 <td className="p-2">
                   <Link
@@ -438,16 +441,10 @@ function WorkQueuePage() {
                     </span>
                   )}
                 </td>
-                <td className="p-2">
-                  <span
-                    className="inline-block border-l-2 pl-2"
-                    style={{ borderColor: statusColor(c.m.status) }}
-                  >
-                    {c.m.status}
-                  </span>
-                </td>
+                 <td className="p-2"><MissionReadinessChip state={readiness} /></td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
         </>
@@ -462,21 +459,22 @@ function WorkQueuePage() {
 }
 
 function CardView({ c }: { c: Card }) {
+  const readiness = explainWorkReadiness(c.m).state;
   return (
     <Link
       to="/files/$acquisitionId"
       params={{ acquisitionId: c.m.acq.acquisition_id }}
-      className="block rounded-xl border border-border bg-background p-4 shadow-none transition-colors duration-150 hover:border-primary"
-      style={{ borderLeftWidth: 4, borderLeftColor: statusColor(c.m.status) }}
+      className={`mc-work-card ${missionReadinessClass(readiness, "is")} block transition-colors duration-150 hover:border-primary`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">{c.m.status}</p>
-          <p className="mt-1 text-[15px] leading-[22px] font-medium">
+          <p className="text-[12px] text-muted-foreground" data-numeric>{c.m.acq.acquisition_id}</p>
+          <p className="mt-1 break-words text-[15px] leading-[22px] font-medium">
             {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
           </p>
         </div>
         <div className="shrink-0 text-right">
+          <MissionReadinessChip state={readiness} className="mb-2" />
           <p className="text-[28px] leading-8 font-semibold" data-numeric>
             <LaunchCountdownCompact view={countdownView(c.m)} />
           </p>

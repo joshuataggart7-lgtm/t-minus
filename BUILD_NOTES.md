@@ -1,3 +1,9 @@
+## Overnight §6 Tip 1 — Today + Work Queue readiness propagate — September 24, 2026
+
+- `src/components/mission-control/readiness.ts` adds the shared `explainWorkReadiness` wrapper around the existing rules, standard watch window, phase-plan aging fallback, and current date; it makes no unproven missing-evidence claim.
+- `src/routes/today.tsx` and `src/routes/work-queue.tsx` now show GO / WATCH / HOLD / LAUNCHED chips and matching Lock D accents on light Work Surfaces. Ownership, filtering, workflow columns, queries, and shared countdown rendering are unchanged.
+- `src/styles.css` adds reversible light-only `mc-work-*` utilities using the existing warm surfaces, spacing, radius, shadow, and readiness tokens. Reverse by removing those utilities and restoring legacy status chrome in the two routes. Soft Walk logic, exports, fixtures, stored clocks, and data writes were untouched; no self-GREEN claim was made.
+
 ## Lock D componentize — September 24, 2026
 
 - Consolidated the additive Lock D map in `src/styles.css`: Executive typography, spacing, radii, shadows, Work/Mission surfaces, cyan focus/instrumentation, readiness colors, loading/empty roles, and identity-only NASA red. Executive readiness strips, chips, and clocks now consistently use GO `#2ECC8A`, WATCH `#F0B429`, HOLD `#FF8A3D`, and LAUNCHED `#6BA3FF`.

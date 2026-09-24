@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
-import { statusColor, urgencyRank } from "@/lib/metrics";
+import { urgencyRank } from "@/lib/metrics";
 import { awardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
+import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -194,12 +196,14 @@ function TodayPage() {
               <>
                 <RowKeysHint />
                 <ul ref={rowsRef} className="mt-3 divide-y divide-border border-y border-border">
-                  {waitingOnMe.map((c) => (
+                  {waitingOnMe.map((c) => {
+                    const readiness = explainWorkReadiness(c.m).state;
+                    return (
                     <li
                       key={c.m.acq.acquisition_id}
                       data-row-nav
                       tabIndex={0}
-                      className="py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      className={`mc-work-strip ${missionReadinessClass(readiness, "is")} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
                     >
                       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
                         <p className="text-[15px]">
@@ -208,9 +212,7 @@ function TodayPage() {
                             {c.m.acq.acquisition_id}
                           </span>
                         </p>
-                        <StatusMark color={statusColor(c.m.status)} className="text-[13px]">
-                          {c.m.status}
-                        </StatusMark>
+                        <MissionReadinessChip state={readiness} />
                       </div>
                       <p className="text-[13px] leading-[18px] text-muted-foreground">
                         {c.m.currentPhase ?? "Not started"} · {c.m.nextAction}
@@ -235,7 +237,8 @@ function TodayPage() {
                         </Link>
                       ) : null}
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               </>
             )}
@@ -245,7 +248,8 @@ function TodayPage() {
             {waitingOnOthers.length === 0 ? (
               <EmptyState sentence="No file is waiting on anyone else." />
             ) : (
-              <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+              <div className="mc-work-table-wrap">
+              <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px]">
                 <thead>
                   <tr className="border-b border-border text-left">
                     <th scope="col" className="p-2">Acquisition</th>
@@ -264,8 +268,8 @@ function TodayPage() {
                         <td className="p-2">
                           <FileLink card={c} />
                         </td>
-                        <td className="p-2">{c.m.blockerOwner ?? "Not named"}</td>
-                        <td className="p-2">{c.m.blocker}</td>
+                         <td className="p-2 break-words">{c.m.blockerOwner ?? "Not named"}</td>
+                         <td className="p-2 break-words">{c.m.blocker}</td>
                         <td className="p-2" data-numeric>
                           {daysSince(started) ?? "—"}
                         </td>
@@ -273,7 +277,8 @@ function TodayPage() {
                     );
                   })}
                 </tbody>
-              </table>
+               </table>
+               </div>
             )}
           </Section>
 
@@ -352,8 +357,11 @@ function TodayPage() {
               <EmptyState sentence="No open file needs a next step." />
             ) : (
               <ol className="space-y-3">
-                {topThree.map((c, i) => (
-                  <li key={c.m.acq.acquisition_id} className="text-[15px] leading-[22px]">
+                {topThree.map((c, i) => {
+                  const readiness = explainWorkReadiness(c.m).state;
+                  return (
+                  <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>
+                    <MissionReadinessChip state={readiness} className="float-right ml-3" />
                     <span className="text-muted-foreground" data-numeric>
                       {i + 1}.
                     </span>{" "}
@@ -365,7 +373,8 @@ function TodayPage() {
                         : ""}
                     </span>
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             )}
           </Section>
