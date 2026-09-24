@@ -723,13 +723,13 @@ function FormPage() {
         title={FORM_NAMES[formKey]}
         lead={`Filled from the record of ${acquisitionId}. Signatures and concurrence come from the Approvals step.`}
       />
-      <div className="mb-2 flex flex-wrap items-center gap-3">
+      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
         <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
         <p className="text-[13px] text-muted-foreground">
           <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
         </p>
       </div>
-      <p className="mb-6 text-[13px] text-muted-foreground">
+      <p className="mc-work-summary mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
         {headerLine} · {form?.citation}
         {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
         {formTemplateId === "sf1449"
@@ -741,7 +741,7 @@ function FormPage() {
         {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
       </p>
       {/* Every filled export says what it is and what it is not. */}
-      <p className="mb-6 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
+      <p className="mc-work-form-section mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
         Prototype. Not an official NASA system.
         {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
         signature — not the NCMS document of record (NFS 1804.171). Signature blocks are left empty. Fields the record
@@ -761,10 +761,10 @@ function FormPage() {
 
       {form ? (
         <>
-          <div className="mb-6 flex flex-wrap gap-3">
+          <div className="mc-work-toolbar mb-6 flex flex-wrap">
             <button
               type="button"
-              className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
+               className="rounded-[var(--mc-radius-control)] px-3 py-2 text-[15px] text-primary-foreground"
               style={{ background: "var(--primary, #0B3D91)" }}
               onClick={() => save.mutate()}
               disabled={save.isPending}
@@ -773,7 +773,7 @@ function FormPage() {
             </button>
             <button
               type="button"
-              className="rounded-lg border border-primary px-3 py-2 text-[15px] text-primary"
+              className="rounded-[var(--mc-radius-control)] border border-primary px-3 py-2 text-[15px] text-primary"
               onClick={() => {
                 const el = document.getElementById("export-preview");
                 if (el) {
@@ -787,7 +787,7 @@ function FormPage() {
             <button
               type="button"
               aria-pressed={showLineage}
-              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
               title="Outline the values on the preview that came from the shared acquisition record or from a recorded source."
               onClick={() => {
                 const next = !showLineage;
@@ -800,7 +800,7 @@ function FormPage() {
             {formTemplateId ? (
               <button
                 type="button"
-                className="rounded-lg px-3 py-2 text-[15px] text-primary-foreground"
+                className="rounded-[var(--mc-radius-control)] px-3 py-2 text-[15px] text-primary-foreground"
                 style={{ background: "var(--primary, #0B3D91)" }}
                 title="The official blank filled so the values show in Adobe Reader, Chrome and Preview. Signatures stay empty."
                 onClick={() =>
@@ -816,7 +816,7 @@ function FormPage() {
               <>
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
                   title="Open in Adobe Acrobat or Reader on the desktop. Signatures stay empty."
                   onClick={() => void exportPopulated()}
                 >
@@ -824,7 +824,7 @@ function FormPage() {
                 </button>
                 <button
                   type="button"
-                  className="rounded-lg border border-border px-3 py-2 text-[15px]"
+                  className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
                   title="Open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file."
                   onClick={exportData}
                 >
@@ -834,14 +834,14 @@ function FormPage() {
             ) : null}
             <button
               type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
               onClick={() => void exportFlat()}
             >
               Export flattened PDF
             </button>
             <button
               type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px]"
+              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
               title="The NASA RFP cover letter master, filled from this record. A prototype draft for the contracting officer to check and sign."
               onClick={() => void exportRfpCover()}
             >
@@ -925,7 +925,7 @@ function FormPage() {
           ) : null}
 
           {formKey === "sf-30" && formCtx ? (
-            <section className="mb-6 max-w-[80ch] border border-border bg-background p-4">
+            <section className="mc-work-form-section mb-6 max-w-[80ch]">
               <h3 className="text-[18px] leading-6 font-medium">Blocks left empty, and why</h3>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 Nothing below is a fault. The record does not carry these values, so the official form prints
@@ -969,7 +969,7 @@ function FormPage() {
             </p>
           ) : null}
           {form.sections.map((section) => (
-            <section key={section.title} className="mb-6 max-w-[80ch] border border-border bg-background p-4">
+            <section key={section.title} className="mc-work-form-section mb-6 max-w-[80ch]">
               <h3 className="text-[18px] leading-6 font-medium">{section.title}</h3>
               {section.citation ? (
                 <p className="mb-3 text-[13px] text-muted-foreground">{section.citation}</p>

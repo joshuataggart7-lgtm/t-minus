@@ -39,8 +39,8 @@ function statusLabel(status: string | null) {
 }
 
 function statusColor(status: string | null) {
-  if (isLiveStatus(status)) return "var(--ontrack)";
-  if ((status ?? "").toLowerCase().startsWith("build next")) return "var(--attention)";
+  if (isLiveStatus(status)) return "var(--mc-readiness-go)";
+  if ((status ?? "").toLowerCase().startsWith("build next")) return "var(--mc-readiness-watch)";
   return "var(--muted-foreground)";
 }
 
@@ -116,6 +116,7 @@ function TemplatesPage() {
               <h2 className="mb-3 text-[18px] leading-6 font-medium">
                 {tab === "—" ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`}
               </h2>
+              <div className="mc-work-table-wrap">
               <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
                 <thead>
                   <tr className="border-b border-border text-left">
@@ -161,6 +162,7 @@ function TemplatesPage() {
                     })}
                 </tbody>
               </table>
+              </div>
             </section>
           ))}
         </>
