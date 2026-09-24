@@ -175,6 +175,8 @@ import { ageInDays, thresholdFor } from "@/lib/aging";
 import { computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
+import { MissionReadinessChip } from "@/components/mission-control/primitives";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
@@ -237,9 +239,9 @@ function requirementId(phase: string, label: string) {
  * opens, the same source the poll board reads. */
 
 function statusColor(state: string | null | undefined) {
-  if (state === "hold") return "var(--atrisk)";
-  if (state === "launched") return "var(--ontrack)";
-  return "var(--ontrack)";
+  if (state === "hold") return "var(--mc-readiness-hold)";
+  if (state === "launched") return "var(--mc-readiness-launched)";
+  return "var(--mc-readiness-go)";
 }
 
 function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
@@ -772,6 +774,7 @@ function FilePage() {
 
   const hold = lifecycle?.hold ?? null;
   const effectiveState = lifecycle?.clockState ?? null;
+  const readiness = lifecycle ? explainWorkReadiness(lifecycle).state : null;
 
   // The one action for the current blocker, shown in the hero. It does the same
   // thing as the matching row in the launch sequence.
@@ -2117,10 +2120,13 @@ function FilePage() {
         </aside>
         <div className="min-w-0">
 
-      <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-xl border border-border bg-background p-7 lg:p-10">
+      <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-7 lg:p-10">
         <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
-            <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+              {readiness ? <MissionReadinessChip state={readiness} /> : null}
+            </div>
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
             <p className="mt-2 text-[15px] text-muted-foreground">
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
@@ -2814,10 +2820,10 @@ function FilePage() {
                 aria-hidden="true"
                 className="absolute -left-[31px] top-1 size-3 rounded-full border-2"
                 style={{
-                  borderColor: p.status === "upcoming" ? "var(--border)" : statusColor(acq?.clock_state),
+                   borderColor: p.status === "upcoming" ? "var(--border)" : statusColor(effectiveState),
                   background:
                     p.status === "complete"
-                      ? statusColor(acq?.clock_state)
+                       ? statusColor(effectiveState)
                       : p.status === "current"
                         ? "var(--panel)"
                         : "transparent",
