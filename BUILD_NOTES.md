@@ -2943,3 +2943,9 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Gate readiness: BLOCKED = hold on current stage, any No-go, or missing Required row on the current stage; READY = complete or nothing outstanding; else ATTENTION.
 - Entered = earliest audit event logged in the phase; Completed = last audit event in a completed phase (labeled "last recorded event"). Absent → "Not recorded".
 - Stage labels 8px → 9.5px, max-width 80px, equal-column wrap grid kept.
+
+## Exec Overview Phase 4 — critical path, Executive exceptions, featured panel
+- Priority tier derived from the linked mission's recorded priority (1 Mission Critical, 2–3 High Priority, 4+ Standard; none → "Priority not recorded"). No schema change.
+- Critical path line: next gate, blocker, owner, target award, days remaining; missing → "Not recorded".
+- Executive exceptions (pre-award only): overdue gate (days in phase > planned), award at risk, missing mandatory evidence, reviewer overdue (pending vote past due date), unsigned approval (pending approval-role vote), unresolved blocker (hold or No-go). Empty: "No active exceptions".
+- Featured panel facts: CO, requesting org (requester_org_code), est. value, method, target/actual award, current/next gate, evidence status.
