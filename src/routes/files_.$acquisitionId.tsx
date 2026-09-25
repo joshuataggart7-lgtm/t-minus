@@ -2173,7 +2173,7 @@ function FilePage() {
         </aside>
         <div className="min-w-0">
 
-      <details className="no-print mb-5 border-block border-border bg-background lg:hidden">
+      <details className="no-print mb-5 border-y border-border bg-background lg:hidden">
         <summary className="cursor-pointer px-3 py-3 text-[13px] font-medium">Jump to section</summary>
         <MissionNavigator items={missionNavItems} label="On this file" />
       </details>

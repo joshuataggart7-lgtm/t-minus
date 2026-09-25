@@ -1,3 +1,11 @@
+# IA Slice 2 — Work Queue triage — September 25, 2026
+
+- Added `src/components/mission-control/work-triage.tsx` and additive `mc-triage-*` styles for reusable READY/BLOCKED signals and neutral priority bands on light Work Surfaces.
+- `src/routes/work-queue.tsx` uses only its existing query and derived card record: identity, title, value, method, and owner come from `acquisition_facts`; mission name and priority come from the linked `missions` row; readiness and next action come from one `explainWorkReadiness(computeMetrics(...))` result; phase, days in phase, dependency, countdown, and confidence retain their existing metric helpers.
+- Priority bands reuse the Executive Overview's recorded-priority tier helper and cutoffs: priority 1 → P1, 2–3 → P2–3, 4+ → P4+, missing or invalid → Priority not recorded. Board cards sort stably by that band within their unchanged workflow columns; List adds the same priority sort.
+- READY/BLOCKED is presentation-only: HOLD → BLOCKED, GO or WATCH → READY, and LAUNCHED shows neither. Reasons come only from the first existing readiness trigger; no raw `clock_state` drives the signal.
+- The acquisition-file follow-up changes only the invalid narrow-width navigator class from `border-block` to `border-y`. No queries, writes, state rules, countdown logic, Soft Walk behavior, generators, exports, signatures, roles, fixtures, schema, or Executive Overview code changed.
+
 # IA Slice 1 — Mission Navigator — September 25, 2026
 
 - Added `src/components/mission-control/mission-navigator.tsx`: reusable in-page navigation, scroll-spy, accessible focus transfer, conditional target filtering, and controls limited to navigator-owned collapsible sections.

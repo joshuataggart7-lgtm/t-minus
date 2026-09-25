@@ -5,7 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
-import { todayISO, type RefData } from "@/lib/intake";
+import { formatMoney, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
@@ -19,8 +19,14 @@ import {
 } from "@/lib/metrics";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
-import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { explainWorkReadiness, type ReadinessExplanation } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
+import {
+  PriorityBand,
+  WorkTriageSignal,
+  priorityBand,
+  type PriorityBandValue,
+} from "@/components/mission-control/work-triage";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -48,8 +54,15 @@ type Column = (typeof COLUMNS)[number];
 type Card = {
   m: AcqMetrics;
   column: Column;
+  acquisitionId: string;
+  title: string;
   owner: string;
   mission: string;
+  value: string;
+  method: string;
+  priority: number | null;
+  priorityBand: PriorityBandValue | null;
+  readiness: ReadinessExplanation;
   nextTask: string;
   dependency: string;
   daysInPhase: number | null;
@@ -59,10 +72,9 @@ type Card = {
   confidence: AwardConfidence;
 };
 
-function columnFor(m: AcqMetrics): Column {
-  const readiness = explainWorkReadiness(m).state;
-  if (readiness === "LAUNCHED") return "Launched";
-  if (readiness === "HOLD") return "Blocked";
+function columnFor(m: AcqMetrics, readiness = explainWorkReadiness(m)): Column {
+  if (readiness.state === "LAUNCHED") return "Launched";
+  if (readiness.state === "HOLD") return "Blocked";
   if (m.board.some((b) => b.vote === "pending")) return "Awaiting Go/No-go";
   const started = m.phases.some((p) => p.status === "complete") || m.clockState === "running";
   return started ? "In progress" : "Ready";
@@ -84,7 +96,7 @@ function WorkQueuePage() {
           : null;
 
   const [view, setView] = useState<"board" | "list">("board");
-  const [sortBy, setSortBy] = useState<"owner" | "phase" | "days">("owner");
+  const [sortBy, setSortBy] = useState<"owner" | "phase" | "days" | "priority">("owner");
   const rowsRef = useRowKeysContainer<HTMLTableSectionElement>();
   const [scope, setScope] = useState<"all" | "mine" | "branch" | "center">("all");
   const [missionId, setMissionId] = useState<string>("all");
@@ -179,16 +191,28 @@ function WorkQueuePage() {
           awardDate: operational.actualAwardDate,
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;
-        const nextTask = m.nextAction;
+        const readiness = explainWorkReadiness(m);
+        const recordedValue = acq.estimated_value;
+        const rawValue = recordedValue === null || recordedValue === undefined || recordedValue === ""
+          ? null
+          : Number(recordedValue);
+        const priority = mission?.priority ?? null;
         const dependency = m.blocker === "None"
           ? "None"
           : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
         return {
           m,
-          column: columnFor(m),
-          owner: (acq.co_name as string) ?? "Unassigned",
+          column: columnFor(m, readiness),
+          acquisitionId: acq.acquisition_id,
+          title: String(acq.title ?? acq.acquisition_id),
+          owner: String(acq.co_name ?? "").trim() || "Not recorded",
           mission: mission?.name ?? "No mission linked",
-          nextTask,
+          value: rawValue !== null && Number.isFinite(rawValue) ? formatMoney(rawValue) : "Not recorded",
+          method: String(acq.acquisition_method ?? "").trim() || "Not recorded",
+          priority,
+          priorityBand: priorityBand(priority),
+          readiness,
+          nextTask: readiness.nextAction,
           dependency,
           daysInPhase: current?.actual_days ?? null,
           days: m.daysToAward,
@@ -217,12 +241,20 @@ function WorkQueuePage() {
     [cards, missionId, scope, user, myBranch],
   );
 
-  // The list view sorts by owner, phase or days to award; the board keeps its order.
+  const priorityRank = (card: Card) => {
+    if (card.priorityBand === "P1") return 0;
+    if (card.priorityBand === "P2–3") return 1;
+    if (card.priorityBand === "P4+") return 2;
+    return 3;
+  };
+
+  // The list view sorts by owner, phase, target days, or the mission's recorded priority.
   const sortedList = useMemo(() => {
     const rows = [...filtered];
     rows.sort((a, b) => {
       if (sortBy === "owner") return a.owner.localeCompare(b.owner);
       if (sortBy === "phase") return String(a.m.currentPhase ?? "").localeCompare(String(b.m.currentPhase ?? ""));
+      if (sortBy === "priority") return priorityRank(a) - priorityRank(b);
       const value = (c: Card) => (typeof c.days === "number" ? c.days : Number.POSITIVE_INFINITY);
       return value(a) - value(b);
     });
@@ -329,7 +361,9 @@ function WorkQueuePage() {
 
         <div className="grid gap-4 lg:grid-cols-3 2xl:grid-cols-5">
           {COLUMNS.map((col) => {
-            const items = filtered.filter((c) => c.column === col);
+            const items = filtered
+              .filter((c) => c.column === col)
+              .sort((a, b) => priorityRank(a) - priorityRank(b));
             return (
               <section key={col} aria-label={col}>
                 <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
@@ -365,85 +399,85 @@ function WorkQueuePage() {
             <option value="owner">Owner</option>
             <option value="phase">Phase</option>
             <option value="days">Days to award</option>
+            <option value="priority">Priority</option>
           </select>
         </div>
         <RowKeysHint />
-        <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
+        <div className="mc-work-table-wrap mt-3">
+        <table className="w-full min-w-[1180px] table-fixed border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">Acquisition</th>
-              <th scope="col" className="p-2">Mission</th>
-              <th scope="col" className="p-2">Owner</th>
-              <th scope="col" className="p-2">Column</th>
-              <th scope="col" className="p-2">Phase</th>
-              <th scope="col" className="p-2">Next task</th>
-              <th scope="col" className="p-2">Dependency</th>
-              <th scope="col" className="p-2">Days in phase</th>
-              <th scope="col" className="p-2">Days to award</th>
-              <th scope="col" className="p-2">Status</th>
+              <th scope="col" className="w-[18%] p-2">Acquisition</th>
+              <th scope="col" className="w-[7%] p-2">Priority</th>
+              <th scope="col" className="w-[13%] p-2">Status</th>
+              <th scope="col" className="w-[10%] p-2">T±</th>
+              <th scope="col" className="w-[9%] p-2">Owner</th>
+              <th scope="col" className="w-[12%] p-2">Next task</th>
+              <th scope="col" className="w-[12%] p-2">Waiting on</th>
+              <th scope="col" className="w-[8%] p-2">Mission</th>
+              <th scope="col" className="w-[7%] p-2">Phase</th>
+              <th scope="col" className="w-[6%] p-2">Column</th>
             </tr>
           </thead>
           <tbody ref={rowsRef}>
-            {sortedList.map((c) => {
-              const readiness = explainWorkReadiness(c.m).state;
-              return (
+            {sortedList.map((c) => (
               <tr
-                key={c.m.acq.acquisition_id}
+                key={c.acquisitionId}
                 data-row-nav
                 tabIndex={0}
-                className={`mc-work-table-row ${missionReadinessClass(readiness, "is")} border-b border-border last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} border-b border-border align-top last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
               >
-                <td className="p-2">
+                <td className="p-2 break-words">
                   <Link
                     to="/files/$acquisitionId"
-                    params={{ acquisitionId: c.m.acq.acquisition_id }}
+                    params={{ acquisitionId: c.acquisitionId }}
                     className="text-primary hover:text-primary-hover"
                   >
-                    {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
+                    <span className="block text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span>
+                    <span className="block font-medium">{c.title}</span>
                   </Link>
                   <Link
                     to="/files/$acquisitionId"
-                    params={{ acquisitionId: c.m.acq.acquisition_id }}
+                    params={{ acquisitionId: c.acquisitionId }}
                     hash="launch-sequence"
                     data-row-action="exit"
                     className="sr-only"
                   >
-                    Open the launch sequence for {c.m.acq.acquisition_id}
+                    Open the launch sequence for {c.acquisitionId}
                   </Link>
                   {/^write\b/i.test(c.nextTask ?? "") ? (
                     <Link
                       to="/files/$acquisitionId"
-                      params={{ acquisitionId: c.m.acq.acquisition_id }}
+                      params={{ acquisitionId: c.acquisitionId }}
                       data-row-action="write"
                       className="sr-only"
                     >
-                      {c.nextTask} on {c.m.acq.acquisition_id}
+                      {c.nextTask} on {c.acquisitionId}
                     </Link>
                   ) : null}
+                  <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
                 </td>
-                <td className="p-2">{c.mission}</td>
-                <td className="p-2">{c.owner}</td>
-                <td className="p-2">{c.column}</td>
-                <td className="p-2">{c.m.currentPhase ?? "Not started"}</td>
-                <td className="p-2">{c.nextTask}</td>
-                <td className="p-2">{c.dependency}</td>
-                <td className="p-2" data-numeric>
-                  {c.daysInPhase ?? "—"}
-                </td>
+                <td className="p-2"><PriorityBand priority={c.priority} /></td>
+                <td className="p-2"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /></td>
                 <td className="p-2" data-numeric>
                   <LaunchCountdownCompact view={overviewCountdownView(c.m)} />
-                  {readiness === "LAUNCHED" ? null : (
+                  {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
                     </span>
                   )}
                 </td>
-                 <td className="p-2"><MissionReadinessChip state={readiness} /></td>
+                <td className="p-2 break-words">{c.owner}</td>
+                <td className="p-2 break-words">{c.nextTask}</td>
+                <td className="p-2 break-words">{c.dependency}</td>
+                <td className="p-2 break-words">{c.mission}</td>
+                <td className="p-2 break-words">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
+                <td className="p-2 break-words">{c.column}</td>
               </tr>
-              );
-            })}
+            ))}
           </tbody>
         </table>
+        </div>
         </>
       )}
 
@@ -456,37 +490,32 @@ function WorkQueuePage() {
 }
 
 function CardView({ c }: { c: Card }) {
-  const readiness = explainWorkReadiness(c.m).state;
   return (
     <Link
       to="/files/$acquisitionId"
-      params={{ acquisitionId: c.m.acq.acquisition_id }}
-      className={`mc-work-card ${missionReadinessClass(readiness, "is")} block transition-colors duration-150 hover:border-primary`}
+      params={{ acquisitionId: c.acquisitionId }}
+      className={`mc-work-card ${missionReadinessClass(c.readiness.state, "is")} block transition-colors duration-150 hover:border-primary`}
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[12px] text-muted-foreground" data-numeric>{c.m.acq.acquisition_id}</p>
+          <div className="flex flex-wrap items-center gap-2"><span className="text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span><PriorityBand priority={c.priority} /></div>
           <p className="mt-1 break-words text-[15px] leading-[22px] font-medium">
-            {String(c.m.acq.title ?? c.m.acq.acquisition_id)}
+            {c.title}
           </p>
         </div>
-        <div className="shrink-0 text-right">
-          <MissionReadinessChip state={readiness} className="mb-2" />
-          <p className="text-[28px] leading-8 font-semibold" data-numeric>
-            <LaunchCountdownCompact view={overviewCountdownView(c.m)} />
-          </p>
-          <p className="text-[12px] text-muted-foreground">
-            {readiness === "LAUNCHED" ? "Since award" : "To award"}
-          </p>
-        </div>
+        <MissionReadinessChip state={c.readiness.state} />
       </div>
-      <p className="mt-2 text-[13px] text-muted-foreground">{c.mission}</p>
-      <p className="mt-2 text-[13px]">Owner: {c.owner}</p>
-      <p className="mt-1 text-[13px]">Phase: {c.m.currentPhase ?? "Not started"}</p>
+      <p className="mt-2 break-words text-[13px] text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
+      <div className="mt-4">
+        <p className="text-[28px] leading-8 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
+        <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
+      </div>
+      <WorkTriageSignal readiness={c.readiness} />
+      <p className="mt-3 text-[13px]">Owner: {c.owner}</p>
       <p className="mt-1 text-[13px]">Next: {c.nextTask}</p>
       <p className="mt-1 text-[13px]">Waiting on: {c.dependency}</p>
       <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-        {c.daysInPhase ?? "Not recorded"} days in phase
+        Phase: {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
       </p>
     </Link>
   );
