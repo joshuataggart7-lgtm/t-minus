@@ -3079,3 +3079,8 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Hero rail grid: added `min-[1440px]:grid-cols-1` so the phase block stacks under the countdown card in rail mode (main capped 1280px, rail too narrow for two columns); phase column div and its text paragraphs got `min-w-0` and `[overflow-wrap:anywhere]`. Below-1440 stacked-hero layout unchanged.
 - Tables wrapped in `overflow-x-auto`: Acquisition Forecast ("Acquisition Forecast entry for this file"); Contract file index ("NF 1098 tabs present in this file and required tabs with no document"); Clause packet ("Clauses in the packet and why each is included"); Option exercise ("Option periods and notice dates"); Option exercise checklist ("Option exercise checklist"); Clause delta ("Clause delta for the modification"); Protest deadlines ("Protest deadlines for this award"); Go/No-go poll ("Go/No-go poll for {p.phase}"); cold-path Thresholds ("Threshold" header). Hot-path Thresholds and Audit trail already had overflow wrappers; not duplicated. No column or content changes; print still forces full tables.
 - previewAuthStorage.ts restored byte-identical to 3d0c5d9a.
+
+## Josh Forecast TBD (CO decision 25 Sep 2026 10:41 CT)
+- src/lib/forecast.ts: anticipated_award_date is "Not yet determined" when target_award_date is empty (need_date fallback removed for this field only); forecastCsv emits "Not yet determined — Update as soon as the award date is known." for that cell, header and column set unchanged.
+- files_.$acquisitionId.tsx forecast table: TBD value shows the muted note "Update as soon as the award date is known."; the Fix R1 need-date note removed.
+- previewAuthStorage.ts restored byte-identical to 8b0aee77.

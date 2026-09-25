@@ -9,6 +9,10 @@
 
 export const FORECAST_CITATION = "NFS 1807.72";
 
+/** Anticipated award date when the CO has not set a target award date. */
+export const ANTICIPATED_AWARD_TBD = "Not yet determined";
+export const ANTICIPATED_AWARD_TBD_NOTE = "Update as soon as the award date is known.";
+
 export type ForecastAcq = {
   acquisition_id: string;
   title?: string | null;
@@ -83,7 +87,10 @@ export function forecastEntry(acq: ForecastAcq, thresholds: ThresholdRow[]): For
     value_range: valueRange(value),
     naics_code: acq.naics_code ?? "Not recorded",
     psc_code: acq.psc_code ?? "Not recorded",
-    anticipated_award_date: acq.target_award_date ?? acq.need_date ?? "Not recorded",
+    anticipated_award_date:
+      acq.target_award_date != null && acq.target_award_date.trim() !== ""
+        ? acq.target_award_date
+        : ANTICIPATED_AWARD_TBD,
     competition: acq.competition ?? "Not recorded",
     set_aside: acq.set_aside ?? "None",
     place_of_performance:
@@ -111,7 +118,17 @@ function cell(v: string): string {
 /** The forecast's own CSV format: one header row, one row per entry. */
 export function forecastCsv(entries: ForecastEntry[]): string {
   const lines = [COLUMNS.map((c) => cell(c.header)).join(",")];
-  for (const e of entries) lines.push(COLUMNS.map((c) => cell(String(e[c.key] ?? ""))).join(","));
+  for (const e of entries)
+    lines.push(
+      COLUMNS.map((c) => {
+        const v = String(e[c.key] ?? "");
+        return cell(
+          c.key === "anticipated_award_date" && v === ANTICIPATED_AWARD_TBD
+            ? `${ANTICIPATED_AWARD_TBD} — ${ANTICIPATED_AWARD_TBD_NOTE}`
+            : v,
+        );
+      }).join(","),
+    );
   return lines.join("\n");
 }
 

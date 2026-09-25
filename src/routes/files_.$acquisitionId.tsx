@@ -142,6 +142,8 @@ import { boardReadiness } from "@/lib/board-readiness";
 import { loadClarifications } from "@/lib/clarifications";
 import { protestWindow } from "@/lib/protest-window";
 import {
+  ANTICIPATED_AWARD_TBD,
+  ANTICIPATED_AWARD_TBD_NOTE,
   FORECAST_CITATION,
   FORECAST_FIELDS,
   forecastCsv,
@@ -2562,9 +2564,9 @@ function FilePage() {
                     </th>
                     <td className="px-3 py-2">
                       {forecast[f.key]}
-                      {f.key === "anticipated_award_date" && !acq?.target_award_date && acq?.need_date ? (
+                      {f.key === "anticipated_award_date" && forecast[f.key] === ANTICIPATED_AWARD_TBD ? (
                         <span className="mt-1 block text-muted-foreground">
-                          From the mission need date — not the award target (no target award date recorded).
+                          {ANTICIPATED_AWARD_TBD_NOTE}
                         </span>
                       ) : null}
                     </td>
