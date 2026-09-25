@@ -41,11 +41,11 @@ export function listCommandProviders(): readonly CommandProvider[] {
 export function matchCommands(
   ctx: CommandContext,
   query: string,
-  options: { providers?: readonly CommandProvider[]; limit?: number } = {},
+  options: number | { providers?: readonly CommandProvider[]; limit?: number } = {},
 ): ShellCommand[] {
   const needle = query.trim().toLowerCase();
-  const source = options.providers ?? providers;
-  const limit = options.limit ?? 8;
+  const source = typeof options === "number" ? providers : (options.providers ?? providers);
+  const limit = typeof options === "number" ? options : (options.limit ?? 8);
   const out: ShellCommand[] = [];
   for (const p of source) {
     if (!p.when(ctx)) continue;

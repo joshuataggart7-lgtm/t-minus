@@ -99,7 +99,7 @@ export function useOperationalDisplay(enabled: boolean) {
           ? "not started"
           : "running";
       out.set(acq.acquisition_id, {
-        phase: String(metric.currentPhase ?? operational.acquisition.current_phase ?? "Not recorded"),
+        phase: String(operational.acquisition.current_phase ?? metric.currentPhase ?? "Not recorded"),
         clockMode,
         readiness,
         countdown,
