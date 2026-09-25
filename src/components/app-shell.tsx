@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { navFor, ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
+import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
+import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
 import { AnnouncementBanner } from "@/components/announcement-banner";
@@ -19,12 +20,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-const NAV_GROUPS = [
-  { label: "Work", items: ["Executive Overview", "Today", "Reviewer inbox", "Requester portal", "Work Queue", "Files", "Intake", "Estimate"] },
-  { label: "Documents", items: ["Templates", "Checks", "Deviations"] },
-  { label: "Oversight", items: ["Audit Log", "Watch", "Directive compliance", "Clause changes", "Escalations", "Leadership digest", "Reporting views", "Simulate", "Regulatory data intake", "PGPD queue"] },
-  { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
-] as const;
 
 // Icons are chosen so the meaning reads at a glance beside the label.
 const NAV_ICONS: Record<string, LucideIcon> = {
@@ -64,11 +59,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
-  const allItems = navFor(roles);
-  const items = presenter
-    ? allItems.filter((item) => item.label !== "Seed status" && item.label !== "Simulate")
-    : allItems;
-  const navGroups = presenter ? NAV_GROUPS.filter((group) => group.label !== "Setup") : NAV_GROUPS;
+  const navGroups = sidebarNavGroups(roles, presenter);
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
@@ -203,8 +194,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
         >
           <div className="py-3">
             {navGroups.map((group) => {
-              const groupItems = items.filter((item) => group.items.includes(item.label as never));
-              if (!groupItems.length) return null;
+              const groupItems = group.items;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
                 <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>

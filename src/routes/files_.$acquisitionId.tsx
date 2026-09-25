@@ -4265,6 +4265,7 @@ function FilePage() {
           <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
             Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
           </p>
+        <div className="overflow-x-auto">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -4305,7 +4306,8 @@ function FilePage() {
               );
             })}
           </tbody>
-          </table>
+        </table>
+        </div>
         </section>
       ) : (
       <section className="mb-12">
