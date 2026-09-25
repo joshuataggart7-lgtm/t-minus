@@ -1795,7 +1795,7 @@
     align-items: center;
   }
 }
-@media (min-width: 1440px) {
+@media (min-width: 1024px) {
   .mc-status-rail {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

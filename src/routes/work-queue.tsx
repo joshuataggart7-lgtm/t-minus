@@ -411,7 +411,7 @@ function WorkQueuePage() {
         </div>
         <RowKeysHint />
         <div className="mc-work-table-wrap mt-3">
-        <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px]">
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Acquisition</th>
