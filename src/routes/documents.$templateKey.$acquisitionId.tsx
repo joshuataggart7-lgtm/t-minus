@@ -2010,7 +2010,6 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
-      />
       <WorkShellHeader
         acquisitionId={acquisitionId}
         title={String(q.data?.acq?.["title"] ?? "") || null}
