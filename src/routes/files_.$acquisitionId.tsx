@@ -2201,7 +2201,7 @@ function FilePage() {
               </>
             ) : null}
           </div>
-          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
+          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:grid-cols-1 min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
             <div className="min-w-0">
             <LaunchCountdown
               view={
@@ -2245,12 +2245,12 @@ function FilePage() {
                     : (effectiveState ?? "—")}
             </p>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 [overflow-wrap:anywhere]">
             <p className="text-[13px] text-muted-foreground">Current phase</p>
-            <p className="mt-1 text-[18px] leading-6 font-medium">{lifecycle?.currentPhase ?? "Not started"}</p>
+            <p className="mt-1 text-[18px] leading-6 font-medium [overflow-wrap:anywhere]">{lifecycle?.currentPhase ?? "Not started"}</p>
             {/* Only a Required row reads as missing here. With none missing the
                 line says the phase is ready to exit. */}
-            <p className="mt-4 max-w-[48ch] text-[15px] leading-[22px]">
+            <p className="mt-4 max-w-[48ch] text-[15px] leading-[22px] [overflow-wrap:anywhere]">
               {lifecycle?.blocker && lifecycle.blocker !== "None"
                 ? lifecycle.blocker
                 : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
@@ -2258,7 +2258,7 @@ function FilePage() {
                   ? `Ready to exit ${currentPhase.phase}`
                   : (lifecycle?.nextAction ?? "Loading")}
             </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <p className="mt-1 text-[13px] text-muted-foreground [overflow-wrap:anywhere]">
               {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
             </p>
             <div className="mt-5 flex min-w-0 flex-wrap items-center gap-2">
@@ -2551,6 +2551,7 @@ function FilePage() {
           <LoadingNote what="the forecast facts" />
         ) : forecast ? (
           <>
+            <div className="overflow-x-auto">
             <table className="w-full border border-border text-[13px] leading-[18px]">
               <caption className="sr-only">Acquisition Forecast entry for this file</caption>
               <tbody>
@@ -2571,6 +2572,7 @@ function FilePage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <p className="mt-2 text-[15px] leading-[22px]">
               {acq?.acquisition_forecast_verified
                 ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
@@ -2693,6 +2695,7 @@ function FilePage() {
         >
           Print the cover sheet
         </button>
+        <div className="overflow-x-auto">
         <table className="w-full border border-border text-[13px] leading-[18px]">
           <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
           <thead>
@@ -2809,6 +2812,7 @@ function FilePage() {
             ) : null}
           </tbody>
         </table>
+        </div>
         </div>
       </details>
       </MissionNavSection>
@@ -3433,6 +3437,7 @@ function FilePage() {
                     />
                   ) : null}
                   {packetSelection.length > 0 ? (
+                    <div className="overflow-x-auto">
                     <table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Clauses in the packet and why each is included</caption>
                       <thead>
@@ -3454,6 +3459,7 @@ function FilePage() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   ) : null}
                   <ClinSchedulePanel
                     acquisitionId={acquisitionId}
@@ -3561,6 +3567,7 @@ function FilePage() {
                       preliminary notice is due {options.noticeLeadDays} days before the option period begins (FAR
                       52.217-9 fill-in).
                     </p>
+                    <div className="overflow-x-auto">
                     <table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Option periods and notice dates</caption>
                       <thead>
@@ -3591,6 +3598,7 @@ function FilePage() {
                         ) : null}
                       </tbody>
                     </table>
+                    </div>
 
                     {(() => {
                       const noticeOn = pa.option_notice_date ?? pa.option_notice_sent ?? null;
@@ -3611,6 +3619,7 @@ function FilePage() {
                           <p className="mt-1 text-[13px] text-muted-foreground">
                             Advisory checklist read from the record. It does not hold phase exit.
                           </p>
+                          <div className="overflow-x-auto">
                           <table className="mt-2 w-full text-[13px] leading-[18px]">
                             <caption className="sr-only">Option exercise checklist</caption>
                             <thead>
@@ -3642,6 +3651,7 @@ function FilePage() {
                               ))}
                             </tbody>
                           </table>
+                          </div>
                           <p className="mt-2 text-[13px] text-muted-foreground">
                             {next && next.start && next.end
                               ? `The option must be exercised within ${next.label}, ${next.start} to ${next.end}.`
@@ -3869,6 +3879,7 @@ function FilePage() {
                           {delta.updated.length} updated · {delta.removed.length} removed ·{" "}
                           {delta.unchanged.length} unchanged
                         </p>
+                        <div className="overflow-x-auto">
                         <table className="mt-3 w-full text-[13px] leading-[18px]">
                           <caption className="sr-only">Clause delta for the modification</caption>
                           <thead>
@@ -3898,6 +3909,7 @@ function FilePage() {
                             ))}
                           </tbody>
                         </table>
+                        </div>
                         {modFillIns.length > 0 ? (
                           <div className="mt-3 border border-border p-3">
                             <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
@@ -4050,6 +4062,7 @@ function FilePage() {
                     )}
                   </div>
 
+                  <div className="overflow-x-auto">
                   <table className="mt-3 w-full text-[13px] leading-[18px]">
                     <caption className="sr-only">Protest deadlines for this award</caption>
                     <thead>
@@ -4089,6 +4102,7 @@ function FilePage() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
 
                   <p className="mt-3 text-[13px]">
                     <Link to="/watch" search={{ tag: "Bid protest" }} className="text-primary">
@@ -4101,6 +4115,7 @@ function FilePage() {
 
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div id={`poll-${p.phase}`} className="mt-3 max-w-[80ch] border border-border">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
                       Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
@@ -4167,6 +4182,7 @@ function FilePage() {
                       )}
                     </tbody>
                   </table>
+                  </div>
                   {canWrite && (boards[p.phase] ?? []).some((b) => !b.poll_id) ? (
                     <div className="border-t border-border p-2">
                       <Button
@@ -4315,6 +4331,7 @@ function FilePage() {
         <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
           Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
         </p>
+        <div className="overflow-x-auto">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -4323,6 +4340,7 @@ function FilePage() {
           </thead>
           <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "—" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "—"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{t.note}</span> : null}</td></tr>; })}</tbody>
         </table>
+        </div>
       </section>
       )}
       </MissionNavSection>
