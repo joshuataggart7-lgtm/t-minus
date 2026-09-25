@@ -192,7 +192,10 @@ function WorkQueuePage() {
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;
         const readiness = explainWorkReadiness(m);
-        const rawValue = Number(acq.estimated_value);
+        const recordedValue = acq.estimated_value;
+        const rawValue = recordedValue === null || recordedValue === undefined || recordedValue === ""
+          ? null
+          : Number(recordedValue);
         const priority = mission?.priority ?? null;
         const dependency = m.blocker === "None"
           ? "None"
@@ -204,7 +207,7 @@ function WorkQueuePage() {
           title: String(acq.title ?? acq.acquisition_id),
           owner: String(acq.co_name ?? "").trim() || "Not recorded",
           mission: mission?.name ?? "No mission linked",
-          value: Number.isFinite(rawValue) ? formatMoney(rawValue) : "Not recorded",
+          value: rawValue !== null && Number.isFinite(rawValue) ? formatMoney(rawValue) : "Not recorded",
           method: String(acq.acquisition_method ?? "").trim() || "Not recorded",
           priority,
           priorityBand: priorityBand(priority),
@@ -358,7 +361,9 @@ function WorkQueuePage() {
 
         <div className="grid gap-4 lg:grid-cols-3 2xl:grid-cols-5">
           {COLUMNS.map((col) => {
-            const items = filtered.filter((c) => c.column === col);
+            const items = filtered
+              .filter((c) => c.column === col)
+              .sort((a, b) => priorityRank(a) - priorityRank(b));
             return (
               <section key={col} aria-label={col}>
                 <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
