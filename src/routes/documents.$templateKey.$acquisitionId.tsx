@@ -1653,30 +1653,33 @@ function DocumentPage() {
             : latest
               ? { kind: "saved", version: latest.version, at: latest.saved_at, by: latest.saved_by }
               : { kind: "none" };
-  const documentSections = def ? visibleSections(def, values) : [];
-  const documentNavItems: MissionNavItem[] = def
-    ? [
-        ...documentSections.map((section) => {
-          const remaining = visibleFields(section, values).filter((field) => Boolean(errors[field.key])).length;
-          return {
-            id: `doc-sec-${section.id}`,
-            label: section.title,
-            badge: remaining ? { tone: "watch" as const, text: `${remaining} to complete` } : null,
-          };
-        }),
-        ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
-        { id: "doc-nf1858", label: "NF 1858 memorandum" },
-        { id: "doc-save-export", label: "Save & export" },
-        ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
-        { id: "doc-provenance", label: "Provenance" },
-        { id: "doc-official-copy", label: "Official file copy" },
-        { id: "doc-poll", label: "Go/No-go" },
-        { id: "doc-comments", label: "Comments" },
-        { id: "doc-versions", label: "Versions" },
-        { id: "doc-regulations", label: "Regulations" },
-        { id: "doc-defect", label: "Report a defect" },
-      ]
-    : [];
+  const documentSections = useMemo(() => (def ? visibleSections(def, values) : []), [def, values]);
+  const documentNavItems: MissionNavItem[] = useMemo(
+    () => def
+      ? [
+          ...documentSections.map((section) => {
+            const remaining = visibleFields(section, values).filter((field) => Boolean(errors[field.key])).length;
+            return {
+              id: `doc-sec-${section.id}`,
+              label: section.title,
+              badge: remaining ? { tone: "watch" as const, text: `${remaining} to complete` } : null,
+            };
+          }),
+          ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
+          { id: "doc-nf1858", label: "NF 1858 memorandum" },
+          { id: "doc-save-export", label: "Save & export" },
+          ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
+          { id: "doc-provenance", label: "Provenance" },
+          { id: "doc-official-copy", label: "Official file copy" },
+          { id: "doc-poll", label: "Go/No-go" },
+          { id: "doc-comments", label: "Comments" },
+          { id: "doc-versions", label: "Versions" },
+          { id: "doc-regulations", label: "Regulations" },
+          { id: "doc-defect", label: "Report a defect" },
+        ]
+      : [],
+    [def, documentSections, errors, signature, values],
+  );
 
   if (!def) {
     return (

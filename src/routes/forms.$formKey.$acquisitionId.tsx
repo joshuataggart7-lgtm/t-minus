@@ -734,27 +734,30 @@ function FormPage() {
         : latest && latest.version !== null
           ? { kind: "saved", version: latest.version, at: latest.saved_at, by: latest.saved_by }
           : { kind: "none" };
-  const formNavItems: MissionNavItem[] = form
-    ? [
-        { id: "form-actions", label: "Actions" },
-        { id: "form-about", label: "About this export" },
-        ...(formKey === "sf-30" && formCtx ? [{ id: "form-empty-blocks", label: "Blocks left empty" }] : []),
-        { id: "export-preview", label: "Export preview" },
-        ...form.sections.map((section, index) => {
-          const missing = section.fields.filter(
-            (field) =>
-              typeof field.value !== "boolean" &&
-              !field.value &&
-              !(formKey === "sf-30" && field.path === "topmostSubform.AmendmentNo"),
-          ).length;
-          return {
-            id: `form-sec-${index}`,
-            label: section.title,
-            badge: missing ? { tone: "neutral" as const, text: `${missing} not recorded` } : null,
-          };
-        }),
-      ]
-    : [];
+  const formNavItems: MissionNavItem[] = useMemo(
+    () => form
+      ? [
+          { id: "form-actions", label: "Actions" },
+          { id: "form-about", label: "About this export" },
+          ...(formKey === "sf-30" && formCtx ? [{ id: "form-empty-blocks", label: "Blocks left empty" }] : []),
+          { id: "export-preview", label: "Export preview" },
+          ...form.sections.map((section, index) => {
+            const missing = section.fields.filter(
+              (field) =>
+                typeof field.value !== "boolean" &&
+                !field.value &&
+                !(formKey === "sf-30" && field.path === "topmostSubform.AmendmentNo"),
+            ).length;
+            return {
+              id: `form-sec-${index}`,
+              label: section.title,
+              badge: missing ? { tone: "neutral" as const, text: `${missing} not recorded` } : null,
+            };
+          }),
+        ]
+      : [],
+    [form, formCtx, formKey],
+  );
 
   return (
     <AppShell>
