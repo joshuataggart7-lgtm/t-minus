@@ -2800,8 +2800,8 @@ function FilePage() {
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">—</td>
                 <td className="px-3 py-2">Required</td>
-                <td className="px-3 py-2" style={{ color: "var(--attention)" }}>
-                  No document on this tab
+                <td className="px-3 py-2">
+                  <StatusMark color="var(--attention)">No document on this tab</StatusMark>
                 </td>
               </tr>
             ))}
@@ -4313,9 +4313,9 @@ function FilePage() {
                   <td className="p-2 text-muted-foreground">
                     {t.citation}
                     {t.note && /conflict/i.test(t.note) ? (
-                      <span className="mt-1 block" style={{ color: "var(--attention)" }}>
+                      <StatusMark color="var(--attention)" className="mt-1 block">
                         Conflict: {t.note}
-                      </span>
+                      </StatusMark>
                     ) : t.note ? (
                       <span className="mt-1 block">{t.note}</span>
                     ) : null}

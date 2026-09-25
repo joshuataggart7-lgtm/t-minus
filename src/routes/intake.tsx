@@ -876,14 +876,12 @@ function IntakePage() {
               {pscChecking ? "Checking" : "Check product or service code"}
             </button>
             {psc ? (
-              <p
-                className={`mt-2 text-[13px] ${
-                  psc.state === "valid" ? "text-muted-foreground" : "text-[#B45309]"
-                }`}
-              >
-                {psc.state === "valid" && psc.officialName
-                  ? `${psc.code} — ${psc.officialName}`
-                  : psc.message}
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                {psc.state === "valid" && psc.officialName ? (
+                  `${psc.code} — ${psc.officialName}`
+                ) : (
+                  <StatusMark color="var(--attention)">{psc.message}</StatusMark>
+                )}
                 <span className="block text-muted-foreground">{psc.sourceLabel}</span>
               </p>
             ) : null}
