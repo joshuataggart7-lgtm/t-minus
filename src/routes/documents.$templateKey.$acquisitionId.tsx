@@ -1657,6 +1657,7 @@ function DocumentPage() {
   const documentNavItems: MissionNavItem[] = useMemo(
     () => def
       ? [
+          { id: "doc-save-export", label: "Save & export" },
           ...documentSections.map((section) => {
             const remaining = visibleFields(section, values).filter((field) => Boolean(errors[field.key])).length;
             return {
@@ -1667,7 +1668,6 @@ function DocumentPage() {
           }),
           ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
           { id: "doc-nf1858", label: "NF 1858 memorandum" },
-          { id: "doc-save-export", label: "Save & export" },
           ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
           { id: "doc-provenance", label: "Provenance" },
           { id: "doc-official-copy", label: "Official file copy" },
