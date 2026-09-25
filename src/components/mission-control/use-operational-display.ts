@@ -54,6 +54,7 @@ export function useOperationalDisplay(enabled: boolean) {
       readiness: "GO" | "WATCH" | "HOLD" | "LAUNCHED";
       countdown: ReturnType<typeof overviewCountdownView>;
       holdReason: string | null;
+      holdOwner: string | null;
     }>();
     if (!query.data) return out;
     const ref: RefData = {
@@ -104,6 +105,7 @@ export function useOperationalDisplay(enabled: boolean) {
         readiness,
         countdown,
         holdReason: metric.hold?.reason ?? null,
+        holdOwner: metric.hold?.owner ?? null,
       });
     }
     return out;

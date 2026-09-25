@@ -69,7 +69,7 @@ function ReportingPage() {
 
   const cols = preview.data?.[0] ? Object.keys(preview.data[0]) : [];
   function displayCell(row: Record<string, unknown>, column: string) {
-    if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word"].includes(column)) {
+    if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
       return row[column] === null || row[column] === undefined ? "—" : String(row[column]);
     }
     const acquisitionId = typeof row["acquisition_id"] === "string" ? row["acquisition_id"] : "";
@@ -77,6 +77,9 @@ function ReportingPage() {
     if (!display) return operational.isLoading ? "Status loading" : "Status unavailable";
     if (column === "current_phase") return display.phase;
     if (column === "clock_state") return display.clockMode;
+    if (column === "on_hold") return display.readiness === "HOLD" ? "true" : "false";
+    if (column === "hold_reason") return display.holdReason ?? "—";
+    if (column === "hold_owner") return display.holdOwner ?? "—";
     return display.readiness;
   }
 
@@ -141,7 +144,7 @@ function ReportingPage() {
           <MissionNavSection id="report-preview" label="Preview rows" collapsible defaultOpen summary={`${preview.data.length} rows`}>
           {open === "v_report_acquisitions" ? (
             <p className="mb-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-              Phase, clock and status on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
+              Phase, clock, status and hold on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
             </p>
           ) : null}
           <div className="mc-work-table-wrap">

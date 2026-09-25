@@ -232,7 +232,7 @@ export type MemoDoc = {
  * paragraphs: one paragraph per section, its heading leading the sentence.
  * The record block is rendered as labeled lines so the facts read as facts.
  */
-export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
+export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoParagraph[] {
   const clean = (text: string) => humanMemoProse(text)
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
@@ -267,6 +267,25 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
     .map((b) => {
       const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —"));
       const prose = lines.map(withoutPrompt).map(clean).filter((line) => line && line !== "—");
+      if (templateKey === "memorandum-for-record" && b.heading === "Filing") {
+        const fileTab = b.lines
+          .flatMap((line) => line.split("\n"))
+          .map(withoutPrompt)
+          .map((line) => clean(line))
+          .find((line) => line && line !== "—");
+        return {
+          text: fileTab
+            ? `Filing. This memorandum is filed under NF 1098 tab ${fileTab}.`
+            : "Filing. [Contracting officer to complete: the NF 1098 tab this memorandum is filed under]",
+          lines: [],
+        };
+      }
+      if (templateKey === "memorandum-for-record" && b.heading === "Purpose" && prose.length === 0) {
+        return {
+          text: "Purpose. [Contracting officer to complete: purpose of this memorandum]",
+          lines: [],
+        };
+      }
       const sourceStart = prose.findIndex((line) => /^(?:Sources searched|Market research was conducted from public sources):?$/i.test(line));
       if (sourceStart >= 0 && prose.length > sourceStart + 1) {
         const intro = prose.slice(0, sourceStart + 1).join(" ");
@@ -284,8 +303,8 @@ export function memoParagraphs(doc: RenderedDoc): MemoParagraph[] {
     .filter((p) => p.text.length > 2 || p.lines.length > 0);
 }
 
-export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader): MemoDoc {
-  return { header, paragraphs: memoParagraphs(doc), badgeLine: doc.badgeLine, title: doc.title };
+export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader, templateKey?: string): MemoDoc {
+  return { header, paragraphs: memoParagraphs(doc, templateKey), badgeLine: doc.badgeLine, title: doc.title };
 }
 
 /**
