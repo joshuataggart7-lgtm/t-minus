@@ -1,24 +1,25 @@
-import { registerCommandProvider } from "./command-registry";
+import type { CommandProvider } from "./command-registry";
 import { sidebarNavGroups } from "./sidebar-nav";
 
-registerCommandProvider({
+const navigationProvider: CommandProvider = {
   id: "navigation",
   label: "Pages",
-  group: "Go to",
+  group: "Pages",
   when: () => true,
   commands: (ctx) =>
     sidebarNavGroups(ctx.roles, ctx.presenter).flatMap((group) =>
       group.items.map((item) => ({
         id: `nav:${item.to}`,
-        label: item.label,
-        group: "Go to",
+        label: `Go to ${item.label}`,
+        group: "Pages",
+        keywords: [item.label, `go to ${item.label}`],
         when: () => true,
         run: (c) => c.navigate(item.to),
       })),
     ),
-});
+};
 
-registerCommandProvider({
+const openFileProvider: CommandProvider = {
   id: "open-file",
   label: "Current file",
   group: "Current file",
@@ -35,4 +36,6 @@ registerCommandProvider({
           },
         ]
       : [],
-});
+};
+
+export const SHELL_COMMAND_PROVIDERS: CommandProvider[] = [navigationProvider, openFileProvider];
