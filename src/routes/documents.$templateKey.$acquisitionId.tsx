@@ -1476,7 +1476,7 @@ function DocumentPage() {
       )}`.trim(),
   };
   const exportRendered = def ? renderDocument(def, documentValues, acquisitionId, signature) : null;
-  const memoDoc = exportRendered && memoHeader ? buildMemoDoc(exportRendered, memoHeader) : null;
+  const memoDoc = exportRendered && memoHeader ? buildMemoDoc(exportRendered, memoHeader, def?.key) : null;
   const exportContext = def && q.data?.acq ? {
     def,
     values,

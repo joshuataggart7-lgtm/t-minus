@@ -82,8 +82,9 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
   }
 
   const drawFooter = (target: typeof page, pageNumber: number, totalPages: number) => {
-    let fy = 30;
-    for (const line of options.footer ?? []) {
+    const footer = options.footer ?? [];
+    let fy = 30 + 10 * footer.length;
+    for (const line of footer) {
       target.drawText(sanitize(line).slice(0, 150), {
         x: margins.left,
         y: fy,

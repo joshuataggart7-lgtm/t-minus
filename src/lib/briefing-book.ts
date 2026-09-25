@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { boardReadinessItems, type BoardReadiness } from "@/lib/board-readiness";
 import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
 import type { ScaffoldSectionK } from "@/lib/format-scaffold";
+import type { CountdownView } from "@/components/launch-countdown";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -55,6 +56,7 @@ export type BriefingInput = {
   currentPhase: string;
   clockState: string;
   days: number | null;
+  countdown?: CountdownView;
   targetAwardDate?: string | null;
   nextAction: string;
   blocker?: string | null;
@@ -273,12 +275,29 @@ function schedulePage(input: BriefingInput, mark: string): string {
 
 export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   const mark = markPage(input, stamp);
-  const daysLine =
-    input.days === null
+  const countdown = input.countdown;
+  const daysLine = countdown
+    ? countdown.days === null
+      ? countdown.caption
+      : countdown.mode === "forecast"
+        ? "FORECAST · no target award date recorded"
+        : countdown.mode === "hold"
+          ? "HOLD · countdown paused"
+          : countdown.mode === "launched"
+            ? `${countdown.days} days since award`
+            : countdown.mode === "overdue"
+              ? `OVERDUE · ${countdown.days} days past the target award date`
+              : countdown.mode === "running"
+                ? `${countdown.days} days to the target award date`
+                : countdown.caption
+    : input.days === null
       ? "No countdown recorded"
       : input.clockState === "launched"
         ? `${input.days} days since award`
         : `${input.days} days to the target award date`;
+  const countdownFigure = countdown
+    ? countdown.days === null || !countdown.prefix ? "—" : `${countdown.prefix} ${countdown.days}`
+    : input.days === null ? "—" : String(Math.abs(input.days));
 
   const factRows = input.facts
     .map((f) => `<tr><th scope="row">${esc(f.label)}</th><td>${esc(f.value)}</td></tr>`)
@@ -330,7 +349,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   <div>
     <h2>Where the clock stands</h2>
     <div class="band">
-      <p class="figure">${input.days === null ? "—" : esc(Math.abs(input.days))}</p>
+      <p class="figure">${esc(countdownFigure)}</p>
       <p class="sub">${esc(daysLine)}</p>
       <p class="sub" style="margin-top:12px">${esc(input.currentPhase)} · ${esc(input.clockState)}${input.targetAwardDate ? ` · target ${esc(input.targetAwardDate)}` : ""}</p>
     </div>

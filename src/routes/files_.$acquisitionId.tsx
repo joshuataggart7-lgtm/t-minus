@@ -1026,6 +1026,23 @@ function FilePage() {
             86_400_000,
         )
       : null);
+  const fileCountdownView = lifecycle
+    ? overviewCountdownView(lifecycle)
+    : effectiveState === "launched"
+      ? { mode: "launched" as const, days: 0, prefix: "T+" as const, badge: null, caption: "days since award", holdReason: null, tone: "cyan" as const }
+      : effectiveState === "scrubbed"
+        ? { mode: "stopped" as const, days: null, prefix: null, badge: null, caption: "Clock stopped", holdReason: null, tone: "muted" as const }
+        : days === null
+          ? { mode: "not-started" as const, days: null, prefix: null, badge: null, caption: "No target award date recorded", holdReason: null, tone: "muted" as const }
+          : {
+              mode: hasTargetAward ? "running" as const : "forecast" as const,
+              days: Math.max(0, days),
+              prefix: "T−" as const,
+              badge: hasTargetAward ? null : "FORECAST",
+              caption: hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
+              holdReason: null,
+              tone: "cyan" as const,
+            };
 
   const currentIndex = Math.max(
     0,
@@ -1458,6 +1475,7 @@ function FilePage() {
                   ? "Launched"
                   : (effectiveState ?? "—"),
           days,
+          countdown: fileCountdownView,
           targetAwardDate: effectiveTargetAward,
           nextAction: lifecycle?.nextAction ?? "Not recorded",
           blocker: lifecycle?.blocker ?? null,
@@ -2207,25 +2225,7 @@ function FilePage() {
           <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:max-[1439px]:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:grid-cols-1 min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
             <div className="min-w-0">
             <LaunchCountdown
-              view={
-                lifecycle
-                  ? overviewCountdownView(lifecycle)
-                  : effectiveState === "launched"
-                    ? { mode: "launched", days: 0, prefix: "T+", badge: null, caption: "days since award", holdReason: null, tone: "cyan" }
-                    : effectiveState === "scrubbed"
-                      ? { mode: "stopped", days: null, prefix: null, badge: null, caption: "Clock stopped", holdReason: null, tone: "muted" }
-                      : days === null
-                        ? { mode: "not-started", days: null, prefix: null, badge: null, caption: "No target award date recorded", holdReason: null, tone: "muted" }
-                        : {
-                            mode: hasTargetAward ? "running" : "forecast",
-                            days: Math.max(0, days),
-                            prefix: "T−",
-                            badge: hasTargetAward ? null : "FORECAST",
-                            caption: hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
-                            holdReason: null,
-                            tone: "cyan",
-                          }
-              }
+              view={fileCountdownView}
               acquisitionId={acquisitionId}
             />
             {effectiveState !== "launched" && effectiveState !== "scrubbed" && days !== null && !hasTargetAward ? (

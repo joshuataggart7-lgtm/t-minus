@@ -94,6 +94,7 @@ export function GlobalSearch() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
+  const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const operational = useOperationalDisplay(authState === "signed-in" && open);
 
@@ -112,6 +113,8 @@ export function GlobalSearch() {
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
+
+  useEffect(() => setActiveIndex(-1), [q]);
 
   const rows = useQuery({
     queryKey: ["global-search-index"],
@@ -197,6 +200,8 @@ export function GlobalSearch() {
     setQ("");
     void navigate({ to: "/files/$acquisitionId", params: { acquisitionId: id } });
   }
+  const optionCount = results.length + commands.length;
+  const activeOptionId = activeIndex < 0 ? undefined : `global-search-option-${activeIndex}`;
 
   return (
     <>
@@ -226,8 +231,8 @@ export function GlobalSearch() {
               <label htmlFor="global-search-input" className="mb-2 block text-[13px] text-muted-foreground">
                 Prototype search. It reads titles, acquisition IDs, PR numbers, requesters, vendors,
                 UEI and CAGE, contract numbers, missions, clause numbers on the file, and a capped
-                slice of recent audit text. It also lists the pages in your sidebar; choose one with
-                the mouse or Tab.
+                 slice of recent audit text. It also lists the pages in your sidebar; choose one with
+                 the arrow keys and Enter, the mouse, or Tab.
               </label>
               <input
                 id="global-search-input"
@@ -235,17 +240,39 @@ export function GlobalSearch() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 onKeyDown={(e) => {
-                  // Enter opens a matched acquisition only; a query with no
-                  // match never opens a blank file page.
-                  if (e.key === "Enter" && q.trim() && results[0]) openFile(results[0].row.acquisition_id);
+                   if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                     e.preventDefault();
+                     if (optionCount === 0) return;
+                     setActiveIndex((current) => e.key === "ArrowDown"
+                       ? (current + 1) % optionCount
+                       : current <= 0 ? optionCount - 1 : current - 1);
+                     return;
+                   }
+                   if (e.key !== "Enter" || !q.trim()) return;
+                   e.preventDefault();
+                   const activeResult = activeIndex >= 0 && activeIndex < results.length ? results[activeIndex] : undefined;
+                   const activeCommand = activeIndex >= results.length ? commands[activeIndex - results.length] : undefined;
+                   if (activeResult) {
+                     openFile(activeResult.row.acquisition_id);
+                   } else if (activeCommand) {
+                     runCommand(activeCommand);
+                   } else if (results[0]) {
+                     openFile(results[0].row.acquisition_id);
+                   } else if (commands[0]) {
+                     runCommand(commands[0]);
+                   }
                 }}
+                 role="combobox"
+                 aria-controls="global-search-options"
+                 aria-expanded="true"
+                 aria-activedescendant={activeOptionId}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px] text-foreground"
                 placeholder="4200999102"
                 autoComplete="off"
               />
             </div>
 
-            <div className="max-h-[50vh] overflow-y-auto p-2">
+            <div id="global-search-options" role="listbox" className="max-h-[50vh] overflow-y-auto p-2">
               {rows.isLoading ? (
                 <p className="p-3 text-[13px] text-muted-foreground">Loading the acquisitions.</p>
               ) : null}
@@ -265,12 +292,15 @@ export function GlobalSearch() {
               ) : null}
 
               <ul>
-                {results.map(({ row: r, hint }) => (
+                {results.map(({ row: r, hint }, index) => (
                   <li key={r.acquisition_id}>
                     <button
                       type="button"
+                      id={`global-search-option-${index}`}
+                      role="option"
+                      aria-selected={activeIndex === index}
                       onClick={() => openFile(r.acquisition_id)}
-                      className="block w-full rounded-lg px-3 py-3 text-left hover:bg-canvas"
+                      className={`block w-full rounded-lg px-3 py-3 text-left hover:bg-canvas ${activeIndex === index ? "bg-canvas" : ""}`}
                     >
                       <span className="block text-[15px] leading-[22px] text-foreground">
                         {r.acquisition_id} — {r.title ?? "Untitled"}
@@ -302,17 +332,22 @@ export function GlobalSearch() {
                 <div key={group} className="mt-2 border-t border-border pt-2">
                   <p className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
                   <ul>
-                    {list.map((c) => (
+                    {list.map((c) => {
+                      const index = results.length + commands.indexOf(c);
+                      return (
                       <li key={c.id}>
                         <button
                           type="button"
+                          id={`global-search-option-${index}`}
+                          role="option"
+                          aria-selected={activeIndex === index}
                           onClick={() => runCommand(c)}
-                          className="block w-full rounded-lg px-3 py-3 text-left text-[15px] leading-[22px] text-foreground hover:bg-canvas"
+                          className={`block w-full rounded-lg px-3 py-3 text-left text-[15px] leading-[22px] text-foreground hover:bg-canvas ${activeIndex === index ? "bg-canvas" : ""}`}
                         >
                           {c.label}
                         </button>
                       </li>
-                    ))}
+                    )})}
                   </ul>
                 </div>
               ))}
