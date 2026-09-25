@@ -290,6 +290,25 @@ export function GlobalSearch() {
                   </li>
                 ))}
               </ul>
+
+              {Object.entries(commandGroups).map(([group, list]) => (
+                <div key={group} className="mt-2 border-t border-border pt-2">
+                  <p className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
+                  <ul>
+                    {list.map((c) => (
+                      <li key={c.id}>
+                        <button
+                          type="button"
+                          onClick={() => runCommand(c)}
+                          className="block w-full rounded-lg px-3 py-3 text-left text-[15px] leading-[22px] text-foreground hover:bg-canvas"
+                        >
+                          {c.label}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
         </div>
