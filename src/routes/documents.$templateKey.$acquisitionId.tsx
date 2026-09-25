@@ -42,6 +42,7 @@ import {
   newerGuidance,
 } from "@/lib/watch";
 import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
+import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
@@ -1543,7 +1544,11 @@ function DocumentPage() {
   // Export headers use only the recorded target award date.
   const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
-  const exportHeaderLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
+  const exportHeaderLine = `${acquisitionId} · ${
+    daysToAward === null
+      ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
+      : `${daysToAward} days to award`
+  }`;
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown
       ? "Not recorded"
