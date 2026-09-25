@@ -1,3 +1,13 @@
+# IA Slice 7 — Viewport pass — September 25, 2026
+
+- Executive Overview: added overflow containment to aging, successor-clock, longest-hold, phase-lead-time, Center scoreboard, Center phase, vendor exclusion, acquisition, and prime tables. Anomaly and scan-row ellipses now expose full text through `title`; acquisition IDs and readiness/countdown values remain outside truncating elements.
+- Today, Work Queue list/board, Files list, Reporting, Watch, Directive compliance, Clause changes, Audit Log, Simulate, Escalations, and Leadership digest: audited existing table wrappers, nowrap state/countdown cells, long-text wrapping, and responsive grids; no additional class change was required.
+- Acquisition file: added overflow containment to the remaining Block, gate, share/receipt, clarification, research, reps/certs, evaluation, NF 1098 attachment, data-requirement, suggested-clause, line-item, fill-in, payment, UCF, source, respondent, and date-owed tables. The existing below-1440 jump-list and ≥1440 stacked side-nav/rail classes are unchanged.
+- Document shell: wrapped the comparables, reviewer board, outside-access recipient, and saved-version tables. Form shell: wrapped the NF 1707 Form field preview table. Document/form text, values, handlers, generation, exports, filenames, signatures, and writes are unchanged.
+- Announcements: wrapped the acknowledgement table and added a full-text tooltip to the urgent banner. Header/sidebar layout remains unchanged; existing truncated product, persona, user, and role values are available through title/control text.
+- Responsive audit found only the existing `min-[1440px]:*` and paired `sm:max-[1439px]:*` arbitrary variants. No same-element/same-property conflict with `sm`/`md`/`lg`/`xl`/`2xl` utilities was found. The Executive `.mc-status-rail` ≥1024 rule and the file shell ≥1440 breakpoint remain unchanged.
+- Print now forces `.overflow-x-auto`, `.mc-work-table-wrap`, and `.mc-exception-table-wrap` to visible overflow so wrapped tables remain print-complete.
+
 # IA Fix R1 — responsive layout and labels — September 25, 2026
 
 - a) Below 1440px, acquisition files and document/form shells use their existing top jump list instead of the left navigator/rail; file clock content stacks and the current-hold actions wrap. At 1440px and above, the sticky aside returns unchanged.
