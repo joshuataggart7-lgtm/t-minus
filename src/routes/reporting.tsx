@@ -6,6 +6,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
+import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/reporting")({
 function ReportingPage() {
   const { authState } = useRole();
   const [open, setOpen] = useState<ReportViewName>("v_report_acquisitions");
+  const operational = useOperationalDisplay(authState === "signed-in" && open === "v_report_acquisitions");
 
   const counts = useQuery({
     queryKey: ["report-view-counts"],
@@ -66,6 +68,17 @@ function ReportingPage() {
   }
 
   const cols = preview.data?.[0] ? Object.keys(preview.data[0]) : [];
+  function displayCell(row: Record<string, unknown>, column: string) {
+    if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word"].includes(column)) {
+      return row[column] === null || row[column] === undefined ? "—" : String(row[column]);
+    }
+    const acquisitionId = typeof row["acquisition_id"] === "string" ? row["acquisition_id"] : "";
+    const display = operational.byId.get(acquisitionId);
+    if (!display) return operational.isLoading ? "Status loading" : "Status unavailable";
+    if (column === "current_phase") return display.phase;
+    if (column === "clock_state") return display.clockMode;
+    return display.readiness;
+  }
 
   return (
     <AppShell>
@@ -126,6 +139,11 @@ function ReportingPage() {
         {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
         {preview.data && preview.data.length > 0 ? (
           <MissionNavSection id="report-preview" label="Preview rows" collapsible defaultOpen summary={`${preview.data.length} rows`}>
+          {open === "v_report_acquisitions" ? (
+            <p className="mb-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+              Phase, clock and status on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
+            </p>
+          ) : null}
           <div className="mc-work-table-wrap">
             <table className="w-full border-collapse text-[13px] leading-[18px]">
               <thead>
@@ -142,7 +160,7 @@ function ReportingPage() {
                   <tr key={i} className="border-b border-border">
                     {cols.map((c) => (
                       <td key={c} className="whitespace-nowrap py-2 pr-4 tabular-nums">
-                        {r[c] === null || r[c] === undefined ? "—" : String(r[c])}
+                        {displayCell(r, c)}
                       </td>
                     ))}
                   </tr>

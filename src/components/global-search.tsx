@@ -1,12 +1,12 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
 import { matchCommands, type CommandContext, type ShellCommand } from "@/components/commands/command-registry";
-import "@/components/commands/providers";
+import { SHELL_COMMAND_PROVIDERS } from "@/components/commands/providers";
+import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/components/role-context";
-import { daysBetween, todayISO } from "@/lib/intake";
 import { Search } from "lucide-react";
 
 type Row = {
@@ -29,16 +29,21 @@ type Row = {
   missions?: { mission_id: string; name: string | null } | null;
 };
 
-/** One plain sentence of clock state for a hit, the same facts as the file page. */
-function clockLine(r: Row) {
-  const days = r.target_award_date ? daysBetween(todayISO(), r.target_award_date) : null;
-  const parts: string[] = [];
-  parts.push(days === null ? "No target award date" : `${days} days to award`);
-  if (r.target_award_date) parts.push(`target ${r.target_award_date}`);
-  parts.push(r.clock_state === "hold" ? "on hold" : (r.clock_state ?? "not started"));
-  if (r.current_phase) parts.push(r.current_phase);
-  if (r.clock_state === "hold" && r.hold_reason) parts.push(r.hold_reason);
-  return parts.join(" · ");
+type OperationalDisplay = ReturnType<typeof useOperationalDisplay>["byId"] extends Map<string, infer T> ? T : never;
+
+/** One plain sentence of operational state, using the same derivation as Files. */
+function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
+  if (!display) return loading ? "Status loading" : "Status unavailable";
+  const view = display.countdown;
+  const countdown = view.days === null
+    ? view.caption
+    : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""} · ${view.caption}`;
+  return [
+    display.readiness,
+    countdown,
+    display.phase,
+    display.readiness === "HOLD" && display.holdReason ? `Hold: ${display.holdReason}` : null,
+  ].filter(Boolean).join(" · ");
 }
 
 type AuditRow = {
@@ -90,6 +95,7 @@ export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const operational = useOperationalDisplay(authState === "signed-in" && open);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -174,7 +180,7 @@ export function GlobalSearch() {
     presenter,
     navigate: (to: string) => void navigate({ to }),
   };
-  const commands = q.trim() ? matchCommands(commandCtx, q) : [];
+  const commands = matchCommands(commandCtx, q, { providers: SHELL_COMMAND_PROVIDERS, limit: 40 });
   const commandGroups = commands.reduce<Record<string, ShellCommand[]>>((acc, c) => {
     (acc[c.group] ??= []).push(c);
     return acc;
@@ -220,7 +226,8 @@ export function GlobalSearch() {
               <label htmlFor="global-search-input" className="mb-2 block text-[13px] text-muted-foreground">
                 Prototype search. It reads titles, acquisition IDs, PR numbers, requesters, vendors,
                 UEI and CAGE, contract numbers, missions, clause numbers on the file, and a capped
-                slice of recent audit text, and the names of pages you can open.
+                slice of recent audit text. It also lists the pages in your sidebar; choose one with
+                the mouse or Tab.
               </label>
               <input
                 id="global-search-input"
@@ -249,7 +256,7 @@ export function GlobalSearch() {
               ) : null}
               {!q.trim() ? (
                 <p className="p-3 text-[13px] text-muted-foreground">
-                  Type to find an acquisition and open its file.
+                  Type to find an acquisition and open its file, or choose a page below.
                 </p>
               ) : results.length === 0 && !rows.isLoading ? (
                 <p className="p-3 text-[13px] text-muted-foreground">
@@ -269,7 +276,7 @@ export function GlobalSearch() {
                         {r.acquisition_id} — {r.title ?? "Untitled"}
                       </span>
                       <span className="block text-[13px] leading-[18px] text-muted-foreground">
-                        {clockLine(r)}
+                        {clockLine(operational.byId.get(r.acquisition_id), operational.isLoading)}
                       </span>
                       <span className="block text-[13px] leading-[18px] text-muted-foreground">
                         {[
