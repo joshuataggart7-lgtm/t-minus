@@ -1048,7 +1048,10 @@ function DocumentPage() {
       operational: {
         phase: metrics.currentPhase ?? "Not recorded",
         readiness,
-        countdownLine: view.days === null || !view.prefix ? view.caption : `${view.prefix}${view.days}`,
+        countdownLine:
+          view.days === null || !view.prefix
+            ? view.caption
+            : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`,
         holdReason: metrics.hold?.reason ?? null,
         holdOwner: metrics.hold?.owner ?? null,
       },
@@ -1116,7 +1119,7 @@ function DocumentPage() {
       notice: noticeFacts,
       sizeStandard,
       awardDate,
-      operational: chromeState?.operational,
+      operational: chromeState?.operational ?? null,
       co: coRecord,
       today: todayISO(),
       audit: (q.data?.auditRows ?? []).map((a) => ({
