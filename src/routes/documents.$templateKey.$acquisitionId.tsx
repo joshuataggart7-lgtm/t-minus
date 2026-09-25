@@ -45,6 +45,9 @@ import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { MissionNavigator, MissionNavSection, type MissionNavItem } from "@/components/mission-control/mission-navigator";
+import { WorkShellHeader, WorkShellLayout, type SaveState } from "@/components/mission-control/work-surface-shell";
 import {
   buildSequence,
   phaseForTemplate,
@@ -1002,7 +1005,7 @@ function DocumentPage() {
   // Display chrome follows the shared operational award rule. This is kept
   // separate from awardDate because draft/export context retains its existing
   // source and behavior.
-  const chromeCountdown = useMemo(() => {
+  const chromeState = useMemo(() => {
     if (!q.data?.acq) return null;
     const log = (q.data.auditRows ?? []).map((row) => ({
       acquisition_id: acquisitionId,
@@ -1037,8 +1040,10 @@ function DocumentPage() {
       attachedKeys: keysFrom(q.data.attachments ?? [], acquisitionId),
       savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),
     });
-    return overviewCountdownView(metrics);
+    return { metrics, view: overviewCountdownView(metrics) };
   }, [q.data, acquisitionId]);
+  const chromeCountdown = chromeState?.view ?? null;
+  const chromeReadiness = chromeState ? explainWorkReadiness(chromeState.metrics) : null;
 
   // Packet documents in the contract file index, in NF 1098 tab order.
   const enclosures = useMemo(() => {
@@ -1632,6 +1637,44 @@ function DocumentPage() {
       ),
   });
 
+  const documentSaveState: SaveState = heldByOther && checkout
+    ? { kind: "readonly", reason: `Checked out by ${checkout.user_name}` }
+    : !canWrite
+      ? { kind: "readonly", reason: "Editing requires Contracting or HQ" }
+      : save.isPending
+        ? { kind: "saving" }
+        : save.isError
+          ? { kind: "error", text: "Save did not finish" }
+          : save.isSuccess
+            ? { kind: "saved", version: save.data }
+            : latest
+              ? { kind: "saved", version: latest.version, at: latest.saved_at, by: latest.saved_by }
+              : { kind: "none" };
+  const documentSections = def ? visibleSections(def, values) : [];
+  const documentNavItems: MissionNavItem[] = def
+    ? [
+        ...documentSections.map((section) => {
+          const remaining = visibleFields(section, values).filter((field) => Boolean(errors[field.key])).length;
+          return {
+            id: `doc-sec-${section.id}`,
+            label: section.title,
+            badge: remaining ? { tone: "watch" as const, text: `${remaining} to complete` } : null,
+          };
+        }),
+        ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
+        { id: "doc-nf1858", label: "NF 1858 memorandum" },
+        { id: "doc-save-export", label: "Save & export" },
+        ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
+        { id: "doc-provenance", label: "Provenance" },
+        { id: "doc-official-copy", label: "Official file copy" },
+        { id: "doc-poll", label: "Go/No-go" },
+        { id: "doc-comments", label: "Comments" },
+        { id: "doc-versions", label: "Versions" },
+        { id: "doc-regulations", label: "Regulations" },
+        { id: "doc-defect", label: "Report a defect" },
+      ]
+    : [];
+
   if (!def) {
     return (
       <AppShell>
@@ -1967,6 +2010,19 @@ function DocumentPage() {
           Object.values(aiMeta).some((m) => !m.reviewed) ? " · contains an AI draft, not yet reviewed" : ""
         }`}
       />
+      />
+      <WorkShellHeader
+        acquisitionId={acquisitionId}
+        title={String(q.data?.acq?.["title"] ?? "") || null}
+        readiness={chromeReadiness}
+        countdown={chromeCountdown}
+        saveState={documentSaveState}
+        completion={errorCount ? `${errorCount} required field${errorCount === 1 ? "" : "s"} to complete` : "Required fields complete"}
+      />
+      <WorkShellLayout
+        nav={<MissionNavigator items={documentNavItems} label="In this document" ariaLabel="In this document" />}
+      >
+      <div className="mc-shell-document-content">
       <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
         <Nova acquisitionId={acquisitionId} documentLabel={def.name} />
         <p className="text-[13px] text-muted-foreground">
@@ -1985,9 +2041,6 @@ function DocumentPage() {
       ) : null}
 
 
-
-      {/* The sidebar follows the file's own phase, not the template's home phase. */}
-      <RegulationSidebar phase={(q.data?.acq?.['current_phase'] as string | null) || phase} />
 
       {def.key === "postaward-letter-unsuccessful" && quoterSlots.some((r) => !r.awarded) ? (
         <section aria-label="Letter for each unsuccessful quoter" className="mb-4 max-w-[80ch]">
@@ -2079,14 +2132,6 @@ function DocumentPage() {
           {estimatedValue !== null ? ` · ${formatMoney(estimatedValue)}` : ""}
         </p>
       </section>
-
-      <DefectReport
-        templateKey={templateKey}
-        templateName={def.name}
-        revision={def.badge.revision}
-        defaultCitation={badgeCite}
-        acquisitionId={acquisitionId}
-      />
 
       {q.isLoading ? <p className="text-muted-foreground">Loading the record.</p> : null}
 
@@ -2264,7 +2309,7 @@ function DocumentPage() {
             </>
           );
           return (
-            <section key={s.id} className="mc-work-form-section mb-8">
+            <section id={`doc-sec-${s.id}`} key={s.id} className="mc-work-form-section mb-8">
               {s.collapsed ? (
                 <details>
                   <summary className="cursor-pointer text-[18px] leading-6 font-medium">{s.title}</summary>
@@ -2282,7 +2327,7 @@ function DocumentPage() {
 
 
         {signature ? (
-          <section className="mc-work-form-section mb-8">
+          <section id="doc-signatures" className="mc-work-form-section mb-8">
             <h2 className="text-[18px] leading-6 font-medium">Signatures</h2>
             <p className="text-[13px] text-muted-foreground">
               {signature.tierLabel} · {signature.citation} · selected by the estimated value{" "}
@@ -2323,7 +2368,7 @@ function DocumentPage() {
           </section>
         ) : null}
 
-        <section className="mc-work-form-section mb-8" aria-label="NF 1858 memorandum">
+        <section id="doc-nf1858" className="mc-work-form-section mb-8" aria-label="NF 1858 memorandum">
           <div className="flex flex-wrap items-center gap-3">
             <input
               id="issue-on-1858"
@@ -2500,7 +2545,7 @@ function DocumentPage() {
           ) : null}
         </section>
 
-        <div className="mc-work-toolbar mb-6 flex flex-wrap items-center">
+        <div id="doc-save-export" className="mc-work-toolbar mb-6 flex flex-wrap items-center">
           <Button
             type="submit"
             disabled={!canEdit || save.isPending}
@@ -2725,7 +2770,7 @@ function DocumentPage() {
       </form>
 
       {def.key === "pnm" ? (
-        <section aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
+        <section id="doc-comparables" aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
           <h2 className="mb-1 text-[18px] leading-6 font-medium">Comparable prior awards</h2>
           <p className="mb-3 text-[13px] text-muted-foreground">
             SAM.gov contract awards for this NAICS and PSC, half to double the estimated value.
@@ -2791,7 +2836,7 @@ function DocumentPage() {
       ) : null}
 
 
-      <section aria-label="Provenance" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+      <section id="doc-provenance" aria-label="Provenance" className="mb-10 max-w-[80ch] border-t border-border pt-4">
         <div className="flex flex-wrap items-center gap-2 text-[13px]">
           <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Live</span>
           {isSampleFile ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Sample</span> : null}
@@ -2830,7 +2875,7 @@ function DocumentPage() {
         </div>
       </section>
 
-      <section aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
+      <section id="doc-official-copy" aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
         <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
         <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
           Advisory — filing a version never holds the file or blocks a phase exit.
@@ -2934,7 +2979,7 @@ function DocumentPage() {
         )}
       </section>
 
-      <section aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
+      <section id="doc-poll" aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Go/No-go for {phase}</h2>
         {board.length ? (
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -3026,7 +3071,7 @@ function DocumentPage() {
         ) : null}
       </section>
 
-      <section aria-label="Comments" className="mb-10 max-w-[80ch]">
+      <section id="doc-comments" aria-label="Comments" className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Comments</h2>
         {q.data?.comments.length ? (
           <ul className="mb-4 border border-border bg-background">
@@ -3070,7 +3115,7 @@ function DocumentPage() {
         canShare={hasAnyRole(["specialist", "hq"])}
       />
 
-      <section className="mb-10 max-w-[80ch]">
+      <section id="doc-versions" className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>
         {q.data?.versions.length ? (
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -3097,6 +3142,19 @@ function DocumentPage() {
           <p className="text-muted-foreground">No versions yet. Save one to start the history.</p>
         )}
       </section>
+
+      <MissionNavSection id="doc-regulations" label="Regulations">
+        <RegulationSidebar phase={(q.data?.acq?.["current_phase"] as string | null) || phase} />
+      </MissionNavSection>
+      <MissionNavSection id="doc-defect" label="Report a defect">
+        <DefectReport
+          templateKey={templateKey}
+          templateName={def.name}
+          revision={def.badge.revision}
+          defaultCitation={badgeCite}
+          acquisitionId={acquisitionId}
+        />
+      </MissionNavSection>
 
       {sourcePanel ? (
         <section
@@ -3129,6 +3187,8 @@ function DocumentPage() {
           Open the acquisition file
         </Link>
       </div>
+      </div>
+      </WorkShellLayout>
     </AppShell>
   );
 }
