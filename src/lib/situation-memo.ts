@@ -46,9 +46,18 @@ export const SITUATION_EVENTS: SituationEvent[] = [
 
 export const SITUATION_EMPTY = "No situation memo started.";
 
+export type SituationOperational = {
+  phase: string;
+  readiness: "GO" | "WATCH" | "HOLD" | "LAUNCHED";
+  countdownLine: string;
+  holdReason: string | null;
+  holdOwner: string | null;
+};
+
 export function situationMemo(
   event: SituationEvent,
   acq: Record<string, unknown> | null | undefined,
+  operational?: SituationOperational | null,
 ): string {
   const val = (k: string) => {
     const v = acq?.[k];
@@ -62,7 +71,13 @@ export function situationMemo(
     `Acquisition: ${id}, ${val("title")}.`,
     `Contracting officer: ${val("co_name")}.`,
     `Center: ${val("center_code")}.`,
-    `Phase at the time of this memorandum: ${val("current_phase")}.`,
+    operational
+      ? `Phase at the time of this memorandum: ${operational.phase} · ${operational.readiness} · ${operational.countdownLine}${
+          operational.holdReason
+            ? ` · on hold because ${operational.holdReason}${operational.holdOwner ? ` (owner: ${operational.holdOwner})` : ""}`
+            : ""
+        }.`
+      : "Phase and clock status at the time of this memorandum: Not recorded.",
     `Contractor or vendor on the record: ${val("vendor_legal_name")}.`,
     "",
     event.opening,
