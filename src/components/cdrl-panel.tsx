@@ -192,6 +192,7 @@ export function CdrlPanel({
           {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
         </p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Data requirements recorded on this file</caption>
           <thead>
@@ -279,6 +280,7 @@ export function CdrlPanel({
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       {canWrite && adding ? (

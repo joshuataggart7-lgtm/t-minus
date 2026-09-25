@@ -38,6 +38,7 @@ export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) 
       ) : rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{READ_RECEIPTS_EMPTY}</p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-2 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Documents opened on this file</caption>
           <thead>
@@ -62,6 +63,7 @@ export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) 
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </section>
   );

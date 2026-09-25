@@ -91,6 +91,7 @@ export function ExclusionsSweepPanel() {
           {result.results.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No open file has a vendor of record.</p>
           ) : (
+            <div className="overflow-x-auto">
             <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
               <caption className="sr-only">Vendor exclusion results from the last sweep</caption>
               <thead>
@@ -117,6 +118,7 @@ export function ExclusionsSweepPanel() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       ) : null}

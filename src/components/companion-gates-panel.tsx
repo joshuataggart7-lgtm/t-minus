@@ -33,6 +33,7 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
         Companion Guide citations are process guidance, not binding NFS.
       </p>
       {open ? (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Companion gates, what triggers each, and what this file shows</caption>
           <thead>
@@ -67,6 +68,7 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
             ))}
           </tbody>
         </table>
+        </div>
       ) : null}
     </section>
   );

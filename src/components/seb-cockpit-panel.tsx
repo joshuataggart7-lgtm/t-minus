@@ -250,6 +250,7 @@ export function SebCockpitPanel({
             None recorded — the fairness ledger stays empty until the office adds one.
           </p>
         ) : (
+          <div className="overflow-x-auto">
           <table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
             <thead>
@@ -357,6 +358,7 @@ export function SebCockpitPanel({
                 : null}
             </tbody>
           </table>
+          </div>
         )}
         {canWrite && adding ? (
           <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-2">

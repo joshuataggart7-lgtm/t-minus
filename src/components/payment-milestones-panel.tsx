@@ -240,6 +240,7 @@ export function PaymentMilestonesPanel({
         </p>
 
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Payment milestones recorded on this file</caption>
           <thead>
@@ -337,6 +338,7 @@ export function PaymentMilestonesPanel({
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       {planNotes.length > 0 ? (

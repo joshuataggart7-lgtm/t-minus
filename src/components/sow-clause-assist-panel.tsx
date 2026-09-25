@@ -71,6 +71,7 @@ export function SowClauseAssistPanel({
       {suggestions.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{SOW_ASSIST_EMPTY}</p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Clauses suggested from the requirement on the record</caption>
           <thead>
@@ -110,6 +111,7 @@ export function SowClauseAssistPanel({
             ))}
           </tbody>
         </table>
+        </div>
       )}
       <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
         Confirming records the decision on the file. Clauses are applied in the clause list above.

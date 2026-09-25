@@ -256,6 +256,7 @@ export function MarketResearchEngine({
               </p>
             ) : null}
             {log.length ? (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
                 <thead>
@@ -282,6 +283,7 @@ export function MarketResearchEngine({
                   ))}
                 </tbody>
               </table>
+              </div>
             ) : latestIncompleteRanAt ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 The latest research run did not save a source log. Run the research again
@@ -325,6 +327,7 @@ export function MarketResearchEngine({
                     <li key={f.target} className="border border-border p-3 text-[13px] leading-[18px]">
                       <p className="text-[15px] leading-[22px]">{f.label}</p>
                       {f.target === "nf1787a.respondents" ? (
+                        <div className="overflow-x-auto">
                         <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                           <caption className="sr-only">Respondents identified by the search</caption>
                           <thead>
@@ -346,6 +349,7 @@ export function MarketResearchEngine({
                             ))}
                           </tbody>
                         </table>
+                        </div>
                       ) : (
                         <p className="mt-1 whitespace-pre-wrap">{f.value}</p>
                       )}

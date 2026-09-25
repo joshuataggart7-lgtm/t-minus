@@ -195,6 +195,7 @@ export function ClinSchedulePanel({
           each line, and the estimate on this file can fill the schedule when it is empty.
         </p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Line items on the schedule for this file</caption>
           <thead>
@@ -342,6 +343,7 @@ export function ClinSchedulePanel({
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       {canWrite && adding ? (
