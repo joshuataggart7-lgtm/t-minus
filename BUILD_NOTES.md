@@ -1,3 +1,11 @@
+# IA Slice 3 — Document/form shells — September 25, 2026
+
+- Added `src/components/mission-control/work-surface-shell.tsx`, the optional `MissionNavigator.ariaLabel`, and additive `mc-shell-*` styles for compact light-surface status strips plus desktop/mobile section navigation.
+- Document save state derives only from the existing checkout, role, save mutation, and latest-version values. Its completion note and section badges derive from the existing `validate(def, values)` errors and visible fields.
+- Form save state derives only from the existing save mutation and latest version. Form section badges count the exact existing non-boolean empty-value `Not recorded` condition, preserving the SF-30 AmendmentNo exception.
+- Neither page has dirty tracking, so the shell adds no Unsaved state. No new effects, queries, or writes were added.
+- Untouched paths: document `awardDate`, `exportHeaderLine`, `documentValues`, rendered/export context, all Word/PDF/memo calls, prefill/edit values, validation rules, generation, signatures, refusals, method gates, citations, AI provenance, save mutation bodies/callback semantics, and checkout acquire/release/take-over/heartbeat; form `headerLine`, countdown inputs, PDF header/footer use, export handlers, pinned revision, respondents, SF 1449 CLIN reconciliation, lineage, save bodies/callbacks, fixtures, and public form masters.
+
 # IA Slice 2 — Work Queue triage — September 25, 2026
 
 - Added `src/components/mission-control/work-triage.tsx` and additive `mc-triage-*` styles for reusable READY/BLOCKED signals and neutral priority bands on light Work Surfaces.
