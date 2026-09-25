@@ -97,7 +97,7 @@ function AuditLogPage() {
         lead="Who did what, when, and why. Kept for the contract file under FAR 4.801. Reading only."
       />
 
-      <div className="mb-8 flex flex-wrap gap-6">
+      <div className="mc-work-toolbar mb-8 flex min-w-0 flex-wrap gap-6" aria-label="Audit log filters">
         <div>
           <label htmlFor="filter-actor" className="block text-[13px] text-muted-foreground">
             Actor
@@ -172,7 +172,7 @@ function AuditLogPage() {
               </Link>
             )}
           </h2>
-          <div className="w-full overflow-x-auto">
+          <div className="mc-work-table-wrap">
           <table className="w-full min-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -192,13 +192,13 @@ function AuditLogPage() {
                   <td className="px-3 py-2" data-numeric>
                     {new Date(r.logged_at).toLocaleString()}
                   </td>
-                  <td className="px-3 py-2">{r.actor ?? "—"}</td>
-                  <td className="px-3 py-2">{r.action ?? "—"}</td>
-                  <td className="px-3 py-2">{r.phase ?? "—"}</td>
-                  <td className="px-3 py-2">{r.field ?? "—"}</td>
-                  <td className="px-3 py-2">{r.old_value ?? "—"}</td>
-                  <td className="px-3 py-2">{r.new_value ?? "—"}</td>
-                  <td className="px-3 py-2">{r.reason ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.actor ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.action ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.phase ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.field ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.old_value ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.new_value ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.reason ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
