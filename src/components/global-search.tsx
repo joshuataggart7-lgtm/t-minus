@@ -1,4 +1,7 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { usePresenter } from "@/lib/presenter";
+import { matchCommands, type CommandContext, type ShellCommand } from "@/components/commands/command-registry";
+import "@/components/commands/providers";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -80,7 +83,9 @@ function haystack(r: Row) {
 }
 
 export function GlobalSearch() {
-  const { authState } = useRole();
+  const { authState, role, roles } = useRole();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const presenter = usePresenter();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -161,6 +166,26 @@ export function GlobalSearch() {
     return hits;
   }, [q, rows.data, audit.data]);
 
+  const commandCtx: CommandContext = {
+    roles,
+    role,
+    pathname,
+    openAcquisitionId: /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null,
+    presenter,
+    navigate: (to: string) => void navigate({ to }),
+  };
+  const commands = q.trim() ? matchCommands(commandCtx, q) : [];
+  const commandGroups = commands.reduce<Record<string, ShellCommand[]>>((acc, c) => {
+    (acc[c.group] ??= []).push(c);
+    return acc;
+  }, {});
+
+  function runCommand(c: ShellCommand) {
+    setOpen(false);
+    setQ("");
+    c.run(commandCtx);
+  }
+
   function openFile(id: string) {
     setOpen(false);
     setQ("");
@@ -195,7 +220,7 @@ export function GlobalSearch() {
               <label htmlFor="global-search-input" className="mb-2 block text-[13px] text-muted-foreground">
                 Prototype search. It reads titles, acquisition IDs, PR numbers, requesters, vendors,
                 UEI and CAGE, contract numbers, missions, clause numbers on the file, and a capped
-                slice of recent audit text.
+                slice of recent audit text, and the names of pages you can open.
               </label>
               <input
                 id="global-search-input"
