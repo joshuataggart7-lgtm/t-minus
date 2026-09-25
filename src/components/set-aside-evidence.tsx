@@ -87,6 +87,7 @@ export function SetAsideEvidencePanel({
 
           <div>
             <h5 className="text-[15px] font-medium">Registered entities under this NAICS</h5>
+            <div className="overflow-x-auto">
             <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
               <caption className="sr-only">Entities returned by SAM.gov with their small business flag</caption>
               <thead>
@@ -110,11 +111,13 @@ export function SetAsideEvidencePanel({
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           <div>
             <h5 className="text-[15px] font-medium">Subaward history under this NAICS</h5>
             {view.subawards.length ? (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Recent subawards reported under this NAICS code</caption>
                 <thead>
@@ -138,6 +141,7 @@ export function SetAsideEvidencePanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             ) : (
               <p className="mt-2 text-[13px] text-muted-foreground">No subaward records were returned.</p>
             )}

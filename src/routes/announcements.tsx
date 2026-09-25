@@ -130,6 +130,7 @@ function AnnouncementsPage() {
         ) : null}
         {hasRole("hq") && a.requires_acknowledgment ? (
           <div className="mt-4 max-w-[520px] border border-border">
+            <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <caption className="border-b border-border px-3 py-2 text-left text-muted-foreground">
                 Acknowledgments by Center: {acks.filter((k) => k.announcement_id === a.announcement_id).length}{" "}
@@ -158,6 +159,7 @@ function AnnouncementsPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         ) : null}
       </article>

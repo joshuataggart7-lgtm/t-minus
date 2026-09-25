@@ -316,6 +316,7 @@ export function SolicitationKlmPanel({
           </div>
         </div>
 
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Representations and certifications recorded on this file</caption>
           <thead>
@@ -375,6 +376,7 @@ export function SolicitationKlmPanel({
             ))}
           </tbody>
         </table>
+        </div>
         {!kAuthored(kQ.data ?? null) ? (
           <p className="mt-2 text-[13px] text-muted-foreground">{K_EMPTY_NOTE}</p>
         ) : null}
@@ -548,6 +550,7 @@ export function SolicitationKlmPanel({
                     : "No factors are recorded yet. The contracting office adds each factor and its relative importance when the evaluation approach is settled."}
                 </p>
               ) : (
+                <div className="overflow-x-auto">
                 <table className="mt-2 w-full text-[13px] leading-[18px]">
                   <caption className="sr-only">Evaluation factors for award on this file</caption>
                   <thead>
@@ -649,6 +652,7 @@ export function SolicitationKlmPanel({
                     )}
                   </tbody>
                 </table>
+                </div>
               )}
               {canWrite && adding ? (
                 <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-3">

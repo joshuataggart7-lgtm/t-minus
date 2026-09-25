@@ -105,7 +105,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           </button>
           <Link to="/" className="flex min-w-0 items-baseline gap-2 border-l-2 border-chrome-structure pl-3" onClick={onWordmarkClick}>
             <span className="shrink-0 text-[18px] leading-6 font-semibold text-chrome-foreground">T-Minus</span>
-            <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block">Mission Acquisition Acceleration</span>
+            <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
           </Link>
         </div>
         <div className="app-chrome-search col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
@@ -136,6 +136,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               <select
                 id="role-toggle"
                 value={role}
+                title={SEEDED_USERS.find((u) => u.role === role)?.title}
                  onChange={(e) => setRole(e.target.value as PersonaRole)}
                 className="min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
               >

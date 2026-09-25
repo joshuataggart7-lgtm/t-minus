@@ -132,6 +132,7 @@ export function ClausePicker({
           </p>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{RFO_RESERVED_212_LINE}</p>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
+          <div className="overflow-x-auto">
           <table className="mt-3 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Recommended clauses, why each is included, and whether it is selected</caption>
             <thead>
@@ -190,6 +191,7 @@ export function ClausePicker({
               })}
             </tbody>
           </table>
+          </div>
 
           {removed.length > 0 ? (
             <p className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">

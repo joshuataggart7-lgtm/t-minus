@@ -196,6 +196,7 @@ export function AwardHandoffPanel({
                 No line items on the schedule for this file.
               </p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Line items on this file</caption>
                 <thead>
@@ -224,6 +225,7 @@ export function AwardHandoffPanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </section>
 
@@ -317,6 +319,7 @@ export function AwardHandoffPanel({
                 No clauses selected for this file yet.
               </p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Clauses on this file with their fill-ins</caption>
                 <thead>
@@ -375,6 +378,7 @@ export function AwardHandoffPanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </section>
 
@@ -383,6 +387,7 @@ export function AwardHandoffPanel({
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Attachments on this file</caption>
                 <thead>
@@ -405,6 +410,7 @@ export function AwardHandoffPanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </section>
 
@@ -419,6 +425,7 @@ export function AwardHandoffPanel({
                 {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
               </p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Data requirements on this file</caption>
                 <thead>
@@ -444,6 +451,7 @@ export function AwardHandoffPanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
             {cdrlPackNotes(cdrl).map((n) => (
               <p key={n} className="mt-1 text-[13px] text-muted-foreground">
@@ -462,6 +470,7 @@ export function AwardHandoffPanel({
                 {PAYMENT_MILESTONES_EMPTY} {PAYMENT_MILESTONES_EMPTY_NOTE}
               </p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Payment milestones on this file</caption>
                 <thead>
@@ -496,6 +505,7 @@ export function AwardHandoffPanel({
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
             {paymentPlanNotes(scaffold.paymentMilestones).map((n) => (
               <p key={n} className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">

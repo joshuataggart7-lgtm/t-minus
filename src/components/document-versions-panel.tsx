@@ -34,6 +34,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
       {rows.length === 0 ? (
         <p className="mt-2 text-[15px] leading-[22px] text-muted-foreground">{NO_VERSIONS_NOTE}</p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
           <caption className="sr-only">Saved document versions on this file</caption>
           <thead>
@@ -71,6 +72,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {lastAudit ? (

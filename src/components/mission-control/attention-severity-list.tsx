@@ -30,12 +30,12 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
                 <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }} className="mc-anomaly-row">
                   <span className={`mc-severity mc-severity-${state.toLowerCase()}`}>{view.mode === "overdue" ? "OVERDUE" : state}</span>
                   <span className="min-w-0">
-                    <span className="block truncate text-[14px] font-medium text-mc-foreground">{mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}</span>
-                    <span className="block truncate text-[12px] text-mc-muted">{condition}</span>
+                    <span className="block truncate text-[14px] font-medium text-mc-foreground" title={mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}>{mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}</span>
+                    <span className="block truncate text-[12px] text-mc-muted" title={condition}>{condition}</span>
                   </span>
                   <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Not recorded" : `${daysInCondition}d`}</strong></span>
                   <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhase ?? "Not started"}</strong></span>
-                  <span className="mc-anomaly-data"><small>Next gate</small><strong>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}</strong></span>
+                  <span className="mc-anomaly-data"><small>Next gate</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}</strong></span>
                 </Link>
               </li>
             );

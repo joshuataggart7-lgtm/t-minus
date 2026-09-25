@@ -55,6 +55,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
           ) : (
             <section>
               <h5 className="text-[15px] font-medium">Sections A through M</h5>
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Uniform Contract Format sections and the clauses in each</caption>
                 <thead>
@@ -87,6 +88,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                   ))}
                 </tbody>
               </table>
+              </div>
             </section>
           )}
 
@@ -98,6 +100,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 schedule above; none are invented here.
               </p>
             ) : (
+            <div className="overflow-x-auto">
             <table className="mt-2 w-full text-[13px] leading-[18px]">
               <caption className="sr-only">Line items from the schedule on this file</caption>
               <thead>
@@ -124,6 +127,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 ))}
               </tbody>
             </table>
+            </div>
             )}
           </section>
 
@@ -134,6 +138,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
                 <thead>
@@ -153,6 +158,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
             <h5 className="mt-4 text-[15px] font-medium">{CDRL_LABEL}</h5>
             <p className="mt-1 text-[13px] text-muted-foreground">
@@ -220,6 +226,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 No clauses are selected on this file yet.
               </p>
             ) : (
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Clauses, the section they sit in, why each applies, and its fill-in</caption>
                 <thead>
@@ -245,6 +252,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </section>
 

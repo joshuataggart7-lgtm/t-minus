@@ -136,6 +136,7 @@ export function CentersTab({
         Center's aging threshold.
       </p>
 
+      <div className="overflow-x-auto">
       <table className="mt-6 w-full border border-border bg-background text-[13px] leading-[18px]">
         <caption className="sr-only">Center scoreboard</caption>
         <thead>
@@ -185,6 +186,7 @@ export function CentersTab({
           })}
         </tbody>
       </table>
+      </div>
 
       <h3 className="mt-10 text-[18px] leading-6 font-medium">Lead time by phase by Center</h3>
       {centerCodes.every((c) => (leadRows.get(c)?.size ?? 0) === 0) ? (
@@ -197,6 +199,7 @@ export function CentersTab({
               <h4 className="text-[15px] leading-[22px] font-medium">
                 {code} — {nameOf(code)}
               </h4>
+              <div className="overflow-x-auto">
               <table className="mt-2 w-full border border-border bg-background text-[13px] leading-[18px]">
                 <caption className="sr-only">Lead time by phase at {nameOf(code)}</caption>
                 <thead>
@@ -225,6 +228,7 @@ export function CentersTab({
                   })}
                 </tbody>
               </table>
+              </div>
             </div>
           ))
       )}

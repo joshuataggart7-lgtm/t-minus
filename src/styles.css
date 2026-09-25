@@ -1952,6 +1952,8 @@
 
 /* Templates print on white with black text; the shell does not print. */
 @media print {
+  .overflow-x-auto, .mc-work-table-wrap, .mc-exception-table-wrap { overflow: visible !important; }
+
   body {
     background: #ffffff;
     color: #000000;
