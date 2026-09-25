@@ -1589,6 +1589,7 @@ function FilePage() {
           fpds: {
             acq: acq as unknown as Record<string, unknown>,
             awardDate: lifecycle?.awardDate ?? null,
+            isLaunched: readiness === "LAUNCHED",
             centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
           },
         },
@@ -2656,6 +2657,20 @@ function FilePage() {
         acq={acq as Record<string, unknown> | null}
         actor={actorName}
         onBanner={setBanner}
+        operational={
+          lifecycle && readiness
+            ? {
+                phase: lifecycle.currentPhase ?? "Not recorded",
+                readiness,
+                countdownLine: (() => {
+                  const view = overviewCountdownView(lifecycle);
+                  return view.days === null || !view.prefix ? view.caption : `${view.prefix}${view.days}`;
+                })(),
+                holdReason: lifecycle.hold?.reason ?? null,
+                holdOwner: lifecycle.hold?.owner ?? null,
+              }
+            : null
+        }
       />
 
       <CloseoutPanel
@@ -3523,6 +3538,7 @@ function FilePage() {
                       input={{
                         acq: acq as unknown as Record<string, unknown>,
                         awardDate: lifecycle?.awardDate ?? null,
+                        isLaunched: readiness === "LAUNCHED",
                         centerName: (acq["center_name"] as string | null) ?? acq.center_code ?? null,
                       }}
                       onExport={() => fpdsExport.mutate()}

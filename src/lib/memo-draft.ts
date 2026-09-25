@@ -91,6 +91,14 @@ export type MemoDraftCtx = {
   sizeStandard?: string | null;
   /** Valid target award date for generated document wording. */
   awardDate?: string | null;
+  /** Display-safe lifecycle wording derived with recorded-Launched audit evidence. */
+  operational?: {
+    phase: string;
+    readiness: "GO" | "WATCH" | "HOLD" | "LAUNCHED";
+    countdownLine: string;
+    holdReason: string | null;
+    holdOwner: string | null;
+  };
   /** Contracting officer's user record. */
   co?: { name: string; email: string | null; phone: string | null } | null;
   /** Values already filled on the form, so a draft can follow a chosen option. */
@@ -978,10 +986,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
  */
 function situationScaffold(ctx: MemoDraftCtx): string {
   const a = ctx.acq;
-  const phase = str(a["current_phase"]) || "the current phase";
-  const state = str(a["clock_state"]);
-  const holdReason = str(a["hold_reason"]);
-  const holdOwner = str(a["hold_owner"]);
+  const operational = ctx.operational;
   const target = str(a["target_award_date"]) || str(ctx.awardDate);
   const mission = ctx.missionName;
   const lines: string[] = [];
@@ -989,11 +994,17 @@ function situationScaffold(ctx: MemoDraftCtx): string {
     `1. Event. ${gap("state what happened, when it was learned, and who reported it")}`,
   );
   lines.push(
-    `2. Status of the file when the event occurred. The file stood in the ${phase} phase${
-      state ? `, clock ${state}` : ""
-    }${
-      holdReason ? `, on hold because ${holdReason.charAt(0).toLowerCase()}${holdReason.slice(1)}${holdOwner ? ` (owner: ${holdOwner})` : ""}` : ""
-    }.${mission ? ` The acquisition supports ${mission}.` : ""}`,
+    `2. Status of the file when the event occurred.${
+      operational
+        ? ` The file stood in the ${operational.phase} phase, ${operational.readiness} (${operational.countdownLine})${
+            operational.holdReason
+              ? `, on hold because ${operational.holdReason.charAt(0).toLowerCase()}${operational.holdReason.slice(1)}${
+                  operational.holdOwner ? ` (owner: ${operational.holdOwner})` : ""
+                }`
+              : ""
+          }.`
+        : ""
+    }${mission ? ` The acquisition supports ${mission}.` : ""}`,
   );
   lines.push(
     `3. Dates on the record. ${
@@ -1008,17 +1019,17 @@ function situationScaffold(ctx: MemoDraftCtx): string {
 function memorandumForRecord(ctx: MemoDraftCtx): Values {
   const purpose = mfrPurposeLabel(ctx.values);
   const pr = str(ctx.acq["pr_number"]);
-  const phase = str(ctx.acq["current_phase"]) || "the current phase";
+  const phaseClause = ctx.operational ? `, which stood in the ${ctx.operational.phase} phase` : "";
   const title = str(ctx.acq["title"]);
   const today = ctx.today ?? "";
   const opening =
     purpose === "Chronology of the acquisition to date"
       ? `This memorandum records the chronology of acquisition ${ctx.acquisitionId}${
           title ? `, ${title}` : ""
-        }${pr ? `, requisition ${pr}` : ""}, which stood in the ${phase} phase on ${today}.`
+        }${pr ? `, requisition ${pr}` : ""}${phaseClause} on ${today}.`
       : `This memorandum is placed in the file for acquisition ${ctx.acquisitionId}${
           title ? `, ${title}` : ""
-        }${pr ? `, requisition ${pr}` : ""}, which stood in the ${phase} phase on ${today}.${
+        }${pr ? `, requisition ${pr}` : ""}${phaseClause} on ${today}.${
           purpose ? ` Its purpose is ${purpose.charAt(0).toLowerCase()}${purpose.slice(1)}.` : ""
         }`;
   const out: Values = { opening, file_tab: "001" };

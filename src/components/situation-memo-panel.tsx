@@ -4,22 +4,24 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
-import { SITUATION_EMPTY, SITUATION_EVENTS, situationMemo } from "@/lib/situation-memo";
+import { SITUATION_EMPTY, SITUATION_EVENTS, situationMemo, type SituationOperational } from "@/lib/situation-memo";
 
 export function SituationMemoPanel({
   acq,
   actor,
   onBanner,
+  operational,
 }: {
   acq: Record<string, unknown> | null | undefined;
   actor: string;
   onBanner: (s: string) => void;
+  operational?: SituationOperational | null;
 }) {
   const [key, setKey] = useState("");
   if (!acq) return null;
   const acquisitionId = String(acq["acquisition_id"] ?? "");
   const event = SITUATION_EVENTS.find((e) => e.key === key) ?? null;
-  const text = event ? situationMemo(event, acq) : "";
+  const text = event ? situationMemo(event, acq, operational) : "";
 
   const copy = async () => {
     if (!event) return;

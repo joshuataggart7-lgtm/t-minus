@@ -1040,7 +1040,19 @@ function DocumentPage() {
       attachedKeys: keysFrom(q.data.attachments ?? [], acquisitionId),
       savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),
     });
-    return { metrics, view: overviewCountdownView(metrics) };
+    const view = overviewCountdownView(metrics);
+    const readiness = explainWorkReadiness(metrics).state;
+    return {
+      metrics,
+      view,
+      operational: {
+        phase: metrics.currentPhase ?? "Not recorded",
+        readiness,
+        countdownLine: view.days === null || !view.prefix ? view.caption : `${view.prefix}${view.days}`,
+        holdReason: metrics.hold?.reason ?? null,
+        holdOwner: metrics.hold?.owner ?? null,
+      },
+    };
   }, [q.data, acquisitionId]);
   const chromeCountdown = chromeState?.view ?? null;
   const chromeReadiness = chromeState ? explainWorkReadiness(chromeState.metrics) : null;
@@ -1104,6 +1116,7 @@ function DocumentPage() {
       notice: noticeFacts,
       sizeStandard,
       awardDate,
+      operational: chromeState?.operational,
       co: coRecord,
       today: todayISO(),
       audit: (q.data?.auditRows ?? []).map((a) => ({
@@ -1130,7 +1143,7 @@ function DocumentPage() {
         },
       ],
     }),
-    [acquisitionId, q.data, researchEvidence, comparablesForDraft, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, coRecord, filePhases, user, hasRole],
+    [acquisitionId, q.data, researchEvidence, comparablesForDraft, researchLog, packetClauses, noticeFacts, sizeStandard, awardDate, chromeState, coRecord, filePhases, user, hasRole],
   );
 
   // The quoters on the evaluation record, so the unsuccessful letter names the

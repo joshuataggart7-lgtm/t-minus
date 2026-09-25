@@ -73,6 +73,8 @@ export type FpdsInput = {
   acq: Record<string, unknown>;
   /** The date the file was marked Launched, when the lifecycle recorded one. */
   awardDate?: string | null;
+  /** Derived launch state backed by a recorded Launched audit entry. */
+  isLaunched?: boolean;
   centerName?: string | null;
 };
 
@@ -81,7 +83,7 @@ export function buildFpdsSheet(input: FpdsInput): FpdsSheet {
   const vehicle = vehicleOf(a);
   const profile = acquisitionProfile(a);
   const underVehicle = profile === "order_under_idiq" || profile === "bpa" || profile === "fss_order";
-  const launched = str(a["clock_state"]) === "launched";
+  const launched = input.isLaunched === true;
 
   const sections: FpdsSection[] = [
     {
