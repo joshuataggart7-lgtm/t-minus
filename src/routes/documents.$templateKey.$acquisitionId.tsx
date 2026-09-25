@@ -2841,7 +2841,8 @@ function DocumentPage() {
       ) : null}
 
 
-      <section id="doc-provenance" aria-label="Provenance" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+      <MissionNavSection id="doc-provenance" label="Provenance" collapsible summary="Source and review details">
+      <section aria-label="Provenance" className="max-w-[80ch]">
         <div className="flex flex-wrap items-center gap-2 text-[13px]">
           <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Live</span>
           {isSampleFile ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Sample</span> : null}
@@ -2879,6 +2880,7 @@ function DocumentPage() {
           </details>
         </div>
       </section>
+      </MissionNavSection>
 
       <section id="doc-official-copy" aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
         <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
@@ -3120,7 +3122,8 @@ function DocumentPage() {
         canShare={hasAnyRole(["specialist", "hq"])}
       />
 
-      <section id="doc-versions" className="mb-10 max-w-[80ch]">
+      <MissionNavSection id="doc-versions" label="Versions" collapsible summary={`${q.data?.versions.length ?? 0} saved`}>
+      <section className="max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>
         {q.data?.versions.length ? (
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -3147,11 +3150,12 @@ function DocumentPage() {
           <p className="text-muted-foreground">No versions yet. Save one to start the history.</p>
         )}
       </section>
+      </MissionNavSection>
 
       <MissionNavSection id="doc-regulations" label="Regulations">
         <RegulationSidebar phase={(q.data?.acq?.["current_phase"] as string | null) || phase} />
       </MissionNavSection>
-      <MissionNavSection id="doc-defect" label="Report a defect">
+      <MissionNavSection id="doc-defect" label="Report a defect" collapsible summary="Support details">
         <DefectReport
           templateKey={templateKey}
           templateName={def.name}

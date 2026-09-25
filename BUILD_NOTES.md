@@ -3057,3 +3057,13 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - FLAG Soft Walk-adjacent — `src/routes/documents.$templateKey.index.tsx`: acquisition chooser uses the shared light summary surface; selection data and links are unchanged.
 - FLAG Soft Walk-adjacent — `src/routes/documents.$templateKey.$acquisitionId.tsx`: document header, version metadata, editing sections, signature/memo shells, checkout notice, and action toolbar use shared light Work Surface classes only. Generators, exports, signatures, votes, audits, authorities, method/citation logic, and document writes are unchanged.
 - Reverse: restore the former border/background/radius classes and legacy template status variables. No schema or data reversal is required. No self-GREEN claim.
+
+## IA Slice 4 — Density pass
+
+- `/today`: live state and waiting items remain first, followed by the ranked next actions; regulation-change history is collapsed with its recorded count.
+- `/work-queue`: Board cards now keep identity, readiness, T±, priority, and next action in the scan path; owner, dependency, mission, value, method, and phase remain as quieter supporting lines. List stays the Fix R1 eight-column structure.
+- `/files`: rows now lead with identity, readiness, T±, owner, and next action; mission, Center, value, method, intake estimate, and phase remain folded into secondary lines. The table no longer requires a minimum width.
+- `/files/$acquisitionId`: facts of record, thresholds, reference links, contract-file index, and audit trail are collapsed by default with counts where recorded. Navigator targets and print expansion remain intact.
+- `/documents/$templateKey/$acquisitionId`: provenance, saved-version history, and defect support are collapsed by default. All document fields, comments, reviews, regulations, save/export actions, and official-file controls remain present.
+- `/forms/$formKey/$acquisitionId`: the existing action bar remains available and About this export stays collapsed by default; all form fields, empty-block explanations, preview content, and export controls remain present.
+- Nothing was removed. This is presentation and ordering only; state derivation, workflows, writes, generators, exports, signatures, citations, fixtures, and Soft Walk behavior are unchanged.

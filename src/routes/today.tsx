@@ -282,6 +282,36 @@ function TodayPage() {
             )}
           </Section>
 
+          <Section
+            title="Three things to do next"
+            lead="Ranked by the same urgency the Overview uses. Planned days come from the phase plan; the range is what prior files of the same profile actually took."
+          >
+            {topThree.length === 0 ? (
+              <EmptyState sentence="No open file needs a next step." />
+            ) : (
+              <ol className="space-y-3">
+                {topThree.map((c, i) => {
+                  const readiness = explainWorkReadiness(c.m).state;
+                  return (
+                  <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>
+                    <MissionReadinessChip state={readiness} className="float-right ml-3" />
+                    <span className="text-muted-foreground" data-numeric>
+                      {i + 1}.
+                    </span>{" "}
+                    {c.m.nextAction} — <FileLink card={c} />
+                    <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
+                      <LaunchCountdownCompact view={countdownView(c.m)} className="mr-2" />
+                      {desk
+                        ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
+                        : ""}
+                    </span>
+                  </li>
+                  );
+                })}
+              </ol>
+            )}
+          </Section>
+
           <Section title="Reviews due" lead="Open Go/No-go polls on your files.">
             {reviewsDue.length === 0 ? (
               <EmptyState sentence="No poll is open on your files." />
@@ -314,10 +344,14 @@ function TodayPage() {
             )}
           </Section>
 
-          <Section
-            title="Regulation changes touching my files"
-            lead="Clause change tasks recorded against your files. Nothing here is inferred."
-          >
+          <details className="mc-nav-section-collapsible" data-mission-nav-collapsible>
+            <summary>
+              <span>Regulation changes touching my files</span>
+              <span className="mc-nav-section-summary">{regChanges.length} recorded</span>
+              <span className="mc-nav-section-toggle" aria-hidden="true" />
+            </summary>
+            <div className="mc-nav-section-content">
+          <Section title="Regulation changes" lead="Clause change tasks recorded against your files. Nothing here is inferred.">
             {regChanges.length === 0 ? (
               <EmptyState
                 sentence="No clause change task is recorded against your files."
@@ -348,36 +382,8 @@ function TodayPage() {
               </ul>
             )}
           </Section>
-
-          <Section
-            title="Three things to do next"
-            lead="Ranked by the same urgency the Overview uses. Planned days come from the phase plan; the range is what prior files of the same profile actually took."
-          >
-            {topThree.length === 0 ? (
-              <EmptyState sentence="No open file needs a next step." />
-            ) : (
-              <ol className="space-y-3">
-                {topThree.map((c, i) => {
-                  const readiness = explainWorkReadiness(c.m).state;
-                  return (
-                  <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>
-                    <MissionReadinessChip state={readiness} className="float-right ml-3" />
-                    <span className="text-muted-foreground" data-numeric>
-                      {i + 1}.
-                    </span>{" "}
-                    {c.m.nextAction} — <FileLink card={c} />
-                    <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-                      <LaunchCountdownCompact view={countdownView(c.m)} className="mr-2" />
-                      {desk
-                        ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
-                        : ""}
-                    </span>
-                  </li>
-                  );
-                })}
-              </ol>
-            )}
-          </Section>
+            </div>
+          </details>
         </div>
       )}
       <PilotKnownGapsLine className="mt-10" />

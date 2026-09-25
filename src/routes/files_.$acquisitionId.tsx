@@ -4258,7 +4258,7 @@ function FilePage() {
       </section>
       </MissionNavSection>
 
-      <MissionNavSection id="thresholds" label="Thresholds">
+      <MissionNavSection id="thresholds" label="Thresholds" collapsible summary={`${q.data?.thresholds?.length ?? 0} entries`}>
       {coldPathSample ? (
       <details aria-label="Thresholds" className="mb-12 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
@@ -4526,7 +4526,7 @@ function FilePage() {
         </DialogContent>
       </Dialog>
 
-      <MissionNavSection id="facts-of-record" label="Facts of record">
+      <MissionNavSection id="facts-of-record" label="Facts of record" collapsible summary="13 recorded fields">
       <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>
         <dl className="grid max-w-[80ch] gap-x-8 md:grid-cols-2">
@@ -4564,8 +4564,7 @@ function FilePage() {
       </section>
       </MissionNavSection>
 
-      <MissionNavSection id="audit-trail" label="Audit trail">
-      {coldPathSample ? (
+      <MissionNavSection id="audit-trail" label="Audit trail" collapsible summary={`${q.data?.log.length ?? 0} entries`}>
       <details aria-label="Audit trail" className="mb-10 min-w-0 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
           Audit trail <span className="ml-2 text-[13px] font-normal text-muted-foreground">{q.data?.log.length ?? 0} entries</span>
@@ -4603,12 +4602,6 @@ function FilePage() {
         )}
         </div>
       </details>
-      ) : (
-      <section className="mb-10 min-w-0">
-        <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
-        {q.data?.log.length ? <div className="w-full min-w-0 overflow-x-auto"><table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]"><thead><tr className="border-b border-border text-left"><th scope="col" className="p-2">Logged</th><th scope="col" className="p-2">Actor</th><th scope="col" className="p-2">Action</th><th scope="col" className="p-2">Field</th><th scope="col" className="p-2">New value</th><th scope="col" className="p-2">Reason</th></tr></thead><tbody>{q.data.log.map((row) => <tr key={row.log_id} className="border-b border-border align-top"><td className="p-2">{new Date(row.logged_at).toLocaleString()}</td><td className="p-2">{row.actor}</td><td className="p-2">{row.action}</td><td className="p-2">{row.field}</td><td className="p-2">{row.new_value}</td><td className="p-2">{row.reason}</td></tr>)}</tbody></table></div> : <p className="text-muted-foreground">No entries yet for this file.</p>}
-      </section>
-      )}
       </MissionNavSection>
 
       </div>
