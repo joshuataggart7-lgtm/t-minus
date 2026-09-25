@@ -125,7 +125,7 @@ function ReportingPage() {
         {preview.isLoading ? <LoadingNote what="the view" /> : null}
         {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
         {preview.data && preview.data.length > 0 ? (
-          <MissionNavSection id="report-preview" label="Preview rows" collapsible summary={`${preview.data.length} rows`}>
+          <MissionNavSection id="report-preview" label="Preview rows" collapsible defaultOpen summary={`${preview.data.length} rows`}>
           <div className="mc-work-table-wrap">
             <table className="w-full border-collapse text-[13px] leading-[18px]">
               <thead>

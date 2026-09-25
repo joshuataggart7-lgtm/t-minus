@@ -2,7 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { AppShell, PageHeader } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { FAIR_OPPORTUNITY_EXCEPTIONS, VEHICLE_DEFAULTS, type VehicleProfile } from "@/lib/vehicles";
@@ -640,12 +640,9 @@ function IntakePage() {
       <section className="mc-work-form-section mb-10">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-[18px] leading-6 font-medium">T-Minus record</h2>
-          <span
-            className="border px-3 py-1 text-[13px] font-medium [border-radius:var(--mc-radius-control)]"
-            style={{ borderColor: packageComplete ? "var(--ontrack)" : "var(--attention)" }}
-          >
+          <StatusMark color={packageComplete ? "var(--ontrack)" : "var(--attention)"} className="text-[13px] font-medium">
             Package {packageComplete ? "complete" : "incomplete"}
-          </span>
+          </StatusMark>
         </div>
         <div className="grid gap-x-8 md:grid-cols-2">
           <Field label="Center" htmlFor="center" error={err("center_code")}>
@@ -879,14 +876,12 @@ function IntakePage() {
               {pscChecking ? "Checking" : "Check product or service code"}
             </button>
             {psc ? (
-              <p
-                className={`mt-2 text-[13px] ${
-                  psc.state === "valid" ? "text-muted-foreground" : "text-[#B45309]"
-                }`}
-              >
-                {psc.state === "valid" && psc.officialName
-                  ? `${psc.code} — ${psc.officialName}`
-                  : psc.message}
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                {psc.state === "valid" && psc.officialName ? (
+                  `${psc.code} — ${psc.officialName}`
+                ) : (
+                  <StatusMark color="var(--attention)">{psc.message}</StatusMark>
+                )}
                 <span className="block text-muted-foreground">{psc.sourceLabel}</span>
               </p>
             ) : null}
@@ -1403,7 +1398,7 @@ function IntakePage() {
                   </>
                 ) : (
                   <>
-                    <span className="text-[13px]" style={{ color: "var(--atrisk)" }}>Missing</span>
+                    <StatusMark color="var(--atrisk)" className="text-[13px]">Missing</StatusMark>
                     <label className="cursor-pointer text-[13px] text-primary">
                       Attach
                       <input
