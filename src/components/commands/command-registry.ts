@@ -38,16 +38,21 @@ export function listCommandProviders(): readonly CommandProvider[] {
   return providers.slice();
 }
 
-export function matchCommands(ctx: CommandContext, query: string, limit = 8): ShellCommand[] {
+export function matchCommands(
+  ctx: CommandContext,
+  query: string,
+  options: { providers?: readonly CommandProvider[]; limit?: number } = {},
+): ShellCommand[] {
   const needle = query.trim().toLowerCase();
-  if (!needle) return [];
+  const source = options.providers ?? providers;
+  const limit = options.limit ?? 8;
   const out: ShellCommand[] = [];
-  for (const p of providers) {
+  for (const p of source) {
     if (!p.when(ctx)) continue;
     for (const c of p.commands(ctx)) {
       if (!c.when(ctx)) continue;
       const text = [c.label, ...(c.keywords ?? [])].join(" ").toLowerCase();
-      if (!text.includes(needle)) continue;
+      if (needle && !text.includes(needle)) continue;
       out.push(c);
       if (out.length >= limit) return out;
     }
