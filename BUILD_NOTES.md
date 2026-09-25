@@ -5,6 +5,7 @@
 - Priority bands reuse the Executive Overview's recorded-priority tier helper and cutoffs: priority 1 → P1, 2–3 → P2–3, 4+ → P4+, missing or invalid → Priority not recorded. Board cards sort stably by that band within their unchanged workflow columns; List adds the same priority sort.
 - READY/BLOCKED is presentation-only: HOLD → BLOCKED, GO or WATCH → READY, and LAUNCHED shows neither. Reasons come only from the first existing readiness trigger; no raw `clock_state` drives the signal.
 - The acquisition-file follow-up changes only the invalid narrow-width navigator class from `border-block` to `border-y`. No queries, writes, state rules, countdown logic, Soft Walk behavior, generators, exports, signatures, roles, fixtures, schema, or Executive Overview code changed.
+- CSS-only corrective: `mc-triage-signal-label` READY text now uses `--foreground` (GO stays the border) for 4.5:1 contrast; blocked label text uses `--chrome` (dark on HOLD fill) instead of the undefined `--mc-mission-surface`.
 
 # IA Slice 1 — Mission Navigator — September 25, 2026
 
