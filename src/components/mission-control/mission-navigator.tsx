@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -33,11 +33,35 @@ export function MissionNavigator({
 }) {
   const [availableIds, setAvailableIds] = useState<string[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
+  const frameRef = useRef<number | null>(null);
+
+  const recomputeCurrent = useCallback(() => {
+    const targets = availableIds
+      .map((id) => document.getElementById(id))
+      .filter((element): element is HTMLElement => Boolean(element));
+    if (!targets.length) return;
+    const threshold = 80;
+    const current = targets.reduce<HTMLElement | null>(
+      (last, target) => target.getBoundingClientRect().top <= threshold ? target : last,
+      null,
+    ) ?? targets[0];
+    setCurrentId((value) => value === current.id ? value : current.id);
+  }, [availableIds]);
+
+  const scheduleRecompute = useCallback(() => {
+    if (frameRef.current !== null) return;
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = null;
+      recomputeCurrent();
+    });
+  }, [recomputeCurrent]);
 
   useEffect(() => {
     const refresh = () => {
       const ids = items.map((item) => item.id).filter((id) => document.getElementById(id));
-      setAvailableIds(ids);
+      setAvailableIds((current) =>
+        current.length === ids.length && current.every((id, index) => id === ids[index]) ? current : ids,
+      );
       setCurrentId((current) => current && ids.includes(current) ? current : ids[0] ?? null);
     };
     refresh();
@@ -47,23 +71,17 @@ export function MissionNavigator({
   }, [items]);
 
   useEffect(() => {
-    const targets = availableIds
-      .map((id) => document.getElementById(id))
-      .filter((element): element is HTMLElement => Boolean(element));
-    if (!targets.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        const next = visible[0]?.target;
-        if (next instanceof HTMLElement) setCurrentId(next.id);
-      },
-      { rootMargin: "-72px 0px -70% 0px", threshold: [0, 0.01] },
-    );
-    targets.forEach((target) => observer.observe(target));
-    return () => observer.disconnect();
-  }, [availableIds]);
+    recomputeCurrent();
+    window.addEventListener("scroll", scheduleRecompute, { passive: true });
+    window.addEventListener("resize", scheduleRecompute);
+    document.addEventListener("toggle", scheduleRecompute, true);
+    return () => {
+      window.removeEventListener("scroll", scheduleRecompute);
+      window.removeEventListener("resize", scheduleRecompute);
+      document.removeEventListener("toggle", scheduleRecompute, true);
+      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+    };
+  }, [recomputeCurrent, scheduleRecompute]);
 
   const visibleItems = useMemo(
     () => items.filter((item) => availableIds.includes(item.id)),
@@ -80,6 +98,7 @@ export function MissionNavigator({
     history.replaceState(null, "", `#${id}`);
     focusSection(target);
     setCurrentId(id);
+    window.setTimeout(scheduleRecompute, reducedMotion ? 0 : 500);
   };
 
   const setAll = (open: boolean) => {
