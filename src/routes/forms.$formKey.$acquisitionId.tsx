@@ -725,10 +725,13 @@ function FormPage() {
   const formSaveState: SaveState = save.isPending
     ? { kind: "saving" }
     : save.isError
-      ? { kind: "error", text: "Save did not finish" }
+      ? {
+          kind: "error",
+          text: save.error instanceof Error ? `The save did not finish: ${save.error.message}` : "The save did not finish.",
+        }
       : save.isSuccess
         ? { kind: "saved", version: save.data }
-        : latest
+        : latest && latest.version !== null
           ? { kind: "saved", version: latest.version, at: latest.saved_at, by: latest.saved_by }
           : { kind: "none" };
   const formNavItems: MissionNavItem[] = form

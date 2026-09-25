@@ -1644,7 +1644,10 @@ function DocumentPage() {
       : save.isPending
         ? { kind: "saving" }
         : save.isError
-          ? { kind: "error", text: "Save did not finish" }
+          ? {
+              kind: "error",
+              text: save.error instanceof Error ? `The save did not finish: ${save.error.message}` : "The save did not finish. Try again.",
+            }
           : save.isSuccess
             ? { kind: "saved", version: save.data }
             : latest
