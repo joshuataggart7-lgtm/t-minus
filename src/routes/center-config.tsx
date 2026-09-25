@@ -193,7 +193,7 @@ function CenterConfigPage() {
       <PeopleContacts actorName={user?.name ?? "Unknown"} mayEdit={mayEdit} />
 
       {mayEdit ? (
-        <form onSubmit={save} className="mc-work-form-section mt-8 max-w-[70ch]" id="my-record">
+        <form onSubmit={save} className="mc-work-form-section mt-8 max-w-[70ch]">
           <h2 className="text-lg font-medium">Set an override</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
@@ -349,7 +349,7 @@ function CenterConfigPage() {
       </section>
       </MissionNavSection>
 
-      <MissionNavSection id="center-memo-routing" label="Memorandum routing, NF 1858" collapsible summary={`${(q.data?.routing ?? []).length} ${(q.data?.routing ?? []).length === 1 ? "route" : "routes"}`}>
+      <MissionNavSection id="center-memo-routing" label="Memorandum routing, NF 1858" collapsible defaultOpen={mayEdit} summary={`${(q.data?.routing ?? []).length} ${(q.data?.routing ?? []).length === 1 ? "route" : "routes"}`}>
       <section>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted">
           To and Thru on a memorandum read from this table. The seeded ARC titles are placeholders; edit them for
