@@ -114,11 +114,11 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           </button>
           <Link to="/" className="flex min-w-0 items-baseline gap-2 border-l-2 border-chrome-structure pl-3" onClick={onWordmarkClick}>
             <span className="shrink-0 text-[18px] leading-6 font-semibold text-chrome-foreground">T-Minus</span>
-            <span className="hidden truncate text-[13px] text-chrome-muted xl:block">Mission Acquisition Acceleration</span>
+            <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block">Mission Acquisition Acceleration</span>
           </Link>
         </div>
         <div className="app-chrome-search col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
-        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-3 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end">
+        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end min-[1440px]:gap-x-3">
           {presenter ? null : <AnnouncementBanner />}
           <Nova acquisitionId={openAcquisitionId} />
           {isAdministrator ? (
@@ -127,7 +127,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               onClick={() => setPresenter(!presenter)}
               aria-pressed={presenter}
               className={cn(
-                "shrink-0 rounded-lg border border-chrome-structure px-3 py-1.5 text-[13px]",
+                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 text-[13px] min-[1440px]:px-3",
                 presenter ? "text-chrome-foreground" : "text-chrome-muted",
               )}
             >
@@ -135,7 +135,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             </button>
           ) : null}
           {isAnonymous ? (
-            <span className="rounded-lg border border-chrome-structure px-2 py-1 text-[13px] text-chrome-muted">
+            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 text-[13px] text-chrome-muted min-[1440px]:px-2">
               Demo
             </span>
           ) : null}
@@ -146,7 +146,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                 id="role-toggle"
                 value={role}
                  onChange={(e) => setRole(e.target.value as PersonaRole)}
-                className="max-w-56 rounded-lg border border-chrome-structure bg-chrome px-3 py-2 text-[13px] text-chrome-foreground"
+                className="min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
               >
                 {SEEDED_USERS.map((u) => (
                   <option key={u.role} value={u.role}>
@@ -160,8 +160,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             <Link
               to="/center-config"
               hash="my-record"
-              className="shrink-0 max-w-40 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground"
-              title="Open my record"
+              className="min-w-0 max-w-20 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
+              title={user.name}
             >
               {user.name}
             </Link>
@@ -170,7 +170,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
             >
               {roles.slice(0, 1).map((assignedRole) => (
-                <span key={assignedRole} className="shrink-0 rounded-lg border border-chrome-structure px-2 py-0.5 text-[11px] text-chrome-muted">
+                <span key={assignedRole} className="min-w-0 max-w-20 truncate rounded-lg border border-chrome-structure px-1.5 py-0.5 text-[11px] text-chrome-muted min-[1440px]:max-w-32 min-[1440px]:px-2">
                   {ROLE_LABELS[assignedRole]}
                 </span>
               ))}

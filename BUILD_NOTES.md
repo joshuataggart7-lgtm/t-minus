@@ -1,3 +1,12 @@
+# IA Fix R1 — responsive layout and labels — September 25, 2026
+
+- a) Below 1440px, acquisition files and document/form shells use their existing top jump list instead of the left navigator/rail; file clock content stacks and the current-hold actions wrap. At 1440px and above, the sticky aside returns unchanged.
+- b/e) Work Queue List now fits eight fluid columns by folding Mission into Acquisition and the displayed workflow column into Status. T± displays atomically in List and Board. The internal `Ready` value and `columnFor()` remain unchanged; only its visible label reads `Not started`.
+- c) Top-header identity and administrator controls now shrink or truncate below 1440px, while full values remain available through controls and title text. The product subtitle starts at 1440px.
+- d) Mission Navigator scroll-spy now deterministically recomputes from section positions after scroll, resize, details toggles, DOM changes, and settled jumps; available IDs update only when their list changes.
+- f) Acquisition Forecast retains the existing anticipated-award value, adding a display-only note when it comes from mission need date because no target award date is recorded. Forecast exports and clock derivation are unchanged.
+- Untouched: document/form generation, mappings, prefill, values/editing, export bytes and filenames, signatures, refusal behavior, method gates, citations, audit writes, fixtures, checkouts, operational/readiness/countdown helpers, workflow rules/assignment/counts, rail internals, migrations, and all `src/lib/*` files.
+
 # IA Slice 3 — Document/form shells — September 25, 2026
 
 - Added `src/components/mission-control/work-surface-shell.tsx`, the optional `MissionNavigator.ariaLabel`, and additive `mc-shell-*` styles for compact light-surface status strips plus desktop/mobile section navigation.
