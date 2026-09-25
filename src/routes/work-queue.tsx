@@ -50,6 +50,13 @@ export const Route = createFileRoute("/work-queue")({
 
 const COLUMNS = ["Ready", "In progress", "Blocked", "Awaiting Go/No-go", "Launched"] as const;
 type Column = (typeof COLUMNS)[number];
+const COLUMN_LABEL: Record<Column, string> = {
+  Ready: "Not started",
+  "In progress": "In progress",
+  Blocked: "Blocked",
+  "Awaiting Go/No-go": "Awaiting Go/No-go",
+  Launched: "Launched",
+};
 
 type Card = {
   m: AcqMetrics;
@@ -365,9 +372,9 @@ function WorkQueuePage() {
               .filter((c) => c.column === col)
               .sort((a, b) => priorityRank(a) - priorityRank(b));
             return (
-              <section key={col} aria-label={col}>
+              <section key={col} aria-label={COLUMN_LABEL[col]}>
                 <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
-                <h2 className="text-[15px] leading-6 font-medium">{col}</h2>
+                <h2 className="text-[15px] leading-6 font-medium">{COLUMN_LABEL[col]}</h2>
                 <p className="text-[13px] text-muted-foreground" data-numeric>
                   {items.length} {items.length === 1 ? "file" : "files"}
                 </p>
@@ -404,19 +411,17 @@ function WorkQueuePage() {
         </div>
         <RowKeysHint />
         <div className="mc-work-table-wrap mt-3">
-        <table className="w-full min-w-[1180px] table-fixed border border-border bg-background text-[13px] leading-[18px]">
+        <table className="w-full table-auto border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
-              <th scope="col" className="w-[18%] p-2">Acquisition</th>
-              <th scope="col" className="w-[7%] p-2">Priority</th>
-              <th scope="col" className="w-[13%] p-2">Status</th>
-              <th scope="col" className="w-[10%] p-2">T±</th>
-              <th scope="col" className="w-[9%] p-2">Owner</th>
-              <th scope="col" className="w-[12%] p-2">Next task</th>
-              <th scope="col" className="w-[12%] p-2">Waiting on</th>
-              <th scope="col" className="w-[8%] p-2">Mission</th>
-              <th scope="col" className="w-[7%] p-2">Phase</th>
-              <th scope="col" className="w-[6%] p-2">Column</th>
+              <th scope="col" className="p-2">Acquisition</th>
+              <th scope="col" className="p-2">Priority</th>
+              <th scope="col" className="p-2">Status</th>
+              <th scope="col" className="p-2">T±</th>
+              <th scope="col" className="p-2">Owner</th>
+              <th scope="col" className="p-2">Next task</th>
+              <th scope="col" className="p-2">Waiting on</th>
+              <th scope="col" className="p-2">Phase</th>
             </tr>
           </thead>
           <tbody ref={rowsRef}>
@@ -456,11 +461,12 @@ function WorkQueuePage() {
                     </Link>
                   ) : null}
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
+                  <span className="mt-1 block text-[12px] text-muted-foreground">{c.mission}</span>
                 </td>
                 <td className="p-2"><PriorityBand priority={c.priority} /></td>
-                <td className="p-2"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /></td>
+                <td className="p-2"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
                 <td className="p-2" data-numeric>
-                  <LaunchCountdownCompact view={overviewCountdownView(c.m)} />
+                  <span className="whitespace-nowrap"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
@@ -470,9 +476,7 @@ function WorkQueuePage() {
                 <td className="p-2 break-words">{c.owner}</td>
                 <td className="p-2 break-words">{c.nextTask}</td>
                 <td className="p-2 break-words">{c.dependency}</td>
-                <td className="p-2 break-words">{c.mission}</td>
                 <td className="p-2 break-words">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
-                <td className="p-2 break-words">{c.column}</td>
               </tr>
             ))}
           </tbody>
@@ -507,7 +511,7 @@ function CardView({ c }: { c: Card }) {
       </div>
       <p className="mt-2 break-words text-[13px] text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
       <div className="mt-4">
-        <p className="text-[28px] leading-8 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
+        <p className="whitespace-nowrap text-[28px] leading-8 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
         <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
       </div>
       <WorkTriageSignal readiness={c.readiness} />

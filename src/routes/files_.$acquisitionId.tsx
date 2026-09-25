@@ -2133,7 +2133,7 @@ function FilePage() {
       {!q.isLoading && effectiveState === "hold" && hold ? (
         <MissionNavSection id="current-hold" label="Current hold">
         <section aria-label="Current hold" className="mb-5 border-l-2 border-atrisk py-2 pl-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="grid min-w-0 grid-cols-1 items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0">
               <p className="max-w-[80ch] text-[15px] leading-[22px]">{hold.reason}</p>
               <p className="mt-1 text-[13px] text-muted-foreground">
@@ -2145,7 +2145,7 @@ function FilePage() {
                   : ""}
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
               {primaryAction("Fix")}
               <ExplainThis explanation={explainHold(hold, acq as AcqRow)} label="Why?" />
               <Nova acquisitionId={acquisitionId} rowLabel={`hold · ${hold.reason}`} />
@@ -2156,9 +2156,9 @@ function FilePage() {
       ) : null}
 
       {!q.isLoading ? (
-      <div className="mb-2 grid min-w-0 gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-8">
-        <aside className="no-print hidden lg:block">
-          <div className="max-h-[calc(100vh-88px)] overflow-y-auto lg:sticky lg:top-[72px]">
+      <div className="mb-2 grid min-w-0 gap-6 min-[1440px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:gap-8">
+        <aside className="no-print hidden min-[1440px]:block">
+          <div className="max-h-[calc(100vh-88px)] overflow-y-auto min-[1440px]:sticky min-[1440px]:top-[72px]">
             <MissionNavigator items={missionNavItems} />
             <LaunchSequenceRail
               phases={phases}
@@ -2167,20 +2167,20 @@ function FilePage() {
                   ? lifecycle.daysToNextDecision
                   : null
               }
-              className="mt-6 lg:static"
+              className="mt-6 min-[1440px]:static"
             />
           </div>
         </aside>
         <div className="min-w-0">
 
-      <details className="no-print mb-5 border-y border-border bg-background lg:hidden">
+      <details className="no-print mb-5 border-y border-border bg-background min-[1440px]:hidden">
         <summary className="cursor-pointer px-3 py-3 text-[13px] font-medium">Jump to section</summary>
         <MissionNavigator items={missionNavItems} label="On this file" />
       </details>
 
       <MissionNavSection id="summary-clock" label="Summary & clock">
       <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-7 lg:p-10">
-        <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
+        <div className="grid min-w-0 gap-10 min-[1440px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] min-[1440px]:items-start min-[1440px]:gap-12">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
@@ -2201,8 +2201,8 @@ function FilePage() {
               </>
             ) : null}
           </div>
-          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
-            <div className="min-w-0 sm:min-w-32">
+          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
+            <div className="min-w-0">
             <LaunchCountdown
               view={
                 lifecycle
@@ -2559,7 +2559,14 @@ function FilePage() {
                     <th scope="row" className="w-[42%] px-3 py-2 text-left font-medium">
                       {f.header}
                     </th>
-                    <td className="px-3 py-2">{forecast[f.key]}</td>
+                    <td className="px-3 py-2">
+                      {forecast[f.key]}
+                      {f.key === "anticipated_award_date" && !acq?.target_award_date && acq?.need_date ? (
+                        <span className="mt-1 block text-muted-foreground">
+                          From the mission need date — not the award target (no target award date recorded).
+                        </span>
+                      ) : null}
+                    </td>
                   </tr>
                 ))}
               </tbody>
