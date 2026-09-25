@@ -3,6 +3,8 @@
  * and nothing here writes to an external system.
  */
 
+import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
+
 export type EmailDraft = {
   key: string;
   label: string;
@@ -104,7 +106,9 @@ export function buildEmailDrafts(input: {
       "I cannot record a price reasonableness determination without it.",
       "",
       need ? `Recorded need date: ${need}.` : "Need date: not recorded on the file.",
-      target ? `Target award date on the record: ${target}.` : "Target award date: not recorded on the file.",
+      target
+        ? `Target award date on the record: ${target}.`
+        : `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`,
       `This buy is being run under ${cites.methodLabel}; price reasonableness is determined under ${cites.priceReasonableness}.`,
       igceRow?.citation ? `The Required row on the file cites ${igceRow.citation}.` : "",
       "",
