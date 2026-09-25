@@ -2187,8 +2187,8 @@
 
 /* Scan-first signals for light operational work surfaces. */
 .mc-triage-signal { display: grid; gap: var(--mc-space-1); margin-top: var(--mc-space-3); }
-.mc-triage-signal-label { width: fit-content; border: 1px solid var(--mc-readiness-go); border-radius: var(--mc-radius-control); padding: 0.1rem 0.4rem; color: var(--mc-readiness-go); font-size: 11px; line-height: 16px; font-weight: 600; }
-.mc-triage-signal.is-blocked .mc-triage-signal-label { border-color: var(--mc-readiness-hold); background: var(--mc-readiness-hold); color: var(--mc-mission-surface); }
+.mc-triage-signal-label { width: fit-content; border: 1px solid var(--mc-readiness-go); border-radius: var(--mc-radius-control); padding: 0.1rem 0.4rem; color: var(--foreground); font-size: 11px; line-height: 16px; font-weight: 600; }
+.mc-triage-signal.is-blocked .mc-triage-signal-label { border-color: var(--mc-readiness-hold); background: var(--mc-readiness-hold); color: var(--chrome); }
 .mc-triage-reason { color: var(--foreground); font-size: 12px; line-height: 16px; overflow-wrap: anywhere; }
 .mc-triage-watch { color: var(--muted-foreground); font-size: 12px; line-height: 16px; overflow-wrap: anywhere; }
 .mc-triage-priority { display: inline-flex; border: 1px solid var(--mc-warm-line); border-radius: var(--mc-radius-control); padding-inline: 0.35rem; color: var(--foreground); font-size: 11px; line-height: 16px; font-weight: 600; white-space: nowrap; }
