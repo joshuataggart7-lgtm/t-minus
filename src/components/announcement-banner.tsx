@@ -108,7 +108,7 @@ export function AnnouncementBanner() {
       {urgent && slot
         ? createPortal(
             <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
-              <p className="truncate"><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+              <p className="truncate" title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
               <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
                 <X className="size-4" aria-hidden="true" />
               </button>
