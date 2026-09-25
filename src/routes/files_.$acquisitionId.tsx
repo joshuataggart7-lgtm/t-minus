@@ -2034,7 +2034,7 @@ function FilePage() {
   // Print opens the launch sequence and the file index so the handout is whole.
   useEffect(() => {
     const onBeforePrint = () => {
-      document.querySelectorAll<HTMLDetailsElement>("details[data-print]").forEach((d) => {
+      document.querySelectorAll<HTMLDetailsElement>("details[data-print], details[data-mission-nav-collapsible]").forEach((d) => {
         d.open = true;
       });
     };
@@ -4260,14 +4260,11 @@ function FilePage() {
 
       <MissionNavSection id="thresholds" label="Thresholds" collapsible summary={`${q.data?.thresholds?.length ?? 0} entries`}>
       {coldPathSample ? (
-      <details aria-label="Thresholds" className="mb-12 rounded-xl border border-border bg-background">
-        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
-          Thresholds <span className="ml-2 text-[13px] font-normal text-muted-foreground">{q.data?.thresholds?.length ?? 0} entries</span>
-        </summary>
-        <div className="overflow-x-auto border-t border-border px-5 py-4">
-        <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
-          Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
-        </p>
+        <section className="mb-12">
+          <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
+          <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
+            Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
+          </p>
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -4308,9 +4305,8 @@ function FilePage() {
               );
             })}
           </tbody>
-        </table>
-        </div>
-      </details>
+          </table>
+        </section>
       ) : (
       <section className="mb-12">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
@@ -4526,7 +4522,7 @@ function FilePage() {
         </DialogContent>
       </Dialog>
 
-      <MissionNavSection id="facts-of-record" label="Facts of record" collapsible summary="13 recorded fields">
+      <MissionNavSection id="facts-of-record" label="Facts of record" collapsible summary="13 fields">
       <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>
         <dl className="grid max-w-[80ch] gap-x-8 md:grid-cols-2">
@@ -4565,11 +4561,8 @@ function FilePage() {
       </MissionNavSection>
 
       <MissionNavSection id="audit-trail" label="Audit trail" collapsible summary={`${q.data?.log.length ?? 0} entries`}>
-      <details aria-label="Audit trail" className="mb-10 min-w-0 rounded-xl border border-border bg-background">
-        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
-          Audit trail <span className="ml-2 text-[13px] font-normal text-muted-foreground">{q.data?.log.length ?? 0} entries</span>
-        </summary>
-        <div className="min-w-0 border-t border-border px-5 py-4">
+        <section className="mb-10 min-w-0">
+          <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
           <div className="w-full min-w-0 overflow-x-auto">
           <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
@@ -4600,8 +4593,7 @@ function FilePage() {
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
         )}
-        </div>
-      </details>
+        </section>
       </MissionNavSection>
 
       </div>

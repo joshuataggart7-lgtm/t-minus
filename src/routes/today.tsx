@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
@@ -75,6 +75,17 @@ function TodayPage() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
   const rowsRef = useRowKeysContainer<HTMLUListElement>();
+
+  // Print opens the collapsible sections so the handout is whole.
+  useEffect(() => {
+    const onBeforePrint = () => {
+      document.querySelectorAll<HTMLDetailsElement>("details[data-mission-nav-collapsible]").forEach((d) => {
+        d.open = true;
+      });
+    };
+    window.addEventListener("beforeprint", onBeforePrint);
+    return () => window.removeEventListener("beforeprint", onBeforePrint);
+  }, []);
 
   const isAdmin = roles.includes("administrator");
 
