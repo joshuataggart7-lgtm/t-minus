@@ -178,6 +178,11 @@ import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/compone
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
+import {
+  MissionNavigator,
+  MissionNavSection,
+  type MissionNavItem,
+} from "@/components/mission-control/mission-navigator";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
 import {
   buildModificationPacket,
@@ -2037,6 +2042,48 @@ function FilePage() {
     return () => window.removeEventListener("beforeprint", onBeforePrint);
   }, []);
 
+  const missionNavItems = useMemo<MissionNavItem[]>(() => {
+    const phaseOpenCount = missingCurrentRequirements.length + pendingCurrentReviews.length;
+    const companionOpenCount = companionGates.filter((gate) => gate.applies && gate.status === "Open").length;
+    const missingFileCount = fileIndex.missing.length;
+    const auditCount = q.data?.log.length ?? 0;
+    return [
+      ...(effectiveState === "hold" && hold
+        ? [{ id: "current-hold", label: "Current hold", badge: { tone: "hold" as const, text: "HOLD" } }]
+        : []),
+      { id: "summary-clock", label: "Summary & clock" },
+      { id: "exports-peer-systems", label: "Exports & peer systems" },
+      { id: "coordination", label: "Coordination" },
+      { id: "schedule-forecast", label: "Schedule & forecast" },
+      { id: "vehicle-orders-post-award", label: "Vehicle, orders & post-award" },
+      {
+        id: "contract-file-index",
+        label: "Contract file index",
+        badge: missingFileCount > 0 ? { tone: "neutral" as const, text: `${missingFileCount} missing` } : null,
+      },
+      {
+        id: "companion-gates",
+        label: "Companion gates",
+        badge: companionOpenCount > 0 ? { tone: "watch" as const, text: `${companionOpenCount} open` } : null,
+      },
+      { id: "alerts-determinations", label: "Alerts & determinations" },
+      { id: "reference-links", label: "Reference links" },
+      {
+        id: "launch-sequence",
+        label: "Launch sequence",
+        badge: phaseOpenCount > 0 ? { tone: "watch" as const, text: `${phaseOpenCount} open` } : null,
+      },
+      { id: "directive-compliance", label: "Directive compliance" },
+      { id: "thresholds", label: "Thresholds" },
+      { id: "facts-of-record", label: "Facts of record" },
+      {
+        id: "audit-trail",
+        label: "Audit trail",
+        badge: auditCount > 0 ? { tone: "neutral" as const, text: String(auditCount) } : null,
+      },
+    ];
+  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, q.data?.log.length]);
+
   // P1-E: on a client navigation the record arrives a moment after the route
   // does. Until it is in hand the page says it is loading rather than painting
   // an empty file that reads like a record with nothing on it.
@@ -2084,6 +2131,7 @@ function FilePage() {
       ) : null}
 
       {!q.isLoading && effectiveState === "hold" && hold ? (
+        <MissionNavSection id="current-hold" label="Current hold">
         <section aria-label="Current hold" className="mb-5 border-l-2 border-atrisk py-2 pl-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
@@ -2104,22 +2152,33 @@ function FilePage() {
             </div>
           </div>
         </section>
+        </MissionNavSection>
       ) : null}
 
       {!q.isLoading ? (
       <div className="mb-2 grid min-w-0 gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-8">
         <aside className="no-print hidden lg:block">
-          <LaunchSequenceRail
-            phases={phases}
-            daysToPhaseExit={
-              lifecycle?.nextDecision?.startsWith("Exit")
-                ? lifecycle.daysToNextDecision
-                : null
-            }
-          />
+          <div className="max-h-[calc(100vh-88px)] overflow-y-auto lg:sticky lg:top-[72px]">
+            <MissionNavigator items={missionNavItems} />
+            <LaunchSequenceRail
+              phases={phases}
+              daysToPhaseExit={
+                lifecycle?.nextDecision?.startsWith("Exit")
+                  ? lifecycle.daysToNextDecision
+                  : null
+              }
+              className="mt-6 lg:static"
+            />
+          </div>
         </aside>
         <div className="min-w-0">
 
+      <details className="no-print mb-5 border-block border-border bg-background lg:hidden">
+        <summary className="cursor-pointer px-3 py-3 text-[13px] font-medium">Jump to section</summary>
+        <MissionNavigator items={missionNavItems} label="On this file" />
+      </details>
+
+      <MissionNavSection id="summary-clock" label="Summary & clock">
       <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-7 lg:p-10">
         <div className="grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
           <div className="min-w-0">
@@ -2273,7 +2332,9 @@ function FilePage() {
           </div>
         </div>
       </section>
+      </MissionNavSection>
 
+      <MissionNavSection id="exports-peer-systems" label="Exports & peer systems">
       {acq ? (
         <>
         <section aria-label="Peer systems" className="mb-8 max-w-[80ch] border-t border-border pt-3">
@@ -2324,7 +2385,9 @@ function FilePage() {
         </p>
         </>
       ) : null}
+      </MissionNavSection>
 
+      <MissionNavSection id="coordination" label="Coordination">
       {acq ? (
         <CorToRequestPanel
           acq={acq as unknown as Record<string, unknown>}
@@ -2407,8 +2470,10 @@ function FilePage() {
           </div>
         </details>
       ) : null}
+      </MissionNavSection>
 
 
+      <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
       {!successor && effectiveState === "launched" ? (
         <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
           <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
@@ -2556,7 +2621,9 @@ function FilePage() {
         noticePostedDate={null}
         quoteDueDate={(acq?.['proposed_price_received'] as string | null | undefined) ?? null}
       />
+      </MissionNavSection>
 
+      <MissionNavSection id="vehicle-orders-post-award" label="Vehicle, orders & post-award">
       <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
 
       <NewOrderPanel
@@ -2601,7 +2668,9 @@ function FilePage() {
         onBanner={setBanner}
         onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); void qc.invalidateQueries({ queryKey: ["work-queue"] }); }}
       />
+      </MissionNavSection>
 
+      <MissionNavSection id="contract-file-index" label="Contract file index">
       <details data-print="index" aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
@@ -2735,11 +2804,15 @@ function FilePage() {
         </table>
         </div>
       </details>
+      </MissionNavSection>
 
+      <MissionNavSection id="companion-gates" label="Companion gates">
       <ClauseChangeBanner acquisitionId={acquisitionId} />
 
       <CompanionGatesPanel gates={companionGates} />
+      </MissionNavSection>
 
+      <MissionNavSection id="alerts-determinations" label="Alerts & determinations">
       <PcdAdoptionPanel
         baselineDate={(acq?.regulatory_baseline_date as string | null | undefined) ?? null}
         deviations={deviationsQ.data ?? []}
@@ -2752,11 +2825,20 @@ function FilePage() {
       <EnterprisePslPanel acq={acq as Record<string, unknown> | null} />
 
       <ThresholdConflictsPanel />
+      </MissionNavSection>
 
+      <MissionNavSection
+        id="reference-links"
+        label="Reference links"
+        collapsible
+        summary="Center clauses and practice links"
+      >
       <CenterLocalClausesPanel />
 
       <PracticeLinksPanel />
+      </MissionNavSection>
 
+      <div className="mc-nav-section" aria-label="Alerts and determinations continued">
       <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
 
       <OfficeInvitePanel
@@ -2775,6 +2857,7 @@ function FilePage() {
           </p>
         </section>
       ) : null}
+      </div>
 
       <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
@@ -4100,6 +4183,7 @@ function FilePage() {
         </div>
       </details>
 
+      <MissionNavSection id="directive-compliance" label="Directive compliance">
       <section className="mb-12 max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
         <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
@@ -4167,7 +4251,9 @@ function FilePage() {
           </div>
         ) : null}
       </section>
+      </MissionNavSection>
 
+      <MissionNavSection id="thresholds" label="Thresholds">
       {coldPathSample ? (
       <details aria-label="Thresholds" className="mb-12 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
@@ -4236,6 +4322,7 @@ function FilePage() {
         </table>
       </section>
       )}
+      </MissionNavSection>
 
       <Dialog
         open={actionDialog !== null}
@@ -4434,6 +4521,7 @@ function FilePage() {
         </DialogContent>
       </Dialog>
 
+      <MissionNavSection id="facts-of-record" label="Facts of record">
       <section className="mb-10 min-w-0">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Facts of record</h2>
         <dl className="grid max-w-[80ch] gap-x-8 md:grid-cols-2">
@@ -4469,7 +4557,9 @@ function FilePage() {
           ))}
         </dl>
       </section>
+      </MissionNavSection>
 
+      <MissionNavSection id="audit-trail" label="Audit trail">
       {coldPathSample ? (
       <details aria-label="Audit trail" className="mb-10 min-w-0 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
@@ -4514,6 +4604,7 @@ function FilePage() {
         {q.data?.log.length ? <div className="w-full min-w-0 overflow-x-auto"><table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]"><thead><tr className="border-b border-border text-left"><th scope="col" className="p-2">Logged</th><th scope="col" className="p-2">Actor</th><th scope="col" className="p-2">Action</th><th scope="col" className="p-2">Field</th><th scope="col" className="p-2">New value</th><th scope="col" className="p-2">Reason</th></tr></thead><tbody>{q.data.log.map((row) => <tr key={row.log_id} className="border-b border-border align-top"><td className="p-2">{new Date(row.logged_at).toLocaleString()}</td><td className="p-2">{row.actor}</td><td className="p-2">{row.action}</td><td className="p-2">{row.field}</td><td className="p-2">{row.new_value}</td><td className="p-2">{row.reason}</td></tr>)}</tbody></table></div> : <p className="text-muted-foreground">No entries yet for this file.</p>}
       </section>
       )}
+      </MissionNavSection>
 
       </div>
       </div>

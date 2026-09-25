@@ -1,3 +1,12 @@
+# IA Slice 1 — Mission Navigator — September 25, 2026
+
+- Added `src/components/mission-control/mission-navigator.tsx`: reusable in-page navigation, scroll-spy, accessible focus transfer, conditional target filtering, and controls limited to navigator-owned collapsible sections.
+- Wired `src/routes/files_.$acquisitionId.tsx` only. Desktop places the navigator above the unchanged Launch Sequence rail; smaller widths receive a non-sticky jump list. Existing content order, IDs, print markers, and panel behavior remain intact.
+- Badges use existing values only: current HOLD state, current-phase missing requirements plus pending reviews, open applicable companion gates, missing file-index rows, and existing audit-log count. Zero or unknown values render no badge.
+- `src/styles.css` adds only light Work Surface `mc-nav-*` rules using existing Lock D tokens, including print visibility for collapsed navigator sections.
+- Soft Walk-adjacent FLAG: the acquisition file route changed wrapping and navigation chrome only. No queries, writes, state derivation, launch rail logic, generators, exports, signatures, roles, fixtures, or regulatory logic changed.
+- Reverse by removing the navigator wrappers/imports, restoring the rail as the aside's direct child, and deleting the additive `mc-nav-*` stylesheet block and primitive.
+
 ## Overnight propagate P0/P1 fix — Work Queue + document shell award remap — September 24, 2026
 
 - `src/routes/work-queue.tsx` now derives every card through `deriveOverviewAcquisitionState`, computes metrics from that remapped record, buckets workflow columns from shared readiness, and renders the shared Overview countdown. Phase and target-day sorting come only from remapped metrics; raw `clock_state`, Administration, and `need_date` can no longer manufacture Launched, T+, AWARDED, or target days.
