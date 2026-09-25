@@ -3109,3 +3109,12 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Operational palette: Ctrl+K subtitles and the acquisitions reporting preview use the Files list's `deriveOverviewAcquisitionState` → `computeMetrics` / `explainWorkReadiness` → `overviewCountdownView` path, including recorded-Launched audit evidence. Loading never falls back to raw clock or phase columns.
 - Reporting: `v_report_acquisitions` overrides only the on-screen current phase, clock state, status, and status word. Download continues to pass untouched `preview.data` into `rowsToCsv`, so CSV columns and values are unchanged.
 - `previewAuthStorage.ts` restored byte-identical to `06f86518`.
+
+## Josh Memo TBD (CO decision 25 Sep 2026 11:19 CT)
+
+- `memo-draft.ts` `packetTransmittal`: the shared Request paragraph keeps “Review and concurrence are requested so the award can be made by <target>.” for a valid YYYY-MM-DD target; without one, preview, Word, and PDF now use “Review and concurrence are requested so the award can proceed. The target award date is not yet determined and will be updated as soon as it is known.”
+- `documents.$templateKey.$acquisitionId.tsx` `awardDate`: removed the `need_date` fallback passed to document generators and export-header context; only a valid `target_award_date` is accepted. Local prior-action comparable rows now read “Not yet determined” when their target is absent.
+- `sam-contract-awards.functions.ts` `localPriorActions`: local comparable award dates now read “Not yet determined” when `target_award_date` is absent; `need_date` is never substituted.
+- Legitimate need-date uses remain unchanged, including SF 1449 block 15 delivery, recorded need-date text, timeline checks, and intake scheduling. No query, write, citation, signature, refusal, fixture, save/checkout, or migration behavior changed.
+- Sample checks: A-2027-0101 Request uses the exact TBD sentence; A-2027-0102 keeps “Review and concurrence are requested so the award can be made by 2026-11-13.” SF 1449 prefill for A-2027-0101 and A-2026-0090 remains unchanged.
+- `previewAuthStorage.ts` restored byte-identical to `6d58a285`.

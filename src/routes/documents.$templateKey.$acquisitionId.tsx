@@ -839,7 +839,7 @@ function DocumentPage() {
       sourceLabel: "from T-Minus prior actions — live feed unavailable",
       awards: rows.map((r) => ({
         agency: `${r.acquisition_id} · ${r.title ?? "Untitled"} (T-Minus prior action)`,
-        awardDate: String(r.target_award_date ?? r.need_date ?? "—"),
+        awardDate: String(r.target_award_date ?? "Not yet determined"),
         pricingType: String(r.contract_type ?? "—"),
         extentCompeted: String(r.competition ?? "—"),
         obligatedAmount: r.estimated_value === null ? null : Number(r.estimated_value),
@@ -992,14 +992,14 @@ function DocumentPage() {
       : { name: recordName, email: null, phone: null };
   }, [q.data]);
 
-  // The clock's award date: the target date, or the forecast date behind it.
+  // Generated documents use only a valid target award date. The mission need
+  // date is a delivery requirement and never stands in for an award date.
   const awardDate = useMemo(() => {
     const acq = q.data?.acq;
     if (!acq) return null;
     const target = acq["target_award_date"];
-    const forecast = acq["need_date"];
     const pick = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
-    return pick(target) ?? pick(forecast);
+    return pick(target);
   }, [q.data?.acq]);
 
   // Display chrome follows the shared operational award rule. This is kept
@@ -1524,8 +1524,7 @@ function DocumentPage() {
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
   const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
 
-  // The same fallback the file page uses: the forecast's anticipated award
-  // date stands in when the contracting officer has not entered a target.
+  // Export headers use only the recorded target award date.
   const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const exportHeaderLine = `${acquisitionId} · ${daysToAward === null ? "no target award date" : `${daysToAward} days to award`}`;
