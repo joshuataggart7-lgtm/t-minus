@@ -45,6 +45,7 @@ export function MissionNavigator({
       (last, target) => target.getBoundingClientRect().top <= threshold ? target : last,
       null,
     ) ?? targets[0];
+    if (!current) return;
     setCurrentId((value) => value === current.id ? value : current.id);
   }, [availableIds]);
 
