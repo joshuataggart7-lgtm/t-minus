@@ -98,7 +98,7 @@ export type MemoDraftCtx = {
     countdownLine: string;
     holdReason: string | null;
     holdOwner: string | null;
-  };
+  } | null;
   /** Contracting officer's user record. */
   co?: { name: string; email: string | null; phone: string | null } | null;
   /** Values already filled on the form, so a draft can follow a chosen option. */
