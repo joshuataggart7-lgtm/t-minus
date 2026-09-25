@@ -26,6 +26,9 @@ import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
 import type { AcqRow } from "@/lib/launch-sequence";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
+import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { MissionNavigator, MissionNavSection, type MissionNavItem } from "@/components/mission-control/mission-navigator";
+import { WorkShellHeader, WorkShellLayout, type SaveState } from "@/components/mission-control/work-surface-shell";
 import { technicalRepresentative } from "@/lib/template-engine";
 import { ensureClinScheduleFromIgce, loadClinSchedule } from "@/lib/clin-schedule";
 import { signedInName } from "@/lib/account-name";
@@ -370,7 +373,7 @@ function FormPage() {
       };
     },
   });
-  const countdown = useMemo(() => {
+  const countdownState = useMemo(() => {
     const d = countdownQ.data;
     if (!d?.acq) return null;
     const operational = deriveOverviewAcquisitionState(d.acq, d.log);
@@ -399,8 +402,10 @@ function FormPage() {
       attachedKeys: keysFrom(d.attachments, acquisitionId),
       savedKeys: savedDocKeys(d.documents, d.templates, acquisitionId),
     });
-    return overviewCountdownView(metrics);
+    return { metrics, view: overviewCountdownView(metrics) };
   }, [countdownQ.data, acquisitionId]);
+  const countdown = countdownState?.view ?? null;
+  const formReadiness = countdownState ? explainWorkReadiness(countdownState.metrics) : null;
   const headerLine = `${acquisitionId} · ${
     !countdown
       ? "Not recorded"
@@ -717,12 +722,60 @@ function FormPage() {
     );
   };
 
+  const formSaveState: SaveState = save.isPending
+    ? { kind: "saving" }
+    : save.isError
+      ? {
+          kind: "error",
+          text: save.error instanceof Error ? `The save did not finish: ${save.error.message}` : "The save did not finish.",
+        }
+      : save.isSuccess
+        ? { kind: "saved", version: save.data }
+        : latest && latest.version !== null
+          ? { kind: "saved", version: latest.version, at: latest.saved_at, by: latest.saved_by }
+          : { kind: "none" };
+  const formNavItems: MissionNavItem[] = useMemo(
+    () => form
+      ? [
+          { id: "form-actions", label: "Actions" },
+          { id: "form-about", label: "About this export" },
+          ...(formKey === "sf-30" && formCtx ? [{ id: "form-empty-blocks", label: "Blocks left empty" }] : []),
+          { id: "export-preview", label: "Export preview" },
+          ...form.sections.map((section, index) => {
+            const missing = section.fields.filter(
+              (field) =>
+                typeof field.value !== "boolean" &&
+                !field.value &&
+                !(formKey === "sf-30" && field.path === "topmostSubform.AmendmentNo"),
+            ).length;
+            return {
+              id: `form-sec-${index}`,
+              label: section.title,
+              badge: missing ? { tone: "neutral" as const, text: `${missing} not recorded` } : null,
+            };
+          }),
+        ]
+      : [],
+    [form, formCtx, formKey],
+  );
+
   return (
     <AppShell>
       <PageHeader
         title={FORM_NAMES[formKey]}
         lead={`Filled from the record of ${acquisitionId}. Signatures and concurrence come from the Approvals step.`}
       />
+      <WorkShellHeader
+        acquisitionId={acquisitionId}
+        title={String(q.data?.acq?.["title"] ?? "") || null}
+        readiness={formReadiness}
+        countdown={countdown}
+        saveState={formSaveState}
+      />
+      <WorkShellLayout
+        nav={<MissionNavigator items={formNavItems} label="In this form" ariaLabel="In this form" />}
+      >
+      <div className="mc-shell-form-content">
       <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
         <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
         <p className="text-[13px] text-muted-foreground">
@@ -761,7 +814,7 @@ function FormPage() {
 
       {form ? (
         <>
-          <div className="mc-work-toolbar mb-6 flex flex-wrap">
+          <div id="form-actions" className="mc-work-toolbar mb-6 flex flex-wrap">
             <button
               type="button"
                className="rounded-[var(--mc-radius-control)] px-3 py-2 text-[15px] text-primary-foreground"
@@ -881,6 +934,7 @@ function FormPage() {
           <p className="mb-4 text-[13px] text-muted-foreground">
             Prefer the preview below in the browser; open the form PDF in Adobe desktop.
           </p>
+          <MissionNavSection id="form-about" label="About this export" collapsible defaultOpen={false}>
           <div className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
             {formTemplateId ? (
               <p className="mb-2">
@@ -917,6 +971,7 @@ function FormPage() {
               purpose.
             </p>
           </div>
+          </MissionNavSection>
 
           {message ? (
             <p role="status" className="mb-6 text-[15px]">
@@ -925,7 +980,7 @@ function FormPage() {
           ) : null}
 
           {formKey === "sf-30" && formCtx ? (
-            <section className="mc-work-form-section mb-6 max-w-[80ch]">
+            <section id="form-empty-blocks" className="mc-work-form-section mb-6 max-w-[80ch]">
               <h3 className="text-[18px] leading-6 font-medium">Blocks left empty, and why</h3>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 Nothing below is a fault. The record does not carry these values, so the official form prints
@@ -968,8 +1023,8 @@ function FormPage() {
               {lineageCounts.manual} entered here. Hover a value to read where it came from.
             </p>
           ) : null}
-          {form.sections.map((section) => (
-            <section key={section.title} className="mc-work-form-section mb-6 max-w-[80ch]">
+          {form.sections.map((section, index) => (
+            <section id={`form-sec-${index}`} key={section.title} className="mc-work-form-section mb-6 max-w-[80ch]">
               <h3 className="text-[18px] leading-6 font-medium">{section.title}</h3>
               {section.citation ? (
                 <p className="mb-3 text-[13px] text-muted-foreground">{section.citation}</p>
@@ -1013,6 +1068,8 @@ function FormPage() {
           ))}
         </>
       ) : null}
+      </div>
+      </WorkShellLayout>
     </AppShell>
   );
 }

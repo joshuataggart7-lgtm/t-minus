@@ -2185,6 +2185,34 @@
 }
 .mc-work-summary dd { margin-top: var(--mc-space-1); font-weight: 600; }
 
+/* Document and form shells on the light Work Surface. */
+.mc-shell-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-2) var(--mc-space-4);
+  margin-bottom: var(--mc-space-4);
+  border-block: 1px solid var(--mc-warm-line);
+  background: var(--mc-warm-surface);
+  padding: var(--mc-space-3) var(--mc-space-4);
+  color: var(--foreground);
+  font-size: 12px;
+  line-height: 17px;
+}
+.mc-shell-identity { display: flex; min-width: min(18rem, 100%); flex: 1 1 18rem; flex-direction: column; }
+.mc-shell-identity strong { font-size: 13px; }
+.mc-shell-identity span, .mc-shell-save, .mc-shell-completion { color: var(--muted-foreground); }
+.mc-shell-layout { display: grid; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+.mc-shell-nav-desktop { display: none; }
+.mc-shell-nav-mobile { margin-bottom: var(--mc-space-6); border-color: var(--mc-warm-line); }
+.mc-shell-nav-mobile > summary { cursor: pointer; padding-block: var(--mc-space-3); color: var(--foreground); font-size: 13px; font-weight: 600; }
+.mc-shell-body { min-width: 0; }
+@media (min-width: 1024px) {
+  .mc-shell-layout { grid-template-columns: 200px minmax(0, 1fr); gap: var(--mc-space-8); align-items: start; }
+  .mc-shell-nav-desktop { position: sticky; top: 72px; display: block; max-height: calc(100vh - 88px); overflow-y: auto; }
+  .mc-shell-nav-mobile { display: none; }
+}
+
 /* Scan-first signals for light operational work surfaces. */
 .mc-triage-signal { display: grid; gap: var(--mc-space-1); margin-top: var(--mc-space-3); }
 .mc-triage-signal-label { width: fit-content; border: 1px solid var(--mc-readiness-go); border-radius: var(--mc-radius-control); padding: 0.1rem 0.4rem; color: var(--foreground); font-size: 11px; line-height: 16px; font-weight: 600; }

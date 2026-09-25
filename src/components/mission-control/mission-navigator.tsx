@@ -25,9 +25,11 @@ function focusSection(target: HTMLElement) {
 export function MissionNavigator({
   items,
   label = "On this file",
+  ariaLabel = "Sections on this file",
 }: {
   items: MissionNavItem[];
   label?: string;
+  ariaLabel?: string;
 }) {
   const [availableIds, setAvailableIds] = useState<string[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export function MissionNavigator({
   };
 
   return (
-    <nav aria-label="Sections on this file" className="mc-nav">
+    <nav aria-label={ariaLabel} className="mc-nav">
       <p className="mc-nav-label">{label}</p>
       <ol className="mc-nav-list">
         {visibleItems.map((item) => (
