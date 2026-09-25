@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type MissionNavItem = {
@@ -65,7 +65,7 @@ export function MissionNavigator({
     [availableIds, items],
   );
 
-  const jump = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const jump = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     event.preventDefault();
     const target = document.getElementById(id);
     if (!target) return;
@@ -134,7 +134,7 @@ export function MissionNavSection({
       id={id}
       className="mc-nav-section mc-nav-section-collapsible"
       data-mission-nav-collapsible
-      open={defaultOpen}
+      open={defaultOpen || undefined}
     >
       <summary>
         <span>{label}</span>

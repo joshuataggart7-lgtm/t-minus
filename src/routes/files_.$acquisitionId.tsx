@@ -2825,7 +2825,6 @@ function FilePage() {
       <EnterprisePslPanel acq={acq as Record<string, unknown> | null} />
 
       <ThresholdConflictsPanel />
-      </MissionNavSection>
 
       <MissionNavSection
         id="reference-links"
@@ -2838,7 +2837,6 @@ function FilePage() {
       <PracticeLinksPanel />
       </MissionNavSection>
 
-      <div className="mc-nav-section" aria-label="Alerts and determinations continued">
       <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
 
       <OfficeInvitePanel
@@ -2857,7 +2855,7 @@ function FilePage() {
           </p>
         </section>
       ) : null}
-      </div>
+      </MissionNavSection>
 
       <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
