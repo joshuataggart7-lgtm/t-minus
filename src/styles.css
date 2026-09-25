@@ -2207,7 +2207,7 @@
 .mc-shell-nav-mobile { margin-bottom: var(--mc-space-6); border-color: var(--mc-warm-line); }
 .mc-shell-nav-mobile > summary { cursor: pointer; padding-block: var(--mc-space-3); color: var(--foreground); font-size: 13px; font-weight: 600; }
 .mc-shell-body { min-width: 0; }
-@media (min-width: 1024px) {
+@media (min-width: 1440px) {
   .mc-shell-layout { grid-template-columns: 200px minmax(0, 1fr); gap: var(--mc-space-8); align-items: start; }
   .mc-shell-nav-desktop { position: sticky; top: 72px; display: block; max-height: calc(100vh - 88px); overflow-y: auto; }
   .mc-shell-nav-mobile { display: none; }
