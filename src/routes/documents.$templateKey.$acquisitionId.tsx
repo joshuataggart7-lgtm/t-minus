@@ -1657,6 +1657,7 @@ function DocumentPage() {
   const documentNavItems: MissionNavItem[] = useMemo(
     () => def
       ? [
+          { id: "doc-save-export", label: "Save & export" },
           ...documentSections.map((section) => {
             const remaining = visibleFields(section, values).filter((field) => Boolean(errors[field.key])).length;
             return {
@@ -1667,7 +1668,6 @@ function DocumentPage() {
           }),
           ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
           { id: "doc-nf1858", label: "NF 1858 memorandum" },
-          { id: "doc-save-export", label: "Save & export" },
           ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
           { id: "doc-provenance", label: "Provenance" },
           { id: "doc-official-copy", label: "Official file copy" },
@@ -2185,6 +2185,218 @@ function DocumentPage() {
         }}
       >
 
+        <div id="doc-save-export" className="mc-work-toolbar mb-6 flex flex-wrap items-center">
+          <Button
+            type="submit"
+            disabled={!canEdit || save.isPending}
+          >
+            {save.isPending ? "Saving" : "Save version"}
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button type="button" variant="outline">Export</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44">
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (
+                    (def.key === "postaward-letter-successful" ||
+                      def.key === "postaward-letter-unsuccessful") &&
+                    exportContext
+                  ) {
+                    // The notification letters are written into the NASA OP masters
+                    // on a Part 15 file, and as the Part 12 or Part 13 companion
+                    // notice on a commercial or simplified file.
+                    const successful = def.key === "postaward-letter-successful";
+                    const part15 = isPart15NotificationPath(exportContext);
+                    if (!part15) {
+                      const prefetched = companionDocxRef.current;
+                      if (!prefetched || prefetched.key !== companionPrefetchKey) {
+                        setMessage("The Word file did not export. Try again, or export PDF.");
+                        return;
+                      }
+                      downloadDocxBytes(
+                        prefetched.bytes,
+                        `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
+                      );
+                      if (successful) {
+                        setMessage(
+                          `The successful-offeror companion notice was written under ${simplifiedNoticeCitation(exportContext)}.`,
+                        );
+                      } else {
+                        setMessage(
+                          "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
+                        );
+                      }
+                      return;
+                    }
+                    const write = part15
+                      ? successful
+                        ? generatePostawardSuccessDocx(exportContext)
+                        : generatePostawardUnsuccessDocx(exportContext)
+                      : Promise.reject(new Error("The companion notice was not prefetched."));
+                    void write
+                      .then((bytes) => {
+                        downloadDocxBytes(
+                          bytes,
+                          `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
+                        );
+                      })
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                  } else if (def.key === "ppm" && exportContext) {
+
+                    // The prenegotiation position is written into the NASA OP master.
+                    if (!isPpmPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generatePpmDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "setaside-preaward-notification" && exportContext) {
+                    // The set-aside preaward notice is written into the NASA OP master.
+                    if (!isSetAsidePreawardPath(exportContext)) {
+                      setMessage(
+                        "This file does not record a FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
+                      );
+                    } else {
+                      void generateSetAsidePreawardDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `setaside-preaward-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "drfp-cover-letter" && exportContext) {
+                    if (!isDrfpCoverPath(exportContext)) {
+                      setMessage(
+                        "This file is not on a competed FAR Part 15 negotiated path, so the Draft RFP cover letter was not written.",
+                      );
+                    } else {
+                      void generateDrfpCoverDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "option-exercise-determination" && exportContext) {
+                    // The determination is written into the NASA OP master.
+                    if (!isOptionExercisePath(exportContext)) {
+                      setMessage(
+                        "This file does not record an awarded contract with an option to exercise, so the determination was not written. Record the contract number and the option first.",
+                      );
+                    } else {
+                      void generateOptionExerciseDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "uca-letter-contract" && exportContext) {
+                    // The letter contract justification is written into the NASA OP master.
+                    if (!isUcaJustPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an undefinitized action or a letter contract, so the justification was not written. Record the action first; commercial and simplified files do not use this face.",
+                      );
+                    } else {
+                      void generateUcaJustDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "blackout-notice") {
+                    // The notice is written into the genuine HQ blackout master.
+                    // Without the record in hand the method cannot be read, so
+                    // the honest refusal stands rather than a generic document.
+                    if (!exportContext || !isBlackoutPath(exportContext)) {
+                      setMessage(BLACKOUT_UNAVAILABLE);
+                    } else {
+                      void generateBlackoutDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `blackout-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
+                    // The brand-name justification is written into the NASA OP master.
+                    if (!isFoeBrandPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an order placed under a multiple-award contract with a brand-name basis, so the justification was not written. Record the ordering vehicle and the brand-name item first; commercial and simplified files do not use this face.",
+                      );
+                    } else {
+                      void generateFoeBrandDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `foe-brand-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "option-justification" && exportContext) {
+                    // The option justification is written into the NASA OP master.
+                    if (!isOptionJustificationPath(exportContext)) {
+                      setMessage(
+                        "This file is not on a negotiated or sealed bid solicitation path, so the option justification was not written. Commercial and simplified files do not use this memorandum.",
+                      );
+                    } else {
+                      void generateOptionJustificationDocx(exportContext)
+                        .then((bytes) =>
+                          downloadDocxBytes(bytes, `option-justification-${acquisitionId}.docx`),
+                        )
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, exportHeaderLine);
+                  else if (def.key === "jofoc-8a-over-30m" && exportContext) {
+                    // The 8(a) justification is written into the NASA OP master.
+                    if (!isJofoc8aPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an 8(a) sole source action above $30 million, so the justification was not written. Record the 8(a) sole source path and the estimated value first.",
+                      );
+                    } else {
+                      void generateJofoc8aDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-8a-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "jofoc-urgency" && exportContext) {
+                    // Urgency justification is written into the NASA OP urgency master.
+                    if (!isUrgencyJofocPath(exportContext)) {
+                      setMessage(
+                        "This file does not record an unusual and compelling urgency authority, so the urgency justification was not written. Record the urgency authority first.",
+                      );
+                    } else {
+                      void generateJofocUrgencyDocx(exportContext)
+                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-urgency-${acquisitionId}.docx`))
+                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                    }
+                  } else if (def.key === "jofoc" && exportContext) {
+                    // The JOFOC is written into the NASA Word master, not built from scratch.
+                    void generateJofocDocx(exportContext)
+                      .then((bytes) => downloadDocxBytes(bytes, `jofoc-${acquisitionId}.docx`))
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                  } else if (
+                    (def.key === "limited-sources-justification" || def.key === "lsj") &&
+                    exportContext
+                  ) {
+                    // The LSJ is written into the NASA OP Word master, not built from scratch.
+                    void generateLsjDocx(exportContext)
+                      .then((bytes) => downloadDocxBytes(bytes, `lsj-${acquisitionId}.docx`))
+                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
+                  } else if (exportRendered) void exportDocx(exportRendered, `${def.key}-${acquisitionId}`, exportContext);
+                }}
+              >
+                Export Word
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => {
+                  if (memoOn && memoDoc) {
+                    void exportMemoPdf(memoDoc, exportHeaderLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                      setMessage("The PDF did not export. Try again, or export Word."),
+                    );
+                    return;
+                  }
+                  if (exportRendered) void exportPdf(exportRendered, exportHeaderLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
+                    setMessage("The PDF did not export. Try again, or export Word."),
+                  );
+                }}
+              >
+                Export PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {visibleSections(def, values).map((s) => {
           const body = (
             <>
@@ -2550,217 +2762,7 @@ function DocumentPage() {
           ) : null}
         </section>
 
-        <div id="doc-save-export" className="mc-work-toolbar mb-6 flex flex-wrap items-center">
-          <Button
-            type="submit"
-            disabled={!canEdit || save.isPending}
-          >
-            {save.isPending ? "Saving" : "Save version"}
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button type="button" variant="outline">Export</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-44">
-              <DropdownMenuItem
-                onSelect={() => {
-                  if (
-                    (def.key === "postaward-letter-successful" ||
-                      def.key === "postaward-letter-unsuccessful") &&
-                    exportContext
-                  ) {
-                    // The notification letters are written into the NASA OP masters
-                    // on a Part 15 file, and as the Part 12 or Part 13 companion
-                    // notice on a commercial or simplified file.
-                    const successful = def.key === "postaward-letter-successful";
-                    const part15 = isPart15NotificationPath(exportContext);
-                    if (!part15) {
-                      const prefetched = companionDocxRef.current;
-                      if (!prefetched || prefetched.key !== companionPrefetchKey) {
-                        setMessage("The Word file did not export. Try again, or export PDF.");
-                        return;
-                      }
-                      downloadDocxBytes(
-                        prefetched.bytes,
-                        `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
-                      );
-                      if (successful) {
-                        setMessage(
-                          `The successful-offeror companion notice was written under ${simplifiedNoticeCitation(exportContext)}.`,
-                        );
-                      } else {
-                        setMessage(
-                          "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
-                        );
-                      }
-                      return;
-                    }
-                    const write = part15
-                      ? successful
-                        ? generatePostawardSuccessDocx(exportContext)
-                        : generatePostawardUnsuccessDocx(exportContext)
-                      : Promise.reject(new Error("The companion notice was not prefetched."));
-                    void write
-                      .then((bytes) => {
-                        downloadDocxBytes(
-                          bytes,
-                          `${successful ? "postaward-success" : "postaward-unsuccess"}-${acquisitionId}.docx`,
-                        );
-                      })
-                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                  } else if (def.key === "ppm" && exportContext) {
 
-                    // The prenegotiation position is written into the NASA OP master.
-                    if (!isPpmPath(exportContext)) {
-                      setMessage(
-                        "This file does not record a FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
-                      );
-                    } else {
-                      void generatePpmDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `ppm-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "setaside-preaward-notification" && exportContext) {
-                    // The set-aside preaward notice is written into the NASA OP master.
-                    if (!isSetAsidePreawardPath(exportContext)) {
-                      setMessage(
-                        "This file does not record a FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
-                      );
-                    } else {
-                      void generateSetAsidePreawardDocx(exportContext)
-                        .then((bytes) =>
-                          downloadDocxBytes(bytes, `setaside-preaward-${acquisitionId}.docx`),
-                        )
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "drfp-cover-letter" && exportContext) {
-                    if (!isDrfpCoverPath(exportContext)) {
-                      setMessage(
-                        "This file is not on a competed FAR Part 15 negotiated path, so the Draft RFP cover letter was not written.",
-                      );
-                    } else {
-                      void generateDrfpCoverDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `drfp-cover-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "option-exercise-determination" && exportContext) {
-                    // The determination is written into the NASA OP master.
-                    if (!isOptionExercisePath(exportContext)) {
-                      setMessage(
-                        "This file does not record an awarded contract with an option to exercise, so the determination was not written. Record the contract number and the option first.",
-                      );
-                    } else {
-                      void generateOptionExerciseDocx(exportContext)
-                        .then((bytes) =>
-                          downloadDocxBytes(bytes, `option-exercise-${acquisitionId}.docx`),
-                        )
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "uca-letter-contract" && exportContext) {
-                    // The letter contract justification is written into the NASA OP master.
-                    if (!isUcaJustPath(exportContext)) {
-                      setMessage(
-                        "This file does not record an undefinitized action or a letter contract, so the justification was not written. Record the action first; commercial and simplified files do not use this face.",
-                      );
-                    } else {
-                      void generateUcaJustDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `uca-just-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "blackout-notice") {
-                    // The notice is written into the genuine HQ blackout master.
-                    // Without the record in hand the method cannot be read, so
-                    // the honest refusal stands rather than a generic document.
-                    if (!exportContext || !isBlackoutPath(exportContext)) {
-                      setMessage(BLACKOUT_UNAVAILABLE);
-                    } else {
-                      void generateBlackoutDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `blackout-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "fair-opportunity-brand-name" && exportContext) {
-                    // The brand-name justification is written into the NASA OP master.
-                    if (!isFoeBrandPath(exportContext)) {
-                      setMessage(
-                        "This file does not record an order placed under a multiple-award contract with a brand-name basis, so the justification was not written. Record the ordering vehicle and the brand-name item first; commercial and simplified files do not use this face.",
-                      );
-                    } else {
-                      void generateFoeBrandDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `foe-brand-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "option-justification" && exportContext) {
-                    // The option justification is written into the NASA OP master.
-                    if (!isOptionJustificationPath(exportContext)) {
-                      setMessage(
-                        "This file is not on a negotiated or sealed bid solicitation path, so the option justification was not written. Commercial and simplified files do not use this memorandum.",
-                      );
-                    } else {
-                      void generateOptionJustificationDocx(exportContext)
-                        .then((bytes) =>
-                          downloadDocxBytes(bytes, `option-justification-${acquisitionId}.docx`),
-                        )
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, exportHeaderLine);
-                  else if (def.key === "jofoc-8a-over-30m" && exportContext) {
-                    // The 8(a) justification is written into the NASA OP master.
-                    if (!isJofoc8aPath(exportContext)) {
-                      setMessage(
-                        "This file does not record an 8(a) sole source action above $30 million, so the justification was not written. Record the 8(a) sole source path and the estimated value first.",
-                      );
-                    } else {
-                      void generateJofoc8aDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-8a-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "jofoc-urgency" && exportContext) {
-                    // Urgency justification is written into the NASA OP urgency master.
-                    if (!isUrgencyJofocPath(exportContext)) {
-                      setMessage(
-                        "This file does not record an unusual and compelling urgency authority, so the urgency justification was not written. Record the urgency authority first.",
-                      );
-                    } else {
-                      void generateJofocUrgencyDocx(exportContext)
-                        .then((bytes) => downloadDocxBytes(bytes, `jofoc-urgency-${acquisitionId}.docx`))
-                        .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                    }
-                  } else if (def.key === "jofoc" && exportContext) {
-                    // The JOFOC is written into the NASA Word master, not built from scratch.
-                    void generateJofocDocx(exportContext)
-                      .then((bytes) => downloadDocxBytes(bytes, `jofoc-${acquisitionId}.docx`))
-                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                  } else if (
-                    (def.key === "limited-sources-justification" || def.key === "lsj") &&
-                    exportContext
-                  ) {
-                    // The LSJ is written into the NASA OP Word master, not built from scratch.
-                    void generateLsjDocx(exportContext)
-                      .then((bytes) => downloadDocxBytes(bytes, `lsj-${acquisitionId}.docx`))
-                      .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                  } else if (exportRendered) void exportDocx(exportRendered, `${def.key}-${acquisitionId}`, exportContext);
-                }}
-              >
-                Export Word
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => {
-                  if (memoOn && memoDoc) {
-                    void exportMemoPdf(memoDoc, exportHeaderLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
-                      setMessage("The PDF did not export. Try again, or export Word."),
-                    );
-                    return;
-                  }
-                  if (exportRendered) void exportPdf(exportRendered, exportHeaderLine, `${def.key}-${acquisitionId}`, exportContext).catch(() =>
-                    setMessage("The PDF did not export. Try again, or export Word."),
-                  );
-                }}
-              >
-                Export PDF
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
 
         {message ? (
           <p role="status" className="mb-6 text-[15px]">
@@ -2841,7 +2843,8 @@ function DocumentPage() {
       ) : null}
 
 
-      <section id="doc-provenance" aria-label="Provenance" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+      <MissionNavSection id="doc-provenance" label="Provenance" collapsible summary="Source and review details">
+      <section aria-label="Provenance" className="max-w-[80ch]">
         <div className="flex flex-wrap items-center gap-2 text-[13px]">
           <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Live</span>
           {isSampleFile ? <span className="rounded-full border border-border bg-background px-2.5 py-1 font-medium">Sample</span> : null}
@@ -2879,6 +2882,7 @@ function DocumentPage() {
           </details>
         </div>
       </section>
+      </MissionNavSection>
 
       <section id="doc-official-copy" aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
         <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
@@ -3120,7 +3124,8 @@ function DocumentPage() {
         canShare={hasAnyRole(["specialist", "hq"])}
       />
 
-      <section id="doc-versions" className="mb-10 max-w-[80ch]">
+      <MissionNavSection id="doc-versions" label="Versions" collapsible summary={`${q.data?.versions.length ?? 0} saved`}>
+      <section className="max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>
         {q.data?.versions.length ? (
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -3147,11 +3152,12 @@ function DocumentPage() {
           <p className="text-muted-foreground">No versions yet. Save one to start the history.</p>
         )}
       </section>
+      </MissionNavSection>
 
       <MissionNavSection id="doc-regulations" label="Regulations">
         <RegulationSidebar phase={(q.data?.acq?.["current_phase"] as string | null) || phase} />
       </MissionNavSection>
-      <MissionNavSection id="doc-defect" label="Report a defect">
+      <MissionNavSection id="doc-defect" label="Report a defect" collapsible summary="Support details">
         <DefectReport
           templateKey={templateKey}
           templateName={def.name}

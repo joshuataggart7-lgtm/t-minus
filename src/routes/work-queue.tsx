@@ -500,26 +500,28 @@ function CardView({ c }: { c: Card }) {
       params={{ acquisitionId: c.acquisitionId }}
       className={`mc-work-card ${missionReadinessClass(c.readiness.state, "is")} block transition-colors duration-150 hover:border-primary`}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2"><span className="text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span><PriorityBand priority={c.priority} /></div>
+          <span className="text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span>
           <p className="mt-1 break-words text-[15px] leading-[22px] font-medium">
             {c.title}
           </p>
         </div>
         <MissionReadinessChip state={c.readiness.state} />
       </div>
-      <p className="mt-2 break-words text-[13px] text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
-      <div className="mt-4">
-        <p className="whitespace-nowrap text-[28px] leading-8 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
-        <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
+      <div className="mt-3 flex min-w-0 flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
+        <div>
+          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
+          <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
+        </div>
+        <PriorityBand priority={c.priority} />
       </div>
       <WorkTriageSignal readiness={c.readiness} />
-      <p className="mt-3 text-[13px]">Owner: {c.owner}</p>
-      <p className="mt-1 text-[13px]">Next: {c.nextTask}</p>
-      <p className="mt-1 text-[13px]">Waiting on: {c.dependency}</p>
-      <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-        Phase: {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
+      <p className="mt-3 text-[13px] font-medium">Next: {c.nextTask}</p>
+      <p className="mt-2 break-words text-[12px] leading-4 text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
+      <p className="mt-1 text-[12px] leading-4 text-muted-foreground">Owner: {c.owner} · Waiting on: {c.dependency}</p>
+      <p className="mt-1 text-[12px] leading-4 text-muted-foreground" data-numeric>
+        {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
       </p>
     </Link>
   );

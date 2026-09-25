@@ -776,44 +776,6 @@ function FormPage() {
         nav={<MissionNavigator items={formNavItems} label="In this form" ariaLabel="In this form" />}
       >
       <div className="mc-shell-form-content">
-      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
-        <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
-        <p className="text-[13px] text-muted-foreground">
-          <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
-        </p>
-      </div>
-      <p className="mc-work-summary mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-        {headerLine} · {form?.citation}
-        {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
-        {formTemplateId === "sf1449"
-          ? " · official PDF export: Live"
-          : formTemplateId
-            ? ` · official PDF export: ${officialExportStatus}`
-            : ""}
-
-        {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
-      </p>
-      {/* Every filled export says what it is and what it is not. */}
-      <p className="mc-work-form-section mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-        Prototype. Not an official NASA system.
-        {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
-        signature — not the NCMS document of record (NFS 1804.171). Signature blocks are left empty. Fields the record
-        does not carry read “Not recorded on this file.”
-      </p>
-      <p className="mb-6 text-[15px]">
-        <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
-          Back to the file
-        </Link>
-      </p>
-
-      {q.isLoading ? <LoadingNote what="the form" /> : null}
-      {q.error ? <ErrorNote message={(q.error as Error).message} /> : null}
-      {!q.isLoading && !q.error && !q.data?.acq ? (
-        <EmptyState sentence="This file was not found. Open the work queue and pick a file." />
-      ) : null}
-
-      {form ? (
-        <>
           <div id="form-actions" className="mc-work-toolbar mb-6 flex flex-wrap">
             <button
               type="button"
@@ -901,6 +863,45 @@ function FormPage() {
               Export RFP cover (Word)
             </button>
           </div>
+      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
+        <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
+        <p className="text-[13px] text-muted-foreground">
+          <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
+        </p>
+      </div>
+      <p className="mc-work-summary mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+        {headerLine} · {form?.citation}
+        {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
+        {formTemplateId === "sf1449"
+          ? " · official PDF export: Live"
+          : formTemplateId
+            ? ` · official PDF export: ${officialExportStatus}`
+            : ""}
+
+        {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
+      </p>
+      {/* Every filled export says what it is and what it is not. */}
+      <p className="mc-work-form-section mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+        Prototype. Not an official NASA system.
+        {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
+        signature — not the NCMS document of record (NFS 1804.171). Signature blocks are left empty. Fields the record
+        does not carry read “Not recorded on this file.”
+      </p>
+      <p className="mb-6 text-[15px]">
+        <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+          Back to the file
+        </Link>
+      </p>
+
+      {q.isLoading ? <LoadingNote what="the form" /> : null}
+      {q.error ? <ErrorNote message={(q.error as Error).message} /> : null}
+      {!q.isLoading && !q.error && !q.data?.acq ? (
+        <EmptyState sentence="This file was not found. Open the work queue and pick a file." />
+      ) : null}
+
+      {form ? (
+        <>
+
           {formTemplateId ? (
             <details className="mb-4 max-w-[80ch] text-[12px] leading-5 text-muted-foreground">
               <summary className="cursor-pointer text-[12px]">

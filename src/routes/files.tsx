@@ -113,7 +113,8 @@ function FilesPage() {
         holdSince: holdSince(acq.acquisition_id, q.data.log),
         awardDate: operational.actualAwardDate,
       });
-      return { acq, operational: operational.acquisition, metric, readiness: explainWorkReadiness(metric).state };
+      const readiness = explainWorkReadiness(metric);
+      return { acq, operational: operational.acquisition, metric, mission, readiness };
     });
   }, [q.data, ref]);
 
@@ -130,41 +131,40 @@ function FilesPage() {
 
       {rows.length ? (
         <div className="mc-work-table-wrap">
-          <table className="w-full min-w-[68rem] border border-border bg-background text-[13px] leading-[18px]">
+          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Acquisition</th>
-                <th scope="col" className="p-2">Title</th>
-                <th scope="col" className="p-2">Center</th>
-                <th scope="col" className="p-2">Estimated value</th>
-                <th scope="col" className="p-2">Phase</th>
-                <th scope="col" className="p-2">Readiness</th>
-                <th scope="col" className="p-2">Award clock</th>
-                <th scope="col" className="p-2">Estimate at intake</th>
+                <th scope="col" className="p-2">Status</th>
+                <th scope="col" className="p-2">T±</th>
+                <th scope="col" className="p-2">Owner</th>
+                <th scope="col" className="p-2">Next action</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ acq, operational, metric, readiness }) => (
-                <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness, "is")} border-b border-border align-top last:border-0`}>
-                  <td className="p-2">
-                    <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="text-primary hover:text-primary-hover">
-                      {acq.acquisition_id}
-                    </Link>
-                  </td>
+              {rows.map(({ acq, operational, metric, mission, readiness }) => (
+                <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness.state, "is")} border-b border-border align-top last:border-0`}>
                   <td className="p-2 break-words">
-                    {String(acq.title ?? "—")}
+                    <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="text-primary hover:text-primary-hover">
+                      <span className="block text-[12px] text-muted-foreground" data-numeric>{acq.acquisition_id}</span>
+                      <span className="block font-medium">{String(acq.title ?? acq.acquisition_id)}</span>
+                    </Link>
                     {acq['source_tag'] === "backfilled" ? (
-                      <span className="mt-1 block text-[13px] text-muted-foreground">
+                      <span className="mt-1 block text-[12px] text-muted-foreground">
                         Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}
                       </span>
                     ) : null}
+                    <span className="mt-1 block text-[12px] text-muted-foreground">
+                      {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
+                    </span>
+                    <span className="mt-1 block text-[12px] text-muted-foreground">
+                      {acq.estimated_value ? formatMoney(Number(acq.estimated_value)) : "Not recorded"} · {String(acq.acquisition_method ?? "Not recorded")} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null)}
+                    </span>
                   </td>
-                  <td className="p-2">{String(acq.center_code ?? "—")}</td>
-                  <td className="p-2" data-numeric>{acq.estimated_value ? formatMoney(Number(acq.estimated_value)) : "—"}</td>
-                  <td className="p-2">{String(operational.current_phase ?? "—")}</td>
-                  <td className="p-2"><MissionReadinessChip state={readiness} /></td>
-                  <td className="p-2" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} /></td>
-                  <td className="p-2">{estimateLine(acq['intake_estimate'] as StoredEstimate | null)}</td>
+                  <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
+                  <td className="p-2 whitespace-nowrap" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} /></td>
+                  <td className="p-2 break-words">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
+                  <td className="p-2 break-words">{readiness.nextAction}</td>
                 </tr>
               ))}
             </tbody>
