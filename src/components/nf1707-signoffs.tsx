@@ -110,7 +110,7 @@ export function Nf1707Signoffs({
       </p>
 
       {blocked.length ? (
-        <div className="mt-4 border-l-4 border-destructive bg-background p-3">
+        <div className="mt-4 border-l-4 border-[#C8321E] bg-background p-3">
           <p className="text-[15px] font-medium">Non-concurrence. This phase is blocked.</p>
           <ul className="mt-1 space-y-1 text-[13px]">
             {blocked.map((r) => (

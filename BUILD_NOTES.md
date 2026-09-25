@@ -3092,5 +3092,11 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - `/reporting`: Views and preview rows use shared work table wrappers; preview rows and nightly extract are collapsed by default.
 - `/simulate`: top notice clearly states “Simulation · Sandbox — not saved”; affected files table uses the shared work table wrapper. No saved-record writes added.
 - `/audit-log`: main log tables remain open and uncollapsed; filter band uses the shared work toolbar and long row text can wrap.
-- `/center-config`: override form keeps `#my-record`; Overrides and Memorandum routing tables use shared work table wrappers and are collapsed by default with counts.
+- `/center-config`: Overrides and Memorandum routing tables use shared work table wrappers and are collapsed by default with counts.
 - Presentation/layout only: no query, mutation, workflow, clock/state, generator, export, signature, fixture, or protected integration behavior changed.
+
+## IA Slice 6B — StatusMark sweep
+- Corrected Slice 6A: removed the duplicate `#my-record` from the override form; the existing current-user row in `PeopleContacts` remains the anchor target. Reporting Preview rows now opens by default, and NF 1858 memorandum routing opens by default for editors; Overrides stays collapsed.
+- Replaced ad-hoc status styling with the existing `StatusMark` primitive for directive attachment/review, intake package/attachment/PSC states, SEB consistency/evidence, NF 1098 assembly, award-handoff blanks, and file tab/conflict labels. Every visible word and condition is unchanged.
+- Existing `StatusMark` instances remain for non-readiness meanings such as template lifecycle, seed state, document presence, gate/review/poll state, deviation clocks, link state, severity, and follow-on timing. The file's acquisition readiness continues to use `MissionReadinessChip`; no non-readiness value was recast as GO/WATCH/HOLD/LAUNCHED.
+- `StatusMark` remains exported from `app-shell.tsx`. No query, mutation, state calculation, clock, generator, export, signature, fixture, command, or integration behavior changed.
