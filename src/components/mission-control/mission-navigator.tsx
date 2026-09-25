@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export type MissionNavItem = {
   id: string;
@@ -10,6 +11,8 @@ export type MissionNavItem = {
 function openContainingDetails(target: HTMLElement) {
   const details = target.matches("details") ? target : target.closest("details");
   if (details instanceof HTMLDetailsElement) details.open = true;
+  const containedDetails = target.querySelector<HTMLDetailsElement>(":scope > details");
+  if (containedDetails) containedDetails.open = true;
 }
 
 function focusSection(target: HTMLElement) {
@@ -103,8 +106,8 @@ export function MissionNavigator({
         ))}
       </ol>
       <div className="mc-nav-actions">
-        <button type="button" onClick={() => setAll(true)}>Expand all</button>
-        <button type="button" onClick={() => setAll(false)}>Collapse secondary</button>
+        <Button type="button" variant="link" size="sm" onClick={() => setAll(true)}>Expand all</Button>
+        <Button type="button" variant="link" size="sm" onClick={() => setAll(false)}>Collapse secondary</Button>
       </div>
     </nav>
   );

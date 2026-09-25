@@ -2237,7 +2237,7 @@
   border-top: 1px solid var(--mc-warm-line);
   padding: var(--mc-space-3) var(--mc-space-3) 0;
 }
-.mc-nav-actions button { color: var(--primary); font-size: 11px; }
+.mc-nav-actions button { height: auto; padding: 0; color: var(--primary); font-size: 11px; }
 .mc-nav-section { min-width: 0; scroll-margin-top: 72px; }
 .mc-nav-section:focus,
 .mc-nav-section h1:focus,
