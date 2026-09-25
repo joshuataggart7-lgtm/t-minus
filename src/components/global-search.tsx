@@ -250,10 +250,12 @@ export function GlobalSearch() {
                    }
                    if (e.key !== "Enter" || !q.trim()) return;
                    e.preventDefault();
-                   if (activeIndex >= 0 && activeIndex < results.length) {
-                     openFile(results[activeIndex].row.acquisition_id);
-                   } else if (activeIndex >= results.length && commands[activeIndex - results.length]) {
-                     runCommand(commands[activeIndex - results.length]);
+                   const activeResult = activeIndex >= 0 && activeIndex < results.length ? results[activeIndex] : undefined;
+                   const activeCommand = activeIndex >= results.length ? commands[activeIndex - results.length] : undefined;
+                   if (activeResult) {
+                     openFile(activeResult.row.acquisition_id);
+                   } else if (activeCommand) {
+                     runCommand(activeCommand);
                    } else if (results[0]) {
                      openFile(results[0].row.acquisition_id);
                    } else if (commands[0]) {
