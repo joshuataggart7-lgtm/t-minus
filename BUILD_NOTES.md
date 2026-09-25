@@ -6,6 +6,7 @@
 - d) Mission Navigator scroll-spy now deterministically recomputes from section positions after scroll, resize, details toggles, DOM changes, and settled jumps; available IDs update only when their list changes.
 - f) Acquisition Forecast retains the existing anticipated-award value, adding a display-only note when it comes from mission need date because no target award date is recorded. Forecast exports and clock derivation are unchanged.
 - Untouched: document/form generation, mappings, prefill, values/editing, export bytes and filenames, signatures, refusal behavior, method gates, citations, audit writes, fixtures, checkouts, operational/readiness/countdown helpers, workflow rules/assignment/counts, rail internals, migrations, and all `src/lib/*` files.
+- IA Fix R1 corrective: reverted the Executive Overview `.mc-status-rail` / `.mc-stat-block:last-child` media query back to 1024px (out of scope; 1440px kept only for `mc-shell-*`); removed `table-fixed` from the Work Queue List table so columns size to content, added `whitespace-nowrap` to the Priority header and cell, and kept the T± `whitespace-nowrap` wrapper and folded Mission/Column lines.
 
 # IA Slice 3 — Document/form shells — September 25, 2026
 

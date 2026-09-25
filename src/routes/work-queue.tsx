@@ -411,11 +411,11 @@ function WorkQueuePage() {
         </div>
         <RowKeysHint />
         <div className="mc-work-table-wrap mt-3">
-        <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px]">
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Acquisition</th>
-              <th scope="col" className="p-2">Priority</th>
+              <th scope="col" className="p-2 whitespace-nowrap">Priority</th>
               <th scope="col" className="p-2">Status</th>
               <th scope="col" className="p-2">T±</th>
               <th scope="col" className="p-2">Owner</th>
@@ -463,7 +463,7 @@ function WorkQueuePage() {
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.mission}</span>
                 </td>
-                <td className="p-2"><PriorityBand priority={c.priority} /></td>
+                <td className="p-2 whitespace-nowrap"><PriorityBand priority={c.priority} /></td>
                 <td className="p-2"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
                 <td className="p-2" data-numeric>
                   <span className="whitespace-nowrap"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
