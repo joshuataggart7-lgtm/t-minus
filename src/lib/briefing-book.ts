@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { boardReadinessItems, type BoardReadiness } from "@/lib/board-readiness";
 import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
 import type { ScaffoldSectionK } from "@/lib/format-scaffold";
+import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import type { CountdownView } from "@/components/launch-countdown";
 
 const esc = (s: unknown) =>
@@ -298,6 +299,11 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   const countdownFigure = countdown
     ? countdown.days === null || !countdown.prefix ? "—" : `${countdown.prefix} ${countdown.days}`
     : input.days === null ? "—" : String(Math.abs(input.days));
+  const clockSubLine = `${input.currentPhase} · ${input.clockState}${
+    input.targetAwardDate
+      ? ` · target ${input.targetAwardDate}`
+      : ` · Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
+  }`;
 
   const factRows = input.facts
     .map((f) => `<tr><th scope="row">${esc(f.label)}</th><td>${esc(f.value)}</td></tr>`)
@@ -351,7 +357,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
     <div class="band">
       <p class="figure">${esc(countdownFigure)}</p>
       <p class="sub">${esc(daysLine)}</p>
-      <p class="sub" style="margin-top:12px">${esc(input.currentPhase)} · ${esc(input.clockState)}${input.targetAwardDate ? ` · target ${esc(input.targetAwardDate)}` : ""}</p>
+      <p class="sub" style="margin-top:12px">${esc(clockSubLine)}</p>
     </div>
     <div style="margin-top:28px">
       <p class="sub">Next action</p>

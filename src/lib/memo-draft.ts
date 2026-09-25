@@ -14,6 +14,7 @@
 
 import type { Values } from "@/lib/template-engine";
 import { MFR_SITUATION_PURPOSE } from "@/lib/template-engine";
+import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import { findingText, type FindingMap } from "@/lib/research-findings";
 import { humanMemoProse } from "@/lib/memo-prose";
 
@@ -423,15 +424,21 @@ function competitionBasis(ctx: MemoDraftCtx): string {
   const setAside = str(a["set_aside"]);
   const posted = ctx.notice?.postedOn;
   const quotes = ctx.notice?.quotesReceived;
+  const currentPhaseIndex = ctx.phases?.findIndex((entry) => entry.phase === ctx.operational?.phase) ?? -1;
+  const solicitationPhaseIndex = ctx.phases?.findIndex((entry) => /solicitation/i.test(entry.phase)) ?? -1;
+  const pastSolicitation =
+    currentPhaseIndex >= 0 && solicitationPhaseIndex >= 0 && currentPhaseIndex > solicitationPhaseIndex;
   if (/sole/i.test(str(a["competition"]))) {
     const authority = str(a["jofoc_authority_citation"]);
     return [
-      `Awarded on a sole-source basis under FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1) and the limitation on competition at FAR 6.104${
+      `${ctx.operational?.readiness === "LAUNCHED" ? "Awarded" : "This acquisition is being conducted"} on a sole-source basis under FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1) and the limitation on competition at FAR 6.104${
         authority ? `, on the authority of ${authority}` : ""
       }.`,
       `NAICS ${naics || "[not recorded]"}, ${size}.`,
       posted
         ? `A notice of intent to sole source was posted to SAM.gov on ${posted}.`
+        : pastSolicitation
+          ? "A notice of intent to sole source was posted to SAM.gov."
         : "A notice of intent to sole source will be posted to SAM.gov.",
     ].join(" ");
   }
@@ -445,6 +452,12 @@ function competitionBasis(ctx: MemoDraftCtx): string {
             ? "quotations will be recorded on receipt"
             : `${quotes} quotation${quotes === 1 ? " was" : "s were"} received`
         }.`
+      : pastSolicitation
+        ? `A combined synopsis/solicitation was posted to SAM.gov; ${
+            quotes === null || quotes === undefined
+              ? "quotations were received"
+              : `${quotes} quotation${quotes === 1 ? " was" : "s were"} received`
+          }.`
       : "A combined synopsis/solicitation will be posted to SAM.gov; quotations will be recorded on receipt.",
   ].join(" ");
 }
@@ -1008,7 +1021,9 @@ function situationScaffold(ctx: MemoDraftCtx): string {
   );
   lines.push(
     `3. Dates on the record. ${
-      target ? `Target award date ${target}.` : "No target award date is recorded."
+      target
+        ? `Target award date ${target}.`
+        : `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
     }${ctx.today ? ` This memorandum is dated ${ctx.today}.` : ""}`,
   );
   lines.push(`4. Effect on the schedule. ${gap("state the effect on the award date and on the mission date")}`);
