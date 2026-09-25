@@ -102,6 +102,7 @@ export function SmallBusinessPanel({
           Every file above the threshold has a plan or waiver on file.
         </p>
       ) : (
+        <div className="overflow-x-auto">
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Files above the subcontracting plan threshold with no plan on file</caption>
           <thead>
@@ -137,6 +138,7 @@ export function SmallBusinessPanel({
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       <h4 className="mt-8 text-[15px] leading-[22px] font-medium">Market research: who subcontracts to whom</h4>
@@ -177,6 +179,7 @@ export function SmallBusinessPanel({
           {view.rows.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No subaward records came back for this NAICS code.</p>
           ) : (
+            <div className="overflow-x-auto">
             <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
               <caption className="sr-only">Subaward records for NAICS {view.naicsCode}</caption>
               <thead>
@@ -208,6 +211,7 @@ export function SmallBusinessPanel({
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>
       ) : null}
