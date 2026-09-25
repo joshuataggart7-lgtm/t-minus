@@ -521,7 +521,7 @@ function CardView({ c }: { c: Card }) {
       <p className="mt-2 break-words text-[12px] leading-4 text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
       <p className="mt-1 text-[12px] leading-4 text-muted-foreground">Owner: {c.owner} · Waiting on: {c.dependency}</p>
       <p className="mt-1 text-[12px] leading-4 text-muted-foreground" data-numeric>
-        {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
+        Phase: {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
       </p>
     </Link>
   );
