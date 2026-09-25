@@ -59,31 +59,41 @@ export function Nf1098AssemblyPanel({
         not presented as a filled agency form.
       </p>
 
-      <table className="mt-3 w-full text-[13px] leading-[18px]">
-        <caption className="sr-only">Contract-file assembly checklist for {acquisitionId}</caption>
-        <thead>
-          <tr className="border-y border-border text-left">
-            <th scope="col" className="p-2">Tab or enclosure</th>
-            <th scope="col" className="p-2">Item</th>
-            <th scope="col" className="p-2">Status</th>
-            <th scope="col" className="p-2">Note</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r, i) => (
-            <tr key={`${r.slot}-${r.item}-${i}`} className="border-b border-border align-top">
-              <td className="p-2" data-numeric>{r.slot}</td>
-              <td className="p-2">{r.item}</td>
-              <td className="p-2">
-                <StatusMark color={r.status === "Missing" ? "var(--atrisk)" : "var(--ontrack)"}>
-                  {r.status}
-                </StatusMark>
-              </td>
-              <td className="p-2 text-muted-foreground">{r.note}</td>
+      <div className="overflow-x-auto">
+        <table className="mt-3 w-full text-[13px] leading-[18px]">
+          <caption className="sr-only">Contract-file assembly checklist for {acquisitionId}</caption>
+          <thead>
+            <tr className="border-y border-border text-left">
+              <th scope="col" className="p-2">Tab or enclosure</th>
+              <th scope="col" className="p-2">Item</th>
+              <th scope="col" className="p-2">Status</th>
+              <th scope="col" className="p-2">Note</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={`${r.slot}-${r.item}-${i}`} className="border-b border-border align-top">
+                <td className="p-2" data-numeric>{r.slot}</td>
+                <td className="p-2">{r.item}</td>
+                <td className="p-2">
+                  <StatusMark
+                    color={
+                      r.status === "Missing"
+                        ? "var(--atrisk)"
+                        : r.status === "Present" || r.status === "Recorded"
+                          ? "var(--ontrack)"
+                          : "var(--muted-foreground)"
+                    }
+                  >
+                    {r.status}
+                  </StatusMark>
+                </td>
+                <td className="p-2 text-muted-foreground">{r.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {onExport ? (
