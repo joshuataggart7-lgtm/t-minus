@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 import {
   completeModTask,
   createModTasks,
@@ -262,6 +263,7 @@ function ClauseChangesPage() {
       ) : null}
 
       {rows.length > 0 ? (
+        <div className="mc-work-table-wrap">
         <table className="w-full border-collapse text-[13px] leading-[18px]">
           <caption className="sr-only">
             Contracts affected by {change?.clause_number}, sorted by months of performance remaining
@@ -344,10 +346,17 @@ function ClauseChangesPage() {
             ))}
           </tbody>
         </table>
+        </div>
       ) : null}
 
       {solicitationRows.length > 0 ? (
-        <section className="mt-10">
+        <MissionNavSection
+          id="clause-solicitations"
+          label="Solicitations to re-check"
+          collapsible
+          summary={`${solicitationRows.length} ${solicitationRows.length === 1 ? "file" : "files"}`}
+        >
+        <section>
           <h2 className="text-[18px] leading-6 font-medium">Solicitations to re-check</h2>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
             These files have no contract number yet, so there is nothing to modify. Re-check the clause in the
@@ -367,27 +376,29 @@ function ClauseChangesPage() {
             ))}
           </ul>
         </section>
+        </MissionNavSection>
       ) : null}
 
-      <h2 className="mt-10 text-[18px] leading-6 font-medium">Mods done against mods due, by Center</h2>
-      {counts.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No mod task has been created yet.</p>
-      ) : (
-        <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
-          {counts.map((c) => (
-            <li key={c.center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
-              <span>{c.center}</span>
-              <span data-numeric>
-                {c.done} done of {c.due} due
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <p className="mt-8 max-w-[80ch] text-[13px] text-muted-foreground">
-        NCMS writes the modification of record (NFS 1804.171). The packet here is a handoff showing the clause delta.
-      </p>
+      <MissionNavSection id="clause-support" label="Center progress and handoff note" collapsible summary={`${counts.length} ${counts.length === 1 ? "Center" : "Centers"}`}>
+        <section className="min-w-0">
+          <h2 className="text-[18px] leading-6 font-medium">Mods done against mods due, by Center</h2>
+          {counts.length === 0 ? (
+            <p className="mt-2 text-muted-foreground">No mod task has been created yet.</p>
+          ) : (
+            <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
+              {counts.map((c) => (
+                <li key={c.center} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
+                  <span className="break-words">{c.center}</span>
+                  <span data-numeric>{c.done} done of {c.due} due</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-6 max-w-[80ch] break-words text-[13px] text-muted-foreground">
+            NCMS writes the modification of record (NFS 1804.171). The packet here is a handoff showing the clause delta.
+          </p>
+        </section>
+      </MissionNavSection>
     </AppShell>
   );
 }

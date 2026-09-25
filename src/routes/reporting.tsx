@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote } from "@/components/app-s
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
+import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -75,7 +76,8 @@ function ReportingPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">Views</h2>
-        <table className="mt-3 w-full border-collapse text-sm">
+        <div className="mc-work-table-wrap mt-3">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-border text-left text-muted">
               <th scope="col" className="py-2 pr-4 font-medium">View</th>
@@ -103,6 +105,7 @@ function ReportingPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {counts.isLoading ? <LoadingNote what="the view counts" /> : null}
         {counts.error ? <ErrorNote message="The view counts could not be read. Refresh the page to try again." /> : null}
       </section>
@@ -122,7 +125,8 @@ function ReportingPage() {
         {preview.isLoading ? <LoadingNote what="the view" /> : null}
         {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
         {preview.data && preview.data.length > 0 ? (
-          <div className="mt-3 overflow-x-auto">
+          <MissionNavSection id="report-preview" label="Preview rows" collapsible summary={`${preview.data.length} rows`}>
+          <div className="mc-work-table-wrap">
             <table className="w-full border-collapse text-[13px] leading-[18px]">
               <thead>
                 <tr className="border-b border-border text-left text-muted">
@@ -146,6 +150,7 @@ function ReportingPage() {
               </tbody>
             </table>
           </div>
+          </MissionNavSection>
         ) : null}
         {!preview.isLoading && !preview.error && preview.data && preview.data.length === 0 ? (
           <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
@@ -154,15 +159,16 @@ function ReportingPage() {
         ) : null}
       </section>
 
-      <section className="mt-10 border-t border-border pt-6">
-        <h2 className="text-lg font-medium">Nightly extract</h2>
-        <p className="mt-2 max-w-[70ch] text-muted">
+      <MissionNavSection id="report-extract" label="Nightly extract" collapsible summary="Delivery details">
+        <section className="min-w-0">
+        <p className="max-w-[70ch] break-words text-muted">
           A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
           Power BI reads a view directly at{" "}
           <span className="tabular-nums">/api/public/hooks/reporting-extract?view=v_report_acquisitions</span>, with the
           extract token supplied by HQ.
         </p>
-      </section>
+        </section>
+      </MissionNavSection>
     </AppShell>
   );
 }

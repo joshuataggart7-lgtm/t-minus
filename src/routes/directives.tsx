@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 import {
   DIRECTIVE_CITATION,
   loadHardwareFiles,
@@ -78,8 +79,6 @@ function DirectivesPage() {
         lead="Every file with a hardware deliverable, its Right to Repair requirements statement, and its restrictive-clause review."
       />
 
-      <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
-
       {q.isLoading ? <LoadingNote what="the hardware files" /> : null}
       {q.error ? <ErrorNote message="The list did not load. Reload the page and try again." /> : null}
 
@@ -144,6 +143,7 @@ function DirectivesPage() {
       ) : null}
 
       {rows.length > 0 ? (
+        <div className="mc-work-table-wrap">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Hardware files and their directive compliance</caption>
           <thead>
@@ -181,7 +181,12 @@ function DirectivesPage() {
             ))}
           </tbody>
         </table>
+        </div>
       ) : null}
+
+      <MissionNavSection id="directive-authority" label="Authority and scope" collapsible summary="1 citation">
+        <p className="max-w-[80ch] break-words text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
+      </MissionNavSection>
     </AppShell>
   );
 }

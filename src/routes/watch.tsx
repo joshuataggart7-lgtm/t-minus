@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { runWatchFetch } from "@/lib/watch.functions";
+import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 import {
   itemsFromRefs,
   itemsFromWatchRows,
@@ -184,14 +185,6 @@ function WatchPage() {
         <ErrorNote message="The feeds did not load. Reload the page, and run a fetch if the list stays empty." />
       ) : null}
 
-      {!q.isLoading ? (
-        <div className="mb-5 flex flex-wrap gap-4 text-[13px] text-muted-foreground">
-          {(["GAO", "Federal Register"] as const).map((feed) => (
-            <span key={feed}>{feed}: {q.data?.live.has(feed) ? "Live feed available" : "Live feed not yet run"}</span>
-          ))}
-        </div>
-      ) : null}
-
       {!q.isLoading && !q.error && shown.length === 0 ? (
         <EmptyState
           sentence="No items match these filters yet."
@@ -218,6 +211,23 @@ function WatchPage() {
           <FeedRow key={item.id} item={item} />
         ))}
       </ul>
+
+      {!q.isLoading ? (
+        <MissionNavSection
+          id="watch-feed-status"
+          label="Feed status"
+          collapsible
+          summary="2 sources"
+        >
+          <div className="flex min-w-0 flex-wrap gap-4 text-[13px] text-muted-foreground">
+            {(["GAO", "Federal Register"] as const).map((feed) => (
+              <span key={feed} className="break-words">
+                {feed}: {q.data?.live.has(feed) ? "Live feed available" : "Live feed not yet run"}
+              </span>
+            ))}
+          </div>
+        </MissionNavSection>
+      ) : null}
     </AppShell>
   );
 }

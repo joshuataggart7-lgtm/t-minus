@@ -135,8 +135,9 @@ function SimulatePage() {
 
       <p
         role="note"
-        className="mt-4 rounded-lg border border-border bg-canvas px-4 py-2 text-sm text-muted"
+        className="mc-work-summary mt-4 max-w-[80ch] text-sm text-muted"
       >
+        <strong className="text-foreground">Simulation · Sandbox — not saved.</strong>{" "}
         Advisory only — no open file is changed by this screen.
       </p>
 
@@ -238,6 +239,7 @@ function SimulatePage() {
               {result.filesAffected.length === 0 ? (
                 <EmptyState sentence="No open file's rows would change under this what-if." />
               ) : (
+                <div className="mc-work-table-wrap">
                 <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
                   <caption className="sr-only">Files whose planned days change under the proposed value</caption>
                   <thead>
@@ -277,6 +279,7 @@ function SimulatePage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </section>
           ) : null}

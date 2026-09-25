@@ -11,6 +11,7 @@ import { PeopleRoles } from "@/components/people-roles";
 import { PeopleContacts } from "@/components/people-contacts";
 import { RoutingCsvImport } from "@/components/routing-csv-import";
 import { ReviewerRosterCsvImport } from "@/components/reviewer-roster-csv-import";
+import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
@@ -192,7 +193,7 @@ function CenterConfigPage() {
       <PeopleContacts actorName={user?.name ?? "Unknown"} mayEdit={mayEdit} />
 
       {mayEdit ? (
-        <form onSubmit={save} className="mt-8 max-w-[70ch] border-t border-border pt-6">
+        <form onSubmit={save} className="mc-work-form-section mt-8 max-w-[70ch]" id="my-record">
           <h2 className="text-lg font-medium">Set an override</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
@@ -290,13 +291,14 @@ function CenterConfigPage() {
         </p>
       )}
 
-      <section className="mt-10">
-        <h2 className="text-lg font-medium">Overrides</h2>
+      <MissionNavSection id="center-overrides" label="Overrides" collapsible summary={`${rows.length} ${rows.length === 1 ? "record" : "records"}`}>
+        <section>
         {rows.length === 0 && !q.isLoading ? (
           <EmptyState sentence="No Center overrides are set. Every Center uses the seeded values." />
         ) : null}
         {rows.length > 0 ? (
-          <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
+          <div className="mc-work-table-wrap mt-3">
+          <table className="w-full border-collapse text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left text-muted">
                 <th scope="col" className="py-2 pr-4 font-medium">Center</th>
@@ -342,11 +344,13 @@ function CenterConfigPage() {
               })}
             </tbody>
           </table>
+          </div>
         ) : null}
       </section>
+      </MissionNavSection>
 
-      <section className="mt-10">
-        <h2 className="text-lg font-medium">Memorandum routing, NF 1858</h2>
+      <MissionNavSection id="center-memo-routing" label="Memorandum routing, NF 1858" collapsible summary={`${(q.data?.routing ?? []).length} ${(q.data?.routing ?? []).length === 1 ? "route" : "routes"}`}>
+      <section>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted">
           To and Thru on a memorandum read from this table. The seeded ARC titles are placeholders; edit them for
           your Center.
@@ -354,7 +358,8 @@ function CenterConfigPage() {
         {(q.data?.routing ?? []).length === 0 && !q.isLoading ? (
           <EmptyState sentence="No memorandum routing is set. Add a row for a Center and document type." />
         ) : null}
-        <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
+        <div className="mc-work-table-wrap mt-3">
+        <table className="w-full border-collapse text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left text-muted">
               <th scope="col" className="py-2 pr-4 font-medium">Center</th>
@@ -371,6 +376,7 @@ function CenterConfigPage() {
             ))}
           </tbody>
         </table>
+        </div>
         {mayEdit ? (
           <form
             className="mt-4 flex flex-wrap items-end gap-3"
@@ -425,6 +431,7 @@ function CenterConfigPage() {
           </form>
         ) : null}
       </section>
+      </MissionNavSection>
 
       {mayEdit ? (
         <>

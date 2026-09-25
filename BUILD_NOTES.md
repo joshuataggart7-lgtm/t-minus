@@ -3084,3 +3084,13 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - src/lib/forecast.ts: anticipated_award_date is "Not yet determined" when target_award_date is empty (need_date fallback removed for this field only); forecastCsv emits "Not yet determined — Update as soon as the award date is known." for that cell, header and column set unchanged.
 - files_.$acquisitionId.tsx forecast table: TBD value shows the muted note "Update as soon as the award date is known."; the Fix R1 need-date note removed.
 - previewAuthStorage.ts restored byte-identical to 8b0aee77.
+
+## IA Slice 6A — Consistency sweep (pages)
+- `/watch`: feed actions and posting stay available; feed status is collapsed by default with 2 source checks.
+- `/clause-changes`: affected contracts table uses the shared work table wrapper; solicitation re-checks and Center progress/handoff note are collapsed by default.
+- `/directives`: hardware compliance table uses the shared work table wrapper; authority and scope is collapsed by default with 1 citation.
+- `/reporting`: Views and preview rows use shared work table wrappers; preview rows and nightly extract are collapsed by default.
+- `/simulate`: top notice clearly states “Simulation · Sandbox — not saved”; affected files table uses the shared work table wrapper. No saved-record writes added.
+- `/audit-log`: main log tables remain open and uncollapsed; filter band uses the shared work toolbar and long row text can wrap.
+- `/center-config`: override form keeps `#my-record`; Overrides and Memorandum routing tables use shared work table wrappers and are collapsed by default with counts.
+- Presentation/layout only: no query, mutation, workflow, clock/state, generator, export, signature, fixture, or protected integration behavior changed.
