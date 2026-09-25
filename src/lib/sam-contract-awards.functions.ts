@@ -189,7 +189,7 @@ function localPriorActions(
     .slice(0, 10)
     .map((r) => ({
       agency: `${String(r["acquisition_id"] ?? "—")} · ${String(r["title"] ?? "Untitled")} (T-Minus prior action)`,
-      awardDate: String(r["target_award_date"] ?? r["need_date"] ?? "—"),
+      awardDate: String(r["target_award_date"] ?? "Not yet determined"),
       pricingType: String(r["contract_type"] ?? "—"),
       extentCompeted: String(r["competition"] ?? "—"),
       obligatedAmount:

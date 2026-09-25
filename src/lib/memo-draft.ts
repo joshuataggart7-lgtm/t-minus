@@ -89,7 +89,7 @@ export type MemoDraftCtx = {
   notice?: NoticeFacts | null;
   /** SBA size standard for the record's NAICS code. */
   sizeStandard?: string | null;
-  /** Award date the clock uses: the target date, or the forecast date behind it. */
+  /** Valid target award date for generated document wording. */
   awardDate?: string | null;
   /** Contracting officer's user record. */
   co?: { name: string; email: string | null; phone: string | null } | null;
@@ -446,7 +446,13 @@ function packetTransmittal(ctx: MemoDraftCtx): Values {
   const vendor = str(a["vendor_legal_name"]);
   const value = dollars(a["estimated_value"]);
   const strategy = str(a["enterprise_psl_check"]);
-  const by = ctx.awardDate || str(a["target_award_date"]);
+  const recordedTarget = str(a["target_award_date"]);
+  const contextTarget = str(ctx.awardDate);
+  const by = /^\d{4}-\d{2}-\d{2}$/.test(recordedTarget)
+    ? recordedTarget
+    : /^\d{4}-\d{2}-\d{2}$/.test(contextTarget)
+      ? contextTarget
+      : "";
   return {
     action: `This package supports the award of ${str(a["title"]) || ctx.acquisitionId}${
       vendor ? ` to ${vendor}` : ""
@@ -455,9 +461,9 @@ function packetTransmittal(ctx: MemoDraftCtx): Values {
     strategy: strategy
       ? `The Enterprise Procurement Strategies were reviewed. ${strategy}`
       : "The Enterprise Procurement Strategies were reviewed; no mandatory strategy applies to this requirement.",
-    request: `Review and concurrence are requested so the award can be made by ${
-      by || gap("set the target award date on the record")
-    }.`,
+    request: by
+      ? `Review and concurrence are requested so the award can be made by ${by}.`
+      : "Review and concurrence are requested so the award can proceed. The target award date is not yet determined and will be updated as soon as it is known.",
   };
 }
 
