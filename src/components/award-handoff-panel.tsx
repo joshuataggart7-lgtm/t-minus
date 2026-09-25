@@ -11,6 +11,7 @@ import { CLAUSE_FILLIN_NOTE } from "@/lib/clause-fillins";
 
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { StatusMark } from "@/components/app-shell";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY, CDRL_EMPTY_NOTE, CDRL_LABEL, cdrlPackNotes } from "@/lib/cdrl";
@@ -353,12 +354,13 @@ export function AwardHandoffPanel({
                                     {value ? (
                                       <>
                                         {": "}
-                                        <span
-                                          className={blank ? "text-[#B45309]" : "text-foreground"}
-                                          data-numeric
-                                        >
-                                          {blank ? "Not recorded — blank" : value}
-                                        </span>
+                                        {blank ? (
+                                          <StatusMark color="var(--attention)" className="tabular-nums">
+                                            Not recorded — blank
+                                          </StatusMark>
+                                        ) : (
+                                          <span className="text-foreground" data-numeric>{value}</span>
+                                        )}
                                       </>
                                     ) : null}
                                   </li>

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
@@ -171,11 +171,15 @@ function DirectivesPage() {
                 <td className="p-2">{r.title ?? "—"}</td>
                 <td className="p-2">{r.center_code ?? "—"}</td>
                 <td className="p-2">{r.current_phase ?? "—"}</td>
-                <td className="p-2" style={r.statement === "attached" ? undefined : { color: "var(--risk)" }}>
-                  {r.statement === "attached" ? "Attached" : "Not attached"}
+                <td className="p-2">
+                  <StatusMark color={r.statement === "attached" ? "var(--ontrack)" : "var(--atrisk)"}>
+                    {r.statement === "attached" ? "Attached" : "Not attached"}
+                  </StatusMark>
                 </td>
-                <td className="p-2" style={r.review === "not reviewed" ? { color: "var(--attention)" } : undefined}>
-                  {r.review === "not reviewed" ? "Not reviewed" : r.review === "reviewed" ? "Reviewed" : "Modified"}
+                <td className="p-2">
+                  <StatusMark color={r.review === "not reviewed" ? "var(--attention)" : "var(--ontrack)"}>
+                    {r.review === "not reviewed" ? "Not reviewed" : r.review === "reviewed" ? "Reviewed" : "Modified"}
+                  </StatusMark>
                 </td>
               </tr>
             ))}

@@ -7,6 +7,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { StatusMark } from "@/components/app-shell";
 import { signedInName } from "@/lib/account-name";
 import { boardReadiness, boardReadinessItems } from "@/lib/board-readiness";
 import {
@@ -213,15 +214,9 @@ export function SebCockpitPanel({
       <section className="mt-3">
         <div className="flex flex-wrap items-center gap-2">
           <h5 className="text-[15px] font-medium">L↔M consistency</h5>
-          <span
-            className={`border px-2 py-[2px] text-[13px] ${
-              lamp.status === "ok"
-                ? "border-[#1E8E3E] text-[#1E8E3E]"
-                : "border-[#B45309] text-[#B45309]"
-            }`}
-          >
+          <StatusMark color={lamp.status === "ok" ? "var(--ontrack)" : "var(--attention)"} className="text-[13px]">
             {lamp.status === "ok" ? "Consistent" : "Advisory"}
-          </span>
+          </StatusMark>
         </div>
         {lamp.findings.length === 0 ? (
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{LM_LAMP_OK}</p>
@@ -444,9 +439,9 @@ export function SebCockpitPanel({
                 <li key={f.factor_id} className="p-2 text-[13px] leading-[18px]">
                   <div className="flex flex-wrap items-baseline gap-2">
                     <span className="font-medium">{f.name}</span>
-                    <span className={has ? "text-[#1E8E3E]" : "text-[#B45309]"}>
+                    <StatusMark color={has ? "var(--ontrack)" : "var(--attention)"}>
                       {has ? "Evidence noted" : "No evidence noted"}
-                    </span>
+                    </StatusMark>
                     {canWrite ? (
                       <button
                         type="button"

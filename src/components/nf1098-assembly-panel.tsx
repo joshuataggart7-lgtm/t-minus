@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { StatusMark } from "@/components/app-shell";
 import {
   assemblyToText,
   buildNf1098Assembly,
@@ -74,9 +75,9 @@ export function Nf1098AssemblyPanel({
               <td className="p-2" data-numeric>{r.slot}</td>
               <td className="p-2">{r.item}</td>
               <td className="p-2">
-                <span className={r.status === "Missing" ? "text-atrisk" : undefined}>
+                <StatusMark color={r.status === "Missing" ? "var(--atrisk)" : "var(--ontrack)"}>
                   {r.status}
-                </span>
+                </StatusMark>
               </td>
               <td className="p-2 text-muted-foreground">{r.note}</td>
             </tr>
