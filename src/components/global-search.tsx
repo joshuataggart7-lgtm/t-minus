@@ -294,6 +294,7 @@ export function GlobalSearch() {
               </div>
 
               <div id="global-search-options" role="listbox">
+              {results.length > 0 ? (
               <div role="group" aria-labelledby="global-search-files-heading">
               <p id="global-search-files-heading" className="sr-only">Files</p>
               <ul role="presentation">
@@ -333,10 +334,11 @@ export function GlobalSearch() {
                 ))}
               </ul>
               </div>
+              ) : null}
 
-              {Object.entries(commandGroups).map(([group, list]) => (
-                <div key={group} role="group" aria-labelledby={`global-search-group-${group}`} className="mt-2 border-t border-border pt-2">
-                  <p id={`global-search-group-${group}`} role="presentation" className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
+              {Object.entries(commandGroups).map(([group, list], i) => (
+                <div key={group} role="group" aria-labelledby={`global-search-group-${i}`} className="mt-2 border-t border-border pt-2">
+                  <p id={`global-search-group-${i}`} role="presentation" className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
                   <ul role="presentation">
                     {list.map((c) => {
                       const index = results.length + commands.indexOf(c);
