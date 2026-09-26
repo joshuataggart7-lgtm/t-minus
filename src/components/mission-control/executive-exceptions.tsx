@@ -65,11 +65,11 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
 
 function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
   const view = overviewCountdownView(metric);
-  const clock = view.days === null
-    ? NR
-    : view.mode === "forecast" && !view.pastTarget
-      ? `${countdownText(view, { omitBadge: true })} forecast`
-      : countdownText(view);
+  const clock = view.pastTarget
+    ? countdownText(view)
+    : view.days === null || !view.prefix
+      ? NR
+      : `${view.prefix}${view.days}${view.mode === "forecast" ? " forecast" : ""}`;
   const target = readiness.targetAward ? formatDate(readiness.targetAward) : NR;
   return `${clock} · target ${target}`;
 }
