@@ -38,7 +38,8 @@ export function quarterStartOf(iso: string) {
 export function buildDigest(metrics: AcqMetrics[], aging: AgingItem[], today = todayISO()): Digest {
   const weekStart = weekStartOf(today);
   const qStart = quarterStartOf(today);
-  const awardDate = (m: AcqMetrics) => (m.acq.target_award_date ? String(m.acq.target_award_date) : null);
+  // Recorded award date only (from the Launched audit row); never the target date.
+  const awardDate = (m: AcqMetrics) => (m.awardDate ? String(m.awardDate) : null);
   const center = (m: AcqMetrics) => String(m.acq.center_code ?? "Unassigned");
 
   const launchedThisWeek = metrics

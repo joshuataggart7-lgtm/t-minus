@@ -11,6 +11,7 @@
  * range is withheld and the line says so.
  */
 
+import { dateCT } from "@/lib/calendar-date";
 import { daysBetween } from "@/lib/intake";
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
@@ -66,7 +67,7 @@ export function awardConfidence(
   const sameProfile = history.filter(
     (h) =>
       h.acq.acquisition_id !== acq.acquisition_id &&
-      String(h.acq.clock_state ?? "") === "launched" &&
+      h.awardDate !== null &&
       acquisitionType(h.acq) === type,
   );
 
@@ -126,7 +127,8 @@ export function awardDatesFromLog(
   const out = new Map<string, string>();
   for (const row of log) {
     if (!row.acquisition_id || row.action !== "Launched" || !row.logged_at) continue;
-    const day = String(row.logged_at).slice(0, 10);
+    const day = dateCT(String(row.logged_at));
+    if (!day) continue;
     const seen = out.get(row.acquisition_id);
     if (!seen || day < seen) out.set(row.acquisition_id, day);
   }
@@ -141,6 +143,6 @@ export function historyFrom(
   const dates = awardDatesFromLog(log);
   return acqs.map((a) => ({
     acq: a,
-    awardDate: dates.get(a.acquisition_id) ?? ((a.target_award_date as string | null) ?? null),
+    awardDate: dates.get(a.acquisition_id) ?? null,
   }));
 }

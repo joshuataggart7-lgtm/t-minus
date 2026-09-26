@@ -8,6 +8,7 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
 import { supabase } from "@/integrations/supabase/client";
+import { loadLaunchEvents } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, type RefData } from "@/lib/intake";
 import type { StoredEstimate } from "@/lib/estimator";
@@ -41,7 +42,7 @@ function FilesPage() {
     queryKey: ["files"],
     enabled: authState === "signed-in",
     queryFn: async () => {
-      const [acqs, missions, plan, rules, polls, log, users, attachments, documents, templates, overrides, thresholds, strategies] = await Promise.all([
+      const [acqs, missions, plan, rules, polls, log, users, attachments, documents, templates, overrides, thresholds, strategies, launches] = await Promise.all([
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("missions").select("*"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
@@ -55,6 +56,7 @@ function FilesPage() {
         supabase.from("center_overrides").select("*"),
         supabase.from("thresholds").select("*"),
         supabase.from("enterprise_strategies").select("*"),
+        loadLaunchEvents(),
       ]);
       return {
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -63,6 +65,7 @@ function FilesPage() {
         rules: (rules.data ?? []) as ReviewRuleRow[],
         polls: (polls.data ?? []) as PollRow[],
         log: log.data ?? [],
+        launches,
         users: users.data ?? [],
         attachments: attachments.data ?? [],
         documents: documents.data ?? [],
@@ -99,7 +102,7 @@ function FilesPage() {
   const rows = useMemo(() => {
     if (!q.data) return [];
     return q.data.acqs.map((acq) => {
-      const operational = deriveOverviewAcquisitionState(acq, q.data.log);
+      const operational = deriveOverviewAcquisitionState(acq, [...q.data.log, ...q.data.launches]);
       const mission = q.data.missions.find((row) => row.mission_id === acq.mission_id) ?? null;
       const metric = computeMetrics(operational.acquisition, {
         attachedKeys: attachedKeys(q.data.attachments, acq.acquisition_id),
