@@ -71,6 +71,7 @@ export function CdrlPanel({
   actor,
   onBanner,
   facts,
+  regionContext,
 }: {
   acquisitionId: string;
   canWrite: boolean;
@@ -78,6 +79,7 @@ export function CdrlPanel({
   onBanner: (s: string) => void;
   /** The record, read only for the muted method-aware line. */
   facts?: Record<string, unknown> | null;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);

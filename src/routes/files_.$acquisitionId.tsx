@@ -3483,6 +3483,7 @@ function FilePage() {
                       actorName={actorName}
                       phase={p.phase}
                       facts={(acq as Record<string, unknown> | null) ?? null}
+                      regionContext={`${p.phase} phase`}
                     />
                   ) : null}
                   {acq ? (
@@ -3494,6 +3495,7 @@ function FilePage() {
                       actor={actorName}
                       phase={p.phase}
                       onBanner={setBanner}
+                      regionContext={`${p.phase} phase`}
                     />
                   ) : null}
                   {acq ? (
@@ -3505,10 +3507,11 @@ function FilePage() {
                       actor={actorName}
                       phase={p.phase}
                       onBanner={setBanner}
+                      regionContext={`${p.phase} phase`}
                     />
                   ) : null}
                   {packetSelection.length > 0 ? (
-                    <TableScrollRegion baseClassName="overflow-x-auto" label="Packet clauses table">
+                    <TableScrollRegion baseClassName="overflow-x-auto" label={`Packet clauses table, ${p.phase} phase`}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Clauses in the packet and why each is included</caption>
                       <thead>
@@ -3554,8 +3557,8 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                   />
-                  <ReadReceiptsPanel acquisitionId={acquisitionId} />
-                  <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} />
+                  <ReadReceiptsPanel acquisitionId={acquisitionId} regionContext={`${p.phase} phase`} />
+                  <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} regionContext={`${p.phase} phase`} />
                   <PaymentMilestonesPanel
                     acquisitionId={acquisitionId}
                     canWrite={canWrite}
@@ -3568,16 +3571,18 @@ function FilePage() {
                     actor={actorName}
                     onBanner={setBanner}
                     facts={acq as unknown as Record<string, unknown> | null}
+                    regionContext={`${p.phase} phase`}
                   />
                   <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
                     {formatScaffold?.lm?.chip ?? LM_STUB_CHIP}
                   </p>
-                  <FormatScaffoldPanel scaffold={formatScaffold} />
+                  <FormatScaffoldPanel scaffold={formatScaffold} regionContext={`${p.phase} phase`} />
                   <AwardHandoffPanel
                     scaffold={formatScaffold}
                     defaultOpen={p.phase === "Award"}
                     acquisitionId={acquisitionId}
                     suggestedForm={suggestedOfficialForm}
+                    regionContext={`${p.phase} phase`}
                     assemblyCounts={
                       buildNf1098Assembly({
                         fileIndex,
@@ -3609,6 +3614,7 @@ function FilePage() {
                     }}
                     onExport={() => evidencePack.mutate()}
                     exporting={evidencePack.isPending}
+                    regionContext={`${p.phase} phase`}
                   />
                   {p.phase === "Award" && awardFillins.length > 0 ? (
                     <div className="mt-3 border border-border p-4">
