@@ -57,3 +57,5 @@
 - [x] Soft Walk P1-6 — Blackout Notice wired to the HQ master using competed Part 15 fixture A-2027-0121; final P1 OP Word-master row closed.
 
 - [x] Soft Walk Blackout r1 remediation — route gate, exact refusal, CT date, HQ-face citations (A-2027-0121)
+# R6 Send 4
+- [ ] Complete responsive fixes below 1280 px and unique table-region labels
