@@ -1037,7 +1037,7 @@ function FilePage() {
               prefix: days < 0 ? null : "T−",
               badge: hasTargetAward ? (days < 0 ? "OVERDUE" : null) : "FORECAST",
               caption: days < 0
-                ? hasTargetAward ? "days past the target award date" : "days past the forecast award date"
+                ? hasTargetAward ? `target ${formatDate(effectiveTargetAward)}` : "days past the forecast award date"
                 : hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
               holdReason: null,
               tone: hasTargetAward && days < 0 ? "red" : "cyan",

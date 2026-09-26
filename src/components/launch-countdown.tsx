@@ -8,7 +8,7 @@
 // only for OVERDUE past the target, muted when the clock is stopped.
 
 import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
-import type { AcqMetrics } from "@/lib/metrics";
+import { formatDate, type AcqMetrics } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 
 export type CountdownMode =
@@ -80,13 +80,14 @@ export function countdownView(m: AcqMetrics): CountdownView {
   }
   if (m.daysToAward !== null) {
     if (m.daysToAward < 0) {
+      const targetAwardDate = m.acq.target_award_date ? String(m.acq.target_award_date) : null;
       return {
         ...base,
         mode: "overdue",
         days: Math.abs(m.daysToAward),
         prefix: null,
         badge: "OVERDUE",
-        caption: "days past the target award date",
+        caption: targetAwardDate ? `target ${formatDate(targetAwardDate)}` : "days past the target award date",
         tone: "red",
         pastTarget: true,
       };

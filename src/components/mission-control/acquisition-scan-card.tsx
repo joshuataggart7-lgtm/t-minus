@@ -42,7 +42,7 @@ export function AcquisitionScanCard({
         missionReadinessClass(state, "mc-scan-card"),
         view.mode === "hold" && "mc-scan-card-hold",
       )}
-      aria-label={view.pastTarget ? `${title}, ${state}, ${countdownText(view)}` : `${title}, ${state}${view.caption === state ? "" : `, ${view.caption}`}`}
+      aria-label={view.pastTarget ? `${title}, ${state}, ${countdownText(view, { omitBadge: view.badge === state })}` : `${title}, ${state}${view.caption === state ? "" : `, ${view.caption}`}`}
     >
       <span className="mc-strip-accent" aria-hidden="true" />
       <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>
@@ -62,7 +62,7 @@ export function AcquisitionScanCard({
               {view.days}
             </strong>
           )}
-        <small>{view.pastTarget ? `days past target${view.badge ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
+        <small>{view.pastTarget ? `days past target${view.badge && view.badge !== state ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
       </div>
       <div className="mc-strip-phase">
         <strong title={metric.currentPhase ?? "Not started"}>{metric.currentPhase ?? "Not started"}</strong>
