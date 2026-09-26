@@ -110,6 +110,8 @@ export type MemoDraftCtx = {
   noticeValues?: Values | null;
   /** The evaluation of quotations record, so the recommendation carries forward. */
   evaluationValues?: Values | null;
+  /** The latest saved Price Negotiation Memorandum values, for its negotiated price. */
+  pnmValues?: Values | null;
   /** Comparables recorded on this file, or prior T-Minus actions standing in. */
   comparables?: {
     source: string;
@@ -438,7 +440,7 @@ function competitionBasis(ctx: MemoDraftCtx): string {
       posted
         ? `A notice of intent to sole source was posted to SAM.gov on ${posted}.`
         : pastSolicitation
-          ? "A notice of intent to sole source was posted to SAM.gov."
+          ? "A notice of intent to sole source was posted to SAM.gov (posting date not recorded)."
         : "A notice of intent to sole source will be posted to SAM.gov.",
     ].join(" ");
   }
@@ -449,11 +451,11 @@ function competitionBasis(ctx: MemoDraftCtx): string {
     posted
       ? `A combined synopsis/solicitation was posted to SAM.gov on ${posted}; ${
           quotes === null || quotes === undefined
-            ? "quotations will be recorded on receipt"
+            ? pastSolicitation ? "quotations were received" : "quotations will be recorded on receipt"
             : `${quotes} quotation${quotes === 1 ? " was" : "s were"} received`
         }.`
       : pastSolicitation
-        ? `A combined synopsis/solicitation was posted to SAM.gov; ${
+        ? `A combined synopsis/solicitation was posted to SAM.gov (posting date not recorded); ${
             quotes === null || quotes === undefined
               ? "quotations were received"
               : `${quotes} quotation${quotes === 1 ? " was" : "s were"} received`
@@ -465,7 +467,21 @@ function competitionBasis(ctx: MemoDraftCtx): string {
 function packetTransmittal(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const vendor = str(a["vendor_legal_name"]);
-  const value = dollars(a["estimated_value"]);
+  const answers = (a["nf1707_answers"] ?? null) as Record<string, unknown> | null;
+  const negotiatedAnswer = Object.entries(answers ?? {}).find(
+    ([key, value]) => /negotiated_price/i.test(key) && str(value),
+  )?.[1];
+  const negotiated = str(ctx.pnmValues?.["negotiated_price"]) || str(negotiatedAnswer);
+  const price = dollars(negotiated || a["proposed_price"]);
+  const igce = dollars(a["estimated_value"]);
+  const titleAndVendor = `${str(a["title"]) || ctx.acquisitionId}${vendor ? ` to ${vendor}` : ""}`;
+  const action = price && igce
+    ? `This package supports the award of ${titleAndVendor} at ${price}, against an independent government cost estimate of ${igce}.`
+    : price
+      ? `This package supports the award of ${titleAndVendor} at ${price}. Independent government cost estimate: Not recorded.`
+      : igce
+        ? `This package supports the award of ${titleAndVendor}. The independent government cost estimate is ${igce}; no price has been recorded yet.`
+        : `This package supports the award of ${titleAndVendor}. No price has been recorded yet. Independent government cost estimate: Not recorded.`;
   const strategy = str(a["enterprise_psl_check"]);
   const recordedTarget = str(a["target_award_date"]);
   const contextTarget = str(ctx.awardDate);
@@ -475,9 +491,7 @@ function packetTransmittal(ctx: MemoDraftCtx): Values {
       ? contextTarget
       : "";
   return {
-    action: `This package supports the award of ${str(a["title"]) || ctx.acquisitionId}${
-      vendor ? ` to ${vendor}` : ""
-    }${value ? ` at ${value}` : ""}.`,
+    action,
     competition_basis: competitionBasis(ctx),
     strategy: strategy
       ? `The Enterprise Procurement Strategies were reviewed. ${strategy}`
@@ -1098,9 +1112,10 @@ function comparablesParagraph(ctx: MemoDraftCtx): string {
   const lines = c.awards.slice(0, 10).map((a) => {
     const amount =
       a.obligatedAmount === null || Number.isNaN(a.obligatedAmount)
-        ? "amount not recorded"
-        : `$${Math.round(a.obligatedAmount).toLocaleString("en-US")}`;
-    return `- ${a.agency} · ${a.awardDate} · ${a.pricingType} · ${a.extentCompeted} · ${amount}`;
+        ? c.source === "local" ? "estimated value not recorded" : "amount not recorded"
+        : `${c.source === "local" ? "estimated value " : ""}$${Math.round(a.obligatedAmount).toLocaleString("en-US")}`;
+    const date = c.source === "local" ? `target award date ${a.awardDate}` : a.awardDate;
+    return `- ${a.agency} · ${date} · ${a.pricingType} · ${a.extentCompeted} · ${amount}`;
   });
   return [lead, ...lines].join("\n");
 }

@@ -1437,7 +1437,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
         S("structure", "Structure", ["IDIQ without a Core", "Core and IDIQ of the same contract type", "Core and IDIQ of different contract types"], "IDIQ without a Core"),
         X("contract_type", "Task order contract type or types", "contract_type"),
         { key: "minimum_value", label: "Minimum ordering value", kind: "money" },
-        { key: "maximum_value", label: "Maximum ordering value", kind: "money", bind: "estimated_value" },
+        { key: "maximum_value", label: "Estimated maximum ordering value", kind: "money", bind: "estimated_value" },
         T("structure_narrative", "Length including options, base and option breakdown, and for an IDIQ without a Core why a core requirement is not appropriate"),
         T("follow_on", "Follow-on discussion with specific task order examples from the previous contract"),
       ],

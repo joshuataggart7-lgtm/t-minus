@@ -121,7 +121,7 @@ export function OfficeInvitePanel({
             ))}
           </select>
 
-          <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border border-border bg-muted/30 p-3 text-[13px] leading-[18px]">
+          <pre tabIndex={0} aria-label="Office invitation draft, scrolls when needed" className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border border-border bg-muted/30 p-3 text-[13px] leading-[18px]">
             {draft}
           </pre>
 

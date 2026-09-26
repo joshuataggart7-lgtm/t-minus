@@ -154,7 +154,7 @@ export function postawardUnsuccessMarkers(ctx: PostawardDocxContext): MarkerMap 
     "[[OFFERORS_SOLICITED]]": value("offerors_solicited") || KEEP,
     "[[PROPOSALS_RECEIVED]]": value("proposals_received") || KEEP,
     "[[AWARDEES]]": value("awardees") || KEEP,
-    "[[CONTRACT_VALUE]]": value("contract_value") || str(acq["estimated_value"]) || KEEP,
+    "[[CONTRACT_VALUE]]": value("contract_value") || "Not recorded",
     "[[VALUE_PERIOD]]": value("value_period") || KEEP,
     "[[EVALUATION_FACTORS]]": value("selection_rationale") || "as stated in the solicitation",
     "[[SELECTED_OFFEROR]]": value("awardees") || str(acq["vendor_legal_name"]) || KEEP,
@@ -259,9 +259,20 @@ async function buildCompanionDocx(
       ),
     );
     const awardee = value("awardees") || str(acq["vendor_legal_name"]);
-    const contractValue = value("contract_value") || str(acq["estimated_value"]);
+    const contractValue = value("contract_value");
+    const numericContractValue = /^\s*\d[\d,]*(?:\.\d+)?\s*$/.test(contractValue)
+      ? Number(contractValue.replace(/,/g, ""))
+      : null;
+    const printedContractValue =
+      numericContractValue !== null && Number.isFinite(numericContractValue)
+        ? numericContractValue.toLocaleString("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+          })
+        : contractValue;
     if (awardee || contractValue) {
-      lines.push(p(`Award was made${awardee ? ` to ${awardee}` : ""}${contractValue ? ` at a total value of ${contractValue}` : ""}.`));
+      lines.push(p(`Award was made${awardee ? ` to ${awardee}` : ""}${printedContractValue ? ` at a total value of ${printedContractValue}` : ""}.`));
     }
     lines.push(
       p(

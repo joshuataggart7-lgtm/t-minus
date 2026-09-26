@@ -274,9 +274,14 @@ function FormPage() {
         description: String(r.description ?? ""),
         quantity: r.quantity === null || r.quantity === undefined ? null : Number(r.quantity),
         unit: r.unit_of_issue ?? null,
-        unitPrice: r.unit_price === null || r.unit_price === undefined ? null : Number(r.unit_price),
+        unitPrice:
+          r.source === "igce_estimate" || r.unit_price === null || r.unit_price === undefined
+            ? null
+            : Number(r.unit_price),
         extendedPrice:
-          r.extended_price === null || r.extended_price === undefined ? null : Number(r.extended_price),
+          r.source === "igce_estimate" || r.extended_price === null || r.extended_price === undefined
+            ? null
+            : Number(r.extended_price),
         source: String(r.source ?? ""),
       })),
     };

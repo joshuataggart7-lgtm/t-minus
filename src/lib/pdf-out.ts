@@ -27,6 +27,7 @@ export type PdfBlock = {
 
 export type PdfOptions = {
   fileName: string;
+  headerLine?: string;
   footer?: string[];
   prototype?: boolean;
   margins?: { top: number; right: number; bottom: number; left: number };
@@ -41,13 +42,23 @@ export type PdfOptions = {
 
 const PAGE = { width: 612, height: 792, margin: 72 };
 
+/** PDF output only. Screen text is never passed through this. */
+export function pdfGlyphs(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")
+    .replace(/\u2265/g, ">=").replace(/\u2264/g, "<=").replace(/\u2260/g, "!=")
+    .replace(/\u2192/g, "->").replace(/\u2194/g, "<->")
+    .replace(/\u2026/g, "...").replace(/\u00A0/g, " ")
+    .replace(/\u2022/g, "-");
+}
+
 const sanitize = (text: string) =>
-  text
+  pdfGlyphs(text)
     .replace(/[\u2018\u2019]/g, "'")
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/[\u2013\u2014]/g, "-")
     .replace(/\u00B7/g, "-")
-    .replace(/[^\x20-\x7E]/g, " ");
+    .replace(/[^\x20-\x7E\u00A7]/g, " ");
 
 export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promise<void> {
   const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
@@ -108,9 +119,23 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     });
   };
 
+  const drawHeaderLine = (target: typeof page) => {
+    if (!options.headerLine) return;
+    target.drawText(sanitize(options.headerLine).slice(0, 150), {
+      x: margins.left,
+      y: PAGE.height - 24,
+      size: 8,
+      font: roman,
+      color: rgb(0.25, 0.25, 0.25),
+    });
+  };
+
+  drawHeaderLine(page);
+
   const newPage = () => {
     page = doc.addPage([PAGE.width, PAGE.height]);
     y = PAGE.height - margins.top;
+    drawHeaderLine(page);
     // A continuation page carries no letterhead: the subject line only.
     if (options.runningHead) {
       const head = sanitize(options.runningHead);

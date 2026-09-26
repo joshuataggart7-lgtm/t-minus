@@ -272,7 +272,8 @@ export function GlobalSearch() {
               />
             </div>
 
-            <div id="global-search-options" role="listbox" className="max-h-[50vh] overflow-y-auto p-2">
+            <div className="max-h-[50vh] overflow-y-auto p-2">
+              <div aria-live="polite">
               {rows.isLoading ? (
                 <p className="p-3 text-[13px] text-muted-foreground">Loading the acquisitions.</p>
               ) : null}
@@ -290,17 +291,21 @@ export function GlobalSearch() {
                   No file matches "{q.trim()}". Try the PR number or the mission name.
                 </p>
               ) : null}
+              </div>
 
-              <ul>
+              <div id="global-search-options" role="listbox">
+              <div role="group" aria-labelledby="global-search-files-heading">
+              <p id="global-search-files-heading" className="sr-only">Files</p>
+              <ul role="presentation">
                 {results.map(({ row: r, hint }, index) => (
-                  <li key={r.acquisition_id}>
+                  <li key={r.acquisition_id} role="presentation">
                     <button
                       type="button"
                       id={`global-search-option-${index}`}
                       role="option"
                       aria-selected={activeIndex === index}
                       onClick={() => openFile(r.acquisition_id)}
-                      className={`block w-full rounded-lg px-3 py-3 text-left hover:bg-canvas ${activeIndex === index ? "bg-canvas" : ""}`}
+                      className={`block w-full rounded-lg px-3 py-3 text-left hover:bg-canvas ${activeIndex === index ? "border-l-2 border-primary bg-canvas font-semibold text-foreground" : ""}`}
                     >
                       <span className="block text-[15px] leading-[22px] text-foreground">
                         {r.acquisition_id} — {r.title ?? "Untitled"}
@@ -327,22 +332,23 @@ export function GlobalSearch() {
                   </li>
                 ))}
               </ul>
+              </div>
 
               {Object.entries(commandGroups).map(([group, list]) => (
-                <div key={group} className="mt-2 border-t border-border pt-2">
-                  <p className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
-                  <ul>
+                <div key={group} role="group" aria-labelledby={`global-search-group-${group}`} className="mt-2 border-t border-border pt-2">
+                  <p id={`global-search-group-${group}`} role="presentation" className="px-3 py-1 text-[13px] text-muted-foreground">{group}</p>
+                  <ul role="presentation">
                     {list.map((c) => {
                       const index = results.length + commands.indexOf(c);
                       return (
-                      <li key={c.id}>
+                      <li key={c.id} role="presentation">
                         <button
                           type="button"
                           id={`global-search-option-${index}`}
                           role="option"
                           aria-selected={activeIndex === index}
                           onClick={() => runCommand(c)}
-                          className={`block w-full rounded-lg px-3 py-3 text-left text-[15px] leading-[22px] text-foreground hover:bg-canvas ${activeIndex === index ? "bg-canvas" : ""}`}
+                          className={`block w-full rounded-lg px-3 py-3 text-left text-[15px] leading-[22px] text-foreground hover:bg-canvas ${activeIndex === index ? "border-l-2 border-primary bg-canvas font-semibold text-foreground" : ""}`}
                         >
                           {c.label}
                         </button>
@@ -351,6 +357,7 @@ export function GlobalSearch() {
                   </ul>
                 </div>
               ))}
+              </div>
             </div>
           </div>
         </div>

@@ -214,7 +214,7 @@ function WorkQueuePage() {
           title: String(acq.title ?? acq.acquisition_id),
           owner: String(acq.co_name ?? "").trim() || "Not recorded",
           mission: mission?.name ?? "No mission linked",
-          value: rawValue !== null && Number.isFinite(rawValue) ? formatMoney(rawValue) : "Not recorded",
+          value: rawValue !== null && Number.isFinite(rawValue) ? `IGCE ${formatMoney(rawValue)}` : "Not recorded",
           method: String(acq.acquisition_method ?? "").trim() || "Not recorded",
           priority,
           priorityBand: priorityBand(priority),

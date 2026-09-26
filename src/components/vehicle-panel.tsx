@@ -133,7 +133,7 @@ export function VehiclePanel({
           <dd>{v.clause_set || "not set"}</dd>
         </div>
         <div>
-          <dt className="text-[13px] text-muted-foreground">Obligated against the ceiling</dt>
+          <dt className="text-[13px] text-muted-foreground">Estimated value of orders against the ceiling</dt>
           <dd data-numeric>
             {money(obligated)}
             {v.ceiling ? ` of ${money(v.ceiling)}, ${money(Number(v.ceiling) - obligated)} remaining` : ""}
@@ -160,7 +160,7 @@ export function VehiclePanel({
               <tr className="border-b border-border text-left text-muted-foreground">
                 <th scope="col" className="py-2 pr-4 font-medium">Order</th>
                 <th scope="col" className="py-2 pr-4 font-medium">Title</th>
-                <th scope="col" className="py-2 pr-4 font-medium">Value</th>
+                <th scope="col" className="py-2 pr-4 font-medium">Estimated value</th>
                 <th scope="col" className="py-2 font-medium">Phase</th>
               </tr>
             </thead>

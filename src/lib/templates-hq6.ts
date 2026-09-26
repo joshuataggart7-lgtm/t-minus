@@ -243,7 +243,7 @@ const postawardUnsuccessful: TemplateDef = {
         X("offerors_solicited", "1. Number of offerors solicited"),
         X("proposals_received", "2. Number of proposals received"),
         T("awardees", "3. Name and address of each offeror receiving an award"),
-        M("contract_value", "4. Maximum contract value including options", "estimated_value"),
+        M("contract_value", "4. Maximum contract value including options"),
         T("value_period", "4. Period of performance covered by that value"),
         T(
           "selection_rationale",
@@ -412,7 +412,7 @@ const postawardConference: TemplateDef = {
       tier: "binding",
       fields: [
         X("contract_number", "Contract No.", "contract_number"),
-        M("contract_value", "Contract value with options", "estimated_value"),
+        M("contract_value", "Contract value with options"),
         X("contractor_name", "Contractor name", "vendor_legal_name"),
         T("contractor_address", "Contractor address"),
         X("contract_type", "Contract type", "contract_type"),

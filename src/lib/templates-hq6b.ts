@@ -633,7 +633,7 @@ const bpaAnnualReview: TemplateDef = {
         X("contractor", "Contractor or supplier", "vendor_legal_name"),
         X("period_of_performance", "Period of performance"),
         X("review_period", "Review period assessed"),
-        M("bpa_value", "BPA value", "estimated_value"),
+        M("bpa_value", "BPA estimated value", "estimated_value"),
         X("orders_placed", "Number of orders placed during the period assessed"),
         X("orders_reviewed", "Number of orders reviewed in the random sample"),
       ],

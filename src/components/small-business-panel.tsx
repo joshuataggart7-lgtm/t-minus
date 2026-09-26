@@ -61,7 +61,8 @@ export function SmallBusinessPanel({
             {panel.awardsTotal}
           </p>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            Awards to small business, {money(panel.awardsValue)} recorded
+            Small business share of estimated value, {money(panel.awardsValue)} across {panel.awardsTotal}{" "}
+            {panel.awardsTotal === 1 ? "file" : "files"}
           </p>
         </div>
         <div>
@@ -72,7 +73,7 @@ export function SmallBusinessPanel({
         </div>
       </div>
 
-      <h4 className="mt-8 text-[15px] leading-[22px] font-medium">Awards to small business by Center</h4>
+      <h4 className="mt-8 text-[15px] leading-[22px] font-medium">Small business estimated value by Center</h4>
       {panel.byCenter.length === 0 ? (
         <p className="mt-2 text-muted-foreground">No file with a small business set-aside has launched yet.</p>
       ) : (
@@ -81,7 +82,7 @@ export function SmallBusinessPanel({
             <li key={c.center} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
               <span>{c.center}</span>
               <span data-numeric>
-                {c.files} {c.files === 1 ? "award" : "awards"} · {money(c.value)}
+                {c.files} {c.files === 1 ? "file" : "files"} · {money(c.value)} estimated value
               </span>
             </li>
           ))}

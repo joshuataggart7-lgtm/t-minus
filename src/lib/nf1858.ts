@@ -311,7 +311,7 @@ export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader, templateKey?:
  * PDF export in the 1858 layout. The file is drawn directly, so it carries no
  * browser header or footer, and the metadata sits in the page footer.
  */
-export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName: string): Promise<void> {
+export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName: string): Promise<void> {
   const h = memo.header;
   const blocks: PdfBlock[] = [];
   if (h.cui) {
@@ -367,6 +367,7 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
   if (h.cui) blocks.push({ text: CUI_BANNER, bold: true, center: true, gap: 0 });
   await renderPdf(blocks, {
     fileName,
+    headerLine,
     prototype: true,
     // The agency insignia at the size and position the blank NF 1858 uses:
     // 27.2mm by 24.0mm, top right of the first page only.
@@ -376,7 +377,7 @@ export async function exportMemoPdf(memo: MemoDoc, _headerLine: string, fileName
 }
 
 /** Word export in the 1858 layout. */
-export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLine = "") {
+export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine = "") {
   const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, AlignmentType, ImageRun } =
     await import("docx");
   const h = memo.header;
@@ -484,7 +485,11 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
   // First page: the agency insignia, at the size and position the blank uses
   // (27.2mm by 24.0mm, top right). Continuation pages: subject line only.
   const firstHeader = new Header({
-    children: insignia
+    children: [
+      ...(headerLine
+        ? [new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ font: "Times New Roman", size: 18, color: "444444", text: headerLine })] })]
+        : []),
+      ...(insignia
       ? [
           new Paragraph({
             alignment: AlignmentType.RIGHT,
@@ -499,10 +504,14 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, _footerLin
             ],
           }),
         ]
-      : [new Paragraph({ spacing: { after: 0 }, children: [] })],
+      : [new Paragraph({ spacing: { after: 0 }, children: [] })]),
+    ],
   });
   const runningHeader = new Header({
     children: [
+      ...(headerLine
+        ? [new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ font: "Times New Roman", size: 18, color: "444444", text: headerLine })] })]
+        : []),
       new Paragraph({
         spacing: { after: 120 },
         children: [new TextRun({ font: "Times New Roman", size: 20, color: "444444", text: h.subject })],
