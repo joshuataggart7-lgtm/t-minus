@@ -470,7 +470,7 @@ function WorkQueuePage() {
                 <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
                 <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
                 <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
-                  <span className="whitespace-nowrap"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
+                  <span className="whitespace-nowrap max-md:whitespace-normal"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
