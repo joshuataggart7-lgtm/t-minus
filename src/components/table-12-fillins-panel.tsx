@@ -77,7 +77,11 @@ export function Table12FillinsPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{TABLE12_EMPTY}</p>
       ) : (
-        <div className="mt-2 overflow-x-auto">
+        <div
+          className="mt-2 overflow-x-auto"
+          tabIndex={0}
+          aria-label="Table 12-2 and 12-3 fill-ins table, scrolls horizontally"
+        >
           <table className="w-full min-w-[720px] text-[13px] leading-[18px]">
             <caption className="sr-only">Commercial fill-in slots read from this record</caption>
             <thead>

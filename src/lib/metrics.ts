@@ -1,6 +1,7 @@
 // Executive metrics. Every figure here is recomputed on read from the record,
 // the phase plan, and the polls. Nothing is stored.
 
+import { dateCT } from "@/lib/calendar-date";
 import { addDays, daysBetween, todayISO, type RefData } from "@/lib/intake";
 import {
   buildSequence,
@@ -109,7 +110,7 @@ export function holdSince(
   const row = log
     .filter((l) => l.acquisition_id === acquisitionId && /hold/i.test(l.action ?? ""))
     .sort((a, b) => String(b.logged_at ?? "").localeCompare(String(a.logged_at ?? "")))[0];
-  return row?.logged_at ? String(row.logged_at).slice(0, 10) : null;
+  return row?.logged_at ? dateCT(String(row.logged_at)) : null;
 }
 
 /** The recorded launch event is the award date; target date is a legacy fallback. */
@@ -121,7 +122,7 @@ export function awardDateFor(
   const row = log
     .filter((l) => l.acquisition_id === acquisitionId && l.action === "Launched")
     .sort((a, b) => String(b.logged_at ?? "").localeCompare(String(a.logged_at ?? "")))[0];
-  return row?.logged_at ? String(row.logged_at).slice(0, 10) : fallback;
+  return row?.logged_at ? (dateCT(String(row.logged_at)) ?? fallback) : fallback;
 }
 
 /** The words the file page hero uses for a missing Required row. */

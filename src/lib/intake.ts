@@ -1,3 +1,4 @@
+import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -281,19 +282,15 @@ function crossesOctoberFirst(start: string, end: string) {
 }
 
 export function daysBetween(fromISO: string, toISO: string) {
-  const a = new Date(fromISO + "T00:00:00Z").getTime();
-  const b = new Date(toISO + "T00:00:00Z").getTime();
-  return Math.round((b - a) / 86_400_000);
+  return calendarDaysBetween(fromISO, toISO);
 }
 
 export function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return todayCT();
 }
 
 export function addDays(iso: string, days: number) {
-  const d = new Date(iso + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
+  return addCalendarDays(iso, days);
 }
 
 export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {

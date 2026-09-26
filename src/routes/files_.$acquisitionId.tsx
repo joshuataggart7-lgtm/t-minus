@@ -1021,10 +1021,7 @@ function FilePage() {
   const days =
     lifecycle?.daysToAward ??
     (effectiveTargetAward
-      ? Math.round(
-          (new Date(effectiveTargetAward + "T00:00:00Z").getTime() - new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z").getTime()) /
-            86_400_000,
-        )
+      ? daysBetween(todayISO(), effectiveTargetAward)
       : null);
   const fileCountdownView = lifecycle
     ? overviewCountdownView(lifecycle)
@@ -2441,7 +2438,7 @@ function FilePage() {
               className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
               style={{ borderColor: "var(--at-risk)" }}
             >
-              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the estimated value{" "}
+              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the IGCE{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> exceeds the warrant of{" "}
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
               contracting officer with a warrant at or above the value has to sign the award.
@@ -2459,13 +2456,13 @@ function FilePage() {
             </div>
           ) : warrant.unknown ? (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
-              No warrant limit is recorded for {warrant.coName}, so the estimated value of{" "}
+              No warrant limit is recorded for {warrant.coName}, so the IGCE of{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> cannot be checked against a
               warrant.
             </p>
           ) : (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
-              Within warrant: the estimated value{" "}
+              Within warrant: the IGCE{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> is at or below the warrant of{" "}
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
             </p>
@@ -4299,7 +4296,7 @@ function FilePage() {
         <section className="mb-12">
           <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
           <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
-            Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
+            Where {value === null ? "this acquisition" : `the IGCE of ${formatMoney(value)}`} sits against each threshold in the table.
           </p>
         <div className="overflow-x-auto">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -4349,7 +4346,7 @@ function FilePage() {
       <section className="mb-12">
         <h2 className="mb-4 text-[18px] leading-6 font-medium">Thresholds</h2>
         <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
-          Where {value === null ? "this acquisition" : formatMoney(value)} sits against each threshold in the table.
+          Where {value === null ? "this acquisition" : `the IGCE of ${formatMoney(value)}`} sits against each threshold in the table.
         </p>
         <div className="overflow-x-auto">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">

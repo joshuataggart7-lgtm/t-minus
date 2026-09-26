@@ -3221,7 +3221,15 @@ export async function exportDocx(doc: RenderedDoc, fileName: string, context?: E
 export async function exportPdf(doc: RenderedDoc, headerLine: string, fileName = "document", context?: ExportContext) {
   const blocks: PdfBlock[] = [];
   for (const block of exportBlocks(doc, context)) {
-    if (block.heading) blocks.push({ text: block.heading, bold: true, gap: 6 });
+    // A signature block after body text keeps the last body paragraph with it.
+    const isSignature = !!block.heading && /^Signatures\b/.test(block.heading) && blocks.length > 0;
+    if (block.heading)
+      blocks.push({
+        text: block.heading,
+        bold: true,
+        gap: 6,
+        ...(isSignature ? { keepWith: Math.min(40 + block.lines.length * 22, 300), keepWithPrevious: true } : {}),
+      });
     block.lines.forEach((line) => blocks.push({ text: line, gap: 6, ...(block.center !== undefined ? { center: block.center } : {}), ...(block.bold !== undefined ? { bold: block.bold } : {}) }));
   }
   await renderPdf(blocks, {
