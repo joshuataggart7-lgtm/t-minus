@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { countdownText } from "@/components/launch-countdown";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";

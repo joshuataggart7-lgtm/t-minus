@@ -1035,7 +1035,7 @@ function FilePage() {
               mode: hasTargetAward ? (days < 0 ? "overdue" : "running") : "forecast",
               days: Math.abs(days),
               prefix: days < 0 ? null : "T−",
-              badge: hasTargetAward ? null : "FORECAST",
+              badge: hasTargetAward ? (days < 0 ? "OVERDUE" : null) : "FORECAST",
               caption: days < 0
                 ? hasTargetAward ? "days past the target award date" : "days past the forecast award date"
                 : hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
