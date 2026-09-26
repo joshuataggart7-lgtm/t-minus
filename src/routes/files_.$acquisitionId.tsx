@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
 import { copyAsNewSample } from "@/lib/copy-sample";
@@ -2603,8 +2604,8 @@ function FilePage() {
           <LoadingNote what="the forecast facts" />
         ) : forecast ? (
           <>
-            <div className="overflow-x-auto">
-            <table className="w-full border border-border text-[13px] leading-[18px]">
+            <TableScrollRegion baseClassName="overflow-x-auto" label="Forecast entry table">
+<table className="w-full border border-border text-[13px] leading-[18px]">
               <caption className="sr-only">Acquisition Forecast entry for this file</caption>
               <tbody>
                 {FORECAST_FIELDS.map((f) => (
@@ -2624,7 +2625,7 @@ function FilePage() {
                 ))}
               </tbody>
             </table>
-            </div>
+</TableScrollRegion>
             <p className="mt-2 text-[15px] leading-[22px]">
               {acq?.acquisition_forecast_verified
                 ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
@@ -2765,8 +2766,8 @@ function FilePage() {
         >
           Print the cover sheet
         </button>
-        <div className="overflow-x-auto">
-        <table className="w-full border border-border text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="File index table">
+<table className="w-full border border-border text-[13px] leading-[18px]">
           <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
           <thead>
             <tr className="border-b border-border bg-canvas text-left">
@@ -2882,7 +2883,7 @@ function FilePage() {
             ) : null}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
         </div>
       </details>
       </MissionNavSection>
@@ -3507,8 +3508,8 @@ function FilePage() {
                     />
                   ) : null}
                   {packetSelection.length > 0 ? (
-                    <div className="overflow-x-auto">
-                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                    <TableScrollRegion baseClassName="overflow-x-auto" label="Packet clauses table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Clauses in the packet and why each is included</caption>
                       <thead>
                         <tr className="border-y border-border text-left">
@@ -3529,7 +3530,7 @@ function FilePage() {
                         ))}
                       </tbody>
                     </table>
-                    </div>
+</TableScrollRegion>
                   ) : null}
                   <ClinSchedulePanel
                     acquisitionId={acquisitionId}
@@ -3638,8 +3639,8 @@ function FilePage() {
                       preliminary notice is due {options.noticeLeadDays} days before the option period begins (FAR
                       52.217-9 fill-in).
                     </p>
-                    <div className="overflow-x-auto">
-                    <table className="mt-3 w-full text-[13px] leading-[18px]">
+                    <TableScrollRegion baseClassName="overflow-x-auto" label="Option periods table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
                       <caption className="sr-only">Option periods and notice dates</caption>
                       <thead>
                         <tr className="border-y border-border text-left">
@@ -3669,7 +3670,7 @@ function FilePage() {
                         ) : null}
                       </tbody>
                     </table>
-                    </div>
+</TableScrollRegion>
 
                     {(() => {
                       const noticeOn = pa.option_notice_date ?? pa.option_notice_sent ?? null;
@@ -3690,8 +3691,8 @@ function FilePage() {
                           <p className="mt-1 text-[13px] text-muted-foreground">
                             Advisory checklist read from the record. It does not hold phase exit.
                           </p>
-                          <div className="overflow-x-auto">
-                          <table className="mt-2 w-full text-[13px] leading-[18px]">
+                          <TableScrollRegion baseClassName="overflow-x-auto" label="Option checklist table">
+<table className="mt-2 w-full text-[13px] leading-[18px]">
                             <caption className="sr-only">Option exercise checklist</caption>
                             <thead>
                               <tr className="border-y border-border text-left">
@@ -3722,7 +3723,7 @@ function FilePage() {
                               ))}
                             </tbody>
                           </table>
-                          </div>
+</TableScrollRegion>
                           <p className="mt-2 text-[13px] text-muted-foreground">
                             {next && next.start && next.end
                               ? `The option must be exercised within ${next.label}, ${next.start} to ${next.end}.`
@@ -3950,8 +3951,8 @@ function FilePage() {
                           {delta.updated.length} updated · {delta.removed.length} removed ·{" "}
                           {delta.unchanged.length} unchanged
                         </p>
-                        <div className="overflow-x-auto">
-                        <table className="mt-3 w-full text-[13px] leading-[18px]">
+                        <TableScrollRegion baseClassName="overflow-x-auto" label="Clause delta table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
                           <caption className="sr-only">Clause delta for the modification</caption>
                           <thead>
                             <tr className="border-y border-border text-left">
@@ -3980,7 +3981,7 @@ function FilePage() {
                             ))}
                           </tbody>
                         </table>
-                        </div>
+</TableScrollRegion>
                         {modFillIns.length > 0 ? (
                           <div className="mt-3 border border-border p-3">
                             <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
@@ -4133,8 +4134,8 @@ function FilePage() {
                     )}
                   </div>
 
-                  <div className="overflow-x-auto">
-                  <table className="mt-3 w-full text-[13px] leading-[18px]">
+                  <TableScrollRegion baseClassName="overflow-x-auto" label="Protest deadlines table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
                     <caption className="sr-only">Protest deadlines for this award</caption>
                     <thead>
                       <tr className="border-y border-border text-left">
@@ -4173,7 +4174,7 @@ function FilePage() {
                       ))}
                     </tbody>
                   </table>
-                  </div>
+</TableScrollRegion>
 
                   <p className="mt-3 text-[13px]">
                     <Link to="/watch" search={{ tag: "Bid protest" }} className="text-primary">
@@ -4186,8 +4187,8 @@ function FilePage() {
 
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div id={`poll-${p.phase}`} className="mt-3 max-w-[80ch] border border-border">
-                  <div className="overflow-x-auto">
-                  <table className="w-full text-[13px] leading-[18px]">
+                  <TableScrollRegion baseClassName="overflow-x-auto" label="Go/No-go poll table">
+<table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
                       Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
                     </caption>
@@ -4253,7 +4254,7 @@ function FilePage() {
                       )}
                     </tbody>
                   </table>
-                  </div>
+</TableScrollRegion>
                   {canWrite && (boards[p.phase] ?? []).some((b) => !b.poll_id) ? (
                     <div className="border-t border-border p-2">
                       <Button
@@ -4352,8 +4353,8 @@ function FilePage() {
           <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
             Where {value === null ? "this acquisition" : `the IGCE of ${formatMoney(value)}`} sits against each threshold in the table.
           </p>
-        <div className="overflow-x-auto">
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Market thresholds table">
+<table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Threshold</th>
@@ -4394,7 +4395,7 @@ function FilePage() {
             })}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
         </section>
       ) : (
       <section className="mb-12">
@@ -4402,8 +4403,8 @@ function FilePage() {
         <p className="mb-3 max-w-[80ch] text-[13px] text-muted-foreground">
           Where {value === null ? "this acquisition" : `the IGCE of ${formatMoney(value)}`} sits against each threshold in the table.
         </p>
-        <div className="overflow-x-auto">
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="HCA thresholds table">
+<table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Threshold</th><th scope="col" className="p-2">Value</th><th scope="col" className="p-2">This acquisition</th><th scope="col" className="p-2">Tier</th><th scope="col" className="p-2">Effective</th><th scope="col" className="p-2">Citation and note</th>
@@ -4411,7 +4412,7 @@ function FilePage() {
           </thead>
           <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "—" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "—"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{t.note}</span> : null}</td></tr>; })}</tbody>
         </table>
-        </div>
+</TableScrollRegion>
       </section>
       )}
       </MissionNavSection>
@@ -4655,8 +4656,8 @@ function FilePage() {
         <section className="mb-10 min-w-0">
           <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
         {q.data?.log.length ? (
-          <div className="w-full min-w-0 overflow-x-auto">
-          <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Audit trail table" className="w-full min-w-0">
+<table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="p-2">Logged</th>
@@ -4680,7 +4681,7 @@ function FilePage() {
               ))}
             </tbody>
           </table>
-          </div>
+</TableScrollRegion>
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
         )}

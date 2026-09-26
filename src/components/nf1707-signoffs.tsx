@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
@@ -120,8 +121,8 @@ export function Nf1707Signoffs({
         </div>
       ) : null}
 
-      <div className="overflow-x-auto">
-      <table className="mt-4 w-full border border-border text-[13px]">
+      <TableScrollRegion baseClassName="overflow-x-auto" label="NF 1707 signoffs table">
+<table className="mt-4 w-full border border-border text-[13px]">
         <thead>
           <tr className="border-b border-border text-left">
             <th className="p-2">Block</th>
@@ -148,7 +149,7 @@ export function Nf1707Signoffs({
           ) : null}
         </tbody>
       </table>
-      </div>
+</TableScrollRegion>
 
       <details className="mt-4 text-[13px]">
         <summary className="cursor-pointer">Not applicable to this action ({hidden.length})</summary>

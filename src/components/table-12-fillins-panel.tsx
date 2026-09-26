@@ -1,6 +1,7 @@
 // Tables 12-2 / 12-3 fill-in aid. Confirm records the officer's decision in
 // the audit log; it never rewrites the clause list and never writes to NCMS.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
@@ -77,12 +78,8 @@ export function Table12FillinsPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{TABLE12_EMPTY}</p>
       ) : (
-        <div
-          className="mt-2 overflow-x-auto"
-          tabIndex={0}
-          aria-label="Table 12-2 and 12-3 fill-ins table, scrolls horizontally"
-        >
-          <table className="w-full min-w-[720px] text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Commercial fill-in slots table" className="mt-2">
+<table className="w-full min-w-[720px] text-[13px] leading-[18px]">
             <caption className="sr-only">Commercial fill-in slots read from this record</caption>
             <thead>
               <tr className="border-y border-border text-left">
@@ -132,7 +129,7 @@ export function Table12FillinsPanel({
               ))}
             </tbody>
           </table>
-        </div>
+</TableScrollRegion>
       )}
     </section>
   );

@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useState } from "react";
 import { StatusMark } from "@/components/app-shell";
 import { gateSummary, type CompanionGate } from "@/lib/companion-gates";
@@ -33,8 +34,8 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
         Companion Guide citations are process guidance, not binding NFS.
       </p>
       {open ? (
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Companion gates table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Companion gates, what triggers each, and what this file shows</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -68,7 +69,7 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       ) : null}
     </section>
   );

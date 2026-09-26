@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatusMark } from "@/components/app-shell";
@@ -59,8 +60,8 @@ export function Nf1098AssemblyPanel({
         not presented as a filled agency form.
       </p>
 
-      <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+      <TableScrollRegion baseClassName="overflow-x-auto" label="NF 1098 tabs table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Contract-file assembly checklist for {acquisitionId}</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -93,7 +94,7 @@ export function Nf1098AssemblyPanel({
             ))}
           </tbody>
         </table>
-      </div>
+</TableScrollRegion>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {onExport ? (

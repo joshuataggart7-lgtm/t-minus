@@ -2,6 +2,7 @@
 // office records something: no deliverables are invented and no DRD text is
 // written for the officer. The handoff packet carries the same rows.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
@@ -192,8 +193,8 @@ export function CdrlPanel({
           {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
         </p>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Data requirements table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Data requirements recorded on this file</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -280,7 +281,7 @@ export function CdrlPanel({
             )}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
 
       {canWrite && adding ? (

@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -132,8 +133,8 @@ export function ClausePicker({
           </p>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{RFO_RESERVED_212_LINE}</p>
           <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
-          <div className="overflow-x-auto">
-          <table className="mt-3 w-full text-[13px] leading-[18px]">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Recommended clauses table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Recommended clauses, why each is included, and whether it is selected</caption>
             <thead>
               <tr className="border-y border-border text-left">
@@ -191,7 +192,7 @@ export function ClausePicker({
               })}
             </tbody>
           </table>
-          </div>
+</TableScrollRegion>
 
           {removed.length > 0 ? (
             <p className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">

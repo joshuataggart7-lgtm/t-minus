@@ -1886,10 +1886,6 @@
   .mc-scan-surface {
     padding: 1.25rem;
   }
-  .mc-strip-head,
-  .mc-scan-surface .mc-scan-card {
-    min-width: 64rem;
-  }
   .mc-strip-disclosure dl {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1912,6 +1908,25 @@
     overflow-x: auto;
     margin-inline: 1rem;
   }
+}
+
+@media (max-width: 1279.98px) {
+  .mc-scan-surface .mc-strip-head { display: none; }
+  .mc-scan-surface .mc-scan-card { min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 0.75rem 1.25rem; }
+  .mc-scan-surface .mc-strip-mission { grid-column: 1 / -1; }
+  .mc-scan-surface .mc-strip-mission h3, .mc-scan-surface .mc-strip-mission p, .mc-scan-surface .mc-strip-phase strong, .mc-scan-surface .mc-strip-next strong { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+  .mc-scan-surface .mc-strip-next { border-left: 0; padding-left: 0; }
+  .mc-scan-surface .mc-strip-variance { justify-self: start; }
+  .mc-scan-surface .mc-strip-clock::before, .mc-scan-surface .mc-strip-phase::before { content: attr(data-label); display: block; margin-bottom: 0.2rem; color: var(--muted-foreground); font-size: 9px; line-height: 13px; font-weight: 600; text-transform: uppercase; }
+  .mc-scan-surface .mc-strip-variance::before { content: attr(data-label) " "; font-size: 9px; font-weight: 600; text-transform: uppercase; }
+  .mc-scan-surface .mc-strip-disclosure dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mc-scan-surface .mc-strip-disclosure dd { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+}
+
+@media (min-width: 640px) and (max-width: 1279.98px) {
+  .mc-masthead { grid-template-columns: minmax(0, 1fr); }
+  .mc-masthead-office { border-left: 0; border-top: 1px solid var(--mc-line); justify-items: start; padding-top: 0.65rem; padding-left: 0; text-align: left; }
+  .mc-scope-preview { justify-self: stretch; }
 }
 
 /* Work surfaces: calm paper with a whisper of elevation, never glow. */

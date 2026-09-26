@@ -5,10 +5,12 @@ export function TableScrollRegion({
   children,
   label,
   className,
+  baseClassName = "mc-work-table-wrap",
 }: {
   children: ReactNode;
   label: string;
   className?: string;
+  baseClassName?: string;
 }) {
   const regionRef = useRef<HTMLDivElement>(null);
   const [overflows, setOverflows] = useState(false);
@@ -32,7 +34,7 @@ export function TableScrollRegion({
         role="region"
         tabIndex={overflows ? 0 : undefined}
         aria-label={label}
-        className={cn("mc-work-table-wrap", className)}
+        className={cn(baseClassName, className)}
       >
         {children}
       </div>
