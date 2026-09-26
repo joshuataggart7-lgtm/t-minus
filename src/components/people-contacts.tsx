@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 type UserRow = {
   user_id: string;
@@ -83,7 +84,8 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
       ) : (q.data ?? []).length === 0 ? (
         <p className="mt-3 text-[13px] text-muted-foreground">No people are on the roster yet.</p>
       ) : (
-        <table className="mt-4 w-full border border-border text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" className="mt-4" label="Center roster table">
+        <table className="w-full border border-border text-[13px] leading-[18px]">
           <caption className="sr-only">People on the roster and their contact details</caption>
           <thead>
             <tr className="border-b border-border text-left">
@@ -115,6 +117,7 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
             })}
           </tbody>
         </table>
+        </TableScrollRegion>
       )}
     </section>
   );

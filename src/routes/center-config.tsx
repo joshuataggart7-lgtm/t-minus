@@ -12,6 +12,7 @@ import { PeopleContacts } from "@/components/people-contacts";
 import { RoutingCsvImport } from "@/components/routing-csv-import";
 import { ReviewerRosterCsvImport } from "@/components/reviewer-roster-csv-import";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/center-config")({
   head: () => ({
@@ -297,7 +298,7 @@ function CenterConfigPage() {
           <EmptyState sentence="No Center overrides are set. Every Center uses the seeded values." />
         ) : null}
         {rows.length > 0 ? (
-          <div className="mc-work-table-wrap mt-3">
+          <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3" label="Center overrides table">
           <table className="w-full border-collapse text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left text-muted-foreground">
@@ -344,7 +345,7 @@ function CenterConfigPage() {
               })}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
         ) : null}
       </section>
       </MissionNavSection>
@@ -358,7 +359,7 @@ function CenterConfigPage() {
         {(q.data?.routing ?? []).length === 0 && !q.isLoading ? (
           <EmptyState sentence="No memorandum routing is set. Add a row for a Center and document type." />
         ) : null}
-        <div className="mc-work-table-wrap mt-3">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3" label="Memorandum routing table">
         <table className="w-full border-collapse text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left text-muted-foreground">
@@ -376,7 +377,7 @@ function CenterConfigPage() {
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
         {mayEdit ? (
           <form
             className="mt-4 flex flex-wrap items-end gap-3"

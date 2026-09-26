@@ -56,15 +56,15 @@ export function TriggerTableEditor({ mayEdit, actor }: { mayEdit: boolean; actor
   return (
     <section className="mt-10">
       <h2 className="text-lg font-medium">Trigger table</h2>
-      <p className="mt-1 max-w-[80ch] text-[13px] text-muted">
+      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         A row appears on a file only when the record answers its condition. Required rows gate the
         phase exit; offered rows never do.
       </p>
-      {message ? <p className="mt-2 text-[13px] text-muted">{message}</p> : null}
+      {message ? <p className="mt-2 text-[13px] text-muted-foreground">{message}</p> : null}
       <TableScrollRegion baseClassName="mt-3 overflow-x-auto" label="Center trigger table">
         <table className="w-full min-w-[960px] border-collapse text-[13px] leading-[18px]">
           <thead>
-            <tr className="border-b border-border text-left text-muted">
+            <tr className="border-b border-border text-left text-muted-foreground">
               <th scope="col" className="py-2 pr-4 font-medium">Condition</th>
               <th scope="col" className="py-2 pr-4 font-medium">Document</th>
               <th scope="col" className="py-2 pr-4 font-medium">Citation</th>
