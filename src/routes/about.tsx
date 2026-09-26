@@ -156,7 +156,7 @@ function AboutPage() {
         </ul>
 
         {q.data ? (
-          <TableScrollRegion baseClassName="mc-work-table-wrap" label="Regulatory references table" className="mt-5">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Regulatory references table" className="mt-5">
           <table className="w-full border border-border text-[13px] leading-[18px]">
             <caption className="sr-only">Regulatory references loaded, newest first</caption>
             <thead>
