@@ -1560,11 +1560,13 @@ function DocumentPage() {
   const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
   const exportHeaderLine = `${acquisitionId} · ${
-    daysToAward === null
-      ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
-      : daysToAward < 0
-        ? `${Math.abs(daysToAward)} days past target`
-        : `${daysToAward} days to award`
+    chromeCountdown?.pastTarget
+      ? countdownText(chromeCountdown)
+      : daysToAward === null
+        ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
+        : daysToAward < 0
+          ? `${Math.abs(daysToAward)} days past target`
+          : `${daysToAward} days to award`
   }`;
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown

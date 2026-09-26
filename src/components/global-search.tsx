@@ -38,7 +38,7 @@ function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
   const view = display.countdown;
   const caption = view.caption === view.badge ? "" : ` · ${view.caption}`;
   const countdown = view.pastTarget
-    ? countdownText(view)
+    ? countdownText(view, { omitBadge: view.badge === display.readiness })
     : view.days === null
       ? view.caption
       : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""}${caption}`;
