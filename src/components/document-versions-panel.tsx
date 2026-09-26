@@ -2,6 +2,7 @@
 // exactly as recorded; empty signature fields stay empty. Nothing here holds
 // the file or blocks a phase exit.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useQuery } from "@tanstack/react-query";
 import {
   NO_VERSIONS_NOTE,
@@ -34,8 +35,8 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
       {rows.length === 0 ? (
         <p className="mt-2 text-[15px] leading-[22px] text-muted-foreground">{NO_VERSIONS_NOTE}</p>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Saved document versions table">
+<table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
           <caption className="sr-only">Saved document versions on this file</caption>
           <thead>
             <tr className="border-b border-border text-left">
@@ -72,7 +73,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
 
       {lastAudit ? (

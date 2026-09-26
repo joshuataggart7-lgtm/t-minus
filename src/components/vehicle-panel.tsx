@@ -2,6 +2,7 @@
 // the obligated total against the ceiling, and the days left in the ordering
 // period. On an order, the line that names the parent.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,8 +155,8 @@ export function VehiclePanel({
           existing IDIQ" and naming this contract number.
         </p>
       ) : (
-        <div className="mt-2 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Vehicle orders table" className="mt-2">
+<table className="w-full min-w-[640px] border-collapse text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left text-muted-foreground">
                 <th scope="col" className="py-2 pr-4 font-medium">Order</th>
@@ -181,7 +182,7 @@ export function VehiclePanel({
               ))}
             </tbody>
           </table>
-        </div>
+</TableScrollRegion>
       )}
     </section>
   );

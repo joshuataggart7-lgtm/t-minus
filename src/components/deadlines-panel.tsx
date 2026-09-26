@@ -1,6 +1,7 @@
 // Dates this file owes. Everything reads from the record; nothing is sent
 // anywhere. A row with an unverified rule says so on its face.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { deadlineRows } from "@/lib/deadlines";
 
 export function DeadlinesPanel({
@@ -29,8 +30,8 @@ export function DeadlinesPanel({
           Each date is computed from this record. The count says whether the rule runs in calendar
           or business days, and the citation says where it comes from.
         </p>
-        <div className="overflow-x-auto">
-        <table className="w-full border border-border text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Deadline calculations table">
+<table className="w-full border border-border text-[13px] leading-[18px]">
           <caption className="sr-only">Dates computed from this record, with the rule behind each one</caption>
           <thead>
             <tr className="border-b border-border bg-canvas text-left">
@@ -59,7 +60,7 @@ export function DeadlinesPanel({
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       </div>
     </details>
   );

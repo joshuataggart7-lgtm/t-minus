@@ -2,6 +2,7 @@
 // office records something: no events, amounts or percentages are invented.
 // A CLIN can be linked only from the schedule already on the file.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
@@ -240,8 +241,8 @@ export function PaymentMilestonesPanel({
         </p>
 
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Payment milestones table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Payment milestones recorded on this file</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -338,7 +339,7 @@ export function PaymentMilestonesPanel({
             )}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
 
       {planNotes.length > 0 ? (

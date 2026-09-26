@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { attachmentsForSectionJ, SECTION_J_EMPTY } from "@/lib/section-j";
 import type { AttachmentRow } from "@/lib/attachments";
 
@@ -27,8 +28,8 @@ export function SectionJPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-2 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Section J attachments table">
+<table className="mt-2 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -47,7 +48,7 @@ export function SectionJPanel({
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
     </div>
   );

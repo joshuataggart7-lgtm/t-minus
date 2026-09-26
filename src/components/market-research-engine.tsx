@@ -1,3 +1,4 @@
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -256,8 +257,8 @@ export function MarketResearchEngine({
               </p>
             ) : null}
             {log.length ? (
-              <div className="overflow-x-auto">
-              <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="overflow-x-auto" label="Search log table">
+<table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                 <caption className="sr-only">Every source searched, with its query, date and result count</caption>
                 <thead>
                   <tr className="border-b border-border text-left">
@@ -283,7 +284,7 @@ export function MarketResearchEngine({
                   ))}
                 </tbody>
               </table>
-              </div>
+</TableScrollRegion>
             ) : latestIncompleteRanAt ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 The latest research run did not save a source log. Run the research again
@@ -327,8 +328,8 @@ export function MarketResearchEngine({
                     <li key={f.target} className="border border-border p-3 text-[13px] leading-[18px]">
                       <p className="text-[15px] leading-[22px]">{f.label}</p>
                       {f.target === "nf1787a.respondents" ? (
-                        <div className="overflow-x-auto">
-                        <table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
+                        <TableScrollRegion baseClassName="overflow-x-auto" label="Search respondents table">
+<table className="mt-2 w-full border border-border text-[13px] leading-[18px]">
                           <caption className="sr-only">Respondents identified by the search</caption>
                           <thead>
                             <tr className="border-b border-border text-left">
@@ -349,7 +350,7 @@ export function MarketResearchEngine({
                             ))}
                           </tbody>
                         </table>
-                        </div>
+</TableScrollRegion>
                       ) : (
                         <p className="mt-1 whitespace-pre-wrap">{f.value}</p>
                       )}

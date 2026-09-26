@@ -5,6 +5,7 @@
 // here holds a file: no phase exit, hold, clock or required document reads
 // from any of it. Nothing is seeded and no traffic is invented.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { StatusMark } from "@/components/app-shell";
@@ -250,8 +251,8 @@ export function SebCockpitPanel({
             None recorded — the fairness ledger stays empty until the office adds one.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-          <table className="mt-2 w-full text-[13px] leading-[18px]">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Clarification log table">
+<table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
             <thead>
               <tr className="border-y border-border text-left">
@@ -358,7 +359,7 @@ export function SebCockpitPanel({
                 : null}
             </tbody>
           </table>
-          </div>
+</TableScrollRegion>
         )}
         {canWrite && adding ? (
           <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-2">

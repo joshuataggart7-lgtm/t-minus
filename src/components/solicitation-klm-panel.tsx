@@ -5,6 +5,7 @@
 // no competitive Section M, and the panel says so rather than offering factors.
 // Everything saved here is what the scaffold and the handoff packet print.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { signedInName } from "@/lib/account-name";
@@ -316,8 +317,8 @@ export function SolicitationKlmPanel({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Representations and certifications table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Representations and certifications recorded on this file</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -376,7 +377,7 @@ export function SolicitationKlmPanel({
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
         {!kAuthored(kQ.data ?? null) ? (
           <p className="mt-2 text-[13px] text-muted-foreground">{K_EMPTY_NOTE}</p>
         ) : null}
@@ -550,8 +551,8 @@ export function SolicitationKlmPanel({
                     : "No factors are recorded yet. The contracting office adds each factor and its relative importance when the evaluation approach is settled."}
                 </p>
               ) : (
-                <div className="overflow-x-auto">
-                <table className="mt-2 w-full text-[13px] leading-[18px]">
+                <TableScrollRegion baseClassName="overflow-x-auto" label="Evaluation factors table">
+<table className="mt-2 w-full text-[13px] leading-[18px]">
                   <caption className="sr-only">Evaluation factors for award on this file</caption>
                   <thead>
                     <tr className="border-y border-border text-left">
@@ -652,7 +653,7 @@ export function SolicitationKlmPanel({
                     )}
                   </tbody>
                 </table>
-                </div>
+</TableScrollRegion>
               )}
               {canWrite && adding ? (
                 <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-3">

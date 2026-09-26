@@ -3,6 +3,7 @@
 // stay blank: quantity, unit and price are only shown where the schedule or the
 // estimate on the file carries them.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { signedInName } from "@/lib/account-name";
@@ -195,8 +196,8 @@ export function ClinSchedulePanel({
           each line, and the estimate on this file can fill the schedule when it is empty.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="CLIN schedule table">
+<table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Line items on the schedule for this file</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -343,7 +344,7 @@ export function ClinSchedulePanel({
             )}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
 
       {canWrite && adding ? (

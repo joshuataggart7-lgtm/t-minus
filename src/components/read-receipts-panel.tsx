@@ -4,6 +4,7 @@
 // any of this, and nothing is seeded: the list stays empty until a real person
 // opens a document.
 
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useQuery } from "@tanstack/react-query";
 import {
   loadReadReceipts,
@@ -38,8 +39,8 @@ export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) 
       ) : rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{READ_RECEIPTS_EMPTY}</p>
       ) : (
-        <div className="overflow-x-auto">
-        <table className="mt-2 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Documents opened table">
+<table className="mt-2 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Documents opened on this file</caption>
           <thead>
             <tr className="border-y border-border text-left">
@@ -63,7 +64,7 @@ export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) 
             ))}
           </tbody>
         </table>
-        </div>
+</TableScrollRegion>
       )}
     </section>
   );
