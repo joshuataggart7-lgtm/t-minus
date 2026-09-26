@@ -1921,6 +1921,7 @@
   .mc-scan-surface .mc-strip-variance::before { content: attr(data-label) " "; font-size: 9px; font-weight: 600; text-transform: uppercase; }
   .mc-scan-surface .mc-strip-disclosure dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mc-scan-surface .mc-strip-disclosure dd { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
+  .mc-scan-surface .mc-strip-id { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
 }
 
 @media (min-width: 640px) and (max-width: 1279.98px) {
