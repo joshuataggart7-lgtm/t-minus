@@ -1250,6 +1250,11 @@ function DocumentPage() {
           stored["interested_sources"] = fresh;
         }
       }
+      // A saved notice whose rule carried the draft date as a posting date
+      // reads "Not yet posted." on screen and in exports; nothing is written.
+      if (def.key === "sam-notice" && stored["response_rule"]) {
+        stored["response_rule"] = repairSavedSamResponseRule(stored) ?? stored["response_rule"];
+      }
       // The draft flag is a chip beside the field, never words inside the
       // field body. A stored version written before that rule is cleaned on
       // the way in, and the field still shows its chip.

@@ -640,14 +640,38 @@ function soleSourceSentence(rationale: string, acq: Record<string, unknown>): st
   return named ?? sentences[sentences.length - 1] ?? "";
 }
 
+/**
+ * Display-only repair of a saved notice whose response rule was generated
+ * with the draft date standing in for a posting date. Matches only the
+ * generator's own wording; typed text and the saved response_date are left
+ * as they are.
+ */
+export function repairSavedSamResponseRule(values: Record<string, string | undefined>): string | undefined {
+  const rule = values["response_rule"];
+  if (!rule) return rule;
+  const posted = [values["publication_date"], values["posted_date"], values["original_posted_date"]]
+    .map((v) => String(v ?? "").trim())
+    .some(Boolean);
+  if (posted) return rule;
+  const m = /^Later of 15 calendar days after posting \(\d{4}-\d{2}-\d{2}\) and the date the contracting officer enters\. Posted \d{4}-\d{2}-\d{2}, not yet posted\. (.*)$/s.exec(
+    rule,
+  );
+  if (!m) return rule;
+  return `Later of 15 calendar days after posting and the date the contracting officer enters. Not yet posted. ${m[1]}`;
+}
+
 function samNotice(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
   const start = str(a["period_of_performance_start"]);
   const end = str(a["period_of_performance_end"]);
-  const posting = ctx.notice?.postedOn || ctx.today || "";
+  // Only a real saved posting date anchors the 15-day rule; the draft date
+  // never stands in for it.
+  const posting = ctx.notice?.postedOn || "";
   const fifteen = posting ? plusDays(posting, 15) : "";
   const entered = str(ctx.values?.["response_date"]);
-  const response = entered && fifteen ? (entered > fifteen ? entered : fifteen) : fifteen || entered;
+  const response = posting
+    ? entered && fifteen ? (entered > fifteen ? entered : fifteen) : fifteen || entered
+    : entered;
   // A sole-source notice of intent is not a combined synopsis/solicitation, so
   // it carries the notice authority, never FAR 12.603(c).
   const ruleCite = isSoleSourceRecord(a)
@@ -660,7 +684,7 @@ function samNotice(ctx: MemoDraftCtx): Values {
       ? `Later of 15 calendar days after posting (${fifteen}) and the date the contracting officer enters. Posted ${
           ctx.notice?.postedOn ? ctx.notice.postedOn : `${posting}, not yet posted`
         }. ${ruleCite}`
-      : `Later of 15 calendar days after posting and the date the contracting officer enters. ${ruleCite}`,
+      : `Later of 15 calendar days after posting and the date the contracting officer enters. Not yet posted. ${ruleCite}`,
     evaluation_basis:
       "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
