@@ -416,7 +416,9 @@ function FormPage() {
       ? "Not recorded"
       : countdown.days === null
         ? countdown.caption
-        : `${countdown.prefix}${countdown.days}${countdown.badge ? ` ${countdown.badge}` : ""} (${countdown.caption})`
+        : countdown.mode === "hold"
+          ? `${countdown.prefix}${countdown.days} HOLD`
+          : `${countdown.prefix}${countdown.days}${countdown.badge ? ` ${countdown.badge}` : ""} (${countdown.caption})`
   }`;
 
   // P0 fold-in: an official export is only Ready when the blank itself loads.

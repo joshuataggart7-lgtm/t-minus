@@ -283,7 +283,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
       : countdown.mode === "forecast"
         ? "FORECAST · no target award date recorded"
         : countdown.mode === "hold"
-          ? "HOLD · on hold"
+          ? "HOLD"
           : countdown.mode === "launched"
             ? `${countdown.days} days since award`
             : countdown.mode === "overdue"
@@ -295,7 +295,9 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
       ? "No countdown recorded"
       : input.clockState === "launched"
         ? `${input.days} days since award`
-        : `${input.days} days to the target award date`;
+        : input.days < 0
+          ? `${Math.abs(input.days)} days past target`
+          : `${input.days} days to the target award date`;
   const countdownFigure = countdown
     ? countdown.days === null || !countdown.prefix ? "—" : `${countdown.prefix} ${countdown.days}`
     : input.days === null ? "—" : String(Math.abs(input.days));

@@ -1560,14 +1560,18 @@ function DocumentPage() {
   const exportHeaderLine = `${acquisitionId} · ${
     daysToAward === null
       ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
-      : `${daysToAward} days to award`
+      : daysToAward < 0
+        ? `${Math.abs(daysToAward)} days past target`
+        : `${daysToAward} days to award`
   }`;
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown
       ? "Not recorded"
       : chromeCountdown.days === null
         ? chromeCountdown.caption
-        : `${chromeCountdown.prefix}${chromeCountdown.days}${chromeCountdown.badge ? ` ${chromeCountdown.badge}` : ""} (${chromeCountdown.caption})`
+        : chromeCountdown.mode === "hold"
+          ? `${chromeCountdown.prefix}${chromeCountdown.days} HOLD`
+          : `${chromeCountdown.prefix}${chromeCountdown.days}${chromeCountdown.badge ? ` ${chromeCountdown.badge}` : ""} (${chromeCountdown.caption})`
   }`;
 
   const save = useMutation({

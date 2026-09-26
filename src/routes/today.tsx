@@ -303,6 +303,7 @@ function TodayPage() {
               <ol className="space-y-3">
                 {topThree.map((c, i) => {
                   const readiness = explainWorkReadiness(c.m).state;
+                  const view = countdownView(c.m);
                   return (
                   <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>
                     <MissionReadinessChip state={readiness} className="float-right ml-3" />
@@ -311,7 +312,11 @@ function TodayPage() {
                     </span>{" "}
                     {c.m.nextAction} — <FileLink card={c} />
                     <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-                      <LaunchCountdownCompact view={countdownView(c.m)} className="mr-2" />
+                      {view.mode === "overdue" ? (
+                        <span className="mr-2" data-numeric>{`${view.days} days past target · OVERDUE`}</span>
+                      ) : (
+                        <LaunchCountdownCompact view={view} className="mr-2" />
+                      )}
                       {desk
                         ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
                         : ""}

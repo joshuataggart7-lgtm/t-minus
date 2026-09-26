@@ -155,7 +155,13 @@ export function digestSections(d: Digest): DigestSection[] {
       lines: d.atRisk.length
         ? d.atRisk.map(
             (r) =>
-              `${r.id} · ${r.center} · ${r.title} · ${r.blocker} · owner ${r.owner} · ${r.daysToAward ?? "—"} days to award`,
+              `${r.id} · ${r.center} · ${r.title} · ${r.blocker} · owner ${r.owner} · ${
+                r.daysToAward === null
+                  ? "— days to award"
+                  : r.daysToAward < 0
+                    ? `${Math.abs(r.daysToAward)} days past target`
+                    : `${r.daysToAward} days to award`
+              }`,
           )
         : ["No file is at risk."],
     },

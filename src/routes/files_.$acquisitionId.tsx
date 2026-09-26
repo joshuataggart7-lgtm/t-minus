@@ -1407,14 +1407,21 @@ function FilePage() {
       if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
       }
-      const prior = acq as unknown as Record<string, string | null | undefined>;
+      const { data: fresh, error: freshError } = await supabase
+        .from("acquisition_facts")
+        .select("clock_state,hold_reason,hold_owner,hold_started_at,status,current_phase")
+        .eq("acquisition_id", acq.acquisition_id)
+        .maybeSingle();
+      if (freshError || !fresh) {
+        throw new Error("Launch not recorded: the file could not be read. Refresh and try again");
+      }
       const before = {
-        clock_state: prior['clock_state'] ?? null,
-        hold_reason: prior['hold_reason'] ?? null,
-        hold_owner: prior['hold_owner'] ?? null,
-        hold_started_at: prior['hold_started_at'] ?? null,
-        status: prior['status'] ?? null,
-        current_phase: prior['current_phase'] ?? null,
+        clock_state: fresh.clock_state ?? null,
+        hold_reason: fresh.hold_reason ?? null,
+        hold_owner: fresh.hold_owner ?? null,
+        hold_started_at: fresh.hold_started_at ?? null,
+        status: fresh.status ?? null,
+        current_phase: fresh.current_phase ?? null,
       };
       const { data: launchedRows, error } = await supabase
         .from("acquisition_facts")
@@ -1470,7 +1477,12 @@ function FilePage() {
       setBanner(`${e.message}.`);
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
+      void qc.invalidateQueries({ queryKey: ["executive-overview"] });
+      void qc.invalidateQueries({ queryKey: ["files"] });
+      void qc.invalidateQueries({ queryKey: ["reporting-operational"] });
       void qc.invalidateQueries({ queryKey: ["desk-data"] });
+      void qc.invalidateQueries({ queryKey: ["leadership-digest"] });
+      void qc.invalidateQueries({ queryKey: ["award-history"] });
     },
   });
 

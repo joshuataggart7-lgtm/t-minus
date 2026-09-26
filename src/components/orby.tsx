@@ -35,7 +35,7 @@ export function Orby({
           setLine(`${data.acquisition_id}: Launched.`);
         } else if (data.target_award_date) {
           const d = daysBetween(todayISO(), data.target_award_date);
-          setLine(`${data.acquisition_id}: ${d} days to award.`);
+          setLine(`${data.acquisition_id}: ${d < 0 ? `${Math.abs(d)} days past target` : `${d} days to award`}.`);
         } else {
           setLine(`${data.acquisition_id}: no target award date yet.`);
         }

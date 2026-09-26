@@ -924,7 +924,7 @@ function EnterpriseTab({
                   {sample.daysToAward !== null && sample.daysToAward >= 0
                     ? `${sample.daysToAward} days to award.`
                     : sample.daysToAward !== null && sample.daysToAward < 0
-                      ? `${Math.abs(sample.daysToAward)} days overdue to award.`
+                      ? `${Math.abs(sample.daysToAward)} days past target.`
                       : "Clock not started."}
                   {sample.blocker ? ` Blocker: ${sample.blocker}.` : ""}
                 </>

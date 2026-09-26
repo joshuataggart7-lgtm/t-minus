@@ -71,7 +71,7 @@ export function countdownView(m: AcqMetrics): CountdownView {
       prefix: days === null ? null : "T−",
       badge: "HOLD",
       holdReason: m.hold?.reason ?? null,
-      caption: "on hold",
+      caption: "HOLD",
       tone: "muted",
     };
   }
@@ -160,7 +160,7 @@ export function LaunchCountdown({
           <span className="ml-2 text-[15px] font-medium text-chrome-muted">days</span>
         </p>
       )}
-      <p className="mt-1 text-[13px] text-chrome-muted">{view.caption}</p>
+      {view.caption === view.badge ? null : <p className="mt-1 text-[13px] text-chrome-muted">{view.caption}</p>}
       {view.holdReason ? (
         <p className="mt-1 text-[13px] text-chrome-foreground">Hold: {view.holdReason}</p>
       ) : null}

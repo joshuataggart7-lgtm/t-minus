@@ -35,9 +35,10 @@ type OperationalDisplay = ReturnType<typeof useOperationalDisplay>["byId"] exten
 function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
   if (!display) return loading ? "Status loading" : "Status unavailable";
   const view = display.countdown;
+  const caption = view.caption === view.badge ? "" : ` · ${view.caption}`;
   const countdown = view.days === null
     ? view.caption
-    : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""} · ${view.caption}`;
+    : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""}${caption}`;
   return [
     display.readiness,
     countdown,
