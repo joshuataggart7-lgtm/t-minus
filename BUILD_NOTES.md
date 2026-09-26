@@ -1,3 +1,7 @@
+# IA Fix R5 corrective (E3) — September 26, 2026
+
+- `src/components/global-search.tsx` only. Command-group `aria-labelledby` ids were built from the group name (e.g. "Current file"), producing ids with spaces that axe flagged as invalid references. The id is now `global-search-group-${i}` (zero-based index), identical on the heading and the group wrapper. The Files `role="group"` and its sr-only heading now render only when `results.length > 0`, so the listbox never contains an empty group. No other markup, classes, selection treatment, keyboard behaviour, or option ids changed.
+
 # IA Fix R5 — September 26, 2026
 
 - Price provenance: `packetTransmittal` now uses the latest saved Price Negotiation Memorandum `negotiated_price`, then the matching NF 1707 answer, then `acquisition_facts.proposed_price`; `estimated_value` is identified only as the independent government cost estimate and never substituted for price. The document route supplies the latest saved PNM values and ignores blank notice-date fields before checking the next saved-date key.
