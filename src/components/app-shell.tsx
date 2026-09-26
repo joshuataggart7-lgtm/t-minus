@@ -323,9 +323,14 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                     to={item.to}
                     title={item.label}
                      onClick={() => {
-                       if (isDrawerViewport && drawerOpen && item.to !== pathname) {
-                         drawerNavFocus.pending = true;
-                         drawerNavFocus.at = Date.now();
+                       if (isDrawerViewport && drawerOpen) {
+                         if (item.to === pathname) {
+                           closeDrawer();
+                         } else {
+                           restoreFocusRef.current = false;
+                           drawerNavFocus.pending = true;
+                           drawerNavFocus.at = Date.now();
+                         }
                        }
                      }}
                     className={cn(
@@ -353,9 +358,14 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
                    onClick={() => {
-                     if (isDrawerViewport && drawerOpen && `/files/${openAcquisitionId}` !== pathname) {
-                       drawerNavFocus.pending = true;
-                       drawerNavFocus.at = Date.now();
+                     if (isDrawerViewport && drawerOpen) {
+                       if (`/files/${openAcquisitionId}` === pathname) {
+                         closeDrawer();
+                       } else {
+                         restoreFocusRef.current = false;
+                         drawerNavFocus.pending = true;
+                         drawerNavFocus.at = Date.now();
+                       }
                      }
                    }}
                    title={railCollapsed ? openAcquisitionId : undefined}

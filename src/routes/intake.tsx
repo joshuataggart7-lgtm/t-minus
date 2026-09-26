@@ -738,7 +738,7 @@ function IntakePage() {
               <option value="__new__">Add new project</option>
             </select>
             {addingProject ? (
-              <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_auto]">
+              <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_auto] max-sm:grid-cols-1">
                 <input aria-label="New project name" placeholder="Project name" className={inputClass} value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} />
                 <input aria-label="New project need date" type="date" className={inputClass} value={newProjectDate} onChange={(e) => setNewProjectDate(e.target.value)} />
                 <button type="button" className="rounded-lg bg-primary px-3 py-2 text-[14px] text-primary-foreground" onClick={() => void addProject()}>Add</button>

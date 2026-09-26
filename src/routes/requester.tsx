@@ -150,7 +150,7 @@ function RequesterPortal() {
                 <div className="mt-4 grid gap-8 lg:grid-cols-2">
                   <div>
                     <h3 className="text-[15px] font-medium">Your file</h3>
-                    <dl className="mt-2 grid grid-cols-[minmax(0,10rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+                    <dl className="mt-2 grid grid-cols-[minmax(0,10rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px] max-md:grid-cols-1">
                       <dt className="text-muted-foreground">Acquisition</dt>
                       <dd data-numeric>{id}</dd>
                       <dt className="text-muted-foreground">Contracting officer</dt>
@@ -198,7 +198,7 @@ function RequesterPortal() {
 
                   <div>
                     <h3 className="text-[15px] font-medium">Days costing</h3>
-                    <dl className="mt-2 grid grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
+                    <dl className="mt-2 grid grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px] max-md:grid-cols-1">
                       <dt className="text-muted-foreground">Days since the file opened</dt>
                       <dd data-numeric>{openDays ?? "—"}</dd>
                       <dt className="text-muted-foreground">Days on hold</dt>

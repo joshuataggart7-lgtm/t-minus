@@ -149,7 +149,7 @@ function CheckResult({ result }: { result: SamCheckView }) {
 
       <dl className="overflow-hidden border border-border bg-background [border-radius:var(--mc-radius-control)]">
         {fields.map(([label, value]) => (
-          <div key={label} className="grid gap-1 border-b border-border px-3 py-3 sm:grid-cols-[15rem_1fr]">
+          <div key={label} className="grid gap-1 border-b border-border px-3 py-3 sm:grid-cols-[15rem_1fr] max-md:grid-cols-1">
             <dt className="font-medium">{label}</dt>
             <dd data-numeric>{value}</dd>
           </div>
