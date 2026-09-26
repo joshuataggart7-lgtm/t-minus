@@ -6,6 +6,7 @@ import { AppShell, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
+import { loadLaunchEvents, launchedIdSet } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
@@ -84,6 +85,7 @@ export function ExecutiveOverview() {
         strategies,
         polls,
         log,
+        launches,
         watchRows,
         refs,
       ] = await Promise.all([
@@ -100,6 +102,7 @@ export function ExecutiveOverview() {
           .select("acquisition_id,action,actor,logged_at,phase")
           .order("logged_at", { ascending: false })
           .limit(500),
+        loadLaunchEvents(),
         loadWatchRows(),
         loadRegRefs(),
       ]);
@@ -129,6 +132,7 @@ export function ExecutiveOverview() {
         templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
         attachments: attachments.data ?? [],
         log: log.data ?? [],
+        launches,
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
     },
@@ -164,7 +168,7 @@ export function ExecutiveOverview() {
     if (!q.data) return [];
     const today = todayISO();
     return q.data.acqs.map((sourceAcq) => {
-      const operational = deriveOverviewAcquisitionState(sourceAcq, q.data.log);
+      const operational = deriveOverviewAcquisitionState(sourceAcq, [...q.data.log, ...q.data.launches]);
       const acq = operational.acquisition;
       const attachedKeys = keysFrom(q.data.attachments ?? [], acq.acquisition_id);
       const savedKeys = savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id);
@@ -788,7 +792,7 @@ function ClockBoard({
       <AgingPanel acqs={metrics.map((m) => m.acq)} polls={polls} centers={centers} users={users} />
       <SuccessorPanel acqs={metrics.map((m) => m.acq)} plan={plan} />
 
-      <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} />
+      <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} launchedIds={launchedIdSet(q.data?.launches ?? [])} />
 
       <ExclusionsSweepPanel />
     </div>

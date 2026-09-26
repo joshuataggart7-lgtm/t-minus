@@ -19,12 +19,14 @@ function money(n: number | null) {
 export function SmallBusinessPanel({
   acqs,
   thresholds,
+  launchedIds,
 }: {
   acqs: AcqRow[];
   thresholds: ThresholdRow[];
+  launchedIds: Set<string>;
 }) {
   const plans = useQuery({ queryKey: ["subcontracting-plans-on-file"], queryFn: loadPlansOnFile });
-  const panel = buildSmallBusinessPanel(acqs, thresholds, plans.data ?? new Set<string>());
+  const panel = buildSmallBusinessPanel(acqs, thresholds, plans.data ?? new Set<string>(), launchedIds);
 
   const [naics, setNaics] = useState("481219");
   const [view, setView] = useState<SubawardView | null>(null);

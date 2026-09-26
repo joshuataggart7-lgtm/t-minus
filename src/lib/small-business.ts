@@ -5,7 +5,7 @@ import type { AcqRow } from "@/lib/launch-sequence";
  * Small business panel.
  *
  * Every figure is computed from the record: the set-aside decision recorded on
- * each file, the files that have launched with a small business set-aside, and
+ * each file, the files that have a recorded Launched audit row with a small business set-aside, and
  * the files above the subcontracting plan threshold in thresholds that have no
  * plan or waiver on file. Nothing here is generated.
  */
@@ -73,7 +73,7 @@ export function buildSmallBusinessPanel(
   let awardsTotal = 0;
   let awardsValue = 0;
   for (const a of acqs) {
-    if (a.clock_state !== "launched" || !isSmallBusinessSetAside(a.set_aside)) continue;
+    if (!launchedIds.has(a.acquisition_id) || !isSmallBusinessSetAside(a.set_aside)) continue;
     const center = String(a.center_code ?? "Unassigned");
     const value = a.estimated_value === null || a.estimated_value === undefined ? 0 : Number(a.estimated_value);
     const row = centerMap.get(center) ?? { files: 0, value: 0 };
