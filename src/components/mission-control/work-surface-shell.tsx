@@ -49,7 +49,7 @@ export function WorkShellHeader({
         {title ? <span>{title}</span> : null}
       </div>
       {readiness ? <MissionReadinessChip state={readiness.state} /> : null}
-      {countdown ? <LaunchCountdownCompact view={countdown} /> : null}
+      {countdown ? <LaunchCountdownCompact view={countdown} hideBadge={countdown.badge === readiness?.state} /> : null}
       <SaveStateNote state={saveState} />
       {completion ? <span className="mc-shell-completion">{completion}</span> : null}
     </section>
