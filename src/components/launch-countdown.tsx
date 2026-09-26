@@ -71,7 +71,7 @@ export function countdownView(m: AcqMetrics): CountdownView {
       prefix: days === null ? null : "T−",
       badge: "HOLD",
       holdReason: m.hold?.reason ?? null,
-      caption: "on hold",
+      caption: "HOLD",
       tone: "muted",
     };
   }

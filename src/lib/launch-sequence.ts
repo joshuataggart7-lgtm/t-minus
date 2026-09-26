@@ -1085,10 +1085,10 @@ export function buildSequence(
   // Drafting a later document early is allowed; the order is enforced here.
   const earliestOpen = rows.findIndex((r, i) => unfinished(r.phase as string, docsFor[i] ?? []));
 
-  // A launched or scrubbed file is past award: historical gaps in pre-award
-  // paperwork must never pull the displayed current phase back to Intake.
+  // Only a launched clock, which the operational normalizer sets only from a
+  // Launched audit row, is past award. A scrubbed file keeps its recorded phase.
   const clockState = String(acq.clock_state ?? "").toLowerCase();
-  const postAward = clockState === "launched" || clockState === "scrubbed";
+  const postAward = clockState === "launched";
   const indexOfPhase = (name: string) =>
     rows.findIndex((r) => (r.phase ?? "").toLowerCase() === name.toLowerCase());
 
