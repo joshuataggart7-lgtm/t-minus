@@ -10,6 +10,7 @@ import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
