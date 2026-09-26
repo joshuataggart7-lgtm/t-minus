@@ -92,10 +92,10 @@ function ReportingPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">Views</h2>
-        <div className="mc-work-table-wrap mt-3">
+        <div className="mc-work-table-wrap mt-3" tabIndex={0} aria-label="Report views table, scrolls horizontally">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border text-left text-muted">
+            <tr className="border-b border-border text-left text-muted-foreground">
               <th scope="col" className="py-2 pr-4 font-medium">View</th>
               <th scope="col" className="py-2 pr-4 font-medium">What it holds</th>
               <th scope="col" className="py-2 pr-4 text-right font-medium">Rows</th>
@@ -147,10 +147,10 @@ function ReportingPage() {
               Phase, clock, status and hold on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
             </p>
           ) : null}
-          <div className="mc-work-table-wrap">
+          <div className="mc-work-table-wrap" tabIndex={0} aria-label="Preview rows table, scrolls horizontally">
             <table className="w-full border-collapse text-[13px] leading-[18px]">
               <thead>
-                <tr className="border-b border-border text-left text-muted">
+                <tr className="border-b border-border text-left text-muted-foreground">
                   {cols.map((c) => (
                     <th key={c} scope="col" className="whitespace-nowrap py-2 pr-4 font-medium">
                       {c.replace(/_/g, " ")}
