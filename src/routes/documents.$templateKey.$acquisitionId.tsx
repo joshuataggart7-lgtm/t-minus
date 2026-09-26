@@ -964,7 +964,9 @@ function DocumentPage() {
     if (!last)
       return { postedOn: null, saved: false, savedAt: null, closesOn: null, noticeType: null, quotesReceived: null };
     const fv = (last.field_values ?? {}) as Record<string, string>;
-    const published = fv["publication_date"] ?? fv["posted_date"] ?? fv["original_posted_date"] ?? null;
+    const published = [fv["publication_date"], fv["posted_date"], fv["original_posted_date"]]
+      .map((value) => String(value ?? "").trim())
+      .find(Boolean) ?? null;
     return {
       postedOn: published ? String(published).slice(0, 10) : null,
       saved: true,
@@ -1110,6 +1112,12 @@ function DocumentPage() {
         ([...(q.data?.fileDocRows ?? [])]
           .reverse()
           .find((row) => /evaluation of quotations/i.test(row.templates?.name ?? ""))?.field_values as
+          | Record<string, string>
+          | undefined) ?? null,
+      pnmValues:
+        ([...(q.data?.fileDocRows ?? [])]
+          .reverse()
+          .find((row) => /price negotiation memorandum/i.test(row.templates?.name ?? ""))?.field_values as
           | Record<string, string>
           | undefined) ?? null,
       evidence: researchEvidence,
@@ -2154,7 +2162,7 @@ function DocumentPage() {
         ) : null}
         <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
           {headerLine}
-          {estimatedValue !== null ? ` · ${formatMoney(estimatedValue)}` : ""}
+          {estimatedValue !== null ? ` · IGCE ${formatMoney(estimatedValue)}` : ""}
         </p>
       </section>
 
@@ -2393,7 +2401,7 @@ function DocumentPage() {
                     void generateLsjDocx(exportContext)
                       .then((bytes) => downloadDocxBytes(bytes, `lsj-${acquisitionId}.docx`))
                       .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
-                  } else if (exportRendered) void exportDocx(exportRendered, `${def.key}-${acquisitionId}`, exportContext);
+                  } else if (exportRendered) void exportDocx(exportRendered, `${def.key}-${acquisitionId}`, exportContext, exportHeaderLine);
                 }}
               >
                 Export Word
