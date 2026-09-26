@@ -7,6 +7,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { resetDemo } from "@/lib/reset-demo.functions";
 import { agencyBackfill, type BackfillResult } from "@/lib/agency-backfill.functions";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 const TABLES = [
   "users",
@@ -155,7 +156,7 @@ function SeedStatus() {
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
 
       {authState === "signed-in" && hasRole("hq") ? (
-        <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+        <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Reset demo</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
             Reloads every seed file as written, clears the history, polls, comments, documents, checks
@@ -210,7 +211,7 @@ function SeedStatus() {
       ) : null}
 
       {authState === "signed-in" && hasRole("hq") ? (
-        <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+        <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Agency backfill</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
             Pulls NASA awards from SAM.gov contract awards for one agency code and date range and adds
@@ -266,7 +267,8 @@ function SeedStatus() {
 
       ) : (
         <><p className="mb-3 text-[15px] leading-[22px]" data-numeric>Regulations verified {REGULATIONS_VERIFIED}</p>
-        <table className="w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" label="Seeded table row counts" className="max-w-[640px] max-xl:[overflow-wrap:anywhere]">
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Seeded table row counts</caption>
           <thead>
             <tr className="border-b border-border text-left">
@@ -307,7 +309,7 @@ function SeedStatus() {
               </tr>
             ))}
           </tbody>
-        </table></>
+        </table></TableScrollRegion></>
       )}
     </AppShell>
   );

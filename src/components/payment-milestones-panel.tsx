@@ -81,11 +81,13 @@ export function PaymentMilestonesPanel({
   canWrite,
   actor,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   canWrite: boolean;
   actor: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -241,7 +243,7 @@ export function PaymentMilestonesPanel({
         </p>
 
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Payment milestones table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Payment milestones table, ${regionContext}` : "Payment milestones table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Payment milestones recorded on this file</caption>
           <thead>

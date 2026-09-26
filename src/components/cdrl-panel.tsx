@@ -71,6 +71,7 @@ export function CdrlPanel({
   actor,
   onBanner,
   facts,
+  regionContext,
 }: {
   acquisitionId: string;
   canWrite: boolean;
@@ -78,6 +79,7 @@ export function CdrlPanel({
   onBanner: (s: string) => void;
   /** The record, read only for the muted method-aware line. */
   facts?: Record<string, unknown> | null;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -193,7 +195,7 @@ export function CdrlPanel({
           {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
         </p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Data requirements table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Data requirements table, ${regionContext}` : "Data requirements table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Data requirements recorded on this file</caption>
           <thead>

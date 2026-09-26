@@ -51,7 +51,7 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
             role="dialog"
             aria-modal="true"
             aria-label={explanation.heading}
-            className="absolute inset-y-0 right-0 w-full max-w-[28rem] overflow-y-auto border-l border-border bg-background p-6 text-left text-[13px] leading-[18px] shadow-lg"
+            className="absolute inset-y-0 right-0 w-full max-w-[28rem] overflow-y-auto border-l border-border bg-background p-6 text-left text-[13px] leading-[18px] shadow-lg max-sm:max-w-[calc(100vw-2rem)]"
           >
             <div className="flex items-start justify-between gap-4">
               <p className="text-[18px] leading-6 font-medium">{explanation.heading}</p>

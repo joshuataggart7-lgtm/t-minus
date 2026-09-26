@@ -217,7 +217,7 @@ function EscalationsPage() {
           <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
             Center policy sets the number of days. The default is {DEFAULT_AGING_DAYS} days.
           </p>
-          <div className="mc-work-table-wrap mt-3 max-w-[640px] border border-border bg-background">
+          <div className="mc-work-table-wrap mt-3 max-w-[640px] border border-border bg-background max-sm:max-w-[calc(100vw-2rem)]">
           <table className="w-full text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">

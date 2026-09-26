@@ -16,7 +16,7 @@ import {
 const kindWord = (kind: string): string =>
   kind === "template" ? "Document" : kind === "form" ? "Form" : "File record";
 
-export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) {
+export function ReadReceiptsPanel({ acquisitionId, regionContext }: { acquisitionId: string; regionContext?: string }) {
   const q = useQuery({
     queryKey: ["read-receipts", acquisitionId],
     enabled: Boolean(acquisitionId),
@@ -39,7 +39,7 @@ export function ReadReceiptsPanel({ acquisitionId }: { acquisitionId: string }) 
       ) : rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{READ_RECEIPTS_EMPTY}</p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Documents opened table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Documents opened table, ${regionContext}` : "Documents opened table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Documents opened on this file</caption>
           <thead>

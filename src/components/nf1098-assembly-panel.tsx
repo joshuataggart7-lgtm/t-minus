@@ -19,11 +19,13 @@ export function Nf1098AssemblyPanel({
   input,
   onExport,
   exporting,
+  regionContext,
 }: {
   acquisitionId: string;
   input: Nf1098AssemblyInput;
   onExport?: () => void;
   exporting?: boolean;
+  regionContext?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const assembly = buildNf1098Assembly(input);
@@ -60,7 +62,7 @@ export function Nf1098AssemblyPanel({
         not presented as a filled agency form.
       </p>
 
-      <TableScrollRegion baseClassName="overflow-x-auto" label="NF 1098 tabs table">
+      <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `NF 1098 tabs table, ${regionContext}` : "NF 1098 tabs table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Contract-file assembly checklist for {acquisitionId}</caption>
           <thead>

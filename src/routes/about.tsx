@@ -15,6 +15,7 @@ import {
   SEED_SOURCES,
   templateGroups,
 } from "@/lib/about";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -145,7 +146,7 @@ function AboutPage() {
         <h2 className="section-title text-[18px] leading-6 font-medium">Data sources and their dates</h2>
         <ul className="mt-3 max-w-[70ch] space-y-1">
           {SEED_SOURCES.map((s) => (
-            <li key={s.name} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[15px] leading-[22px]">
+            <li key={s.name} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[15px] leading-[22px] max-md:grid-cols-1 max-xl:[overflow-wrap:anywhere]">
               <span>{s.name}</span>
               <span className="text-muted-foreground" data-numeric>
                 {s.asOf}
@@ -155,7 +156,8 @@ function AboutPage() {
         </ul>
 
         {q.data ? (
-          <table className="mt-5 w-full border border-border text-[13px] leading-[18px]">
+          <TableScrollRegion baseClassName="mc-work-table-wrap" label="Regulatory references table" className="mt-5">
+          <table className="w-full border border-border text-[13px] leading-[18px]">
             <caption className="sr-only">Regulatory references loaded, newest first</caption>
             <thead>
               <tr className="border-b border-border text-left">
@@ -188,6 +190,7 @@ function AboutPage() {
               ))}
             </tbody>
           </table>
+          </TableScrollRegion>
         ) : null}
       </section>
 

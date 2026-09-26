@@ -42,6 +42,7 @@ export function AwardHandoffPanel({
   acquisitionId,
   suggestedForm,
   assemblyCounts,
+  regionContext,
 }: {
   scaffold: FormatScaffold | null;
   defaultOpen?: boolean;
@@ -55,6 +56,7 @@ export function AwardHandoffPanel({
     recorded: number;
     notRecorded: number;
   } | null;
+  regionContext?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   if (!scaffold) return null;
@@ -197,7 +199,7 @@ export function AwardHandoffPanel({
                 No line items on the schedule for this file.
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Handoff line items table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff line items table, ${regionContext}` : "Handoff line items table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Line items on this file</caption>
                 <thead>
@@ -320,7 +322,7 @@ export function AwardHandoffPanel({
                 No clauses selected for this file yet.
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Handoff clauses table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff clauses table, ${regionContext}` : "Handoff clauses table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Clauses on this file with their fill-ins</caption>
                 <thead>
@@ -388,7 +390,7 @@ export function AwardHandoffPanel({
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Handoff attachments table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff attachments table, ${regionContext}` : "Handoff attachments table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Attachments on this file</caption>
                 <thead>
@@ -426,7 +428,7 @@ export function AwardHandoffPanel({
                 {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Handoff data requirements table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff data requirements table, ${regionContext}` : "Handoff data requirements table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Data requirements on this file</caption>
                 <thead>
@@ -471,7 +473,7 @@ export function AwardHandoffPanel({
                 {PAYMENT_MILESTONES_EMPTY} {PAYMENT_MILESTONES_EMPTY_NOTE}
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Handoff payment milestones table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff payment milestones table, ${regionContext}` : "Handoff payment milestones table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Payment milestones on this file</caption>
                 <thead>

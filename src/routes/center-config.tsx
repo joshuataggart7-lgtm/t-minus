@@ -197,7 +197,7 @@ function CenterConfigPage() {
           <h2 className="text-lg font-medium">Set an override</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
-              <span className="text-muted">Center</span>
+              <span className="text-muted-foreground">Center</span>
               <select
                 value={center}
                 onChange={(e) => setCenter(e.target.value)}
@@ -212,7 +212,7 @@ function CenterConfigPage() {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="text-muted">What it overrides</span>
+              <span className="text-muted-foreground">What it overrides</span>
               <select
                 value={kind}
                 onChange={(e) => {
@@ -226,7 +226,7 @@ function CenterConfigPage() {
               </select>
             </label>
             <label className="block text-sm sm:col-span-2">
-              <span className="text-muted">{kind === "threshold" ? "Threshold" : "Reviewer"}</span>
+              <span className="text-muted-foreground">{kind === "threshold" ? "Threshold" : "Reviewer"}</span>
               <select
                 value={target}
                 onChange={(e) => {
@@ -245,7 +245,7 @@ function CenterConfigPage() {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="text-muted">Dollar value</span>
+              <span className="text-muted-foreground">Dollar value</span>
               <input
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -254,7 +254,7 @@ function CenterConfigPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="text-muted">Effective date</span>
+              <span className="text-muted-foreground">Effective date</span>
               <input
                 type="date"
                 value={effective}
@@ -263,7 +263,7 @@ function CenterConfigPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="text-muted">Citation</span>
+              <span className="text-muted-foreground">Citation</span>
               <input
                 value={citation}
                 onChange={(e) => setCitation(e.target.value)}
@@ -271,7 +271,7 @@ function CenterConfigPage() {
               />
             </label>
             <label className="block text-sm">
-              <span className="text-muted">Note</span>
+              <span className="text-muted-foreground">Note</span>
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -286,7 +286,7 @@ function CenterConfigPage() {
           {problem ? <p className="mt-3 text-sm text-atrisk">{problem}</p> : null}
         </form>
       ) : (
-        <p className="mt-6 text-muted">
+        <p className="mt-6 text-muted-foreground">
           This action requires Contracting, HQ, or Administrator.
         </p>
       )}
@@ -300,7 +300,7 @@ function CenterConfigPage() {
           <div className="mc-work-table-wrap mt-3">
           <table className="w-full border-collapse text-[13px] leading-[18px]">
             <thead>
-              <tr className="border-b border-border text-left text-muted">
+              <tr className="border-b border-border text-left text-muted-foreground">
                 <th scope="col" className="py-2 pr-4 font-medium">Center</th>
                 <th scope="col" className="py-2 pr-4 font-medium">Overrides</th>
                 <th scope="col" className="py-2 pr-4 font-medium">Target</th>
@@ -327,7 +327,7 @@ function CenterConfigPage() {
                     <td className="py-2 pr-4">
                       {ended ? `Ended ${r.superseded_date}` : pending ? "Not yet effective" : "In effect"}
                     </td>
-                    <td className="py-2 pr-4 text-muted">{r.citation || r.note || CENTER_POLICY_NOTE}</td>
+                    <td className="py-2 pr-4 text-muted-foreground">{r.citation || r.note || CENTER_POLICY_NOTE}</td>
                     <td className="py-2">
                       {mayEdit && !ended ? (
                         <button
@@ -351,7 +351,7 @@ function CenterConfigPage() {
 
       <MissionNavSection id="center-memo-routing" label="Memorandum routing, NF 1858" collapsible defaultOpen={mayEdit} summary={`${(q.data?.routing ?? []).length} ${(q.data?.routing ?? []).length === 1 ? "route" : "routes"}`}>
       <section>
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted">
+        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
           To and Thru on a memorandum read from this table. The seeded ARC titles are placeholders; edit them for
           your Center.
         </p>
@@ -361,7 +361,7 @@ function CenterConfigPage() {
         <div className="mc-work-table-wrap mt-3">
         <table className="w-full border-collapse text-[13px] leading-[18px]">
           <thead>
-            <tr className="border-b border-border text-left text-muted">
+            <tr className="border-b border-border text-left text-muted-foreground">
               <th scope="col" className="py-2 pr-4 font-medium">Center</th>
               <th scope="col" className="py-2 pr-4 font-medium">Document type</th>
               <th scope="col" className="py-2 pr-4 font-medium">Approving official title (To)</th>
@@ -396,7 +396,7 @@ function CenterConfigPage() {
             }}
           >
             <label className="block text-sm">
-              <span className="text-muted">Center</span>
+              <span className="text-muted-foreground">Center</span>
               <select
                 value={newCenter}
                 onChange={(e) => setNewCenter(e.target.value)}
@@ -411,7 +411,7 @@ function CenterConfigPage() {
               </select>
             </label>
             <label className="block text-sm">
-              <span className="text-muted">Document type</span>
+              <span className="text-muted-foreground">Document type</span>
               <select
                 value={newDocKey}
                 onChange={(e) => setNewDocKey(e.target.value)}
@@ -475,7 +475,7 @@ function MemoRoutingRowEditor({
       <td className="py-2 pr-4">{row.center_code}</td>
       <td className="py-2 pr-4">
         {MEMO_DOCUMENT_KEYS.find((k) => k.key === row.document_key)?.name ?? row.document_key}
-        {row.note ? <div className="text-muted">{row.note}</div> : null}
+        {row.note ? <div className="text-muted-foreground">{row.note}</div> : null}
       </td>
       <td className="py-2 pr-4">
         <label className="sr-only" htmlFor={`title-${row.routing_id}`}>Approving official title</label>
