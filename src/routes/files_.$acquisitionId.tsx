@@ -3540,6 +3540,7 @@ function FilePage() {
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
+                    regionContext={`${p.phase} phase`}
                   />
                   <SolicitationKlmPanel
                     acquisitionId={acquisitionId}
@@ -3549,6 +3550,7 @@ function FilePage() {
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
+                    regionContext={`${p.phase} phase`}
                   />
                   <SebCockpitPanel
                     acquisitionId={acquisitionId}
@@ -3556,6 +3558,7 @@ function FilePage() {
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
+                    regionContext={`${p.phase} phase`}
                   />
                   <ReadReceiptsPanel acquisitionId={acquisitionId} regionContext={`${p.phase} phase`} />
                   <SectionJPanel attachments={attachments} mode={formatScaffold?.mode ?? "ucf"} regionContext={`${p.phase} phase`} />
@@ -3564,6 +3567,7 @@ function FilePage() {
                     canWrite={canWrite}
                     actor={actorName}
                     onBanner={setBanner}
+                    regionContext={`${p.phase} phase`}
                   />
                   <CdrlPanel
                     acquisitionId={acquisitionId}
