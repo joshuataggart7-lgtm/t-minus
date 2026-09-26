@@ -105,7 +105,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         <div className="mc-featured-clock">
           <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : view.pastTarget ? view.days : `${view.prefix}${view.days}`}</strong>
           {view.pastTarget ? (
-            <span>{`days past target${view.caption === state ? "" : ` · ${view.caption}`}`}</span>
+            <span>days past target</span>
           ) : view.caption === state ? null : <span>{view.caption}</span>}
         </div>
         <div className="mc-featured-state">

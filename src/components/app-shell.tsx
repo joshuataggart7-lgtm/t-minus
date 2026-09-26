@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
@@ -43,6 +43,9 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
   useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isDrawerViewport, setIsDrawerViewport] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
     const saved = window.sessionStorage.getItem("tminus-nav-groups");
@@ -60,6 +63,29 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
   const navGroups = sidebarNavGroups(roles, presenter);
+
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 1023.98px)");
+    const syncViewport = () => setIsDrawerViewport(query.matches);
+    syncViewport();
+    query.addEventListener("change", syncViewport);
+    return () => query.removeEventListener("change", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setDrawerOpen(false);
+      window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [drawerOpen]);
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
@@ -93,12 +119,15 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
       >
         Skip to main content
       </a>
-      <header className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground md:h-14 md:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] md:py-0 sm:px-6">
+      <header className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
+            ref={menuButtonRef}
             type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+            onClick={() => isDrawerViewport ? setDrawerOpen((open) => !open) : setCollapsed((c) => !c)}
+            aria-label={isDrawerViewport ? (drawerOpen ? "Close navigation" : "Open navigation") : (collapsed ? "Expand navigation" : "Collapse navigation")}
+            aria-expanded={isDrawerViewport ? drawerOpen : undefined}
+            aria-controls={isDrawerViewport ? "main-navigation" : undefined}
             className="rounded-lg border border-chrome-structure p-2 text-chrome-muted hover:text-chrome-foreground"
           >
             <PanelLeft className="size-4" aria-hidden="true" />
@@ -108,8 +137,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
           </Link>
         </div>
-        <div className="app-chrome-search col-span-2 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><GlobalSearch /></div>
-        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 md:col-span-1 md:col-start-3 md:row-start-1 md:flex-nowrap md:justify-end min-[1440px]:gap-x-3">
+        <div className="app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1"><GlobalSearch /></div>
+        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:flex-nowrap xl:justify-end min-[1440px]:gap-x-3">
           {presenter ? null : <AnnouncementBanner />}
           <Nova acquisitionId={openAcquisitionId} />
           {isAdministrator ? (
@@ -185,12 +214,23 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
 
       <div id="urgent-announcement-slot" />
 
-      <div className="flex">
+      <div className="flex max-lg:block">
+        {drawerOpen ? (
+          <button
+            type="button"
+            aria-label="Close navigation"
+            className="fixed inset-0 z-40 bg-foreground/30 lg:hidden"
+            onClick={() => setDrawerOpen(false)}
+          />
+        ) : null}
         <nav
+          id="main-navigation"
           aria-label="Main"
+          aria-hidden={isDrawerViewport && !drawerOpen ? true : undefined}
           className={cn(
-            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out",
-            collapsed ? "w-14" : overviewMode ? "w-48" : "w-56 lg:w-60",
+            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto",
+            !drawerOpen && "max-lg:hidden",
+            collapsed ? "lg:w-14" : overviewMode ? "lg:w-48" : "lg:w-60",
           )}
         >
           <div className="py-3">
@@ -198,10 +238,10 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               const groupItems = group.items;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "lg:sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
-                <ul className={cn(!expanded && "hidden", collapsed && "block")}>
+                <ul className={cn(!expanded && "hidden", collapsed && "lg:block")}>
                 {groupItems.map((item) => {
               const active = pathname === item.to;
               const Icon = NAV_ICONS[item.label] ?? FolderOpen;
@@ -218,8 +258,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                     )}
                   >
                     <Icon className={cn("size-[18px] shrink-0", active ? "text-accent-cyan" : "text-chrome-muted group-hover:text-chrome-foreground")} aria-hidden="true" />
-                    <span className={cn("truncate", collapsed && "sr-only")}>{item.label}</span>
-                    {!collapsed && item.note ? (
+                    <span className={cn("truncate", collapsed && "lg:sr-only")}>{item.label}</span>
+                    {(!collapsed || isDrawerViewport) && item.note ? (
                       <span className="block text-[12px] text-chrome-muted">{item.note}</span>
                     ) : null}
                   </Link>
@@ -229,8 +269,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             })}</ul></section>;
             })}
             {openAcquisitionId ? (
-              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "mx-0 border-t-0 pt-0")}>
-                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "sr-only")}>Open file</p>
+              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "lg:mx-0 lg:border-t-0 lg:pt-0")}>
+                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "lg:sr-only")}>Open file</p>
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
@@ -243,7 +283,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           </div>
         </nav>
 
-        <div className="min-w-0 flex-1 bg-canvas">
+        <div className="min-w-0 flex-1 bg-canvas max-lg:w-full max-lg:overflow-x-hidden">
           <main
             id="main-content"
             tabIndex={-1}

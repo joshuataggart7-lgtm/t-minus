@@ -204,9 +204,11 @@ export function LaunchCountdown({
 export function LaunchCountdownCompact({
   view,
   className,
+  hideBadge = false,
 }: {
   view: CountdownView;
   className?: string;
+  hideBadge?: boolean;
 }) {
   if (view.days === null) {
     return (
@@ -227,7 +229,7 @@ export function LaunchCountdownCompact({
         {view.prefix} {view.days}
       </span>
       <span className="text-[12px] text-muted-foreground">{view.pastTarget ? "days past target" : "days"}</span>
-      {view.badge ? (
+      {view.badge && !hideBadge ? (
         <span
           className="rounded px-1 text-[10px] font-semibold tracking-wide"
           style={

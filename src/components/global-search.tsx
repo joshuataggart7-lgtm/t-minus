@@ -41,7 +41,7 @@ function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
     ? countdownText(view, { omitBadge: view.badge === display.readiness })
     : view.days === null
       ? view.caption
-      : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""}${caption}`;
+      : `${view.prefix} ${view.days} days${view.badge && view.badge !== display.readiness ? ` ${view.badge}` : ""}${caption}`;
   return [
     display.readiness,
     countdown,
