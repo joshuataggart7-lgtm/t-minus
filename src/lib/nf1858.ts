@@ -341,7 +341,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
   // The signature block stays whole: blank signature line, typed name, title.
   blocks.push(
     { text: "", gap: 28 },
-    { text: "______________________________", gap: 2, keepWith: 60 },
+    { text: "______________________________", gap: 2, keepWith: 60, keepWithPrevious: true },
     { text: h.signatureName, gap: 0 },
     { text: h.signatureTitle, gap: 16 },
   );

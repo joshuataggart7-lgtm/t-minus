@@ -23,6 +23,12 @@ export type PdfBlock = {
    * left alone at the foot of a page.
    */
   keepWith?: number;
+  /**
+   * Keep-with-previous: when this block's keepWith pushes it to a new page,
+   * the last body paragraph before it moves too (or at least its last two
+   * lines), so a signature never opens a page on its own.
+   */
+  keepWithPrevious?: boolean;
 };
 
 export type PdfOptions = {
@@ -144,13 +150,10 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     }
   };
 
-  for (const block of blocks) {
+  const wrap = (block: PdfBlock) => {
     const size = block.size ?? 12;
     const font = block.bold ? bold : roman;
-    const indent = block.indent ?? 0;
-    const width = maxWidth - indent;
-    if (block.pageBreakBefore) newPage();
-    if (block.keepWith && y - block.keepWith < margins.bottom + 18) newPage();
+    const width = maxWidth - (block.indent ?? 0);
     const words = sanitize(block.text).split(/\s+/).filter(Boolean);
     const lines: string[] = [];
     let line = "";
@@ -164,16 +167,71 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
       }
     }
     if (line || !words.length) lines.push(line);
-    for (const text of lines) {
+    return lines;
+  };
+  const wrapped = blocks.map(wrap);
+
+  // Dry run of the same flow, with no drawing, to find a keep-with-previous
+  // block that would open a page alone. Only then is a break added before
+  // the last body paragraph (or its last two lines). When nothing triggers,
+  // the drawn output is exactly the flow without this rule.
+  const topY = PAGE.height - margins.top;
+  const contY = topY - (options.runningHead ? 26 : 0);
+  const forced = new Map<number, number>();
+  if (blocks.some((b) => b.keepWithPrevious)) {
+    let dy = topY;
+    let pageNo = 1;
+    const startPage: number[] = [];
+    const dryNew = () => {
+      dy = contY;
+      pageNo += 1;
+    };
+    blocks.forEach((block, i) => {
+      const size = block.size ?? 12;
+      if (block.pageBreakBefore) dryNew();
+      if (block.keepWith && dy - block.keepWith < margins.bottom + 18) {
+        const before = pageNo;
+        dryNew();
+        if (block.keepWithPrevious && forced.size === 0) {
+          let j = i - 1;
+          while (j >= 0 && !blocks[j]!.text.trim()) j -= 1;
+          if (j >= 0 && startPage[j] !== undefined && startPage[j]! <= before) {
+            const lineH = (blocks[j]!.size ?? 12) * 1.35;
+            const capacity = Math.floor((contY - (margins.bottom + 18)) / lineH);
+            const n = wrapped[j]!.length;
+            forced.set(j, n <= capacity - 4 ? 0 : Math.max(0, n - 2));
+          }
+        }
+      }
+      startPage[i] = pageNo;
+      for (let k = 0; k < wrapped[i]!.length; k += 1) {
+        if (dy < margins.bottom + 18) dryNew();
+        dy -= size * 1.35;
+      }
+      dy -= block.gap ?? 6;
+    });
+  }
+
+  blocks.forEach((block, bi) => {
+    const size = block.size ?? 12;
+    const font = block.bold ? bold : roman;
+    const indent = block.indent ?? 0;
+    if (block.pageBreakBefore) newPage();
+    if (forced.get(bi) === 0) newPage();
+    if (block.keepWith && y - block.keepWith < margins.bottom + 18) newPage();
+    const lines = wrapped[bi]!;
+    const breakAt = forced.get(bi) ?? -1;
+    lines.forEach((text, li) => {
+      if (li > 0 && li === breakAt) newPage();
       if (y < margins.bottom + 18) newPage();
       const x = block.center
         ? (PAGE.width - font.widthOfTextAtSize(text, size)) / 2
         : margins.left + indent;
       page.drawText(text, { x, y, size, font });
       y -= size * 1.35;
-    }
+    });
     y -= block.gap ?? 6;
-  }
+  });
   const pages = doc.getPages();
   pages.forEach((target, index) => drawFooter(target, index + 1, pages.length));
 
