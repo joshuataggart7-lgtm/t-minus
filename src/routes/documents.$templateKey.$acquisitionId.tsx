@@ -1052,7 +1052,11 @@ function DocumentPage() {
       operational: {
         phase: metrics.currentPhase ?? "Not recorded",
         readiness,
-        countdownLine: countdownText(view, { omitBadge: view.badge === readiness }),
+        countdownLine: view.pastTarget
+          ? countdownText(view, { omitBadge: view.badge === readiness })
+          : view.days === null || !view.prefix
+            ? view.caption
+            : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`,
         holdReason: metrics.hold?.reason ?? null,
         holdOwner: metrics.hold?.owner ?? null,
       },
@@ -1565,7 +1569,13 @@ function DocumentPage() {
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown
       ? "Not recorded"
-      : countdownText(chromeCountdown)
+      : chromeCountdown.pastTarget
+        ? countdownText(chromeCountdown)
+        : chromeCountdown.days === null
+          ? chromeCountdown.caption
+          : chromeCountdown.mode === "hold"
+            ? `${chromeCountdown.prefix}${chromeCountdown.days} HOLD`
+            : `${chromeCountdown.prefix}${chromeCountdown.days}${chromeCountdown.badge ? ` ${chromeCountdown.badge}` : ""} (${chromeCountdown.caption})`
   }`;
 
   const save = useMutation({

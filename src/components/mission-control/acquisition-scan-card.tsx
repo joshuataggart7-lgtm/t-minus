@@ -42,7 +42,7 @@ export function AcquisitionScanCard({
         missionReadinessClass(state, "mc-scan-card"),
         view.mode === "hold" && "mc-scan-card-hold",
       )}
-      aria-label={`${title}, ${state}, ${countdownText(view)}`}
+      aria-label={view.pastTarget ? `${title}, ${state}, ${countdownText(view)}` : `${title}, ${state}${view.caption === state ? "" : `, ${view.caption}`}`}
     >
       <span className="mc-strip-accent" aria-hidden="true" />
       <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>

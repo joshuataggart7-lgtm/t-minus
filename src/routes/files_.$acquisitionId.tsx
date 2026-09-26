@@ -2713,7 +2713,11 @@ function FilePage() {
                 readiness,
                 countdownLine: (() => {
                   const view = overviewCountdownView(lifecycle);
-                  return countdownText(view, { omitBadge: view.badge === readiness });
+                  return view.pastTarget
+                    ? countdownText(view, { omitBadge: view.badge === readiness })
+                    : view.days === null || !view.prefix
+                      ? view.caption
+                      : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`;
                 })(),
                 holdReason: lifecycle.hold?.reason ?? null,
                 holdOwner: lifecycle.hold?.owner ?? null,
