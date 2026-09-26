@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
@@ -66,7 +66,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const navGroups = sidebarNavGroups(roles, presenter);
   const railCollapsed = collapsed && !isDrawerViewport;
   const backgroundInert = drawerOpen && isDrawerViewport;
-  const inertProps = backgroundInert ? ({ inert: "" } as HTMLAttributes<HTMLElement>) : {};
+  const inertProps = backgroundInert ? { inert: true } : {};
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
@@ -77,12 +77,12 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
     const query = window.matchMedia("(max-width: 1023.98px)");
     const syncViewport = () => {
       setIsDrawerViewport(query.matches);
-      if (!query.matches) setDrawerOpen(false);
+      if (!query.matches && drawerOpen) closeDrawer();
     };
     syncViewport();
     query.addEventListener("change", syncViewport);
     return () => query.removeEventListener("change", syncViewport);
-  }, []);
+  }, [closeDrawer, drawerOpen]);
 
   useEffect(() => {
     if (drawerOpen) closeDrawer();
@@ -104,7 +104,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
     if (!drawer) return;
     const focusable = () => Array.from(drawer.querySelectorAll<HTMLElement>(
       'button:not([disabled]), a[href], select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )).filter((element) => !element.hasAttribute("hidden"));
+    )).filter((element) => element.getClientRects().length > 0);
     focusable()[0]?.focus();
     const trapFocus = (event: KeyboardEvent) => {
       if (event.key !== "Tab") return;
