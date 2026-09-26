@@ -9,6 +9,7 @@
 
 import type { PDFForm } from "pdf-lib";
 import type { FormFieldMapping } from "@/lib/form-field-mappings";
+import { pdfGlyphs } from "@/lib/pdf-out";
 
 export type FormData = Record<string, unknown>;
 
@@ -37,7 +38,10 @@ export function displayDate(value: unknown): string {
 
 /** Write a text field. Empty values are skipped; a missing field is ignored. */
 export function pdfText(form: PDFForm, name: string, value: unknown, size = 8, maxLen?: number): void {
-  let text = asText(value);
+  let text = pdfGlyphs(asText(value)).replace(
+    /[^\x20-\x7E\u00A0-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014\u20AC]/g,
+    " ",
+  );
   if (!text) return;
   if (maxLen && text.length > maxLen) text = text.slice(0, maxLen);
   try {

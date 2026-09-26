@@ -1141,7 +1141,7 @@ const fairOpportunity: TemplateDef = {
       fields: [
         { key: "vehicle", label: "Contract or schedule the order is placed against", kind: "text", required: true },
         { key: "contractor_name", label: "Proposed contractor", kind: "text", bind: "vendor_legal_name" },
-        { key: "order_value", label: "Order value", kind: "money", bind: "estimated_value", required: true },
+        { key: "order_value", label: "Estimated order value", kind: "money", bind: "estimated_value", required: true },
         { key: "pop_start", label: "Period of performance start", kind: "date", bind: "period_of_performance_start" },
         { key: "pop_end", label: "Period of performance end", kind: "date", bind: "period_of_performance_end" },
       ],
@@ -1430,7 +1430,7 @@ const consolidationSections = (kind: "consolidation" | "bundling"): SectionDef[]
     fields: [
       { key: "requirement_description", label: "Requirements proposed for combination", kind: "textarea", bind: "description_of_requirement", required: true },
       { key: "prior_contracts", label: "Prior contracts, their values, and the small businesses performing them", kind: "textarea", required: true },
-      { key: "total_value", label: "Total value of the combined requirement", kind: "money", bind: "estimated_value", required: true },
+      { key: "total_value", label: "Total estimated value of the combined requirement", kind: "money", bind: "estimated_value", required: true },
       { key: "set_aside", label: "Set-aside of record", kind: "readonly", bind: "set_aside" },
     ],
   },
@@ -1581,7 +1581,7 @@ const economyAct: TemplateDef = {
         { key: "servicing_agency", label: "Servicing agency and office", kind: "text", required: true },
         { key: "requesting_office", label: "Requesting NASA office", kind: "text", bind: "requester_org_code", required: true },
         { key: "supplies_services", label: "Supplies or services ordered", kind: "textarea", bind: "description_of_requirement", required: true },
-        { key: "order_amount", label: "Amount of the order", kind: "money", bind: "estimated_value", required: true },
+        { key: "order_amount", label: "Estimated amount of the order", kind: "money", bind: "estimated_value", required: true },
         { key: "pop_start", label: "Period of performance start", kind: "date", bind: "period_of_performance_start" },
         { key: "pop_end", label: "Period of performance end", kind: "date", bind: "period_of_performance_end" },
       ],
@@ -3168,8 +3168,8 @@ export function renderDocument(
 }
 
 /** Word export. The docx library is loaded on demand in the browser. */
-export async function exportDocx(doc: RenderedDoc, fileName: string, context?: ExportContext) {
-  const { Document, Packer, Paragraph, TextRun, Footer, PageNumber, AlignmentType, TabStopType } = await import("docx");
+export async function exportDocx(doc: RenderedDoc, fileName: string, context?: ExportContext, headerLine?: string) {
+  const { Document, Packer, Paragraph, TextRun, Header, Footer, PageNumber, AlignmentType, TabStopType } = await import("docx");
   const blocks = exportBlocks(doc, context);
   const isTer = context?.def.key === "technical-evaluation-report";
   const children: InstanceType<typeof Paragraph>[] = [];
@@ -3190,6 +3190,20 @@ export async function exportDocx(doc: RenderedDoc, fileName: string, context?: E
           page: { size: { width: 12240, height: 15840 }, margin: isTer ? { top: 720, right: 1440, bottom: 1440, left: 1800 } : { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
         },
         footers: { default: footer },
+        ...(headerLine
+          ? {
+              headers: {
+                default: new Header({
+                  children: [
+                    new Paragraph({
+                      spacing: { after: 60 },
+                      children: [new TextRun({ text: headerLine, font: "Times New Roman", size: 18, color: "444444" })],
+                    }),
+                  ],
+                }),
+              },
+            }
+          : {}),
         children,
       },
     ],
@@ -3204,7 +3218,7 @@ export async function exportDocx(doc: RenderedDoc, fileName: string, context?: E
 }
 
 /** Deterministic PDF export using the same clean, template-aware content as Word. */
-export async function exportPdf(doc: RenderedDoc, _headerLine: string, fileName = "document", context?: ExportContext) {
+export async function exportPdf(doc: RenderedDoc, headerLine: string, fileName = "document", context?: ExportContext) {
   const blocks: PdfBlock[] = [];
   for (const block of exportBlocks(doc, context)) {
     if (block.heading) blocks.push({ text: block.heading, bold: true, gap: 6 });
@@ -3212,6 +3226,7 @@ export async function exportPdf(doc: RenderedDoc, _headerLine: string, fileName 
   }
   await renderPdf(blocks, {
     fileName,
+    headerLine,
     prototype: true,
     margins: context?.def.key === "technical-evaluation-report"
       ? { top: 36, right: 72, bottom: 72, left: 90 }
