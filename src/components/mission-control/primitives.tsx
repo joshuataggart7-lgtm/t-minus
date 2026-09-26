@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode, TableHTMLAttributes } from "react";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { cn } from "@/lib/utils";
 
 export type MissionReadiness = "GO" | "WATCH" | "HOLD" | "LAUNCHED";
@@ -108,8 +109,8 @@ export function LeadershipExceptionStrip({
 
 export function AnalystTableShell({ children, className, ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="mc-exception-table-wrap">
+    <TableScrollRegion baseClassName="mc-exception-table-wrap" label="Executive exceptions, analyst table">
       <table className={cn("mc-exception-table", className)} {...props}>{children}</table>
-    </div>
+    </TableScrollRegion>
   );
 }

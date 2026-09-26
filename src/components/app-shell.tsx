@@ -37,6 +37,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 
 // Survives route remounts so the click run isn't reset by navigation.
 const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null } };
+// Survives route remounts so drawer navigation can move focus into the new page.
+const drawerNavFocus = { pending: false, at: 0 };
 
 export function AppShell({ children, wide = false, overviewMode = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean }) {
 
@@ -68,6 +70,23 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const railCollapsed = collapsed && !isDrawerViewport;
   const backgroundInert = drawerOpen && isDrawerViewport;
   const inertProps = backgroundInert ? { inert: true } : {};
+
+  useEffect(() => {
+    if (!drawerNavFocus.pending) return;
+    const recent = Date.now() - drawerNavFocus.at < 3000;
+    drawerNavFocus.pending = false;
+    if (!recent) return;
+    window.requestAnimationFrame(() => {
+      const main = document.querySelector<HTMLElement>("#main-content");
+      const heading = main?.querySelector<HTMLElement>("h1");
+      if (heading) {
+        if (!heading.hasAttribute("tabindex")) heading.tabIndex = -1;
+        heading.focus();
+        return;
+      }
+      main?.focus();
+    });
+  }, []);
 
   const closeDrawer = useCallback(() => {
     restoreFocusRef.current = true;
@@ -303,6 +322,12 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                   <Link
                     to={item.to}
                     title={item.label}
+                     onClick={() => {
+                       if (isDrawerViewport && drawerOpen && item.to !== pathname) {
+                         drawerNavFocus.pending = true;
+                         drawerNavFocus.at = Date.now();
+                       }
+                     }}
                     className={cn(
                       "nav-label group relative flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
                       active
@@ -327,7 +352,18 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
-                  className="mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]"
+                   onClick={() => {
+                     if (isDrawerViewport && drawerOpen && `/files/${openAcquisitionId}` !== pathname) {
+                       drawerNavFocus.pending = true;
+                       drawerNavFocus.at = Date.now();
+                     }
+                   }}
+                   title={railCollapsed ? openAcquisitionId : undefined}
+                   aria-label={railCollapsed ? `Open file ${openAcquisitionId}` : undefined}
+                   className={cn(
+                     "mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]",
+                     railCollapsed && "truncate px-1 text-[11px]",
+                   )}
                 >
                   {openAcquisitionId}
                 </Link>

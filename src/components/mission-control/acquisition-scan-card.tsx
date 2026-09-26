@@ -51,7 +51,7 @@ export function AcquisitionScanCard({
         <h3 title={title}>{title}</h3>
         <p title={mission?.name ? `Mission: ${mission.name}` : owner}>{mission?.name ? `Mission: ${mission.name}` : owner}</p>
       </div>
-      <div className={cn("mc-strip-clock", missionReadinessClass(state, "mc-strip-clock"))}>
+      <div className={cn("mc-strip-clock", missionReadinessClass(state, "mc-strip-clock"))} data-label="Clock">
           {view.days === null ? (
             <strong>
               {view.mode === "stopped" ? "Stopped" : "Not started"}
@@ -64,7 +64,7 @@ export function AcquisitionScanCard({
           )}
         <small>{view.pastTarget ? `days past target${view.badge && view.badge !== state ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
       </div>
-      <div className="mc-strip-phase">
+      <div className="mc-strip-phase" data-label="Phase">
         <strong title={metric.currentPhase ?? "Not started"}>{metric.currentPhase ?? "Not started"}</strong>
         <span className="mc-mini-lifecycle" aria-hidden="true">
           {phaseSegments.map((phase) => (
@@ -76,7 +76,7 @@ export function AcquisitionScanCard({
         <small>Next gate</small>
         <strong title={metric.nextDecision}>{metric.nextDecision}</strong>
       </div>
-      <div className="mc-strip-variance" data-numeric>
+      <div className="mc-strip-variance" data-label="Var" data-numeric>
         {variance === null || variance === 0 ? "—" : `${variance > 0 ? "+" : ""}${variance}d`}
       </div>
 
