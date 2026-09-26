@@ -141,7 +141,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             <dl className="mc-featured-facts">
               <div><dt>CO</dt><dd>{String(metric.acq.co_name ?? "").trim() || NR}</dd></div>
               <div><dt>Requesting org</dt><dd>{org || NR}</dd></div>
-              <div><dt>IGCE</dt><dd data-numeric>{valueText}</dd></div>
+              <div><dt>Est. value</dt><dd data-numeric>{valueText}</dd></div>
               <div><dt>Acquisition method</dt><dd>{String(metric.acq.acquisition_method ?? "").trim() || NR}</dd></div>
               <div><dt>{metric.awardDate ? "Actual award" : "Target award"}</dt><dd data-numeric>{metric.awardDate ? formatDate(metric.awardDate) : r?.targetAward ? formatDate(r.targetAward) : NR}</dd></div>
               <div><dt>Current gate</dt><dd>{LIFECYCLE[activeIndex]?.label ?? (metric.currentPhase || NR)}</dd></div>
