@@ -13,7 +13,7 @@ import { boardReadinessItems, type BoardReadiness } from "@/lib/board-readiness"
 import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
 import type { ScaffoldSectionK } from "@/lib/format-scaffold";
 import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
-import type { CountdownView } from "@/components/launch-countdown";
+import { countdownText, type CountdownView } from "@/components/launch-countdown";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -278,16 +278,16 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
   const mark = markPage(input, stamp);
   const countdown = input.countdown;
   const daysLine = countdown
-    ? countdown.days === null
-      ? countdown.caption
-      : countdown.mode === "forecast"
-        ? "FORECAST · no target award date recorded"
-        : countdown.mode === "hold"
-          ? "HOLD"
-          : countdown.mode === "launched"
-            ? `${countdown.days} days since award`
-            : countdown.mode === "overdue"
-              ? `OVERDUE · ${countdown.days} days past the target award date`
+    ? countdown.pastTarget
+      ? countdownText(countdown)
+      : countdown.days === null
+        ? countdown.caption
+        : countdown.mode === "forecast"
+          ? "FORECAST · no target award date recorded"
+          : countdown.mode === "hold"
+            ? "HOLD"
+            : countdown.mode === "launched"
+              ? `${countdown.days} days since award`
               : countdown.mode === "running"
                 ? `${countdown.days} days to the target award date`
                 : countdown.caption
@@ -299,7 +299,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
           ? `${Math.abs(input.days)} days past target`
           : `${input.days} days to the target award date`;
   const countdownFigure = countdown
-    ? countdown.days === null || !countdown.prefix ? "—" : `${countdown.prefix} ${countdown.days}`
+    ? countdown.days === null ? "—" : countdown.pastTarget ? String(countdown.days) : `${countdown.prefix} ${countdown.days}`
     : input.days === null ? "—" : String(Math.abs(input.days));
   const clockSubLine = `${input.currentPhase} · ${input.clockState}${
     input.targetAwardDate

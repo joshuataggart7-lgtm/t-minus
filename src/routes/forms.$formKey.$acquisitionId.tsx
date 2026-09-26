@@ -24,6 +24,7 @@ import { downloadDocxBytes, generateRfpCoverDocx } from "@/lib/rfp-cover-docx";
 
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
+import { countdownText } from "@/components/launch-countdown";
 import type { AcqRow } from "@/lib/launch-sequence";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
@@ -414,11 +415,7 @@ function FormPage() {
   const headerLine = `${acquisitionId} · ${
     !countdown
       ? "Not recorded"
-      : countdown.days === null
-        ? countdown.caption
-        : countdown.mode === "hold"
-          ? `${countdown.prefix}${countdown.days} HOLD`
-          : `${countdown.prefix}${countdown.days}${countdown.badge ? ` ${countdown.badge}` : ""} (${countdown.caption})`
+      : countdownText(countdown)
   }`;
 
   // P0 fold-in: an official export is only Ready when the blank itself loads.

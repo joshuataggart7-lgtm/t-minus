@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { countdownText } from "@/components/launch-countdown";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,7 @@ export function AcquisitionScanCard({
         missionReadinessClass(state, "mc-scan-card"),
         view.mode === "hold" && "mc-scan-card-hold",
       )}
-      aria-label={`${title}, ${state}${view.caption === state ? "" : `, ${view.caption}`}`}
+      aria-label={`${title}, ${state}, ${countdownText(view)}`}
     >
       <span className="mc-strip-accent" aria-hidden="true" />
       <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>
@@ -61,7 +62,7 @@ export function AcquisitionScanCard({
               {view.days}
             </strong>
           )}
-        <small>{view.badge ?? view.caption}</small>
+        <small>{view.pastTarget ? `days past target${view.badge ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
       </div>
       <div className="mc-strip-phase">
         <strong title={metric.currentPhase ?? "Not started"}>{metric.currentPhase ?? "Not started"}</strong>
