@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { setTriggerConfig, type TriggerConfigRow } from "@/lib/scenario";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 type Row = TriggerConfigRow & { config_id: string; condition_label: string; sort_order: number };
 
@@ -60,7 +61,7 @@ export function TriggerTableEditor({ mayEdit, actor }: { mayEdit: boolean; actor
         phase exit; offered rows never do.
       </p>
       {message ? <p className="mt-2 text-[13px] text-muted">{message}</p> : null}
-      <div className="mt-3 overflow-x-auto">
+      <TableScrollRegion baseClassName="mt-3 overflow-x-auto" label="Center trigger table">
         <table className="w-full min-w-[960px] border-collapse text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left text-muted">
@@ -116,7 +117,7 @@ export function TriggerTableEditor({ mayEdit, actor }: { mayEdit: boolean; actor
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScrollRegion>
     </section>
   );
 }

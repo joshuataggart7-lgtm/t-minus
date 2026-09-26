@@ -129,7 +129,7 @@ function AnnouncementsPage() {
           </div>
         ) : null}
         {hasRole("hq") && a.requires_acknowledgment ? (
-          <div className="mt-4 max-w-[520px] border border-border">
+          <div className="mt-4 max-w-[520px] border border-border max-sm:max-w-[calc(100vw-2rem)]">
             <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
               <caption className="border-b border-border px-3 py-2 text-left text-muted-foreground">
@@ -277,7 +277,7 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
   }
 
   return (
-    <form onSubmit={(e) => void submit(e)} className="max-w-[720px] border border-border p-6">
+    <form onSubmit={(e) => void submit(e)} className="max-w-[720px] border border-border p-6 max-sm:max-w-[calc(100vw-2rem)]">
       <h2 className="section-title">Post an announcement</h2>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">

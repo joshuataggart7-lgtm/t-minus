@@ -156,7 +156,7 @@ function SeedStatus() {
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
 
       {authState === "signed-in" && hasRole("hq") ? (
-        <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+        <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Reset demo</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
             Reloads every seed file as written, clears the history, polls, comments, documents, checks
@@ -211,7 +211,7 @@ function SeedStatus() {
       ) : null}
 
       {authState === "signed-in" && hasRole("hq") ? (
-        <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4">
+        <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Agency backfill</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
             Pulls NASA awards from SAM.gov contract awards for one agency code and date range and adds

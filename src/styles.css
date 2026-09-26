@@ -1924,6 +1924,10 @@
   .mc-scan-surface .mc-strip-id { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 }
 
+@media (max-width: 767.98px) {
+  .mc-shell-identity { min-width: 0; flex-basis: auto; }
+}
+
 @media (min-width: 640px) and (max-width: 1279.98px) {
   .mc-masthead { grid-template-columns: minmax(0, 1fr); }
   .mc-masthead-office { border-left: 0; border-top: 1px solid var(--mc-line); justify-items: start; padding-top: 0.65rem; padding-left: 0; text-align: left; }
