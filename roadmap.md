@@ -57,6 +57,3 @@
 - [x] Soft Walk P1-6 — Blackout Notice wired to the HQ master using competed Part 15 fixture A-2027-0121; final P1 OP Word-master row closed.
 
 - [x] Soft Walk Blackout r1 remediation — route gate, exact refusal, CT date, HQ-face citations (A-2027-0121)
-
-# P0d countdown consistency
-- [ ] Normalize past-target pre-award countdown display across the ten approved human-facing files; restore preview auth storage; verify typecheck, build, and base diff.
