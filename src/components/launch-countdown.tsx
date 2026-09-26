@@ -7,6 +7,7 @@
 // the forecast stands in, cyan (never red) for T+ after launch, NASA red
 // only for OVERDUE past the target, muted when the clock is stopped.
 
+import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import type { AcqMetrics } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 
@@ -33,9 +34,7 @@ export type CountdownView = {
 
 /** Same UTC whole-day math the file header already uses. */
 function daysUntilISO(iso: string): number {
-  const target = new Date(iso + "T00:00:00Z").getTime();
-  const today = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z").getTime();
-  return Math.round((target - today) / 86_400_000);
+  return calendarDaysBetween(todayCT(), iso);
 }
 
 /**

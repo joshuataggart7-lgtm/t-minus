@@ -1021,10 +1021,7 @@ function FilePage() {
   const days =
     lifecycle?.daysToAward ??
     (effectiveTargetAward
-      ? Math.round(
-          (new Date(effectiveTargetAward + "T00:00:00Z").getTime() - new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z").getTime()) /
-            86_400_000,
-        )
+      ? daysBetween(todayISO(), effectiveTargetAward)
       : null);
   const fileCountdownView = lifecycle
     ? overviewCountdownView(lifecycle)

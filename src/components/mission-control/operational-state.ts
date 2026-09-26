@@ -1,4 +1,5 @@
 import { countdownView, type CountdownView } from "@/components/launch-countdown";
+import { dateCT } from "@/lib/calendar-date";
 import type { AcqRow } from "@/lib/launch-sequence";
 import type { AcqMetrics } from "@/lib/metrics";
 
@@ -18,7 +19,7 @@ function recordedAwardDate(acquisitionId: string, log: LaunchEvent[]) {
   const event = log
     .filter((row) => row.acquisition_id === acquisitionId && row.action === "Launched" && row.logged_at)
     .sort((a, b) => String(b.logged_at).localeCompare(String(a.logged_at)))[0];
-  const date = event?.logged_at ? String(event.logged_at).slice(0, 10) : "";
+  const date = event?.logged_at ? (dateCT(String(event.logged_at)) ?? "") : "";
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
 }
 

@@ -8,6 +8,7 @@
  * export timestamp. The export itself is written to the audit log.
  */
 
+import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { supabase } from "@/integrations/supabase/client";
 import { isOfficialFinal } from "@/lib/official-file";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
@@ -268,8 +269,8 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   const phases = buildSequence(
     acq as never,
     planRes.data ?? [],
-    new Date().toISOString().slice(0, 10),
-    (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 86400000),
+    todayCT(),
+    calendarDaysBetween,
   ).map((p) => p.phase);
   const fileIndex = buildFileIndex(
     documents.map((d) => ({

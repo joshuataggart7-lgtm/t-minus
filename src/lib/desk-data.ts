@@ -2,6 +2,7 @@
 // CO Today. Every figure is recomputed from the record with the same helpers
 // the Work Queue and the file page use. Nothing new is stored.
 
+import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -170,10 +171,8 @@ export function daysSince(value: string | null | undefined): number | null {
 /** Whole days until an ISO date. Negative means the date has passed. */
 export function daysUntil(value: string | null | undefined): number | null {
   if (!value) return null;
-  const then = new Date(`${value.slice(0, 10)}T00:00:00Z`).getTime();
-  if (Number.isNaN(then)) return null;
-  const today = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z").getTime();
-  return Math.round((then - today) / 86_400_000);
+  const days = calendarDaysBetween(todayCT(), value.slice(0, 10));
+  return Number.isNaN(days) ? null : days;
 }
 
 /**
