@@ -184,9 +184,9 @@ export function AwardHandoffPanel({
             <p className="mt-1 text-[13px] text-muted-foreground">{scaffold.formatSource}</p>
             <dl className="mt-2 grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-[18px] sm:grid-cols-2">
               {scaffold.blocks.map((b) => (
-                <div key={b.label} className="flex justify-between gap-4 border-b border-border py-1">
-                  <dt className="text-muted-foreground max-sm:shrink-0">{b.label}</dt>
-                  <dd className="max-sm:min-w-0 max-sm:text-right max-sm:[overflow-wrap:anywhere]" data-numeric>{b.value}</dd>
+                <div key={b.label} className="flex justify-between gap-4 border-b border-border py-1 max-sm:flex-wrap">
+                  <dt className="text-muted-foreground">{b.label}</dt>
+                  <dd className="max-sm:ml-auto max-sm:min-w-0 max-sm:text-right max-sm:[overflow-wrap:anywhere]" data-numeric>{b.value}</dd>
                 </div>
               ))}
             </dl>
