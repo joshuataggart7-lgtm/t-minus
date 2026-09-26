@@ -107,6 +107,10 @@ export function Orby({
           loadLaunchEvents(),
         ]);
         if (cancelled) return;
+        if (result.error) {
+          setFetch({ id: acquisitionId, status: "error" });
+          return;
+        }
         const data = result.data as
           | { acquisition_id: string; clock_state: string | null; target_award_date: string | null }
           | null;
