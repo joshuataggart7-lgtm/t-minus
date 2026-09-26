@@ -2438,7 +2438,7 @@ function FilePage() {
               className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
               style={{ borderColor: "var(--at-risk)" }}
             >
-              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the estimated value{" "}
+              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the IGCE{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> exceeds the warrant of{" "}
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
               contracting officer with a warrant at or above the value has to sign the award.
@@ -2456,13 +2456,13 @@ function FilePage() {
             </div>
           ) : warrant.unknown ? (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
-              No warrant limit is recorded for {warrant.coName}, so the estimated value of{" "}
+              No warrant limit is recorded for {warrant.coName}, so the IGCE of{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> cannot be checked against a
               warrant.
             </p>
           ) : (
             <p className="text-[15px] leading-[22px] text-muted-foreground">
-              Within warrant: the estimated value{" "}
+              Within warrant: the IGCE{" "}
               <span data-numeric>{formatMoney(warrant.value)}</span> is at or below the warrant of{" "}
               {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
             </p>
