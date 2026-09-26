@@ -175,7 +175,7 @@ import { SituationMemoPanel } from "@/components/situation-memo-panel";
 import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
-import { LaunchCountdown, countdownView } from "@/components/launch-countdown";
+import { LaunchCountdown, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
@@ -1023,22 +1023,25 @@ function FilePage() {
     (effectiveTargetAward
       ? daysBetween(todayISO(), effectiveTargetAward)
       : null);
-  const fileCountdownView = lifecycle
+  const fileCountdownView: CountdownView = lifecycle
     ? overviewCountdownView(lifecycle)
     : effectiveState === "launched"
-      ? { mode: "launched" as const, days: 0, prefix: "T+" as const, badge: null, caption: "days since award", holdReason: null, tone: "cyan" as const }
+      ? { mode: "launched", days: 0, prefix: "T+", badge: null, caption: "days since award", holdReason: null, tone: "cyan", pastTarget: false }
       : effectiveState === "scrubbed"
-        ? { mode: "stopped" as const, days: null, prefix: null, badge: null, caption: "Clock stopped", holdReason: null, tone: "muted" as const }
+        ? { mode: "stopped", days: null, prefix: null, badge: null, caption: "Clock stopped", holdReason: null, tone: "muted", pastTarget: false }
         : days === null
-          ? { mode: "not-started" as const, days: null, prefix: null, badge: null, caption: "No target award date recorded", holdReason: null, tone: "muted" as const }
+          ? { mode: "not-started", days: null, prefix: null, badge: null, caption: "No target award date recorded", holdReason: null, tone: "muted", pastTarget: false }
           : {
-              mode: hasTargetAward ? "running" as const : "forecast" as const,
-              days: Math.max(0, days),
-              prefix: "T−" as const,
+              mode: hasTargetAward ? (days < 0 ? "overdue" : "running") : "forecast",
+              days: Math.abs(days),
+              prefix: days < 0 ? null : "T−",
               badge: hasTargetAward ? null : "FORECAST",
-              caption: hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
+              caption: days < 0
+                ? hasTargetAward ? "days past the target award date" : "days past the forecast award date"
+                : hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
               holdReason: null,
-              tone: "cyan" as const,
+              tone: hasTargetAward && days < 0 ? "red" : "cyan",
+              pastTarget: days < 0,
             };
 
   const currentIndex = Math.max(
@@ -2710,9 +2713,7 @@ function FilePage() {
                 readiness,
                 countdownLine: (() => {
                   const view = overviewCountdownView(lifecycle);
-                  return view.days === null || !view.prefix
-                    ? view.caption
-                    : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`;
+                  return countdownText(view, { omitBadge: view.badge === readiness });
                 })(),
                 holdReason: lifecycle.hold?.reason ?? null,
                 holdOwner: lifecycle.hold?.owner ?? null,

@@ -47,14 +47,7 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
   };
 }
 
-/** T+ is reserved for a recorded actual award. Every pre-award face remains T−. */
+/** T+ is reserved for a recorded actual award. */
 export function overviewCountdownView(metric: AcqMetrics): CountdownView {
-  const view = countdownView(metric);
-  if (view.mode !== "overdue") return view;
-  return {
-    ...view,
-    prefix: "T−",
-    badge: "OVERDUE",
-    caption: "days past the target award date",
-  };
+  return countdownView(metric);
 }

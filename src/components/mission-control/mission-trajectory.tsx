@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { countdownText } from "@/components/launch-countdown";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
@@ -103,7 +104,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           <p>{mission?.name ? `Mission: ${mission.name}` : "Mission not recorded"}</p>
         </div>
         <div className="mc-featured-clock">
-          <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : `${view.prefix}${view.days}`}</strong>
+          <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : view.pastTarget ? `${view.days} days past target` : `${view.prefix}${view.days}`}</strong>
           {view.caption === state ? null : <span>{view.caption}</span>}
         </div>
         <div className="mc-featured-state">

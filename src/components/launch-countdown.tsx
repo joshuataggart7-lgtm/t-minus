@@ -30,6 +30,7 @@ export type CountdownView = {
   caption: string;
   holdReason: string | null;
   tone: "cyan" | "muted" | "red";
+  pastTarget: boolean;
 };
 
 /** Same UTC whole-day math the file header already uses. */
@@ -44,7 +45,7 @@ function daysUntilISO(iso: string): number {
  * the same fallback the file header performs today.
  */
 export function countdownView(m: AcqMetrics): CountdownView {
-  const base = { badge: null, holdReason: null };
+  const base = { badge: null, holdReason: null, pastTarget: false };
   // A stored clock state is not an award. The shared operational normalizer
   // supplies awardDate only from the recorded actual-award event.
   if (m.awardDate) {
@@ -64,15 +65,17 @@ export function countdownView(m: AcqMetrics): CountdownView {
   }
   if (m.clockState === "hold" || m.hold) {
     const days = m.daysToAward ?? (m.forecastAwardDate ? daysUntilISO(m.forecastAwardDate) : null);
+    const pastTarget = days !== null && days < 0;
     return {
       ...base,
       mode: "hold",
-      days: days === null ? null : Math.max(0, days),
-      prefix: days === null ? null : "T−",
+      days: days === null ? null : Math.abs(days),
+      prefix: days === null || pastTarget ? null : "T−",
       badge: "HOLD",
       holdReason: m.hold?.reason ?? null,
       caption: "HOLD",
       tone: "muted",
+      pastTarget,
     };
   }
   if (m.daysToAward !== null) {
@@ -81,10 +84,11 @@ export function countdownView(m: AcqMetrics): CountdownView {
         ...base,
         mode: "overdue",
         days: Math.abs(m.daysToAward),
-        prefix: "T+",
+        prefix: null,
         badge: "OVERDUE",
         caption: "days past the target award date",
         tone: "red",
+        pastTarget: true,
       };
     }
     return {
@@ -97,17 +101,42 @@ export function countdownView(m: AcqMetrics): CountdownView {
     };
   }
   if (m.forecastAwardDate) {
+    const days = daysUntilISO(m.forecastAwardDate);
+    const pastTarget = days < 0;
     return {
       ...base,
       mode: "forecast",
-      days: Math.max(0, daysUntilISO(m.forecastAwardDate)),
-      prefix: "T−",
+      days: Math.abs(days),
+      prefix: pastTarget ? null : "T−",
       badge: "FORECAST",
-      caption: "days to the forecast award date; no target recorded",
+      caption: pastTarget
+        ? "days past the forecast award date"
+        : "days to the forecast award date; no target recorded",
       tone: "cyan",
+      pastTarget,
     };
   }
   return { ...base, mode: "not-started", days: null, prefix: null, caption: "No target award date recorded", tone: "muted" };
+}
+
+export function countdownText(view: CountdownView, opts?: { omitBadge?: boolean }): string {
+  if (view.days === null) return view.caption;
+  if (view.pastTarget) {
+    if (view.mode === "hold") {
+      return opts?.omitBadge
+        ? `${view.days} days past target`
+        : `HOLD · ${view.days} days past target`;
+    }
+    if (view.mode === "overdue") {
+      return opts?.omitBadge
+        ? `${view.days} days past target`
+        : `${view.days} days past target · OVERDUE`;
+    }
+    if (view.mode === "forecast") return `${view.days} days past the forecast award date`;
+  }
+  const clock = `${view.prefix ?? ""}${view.days}`;
+  if (view.mode === "hold") return `${clock} HOLD`;
+  return `${clock}${view.badge && !opts?.omitBadge ? ` ${view.badge}` : ""}`;
 }
 
 const toneDigit: Record<CountdownView["tone"], string> = {
@@ -157,7 +186,9 @@ export function LaunchCountdown({
       ) : (
         <p className={cn("mt-2 text-[48px] leading-[52px] font-semibold tracking-tight [font-variant-numeric:tabular-nums]", toneDigit[view.tone])}>
           {view.prefix} {view.days}
-          <span className="ml-2 text-[15px] font-medium text-chrome-muted">days</span>
+          <span className="ml-2 text-[15px] font-medium text-chrome-muted">
+            {view.pastTarget ? "days past target" : "days"}
+          </span>
         </p>
       )}
       {view.caption === view.badge ? null : <p className="mt-1 text-[13px] text-chrome-muted">{view.caption}</p>}
@@ -194,7 +225,7 @@ export function LaunchCountdownCompact({
       <span className="text-[17px] font-semibold [font-variant-numeric:tabular-nums]" style={{ color: digitColor }}>
         {view.prefix} {view.days}
       </span>
-      <span className="text-[12px] text-muted-foreground">days</span>
+      <span className="text-[12px] text-muted-foreground">{view.pastTarget ? "days past target" : "days"}</span>
       {view.badge ? (
         <span
           className="rounded px-1 text-[10px] font-semibold tracking-wide"

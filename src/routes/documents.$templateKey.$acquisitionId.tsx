@@ -45,6 +45,7 @@ import { daysBetween, formatMoney, todayISO, type RefData } from "@/lib/intake";
 import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince } from "@/lib/metrics";
+import { countdownText } from "@/components/launch-countdown";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionNavigator, MissionNavSection, type MissionNavItem } from "@/components/mission-control/mission-navigator";
@@ -1051,10 +1052,7 @@ function DocumentPage() {
       operational: {
         phase: metrics.currentPhase ?? "Not recorded",
         readiness,
-        countdownLine:
-          view.days === null || !view.prefix
-            ? view.caption
-            : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`,
+        countdownLine: countdownText(view, { omitBadge: view.badge === readiness }),
         holdReason: metrics.hold?.reason ?? null,
         holdOwner: metrics.hold?.owner ?? null,
       },
@@ -1567,11 +1565,7 @@ function DocumentPage() {
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown
       ? "Not recorded"
-      : chromeCountdown.days === null
-        ? chromeCountdown.caption
-        : chromeCountdown.mode === "hold"
-          ? `${chromeCountdown.prefix}${chromeCountdown.days} HOLD`
-          : `${chromeCountdown.prefix}${chromeCountdown.days}${chromeCountdown.badge ? ` ${chromeCountdown.badge}` : ""} (${chromeCountdown.caption})`
+      : countdownText(chromeCountdown)
   }`;
 
   const save = useMutation({

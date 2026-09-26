@@ -8,6 +8,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/components/role-context";
 import { Search } from "lucide-react";
+import { countdownText } from "@/components/launch-countdown";
 
 type Row = {
   acquisition_id: string;
@@ -35,10 +36,7 @@ type OperationalDisplay = ReturnType<typeof useOperationalDisplay>["byId"] exten
 function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
   if (!display) return loading ? "Status loading" : "Status unavailable";
   const view = display.countdown;
-  const caption = view.caption === view.badge ? "" : ` · ${view.caption}`;
-  const countdown = view.days === null
-    ? view.caption
-    : `${view.prefix} ${view.days} days${view.badge ? ` ${view.badge}` : ""}${caption}`;
+  const countdown = countdownText(view);
   return [
     display.readiness,
     countdown,

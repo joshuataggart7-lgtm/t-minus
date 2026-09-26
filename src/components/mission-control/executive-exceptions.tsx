@@ -5,6 +5,7 @@ import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
 import { cn } from "@/lib/utils";
 import { overviewCountdownView } from "./operational-state";
+import { countdownText } from "@/components/launch-countdown";
 import type { ReadinessExplanation } from "./readiness";
 import { AnalystTableShell, LeadershipExceptionList, LeadershipExceptionStrip, ProvenanceChip } from "./primitives";
 
@@ -64,7 +65,11 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
 
 function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
   const view = overviewCountdownView(metric);
-  const clock = view.days === null || !view.prefix ? NR : `${view.prefix}${view.days}${view.mode === "forecast" ? " forecast" : ""}`;
+  const clock = view.days === null
+    ? NR
+    : view.mode === "forecast" && !view.pastTarget
+      ? `${countdownText(view, { omitBadge: true })} forecast`
+      : countdownText(view);
   const target = readiness.targetAward ? formatDate(readiness.targetAward) : NR;
   return `${clock} · target ${target}`;
 }
