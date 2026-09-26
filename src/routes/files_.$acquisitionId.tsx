@@ -1409,12 +1409,12 @@ function FilePage() {
       }
       const prior = acq as unknown as Record<string, string | null | undefined>;
       const before = {
-        clock_state: prior.clock_state ?? null,
-        hold_reason: prior.hold_reason ?? null,
-        hold_owner: prior.hold_owner ?? null,
-        hold_started_at: prior.hold_started_at ?? null,
-        status: prior.status ?? null,
-        current_phase: prior.current_phase ?? null,
+        clock_state: prior['clock_state'] ?? null,
+        hold_reason: prior['hold_reason'] ?? null,
+        hold_owner: prior['hold_owner'] ?? null,
+        hold_started_at: prior['hold_started_at'] ?? null,
+        status: prior['status'] ?? null,
+        current_phase: prior['current_phase'] ?? null,
       };
       const { data: launchedRows, error } = await supabase
         .from("acquisition_facts")
