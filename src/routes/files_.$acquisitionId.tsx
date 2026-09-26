@@ -2271,7 +2271,7 @@ function FilePage() {
           <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:max-[1439px]:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:grid-cols-1 min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
             <div className="min-w-0">
             <LaunchCountdown
-              view={fileCountdownView.mode === "hold" ? { ...fileCountdownView, caption: "" } : fileCountdownView}
+              view={fileCountdownView}
               acquisitionId={acquisitionId}
             />
             {effectiveState !== "launched" && effectiveState !== "scrubbed" && days !== null && !hasTargetAward ? (
