@@ -3176,3 +3176,4 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 
 ## Fix R5b
 - Countdown days use the America/Chicago calendar date (src/lib/calendar-date.ts, integer day numbers); SAM notice no longer uses the draft date as a posting date (saved generated rule repaired on display only); Table 12 scroll wrap focusable; Thresholds/warrant copy says IGCE; renderPdf keep-with-previous so a signature never opens a page alone.
+- P0 same-tip: Launched derived only from audit_log Launched rows (loadLaunchEvents, unpaged-limit) on Overview/Reporting/Files/Work Queue/desks/Digest/small business/confidence; launch mutation reverts facts if audit insert fails; HOLD caption 'countdown paused' -> 'on hold'.

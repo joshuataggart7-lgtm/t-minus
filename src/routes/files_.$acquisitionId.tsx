@@ -1407,7 +1407,16 @@ function FilePage() {
       if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
       }
-      const { error } = await supabase
+      const prior = acq as unknown as Record<string, string | null | undefined>;
+      const before = {
+        clock_state: prior.clock_state ?? null,
+        hold_reason: prior.hold_reason ?? null,
+        hold_owner: prior.hold_owner ?? null,
+        hold_started_at: prior.hold_started_at ?? null,
+        status: prior.status ?? null,
+        current_phase: prior.current_phase ?? null,
+      };
+      const { data: launchedRows, error } = await supabase
         .from("acquisition_facts")
         .update({
           clock_state: "launched",
@@ -1417,9 +1426,13 @@ function FilePage() {
           status: "awarded",
           current_phase: "Administration",
         })
-        .eq("acquisition_id", acq.acquisition_id);
+        .eq("acquisition_id", acq.acquisition_id)
+        .select("acquisition_id");
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      if (!launchedRows || launchedRows.length === 0) {
+        throw new Error("Launch not recorded: the file was not updated. Refresh and try again");
+      }
+      const { error: auditError } = await supabase.from("audit_log").insert({
         acquisition_id: acq.acquisition_id,
         actor: who,
         action: "Launched",
@@ -1428,13 +1441,37 @@ function FilePage() {
         new_value: "launched",
         reason: "Award made",
       });
+      if (auditError) {
+        const { data: revertedRows, error: revertError } = await supabase
+          .from("acquisition_facts")
+          .update(before)
+          .eq("acquisition_id", acq.acquisition_id)
+          .eq("clock_state", "launched")
+          .eq("current_phase", "Administration")
+          .select("acquisition_id");
+        if (!revertError && revertedRows && revertedRows.length > 0) {
+          throw new Error(`Launch not recorded: the audit entry could not be saved (${auditError.message}). The file was put back to its previous state. Try again`);
+        }
+        throw new Error(`Launch not recorded: the audit entry could not be saved (${auditError.message}) and the file could not be put back (${revertError?.message ?? "no matching row"}). Refresh before doing anything else`);
+      }
     },
     onSuccess: () => {
       setBanner("Launched.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
+      void qc.invalidateQueries({ queryKey: ["executive-overview"] });
+      void qc.invalidateQueries({ queryKey: ["files"] });
+      void qc.invalidateQueries({ queryKey: ["reporting-operational"] });
+      void qc.invalidateQueries({ queryKey: ["desk-data"] });
+      void qc.invalidateQueries({ queryKey: ["leadership-digest"] });
+      void qc.invalidateQueries({ queryKey: ["award-history"] });
     },
-    onError: (e: Error) => setBanner(`${e.message}.`),
+    onError: (e: Error) => {
+      setBanner(`${e.message}.`);
+      void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
+      void qc.invalidateQueries({ queryKey: ["work-queue"] });
+      void qc.invalidateQueries({ queryKey: ["desk-data"] });
+    },
   });
 
   const nearExport = useMutation({
