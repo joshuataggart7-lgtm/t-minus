@@ -3,6 +3,7 @@ import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
 import type { MissionControlState } from "./mission-status-board";
 import { sortHoldQueue, WATCH_RULES, type ReadinessExplanation } from "./readiness";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 type Row = AcqMetrics & { readiness: ReadinessExplanation };
 
@@ -88,7 +89,7 @@ export function ReadinessQueue({
       {sorted.length === 0 ? (
         <p className="mt-4 text-[13px] text-muted-foreground">No acquisitions are in {state}.</p>
       ) : (
-        <div className="mt-4 overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" className="mt-4" label={`${state} acquisitions table`}>
           <table className="w-full min-w-[1100px] border-collapse text-[13px] leading-[18px]" data-numeric>
             <thead>
               <tr className="border-b border-border text-left text-muted-foreground">
@@ -164,7 +165,7 @@ export function ReadinessQueue({
               })}
             </tbody>
           </table>
-        </div>
+        </TableScrollRegion>
       )}
     </section>
   );

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import {
   completeModTask,
   createModTasks,
@@ -263,7 +264,7 @@ function ClauseChangesPage() {
       ) : null}
 
       {rows.length > 0 ? (
-        <div className="mc-work-table-wrap">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" label={`Contracts affected by ${change?.clause_number}, sorted by months of performance remaining`}>
         <table className="w-full border-collapse text-[13px] leading-[18px]">
           <caption className="sr-only">
             Contracts affected by {change?.clause_number}, sorted by months of performance remaining
@@ -346,7 +347,7 @@ function ClauseChangesPage() {
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       ) : null}
 
       {solicitationRows.length > 0 ? (

@@ -6,6 +6,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { DefectReport } from "@/components/defect-report";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { ShareDocument } from "@/components/share-document";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -3036,7 +3037,7 @@ function DocumentPage() {
       <section id="doc-poll" aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Go/No-go for {phase}</h2>
         {board.length ? (
-          <div className="overflow-x-auto">
+          <TableScrollRegion baseClassName="overflow-x-auto" label={`Go/No-go for ${acquisitionId}`}>
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -3073,7 +3074,7 @@ function DocumentPage() {
               ))}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
         ) : (
           <p className="text-muted-foreground">No review is triggered for this phase.</p>
         )}

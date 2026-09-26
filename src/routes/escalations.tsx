@@ -13,6 +13,7 @@ import {
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
 import { holdFromRecord, attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/escalations")({
   head: () => ({
@@ -136,7 +137,7 @@ function EscalationsPage() {
           {items.length === 0 ? (
             <EmptyState sentence="No file is on hold and no poll is waiting on a vote." />
           ) : (
-            <div className="mc-work-table-wrap mt-3 border border-border bg-background">
+            <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3 border border-border bg-background" label="Open holds and pending polls">
             <table className="w-full text-[13px] leading-[18px]">
               <thead>
                 <tr className="border-b border-border text-left">
@@ -185,7 +186,7 @@ function EscalationsPage() {
                 ))}
               </tbody>
             </table>
-            </div>
+            </TableScrollRegion>
           )}
 
           <h2 className="section-title mt-10 text-[18px] leading-6 font-medium">Supervisor digest</h2>
@@ -217,7 +218,7 @@ function EscalationsPage() {
           <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
             Center policy sets the number of days. The default is {DEFAULT_AGING_DAYS} days.
           </p>
-          <div className="mc-work-table-wrap mt-3 max-w-[640px] border border-border bg-background max-sm:max-w-[calc(100vw-2rem)]">
+          <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3 max-w-[640px] border border-border bg-background max-sm:max-w-[calc(100vw-2rem)]" label="Aging threshold by Center">
           <table className="w-full text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -252,7 +253,7 @@ function EscalationsPage() {
               ))}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
           {!canConfigure ? (
             <p className="mt-2 max-w-[70ch] text-[13px] text-muted-foreground">
               Changing these numbers requires HQ or Administrator.

@@ -5,6 +5,7 @@ import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } 
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import {
   DIRECTIVE_CITATION,
   loadHardwareFiles,
@@ -143,7 +144,7 @@ function DirectivesPage() {
       ) : null}
 
       {rows.length > 0 ? (
-        <div className="mc-work-table-wrap">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" label="Hardware files and their directives">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Hardware files and their directive compliance</caption>
           <thead>
@@ -185,7 +186,7 @@ function DirectivesPage() {
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       ) : null}
 
       <MissionNavSection id="directive-authority" label="Authority and scope" collapsible summary="1 citation">

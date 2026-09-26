@@ -10,6 +10,7 @@ import {
   type ThresholdRow,
 } from "@/lib/small-business";
 import { fetchSubawards, type SubawardView } from "@/lib/sam-subawards.functions";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 function money(n: number | null) {
   if (n === null) return "—";
@@ -105,7 +106,7 @@ export function SmallBusinessPanel({
           Every file above the threshold has a plan or waiver on file.
         </p>
       ) : (
-        <div className="overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Files above the subcontracting plan threshold with no plan on file">
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Files above the subcontracting plan threshold with no plan on file</caption>
           <thead>
@@ -141,7 +142,7 @@ export function SmallBusinessPanel({
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       )}
 
       <h4 className="mt-8 text-[15px] leading-[22px] font-medium">Market research: who subcontracts to whom</h4>
@@ -182,7 +183,7 @@ export function SmallBusinessPanel({
           {view.rows.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No subaward records came back for this NAICS code.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <TableScrollRegion baseClassName="overflow-x-auto" label={`Subaward records for NAICS ${view.naicsCode}`}>
             <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
               <caption className="sr-only">Subaward records for NAICS {view.naicsCode}</caption>
               <thead>
@@ -214,7 +215,7 @@ export function SmallBusinessPanel({
                 ))}
               </tbody>
             </table>
-            </div>
+            </TableScrollRegion>
           )}
         </>
       ) : null}
