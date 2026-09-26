@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/components/role-context";
 import { runExclusionsSweepNow } from "@/lib/exclusions-sweep.functions";
 import type { SweepResult } from "@/lib/exclusions-sweep.server";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 /** Nightly exclusions sweep: last run time, HQ on-demand run, and the vendor results. */
 export function ExclusionsSweepPanel() {
@@ -91,7 +92,7 @@ export function ExclusionsSweepPanel() {
           {result.results.length === 0 ? (
             <p className="mt-2 text-muted-foreground">No open file has a vendor of record.</p>
           ) : (
-            <div className="overflow-x-auto">
+            <TableScrollRegion baseClassName="overflow-x-auto" label="Vendor exclusion results from the last sweep">
             <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
               <caption className="sr-only">Vendor exclusion results from the last sweep</caption>
               <thead>
@@ -118,7 +119,7 @@ export function ExclusionsSweepPanel() {
                 ))}
               </tbody>
             </table>
-            </div>
+            </TableScrollRegion>
           )}
         </div>
       ) : null}

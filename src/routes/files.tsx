@@ -15,6 +15,7 @@ import type { StoredEstimate } from "@/lib/estimator";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 /** The same summary the requester saw when the clock started. */
 function estimateLine(est: StoredEstimate | null) {
@@ -133,7 +134,7 @@ function FilesPage() {
       {q.isError ? <ErrorNote message="The file list did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." /> : null}
 
       {rows.length ? (
-        <div className="mc-work-table-wrap">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" label="Acquisition files">
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -172,7 +173,7 @@ function FilesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScrollRegion>
       ) : q.isLoading || q.isError ? null : (
         <EmptyState sentence="No files are on the clock yet." action={
           <Link to="/intake" className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">Start an intake</Link>

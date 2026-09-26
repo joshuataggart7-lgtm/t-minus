@@ -5,6 +5,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TEMPLATES } from "@/lib/template-engine";
 import { DEVIATION_TEMPLATE } from "@/lib/deviations";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 type TemplateRow = {
   template_id: string;
@@ -111,12 +112,14 @@ function TemplatesPage() {
             {live} live, {next} to build next, {rows.length - live - next} planned. Grouped by NF 1098 tab.
           </p>
 
-          {tabs.map((tab) => (
+          {tabs.map((tab) => {
+            const sectionHeading = tab === "—" ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`;
+            return (
             <section key={tab} className="mb-10">
               <h2 className="mb-3 text-[18px] leading-6 font-medium">
-                {tab === "—" ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`}
+                {sectionHeading}
               </h2>
-              <div className="mc-work-table-wrap">
+              <TableScrollRegion baseClassName="mc-work-table-wrap" label={`${sectionHeading} templates`}>
               <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
                 <thead>
                   <tr className="border-b border-border text-left">
@@ -162,9 +165,10 @@ function TemplatesPage() {
                     })}
                 </tbody>
               </table>
-              </div>
+              </TableScrollRegion>
             </section>
-          ))}
+            );
+          })}
         </>
       )}
     </AppShell>

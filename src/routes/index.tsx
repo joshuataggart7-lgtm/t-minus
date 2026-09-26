@@ -44,6 +44,7 @@ import { AttentionSeverityList } from "@/components/mission-control/attention-se
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -382,7 +383,7 @@ function AgingPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-muted-foreground">Nothing is past its Center window.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Aging holds and pending polls by Center">
         <table className="mt-3 w-full max-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -417,7 +418,7 @@ function AgingPanel({
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       )}
       <p className="mt-2 text-[13px]">
         <Link to="/escalations" className="text-primary underline">
@@ -454,7 +455,7 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
           <p className="mt-1 text-[13px] text-muted-foreground">
             Launched files past their successor start date with nothing linked
           </p>
-          <div className="overflow-x-auto">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Successor clock files">
           <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -527,7 +528,7 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
               ))}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
         </>
       )}
     </>
@@ -695,7 +696,7 @@ function ClockBoard({
       {longestHolds.length === 0 ? (
         <p className="mt-2 text-muted-foreground">No file is on hold today.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="The ten longest current holds">
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -734,7 +735,7 @@ function ClockBoard({
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       )}
 
       <h3 className="mt-10 text-[18px] leading-6 font-medium">
@@ -743,7 +744,7 @@ function ClockBoard({
       {leadByPhase.length === 0 ? (
         <p className="mt-2 text-muted-foreground">No phase has recorded time yet.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Lead time by phase against the phase plan">
         <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -789,7 +790,7 @@ function ClockBoard({
             })}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       )}
 
       <AgingPanel acqs={metrics.map((m) => m.acq)} polls={polls} centers={centers} users={users} />
