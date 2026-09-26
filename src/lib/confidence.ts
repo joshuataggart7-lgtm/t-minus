@@ -128,6 +128,7 @@ export function awardDatesFromLog(
   for (const row of log) {
     if (!row.acquisition_id || row.action !== "Launched" || !row.logged_at) continue;
     const day = dateCT(String(row.logged_at));
+    if (!day) continue;
     const seen = out.get(row.acquisition_id);
     if (!seen || day < seen) out.set(row.acquisition_id, day);
   }
