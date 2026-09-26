@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type HTMLAttributes, type ReactNode } from "react";
 import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
@@ -16,7 +16,7 @@ import {
   BarChart3, BookOpenCheck, Building2, Calculator, CalendarClock, ChevronDown,
   CircleCheckBig, ClipboardCheck, Database, FilePlus2, FolderOpen, Gauge, History,
   Inbox, Layers, LayoutTemplate, Megaphone, Newspaper, PanelLeft, Radar, Rocket,
-  ScrollText, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert,
+  ScrollText, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert, X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -46,6 +46,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLElement>(null);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
     const saved = window.sessionStorage.getItem("tminus-nav-groups");
@@ -63,29 +64,65 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
   const navGroups = sidebarNavGroups(roles, presenter);
+  const railCollapsed = collapsed && !isDrawerViewport;
+  const backgroundInert = drawerOpen && isDrawerViewport;
+  const inertProps = backgroundInert ? ({ inert: "" } as HTMLAttributes<HTMLElement>) : {};
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false);
+    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1023.98px)");
-    const syncViewport = () => setIsDrawerViewport(query.matches);
+    const syncViewport = () => {
+      setIsDrawerViewport(query.matches);
+      if (!query.matches) setDrawerOpen(false);
+    };
     syncViewport();
     query.addEventListener("change", syncViewport);
     return () => query.removeEventListener("change", syncViewport);
   }, []);
 
   useEffect(() => {
-    setDrawerOpen(false);
+    if (drawerOpen) closeDrawer();
   }, [pathname]);
 
   useEffect(() => {
     if (!drawerOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
-      setDrawerOpen(false);
-      window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+      closeDrawer();
     };
     window.addEventListener("keydown", closeOnEscape);
     return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [drawerOpen]);
+  }, [closeDrawer, drawerOpen]);
+
+  useEffect(() => {
+    if (!drawerOpen || !isDrawerViewport) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const focusable = () => Array.from(drawer.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => !element.hasAttribute("hidden"));
+    focusable()[0]?.focus();
+    const trapFocus = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = focusable();
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    drawer.addEventListener("keydown", trapFocus);
+    return () => drawer.removeEventListener("keydown", trapFocus);
+  }, [drawerOpen, isDrawerViewport]);
 
   // Easter egg: five clicks in a row on the wordmark summon Orby once.
   const [orbyFor, setOrbyFor] = useState<{ id: string | null; key: number } | null>(null);
@@ -114,12 +151,13 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   return (
     <div className={cn("min-h-screen bg-canvas text-foreground", overviewMode && "mc-overview-shell")}>
       <a
+        {...inertProps}
         href="#main-content"
         className="sr-only rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
       >
         Skip to main content
       </a>
-      <header className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
+      <header {...inertProps} className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             ref={menuButtonRef}
@@ -212,18 +250,18 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
         </div>
       </header>
 
-      <div id="urgent-announcement-slot" />
+       <div id="urgent-announcement-slot" {...inertProps} />
 
       <div className="flex max-lg:block">
         {drawerOpen ? (
-          <button
-            type="button"
-            aria-label="Close navigation"
+          <div
+            aria-hidden="true"
             className="fixed inset-0 z-40 bg-foreground/30 lg:hidden"
-            onClick={() => setDrawerOpen(false)}
+            onClick={closeDrawer}
           />
         ) : null}
         <nav
+          ref={drawerRef}
           id="main-navigation"
           aria-label="Main"
           aria-hidden={isDrawerViewport && !drawerOpen ? true : undefined}
@@ -234,14 +272,22 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           )}
         >
           <div className="py-3">
+            <button
+              type="button"
+              aria-label="Close navigation"
+              onClick={closeDrawer}
+              className="ml-auto mr-3 flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-chrome-structure text-chrome-muted hover:text-chrome-foreground lg:hidden"
+            >
+              <X className="size-4" aria-hidden="true" />
+            </button>
             {navGroups.map((group) => {
               const groupItems = group.items;
               const expanded = groups[group.label] ?? false;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "lg:sr-only")}>
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", railCollapsed && "sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
-                <ul className={cn(!expanded && "hidden", collapsed && "lg:block")}>
+                <ul className={cn(!expanded && "hidden", railCollapsed && "block")}>
                 {groupItems.map((item) => {
               const active = pathname === item.to;
               const Icon = NAV_ICONS[item.label] ?? FolderOpen;
@@ -258,8 +304,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                     )}
                   >
                     <Icon className={cn("size-[18px] shrink-0", active ? "text-accent-cyan" : "text-chrome-muted group-hover:text-chrome-foreground")} aria-hidden="true" />
-                    <span className={cn("truncate", collapsed && "lg:sr-only")}>{item.label}</span>
-                    {(!collapsed || isDrawerViewport) && item.note ? (
+                    <span className={cn("truncate", railCollapsed && "sr-only")}>{item.label}</span>
+                    {!railCollapsed && item.note ? (
                       <span className="block text-[12px] text-chrome-muted">{item.note}</span>
                     ) : null}
                   </Link>
@@ -269,8 +315,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             })}</ul></section>;
             })}
             {openAcquisitionId ? (
-              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", collapsed && "lg:mx-0 lg:border-t-0 lg:pt-0")}>
-                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", collapsed && "lg:sr-only")}>Open file</p>
+              <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", railCollapsed && "mx-0 border-t-0 pt-0")}>
+                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", railCollapsed && "sr-only")}>Open file</p>
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
@@ -283,7 +329,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           </div>
         </nav>
 
-        <div className="min-w-0 flex-1 bg-canvas max-lg:w-full">
+        <div {...inertProps} className="min-w-0 flex-1 bg-canvas max-lg:w-full">
           <main
             id="main-content"
             tabIndex={-1}
