@@ -28,6 +28,7 @@ import {
   priorityBand,
   type PriorityBandValue,
 } from "@/components/mission-control/work-triage";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -369,7 +370,7 @@ function WorkQueuePage() {
         />
       ) : view === "board" ? (
 
-        <div className="grid gap-4 lg:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid gap-4 lg:grid-cols-3 lg:max-xl:grid-cols-2 2xl:grid-cols-5">
           {COLUMNS.map((col) => {
             const items = filtered
               .filter((c) => c.column === col)
@@ -413,9 +414,9 @@ function WorkQueuePage() {
           </select>
         </div>
         <RowKeysHint />
-        <div className="mc-work-table-wrap mt-3">
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
-          <thead>
+        <TableScrollRegion className="mt-3" label="Work Queue files table, scrolls horizontally">
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-md:block">
+          <thead className="max-md:hidden">
             <tr className="border-b border-border text-left">
               <th scope="col" className="p-2">Acquisition</th>
               <th scope="col" className="p-2 whitespace-nowrap">Priority</th>
@@ -427,15 +428,15 @@ function WorkQueuePage() {
               <th scope="col" className="p-2">Phase</th>
             </tr>
           </thead>
-          <tbody ref={rowsRef}>
+          <tbody ref={rowsRef} className="max-md:block">
             {sortedList.map((c) => (
               <tr
                 key={c.acquisitionId}
                 data-row-nav
                 tabIndex={0}
-                className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} border-b border-border align-top last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} border-b border-border align-top last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary max-md:mb-3 max-md:block max-md:border max-md:p-3 max-md:last:border`}
               >
-                <td className="p-2 break-words">
+                <td data-label="Acquisition" className="p-2 break-words max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">
                   <Link
                     to="/files/$acquisitionId"
                     params={{ acquisitionId: c.acquisitionId }}
@@ -466,9 +467,9 @@ function WorkQueuePage() {
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.mission}</span>
                 </td>
-                <td className="p-2 whitespace-nowrap"><PriorityBand priority={c.priority} /></td>
-                <td className="p-2"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
-                <td className="p-2" data-numeric>
+                <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
+                <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
+                <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
                   <span className="whitespace-nowrap"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
@@ -476,15 +477,15 @@ function WorkQueuePage() {
                     </span>
                   )}
                 </td>
-                <td className="p-2 break-words">{c.owner}</td>
-                <td className="p-2 break-words">{c.nextTask}</td>
-                <td className="p-2 break-words">{c.dependency}</td>
-                <td className="p-2 break-words">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
+                <td data-label="Owner" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
+                <td data-label="Next task" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
+                <td data-label="Waiting on" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
+                <td data-label="Phase" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
               </tr>
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
         </>
       )}
 
@@ -514,7 +515,7 @@ function CardView({ c }: { c: Card }) {
       </div>
       <div className="mt-3 flex min-w-0 flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
         <div>
-          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
+          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold max-xl:whitespace-normal" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
           <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
         </div>
         <PriorityBand priority={c.priority} />

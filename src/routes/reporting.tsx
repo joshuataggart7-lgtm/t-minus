@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
 import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -93,8 +94,8 @@ function ReportingPage() {
       <section className="mt-8">
         <h2 className="text-lg font-medium">Views</h2>
         <div className="mc-work-table-wrap mt-3" tabIndex={0} aria-label="Report views table, scrolls horizontally">
-        <table className="w-full border-collapse text-sm">
-          <thead>
+        <table className="w-full border-collapse text-sm max-sm:block">
+          <thead className="max-sm:hidden">
             <tr className="border-b border-border text-left text-muted-foreground">
               <th scope="col" className="py-2 pr-4 font-medium">View</th>
               <th scope="col" className="py-2 pr-4 font-medium">What it holds</th>
@@ -102,13 +103,13 @@ function ReportingPage() {
               <th scope="col" className="py-2 font-medium">Open</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="max-sm:block">
             {REPORT_VIEWS.map((v) => (
-              <tr key={v.view} className="border-b border-border align-top">
-                <td className="py-2 pr-4">{v.label}</td>
-                <td className="py-2 pr-4 text-muted">{v.note}</td>
-                <td className="py-2 pr-4 text-right tabular-nums">{counts.data?.[v.view] ?? "—"}</td>
-                <td className="py-2">
+              <tr key={v.view} className="border-b border-border align-top max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0">
+                <td data-label="View" className="py-2 pr-4 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.label}</td>
+                <td data-label="What it holds" className="py-2 pr-4 text-muted max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.note}</td>
+                <td data-label="Rows" className="py-2 pr-4 text-right tabular-nums max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:text-left max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{counts.data?.[v.view] ?? "—"}</td>
+                <td data-label="Open" className="py-2 max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                   <button
                     type="button"
                     className="rounded-lg border border-border px-3 py-1 text-primary"
@@ -147,7 +148,7 @@ function ReportingPage() {
               Phase, clock, status and hold on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
             </p>
           ) : null}
-          <div className="mc-work-table-wrap" tabIndex={0} aria-label="Preview rows table, scrolls horizontally">
+          <TableScrollRegion label="Preview rows table, scrolls horizontally">
             <table className="w-full border-collapse text-[13px] leading-[18px]">
               <thead>
                 <tr className="border-b border-border text-left text-muted-foreground">
@@ -170,7 +171,7 @@ function ReportingPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScrollRegion>
           </MissionNavSection>
         ) : null}
         {!preview.isLoading && !preview.error && preview.data && preview.data.length === 0 ? (
