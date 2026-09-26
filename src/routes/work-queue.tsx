@@ -436,7 +436,7 @@ function WorkQueuePage() {
                 tabIndex={0}
                 className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} border-b border-border align-top last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary max-md:mb-3 max-md:block max-md:border max-md:p-3 max-md:last:border`}
               >
-                <td data-label="Acquisition" className="p-2 break-words max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">
+                <td data-label="Acquisition" className="p-2 break-words max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">
                   <Link
                     to="/files/$acquisitionId"
                     params={{ acquisitionId: c.acquisitionId }}
@@ -467,9 +467,9 @@ function WorkQueuePage() {
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
                   <span className="mt-1 block text-[12px] text-muted-foreground">{c.mission}</span>
                 </td>
-                <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
-                <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
-                <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
+                <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
+                <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
+                <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
                   <span className="whitespace-nowrap max-md:whitespace-normal"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
@@ -477,10 +477,10 @@ function WorkQueuePage() {
                     </span>
                   )}
                 </td>
-                <td data-label="Owner" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
-                <td data-label="Next task" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
-                <td data-label="Waiting on" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
-                <td data-label="Phase" className="p-2 break-words max-md:mt-3 max-md:block max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
+                <td data-label="Owner" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
+                <td data-label="Next task" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
+                <td data-label="Waiting on" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
+                <td data-label="Phase" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
               </tr>
             ))}
           </tbody>

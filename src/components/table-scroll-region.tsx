@@ -30,7 +30,7 @@ export function TableScrollRegion({
       <div
         ref={regionRef}
         role="region"
-        tabIndex={0}
+        tabIndex={overflows ? 0 : undefined}
         aria-label={label}
         className={cn("mc-work-table-wrap", className)}
       >
