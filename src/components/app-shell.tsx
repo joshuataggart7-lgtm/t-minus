@@ -283,7 +283,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           </div>
         </nav>
 
-        <div className="min-w-0 flex-1 bg-canvas max-lg:w-full max-lg:overflow-x-hidden">
+        <div className="min-w-0 flex-1 bg-canvas max-lg:w-full">
           <main
             id="main-content"
             tabIndex={-1}
