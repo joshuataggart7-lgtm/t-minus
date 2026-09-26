@@ -6,6 +6,8 @@ import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { loadLaunchEvents } from "@/lib/launch-events";
+import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow, RequiredDoc } from "@/lib/launch-sequence";
@@ -14,7 +16,6 @@ import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
 import { historyFrom, type HistoryFile } from "@/lib/confidence";
 import {
   computeMetrics,
-  awardDateFor,
   holdSince,
   type AcqMetrics,
   type MissionRow,
@@ -51,7 +52,7 @@ export function useDeskData(enabled: boolean) {
     enabled,
     refetchInterval: 10000,
     queryFn: async () => {
-      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, users, centers] =
+      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, users, centers, launches] =
         await Promise.all([
           supabase.from("missions").select("*").order("priority"),
           supabase.from("acquisition_facts").select("*").order("acquisition_id"),
@@ -68,6 +69,7 @@ export function useDeskData(enabled: boolean) {
             .limit(500),
           supabase.from("users").select("name,title,center_code"),
           supabase.from("centers").select("center_code,aging_threshold_days"),
+          loadLaunchEvents(),
         ]);
       const [attachments, documents, templateRows, modTasks] = await Promise.all([
         supabase.from("document_attachments").select("acquisition_id,doc_key"),
@@ -92,6 +94,7 @@ export function useDeskData(enabled: boolean) {
         templates: templateRows.data ?? [],
         modTasks: (modTasks.data ?? []) as DeskData["modTasks"],
         log: log.data ?? [],
+        launches,
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
         centers: (centers.data ?? []) as DeskData["centers"],
       };
@@ -127,7 +130,8 @@ export function useDeskData(enabled: boolean) {
       .map((acq) => {
         const mission = d.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const attachedKeys = keysFrom(d.attachments, acq.acquisition_id);
-        const m = computeMetrics(acq, {
+        const operational = deriveOverviewAcquisitionState(acq, [...d.log, ...d.launches]);
+        const m = computeMetrics(operational.acquisition, {
           attachedKeys,
           savedKeys: savedDocKeys(d.documents, d.templates, acq.acquisition_id),
           roster: d.users,
@@ -137,7 +141,7 @@ export function useDeskData(enabled: boolean) {
           ref,
           mission,
           holdSince: holdSince(acq.acquisition_id, d.log),
-          awardDate: awardDateFor(acq.acquisition_id, d.log, acq.target_award_date ?? null),
+          awardDate: operational.actualAwardDate,
         });
         return {
           m,
@@ -153,7 +157,7 @@ export function useDeskData(enabled: boolean) {
       centers: d.centers,
       modTasks: d.modTasks,
       plan: d.plan,
-      history: historyFrom(d.acqs, d.log),
+      history: historyFrom(d.acqs, d.launches),
     };
   }, [q.data]);
 

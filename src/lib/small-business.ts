@@ -64,6 +64,7 @@ export function buildSmallBusinessPanel(
   acqs: AcqRow[],
   thresholds: ThresholdRow[],
   plansOnFile: Set<string>,
+  launchedIds: Set<string>,
 ): SmallBusinessPanel {
   const totalFiles = acqs.length;
   const recorded = acqs.filter((a) => typeof a.set_aside === "string" && String(a.set_aside).trim().length > 0);

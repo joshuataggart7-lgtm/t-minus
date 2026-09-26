@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { loadLaunchEvents } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import type { RefData } from "@/lib/intake";
@@ -11,10 +12,10 @@ import { explainWorkReadiness } from "./readiness";
 
 export function useOperationalDisplay(enabled: boolean) {
   const query = useQuery({
-    queryKey: ["files"],
+    queryKey: ["reporting-operational"],
     enabled,
     queryFn: async () => {
-      const [acqs, missions, plan, rules, polls, log, users, attachments, documents, templates, overrides, thresholds, strategies] = await Promise.all([
+      const [acqs, missions, plan, rules, polls, log, users, attachments, documents, templates, overrides, thresholds, strategies, launches] = await Promise.all([
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("missions").select("*"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
@@ -28,6 +29,7 @@ export function useOperationalDisplay(enabled: boolean) {
         supabase.from("center_overrides").select("*"),
         supabase.from("thresholds").select("*"),
         supabase.from("enterprise_strategies").select("*"),
+        loadLaunchEvents(),
       ]);
       return {
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -36,6 +38,7 @@ export function useOperationalDisplay(enabled: boolean) {
         rules: (rules.data ?? []) as ReviewRuleRow[],
         polls: (polls.data ?? []) as PollRow[],
         log: log.data ?? [],
+        launches,
         users: users.data ?? [],
         attachments: attachments.data ?? [],
         documents: documents.data ?? [],
@@ -79,7 +82,7 @@ export function useOperationalDisplay(enabled: boolean) {
       })),
     };
     for (const acq of query.data.acqs) {
-      const operational = deriveOverviewAcquisitionState(acq, query.data.log);
+      const operational = deriveOverviewAcquisitionState(acq, [...query.data.log, ...query.data.launches]);
       const metric = computeMetrics(operational.acquisition, {
         attachedKeys: attachedKeys(query.data.attachments, acq.acquisition_id),
         savedKeys: savedDocKeys(query.data.documents, query.data.templates, acq.acquisition_id),

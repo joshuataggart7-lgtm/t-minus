@@ -283,7 +283,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
       : countdown.mode === "forecast"
         ? "FORECAST · no target award date recorded"
         : countdown.mode === "hold"
-          ? "HOLD · countdown paused"
+          ? "HOLD · on hold"
           : countdown.mode === "launched"
             ? `${countdown.days} days since award`
             : countdown.mode === "overdue"

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import { loadLaunchEvents } from "@/lib/launch-events";
+import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
@@ -42,7 +44,7 @@ function DigestPage() {
     queryKey: ["leadership-digest"],
     enabled: authState === "signed-in",
     queryFn: async () => {
-      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, centers, users] = await Promise.all([
+      const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, centers, users, launches] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
@@ -58,6 +60,7 @@ function DigestPage() {
           .limit(500),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
         supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
+        loadLaunchEvents(),
       ]);
       const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
       const [documents, templateRows] = await Promise.all([
@@ -77,6 +80,7 @@ function DigestPage() {
         documents: documents.data ?? [],
         templates: templateRows.data ?? [],
         log: log.data ?? [],
+        launches,
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
       };
@@ -110,8 +114,9 @@ function DigestPage() {
 
   const metrics: AcqMetrics[] = useMemo(() => {
     if (!q.data) return [];
-    return q.data.acqs.map((acq) =>
-      computeMetrics(acq, {
+    return q.data.acqs.map((acq) => {
+      const operational = deriveOverviewAcquisitionState(acq, [...q.data.log, ...q.data.launches]);
+      return computeMetrics(operational.acquisition, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
         savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
         roster: q.data.users ?? [],
@@ -121,8 +126,9 @@ function DigestPage() {
         ref,
         mission: q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null,
         holdSince: holdSince(acq.acquisition_id, q.data.log),
-      }),
-    );
+        awardDate: operational.actualAwardDate,
+      });
+    });
   }, [q.data, ref]);
 
   const digest = useMemo(() => {
