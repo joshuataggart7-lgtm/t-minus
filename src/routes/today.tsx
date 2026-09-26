@@ -259,7 +259,7 @@ function TodayPage() {
             {waitingOnOthers.length === 0 ? (
               <EmptyState sentence="No file is waiting on anyone else." />
             ) : (
-              <div className="mc-work-table-wrap" role="region" tabIndex={0} aria-label="Files waiting on someone else">
+              <TableScrollRegion label="Files waiting on someone else">
               <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px] max-sm:block">
                 <thead className="max-sm:hidden">
                   <tr className="border-b border-border text-left">
@@ -276,12 +276,12 @@ function TodayPage() {
                       c.m.blockerSince;
                     return (
                       <tr key={c.m.acq.acquisition_id} className="border-b border-border last:border-0 max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0 max-sm:last:border">
-                        <td data-label="Acquisition" className="p-2 break-words max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
+                         <td data-label="Acquisition" className="p-2 break-words max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                           <FileLink card={c} />
                         </td>
-                         <td data-label="Waiting on" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blockerOwner ?? "Not named"}</td>
-                         <td data-label="Reason" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blocker}</td>
-                        <td data-label="Days held" className="p-2 max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>
+                          <td data-label="Waiting on" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blockerOwner ?? "Not named"}</td>
+                          <td data-label="Reason" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blocker}</td>
+                         <td data-label="Days held" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>
                           {daysSince(started) ?? "—"}
                         </td>
                       </tr>
@@ -289,7 +289,7 @@ function TodayPage() {
                   })}
                 </tbody>
                </table>
-               </div>
+               </TableScrollRegion>
             )}
           </Section>
 

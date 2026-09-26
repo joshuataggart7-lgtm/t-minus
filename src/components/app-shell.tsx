@@ -47,6 +47,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
+  const restoreFocusRef = useRef(false);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
     const saved = window.sessionStorage.getItem("tminus-nav-groups");
@@ -69,9 +70,15 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const inertProps = backgroundInert ? { inert: true } : {};
 
   const closeDrawer = useCallback(() => {
+    restoreFocusRef.current = true;
     setDrawerOpen(false);
-    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
   }, []);
+
+  useEffect(() => {
+    if (drawerOpen || !restoreFocusRef.current) return;
+    restoreFocusRef.current = false;
+    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+  }, [drawerOpen]);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1023.98px)");

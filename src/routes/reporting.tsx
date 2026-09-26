@@ -93,7 +93,7 @@ function ReportingPage() {
 
       <section className="mt-8">
         <h2 className="text-lg font-medium">Views</h2>
-        <div className="mc-work-table-wrap mt-3" tabIndex={0} aria-label="Report views table, scrolls horizontally">
+        <TableScrollRegion className="mt-3" label="Report views table">
         <table className="w-full border-collapse text-sm max-sm:block">
           <thead className="max-sm:hidden">
             <tr className="border-b border-border text-left text-muted-foreground">
@@ -106,10 +106,10 @@ function ReportingPage() {
           <tbody className="max-sm:block">
             {REPORT_VIEWS.map((v) => (
               <tr key={v.view} className="border-b border-border align-top max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0">
-                <td data-label="View" className="py-2 pr-4 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.label}</td>
-                <td data-label="What it holds" className="py-2 pr-4 text-muted max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.note}</td>
-                <td data-label="Rows" className="py-2 pr-4 text-right tabular-nums max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:text-left max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{counts.data?.[v.view] ?? "—"}</td>
-                <td data-label="Open" className="py-2 max-sm:mt-3 max-sm:block max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
+                <td data-label="View" className="py-2 pr-4 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.label}</td>
+                <td data-label="What it holds" className="py-2 pr-4 text-muted-foreground max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.note}</td>
+                <td data-label="Rows" className="py-2 pr-4 text-right tabular-nums max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:text-left max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{counts.data?.[v.view] ?? "—"}</td>
+                <td data-label="Open" className="py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                   <button
                     type="button"
                     className="rounded-lg border border-border px-3 py-1 text-primary"
@@ -122,7 +122,7 @@ function ReportingPage() {
             ))}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
         {counts.isLoading ? <LoadingNote what="the view counts" /> : null}
         {counts.error ? <ErrorNote message="The view counts could not be read. Refresh the page to try again." /> : null}
       </section>
@@ -183,7 +183,7 @@ function ReportingPage() {
 
       <MissionNavSection id="report-extract" label="Nightly extract" collapsible summary="Delivery details">
         <section className="min-w-0">
-        <p className="max-w-[70ch] break-words text-muted">
+        <p className="max-w-[70ch] break-words text-muted-foreground">
           A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
           Power BI reads a view directly at{" "}
           <span className="tabular-nums">/api/public/hooks/reporting-extract?view=v_report_acquisitions</span>, with the
