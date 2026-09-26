@@ -310,6 +310,7 @@ export function ExecutiveOverview() {
             polls={q.data?.polls ?? []}
             centers={q.data?.centers ?? []}
             users={q.data?.users ?? []}
+            launchedIds={launchedIdSet(q.data?.launches ?? [])}
           />
         ) : tab === "centers" ? (
           <CentersTab
@@ -546,6 +547,7 @@ function ClockBoard({
   polls,
   centers,
   users,
+  launchedIds,
 }: {
   metrics: AcqMetrics[];
   plan: PhasePlanRow[];
@@ -553,6 +555,7 @@ function ClockBoard({
   polls: PollRow[];
   centers: CenterRow[];
   users: UserRow[];
+  launchedIds: Set<string>;
 }) {
   const today = todayISO();
   const qStart = quarterStart(today);
@@ -792,7 +795,7 @@ function ClockBoard({
       <AgingPanel acqs={metrics.map((m) => m.acq)} polls={polls} centers={centers} users={users} />
       <SuccessorPanel acqs={metrics.map((m) => m.acq)} plan={plan} />
 
-      <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} launchedIds={launchedIdSet(q.data?.launches ?? [])} />
+      <SmallBusinessPanel acqs={metrics.map((m) => m.acq)} thresholds={thresholds} launchedIds={launchedIds} />
 
       <ExclusionsSweepPanel />
     </div>
