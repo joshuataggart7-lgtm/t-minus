@@ -45,7 +45,7 @@ export function AcquisitionScanCard({
       aria-label={view.pastTarget ? `${title}, ${state}, ${countdownText(view, { omitBadge: view.badge === state })}` : `${title}, ${state}${view.caption === state ? "" : `, ${view.caption}`}`}
     >
       <span className="mc-strip-accent" aria-hidden="true" />
-      <span className="mc-strip-id" data-numeric>{metric.acq.acquisition_id}</span>
+      <span className="mc-strip-id" data-numeric title={metric.acq.acquisition_id}>{metric.acq.acquisition_id}</span>
       <MissionReadinessChip state={state} />
       <div className="mc-strip-mission">
         <h3 title={title}>{title}</h3>
