@@ -39,7 +39,7 @@ export function displayDate(value: unknown): string {
 /** Write a text field. Empty values are skipped; a missing field is ignored. */
 export function pdfText(form: PDFForm, name: string, value: unknown, size = 8, maxLen?: number): void {
   let text = pdfGlyphs(asText(value)).replace(
-    /[^\x20-\x7E\u00A0-\u00FF\u2018\u2019\u201C\u201D\u2013\u2014\u20AC]/g,
+    /[^\x20-\x7E\u00A0-\u00FF\u0152\u0153\u0160\u0161\u0178\u017D\u017E\u0192\u02C6\u02DC\u2013\u2014\u2018\u2019\u201A\u201C\u201D\u201E\u2020\u2021\u2030\u2039\u203A\u20AC\u2122]/g,
     " ",
   );
   if (!text) return;
