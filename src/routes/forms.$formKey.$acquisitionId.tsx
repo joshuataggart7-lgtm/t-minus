@@ -1000,7 +1000,7 @@ function FormPage() {
               </p>
               <dl>
                 {sf30HonestBlanks(formCtx).map((row) => (
-                  <div key={row.block} className="mb-2 grid grid-cols-[1fr_1.4fr] gap-3 text-[15px]">
+                  <div key={row.block} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
                     <dt className="text-muted-foreground">{row.block}</dt>
                     <dd>{row.reason}</dd>
                   </div>
@@ -1043,7 +1043,7 @@ function FormPage() {
               ) : null}
               <dl>
                 {section.fields.map((field) => (
-                  <div key={field.path} className="mb-2 grid grid-cols-[1fr_1.4fr] gap-3 text-[15px]">
+                  <div key={field.path} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
                     <dt className="text-muted-foreground">{field.label}</dt>
                     <dd
                       className="tabular-nums"

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/audit-log")({
   head: () => ({
@@ -172,7 +173,7 @@ function AuditLogPage() {
               </Link>
             )}
           </h2>
-          <div className="mc-work-table-wrap">
+          <TableScrollRegion baseClassName="mc-work-table-wrap" label="Audit log table">
           <table className="w-full min-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -203,7 +204,7 @@ function AuditLogPage() {
               ))}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
         </section>
       ))}
     </AppShell>

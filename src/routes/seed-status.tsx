@@ -7,6 +7,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { resetDemo } from "@/lib/reset-demo.functions";
 import { agencyBackfill, type BackfillResult } from "@/lib/agency-backfill.functions";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 
 const TABLES = [
   "users",
@@ -266,7 +267,8 @@ function SeedStatus() {
 
       ) : (
         <><p className="mb-3 text-[15px] leading-[22px]" data-numeric>Regulations verified {REGULATIONS_VERIFIED}</p>
-        <table className="w-full max-w-[640px] border border-border bg-background text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="mc-work-table-wrap" label="Seeded table row counts" className="max-w-[640px] max-xl:[overflow-wrap:anywhere]">
+        <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <caption className="sr-only">Seeded table row counts</caption>
           <thead>
             <tr className="border-b border-border text-left">
@@ -307,7 +309,7 @@ function SeedStatus() {
               </tr>
             ))}
           </tbody>
-        </table></>
+        </table></TableScrollRegion></>
       )}
     </AppShell>
   );

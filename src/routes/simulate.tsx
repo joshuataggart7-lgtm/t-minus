@@ -119,7 +119,7 @@ function SimulatePage() {
           title="Policy impact simulator"
           lead="Change a threshold or a review trigger and see how many days move across the files in flight."
         />
-        <p className="text-muted">
+        <p className="text-muted-foreground">
           The simulator is open to executives and HQ. Nothing here changes a record.
         </p>
       </AppShell>
@@ -135,7 +135,7 @@ function SimulatePage() {
 
       <p
         role="note"
-        className="mc-work-summary mt-4 max-w-[80ch] text-sm text-muted"
+        className="mc-work-summary mt-4 max-w-[80ch] text-sm text-muted-foreground"
       >
         <strong className="text-foreground">Simulation · Sandbox — not saved.</strong>{" "}
         Advisory only — no open file is changed by this screen.
@@ -150,7 +150,7 @@ function SimulatePage() {
             <h2 className="text-lg font-medium">What to change</h2>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="sim-kind" className="block text-sm text-muted">
+                <label htmlFor="sim-kind" className="block text-sm text-muted-foreground">
                   Kind of rule
                 </label>
                 <select
@@ -169,7 +169,7 @@ function SimulatePage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="sim-target" className="block text-sm text-muted">
+                <label htmlFor="sim-target" className="block text-sm text-muted-foreground">
                   {kind === "threshold" ? "Threshold" : "Reviewer"}
                 </label>
                 <select
@@ -189,7 +189,7 @@ function SimulatePage() {
                 </select>
               </div>
               <div>
-                <label htmlFor="sim-value" className="block text-sm text-muted">
+                <label htmlFor="sim-value" className="block text-sm text-muted-foreground">
                   Proposed value in dollars
                 </label>
                 <input
@@ -203,10 +203,10 @@ function SimulatePage() {
                   }}
                 />
                 {kind === "threshold" && loadedNow !== null ? (
-                  <p className="mt-1 text-sm text-muted">Loaded today: {money(loadedNow)}.</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Loaded today: {money(loadedNow)}.</p>
                 ) : null}
                 {kind === "review_trigger" ? (
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     The reviewer's trigger as written is shown in the review rules; the proposed value is
                     read as if every Center carried it.
                   </p>
@@ -232,7 +232,7 @@ function SimulatePage() {
             <section className="mt-10">
               <h2 className="text-lg font-medium">What would move</h2>
               <p className="mb-2 text-lg">{result.headline}</p>
-              <p className="mb-6 text-sm text-muted">
+              <p className="mb-6 text-sm text-muted-foreground">
                 {result.filesConsidered} active files considered. {result.method}
               </p>
 
@@ -243,7 +243,7 @@ function SimulatePage() {
                 <table className="mt-3 w-full border-collapse text-[13px] leading-[18px]">
                   <caption className="sr-only">Files whose planned days change under the proposed value</caption>
                   <thead>
-                    <tr className="border-b border-border text-left text-muted">
+                    <tr className="border-b border-border text-left text-muted-foreground">
                       <th scope="col" className="py-2 pr-4 font-medium">File</th>
                       <th scope="col" className="py-2 pr-4 font-medium">Center</th>
                       <th scope="col" className="py-2 pr-4 font-medium">Estimated value</th>
@@ -260,7 +260,7 @@ function SimulatePage() {
                           <Link to="/files/$acquisitionId" params={{ acquisitionId: f.acquisition_id }}>
                             {f.acquisition_id}
                           </Link>
-                          <span className="block text-muted">{f.title}</span>
+                          <span className="block text-muted-foreground">{f.title}</span>
                         </th>
                         <td className="py-2 pr-4">{f.center_code ?? "not recorded"}</td>
                         <td className="py-2 pr-4 tabular-nums">{money(f.estimated_value)}</td>
