@@ -23,6 +23,7 @@ export function Table12FillinsPanel({
   actor,
   phase,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   facts: Record<string, unknown> | null;
@@ -31,6 +32,7 @@ export function Table12FillinsPanel({
   actor: string;
   phase: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const [confirmed, setConfirmed] = useState<string[]>([]);
 
@@ -78,7 +80,7 @@ export function Table12FillinsPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{TABLE12_EMPTY}</p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Commercial fill-in slots table" className="mt-2">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Commercial fill-in slots table, ${regionContext}` : "Commercial fill-in slots table"} className="mt-2">
 <table className="w-full min-w-[720px] text-[13px] leading-[18px]">
             <caption className="sr-only">Commercial fill-in slots read from this record</caption>
             <thead>

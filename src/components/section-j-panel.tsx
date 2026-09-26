@@ -9,9 +9,11 @@ import type { AttachmentRow } from "@/lib/attachments";
 export function SectionJPanel({
   attachments,
   mode,
+  regionContext,
 }: {
   attachments: AttachmentRow[];
   mode: "sf1449" | "ucf";
+  regionContext?: string;
 }) {
   const rows = attachmentsForSectionJ(attachments);
   return (
@@ -28,7 +30,7 @@ export function SectionJPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Section J attachments table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Section J attachments table, ${regionContext}` : "Section J attachments table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
           <thead>

@@ -46,12 +46,14 @@ export function SebCockpitPanel({
   canWrite,
   actor,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   shell: MethodShell | null;
   canWrite: boolean;
   actor: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const lQ = useQuery({
@@ -251,7 +253,7 @@ export function SebCockpitPanel({
             None recorded — the fairness ledger stays empty until the office adds one.
           </p>
         ) : (
-          <TableScrollRegion baseClassName="overflow-x-auto" label="Clarification log table">
+          <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Clarification log table, ${regionContext}` : "Clarification log table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
             <caption className="sr-only">Clarifications recorded on this file</caption>
             <thead>

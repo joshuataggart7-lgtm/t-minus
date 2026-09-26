@@ -81,11 +81,13 @@ export function ClinSchedulePanel({
   canWrite,
   actor,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   canWrite: boolean;
   actor: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
@@ -196,7 +198,7 @@ export function ClinSchedulePanel({
           each line, and the estimate on this file can fill the schedule when it is empty.
         </p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="CLIN schedule table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `CLIN schedule table, ${regionContext}` : "CLIN schedule table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Line items on the schedule for this file</caption>
           <thead>

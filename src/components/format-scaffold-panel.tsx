@@ -15,7 +15,7 @@ import {
  * otherwise. Nothing here is a signed form; NCMS remains the system of record
  * (NFS 1804.171) and T-Minus does not write to it.
  */
-export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | null }) {
+export function FormatScaffoldPanel({ scaffold, regionContext }: { scaffold: FormatScaffold | null; regionContext?: string }) {
   const [open, setOpen] = useState(false);
   if (!scaffold) return null;
 
@@ -56,7 +56,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
           ) : (
             <section>
               <h5 className="text-[15px] font-medium">Sections A through M</h5>
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Uniform Contract Format sections table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Uniform Contract Format sections table, ${regionContext}` : "Uniform Contract Format sections table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Uniform Contract Format sections and the clauses in each</caption>
                 <thead>
@@ -101,7 +101,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 schedule above; none are invented here.
               </p>
             ) : (
-            <TableScrollRegion baseClassName="overflow-x-auto" label="Schedule line items table">
+            <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Schedule line items table, ${regionContext}` : "Schedule line items table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
               <caption className="sr-only">Line items from the schedule on this file</caption>
               <thead>
@@ -139,7 +139,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Section J attachments table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Scaffold Section J attachments table, ${regionContext}` : "Scaffold Section J attachments table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Attachments on this file with their NF 1098 tab</caption>
                 <thead>
@@ -227,7 +227,7 @@ export function FormatScaffoldPanel({ scaffold }: { scaffold: FormatScaffold | n
                 No clauses are selected on this file yet.
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label="Scaffold clauses table">
+              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Scaffold clauses table, ${regionContext}` : "Scaffold clauses table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                 <caption className="sr-only">Clauses, the section they sit in, why each applies, and its fill-in</caption>
                 <thead>

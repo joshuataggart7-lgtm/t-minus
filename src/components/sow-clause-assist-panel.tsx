@@ -25,6 +25,7 @@ export function SowClauseAssistPanel({
   actor,
   phase,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   facts: Record<string, unknown> | null;
@@ -33,6 +34,7 @@ export function SowClauseAssistPanel({
   actor: string;
   phase: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const [confirmed, setConfirmed] = useState<string[]>([]);
   const suggestions: AssistSuggestion[] = facts ? sowClauseAssist(facts, recommended) : [];
@@ -72,7 +74,7 @@ export function SowClauseAssistPanel({
       {suggestions.length === 0 ? (
         <p className="mt-2 text-[13px] text-muted-foreground">{SOW_ASSIST_EMPTY}</p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="SOW clause assist table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `SOW clause assist table, ${regionContext}` : "SOW clause assist table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Clauses suggested from the requirement on the record</caption>
           <thead>

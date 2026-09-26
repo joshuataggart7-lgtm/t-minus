@@ -193,7 +193,7 @@ export function CdrlPanel({
           {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
         </p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Data requirements table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Data requirements table, ${regionContext}` : "Data requirements table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Data requirements recorded on this file</caption>
           <thead>

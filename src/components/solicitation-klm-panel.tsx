@@ -59,6 +59,7 @@ export function SolicitationKlmPanel({
   canWrite,
   actor,
   onBanner,
+  regionContext,
 }: {
   acquisitionId: string;
   shell: MethodShell | null;
@@ -67,6 +68,7 @@ export function SolicitationKlmPanel({
   canWrite: boolean;
   actor: string;
   onBanner: (s: string) => void;
+  regionContext?: string;
 }) {
   const qc = useQueryClient();
   const lQ = useQuery({
@@ -317,7 +319,7 @@ export function SolicitationKlmPanel({
           </div>
         </div>
 
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Representations and certifications table">
+        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Representations and certifications table, ${regionContext}` : "Representations and certifications table"}>
 <table className="mt-3 w-full text-[13px] leading-[18px]">
           <caption className="sr-only">Representations and certifications recorded on this file</caption>
           <thead>
@@ -551,7 +553,7 @@ export function SolicitationKlmPanel({
                     : "No factors are recorded yet. The contracting office adds each factor and its relative importance when the evaluation approach is settled."}
                 </p>
               ) : (
-                <TableScrollRegion baseClassName="overflow-x-auto" label="Evaluation factors table">
+                <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Evaluation factors table, ${regionContext}` : "Evaluation factors table"}>
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                   <caption className="sr-only">Evaluation factors for award on this file</caption>
                   <thead>
