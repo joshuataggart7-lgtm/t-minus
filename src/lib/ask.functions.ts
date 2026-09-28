@@ -9,6 +9,7 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
+import { requireRealUser } from "@/lib/actor";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -55,6 +56,7 @@ export const askTMinus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { question: string }) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<AskAnswer | AskRefusal> => {
+    requireRealUser(context);
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {
       return { ok: false, message: "The answering service is not configured, so no answer can be given here yet." };

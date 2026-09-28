@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { currentActor } from "@/lib/actor";
+import { currentActor, requireRealUser } from "@/lib/actor";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
@@ -205,6 +205,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
   .handler(async ({ data, context }): Promise<SubawardView> => {
+    requireRealUser(context);
     const me = await currentActor(context);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

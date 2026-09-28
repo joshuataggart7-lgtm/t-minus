@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireRealUser } from "@/lib/actor";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -130,7 +131,8 @@ async function streamedResponse(body: Record<string, unknown>, apiKey: string) {
 export const draftFromRequesterPackage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => inputSchema.parse(input))
-  .handler(async ({ data }): Promise<PackageDraft> => {
+  .handler(async ({ data, context }): Promise<PackageDraft> => {
+    requireRealUser(context);
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("Lovable AI is not configured for this workspace.");
 
