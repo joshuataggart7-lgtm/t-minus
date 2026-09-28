@@ -2360,6 +2360,6 @@
 @media (min-width: 1024px) and (max-width: 1279.98px) {
   .mc-featured-track > .mc-featured-gate > .mc-gate-label { letter-spacing: 0.02em; }
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .mc-featured-track > .mc-featured-gate.is-current > .mc-gate-node { margin-right: -2px; }
 }
