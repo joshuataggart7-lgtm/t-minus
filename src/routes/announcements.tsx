@@ -12,7 +12,7 @@ import {
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
-import { SEEDED_USERS, type RoleId } from "@/lib/roles";
+import { ADMINISTRATOR_DEFAULTS, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import {
   acknowledge,
   currentUserId,
