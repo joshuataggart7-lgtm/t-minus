@@ -849,6 +849,10 @@ function FilePage() {
     });
   }, [acq, currentPhase, attachments, savedKeys]);
 
+  const holdRequirementHref = currentPhase && missingCurrentRequirements[0]
+    ? `#${requirementId(currentPhase.phase, missingCurrentRequirements[0].label)}`
+    : "#launch-sequence";
+
   // The Required rows this phase has already satisfied. Named on the audit row
   // so the record says what was complete when the phase was exited.
   const completeCurrentRequirements = useMemo(() => {
@@ -2206,7 +2210,9 @@ function FilePage() {
         <section aria-label="Current hold" className="mb-5 border-l-2 border-atrisk py-2 pl-4">
           <div className="grid min-w-0 grid-cols-1 items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0">
-              <p className="max-w-[80ch] text-[15px] leading-[22px]">{hold.reason}</p>
+              <p className="max-w-[80ch] text-[15px] leading-[22px]">
+                <a href={holdRequirementHref} className="text-primary underline-offset-2 hover:underline">{hold.reason}</a>
+              </p>
               <p className="mt-1 text-[13px] text-muted-foreground">
                 Owner: {hold.owner}
                 {holdAge !== null
@@ -2255,7 +2261,7 @@ function FilePage() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
-              {readiness ? <MissionReadinessChip state={readiness} /> : null}
+              {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
             </div>
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
             <p className="mt-2 text-[15px] text-muted-foreground">

@@ -118,7 +118,7 @@ export function AwardHandoffPanel({
   return (
     <div className="mt-4 border border-border p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 className="text-[18px] font-medium leading-[24px]">Award handoff</h4>
+        <h4 className="text-[15px] font-medium leading-[22px]">Award handoff</h4>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}

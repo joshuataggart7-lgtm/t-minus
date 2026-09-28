@@ -166,7 +166,7 @@ function FilesPage() {
                     </span>
                   </td>
                   <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
-                  <td className="p-2 whitespace-nowrap" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} /></td>
+                  <td className="p-2 whitespace-nowrap" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} /></td>
                   <td className="p-2 break-words">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
                   <td className="p-2 break-words">{readiness.nextAction}</td>
                 </tr>

@@ -37,6 +37,7 @@ import { fileGeneratedExport } from "@/lib/attachments";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
 import { Nova } from "@/components/nova";
+import { Button } from "@/components/ui/button";
 import { countLineage, lineageForFormSections } from "@/lib/field-lineage";
 import {
   currentFormRevision,
@@ -826,18 +827,16 @@ function FormPage() {
       {form ? (
         <>
           <div id="form-actions" className="mc-work-toolbar mb-6 flex flex-wrap">
-            <button
+            <Button
               type="button"
-               className="rounded-[var(--mc-radius-control)] px-3 py-2 text-[15px] text-primary-foreground"
-              style={{ background: "var(--primary, #0B3D91)" }}
               onClick={() => save.mutate()}
               disabled={save.isPending}
             >
               {save.isPending ? "Saving" : "Save version"}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="rounded-[var(--mc-radius-control)] border border-primary px-3 py-2 text-[15px] text-primary"
+              variant="outline"
               onClick={() => {
                 const el = document.getElementById("export-preview");
                 if (el) {
@@ -847,11 +846,11 @@ function FormPage() {
               }}
             >
               View filled preview
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               aria-pressed={showLineage}
-              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
+              variant="outline"
               title="Outline the values on the preview that came from the shared acquisition record or from a recorded source."
               onClick={() => {
                 const next = !showLineage;
@@ -860,12 +859,11 @@ function FormPage() {
               }}
             >
               {showLineage ? "Hide where values came from" : "Show where values came from"}
-            </button>
+            </Button>
             {formTemplateId ? (
-              <button
+              <Button
                 type="button"
-                className="rounded-[var(--mc-radius-control)] px-3 py-2 text-[15px] text-primary-foreground"
-                style={{ background: "var(--primary, #0B3D91)" }}
+                variant="outline"
                 title="The official blank filled so the values show in Adobe Reader, Chrome and Preview. Signatures stay empty."
                 onClick={() =>
                   void (formTemplateId === "sf1449"
@@ -874,43 +872,43 @@ function FormPage() {
                 }
               >
                 Export official PDF (AcroForm)
-              </button>
+              </Button>
             ) : null}
             {!formTemplateId ? (
               <>
-                <button
+                <Button
                   type="button"
-                  className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
+                  variant="outline"
                   title="Open in Adobe Acrobat or Reader on the desktop. Signatures stay empty."
                   onClick={() => void exportPopulated()}
                 >
                   Export form PDF
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
-                  className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
+                  variant="outline"
                   title="Open the blank form from this app, then Forms or Manage Form Data, Import Data, and pick this file."
                   onClick={exportData}
                 >
                   Export data file for Import Data
-                </button>
+                </Button>
               </>
             ) : null}
-            <button
+            <Button
               type="button"
-              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
+              variant="outline"
               onClick={() => void exportFlat()}
             >
               Export flattened PDF
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="rounded-[var(--mc-radius-control)] border border-border px-3 py-2 text-[15px]"
+              variant="outline"
               title="The NASA RFP cover letter master, filled from this record. A prototype draft for the contracting officer to check and sign."
               onClick={() => void exportRfpCover()}
             >
               Export RFP cover (Word)
-            </button>
+            </Button>
           </div>
 
           {formTemplateId ? (

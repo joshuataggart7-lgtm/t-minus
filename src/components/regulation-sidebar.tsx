@@ -103,7 +103,7 @@ export function RegulationSidebar({
             </p>
           ) : null}
 
-          <h3 className="text-[13px] font-medium">Thresholds that apply</h3>
+          <h3 className="text-[15px] leading-[22px] font-medium">Thresholds that apply</h3>
           {thresholds.length === 0 && !q.isPending ? (
             <p className="mt-1 text-[13px] text-muted-foreground">No threshold rows apply to this phase.</p>
           ) : (
@@ -132,7 +132,7 @@ export function RegulationSidebar({
 
       {open ? (
         <div className="border-t border-border px-4 pb-4">
-          <h3 className="pt-4 text-[13px] font-medium">References, newest first</h3>
+          <h3 className="pt-4 text-[15px] leading-[22px] font-medium">References, newest first</h3>
           {refs.length === 0 && !q.isPending ? (
             <p className="mt-1 text-[13px] text-muted-foreground">No references are recorded for this phase.</p>
           ) : (

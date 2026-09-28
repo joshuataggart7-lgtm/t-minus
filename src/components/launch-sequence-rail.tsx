@@ -90,7 +90,7 @@ export function LaunchSequenceRail({
                   {showExit ? (
                     <span
                       className="font-semibold tabular-nums"
-                      style={{ color: "#0e7490" }}
+                      style={{ color: "color-mix(in oklab, var(--accent-cyan) 50%, var(--foreground))" }}
                     >
                       T− {daysToPhaseExit} to exit
                     </span>

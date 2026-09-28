@@ -2849,7 +2849,7 @@ function DocumentPage() {
                 <p className="mt-1 text-[13px] text-muted-foreground">{comparables.providerNote}</p>
               ) : null}
               {comparables.awards.length ? (
-                <div className="overflow-x-auto">
+                <TableScrollRegion baseClassName="overflow-x-auto" label="Comparable awards table">
                 <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
                   <thead>
                     <tr className="border-b border-border text-left">
@@ -2872,7 +2872,7 @@ function DocumentPage() {
                     ))}
                   </tbody>
                 </table>
-                </div>
+                </TableScrollRegion>
               ) : (
                 <p className="mt-3 text-muted-foreground">No prior awards came back for this NAICS and PSC.</p>
               )}
@@ -3176,7 +3176,7 @@ function DocumentPage() {
       <section className="max-w-[80ch]">
         <h2 className="mb-3 text-[18px] leading-6 font-medium">Versions</h2>
         {q.data?.versions.length ? (
-          <div className="overflow-x-auto">
+          <TableScrollRegion baseClassName="overflow-x-auto" label="Versions table">
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
@@ -3197,7 +3197,7 @@ function DocumentPage() {
               ))}
             </tbody>
           </table>
-          </div>
+          </TableScrollRegion>
         ) : (
           <p className="text-muted-foreground">No versions yet. Save one to start the history.</p>
         )}
