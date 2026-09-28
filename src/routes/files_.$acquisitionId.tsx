@@ -864,14 +864,62 @@ function FilePage() {
     el.addEventListener("blur", () => el.removeAttribute("tabindex"), { once: true });
     el.focus({ preventScroll: true });
   };
-  const revealHash = (rawHash: string) => {
+  const clampBelowHeader = (el: HTMLElement) => {
+    const header = document.querySelector("header.sticky");
+    const minTop = (header?.getBoundingClientRect().bottom ?? 0) + 16;
+    const top = el.getBoundingClientRect().top;
+    if (top < minTop) window.scrollBy(0, top - minTop);
+  };
+  // Keep a revealed target in place while late sections load. Stops at the
+  // first user action or after 3 seconds.
+  const pinStopRef = useRef<(() => void) | null>(null);
+  const stopPin = () => {
+    pinStopRef.current?.();
+    pinStopRef.current = null;
+  };
+  const place = (el: HTMLElement, block: ScrollLogicalPosition) => {
+    el.scrollIntoView({ block });
+    clampBelowHeader(el);
+  };
+  const pinTarget = (el: HTMLElement, block: ScrollLogicalPosition) => {
+    stopPin();
+    let placedTop = el.getBoundingClientRect().top;
+    let raf = 0;
+    const started = performance.now();
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+    const stop = () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+      for (const ev of events) window.removeEventListener(ev, stop, { capture: true });
+      if (pinStopRef.current === stop) pinStopRef.current = null;
+    };
+    const tick = () => {
+      if (performance.now() - started >= 3000) return stop();
+      if (el.isConnected && Math.abs(el.getBoundingClientRect().top - placedTop) > 2) {
+        place(el, block);
+        placedTop = el.getBoundingClientRect().top;
+      }
+      raf = window.requestAnimationFrame(tick);
+    };
+    const timer = window.setTimeout(stop, 3000);
+    for (const ev of events) window.addEventListener(ev, stop, { capture: true, passive: true });
+    pinStopRef.current = stop;
+    raf = window.requestAnimationFrame(tick);
+  };
+  useEffect(() => () => stopPin(), []);
+  const revealHash = (rawHash: string, opts: { updateHash?: boolean } = {}) => {
     const hash = rawHash.replace(/^#/, "");
     const sequence = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+    const finish = (el: HTMLElement, block: ScrollLogicalPosition) => {
+      place(el, block);
+      focusTarget(el);
+      if (opts.updateHash) window.history.replaceState(window.history.state, "", "#" + el.id);
+      pinTarget(el, block);
+    };
     const showSequence = () => {
       if (!sequence) return;
       sequence.open = true;
-      sequence.scrollIntoView({ block: "start" });
-      focusTarget(sequence);
+      finish(sequence, "start");
     };
     if (hash === "launch-sequence") {
       showSequence();
@@ -884,8 +932,7 @@ function FilePage() {
     const tryRow = () => {
       const el = document.getElementById(hash);
       if (el) {
-        el.scrollIntoView({ block: "center" });
-        focusTarget(el);
+        finish(el, "center");
         return;
       }
       frames += 1;
@@ -896,18 +943,31 @@ function FilePage() {
   };
   const revealHashRef = useRef(revealHash);
   revealHashRef.current = revealHash;
+  const loadHash = () => {
+    const h = window.location.hash.replace(/^#/, "");
+    return h === "launch-sequence" || h.startsWith("requirement-") ? h : null;
+  };
   const handledLoadHash = useRef(false);
   const phasesReady = Boolean(acq) && phases.length > 0;
   useEffect(() => {
     if (!phasesReady || handledLoadHash.current) return;
     handledLoadHash.current = true;
-    const h = window.location.hash.replace(/^#/, "");
-    if (h === "launch-sequence" || h.startsWith("requirement-")) revealHashRef.current(h);
+    const h = loadHash();
+    if (h) revealHashRef.current(h);
   }, [phasesReady]);
+  // Re-centre once the page's section queries have settled.
+  const sectionsLoading = [q, attachQ, historyQ, deviationsQ, clinQ, cdrlQ, paymentQ, sectionLQ, sectionKQ, sectionMQ, factorsQ, clarificationsQ, lastCheckQ].some((x) => x.isLoading);
+  const handledSettledHash = useRef(false);
+  useEffect(() => {
+    if (!phasesReady || sectionsLoading || handledSettledHash.current) return;
+    handledSettledHash.current = true;
+    const h = loadHash();
+    if (h) revealHashRef.current(h);
+  }, [phasesReady, sectionsLoading]);
   useEffect(() => {
     const onHash = () => {
-      const h = window.location.hash.replace(/^#/, "");
-      if (h === "launch-sequence" || h.startsWith("requirement-")) revealHashRef.current(h);
+      const h = loadHash();
+      if (h) revealHashRef.current(h);
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
