@@ -356,7 +356,7 @@ function FormPage() {
     queryFn: async () => {
       const [acq, log, plan, rules, polls, thresholds, strategies] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
-        supabase.from("audit_log").select("acquisition_id,action,logged_at").eq("acquisition_id", acquisitionId),
+        loadStateAuditRows(acquisitionId),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
         supabase.from("review_rules").select("*"),
         supabase.from("polls").select("*").eq("acquisition_id", acquisitionId),
@@ -370,7 +370,7 @@ function FormPage() {
       ]);
       return {
         acq: acq.data as unknown as AcqRow | null,
-        log: (log.data ?? []) as { acquisition_id: string | null; action: string | null; logged_at: string | null }[],
+        log,
         plan: (plan.data ?? []) as never[],
         rules: (rules.data ?? []) as never[],
         polls: (polls.data ?? []) as never[],
@@ -406,7 +406,7 @@ function FormPage() {
           required_coordination: (s["required_coordination"] as string) ?? null,
         })),
       },
-      holdSince: holdSince(acquisitionId, d.log as never),
+      holdSince: holdSince(d.acq, d.log),
       awardDate: operational.actualAwardDate,
       attachedKeys: keysFrom(d.attachments, acquisitionId),
       savedKeys: savedDocKeys(d.documents, d.templates, acquisitionId),

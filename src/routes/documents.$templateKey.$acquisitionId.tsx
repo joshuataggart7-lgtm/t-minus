@@ -512,6 +512,7 @@ function DocumentPage() {
             .maybeSingle()
         : { data: null };
       return {
+        stateLog: await loadStateAuditRows(acquisitionId),
         auditRows: (auditRows.data ?? []) as {
           action: string;
           field: string | null;
@@ -1013,11 +1014,7 @@ function DocumentPage() {
   // source and behavior.
   const chromeState = useMemo(() => {
     if (!q.data?.acq) return null;
-    const log = (q.data.auditRows ?? []).map((row) => ({
-      acquisition_id: acquisitionId,
-      action: row.action,
-      logged_at: row.logged_at,
-    }));
+    const log = q.data.stateLog ?? [];
     const operational = deriveOverviewAcquisitionState(q.data.acq as unknown as AcqRow, log);
     const templateRows = (q.data.fileDocRows ?? [])
       .filter((row) => row.template_id && row.templates?.name)
@@ -1041,7 +1038,7 @@ function DocumentPage() {
       rules: q.data.rules ?? [],
       polls: q.data.polls ?? [],
       ref,
-      holdSince: holdSince(acquisitionId, log),
+      holdSince: holdSince(q.data.acq as Record<string, unknown>, log),
       awardDate: operational.actualAwardDate,
       attachedKeys: keysFrom(q.data.attachments ?? [], acquisitionId),
       savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),

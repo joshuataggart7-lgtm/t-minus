@@ -793,7 +793,7 @@ function FilePage() {
       mission: q.data?.mission
         ? { mission_id: String(acq.mission_id ?? ""), name: q.data.mission.name ?? "Mission", program: null, center_code: acq.center_code ?? null, milestone: null, milestone_date: q.data.mission.milestone_date, priority: null, program_owner: null, leadership_note: null }
         : null,
-      holdSince: holdSince(acq.acquisition_id, q.data?.stateLog ?? []),
+      holdSince: holdSince(acq, q.data?.stateLog ?? []),
       awardDate: operational.actualAwardDate,
       attachedKeys: keysFrom(attachments),
       savedKeys,
@@ -4849,7 +4849,11 @@ function FilePage() {
       <MissionNavSection id="audit-trail" label="Audit trail" collapsible summary={`${q.data?.auditCount ?? 0} entries`}>
         <section className="mb-10 min-w-0">
           <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
-        {auditRows.length ? (
+        {auditListQ.isLoading ? (
+          <LoadingNote what="the audit trail" />
+        ) : auditListQ.isError ? (
+          <ErrorNote message={`The audit trail could not be read: ${(auditListQ.error as Error).message}. Try again.`} />
+        ) : auditRows.length ? (
           <TableScrollRegion baseClassName="overflow-x-auto" label="Audit trail table" className="w-full min-w-0">
 <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>

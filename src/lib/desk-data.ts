@@ -6,7 +6,7 @@ import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents } from "@/lib/launch-events";
+import { loadLaunchEvents , loadStateAuditRows } from "@/lib/launch-events";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
@@ -62,11 +62,7 @@ export function useDeskData(enabled: boolean) {
           supabase.from("thresholds").select("*"),
           supabase.from("enterprise_strategies").select("*"),
           supabase.from("polls").select("*"),
-          supabase
-            .from("audit_log")
-            .select("acquisition_id,action,actor,logged_at,phase")
-            .order("logged_at", { ascending: false })
-            .limit(500),
+          loadStateAuditRows(),
           supabase.from("users").select("name,title,center_code"),
           supabase.from("centers").select("center_code,aging_threshold_days"),
           loadLaunchEvents(),
@@ -93,7 +89,7 @@ export function useDeskData(enabled: boolean) {
         documents: documents.data ?? [],
         templates: templateRows.data ?? [],
         modTasks: (modTasks.data ?? []) as DeskData["modTasks"],
-        log: log.data ?? [],
+        stateLog: log,
         launches,
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
         centers: (centers.data ?? []) as DeskData["centers"],
@@ -130,7 +126,7 @@ export function useDeskData(enabled: boolean) {
       .map((acq) => {
         const mission = d.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const attachedKeys = keysFrom(d.attachments, acq.acquisition_id);
-        const operational = deriveOverviewAcquisitionState(acq, [...d.log, ...d.launches]);
+        const operational = deriveOverviewAcquisitionState(acq, [...d.stateLog, ...d.launches]);
         const m = computeMetrics(operational.acquisition, {
           attachedKeys,
           savedKeys: savedDocKeys(d.documents, d.templates, acq.acquisition_id),
@@ -140,7 +136,7 @@ export function useDeskData(enabled: boolean) {
           polls: d.polls,
           ref,
           mission,
-          holdSince: holdSince(acq.acquisition_id, d.log),
+          holdSince: holdSince(acq, d.stateLog),
           awardDate: operational.actualAwardDate,
         });
         return {

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents } from "@/lib/launch-events";
+import { loadLaunchEvents , loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
@@ -124,11 +124,7 @@ function WorkQueuePage() {
         supabase.from("thresholds").select("*"),
         supabase.from("enterprise_strategies").select("*"),
         supabase.from("polls").select("*"),
-        supabase
-          .from("audit_log")
-          .select("acquisition_id,action,actor,logged_at,phase")
-          .order("logged_at", { ascending: false })
-          .limit(500),
+        loadStateAuditRows(),
         supabase.from("users").select("name,title,center_code"),
         loadLaunchEvents(),
       ]);
@@ -149,7 +145,7 @@ function WorkQueuePage() {
         attachments: attachments.data ?? [],
         documents: documents.data ?? [],
         templates: templateRows.data ?? [],
-        log: log.data ?? [],
+        stateLog: log,
         launches,
         users: (users.data ?? []) as { name: string; title: string | null; center_code: string | null }[],
       };
@@ -187,7 +183,7 @@ function WorkQueuePage() {
     return q.data.acqs
       .filter((a) => String(a.clock_state ?? "") !== "scrubbed")
       .map((acq) => {
-        const operational = deriveOverviewAcquisitionState(acq, [...q.data.log, ...q.data.launches]);
+        const operational = deriveOverviewAcquisitionState(acq, [...q.data.stateLog, ...q.data.launches]);
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const m = computeMetrics(operational.acquisition, {
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
@@ -198,7 +194,7 @@ function WorkQueuePage() {
           polls: q.data.polls,
           ref,
           mission,
-          holdSince: holdSince(acq.acquisition_id, q.data.log),
+          holdSince: holdSince(acq, q.data.stateLog),
           awardDate: operational.actualAwardDate,
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;

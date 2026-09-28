@@ -49,9 +49,9 @@ export async function loadStateAuditRows(acquisitionId?: string): Promise<StateA
       .range(from, from + PAGE - 1);
     if (error) throw new Error(`State records could not be read: ${error.message}`);
     const rows = (data ?? []) as unknown as StateAuditRow[];
+    if (rows.length === 0) return out;
     out.push(...rows);
-    if (rows.length < PAGE) return out;
-    from += rows.length;
+    from += rows.length; // advance by what came back; stop only on an empty page
   }
   throw new Error("State records could not be read: too many pages.");
 }
