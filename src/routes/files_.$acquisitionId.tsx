@@ -849,9 +849,62 @@ function FilePage() {
     });
   }, [acq, currentPhase, attachments, savedKeys]);
 
-  const holdRequirementHref = hold?.doc
-    ? `#${requirementId(hold.doc.phase, hold.doc.label)}`
-    : "#launch-sequence";
+  const holdDoc = hold?.doc;
+  const holdRequirementHref =
+    holdDoc && phases.some((p) => p.phase === holdDoc.phase && p.docs.some((d) => d.label === holdDoc.label))
+      ? `#${requirementId(holdDoc.phase, holdDoc.label)}`
+      : "#launch-sequence";
+
+  // Open the launch sequence and bring a hash target into view. Requirement
+  // rows render only in the full sequence, so expand it and wait for the row.
+  const revealHash = (rawHash: string) => {
+    const hash = rawHash.replace(/^#/, "");
+    const sequence = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+    const showSequence = () => {
+      if (!sequence) return;
+      sequence.open = true;
+      sequence.scrollIntoView({ block: "start" });
+      sequence.focus({ preventScroll: true });
+    };
+    if (hash === "launch-sequence") {
+      showSequence();
+      return;
+    }
+    if (!hash.startsWith("requirement-")) return;
+    if (sequence) sequence.open = true;
+    setShowFullSequence(true);
+    let frames = 0;
+    const tryRow = () => {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ block: "center" });
+        el.focus({ preventScroll: true });
+        return;
+      }
+      frames += 1;
+      if (frames < 10) window.requestAnimationFrame(tryRow);
+      else showSequence();
+    };
+    window.requestAnimationFrame(tryRow);
+  };
+  const revealHashRef = useRef(revealHash);
+  revealHashRef.current = revealHash;
+  const handledLoadHash = useRef(false);
+  const phasesReady = Boolean(acq) && phases.length > 0;
+  useEffect(() => {
+    if (!phasesReady || handledLoadHash.current) return;
+    handledLoadHash.current = true;
+    const h = window.location.hash.replace(/^#/, "");
+    if (h === "launch-sequence" || h.startsWith("requirement-")) revealHashRef.current(h);
+  }, [phasesReady]);
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.replace(/^#/, "");
+      if (h === "launch-sequence" || h.startsWith("requirement-")) revealHashRef.current(h);
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // The Required rows this phase has already satisfied. Named on the audit row
   // so the record says what was complete when the phase was exited.
@@ -2213,10 +2266,7 @@ function FilePage() {
               <p className="max-w-[80ch] text-[15px] leading-[22px]">
                 <a
                   href={holdRequirementHref}
-                  onClick={() => {
-                    const sequence = document.getElementById("launch-sequence");
-                    if (sequence instanceof HTMLDetailsElement) sequence.open = true;
-                  }}
+                  onClick={() => revealHash(holdRequirementHref)}
                   className="text-primary underline-offset-2 hover:underline"
                 >
                   {hold.reason}
@@ -2954,7 +3004,7 @@ function FilePage() {
       ) : null}
       </MissionNavSection>
 
-      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background${presenter ? " presenter-step" : ""}`}>
+      <details id="launch-sequence" tabIndex={-1} data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
@@ -3038,7 +3088,8 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px]"
+                      tabIndex={-1}
+                      className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <span>{d.label}</span>
                       <span className="text-[13px] text-muted-foreground">
