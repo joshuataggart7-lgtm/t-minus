@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
@@ -459,7 +460,7 @@ function FilePage() {
         affirmed.current = false;
         return;
       }
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: "Acquisition Forecast entry generated",
@@ -483,7 +484,7 @@ function FilePage() {
     a.download = `acquisition-forecast-${acq.acquisition_id}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    void supabase.from("audit_log").insert({
+    voidwriteAudit({
       acquisition_id: acq.acquisition_id,
       actor: actorName,
       action: "Acquisition Forecast entry exported to CSV",
@@ -1119,7 +1120,7 @@ function FilePage() {
       if (!rows.length) return;
       const { error } = await supabase.from("polls").insert(rows);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: "Poll opened",
@@ -1161,7 +1162,7 @@ function FilePage() {
         })
         .eq("poll_id", input.entry.poll_id);
       if (error) throw new Error(error.message);
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
         action: input.choice === "go" ? "Go recorded" : "No-go recorded",
@@ -1269,7 +1270,7 @@ function FilePage() {
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
 
-      await supabase.from("audit_log").insert([
+      awaitwriteAudit([
         {
           acquisition_id: acq.acquisition_id,
           actor: who,
@@ -1315,7 +1316,7 @@ function FilePage() {
         } as never)
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert([
+      awaitwriteAudit([
         {
           acquisition_id: acq.acquisition_id,
           actor: who,
@@ -1346,7 +1347,7 @@ function FilePage() {
         .update({ funds_certified: certified, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert([
+      awaitwriteAudit([
         {
           acquisition_id: acq.acquisition_id,
           actor: who,
@@ -1456,7 +1457,7 @@ function FilePage() {
         .update({ responsibility_finding: next, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: "Responsibility finding recorded",
@@ -1502,7 +1503,7 @@ function FilePage() {
         })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
         action: "Scrubbed",
@@ -1551,7 +1552,7 @@ function FilePage() {
       const completeNote = completed.length
         ? ` Required for ${phase}, complete: ${completed.join("; ")}.`
         : "";
-      const { error: auditError } = await supabase.from("audit_log").insert({
+      const { error: auditError } = awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
         action: `Phase exited: ${phase} → ${next.phase}`,
@@ -1622,7 +1623,7 @@ function FilePage() {
       if (!launchedRows || launchedRows.length === 0) {
         throw new Error("Launch not recorded: the file was not updated. Refresh and try again");
       }
-      const { error: auditError } = await supabase.from("audit_log").insert({
+      const { error: auditError } = awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
         action: "Launched",
@@ -2053,7 +2054,7 @@ function FilePage() {
         .update({ debriefing_date: next || null, updated_at: new Date().toISOString() })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: "Debriefing date recorded",
@@ -2082,7 +2083,7 @@ function FilePage() {
         .update({ period_of_performance_end: next || null, updated_at: new Date().toISOString() })
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: "Period of performance end recorded",
@@ -2118,7 +2119,7 @@ function FilePage() {
       if (error) throw error;
       if (!data || data.length === 0)
         throw new Error("Changing this file requires Contracting, HQ, or Administrator access.");
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: input.action,
@@ -2188,7 +2189,7 @@ function FilePage() {
         .update({ post_award: next, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", acq.acquisition_id);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
         action: input.action,
@@ -2217,7 +2218,7 @@ function FilePage() {
     a.download = `sf30-handoff-${acq.acquisition_id}-${kind.replace(/\s+/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    void supabase.from("audit_log").insert({
+    voidwriteAudit({
       acquisition_id: acq.acquisition_id,
       actor: actorName,
       action: "SF 30 modification handoff packet built",

@@ -8,6 +8,7 @@
  * does not write to NCMS; NCMS remains the system of record.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { boardReadinessItems, type BoardReadiness } from "@/lib/board-readiness";
 import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
@@ -418,7 +419,7 @@ export async function exportBriefingBook(input: BriefingInput, actor: string): P
   a.remove();
   URL.revokeObjectURL(url);
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Briefing book exported",

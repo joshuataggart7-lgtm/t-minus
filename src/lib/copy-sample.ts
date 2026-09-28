@@ -4,6 +4,7 @@
 // The original file is never touched. The copy starts at Intake with the clock
 // running and an empty audit trail apart from one row naming its source.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 
@@ -170,7 +171,7 @@ export async function copyAsNewSample(sourceId: string, actorFallback: string): 
   }
 
   // The only entry in the new file's audit trail.
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: newId,
     actor,
     action: `Copied from ${sourceId} by ${actor}`,

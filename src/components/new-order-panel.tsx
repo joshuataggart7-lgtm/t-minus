@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +45,7 @@ export function NewOrderPanel({
   const record = async () => {
     setNote(null);
     try {
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor,
         action: `Prototype: inheritance plan prepared for a new order from ${contractNumber}`,

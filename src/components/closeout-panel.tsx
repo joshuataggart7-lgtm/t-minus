@@ -1,6 +1,7 @@
 // Closeout record. The Closeout Transfer Checklist reads these values instead
 // of blank boxes; the retention date is computed from the final payment date.
 
+import { writeAudit } from "@/lib/audit";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +42,7 @@ export function CloseoutPanel({
         .update({ closeout: next } as never)
         .eq("acquisition_id", acquisitionId);
       if (error) throw new Error(error.message);
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Closeout record updated",

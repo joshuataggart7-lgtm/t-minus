@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -660,7 +661,7 @@ function DocumentPage() {
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
         .eq("poll_id", mySeat.poll_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: choice === "go" ? "Go recorded" : "No-go recorded",
@@ -687,7 +688,7 @@ function DocumentPage() {
         .from("comments")
         .insert({ document_id: latest.document_id, author: user.name, body });
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Comment added",
@@ -714,7 +715,7 @@ function DocumentPage() {
         .update({ reviewed_by: user.name, reviewed_at: reviewedAt })
         .eq("document_id", latest.document_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document reviewed",
@@ -1633,7 +1634,7 @@ function DocumentPage() {
               ...(uei ? { vendor_uei: uei } : {}),
             })
             .eq("acquisition_id", acquisitionId);
-          await supabase.from("audit_log").insert({
+          awaitwriteAudit({
             acquisition_id: acquisitionId,
             actor: user.name,
             action: "Recommended quoter carried to the record",
@@ -1645,7 +1646,7 @@ function DocumentPage() {
           });
         }
       }
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action:

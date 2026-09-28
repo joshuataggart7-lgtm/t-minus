@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -98,7 +99,7 @@ function EscalationsPage() {
         .update({ aging_threshold_days: days } as never)
         .eq("center_code", centerCode);
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: null,
         actor: user.name,
         action: "Aging threshold changed",

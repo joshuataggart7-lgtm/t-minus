@@ -6,6 +6,7 @@
 // content is the source of truth for the scaffold and the local handoff packet;
 // where nothing is saved the lines print "Not recorded".
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import type { ScaffoldFacts, ScaffoldLine } from "@/lib/format-scaffold";
 import { isStreamlined } from "@/lib/format-scaffold";
@@ -286,7 +287,7 @@ async function audit(
   newValue: string | null,
   reason: string,
 ): Promise<void> {
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: acquisitionId,
     actor,
     action,

@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -159,7 +160,7 @@ function DigestPage() {
       setBusy(false);
       return;
     }
-    await supabase.from("audit_log").insert({
+    awaitwriteAudit({
       acquisition_id: null,
       actor: user.name,
       action: "Leadership digest sent",

@@ -8,6 +8,7 @@
  * anywhere and nothing is written to an external system.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { isOfficialFinal } from "@/lib/official-file";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
@@ -329,7 +330,7 @@ export async function exportEvidencePack(
   a.remove();
   URL.revokeObjectURL(url);
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "Evidence pack exported",

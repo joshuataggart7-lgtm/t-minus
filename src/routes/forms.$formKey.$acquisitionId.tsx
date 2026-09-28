@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { mappingsFor } from "@/lib/form-field-mappings";
@@ -335,7 +336,7 @@ function FormPage() {
   const noteLineageViewed = async () => {
     try {
       const who = await signedInName(user.name);
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Lineage overlay viewed",
@@ -509,7 +510,7 @@ function FormPage() {
         ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document saved",

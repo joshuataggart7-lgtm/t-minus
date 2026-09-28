@@ -8,6 +8,7 @@
  * document (NFS 1804.171); this sheet only helps the human key accurately.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { acquisitionProfile, vehicleOf } from "@/lib/vehicles";
 
@@ -271,7 +272,7 @@ export async function exportFpdsFillingSheet(input: FpdsInput, actor: string): P
   a.remove();
   URL.revokeObjectURL(url);
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: sheet.acquisitionId,
     actor,
     action: "FPDS filling sheet exported",

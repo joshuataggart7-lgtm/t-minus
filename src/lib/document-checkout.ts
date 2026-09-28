@@ -3,6 +3,7 @@
 // since [time]" and reads the fields read-only until the first person saves or
 // closes the document, or thirty minutes pass. There is no locking beyond that.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 
@@ -56,7 +57,7 @@ async function logCheckout(
   detail: string,
   reason: string,
 ) {
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: acquisitionId,
     // Every audit row carries the account name, never a placeholder.
     actor: await signedInName(actor),

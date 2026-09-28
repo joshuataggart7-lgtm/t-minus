@@ -1,6 +1,7 @@
 // Tables 12-2 / 12-3 fill-in aid. Confirm records the officer's decision in
 // the audit log; it never rewrites the clause list and never writes to NCMS.
 
+import { writeAudit } from "@/lib/audit";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -53,7 +54,7 @@ export function Table12FillinsPanel({
   const confirm = useMutation({
     mutationFn: async (row: Table12Row) => {
       const who = await signedInName(actor);
-      const { error } = await supabase.from("audit_log").insert({
+      const { error } = awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Table 12 fill-ins confirmed",

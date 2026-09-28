@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -65,7 +66,7 @@ export async function reportDefect(input: NewDefect): Promise<void> {
   } as never);
   if (error) throw new Error(error.message);
 
-  const { error: logError } = await supabase.from("audit_log").insert({
+  const { error: logError } = awaitwriteAudit({
     acquisition_id: input.acquisitionId,
     actor: input.reporterName,
     action: "Template defect reported",
@@ -87,7 +88,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect status changed",
@@ -108,7 +109,7 @@ export async function deleteDefect(row: DefectRow, actor: string): Promise<void>
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect removed",

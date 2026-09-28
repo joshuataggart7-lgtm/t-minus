@@ -8,6 +8,7 @@
  * export timestamp. The export itself is written to the audit log.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { supabase } from "@/integrations/supabase/client";
 import { isOfficialFinal } from "@/lib/official-file";
@@ -334,7 +335,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   a.click();
   URL.revokeObjectURL(url);
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "NEAR export",

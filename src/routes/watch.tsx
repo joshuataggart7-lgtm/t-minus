@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -288,7 +289,7 @@ function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void
       setError(`${insertError.message} Check the entry and post it again.`);
       return;
     }
-    await supabase.from("audit_log").insert({
+    awaitwriteAudit({
       acquisition_id: null,
       actor,
       action: "Watch item posted",

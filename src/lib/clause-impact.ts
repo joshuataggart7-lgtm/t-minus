@@ -10,6 +10,7 @@
  * recorded on the file.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { clauseDelta, buildModificationPacket, type ClauseRow } from "@/lib/post-award";
 import { todayISO } from "@/lib/intake";
@@ -332,7 +333,7 @@ export async function createModTasks(
   }));
   const { error } = await supabase.from("clause_mod_tasks").insert(payload as never);
   if (error) throw error;
-  await supabase.from("audit_log").insert(
+  awaitwriteAudit(
     fresh.map((r) => ({
       acquisition_id: r.acquisition_id,
       actor,
@@ -353,7 +354,7 @@ export async function completeModTask(task: ModTaskRow, actor: string) {
     .update({ status: "complete", completed_at: new Date().toISOString(), completed_by: actor } as never)
     .eq("task_id", task.task_id);
   if (error) throw error;
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: task.acquisition_id,
     actor,
     action: "Clause change mod task completed",

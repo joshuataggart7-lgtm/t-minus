@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -94,7 +95,7 @@ function ClauseChangesPage() {
         : supabase.from("clauses").update({ modification_required: input.required, change_deadline: input.deadline }).eq("row_id", id);
       const { error } = await query;
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: null,
         actor: user.name,
         action: "Clause change direction recorded",

@@ -7,6 +7,7 @@
 // Contract Format Section K shell. Nothing here invents authority text: labels
 // and record-backed blanks only, and blanks read "Not recorded".
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import type { PacketClause } from "@/lib/clause-packet";
 import type { MethodShell } from "@/lib/solicitation-lm";
@@ -187,7 +188,7 @@ export async function saveSectionK(
   );
   if (error) throw new Error(error.message);
   const recorded = input.items.filter((i) => i.status !== "not_recorded").length;
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "Section K saved",

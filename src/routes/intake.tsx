@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -533,7 +534,7 @@ function IntakePage() {
         }).eq("id", profile.id);
       }
 
-      await supabase.from("audit_log").insert([
+      awaitwriteAudit([
         {
           acquisition_id: created,
           actor: user.name,

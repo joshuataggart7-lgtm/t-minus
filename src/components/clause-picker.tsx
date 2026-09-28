@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -71,7 +72,7 @@ export function ClausePicker({
         .update({ contract_clauses: clean, updated_at: new Date().toISOString() })
         .eq("acquisition_id", acquisitionId);
       if (updateError) throw updateError;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Clause list applied to the file",

@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -78,7 +79,7 @@ function CenterConfigPage() {
       : (q.data?.rules ?? []).map((r) => ({ name: r.reviewer_role, citation: r.citation ?? "" }));
 
   async function log(action: string, field: string, oldValue: string | null, newValue: string | null, reason: string) {
-    await supabase.from("audit_log").insert({
+    awaitwriteAudit({
       acquisition_id: null,
       actor: user?.name ?? "Unknown",
       action,

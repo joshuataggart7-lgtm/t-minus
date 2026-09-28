@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -245,7 +246,7 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
       setBusy(false);
       return;
     }
-    await supabase.from("audit_log").insert({
+    awaitwriteAudit({
       acquisition_id: null,
       actor,
       action: "Announcement posted",

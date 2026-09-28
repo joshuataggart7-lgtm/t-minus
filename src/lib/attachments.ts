@@ -4,6 +4,7 @@
 // in the private attachments bucket, a row is written here, and an audit entry
 // records who attached what and when. Cancelling the picker changes nothing.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { clinsFromSheet, isSpreadsheetFile, readSpreadsheet, type SheetClin } from "@/lib/spreadsheet";
@@ -122,7 +123,7 @@ export async function uploadAttachment(input: {
     saved_at: new Date().toISOString(),
   } as never);
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Document attached",
@@ -148,7 +149,7 @@ export async function removeAttachment(row: AttachmentRow, actorGiven: string, r
     .delete()
     .eq("acquisition_id", row.acquisition_id)
     .eq("field_values->>attachment_id", row.attachment_id);
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Document removed",
@@ -247,7 +248,7 @@ export async function fileGeneratedExport(input: {
     throw new Error(error.message);
   }
 
-  await supabase.from("audit_log").insert({
+  awaitwriteAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Official form draft filed",

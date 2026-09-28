@@ -3,6 +3,7 @@
  * Advisory only: it never holds a phase exit and never writes to NCMS.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,7 +52,7 @@ export function CorToRequestPanel({
         .update({ post_award: pa, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", String(acq["acquisition_id"]));
       if (error) throw error;
-      await supabase.from("audit_log").insert({
+      awaitwriteAudit({
         acquisition_id: String(acq["acquisition_id"]),
         actor: actorName,
         action: "COR or task order request recorded",

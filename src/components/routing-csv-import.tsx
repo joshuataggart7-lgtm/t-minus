@@ -9,6 +9,7 @@
  * seeded acquisition is changed.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -134,7 +135,7 @@ export function RoutingCsvImport({
       setProblem(`The routing was not imported: ${error.message}. Fix the file and upload it again.`);
       return;
     }
-    await supabase.from("audit_log").insert(
+    awaitwriteAudit(
       check.rows.map((r) => ({
         acquisition_id: null,
         actor: actorName,
