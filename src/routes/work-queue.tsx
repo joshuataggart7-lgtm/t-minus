@@ -378,7 +378,7 @@ function WorkQueuePage() {
             return (
               <section key={col} aria-label={COLUMN_LABEL[col]}>
                 <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
-                <h2 className="text-[15px] leading-6 font-medium">{COLUMN_LABEL[col]}</h2>
+                <h2 className="text-[18px] leading-6 font-medium">{COLUMN_LABEL[col]}</h2>
                 <p className="text-[13px] text-muted-foreground" data-numeric>
                   {items.length} {items.length === 1 ? "file" : "files"}
                 </p>
@@ -470,7 +470,7 @@ function WorkQueuePage() {
                 <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
                 <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
                 <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
-                  <span className="whitespace-nowrap max-md:whitespace-normal"><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></span>
+                  <span className="whitespace-nowrap max-md:whitespace-normal"><LaunchCountdownCompact view={overviewCountdownView(c.m)} hideBadge={overviewCountdownView(c.m).mode === "hold"} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
                     <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
                       {c.confidence.sentence}
@@ -515,7 +515,7 @@ function CardView({ c }: { c: Card }) {
       </div>
       <div className="mt-3 flex min-w-0 flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
         <div>
-          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold max-xl:whitespace-normal" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} /></p>
+          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold max-xl:whitespace-normal" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} hideBadge={overviewCountdownView(c.m).mode === "hold"} /></p>
           <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
         </div>
         <PriorityBand priority={c.priority} />

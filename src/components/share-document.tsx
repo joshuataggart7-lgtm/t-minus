@@ -156,7 +156,7 @@ export function ShareDocument({
       ) : null}
 
       {rows.length ? (
-        <div className="overflow-x-auto">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Share links table">
         <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -211,7 +211,7 @@ export function ShareDocument({
             })}
           </tbody>
         </table>
-        </div>
+        </TableScrollRegion>
       ) : documentId ? (
         <p className="text-muted-foreground">No outside links for this document.</p>
       ) : null}

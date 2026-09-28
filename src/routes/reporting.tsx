@@ -92,7 +92,7 @@ function ReportingPage() {
       />
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium">Views</h2>
+        <h2 className="text-[18px] leading-6 font-medium">Views</h2>
         <TableScrollRegion className="mt-3" label="Report views table">
         <table className="w-full border-collapse text-sm max-sm:block">
           <thead className="max-sm:hidden">
@@ -112,10 +112,11 @@ function ReportingPage() {
                 <td data-label="Open" className="py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                   <button
                     type="button"
+                    aria-pressed={open === v.view}
                     className="rounded-lg border border-border px-3 py-1 text-primary"
                     onClick={() => setOpen(v.view)}
                   >
-                    {open === v.view ? "Open" : "Show"}
+                    Open
                   </button>
                 </td>
               </tr>
@@ -129,7 +130,7 @@ function ReportingPage() {
 
       <section className="mt-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-medium">{REPORT_VIEWS.find((v) => v.view === open)?.label}</h2>
+          <h2 className="text-[18px] leading-6 font-medium">{REPORT_VIEWS.find((v) => v.view === open)?.label}</h2>
           <button
             type="button"
             disabled={!preview.data || preview.data.length === 0}

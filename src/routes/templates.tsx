@@ -120,8 +120,8 @@ function TemplatesPage() {
                 {sectionHeading}
               </h2>
               <TableScrollRegion baseClassName="mc-work-table-wrap" label={`${sectionHeading} templates`}>
-              <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
-                <thead>
+              <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-sm:block">
+                <thead className="max-sm:hidden">
                   <tr className="border-b border-border text-left">
                     <th scope="col" className="px-3 py-2 font-medium">Template</th>
                     <th scope="col" className="px-3 py-2 font-medium">HQ effective date</th>
@@ -130,15 +130,15 @@ function TemplatesPage() {
                     <th scope="col" className="px-3 py-2 font-medium">State</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="max-sm:block">
                   {rows
                     .filter((r) => (r.nf_1098_tab ?? "—") === tab)
                     .map((r) => {
                       const key = isLiveStatus(r.status) ? liveKeyFor(r.name) : null;
                       const isDeviation = r.name === DEVIATION_TEMPLATE.name && isLiveStatus(r.status);
                       return (
-                        <tr key={r.template_id} className="border-b border-border last:border-0 align-top">
-                          <td className="px-3 py-2">
+                        <tr key={r.template_id} className="border-b border-border last:border-0 align-top max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0">
+                          <td data-label="Template" className="px-3 py-2 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                             {isDeviation ? (
                               <Link to="/deviations" className="text-primary">
                                 {r.name}
@@ -151,12 +151,12 @@ function TemplatesPage() {
                               r.name
                             )}
                           </td>
-                          <td className="px-3 py-2" data-numeric>
+                          <td data-label="HQ effective date" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>
                             {r.hq_revision_date ?? "—"}
                           </td>
-                          <td className="px-3 py-2">{citationText(r.governing_citation)}</td>
-                          <td className="px-3 py-2">{r.citation_tier ?? "—"}</td>
-                          <td className="px-3 py-2">
+                          <td data-label="Citation" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{citationText(r.governing_citation)}</td>
+                          <td data-label="Tier" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{r.citation_tier ?? "—"}</td>
+                          <td data-label="State" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                             <StatusMark color={statusColor(r.status)}>{statusLabel(r.status)}</StatusMark>
                           </td>
 

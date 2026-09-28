@@ -315,13 +315,14 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                 </button>
                 <ul className={cn(!expanded && "hidden", railCollapsed && "block")}>
                 {groupItems.map((item) => {
-              const active = pathname === item.to;
+              const active = pathname === item.to || (item.to === "/overview" && pathname === "/");
               const Icon = NAV_ICONS[item.label] ?? FolderOpen;
               return (
                 <li key={item.to}>
                   <Link
                     to={item.to}
                     title={item.label}
+                     aria-current={active ? "page" : undefined}
                      onClick={() => {
                        if (isDrawerViewport && drawerOpen) {
                          if (item.to === pathname) {
@@ -369,6 +370,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                      }
                    }}
                    title={railCollapsed ? openAcquisitionId : undefined}
+                    aria-current={openAcquisitionId && /^\/(?:files\/[^/]+|documents\/[^/]+\/[^/]+|forms\/[^/]+\/[^/]+)$/.test(pathname) ? "page" : undefined}
                    aria-label={railCollapsed ? `Open file ${openAcquisitionId}` : undefined}
                    className={cn(
                      "mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]",

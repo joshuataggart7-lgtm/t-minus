@@ -146,14 +146,16 @@ const toneDigit: Record<CountdownView["tone"], string> = {
   red: "text-atrisk",
 };
 
-function Badge({ children, amber }: { children: string; amber?: boolean }) {
+function Badge({ children, tone }: { children: string; tone: "amber" | "red" | "cyan" }) {
   return (
     <span
       className="inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold tracking-wide"
       style={
-        amber
-          ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
-          : { color: "var(--chrome)", backgroundColor: "var(--accent-cyan)" }
+        tone === "amber"
+          ? { color: "var(--foreground)", backgroundColor: "var(--mc-amber)" }
+          : tone === "red"
+            ? { color: "var(--destructive-foreground)", backgroundColor: "var(--atrisk)" }
+            : { color: "var(--chrome)", backgroundColor: "var(--accent-cyan)" }
       }
     >
       {children}
@@ -178,7 +180,7 @@ export function LaunchCountdown({
           Launch Countdown
         </p>
         {acquisitionId ? <p className="text-[11px] tracking-wide text-chrome-muted">{acquisitionId}</p> : null}
-        {view.badge ? <Badge amber={view.mode === "hold"}>{view.badge}</Badge> : null}
+        {view.badge ? <Badge tone={view.mode === "hold" ? "amber" : view.mode === "overdue" ? "red" : "cyan"}>{view.badge}</Badge> : null}
       </div>
       {view.days === null ? (
         <p className="mt-2 text-[40px] leading-[44px] font-semibold text-chrome-muted">
@@ -222,7 +224,7 @@ export function LaunchCountdownCompact({
       ? "var(--atrisk)"
       : view.tone === "muted"
         ? "var(--muted-foreground)"
-        : "#0e7490"; /* darker cyan for legibility on the light canvas */
+        : "color-mix(in oklab, var(--accent-cyan) 50%, var(--foreground))";
   return (
     <span className={cn("inline-flex items-baseline gap-1.5", className)} data-numeric>
       <span className="text-[17px] font-semibold [font-variant-numeric:tabular-nums]" style={{ color: digitColor }}>
@@ -234,9 +236,9 @@ export function LaunchCountdownCompact({
           className="rounded px-1 text-[10px] font-semibold tracking-wide"
           style={
             view.mode === "hold"
-              ? { color: "#1d1d1f", backgroundColor: "#f5c36b" }
+              ? { color: "var(--foreground)", backgroundColor: "var(--mc-amber)" }
               : view.mode === "overdue"
-                ? { color: "#ffffff", backgroundColor: "var(--atrisk)" }
+                ? { color: "var(--destructive-foreground)", backgroundColor: "var(--atrisk)" }
                 : { color: "var(--chrome)", backgroundColor: "var(--accent-cyan)" }
           }
         >

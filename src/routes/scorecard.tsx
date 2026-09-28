@@ -81,7 +81,7 @@ function ScorecardPage() {
 
   return (
     <Frame>
-      <h1 className="text-[28px] leading-[34px] font-semibold">Acquisition scorecard</h1>
+      <h1 className="text-[24px] leading-8 font-semibold">Acquisition scorecard</h1>
       <p className="mt-3 max-w-[70ch] text-[15px] leading-[22px]">
         Aggregate figures across {s.totalFiles} acquisition records. Every number on this page is fictional
         prototype data, published without signing in.

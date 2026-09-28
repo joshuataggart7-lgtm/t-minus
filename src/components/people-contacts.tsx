@@ -99,13 +99,16 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
           <tbody>
             {(q.data ?? []).map((row) => {
               const mine = row.name.trim().toLowerCase() === actorName.trim().toLowerCase();
+              const displayName = row.email?.toLowerCase().endsWith("@t-minus.demo") && !/\(fictional/i.test(row.name)
+                ? `${row.name} (fictional)`
+                : row.name;
               return (
               <tr
                 key={row.user_id}
                 {...(mine ? { id: "my-record" } : {})}
                 className={`border-b border-border align-top ${mine ? "bg-canvas scroll-mt-20" : ""}`}
               >
-                <td className="p-2">{row.name}{mine ? " (you)" : ""}</td>
+                <td className="p-2">{displayName}{mine ? " (you)" : ""}</td>
                 <td className="p-2">{row.title || "—"}</td>
                 <td className="p-2">{row.center_code || "—"}</td>
                 <td className="p-2">{row.email || "—"}</td>

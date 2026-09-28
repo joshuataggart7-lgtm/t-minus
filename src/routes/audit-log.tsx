@@ -173,7 +173,7 @@ function AuditLogPage() {
               </Link>
             )}
           </h2>
-          <TableScrollRegion baseClassName="mc-work-table-wrap" label="Audit log table">
+          <TableScrollRegion baseClassName="mc-work-table-wrap" label={`Audit log table: ${acqId}`}>
           <table className="w-full min-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">

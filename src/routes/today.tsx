@@ -122,6 +122,11 @@ function TodayPage() {
   }, [desk, ownsMine, roles, user.name]);
 
   const isAdminAll = isAdmin;
+  const listedCenters = useMemo(
+    () => Array.from(new Set(mine.map((c) => c.m.acq.center_code).filter((code): code is string => Boolean(code)))),
+    [mine],
+  );
+  const fallbackScope = listedCenters.length === 1 ? `files at ${listedCenters[0]} are shown` : "all prototype files are shown";
 
   const live = useMemo(
     () => mine.filter((c) => c.m.clockState !== "launched" && c.m.clockState !== "scrubbed"),
@@ -196,7 +201,7 @@ function TodayPage() {
               {isRequesterFallback
                 ? "Showing files where you are the requester of record."
                 : `No file lists ${user.name} as the contracting officer, so ${
-                    isAdminAll ? "all prototype files are shown" : `files at ${user.center_code} are shown`
+                    isAdminAll ? "all prototype files are shown" : fallbackScope
                   }. The owner of record is shown on each file.`}
             </p>
           ) : null}
