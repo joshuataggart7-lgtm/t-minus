@@ -68,6 +68,18 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
   const navGroups = sidebarNavGroups(roles, presenter);
+  const activeGroupLabel = navGroups.find((group) =>
+    group.items.some((item) => pathname === item.to || (item.to === "/overview" && pathname === "/")),
+  )?.label;
+  useEffect(() => {
+    if (!activeGroupLabel) return;
+    setGroups((current) => {
+      if (current[activeGroupLabel]) return current;
+      const next = { ...current, [activeGroupLabel]: true };
+      window.sessionStorage.setItem("tminus-nav-groups", JSON.stringify(next));
+      return next;
+    });
+  }, [pathname, activeGroupLabel]);
   const railCollapsed = collapsed && !isDrawerViewport;
   const backgroundInert = drawerOpen && isDrawerViewport;
   const inertProps = backgroundInert ? { inert: true } : {};

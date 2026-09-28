@@ -8,6 +8,7 @@ import {
   PageHeader,
   StatusMark,
 } from "@/components/app-shell";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { SEEDED_USERS, type RoleId } from "@/lib/roles";
@@ -130,7 +131,7 @@ function AnnouncementsPage() {
         ) : null}
         {hasRole("hq") && a.requires_acknowledgment ? (
           <div className="mt-4 max-w-[520px] border border-border max-sm:max-w-[calc(100vw-2rem)]">
-            <div className="overflow-x-auto">
+            <TableScrollRegion baseClassName="overflow-x-auto" label="Acknowledgments by Center table">
             <table className="w-full text-[13px]">
               <caption className="border-b border-border px-3 py-2 text-left text-muted-foreground">
                 Acknowledgments by Center: {acks.filter((k) => k.announcement_id === a.announcement_id).length}{" "}
@@ -159,7 +160,7 @@ function AnnouncementsPage() {
                 )}
               </tbody>
             </table>
-            </div>
+            </TableScrollRegion>
           </div>
         ) : null}
       </article>
