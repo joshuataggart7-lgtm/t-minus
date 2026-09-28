@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents } from "@/lib/launch-events";
+import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import type { RefData } from "@/lib/intake";
@@ -15,13 +15,13 @@ export function useOperationalDisplay(enabled: boolean) {
     queryKey: ["reporting-operational"],
     enabled,
     queryFn: async () => {
-      const [acqs, missions, plan, rules, polls, log, users, attachments, documents, templates, overrides, thresholds, strategies, launches] = await Promise.all([
+      const [acqs, missions, plan, rules, polls, stateLog, users, attachments, documents, templates, overrides, thresholds, strategies, launches] = await Promise.all([
         supabase.from("acquisition_facts").select("*").order("acquisition_id"),
         supabase.from("missions").select("*"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
         supabase.from("review_rules").select("*"),
         supabase.from("polls").select("*"),
-        supabase.from("audit_log").select("acquisition_id,action,actor,logged_at,phase").order("logged_at", { ascending: false }).limit(500),
+        loadStateAuditRows(),
         supabase.from("users").select("name,title,center_code"),
         supabase.from("document_attachments").select("acquisition_id,doc_key"),
         supabase.from("documents").select("acquisition_id,template_id"),
@@ -37,7 +37,7 @@ export function useOperationalDisplay(enabled: boolean) {
         plan: (plan.data ?? []) as PhasePlanRow[],
         rules: (rules.data ?? []) as ReviewRuleRow[],
         polls: (polls.data ?? []) as PollRow[],
-        log: log.data ?? [],
+        stateLog,
         launches,
         users: users.data ?? [],
         attachments: attachments.data ?? [],
@@ -82,7 +82,7 @@ export function useOperationalDisplay(enabled: boolean) {
       })),
     };
     for (const acq of query.data.acqs) {
-      const operational = deriveOverviewAcquisitionState(acq, [...query.data.log, ...query.data.launches]);
+      const operational = deriveOverviewAcquisitionState(acq, [...query.data.stateLog, ...query.data.launches]);
       const metric = computeMetrics(operational.acquisition, {
         attachedKeys: attachedKeys(query.data.attachments, acq.acquisition_id),
         savedKeys: savedDocKeys(query.data.documents, query.data.templates, acq.acquisition_id),
@@ -92,7 +92,7 @@ export function useOperationalDisplay(enabled: boolean) {
         polls: query.data.polls,
         ref,
         mission: query.data.missions.find((row) => row.mission_id === acq.mission_id) ?? null,
-        holdSince: holdSince(acq.acquisition_id, query.data.log),
+        holdSince: holdSince(acq.acquisition_id, query.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
       const readiness = explainWorkReadiness(metric).state;
