@@ -3,7 +3,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
 import { copyAsNewSample } from "@/lib/copy-sample";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { loadStateAuditRows } from "@/lib/launch-events";
+import { cparsRecorded } from "@/lib/state-audit";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -329,13 +331,10 @@ function FilePage() {
     // The poll board updates live as reviewers vote.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, log, plan, rules, thresholds, strategies, polls, clauses, nfApprovals] = await Promise.all([
+      const [acq, auditHead, stateLog, plan, rules, thresholds, strategies, polls, clauses, nfApprovals] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
-        supabase
-          .from("audit_log")
-          .select("*")
-          .eq("acquisition_id", acquisitionId)
-          .order("logged_at", { ascending: false }),
+        supabase.from("audit_log").select("log_id", { count: "exact", head: true }).eq("acquisition_id", acquisitionId),
+        loadStateAuditRows(acquisitionId),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),
         supabase.from("review_rules").select("*"),
         supabase.from("thresholds").select("*"),
@@ -390,7 +389,8 @@ function FilePage() {
         overrides: overrides ?? [],
         people: people ?? [],
         researchRuns: researchRuns ?? [],
-        log: log.data ?? [],
+        auditCount: auditHead.count ?? 0,
+        stateLog,
         plan: plan.data ?? [],
         rules: rules.data ?? [],
         thresholds: thresholds.data ?? [],
@@ -499,6 +499,31 @@ function FilePage() {
 
   // Prior files of the same profile, for the honest days-to-award range. Read
   // only: the public fields of every record and the recorded launch events.
+  const auditListQ = useInfiniteQuery({
+    queryKey: ["acquisition-file", acquisitionId, "audit-list"],
+    enabled: authState === "signed-in",
+    staleTime: 30_000,
+    initialPageParam: null as { logged_at: string; log_id: string } | null,
+    queryFn: async ({ pageParam }) => {
+      let query = supabase.from("audit_log").select("*").eq("acquisition_id", acquisitionId);
+      if (pageParam) {
+        query = query.or(`logged_at.lt."${pageParam.logged_at}",and(logged_at.eq."${pageParam.logged_at}",log_id.lt.${pageParam.log_id})`);
+      }
+      const { data, error } = await query
+        .order("logged_at", { ascending: false })
+        .order("log_id", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data ?? [];
+    },
+    getNextPageParam: (last) => {
+      if (last.length < 200) return undefined;
+      const row = last[last.length - 1];
+      return { logged_at: String(row.logged_at), log_id: String(row.log_id) };
+    },
+  });
+  const auditRows = useMemo(() => auditListQ.data?.pages.flat() ?? [], [auditListQ.data]);
+
   const historyQ = useQuery({
     queryKey: ["award-history"],
     enabled: authState === "signed-in",
@@ -705,7 +730,7 @@ function FilePage() {
     () =>
       acq
         ? buildSequence(
-            deriveOverviewAcquisitionState(acq, q.data?.log ?? []).acquisition as typeof acq,
+            deriveOverviewAcquisitionState(acq, q.data?.stateLog ?? []).acquisition as typeof acq,
             q.data?.plan ?? [],
             todayISO(),
             daysBetween,
@@ -757,7 +782,7 @@ function FilePage() {
 
   const lifecycle = useMemo(() => {
     if (!acq) return null;
-    const operational = deriveOverviewAcquisitionState(acq, q.data?.log ?? []);
+    const operational = deriveOverviewAcquisitionState(acq, q.data?.stateLog ?? []);
     return computeMetrics(operational.acquisition as typeof acq, {
       roster: q.data?.people ?? [],
       plan: q.data?.plan ?? [],
@@ -767,7 +792,7 @@ function FilePage() {
       mission: q.data?.mission
         ? { mission_id: String(acq.mission_id ?? ""), name: q.data.mission.name ?? "Mission", program: null, center_code: acq.center_code ?? null, milestone: null, milestone_date: q.data.mission.milestone_date, priority: null, program_owner: null, leadership_note: null }
         : null,
-      holdSince: holdSince(acq.acquisition_id, q.data?.log ?? []),
+      holdSince: holdSince(acq.acquisition_id, q.data?.stateLog ?? []),
       awardDate: operational.actualAwardDate,
       attachedKeys: keysFrom(attachments),
       savedKeys,
@@ -2267,7 +2292,7 @@ function FilePage() {
     const phaseOpenCount = missingCurrentRequirements.length + pendingCurrentReviews.length;
     const companionOpenCount = companionGates.filter((gate) => gate.applies && gate.status === "Open").length;
     const missingFileCount = fileIndex.missing.length;
-    const auditCount = q.data?.log.length ?? 0;
+    const auditCount = q.data?.auditCount ?? 0;
     return [
       ...(effectiveState === "hold" && hold
         ? [{ id: "current-hold", label: "Current hold", badge: { tone: "hold" as const, text: "HOLD" } }]
@@ -2303,7 +2328,7 @@ function FilePage() {
         badge: auditCount > 0 ? { tone: "neutral" as const, text: String(auditCount) } : null,
       },
     ];
-  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, q.data?.log.length]);
+  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, q.data?.auditCount]);
 
   // P1-E: on a client navigation the record arrives a moment after the route
   // does. Until it is in hand the page says it is loading rather than painting
@@ -2890,7 +2915,7 @@ function FilePage() {
         canWrite={canWrite}
         actor={actorName}
         onBanner={setBanner}
-        cparsRecorded={(q.data?.log ?? []).some((r) => /cpars/i.test(`${r.action ?? ""} ${r.field ?? ""}`))}
+        cparsRecorded={cparsRecorded(q.data?.stateLog ?? [])}
       />
 
       <ClauseModTasks acquisitionId={acquisitionId} />
@@ -3097,7 +3122,7 @@ function FilePage() {
       ) : null}
       </MissionNavSection>
 
-      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`scroll-mt-[186px] sm:scroll-mt-[136px] xl:scroll-mt-[72px] mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
+      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
@@ -3181,7 +3206,7 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      className="scroll-mt-[186px] sm:scroll-mt-[136px] xl:scroll-mt-[72px] mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className="scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <span>{d.label}</span>
                       <span className="text-[13px] text-muted-foreground">
@@ -4820,10 +4845,10 @@ function FilePage() {
       </section>
       </MissionNavSection>
 
-      <MissionNavSection id="audit-trail" label="Audit trail" collapsible summary={`${q.data?.log.length ?? 0} entries`}>
+      <MissionNavSection id="audit-trail" label="Audit trail" collapsible summary={`${q.data?.auditCount ?? 0} entries`}>
         <section className="mb-10 min-w-0">
           <h2 className="mb-4 text-[18px] leading-6 font-medium">Audit trail</h2>
-        {q.data?.log.length ? (
+        {auditRows.length ? (
           <TableScrollRegion baseClassName="overflow-x-auto" label="Audit trail table" className="w-full min-w-0">
 <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">
             <thead>
@@ -4837,7 +4862,7 @@ function FilePage() {
               </tr>
             </thead>
             <tbody>
-              {q.data.log.map((row) => (
+              {auditRows.map((row) => (
                 <tr key={row.log_id} className="border-b border-border align-top">
                   <td className="p-2">{new Date(row.logged_at).toLocaleString()}</td>
                   <td className="p-2">{row.actor}</td>
@@ -4852,6 +4877,14 @@ function FilePage() {
 </TableScrollRegion>
         ) : (
           <p className="text-muted-foreground">No entries yet for this file.</p>
+        )}
+        {auditRows.length && auditListQ.hasNextPage ? (
+          <Button type="button" variant="secondary" onClick={() => auditListQ.fetchNextPage()} disabled={auditListQ.isFetchingNextPage}>Show 200 more</Button>
+        ) : null}
+        {false ? (
+          null
+        ) : (
+          null
         )}
         </section>
       </MissionNavSection>

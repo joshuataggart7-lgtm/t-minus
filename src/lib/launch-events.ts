@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { STATE_AUDIT_COLUMNS, STATE_AUDIT_FILTER, type StateAuditRow } from "@/lib/state-audit";
 
 export type LaunchEvent = { acquisition_id: string | null; action: string | null; logged_at: string | null };
 
@@ -33,4 +34,24 @@ export function launchedIdSet(events: LaunchEvent[]): Set<string> {
       .filter((e) => e.action === "Launched" && e.acquisition_id && e.logged_at)
       .map((e) => e.acquisition_id as string),
   );
+}
+
+/** Every audit row the state functions can read (Launched, hold, CPARS). No row limit. */
+export async function loadStateAuditRows(acquisitionId?: string): Promise<StateAuditRow[]> {
+  const out: StateAuditRow[] = [];
+  let from = 0;
+  for (let page = 0; page < MAX_PAGES; page += 1) {
+    let query = supabase.from("audit_log").select(STATE_AUDIT_COLUMNS).or(STATE_AUDIT_FILTER);
+    if (acquisitionId) query = query.eq("acquisition_id", acquisitionId);
+    const { data, error } = await query
+      .order("logged_at", { ascending: false })
+      .order("log_id", { ascending: false })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`State records could not be read: ${error.message}`);
+    const rows = (data ?? []) as unknown as StateAuditRow[];
+    out.push(...rows);
+    if (rows.length < PAGE) return out;
+    from += rows.length;
+  }
+  throw new Error("State records could not be read: too many pages.");
 }
