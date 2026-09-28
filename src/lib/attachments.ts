@@ -219,6 +219,7 @@ export async function fileGeneratedExport(input: {
   actor: string;
   formRevision?: string | null;
 }): Promise<{ storagePath: string }> {
+  if (await isDemoSession()) return { storagePath: "" };
   const actor = await signedInName(input.actor);
   if (input.file.size > 20 * 1024 * 1024) throw new Error(`${input.file.name} is larger than 20 MB.`);
   const path = `${input.acquisitionId}/${input.key}/${Date.now()}-${safeName(input.file.name)}`;
