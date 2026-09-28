@@ -2333,7 +2333,7 @@ function FilePage() {
               <p className="max-w-[80ch] text-[15px] leading-[22px]">
                 <a
                   href={holdRequirementHref}
-                  onClick={() => revealHash(holdRequirementHref)}
+                  onClick={(e) => { e.preventDefault(); revealHash(holdRequirementHref, { updateHash: true }); }}
                   className="text-primary underline-offset-2 hover:underline"
                 >
                   {hold.reason}
@@ -3071,7 +3071,7 @@ function FilePage() {
       ) : null}
       </MissionNavSection>
 
-      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
+      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`scroll-mt-[186px] sm:scroll-mt-[136px] xl:scroll-mt-[72px] mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
@@ -3155,7 +3155,7 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className="scroll-mt-[186px] sm:scroll-mt-[136px] xl:scroll-mt-[72px] mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <span>{d.label}</span>
                       <span className="text-[13px] text-muted-foreground">

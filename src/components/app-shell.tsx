@@ -57,11 +57,17 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
       try { setGroups((current) => ({ ...current, ...JSON.parse(saved) })); } catch { /* keep defaults */ }
     }
   }, []);
-  const toggleGroup = (label: string) => setGroups((current) => {
-    const next = { ...current, [label]: !current[label] };
-    window.sessionStorage.setItem("tminus-nav-groups", JSON.stringify(next));
-    return next;
-  });
+  // Groups opened because the current page lives there are held in memory only.
+  const [autoOpen, setAutoOpen] = useState<string | null>(null);
+  const toggleGroup = (label: string) => {
+    const isOpen = Boolean(groups[label]) || autoOpen === label;
+    if (autoOpen === label) setAutoOpen(null);
+    setGroups((current) => {
+      const next = { ...current, [label]: !isOpen };
+      window.sessionStorage.setItem("tminus-nav-groups", JSON.stringify(next));
+      return next;
+    });
+  };
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
@@ -71,15 +77,11 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const activeGroupLabel = navGroups.find((group) =>
     group.items.some((item) => pathname === item.to || (item.to === "/overview" && pathname === "/")),
   )?.label;
+  const rolesReady = authState === "signed-in" && (isAnonymous || profile !== null);
   useEffect(() => {
-    if (!activeGroupLabel) return;
-    setGroups((current) => {
-      if (current[activeGroupLabel]) return current;
-      const next = { ...current, [activeGroupLabel]: true };
-      window.sessionStorage.setItem("tminus-nav-groups", JSON.stringify(next));
-      return next;
-    });
-  }, [pathname, activeGroupLabel]);
+    if (rolesReady && activeGroupLabel && !groups[activeGroupLabel]) setAutoOpen(activeGroupLabel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, activeGroupLabel, rolesReady]);
   const railCollapsed = collapsed && !isDrawerViewport;
   const backgroundInert = drawerOpen && isDrawerViewport;
   const inertProps = backgroundInert ? { inert: true } : {};
