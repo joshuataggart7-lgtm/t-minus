@@ -248,7 +248,6 @@ export async function fileGeneratedExport(input: {
     ai_generated_at: savedAt,
   } as never);
   if (error) {
-  if (await isDemoSession()) return null as never;
     await supabase.storage.from("attachments").remove([path]);
     throw new Error(error.message);
   }
