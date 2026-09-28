@@ -188,7 +188,7 @@ export async function saveSectionK(
   );
   if (error) throw new Error(error.message);
   const recorded = input.items.filter((i) => i.status !== "not_recorded").length;
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "Section K saved",

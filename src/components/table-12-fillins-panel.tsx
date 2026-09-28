@@ -54,7 +54,7 @@ export function Table12FillinsPanel({
   const confirm = useMutation({
     mutationFn: async (row: Table12Row) => {
       const who = await signedInName(actor);
-      const { error } = awaitwriteAudit({
+      const { error } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Table 12 fill-ins confirmed",

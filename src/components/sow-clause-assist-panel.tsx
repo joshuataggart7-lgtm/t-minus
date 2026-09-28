@@ -43,7 +43,7 @@ export function SowClauseAssistPanel({
   const confirm = useMutation({
     mutationFn: async (s: AssistSuggestion) => {
       const who = await signedInName(actor);
-      const { error } = awaitwriteAudit({
+      const { error } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Clause suggestion confirmed by the contracting officer",

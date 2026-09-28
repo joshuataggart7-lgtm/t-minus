@@ -135,7 +135,7 @@ export function RoutingCsvImport({
       setProblem(`The routing was not imported: ${error.message}. Fix the file and upload it again.`);
       return;
     }
-    awaitwriteAudit(
+    await writeAudit(
       check.rows.map((r) => ({
         acquisition_id: null,
         actor: actorName,

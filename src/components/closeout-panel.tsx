@@ -42,7 +42,7 @@ export function CloseoutPanel({
         .update({ closeout: next } as never)
         .eq("acquisition_id", acquisitionId);
       if (error) throw new Error(error.message);
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Closeout record updated",

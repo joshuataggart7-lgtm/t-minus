@@ -79,7 +79,7 @@ export async function createCdrl(
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "CDRL item added",
@@ -114,7 +114,7 @@ export async function updateCdrl(row: CdrlRow, input: CdrlInput, actor: string):
     } as never)
     .eq("cdrl_id", row.cdrl_id);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CDRL item edited",
@@ -128,7 +128,7 @@ export async function updateCdrl(row: CdrlRow, input: CdrlInput, actor: string):
 export async function deleteCdrl(row: CdrlRow, actor: string): Promise<void> {
   const { error } = await supabase.from("acquisition_cdrl").delete().eq("cdrl_id", row.cdrl_id);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CDRL item deleted",

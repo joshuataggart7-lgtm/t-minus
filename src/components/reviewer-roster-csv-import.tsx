@@ -163,7 +163,7 @@ export function ReviewerRosterCsvImport({
       }
       if (match) updated++;
       else added++;
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: null,
         actor: actorName,
         action: match ? "Center reviewer updated from CSV" : "Center reviewer added from CSV",

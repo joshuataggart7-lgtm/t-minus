@@ -160,7 +160,7 @@ function DigestPage() {
       setBusy(false);
       return;
     }
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor: user.name,
       action: "Leadership digest sent",

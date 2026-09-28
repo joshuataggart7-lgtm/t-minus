@@ -330,7 +330,7 @@ export async function exportEvidencePack(
   a.remove();
   URL.revokeObjectURL(url);
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "Evidence pack exported",

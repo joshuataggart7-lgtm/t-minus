@@ -246,7 +246,7 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
       setBusy(false);
       return;
     }
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor,
       action: "Announcement posted",

@@ -95,7 +95,7 @@ function ClauseChangesPage() {
         : supabase.from("clauses").update({ modification_required: input.required, change_deadline: input.deadline }).eq("row_id", id);
       const { error } = await query;
       if (error) throw error;
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: null,
         actor: user.name,
         action: "Clause change direction recorded",

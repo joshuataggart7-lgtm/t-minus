@@ -57,7 +57,7 @@ async function logCheckout(
   detail: string,
   reason: string,
 ) {
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     // Every audit row carries the account name, never a placeholder.
     actor: await signedInName(actor),

@@ -661,7 +661,7 @@ function DocumentPage() {
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
         .eq("poll_id", mySeat.poll_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = awaitwriteAudit({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: choice === "go" ? "Go recorded" : "No-go recorded",
@@ -688,7 +688,7 @@ function DocumentPage() {
         .from("comments")
         .insert({ document_id: latest.document_id, author: user.name, body });
       if (error) throw new Error(error.message);
-      const { error: logError } = awaitwriteAudit({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Comment added",
@@ -715,7 +715,7 @@ function DocumentPage() {
         .update({ reviewed_by: user.name, reviewed_at: reviewedAt })
         .eq("document_id", latest.document_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = awaitwriteAudit({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document reviewed",
@@ -1634,7 +1634,7 @@ function DocumentPage() {
               ...(uei ? { vendor_uei: uei } : {}),
             })
             .eq("acquisition_id", acquisitionId);
-          awaitwriteAudit({
+          await writeAudit({
             acquisition_id: acquisitionId,
             actor: user.name,
             action: "Recommended quoter carried to the record",
@@ -1646,7 +1646,7 @@ function DocumentPage() {
           });
         }
       }
-      const { error: logError } = awaitwriteAudit({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action:

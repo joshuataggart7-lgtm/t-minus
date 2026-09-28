@@ -99,7 +99,7 @@ function EscalationsPage() {
         .update({ aging_threshold_days: days } as never)
         .eq("center_code", centerCode);
       if (error) throw error;
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: null,
         actor: user.name,
         action: "Aging threshold changed",

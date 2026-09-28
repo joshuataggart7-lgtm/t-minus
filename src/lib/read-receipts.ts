@@ -128,7 +128,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
   } as never);
   if (error) return;
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.openedBy,
     action: "Document opened",

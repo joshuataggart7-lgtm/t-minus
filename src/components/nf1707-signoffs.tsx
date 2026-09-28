@@ -86,7 +86,7 @@ export function Nf1707Signoffs({
       if (next.status !== "concurred" && block.textField) merged[block.textField] = "";
       await supabase.from("acquisition_facts").update({ nf1707_answers: merged as Record<string, string> }).eq("acquisition_id", acquisitionId);
     }
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: acquisitionId,
       actor,
       action,

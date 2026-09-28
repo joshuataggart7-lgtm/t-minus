@@ -167,7 +167,7 @@ export async function logDeviation(input: {
   newValue?: string | null;
   reason: string;
 }) {
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: input.action,

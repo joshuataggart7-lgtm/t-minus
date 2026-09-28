@@ -61,7 +61,7 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
       setProblem(`The telephone was not saved: ${error.message}. Try again.`);
       return;
     }
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor: actorName,
       action: "Telephone set",

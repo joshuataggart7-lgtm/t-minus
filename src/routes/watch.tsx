@@ -289,7 +289,7 @@ function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void
       setError(`${insertError.message} Check the entry and post it again.`);
       return;
     }
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor,
       action: "Watch item posted",

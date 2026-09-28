@@ -96,7 +96,7 @@ export async function fileAsOfficialFinal(input: {
     }
   }
 
-  const { error: logError } = awaitwriteAudit({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: "Document filed as official final",
@@ -133,7 +133,7 @@ export async function unfileOfficialFinal(input: {
     .eq("document_id", input.documentId);
   if (error) throw new Error(error.message);
 
-  const { error: logError } = awaitwriteAudit({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: "Official final mark removed",

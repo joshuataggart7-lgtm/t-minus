@@ -88,7 +88,7 @@ export async function acknowledge(a: Announcement, actor: string): Promise<void>
     .from("announcement_acks")
     .upsert({ announcement_id: a.announcement_id, user_id: userId, acknowledged_at });
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: null,
     actor,
     action: "Announcement acknowledged",

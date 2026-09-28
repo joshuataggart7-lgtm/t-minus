@@ -60,7 +60,7 @@ function DirectivesPage() {
     a.download = `directive-compliance-${at.slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor: user.name,
       action: "Directive compliance exported to CSV",

@@ -534,7 +534,7 @@ function IntakePage() {
         }).eq("id", profile.id);
       }
 
-      awaitwriteAudit([
+      await writeAudit([
         {
           acquisition_id: created,
           actor: user.name,

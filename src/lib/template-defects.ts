@@ -66,7 +66,7 @@ export async function reportDefect(input: NewDefect): Promise<void> {
   } as never);
   if (error) throw new Error(error.message);
 
-  const { error: logError } = awaitwriteAudit({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.reporterName,
     action: "Template defect reported",
@@ -88,7 +88,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect status changed",
@@ -109,7 +109,7 @@ export async function deleteDefect(row: DefectRow, actor: string): Promise<void>
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect removed",

@@ -139,7 +139,7 @@ export async function createClin(
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "CLIN added",
@@ -167,7 +167,7 @@ export async function updateClin(
     } as never)
     .eq("clin_id", row.clin_id);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CLIN edited",
@@ -188,7 +188,7 @@ export async function updateClin(
 export async function deleteClin(row: ClinRow, actor: string): Promise<void> {
   const { error } = await supabase.from("acquisition_clins").delete().eq("clin_id", row.clin_id);
   if (error) throw new Error(error.message);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CLIN deleted",

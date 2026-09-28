@@ -336,7 +336,7 @@ function FormPage() {
   const noteLineageViewed = async () => {
     try {
       const who = await signedInName(user.name);
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Lineage overlay viewed",
@@ -510,7 +510,7 @@ function FormPage() {
         ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
-      const { error: logError } = awaitwriteAudit({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document saved",

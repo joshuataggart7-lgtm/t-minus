@@ -335,7 +335,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   a.click();
   URL.revokeObjectURL(url);
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "NEAR export",

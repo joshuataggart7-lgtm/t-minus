@@ -79,7 +79,7 @@ function CenterConfigPage() {
       : (q.data?.rules ?? []).map((r) => ({ name: r.reviewer_role, citation: r.citation ?? "" }));
 
   async function log(action: string, field: string, oldValue: string | null, newValue: string | null, reason: string) {
-    awaitwriteAudit({
+    await writeAudit({
       acquisition_id: null,
       actor: user?.name ?? "Unknown",
       action,

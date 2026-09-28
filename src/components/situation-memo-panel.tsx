@@ -30,7 +30,7 @@ export function SituationMemoPanel({
     onBanner("The situation memorandum was copied. Paste it where you keep the file.");
     try {
       const name = await signedInName(actor);
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Situation memo copied",

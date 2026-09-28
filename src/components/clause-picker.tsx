@@ -72,7 +72,7 @@ export function ClausePicker({
         .update({ contract_clauses: clean, updated_at: new Date().toISOString() })
         .eq("acquisition_id", acquisitionId);
       if (updateError) throw updateError;
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Clause list applied to the file",

@@ -419,7 +419,7 @@ export async function exportBriefingBook(input: BriefingInput, actor: string): P
   a.remove();
   URL.revokeObjectURL(url);
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Briefing book exported",

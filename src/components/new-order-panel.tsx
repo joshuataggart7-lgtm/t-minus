@@ -45,7 +45,7 @@ export function NewOrderPanel({
   const record = async () => {
     setNote(null);
     try {
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor,
         action: `Prototype: inheritance plan prepared for a new order from ${contractNumber}`,

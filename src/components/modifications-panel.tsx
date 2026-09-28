@@ -87,7 +87,7 @@ export function ModificationsPanel({
       };
       const { error } = await supabase.from("contract_modifications").insert(payload as never);
       if (error) throw new Error(error.message);
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Modification created",

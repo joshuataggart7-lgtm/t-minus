@@ -272,7 +272,7 @@ export async function exportFpdsFillingSheet(input: FpdsInput, actor: string): P
   a.remove();
   URL.revokeObjectURL(url);
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: sheet.acquisitionId,
     actor,
     action: "FPDS filling sheet exported",

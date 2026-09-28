@@ -52,7 +52,7 @@ export function CorToRequestPanel({
         .update({ post_award: pa, updated_at: new Date().toISOString() } as never)
         .eq("acquisition_id", String(acq["acquisition_id"]));
       if (error) throw error;
-      awaitwriteAudit({
+      await writeAudit({
         acquisition_id: String(acq["acquisition_id"]),
         actor: actorName,
         action: "COR or task order request recorded",

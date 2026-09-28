@@ -59,7 +59,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
       setProblem(`The role was not saved: ${error.message}. Try again.`);
       return;
     }
-    const { error: auditError } = awaitwriteAudit({
+    const { error: auditError } = await writeAudit({
       acquisition_id: null,
       actor: actorName,
       action: enabled ? "Role added" : "Role removed",

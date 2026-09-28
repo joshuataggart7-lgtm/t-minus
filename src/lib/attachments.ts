@@ -123,7 +123,7 @@ export async function uploadAttachment(input: {
     saved_at: new Date().toISOString(),
   } as never);
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Document attached",
@@ -149,7 +149,7 @@ export async function removeAttachment(row: AttachmentRow, actorGiven: string, r
     .delete()
     .eq("acquisition_id", row.acquisition_id)
     .eq("field_values->>attachment_id", row.attachment_id);
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Document removed",
@@ -248,7 +248,7 @@ export async function fileGeneratedExport(input: {
     throw new Error(error.message);
   }
 
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor,
     action: "Official form draft filed",

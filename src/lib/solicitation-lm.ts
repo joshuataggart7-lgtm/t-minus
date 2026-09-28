@@ -287,7 +287,7 @@ async function audit(
   newValue: string | null,
   reason: string,
 ): Promise<void> {
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action,

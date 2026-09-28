@@ -171,7 +171,7 @@ export async function copyAsNewSample(sourceId: string, actorFallback: string): 
   }
 
   // The only entry in the new file's audit trail.
-  awaitwriteAudit({
+  await writeAudit({
     acquisition_id: newId,
     actor,
     action: `Copied from ${sourceId} by ${actor}`,
