@@ -1146,7 +1146,7 @@ export function buildSequence(
 
 // --------------------------------------------------------------------- hold
 
-export type HoldCause = { reason: string; owner: string } | null;
+export type HoldCause = { reason: string; owner: string; doc?: { phase: string; label: string } } | null;
 
 /**
  * The cause holding this file, recomputed from the record every time.
@@ -1174,7 +1174,7 @@ export function computeHold(
       if (generatorKey(d) && !d.field) continue;
       const hasFile = attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined;
       if (docSatisfied(d, acq, hasFile, savedKeys) === false)
-        return { reason: `${p.phase}: ${d.label} is missing`, owner };
+        return { reason: `${p.phase}: ${d.label} is missing`, owner, doc: { phase: p.phase, label: d.label } };
     }
   }
 

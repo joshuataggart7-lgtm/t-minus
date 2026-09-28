@@ -12,6 +12,23 @@ type UserRow = {
   telephone: string | null;
 };
 
+const FICTIONAL_PERSONA_EMAILS = new Set([
+  "executive@t-minus.demo",
+  "specialist@t-minus.demo",
+  "reviewer@t-minus.demo",
+  "requester@t-minus.demo",
+  "hq@t-minus.demo",
+  "arc.cio@t-minus.demo",
+  "arc.smallbusiness@t-minus.demo",
+  "arc.quality@t-minus.demo",
+  "j.rivera@t-minus.demo",
+  "arc.counsel@t-minus.demo",
+  "arc.procurementofficer@t-minus.demo",
+  "arc.flightops@t-minus.demo",
+  "op.enterprisestrategy@t-minus.demo",
+  "arc.pricing@t-minus.demo",
+]);
+
 /**
  * Contact details on the people records. A document prints the telephone and
  * email from the officer's own record, so they are set here and nowhere else.
@@ -99,7 +116,7 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
           <tbody>
             {(q.data ?? []).map((row) => {
               const mine = row.name.trim().toLowerCase() === actorName.trim().toLowerCase();
-              const displayName = row.email?.toLowerCase().endsWith("@t-minus.demo") && !/\(fictional/i.test(row.name)
+              const displayName = FICTIONAL_PERSONA_EMAILS.has(row.email?.toLowerCase() ?? "") && !/\(fictional/i.test(row.name)
                 ? `${row.name} (fictional)`
                 : row.name;
               return (
