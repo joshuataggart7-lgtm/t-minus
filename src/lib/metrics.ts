@@ -102,15 +102,36 @@ export function statusColor(status: StatusWord) {
   return "var(--ontrack)";
 }
 
-/** When the current hold began, taken from the newest hold entry in the log. */
+/** When the current hold began. Null unless the STORED acquisition_facts
+ *  clock_state is "hold". Reads only this file's audit rows with
+ *  field = "clock_state", newest first: the newest row whose new_value is
+ *  non-null and not "hold" is the last clear; hold rows (new_value = "hold",
+ *  action not "Scrubbed") after that clear are candidates; the start is the
+ *  newest candidate whose old_value is not "hold", else the oldest candidate.
+ *  Resume rows ('Hold cleared', 'Clock resumed', ...) are never a hold start.
+ *  hold_started_at is not read.
+ *  Columns read: audit_log.acquisition_id, field, action, old_value,
+ *  new_value, logged_at, plus acquisition_facts.clock_state. */
 export function holdSince(
-  acquisitionId: string,
-  log: { acquisition_id: string | null; action: string | null; logged_at: string | null }[],
+  acq: { acquisition_id: string; clock_state?: unknown } | Record<string, unknown>,
+  log: { acquisition_id: string | null; action: string | null; field?: string | null; old_value?: string | null; new_value?: string | null; logged_at: string | null }[],
 ): string | null {
-  const row = log
-    .filter((l) => l.acquisition_id === acquisitionId && /hold/i.test(l.action ?? ""))
-    .sort((a, b) => String(b.logged_at ?? "").localeCompare(String(a.logged_at ?? "")))[0];
-  return row?.logged_at ? dateCT(String(row.logged_at)) : null;
+  const row = acq as Record<string, unknown>;
+  if (String(row["clock_state"] ?? "") !== "hold") return null;
+  const id = row["acquisition_id"];
+  const rows = log
+    .filter((l) => l.acquisition_id === id && l.field === "clock_state")
+    .sort((a, b) => String(b.logged_at ?? "").localeCompare(String(a.logged_at ?? "")));
+  const lastClear = rows.find((l) => l.new_value != null && l.new_value !== "hold");
+  const holdRows = rows.filter(
+    (l) =>
+      l.new_value === "hold" &&
+      l.action !== "Scrubbed" &&
+      (!lastClear || String(l.logged_at ?? "") > String(lastClear.logged_at ?? "")),
+  );
+  if (!holdRows.length) return null;
+  const start = holdRows.find((l) => l.old_value !== "hold") ?? holdRows[holdRows.length - 1]!;
+  return start.logged_at ? dateCT(String(start.logged_at)) : null;
 }
 
 /** The recorded launch event is the award date; target date is a legacy fallback. */

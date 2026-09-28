@@ -185,7 +185,7 @@ export function ExecutiveOverview() {
         polls: q.data.polls,
         ref,
         mission: q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null,
-        holdSince: holdSince(acq.acquisition_id, q.data.stateLog),
+        holdSince: holdSince(sourceAcq, q.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
       // Same Required-row predicate the metrics use for the blocker line.

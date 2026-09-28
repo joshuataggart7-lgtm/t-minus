@@ -92,7 +92,7 @@ export function useOperationalDisplay(enabled: boolean) {
         polls: query.data.polls,
         ref,
         mission: query.data.missions.find((row) => row.mission_id === acq.mission_id) ?? null,
-        holdSince: holdSince(acq.acquisition_id, query.data.stateLog),
+        holdSince: holdSince(acq, query.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
       const readiness = explainWorkReadiness(metric).state;
