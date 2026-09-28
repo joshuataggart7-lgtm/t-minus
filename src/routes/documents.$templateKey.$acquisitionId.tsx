@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
-import { loadStateAuditRows } from "@/lib/launch-events";
+import { loadFileAuditHistory, loadStateAuditRows } from "@/lib/launch-events";
 import {
   fileAsOfficialFinal,
   unfileOfficialFinal,
@@ -498,11 +498,16 @@ function DocumentPage() {
         .eq("acquisition_id", acquisitionId);
       // The memorandum for record drafts its chronology from the audit trail
       // and the phase plan for this acquisition type.
-      const auditRows = await supabase
-        .from("audit_log")
-        .select("action,field,actor,reason,phase,logged_at,old_value,new_value")
-        .eq("acquisition_id", acquisitionId)
-        .order("logged_at", { ascending: true });
+      // Cached so the 5 s poll does not re-read the full history.
+      const auditRows =
+        def?.key === MFR_KEY
+          ? await queryClient.fetchQuery({
+              queryKey: ["document-context", templateKey, acquisitionId, "audit-history"],
+              queryFn: () => loadFileAuditHistory(acquisitionId),
+              staleTime: Infinity,
+              gcTime: Infinity,
+            })
+          : [];
       const phasePlan = await supabase.from("phase_plan").select("*");
       const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
       const center = centerCode
@@ -514,7 +519,7 @@ function DocumentPage() {
         : { data: null };
       return {
         stateLog: await loadStateAuditRows(acquisitionId),
-        auditRows: (auditRows.data ?? []) as {
+        auditRows: auditRows as {
           action: string;
           field: string | null;
           actor: string | null;

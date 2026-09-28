@@ -523,6 +523,9 @@ function FilePage() {
       return { logged_at: String(row.logged_at), log_id: String(row.log_id) };
     },
   });
+  useEffect(() => {
+    if (auditListQ.error) console.error("Audit trail read failed", auditListQ.error);
+  }, [auditListQ.error]);
   const auditRows = useMemo(() => auditListQ.data?.pages.flat() ?? [], [auditListQ.data]);
 
   const historyQ = useQuery({
@@ -4852,7 +4855,12 @@ function FilePage() {
         {auditListQ.isLoading ? (
           <LoadingNote what="the audit trail" />
         ) : auditListQ.isError ? (
-          <ErrorNote message={`The audit trail could not be read: ${(auditListQ.error as Error).message}. Try again.`} />
+          <>
+            <ErrorNote message="The audit trail couldn't load." />
+            <Button type="button" variant="secondary" disabled={auditListQ.isFetching} onClick={() => void auditListQ.refetch()}>
+              Retry
+            </Button>
+          </>
         ) : auditRows.length ? (
           <TableScrollRegion baseClassName="overflow-x-auto" label="Audit trail table" className="w-full min-w-0">
 <table className="min-w-[760px] border border-border bg-background text-[13px] leading-[18px]">

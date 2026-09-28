@@ -29,6 +29,14 @@ export const Route = createFileRoute("/reporting")({
   component: ReportingPage,
 });
 
+const REPORT_ORDER: Record<ReportViewName, string[]> = {
+  v_report_acquisitions: ["acquisition_id"],
+  v_report_holds: ["acquisition_id"],
+  v_report_audit_counts: ["acquisition_id"],
+  v_report_polls: ["acquisition_id", "poll_id"],
+  v_report_missions: ["mission_id"],
+};
+
 function ReportingPage() {
   const { authState } = useRole();
   const [open, setOpen] = useState<ReportViewName>("v_report_acquisitions");
@@ -51,7 +59,10 @@ function ReportingPage() {
     queryKey: ["report-view", open],
     enabled: authState === "signed-in",
     queryFn: async () => {
-      const { data, error } = await supabase.from(open as never).select("*").limit(200);
+      const cols = REPORT_ORDER[open];
+      let query = supabase.from(open as never).select("*");
+      for (const c of cols) query = query.order(c as never, { ascending: true });
+      const { data, error } = await query.limit(200);
       if (error) throw error;
       return (data ?? []) as unknown as Record<string, unknown>[];
     },
