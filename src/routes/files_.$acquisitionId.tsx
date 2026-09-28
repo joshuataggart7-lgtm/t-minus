@@ -857,6 +857,13 @@ function FilePage() {
 
   // Open the launch sequence and bring a hash target into view. Requirement
   // rows render only in the full sequence, so expand it and wait for the row.
+  // Make a target focusable only while it is revealed, so plain text never
+  // grabs the focus ring from an ordinary click.
+  const focusTarget = (el: HTMLElement) => {
+    el.setAttribute("tabindex", "-1");
+    el.addEventListener("blur", () => el.removeAttribute("tabindex"), { once: true });
+    el.focus({ preventScroll: true });
+  };
   const revealHash = (rawHash: string) => {
     const hash = rawHash.replace(/^#/, "");
     const sequence = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
@@ -864,7 +871,7 @@ function FilePage() {
       if (!sequence) return;
       sequence.open = true;
       sequence.scrollIntoView({ block: "start" });
-      sequence.focus({ preventScroll: true });
+      focusTarget(sequence);
     };
     if (hash === "launch-sequence") {
       showSequence();
@@ -878,7 +885,7 @@ function FilePage() {
       const el = document.getElementById(hash);
       if (el) {
         el.scrollIntoView({ block: "center" });
-        el.focus({ preventScroll: true });
+        focusTarget(el);
         return;
       }
       frames += 1;
@@ -3004,7 +3011,7 @@ function FilePage() {
       ) : null}
       </MissionNavSection>
 
-      <details id="launch-sequence" tabIndex={-1} data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
+      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
         <div className="border-t border-border p-5">
 
@@ -3088,7 +3095,6 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      tabIndex={-1}
                       className="mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <span>{d.label}</span>
