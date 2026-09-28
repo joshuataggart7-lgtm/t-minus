@@ -523,6 +523,9 @@ function FilePage() {
       return { logged_at: String(row.logged_at), log_id: String(row.log_id) };
     },
   });
+  useEffect(() => {
+    if (auditListQ.error) console.error("Audit trail read failed", auditListQ.error);
+  }, [auditListQ.error]);
   const auditRows = useMemo(() => auditListQ.data?.pages.flat() ?? [], [auditListQ.data]);
 
   const historyQ = useQuery({
