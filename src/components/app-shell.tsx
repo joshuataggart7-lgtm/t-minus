@@ -42,7 +42,7 @@ const drawerNavFocus = { pending: false, at: 0 };
 
 export function AppShell({ children, wide = false, overviewMode = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean }) {
 
-  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut } = useRole();
+  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut, profile, authState } = useRole();
   useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -340,7 +340,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             </button>
             {navGroups.map((group) => {
               const groupItems = group.items;
-              const expanded = groups[group.label] ?? false;
+              const expanded = Boolean(groups[group.label]) || autoOpen === group.label;
               return <section key={group.label} className="mb-2">
                 <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", railCollapsed && "sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
