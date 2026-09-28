@@ -3,6 +3,7 @@
 // since [time]" and reads the fields read-only until the first person saves or
 // closes the document, or thirty minutes pass. There is no locking beyond that.
 
+import { isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
@@ -57,6 +58,7 @@ async function logCheckout(
   detail: string,
   reason: string,
 ) {
+  if (await isDemoSession()) return;
   await writeAudit({
     acquisition_id: acquisitionId,
     // Every audit row carries the account name, never a placeholder.
@@ -101,6 +103,7 @@ export async function claimCheckout(args: {
   phase: string;
   userName: string;
 }): Promise<Checkout | null> {
+  if (await isDemoSession()) return null;
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) return null;
@@ -183,6 +186,7 @@ export async function releaseCheckout(args: {
   userName: string;
   reason: string;
 }) {
+  if (await isDemoSession()) return;
   const { error, count } = await supabase
     .from("document_checkouts")
     .update({ released_at: new Date().toISOString() }, { count: "exact" })
@@ -215,6 +219,7 @@ export async function takeOverCheckout(args: {
   userName: string;
   holder: Checkout;
 }): Promise<Checkout | null> {
+  if (await isDemoSession()) return null;
   const { data: auth } = await supabase.auth.getUser();
   const userId = auth.user?.id;
   if (!userId) return null;

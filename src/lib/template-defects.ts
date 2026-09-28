@@ -1,3 +1,4 @@
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -53,6 +54,7 @@ export type NewDefect = {
 
 /** Records the defect and writes the audit entry for it. */
 export async function reportDefect(input: NewDefect): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { error } = await supabase.from("template_defects").insert({
     template_key: input.templateKey,
     template_name: input.templateName,
@@ -80,6 +82,7 @@ export async function reportDefect(input: NewDefect): Promise<void> {
 }
 
 export async function setDefectStatus(row: DefectRow, status: DefectStatus, actor: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { data, error } = await supabase
     .from("template_defects")
     .update({ status } as never)
@@ -101,6 +104,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
 }
 
 export async function deleteDefect(row: DefectRow, actor: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { data, error } = await supabase
     .from("template_defects")
     .delete()

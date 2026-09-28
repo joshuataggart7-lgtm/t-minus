@@ -4,6 +4,7 @@
 // in the private attachments bucket, a row is written here, and an audit entry
 // records who attached what and when. Cancelling the picker changes nothing.
 
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
@@ -75,6 +76,7 @@ export async function uploadAttachment(input: {
   parsedTotal?: number | null;
   tab?: string | undefined;
 }): Promise<AttachmentRow> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const actor = await signedInName(input.actor);
   const tab = input.tab ?? tabFor(input.key);
   if (input.file.size > 20 * 1024 * 1024) throw new Error(`${input.file.name} is larger than 20 MB.`);
@@ -137,6 +139,7 @@ export async function uploadAttachment(input: {
 }
 
 export async function removeAttachment(row: AttachmentRow, actorGiven: string, reason?: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const actor = await signedInName(actorGiven);
   const { error } = await supabase
     .from("document_attachments")
@@ -178,6 +181,7 @@ export async function igceFromFile(file: File, sourceId = "upload"): Promise<Igc
 
 /** Replace the CLIN rows on a file with the rows read from an IGCE. */
 export async function saveIgceClins(acquisitionId: string, clins: SheetClin[]): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   if (!clins.length) return;
   await supabase.from("igce_clins").delete().eq("acquisition_id", acquisitionId);
   const number = (value: string) => {
@@ -244,6 +248,7 @@ export async function fileGeneratedExport(input: {
     ai_generated_at: savedAt,
   } as never);
   if (error) {
+  if (await isDemoSession()) return null as never;
     await supabase.storage.from("attachments").remove([path]);
     throw new Error(error.message);
   }

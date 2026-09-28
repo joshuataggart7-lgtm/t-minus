@@ -4,6 +4,7 @@
 // The original file is never touched. The copy starts at Intake with the clock
 // running and an empty audit trail apart from one row naming its source.
 
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
@@ -81,6 +82,7 @@ async function nextIdInSeries(sourceId: string): Promise<string> {
 }
 
 export async function copyAsNewSample(sourceId: string, actorFallback: string): Promise<string> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const actor = await signedInName(actorFallback);
   const { data: source, error } = await supabase
     .from("acquisition_facts")
