@@ -4881,11 +4881,6 @@ function FilePage() {
         {auditRows.length && auditListQ.hasNextPage ? (
           <Button type="button" variant="secondary" onClick={() => auditListQ.fetchNextPage()} disabled={auditListQ.isFetchingNextPage}>Show 200 more</Button>
         ) : null}
-        {false ? (
-          null
-        ) : (
-          null
-        )}
         </section>
       </MissionNavSection>
 

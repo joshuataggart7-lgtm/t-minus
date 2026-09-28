@@ -6,7 +6,7 @@ import { AppShell, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents, launchedIdSet } from "@/lib/launch-events";
+import { loadLaunchEvents, launchedIdSet, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { daysBetween, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
@@ -87,6 +87,7 @@ export function ExecutiveOverview() {
         polls,
         log,
         launches,
+        stateLog,
         watchRows,
         refs,
       ] = await Promise.all([
@@ -104,6 +105,7 @@ export function ExecutiveOverview() {
           .order("logged_at", { ascending: false })
           .limit(500),
         loadLaunchEvents(),
+        loadStateAuditRows(),
         loadWatchRows(),
         loadRegRefs(),
       ]);
@@ -133,6 +135,7 @@ export function ExecutiveOverview() {
         templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
         attachments: attachments.data ?? [],
         log: log.data ?? [],
+        stateLog,
         launches,
         watch: sortNewestFirst([...itemsFromWatchRows(watchRows), ...itemsFromRefs(refs)]),
       };
@@ -169,7 +172,7 @@ export function ExecutiveOverview() {
     if (!q.data) return [];
     const today = todayISO();
     return q.data.acqs.map((sourceAcq) => {
-      const operational = deriveOverviewAcquisitionState(sourceAcq, [...q.data.log, ...q.data.launches]);
+      const operational = deriveOverviewAcquisitionState(sourceAcq, [...q.data.stateLog, ...q.data.launches]);
       const acq = operational.acquisition;
       const attachedKeys = keysFrom(q.data.attachments ?? [], acq.acquisition_id);
       const savedKeys = savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id);
@@ -182,7 +185,7 @@ export function ExecutiveOverview() {
         polls: q.data.polls,
         ref,
         mission: q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null,
-        holdSince: holdSince(acq.acquisition_id, q.data.log),
+        holdSince: holdSince(acq.acquisition_id, q.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
       // Same Required-row predicate the metrics use for the blocker line.
