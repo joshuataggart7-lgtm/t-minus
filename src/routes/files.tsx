@@ -8,7 +8,7 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents , loadStateAuditRows } from "@/lib/launch-events";
+import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, type RefData } from "@/lib/intake";
 import type { StoredEstimate } from "@/lib/estimator";

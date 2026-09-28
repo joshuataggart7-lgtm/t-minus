@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents , loadStateAuditRows } from "@/lib/launch-events";
+import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";

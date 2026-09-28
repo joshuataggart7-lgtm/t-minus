@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
+import { loadStateAuditRows } from "@/lib/launch-events";
 import {
   fileAsOfficialFinal,
   unfileOfficialFinal,

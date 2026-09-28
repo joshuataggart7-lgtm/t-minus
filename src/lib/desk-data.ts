@@ -6,7 +6,7 @@ import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { loadLaunchEvents , loadStateAuditRows } from "@/lib/launch-events";
+import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";

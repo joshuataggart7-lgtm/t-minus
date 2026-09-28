@@ -6,6 +6,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { useCanWrite } from "@/lib/use-can-write";
 import { supabase } from "@/integrations/supabase/client";
+import { loadStateAuditRows } from "@/lib/launch-events";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
 import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
 import { blankXfaPaths } from "@/lib/xfa-blank-paths";
