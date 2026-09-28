@@ -870,9 +870,12 @@ function FilePage() {
     const top = el.getBoundingClientRect().top;
     if (top < minTop) window.scrollBy(0, top - minTop);
   };
-  // Keep a revealed target in place while late sections load. Stops at the
-  // first user action or after 3 seconds.
+  // Layout-stability hold: keep a revealed target in place while sections
+  // above it load. Stops at the first user action, after ~1500 ms without a
+  // layout change (re-armed while any query is still on its first load), or
+  // at a 15 s cap.
   const pinStopRef = useRef<(() => void) | null>(null);
+  const holdInterruptedRef = useRef(false);
   const stopPin = () => {
     pinStopRef.current?.();
     pinStopRef.current = null;
@@ -883,27 +886,48 @@ function FilePage() {
   };
   const pinTarget = (el: HTMLElement, block: ScrollLogicalPosition) => {
     stopPin();
+    holdInterruptedRef.current = false;
     let placedTop = el.getBoundingClientRect().top;
     let raf = 0;
-    const started = performance.now();
+    let quiet = 0;
     const events = ["wheel", "touchstart", "pointerdown", "keydown"] as const;
+    const firstLoadPending = () => qc.isFetching({ predicate: (query) => query.state.data === undefined }) > 0;
+    const armQuiet = () => {
+      window.clearTimeout(quiet);
+      quiet = window.setTimeout(() => {
+        if (firstLoadPending()) armQuiet();
+        else stop();
+      }, 1500);
+    };
+    const replace = () => {
+      if (!el.isConnected) return;
+      place(el, block);
+      placedTop = el.getBoundingClientRect().top;
+      armQuiet();
+    };
+    const container = document.getElementById("main-content");
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => replace()) : null;
+    const onUser = () => {
+      holdInterruptedRef.current = true;
+      stop();
+    };
     const stop = () => {
+      observer?.disconnect();
       window.cancelAnimationFrame(raf);
-      window.clearTimeout(timer);
-      for (const ev of events) window.removeEventListener(ev, stop, { capture: true });
+      window.clearTimeout(quiet);
+      window.clearTimeout(cap);
+      for (const ev of events) window.removeEventListener(ev, onUser, { capture: true });
       if (pinStopRef.current === stop) pinStopRef.current = null;
     };
     const tick = () => {
-      if (performance.now() - started >= 3000) return stop();
-      if (el.isConnected && Math.abs(el.getBoundingClientRect().top - placedTop) > 2) {
-        place(el, block);
-        placedTop = el.getBoundingClientRect().top;
-      }
+      if (el.isConnected && Math.abs(el.getBoundingClientRect().top - placedTop) > 2) replace();
       raf = window.requestAnimationFrame(tick);
     };
-    const timer = window.setTimeout(stop, 3000);
-    for (const ev of events) window.addEventListener(ev, stop, { capture: true, passive: true });
+    const cap = window.setTimeout(stop, 15000);
+    for (const ev of events) window.addEventListener(ev, onUser, { capture: true, passive: true });
     pinStopRef.current = stop;
+    if (container && observer) observer.observe(container);
+    armQuiet();
     raf = window.requestAnimationFrame(tick);
   };
   useEffect(() => () => stopPin(), []);
@@ -961,6 +985,8 @@ function FilePage() {
   useEffect(() => {
     if (!phasesReady || sectionsLoading || handledSettledHash.current) return;
     handledSettledHash.current = true;
+    // The user interrupted the hold, or a hold is still re-placing the target.
+    if (holdInterruptedRef.current || pinStopRef.current) return;
     const h = loadHash();
     if (h) revealHashRef.current(h);
   }, [phasesReady, sectionsLoading]);
