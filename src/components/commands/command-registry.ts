@@ -2,7 +2,7 @@ import type { PersonaRole } from "@/lib/roles";
 
 export type CommandContext = {
   roles: PersonaRole[];
-  role: PersonaRole;
+  role: PersonaRole | null;
   pathname: string;
   openAcquisitionId: string | null;
   presenter: boolean;

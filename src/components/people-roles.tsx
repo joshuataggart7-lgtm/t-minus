@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +59,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
       setProblem(`The role was not saved: ${error.message}. Try again.`);
       return;
     }
-    const { error: auditError } = await supabase.from("audit_log").insert({
+    const { error: auditError } = await writeAudit({
       acquisition_id: null,
       actor: actorName,
       action: enabled ? "Role added" : "Role removed",

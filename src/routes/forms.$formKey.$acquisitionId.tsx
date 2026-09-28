@@ -1,9 +1,11 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { mappingsFor } from "@/lib/form-field-mappings";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStateAuditRows } from "@/lib/launch-events";
@@ -111,7 +113,7 @@ function respondentsFromRaw(raw: unknown): FormRespondent[] {
 
 function FormPage() {
   const { formKey, acquisitionId } = Route.useParams();
-  const { authState, user } = useRole();
+  const { authState, user, readOnly } = useRole();
   const canWrite = useCanWrite();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
@@ -333,9 +335,10 @@ function FormPage() {
 
   /** One audit row when the overlay is opened. A failure is silent. */
   const noteLineageViewed = async () => {
+    if (!canWrite) return;
     try {
       const who = await signedInName(user.name);
-      await supabase.from("audit_log").insert({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Lineage overlay viewed",
@@ -509,7 +512,7 @@ function FormPage() {
         ai_generated_at: savedAt,
       });
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document saved",
@@ -597,7 +600,7 @@ function FormPage() {
     label: string;
     note?: string;
   }): Promise<string> => {
-    if (!canWrite) return " Not filed to the contract file (read-only view).";
+    if (!canWrite || readOnly) return " Not filed to the contract file (read-only view).";
     try {
       const who = await signedInName(user.name);
       const file = new File([input.bytes as unknown as BlobPart], input.fileName, {
@@ -861,11 +864,12 @@ function FormPage() {
               onClick={() => {
                 const next = !showLineage;
                 setShowLineage(next);
-                if (next) void noteLineageViewed();
+                if (next && canWrite) void noteLineageViewed();
               }}
             >
               {showLineage ? "Hide where values came from" : "Show where values came from"}
             </Button>
+            {readOnly ? null : (<>
             {formTemplateId ? (
               <Button
                 type="button"
@@ -915,12 +919,16 @@ function FormPage() {
             >
               Export RFP cover (Word)
             </Button>
+            </>)}
           </div>
+          {readOnly ? (
+            <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>
+          ) : null}
           {!canWrite ? (
             <p className="mb-6 text-[13px] text-muted-foreground">Reading only. Editing and saving require Contracting or HQ.</p>
           ) : null}
 
-          {formTemplateId ? (
+          {formTemplateId && !readOnly ? (
             <details className="mb-4 max-w-[80ch] text-[12px] leading-5 text-muted-foreground">
               <summary className="cursor-pointer text-[12px]">
                 Legacy XFA and data file routes (not recommended)

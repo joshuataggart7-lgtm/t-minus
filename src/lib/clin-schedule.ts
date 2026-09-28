@@ -4,6 +4,7 @@
 // from the independent government cost estimate already on the file. Nothing
 // here is invented and nothing is written to NCMS.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import type { ScaffoldClin } from "@/lib/format-scaffold";
 
@@ -138,7 +139,7 @@ export async function createClin(
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "CLIN added",
@@ -166,7 +167,7 @@ export async function updateClin(
     } as never)
     .eq("clin_id", row.clin_id);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CLIN edited",
@@ -187,7 +188,7 @@ export async function updateClin(
 export async function deleteClin(row: ClinRow, actor: string): Promise<void> {
   const { error } = await supabase.from("acquisition_clins").delete().eq("clin_id", row.clin_id);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "CLIN deleted",

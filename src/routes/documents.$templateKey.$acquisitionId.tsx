@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -236,7 +237,7 @@ function stripDraftMarks(values: Values): Values {
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
   const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
-  const { authState, hasRole, hasAnyRole, user } = useRole();
+  const { authState, hasRole, hasAnyRole, user, readOnly } = useRole();
   const queryClient = useQueryClient();
   const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
@@ -660,7 +661,7 @@ function DocumentPage() {
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
         .eq("poll_id", mySeat.poll_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: choice === "go" ? "Go recorded" : "No-go recorded",
@@ -682,12 +683,13 @@ function DocumentPage() {
 
   const addComment = useMutation({
     mutationFn: async (body: string) => {
+      if (!canWrite) throw new Error("Reading only. Editing and saving require Contracting or HQ.");
       if (!latest) throw new Error("Save a version first, then start the thread.");
       const { error } = await supabase
         .from("comments")
         .insert({ document_id: latest.document_id, author: user.name, body });
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Comment added",
@@ -714,7 +716,7 @@ function DocumentPage() {
         .update({ reviewed_by: user.name, reviewed_at: reviewedAt })
         .eq("document_id", latest.document_id);
       if (error) throw new Error(error.message);
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action: "Document reviewed",
@@ -1633,7 +1635,7 @@ function DocumentPage() {
               ...(uei ? { vendor_uei: uei } : {}),
             })
             .eq("acquisition_id", acquisitionId);
-          await supabase.from("audit_log").insert({
+          await writeAudit({
             acquisition_id: acquisitionId,
             actor: user.name,
             action: "Recommended quoter carried to the record",
@@ -1645,7 +1647,7 @@ function DocumentPage() {
           });
         }
       }
-      const { error: logError } = await supabase.from("audit_log").insert({
+      const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
         action:
@@ -2234,12 +2236,14 @@ function DocumentPage() {
       >
 
         <div id="doc-save-export" className="mc-work-toolbar mb-6 flex flex-wrap items-center">
+          {canWrite ? (
           <Button
             type="submit"
             disabled={!canEdit || save.isPending}
           >
             {save.isPending ? "Saving" : "Save version"}
           </Button>
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline">Export</Button>
@@ -3148,6 +3152,7 @@ function DocumentPage() {
         ) : (
           <p className="mb-4 text-muted-foreground">No comments yet. Start the thread below.</p>
         )}
+        {canWrite ? (<>
         <label htmlFor="new-comment" className="block text-[13px] text-muted-foreground">
           Add a comment
         </label>
@@ -3169,12 +3174,19 @@ function DocumentPage() {
         {!latest ? (
           <p className="mt-2 text-[13px] text-muted-foreground">Save a version first, then comment on it.</p>
         ) : null}
+        </>) : (
+          <p className="text-[13px] text-muted-foreground">
+            Reading only. Editing and saving require Contracting or HQ.
+          </p>
+        )}
       </section>
 
-      <ShareDocument
-        documentId={latest?.document_id ?? null}
-        canShare={hasAnyRole(["specialist", "hq"])}
-      />
+      {readOnly ? null : (
+        <ShareDocument
+          documentId={latest?.document_id ?? null}
+          canShare={hasAnyRole(["specialist", "hq"])}
+        />
+      )}
 
       <MissionNavSection id="doc-versions" label="Versions" collapsible summary={`${q.data?.versions.length ?? 0} saved`}>
       <section className="max-w-[80ch]">

@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -59,7 +60,7 @@ function DirectivesPage() {
     a.download = `directive-compliance-${at.slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    await supabase.from("audit_log").insert({
+    await writeAudit({
       acquisition_id: null,
       actor: user.name,
       action: "Directive compliance exported to CSV",

@@ -8,6 +8,7 @@
  */
 
 import { createServerFn } from "@tanstack/react-start";
+import { requireRealUser } from "@/lib/actor";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const SHARE_DAYS = 7;
@@ -36,6 +37,7 @@ export const issueDocumentShare = createServerFn({ method: "POST" })
     return input;
   })
   .handler(async ({ data, context }): Promise<IssuedShare> => {
+    requireRealUser(context);
     const { supabase } = context;
 
     // Read the document as the signed-in user, so RLS decides whether this
@@ -110,6 +112,7 @@ export const revokeDocumentShare = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { shareId: string }) => input)
   .handler(async ({ data, context }) => {
+    requireRealUser(context);
     const { supabase } = context;
     const who = (context.claims as { email?: string } | null)?.email ?? "Contracting officer";
     const row = await supabase

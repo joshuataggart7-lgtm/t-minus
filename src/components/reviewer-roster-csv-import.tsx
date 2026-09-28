@@ -8,6 +8,7 @@
  * acquisition is changed, and the seeded demo roster is never overwritten.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -162,7 +163,7 @@ export function ReviewerRosterCsvImport({
       }
       if (match) updated++;
       else added++;
-      await supabase.from("audit_log").insert({
+      await writeAudit({
         acquisition_id: null,
         actor: actorName,
         action: match ? "Center reviewer updated from CSV" : "Center reviewer added from CSV",

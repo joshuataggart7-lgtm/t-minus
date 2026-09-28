@@ -6,6 +6,7 @@
  * `field_values` JSON, so there is no schema change and drafts are never
  * deleted. Nothing here holds a file, changes a clock, or blocks a phase exit.
  */
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 export const OFFICIAL_KEY = "__official_final";
@@ -95,7 +96,7 @@ export async function fileAsOfficialFinal(input: {
     }
   }
 
-  const { error: logError } = await supabase.from("audit_log").insert({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: "Document filed as official final",
@@ -132,7 +133,7 @@ export async function unfileOfficialFinal(input: {
     .eq("document_id", input.documentId);
   if (error) throw new Error(error.message);
 
-  const { error: logError } = await supabase.from("audit_log").insert({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: "Official final mark removed",

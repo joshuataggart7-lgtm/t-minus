@@ -1,6 +1,7 @@
 // Situation memo. Pick the event, get a memo shell from facts already on the
 // record, copy it. Advisory: nothing here holds the file or exits a phase.
 
+import { writeAudit } from "@/lib/audit";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
@@ -29,7 +30,7 @@ export function SituationMemoPanel({
     onBanner("The situation memorandum was copied. Paste it where you keep the file.");
     try {
       const name = await signedInName(actor);
-      await supabase.from("audit_log").insert({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Situation memo copied",

@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -85,7 +86,7 @@ export function Nf1707Signoffs({
       if (next.status !== "concurred" && block.textField) merged[block.textField] = "";
       await supabase.from("acquisition_facts").update({ nf1707_answers: merged as Record<string, string> }).eq("acquisition_id", acquisitionId);
     }
-    await supabase.from("audit_log").insert({
+    await writeAudit({
       acquisition_id: acquisitionId,
       actor,
       action,

@@ -6,6 +6,7 @@
  * It can hang off an acquisition or stand on its own.
  */
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 export const DEVIATION_TEMPLATE = {
@@ -166,7 +167,7 @@ export async function logDeviation(input: {
   newValue?: string | null;
   reason: string;
 }) {
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.actor,
     action: input.action,

@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -104,7 +105,7 @@ function ReviewerInbox() {
         .update({ vote: input.choice, reason, voted_at: new Date().toISOString() })
         .eq("poll_id", input.row.poll.poll_id);
       if (error) throw new Error(error.message);
-      await supabase.from("audit_log").insert({
+      await writeAudit({
         acquisition_id: input.row.card.m.acq.acquisition_id,
         actor: who,
         action: input.choice === "go" ? "Go recorded" : "No-go recorded",

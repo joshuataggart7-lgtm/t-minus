@@ -10,6 +10,8 @@
  * recorded on the file.
  */
 
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { clauseDelta, buildModificationPacket, type ClauseRow } from "@/lib/post-award";
 import { todayISO } from "@/lib/intake";
@@ -314,6 +316,7 @@ export async function createModTasks(
   rows: ImpactRow[],
   actor: string,
 ): Promise<number> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { date } = deadlineFor(change);
   if (!change.modification_required) return 0;
   const fresh = rows.filter((r) => r.clauseListKnown && r.task === null);
@@ -332,7 +335,7 @@ export async function createModTasks(
   }));
   const { error } = await supabase.from("clause_mod_tasks").insert(payload as never);
   if (error) throw error;
-  await supabase.from("audit_log").insert(
+  await writeAudit(
     fresh.map((r) => ({
       acquisition_id: r.acquisition_id,
       actor,
@@ -348,12 +351,13 @@ export async function createModTasks(
 }
 
 export async function completeModTask(task: ModTaskRow, actor: string) {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { error } = await supabase
     .from("clause_mod_tasks")
     .update({ status: "complete", completed_at: new Date().toISOString(), completed_by: actor } as never)
     .eq("task_id", task.task_id);
   if (error) throw error;
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: task.acquisition_id,
     actor,
     action: "Clause change mod task completed",

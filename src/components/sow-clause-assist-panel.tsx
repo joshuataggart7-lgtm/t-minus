@@ -3,6 +3,7 @@
 // the audit log and does not change the clause list. The clause picker stays
 // the only place clauses are applied.
 
+import { writeAudit } from "@/lib/audit";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -42,7 +43,7 @@ export function SowClauseAssistPanel({
   const confirm = useMutation({
     mutationFn: async (s: AssistSuggestion) => {
       const who = await signedInName(actor);
-      const { error } = await supabase.from("audit_log").insert({
+      const { error } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: who,
         action: "Clause suggestion confirmed by the contracting officer",

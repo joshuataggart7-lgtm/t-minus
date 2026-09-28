@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -202,7 +203,7 @@ function RegIntakePage() {
           ? `Live files citing changed sections: ${citing.join(", ")}.`
           : "No live file cites a section whose text changed.";
 
-      const { error: logError } = await supabase.from("audit_log").insert([
+      const { error: logError } = await writeAudit([
         {
           acquisition_id: null,
           actor,
@@ -279,7 +280,7 @@ function RegIntakePage() {
           });
         }
       }
-      const { error: logError } = await supabase.from("audit_log").insert(entries as never);
+      const { error: logError } = await writeAudit(entries as never);
       if (logError) throw new Error(logError.message);
 
       const { error: noticeError } = await supabase.from("announcements").insert({

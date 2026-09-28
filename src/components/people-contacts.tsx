@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +61,7 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
       setProblem(`The telephone was not saved: ${error.message}. Try again.`);
       return;
     }
-    await supabase.from("audit_log").insert({
+    await writeAudit({
       acquisition_id: null,
       actor: actorName,
       action: "Telephone set",

@@ -1,6 +1,5 @@
 export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
-// The administrator persona is selectable in the Try-the-demo switcher so a
-// demo user can land on Today with full privileges without a password.
+// Demo personas cover five roles; there is no administrator demo persona.
 export type PersonaRole = RoleId;
 
 export type SeededUser = {
@@ -12,18 +11,20 @@ export type SeededUser = {
   landing: string;
 };
 
-// Six demo personas, one per role. Fictional people. Joshua Taggart leads so
-// the administrator is the first option in the Try-the-demo switcher. Christina
-// and Roger remain email/password-only and never appear in this list.
+// Display defaults for a signed-in real administrator. Not a demo persona and
+// never selectable in Try the demo; the account's own name comes from its profile.
+export const ADMINISTRATOR_DEFAULTS: SeededUser = {
+  role: "administrator",
+  name: "Administrator",
+  title: "Administrator",
+  email: "",
+  center_code: "ARC",
+  landing: "/today",
+};
+
+// Five demo personas, one per non-administrator role. Fictional people.
+// Christina and Roger remain email/password-only and never appear in this list.
 export const SEEDED_USERS: SeededUser[] = [
-  {
-    role: "administrator",
-    name: "Joshua Taggart",
-    title: "Administrator",
-    email: "administrator@t-minus.demo",
-    center_code: "ARC",
-    landing: "/today",
-  },
   {
     role: "executive",
     name: "A. Whitfield (fictional)",
@@ -114,10 +115,9 @@ export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
 };
 
 export function userForRole(role: RoleId): SeededUser {
-  const fallback = SEEDED_USERS[0];
-  const matched = SEEDED_USERS.find((u) => u.role === role);
+  if (role === "administrator") return ADMINISTRATOR_DEFAULTS;
+  const matched = SEEDED_USERS.find((u) => u.role === role) ?? SEEDED_USERS.find((u) => u.role === "executive");
   if (matched) return matched;
-  if (fallback) return fallback;
   throw new Error("The seeded demo personas are not available.");
 }
 

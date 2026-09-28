@@ -1,3 +1,5 @@
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -52,6 +54,7 @@ export type NewDefect = {
 
 /** Records the defect and writes the audit entry for it. */
 export async function reportDefect(input: NewDefect): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { error } = await supabase.from("template_defects").insert({
     template_key: input.templateKey,
     template_name: input.templateName,
@@ -65,7 +68,7 @@ export async function reportDefect(input: NewDefect): Promise<void> {
   } as never);
   if (error) throw new Error(error.message);
 
-  const { error: logError } = await supabase.from("audit_log").insert({
+  const { error: logError } = await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.reporterName,
     action: "Template defect reported",
@@ -79,6 +82,7 @@ export async function reportDefect(input: NewDefect): Promise<void> {
 }
 
 export async function setDefectStatus(row: DefectRow, status: DefectStatus, actor: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { data, error } = await supabase
     .from("template_defects")
     .update({ status } as never)
@@ -87,7 +91,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect status changed",
@@ -100,6 +104,7 @@ export async function setDefectStatus(row: DefectRow, status: DefectStatus, acto
 }
 
 export async function deleteDefect(row: DefectRow, actor: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const { data, error } = await supabase
     .from("template_defects")
     .delete()
@@ -108,7 +113,7 @@ export async function deleteDefect(row: DefectRow, actor: string): Promise<void>
   if (error) throw new Error(error.message);
   if (!data || data.length === 0)
     throw new Error("Working this queue requires HQ or Administrator access.");
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Template defect removed",

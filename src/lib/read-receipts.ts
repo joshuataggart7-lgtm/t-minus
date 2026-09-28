@@ -5,6 +5,8 @@
 // holds a file, a phase, a hold or a required document, and nothing is seeded.
 // A file stays empty until a real person opens something.
 
+import { isDemoSession } from "@/lib/demo-guard";
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ReceiptKind = "template" | "form" | "file";
@@ -94,6 +96,7 @@ export async function loadReceiptsForDoc(
  * receipt that cannot be written never blocks reading the document.
  */
 export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> {
+  if (await isDemoSession()) return;
   if (!input.acquisitionId || !input.docKey || !input.openedBy) return;
   const since = new Date(Date.now() - DEDUPE_MS).toISOString();
   const recent = await supabase
@@ -127,7 +130,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
   } as never);
   if (error) return;
 
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: input.acquisitionId,
     actor: input.openedBy,
     action: "Document opened",

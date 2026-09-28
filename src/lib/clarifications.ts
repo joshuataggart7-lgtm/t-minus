@@ -4,6 +4,7 @@
 // invented: no traffic is seeded, and blank fields print "Not recorded".
 // Advisory only — no row here holds a file, a phase or a launch-sequence beat.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ClarificationRow = {
@@ -51,7 +52,7 @@ async function audit(
   newValue: string | null,
   reason: string,
 ): Promise<void> {
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action,

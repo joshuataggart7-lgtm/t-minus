@@ -1,3 +1,4 @@
+import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -11,7 +12,7 @@ import {
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
-import { SEEDED_USERS, type RoleId } from "@/lib/roles";
+import { ADMINISTRATOR_DEFAULTS, SEEDED_USERS, type RoleId } from "@/lib/roles";
 import {
   acknowledge,
   currentUserId,
@@ -26,7 +27,7 @@ import {
   type Announcement,
 } from "@/lib/announcements";
 
-const ROLE_OPTIONS: { id: RoleId; label: string }[] = SEEDED_USERS.map((u) => ({
+const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS].map((u) => ({
   id: u.role,
   label: u.title,
 }));
@@ -245,7 +246,7 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
       setBusy(false);
       return;
     }
-    await supabase.from("audit_log").insert({
+    await writeAudit({
       acquisition_id: null,
       actor,
       action: "Announcement posted",

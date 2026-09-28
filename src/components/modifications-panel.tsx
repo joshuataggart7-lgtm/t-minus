@@ -2,6 +2,7 @@
 // the type, the block 13 authority, the value and period change, the clause
 // delta and the funds line, and hands over a packet.
 
+import { writeAudit } from "@/lib/audit";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,7 +87,7 @@ export function ModificationsPanel({
       };
       const { error } = await supabase.from("contract_modifications").insert(payload as never);
       if (error) throw new Error(error.message);
-      await supabase.from("audit_log").insert({
+      await writeAudit({
         acquisition_id: acquisitionId,
         actor: name,
         action: "Modification created",

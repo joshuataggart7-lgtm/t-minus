@@ -6,6 +6,7 @@
 // flagged as such. The local handoff packet carries the same rows as the panel.
 // NCMS remains the system of record.
 
+import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 
 export type PaymentMilestoneRow = {
@@ -120,7 +121,7 @@ export async function createPaymentMilestone(
     sort_order: sortOrder,
   } as never);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: acquisitionId,
     actor,
     action: "Payment milestone added",
@@ -159,7 +160,7 @@ export async function updatePaymentMilestone(
     } as never)
     .eq("milestone_id", row.milestone_id);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Payment milestone edited",
@@ -179,7 +180,7 @@ export async function deletePaymentMilestone(
     .delete()
     .eq("milestone_id", row.milestone_id);
   if (error) throw new Error(error.message);
-  await supabase.from("audit_log").insert({
+  await writeAudit({
     acquisition_id: row.acquisition_id,
     actor,
     action: "Payment milestone deleted",
