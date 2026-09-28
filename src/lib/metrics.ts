@@ -104,14 +104,15 @@ export function statusColor(status: StatusWord) {
 
 /** When the current hold began. Null unless the STORED acquisition_facts
  *  clock_state is "hold". Reads only this file's audit rows with
- *  field = "clock_state", newest first: the newest row whose new_value is
- *  non-null and not "hold" is the last clear; hold rows (new_value = "hold",
- *  action not "Scrubbed") after that clear are candidates; the start is the
- *  newest candidate whose old_value is not "hold", else the oldest candidate.
- *  Resume rows ('Hold cleared', 'Clock resumed', ...) are never a hold start.
- *  hold_started_at is not read.
+ *  field = "clock_state", newest first. The last clear is the newest row whose
+ *  new_value (trimmed, lower-cased) is exactly "running", "launched" or
+ *  "scrubbed"; any other clock_state row neither starts nor ends a hold.
+ *  Candidates are rows newer than that clear whose new_value is "hold",
+ *  whose action is not "Scrubbed" and does not match /clear|resum/i. The
+ *  start is the newest candidate whose old_value is not "hold", else the
+ *  oldest candidate. hold_started_at is not read.
  *  Columns read: audit_log.acquisition_id, field, action, old_value,
- *  new_value, logged_at, plus acquisition_facts.clock_state. */
+ *  new_value, logged_at; acquisition_facts.clock_state. */
 export function holdSince(
   acq: { acquisition_id: string; clock_state?: unknown } | Record<string, unknown>,
   log: { acquisition_id: string | null; action: string | null; field?: string | null; old_value?: string | null; new_value?: string | null; logged_at: string | null }[],
@@ -122,11 +123,13 @@ export function holdSince(
   const rows = log
     .filter((l) => l.acquisition_id === id && l.field === "clock_state")
     .sort((a, b) => String(b.logged_at ?? "").localeCompare(String(a.logged_at ?? "")));
-  const lastClear = rows.find((l) => l.new_value != null && l.new_value !== "hold");
+  const norm = (v: string | null | undefined) => String(v ?? "").trim().toLowerCase();
+  const lastClear = rows.find((l) => ["running", "launched", "scrubbed"].includes(norm(l.new_value)));
   const holdRows = rows.filter(
     (l) =>
-      l.new_value === "hold" &&
+      norm(l.new_value) === "hold" &&
       l.action !== "Scrubbed" &&
+      !/clear|resum/i.test(l.action ?? "") &&
       (!lastClear || String(l.logged_at ?? "") > String(lastClear.logged_at ?? "")),
   );
   if (!holdRows.length) return null;

@@ -55,3 +55,24 @@ export async function loadStateAuditRows(acquisitionId?: string): Promise<StateA
   }
   throw new Error("State records could not be read: too many pages.");
 }
+
+/** This file's full audit history, oldest first. No row limit: pages through the API cap. */
+export async function loadFileAuditHistory(acquisitionId: string) {
+  const out: { log_id: string; action: string | null; field: string | null; actor: string | null; reason: string | null; phase: string | null; logged_at: string | null; old_value: string | null; new_value: string | null }[] = [];
+  let from = 0;
+  for (let page = 0; page < MAX_PAGES; page += 1) {
+    const { data, error } = await supabase
+      .from("audit_log")
+      .select("log_id,action,field,actor,reason,phase,logged_at,old_value,new_value")
+      .eq("acquisition_id", acquisitionId)
+      .order("logged_at", { ascending: true })
+      .order("log_id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`Audit history could not be read: ${error.message}`);
+    const rows = (data ?? []) as unknown as typeof out;
+    if (rows.length === 0) return out;
+    out.push(...rows);
+    from += rows.length;
+  }
+  throw new Error("Audit history could not be read: too many pages.");
+}
