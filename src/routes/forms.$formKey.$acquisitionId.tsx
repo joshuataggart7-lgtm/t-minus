@@ -4,6 +4,7 @@ import { mappingsFor } from "@/lib/form-field-mappings";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { useCanWrite } from "@/lib/use-can-write";
 import { supabase } from "@/integrations/supabase/client";
 import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type FormRespondent } from "@/lib/nf1787";
 import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
@@ -110,6 +111,7 @@ function respondentsFromRaw(raw: unknown): FormRespondent[] {
 function FormPage() {
   const { formKey, acquisitionId } = Route.useParams();
   const { authState, user } = useRole();
+  const canWrite = useCanWrite();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
   // Soft §8: the lineage overlay is off until the reader turns it on, so the
@@ -594,6 +596,7 @@ function FormPage() {
     label: string;
     note?: string;
   }): Promise<string> => {
+    if (!canWrite) return " Not filed to the contract file (read-only view).";
     try {
       const who = await signedInName(user.name);
       const file = new File([input.bytes as unknown as BlobPart], input.fileName, {
@@ -827,6 +830,7 @@ function FormPage() {
       {form ? (
         <>
           <div id="form-actions" className="mc-work-toolbar mb-6 flex flex-wrap">
+            {canWrite ? (
             <Button
               type="button"
               onClick={() => save.mutate()}
@@ -834,6 +838,7 @@ function FormPage() {
             >
               {save.isPending ? "Saving" : "Save version"}
             </Button>
+            ) : null}
             <Button
               type="button"
               variant="outline"
@@ -910,6 +915,9 @@ function FormPage() {
               Export RFP cover (Word)
             </Button>
           </div>
+          {!canWrite ? (
+            <p className="mb-6 text-[13px] text-muted-foreground">Reading only. Editing and saving require Contracting or HQ.</p>
+          ) : null}
 
           {formTemplateId ? (
             <details className="mb-4 max-w-[80ch] text-[12px] leading-5 text-muted-foreground">

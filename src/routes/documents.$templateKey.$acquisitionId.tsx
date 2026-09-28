@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { useCanWrite } from "@/lib/use-can-write";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { DefectReport } from "@/components/defect-report";
 import { TableScrollRegion } from "@/components/table-scroll-region";
@@ -238,7 +239,7 @@ function DocumentPage() {
   const queryClient = useQueryClient();
   const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
-  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canWrite = useCanWrite();
 
   // A read receipt for this visit. Soft tracking: it never blocks the document,
   // a phase or a hold, and a failure here is silent.
