@@ -50,7 +50,8 @@ export function checkGeneratedFiles(root, allowlist = GUARDED_FILES) {
   return { ok: results.every((r) => r.ok), results };
 }
 
-export function formatReport(report) {
+export function formatReport(report, options = {}) {
+  const production = options.production ?? true;
   const lines = report.results.map((r) =>
     r.ok
       ? `  OK   ${r.file}  ${r.sha256.slice(0, 12)}…  (${r.label})`
@@ -59,7 +60,9 @@ export function formatReport(report) {
   return [
     report.ok
       ? "[tminus-generated-file-guard] generated files match the allowlist"
-      : "[tminus-generated-file-guard] GENERATED FILE CHANGED: build blocked. " +
+      : (production
+          ? "[tminus-generated-file-guard] GENERATED FILE CHANGED: build blocked. "
+          : "[tminus-generated-file-guard] GENERATED FILE CHANGED: this would block a production build. ") +
         "A Lovable-generated integration file is not a reviewed version. Do not publish. " +
         "Restore the file from the last accepted tip, or review the diff and add its SHA-256 to scripts/generated-file-guard.mjs in an approved send.",
     ...lines,
@@ -81,7 +84,7 @@ export function generatedFileGuard(options = {}) {
     },
     buildStart() {
       report = checkGeneratedFiles(root, allowlist);
-      const text = formatReport(report);
+      const text = formatReport(report, { production: failHard });
       if (report.ok) {
         console.log(text);
       } else if (failHard) {

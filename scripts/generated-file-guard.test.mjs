@@ -120,6 +120,8 @@ test("plugin: development-mode build only warns", () => {
     const { calls, threw } = runPlugin(dir, "development");
     assert.equal(threw, false);
     assert.equal(calls.warn.length, 1);
+    assert.match(calls.warn[0], /would block a production build/);
+    assert.doesNotMatch(calls.warn[0], /build blocked/);
   } finally {
     rmSync(dir, { recursive: true });
   }

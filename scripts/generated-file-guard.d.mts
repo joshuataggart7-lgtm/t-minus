@@ -16,7 +16,7 @@ export declare function checkGeneratedFiles(
   root: string,
   allowlist?: Record<string, Record<string, string>>,
 ): GuardReport;
-export declare function formatReport(report: GuardReport): string;
+export declare function formatReport(report: GuardReport, options?: { production?: boolean }): string;
 export declare function generatedFileGuard(options?: {
   allowlist?: Record<string, Record<string, string>>;
   mode?: string;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
@@ -30,16 +30,23 @@ function stageIndex(metric: AcqMetrics) {
   return LIFECYCLE.findIndex((stage) => stage.phases.some((phase) => phase === metric.currentPhase));
 }
 
+const FEATURED_DEFAULT_ID = "A-2027-0101";
+const featuredDefault = (metrics: AcqMetrics[]) =>
+  (metrics.find((item) => item.acq.acquisition_id === FEATURED_DEFAULT_ID) ?? metrics[0])?.acq.acquisition_id ?? "";
+
 export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
-  const [selectedId, setSelectedId] = useState(metrics[0]?.acq.acquisition_id ?? "");
+  const [selectedId, setSelectedId] = useState(() => featuredDefault(metrics));
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
   const [tipStage, setTipStage] = useState<number | null>(null);
   const [detailExpanded, setDetailExpanded] = useState(false);
+  const defaultAppliedRef = useRef(Boolean(selectedId));
   const metric = metrics.find((item) => item.acq.acquisition_id === selectedId) ?? metrics[0];
 
   useEffect(() => {
-    if (metric && !selectedId) setSelectedId(metric.acq.acquisition_id);
-  }, [metric, selectedId]);
+    if (defaultAppliedRef.current || selectedId || metrics.length === 0) return;
+    defaultAppliedRef.current = true;
+    setSelectedId(featuredDefault(metrics));
+  }, [metrics, selectedId]);
 
   useEffect(() => {
     setSelectedStage(null);
