@@ -322,6 +322,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                   <Link
                     to={item.to}
                     title={item.label}
+                    activeOptions={{ exact: true }}
                      aria-current={active ? "page" : undefined}
                      onClick={() => {
                        if (isDrawerViewport && drawerOpen) {
