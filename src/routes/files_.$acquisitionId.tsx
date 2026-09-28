@@ -2261,7 +2261,7 @@ function FilePage() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
               <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
-               {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
+              {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
             </div>
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
             <p className="mt-2 text-[15px] text-muted-foreground">

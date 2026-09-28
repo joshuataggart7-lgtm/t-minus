@@ -6,6 +6,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { StatusMark } from "@/components/app-shell";
