@@ -41,7 +41,7 @@ export type AcqMetrics = {
   /** Reviews for the current phase only. Future reviews never block this file. */
   board: BoardEntry[];
   upcomingReviews: BoardEntry[];
-  hold: { reason: string; owner: string } | null;
+  hold: { reason: string; owner: string; doc?: { phase: string; label: string } } | null;
   clockState: string;
   currentPhase: string | null;
   nextDecision: string;

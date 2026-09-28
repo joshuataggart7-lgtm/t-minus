@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
@@ -63,6 +63,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
     return next;
   });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
@@ -196,10 +197,27 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           >
             <PanelLeft className="size-4" aria-hidden="true" />
           </button>
-          <Link to="/" className="flex min-w-0 items-baseline gap-2 border-l-2 border-chrome-structure pl-3" onClick={onWordmarkClick}>
+          <a
+            href="/"
+            className="flex min-w-0 items-baseline gap-2 border-l-2 border-chrome-structure pl-3"
+            onClick={(event) => {
+              onWordmarkClick(event);
+              if (
+                !event.defaultPrevented &&
+                event.button === 0 &&
+                !event.metaKey &&
+                !event.ctrlKey &&
+                !event.shiftKey &&
+                !event.altKey
+              ) {
+                event.preventDefault();
+                void navigate({ to: "/" });
+              }
+            }}
+          >
             <span className="shrink-0 text-[18px] leading-6 font-semibold text-chrome-foreground">T-Minus</span>
             <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
-          </Link>
+          </a>
         </div>
         <div className="app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1"><GlobalSearch /></div>
         <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:flex-nowrap xl:justify-end min-[1440px]:gap-x-3">
@@ -371,7 +389,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                      }
                    }}
                    title={railCollapsed ? openAcquisitionId : undefined}
-                    aria-current={openAcquisitionId && /^\/(?:files\/[^/]+|documents\/[^/]+\/[^/]+|forms\/[^/]+\/[^/]+)$/.test(pathname) ? "page" : undefined}
+                     aria-current={openAcquisitionId && /^\/files\/[^/]+$/.test(pathname) ? "page" : openAcquisitionId && /^\/(?:documents|forms)\/[^/]+\/[^/]+$/.test(pathname) ? "true" : undefined}
                    aria-label={railCollapsed ? `Open file ${openAcquisitionId}` : undefined}
                    className={cn(
                      "mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]",

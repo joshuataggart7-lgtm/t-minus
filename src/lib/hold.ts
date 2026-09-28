@@ -19,7 +19,7 @@ import {
   type RequiredDoc,
 } from "@/lib/launch-sequence";
 
-export type Hold = { reason: string; owner: string } | null;
+export type Hold = { reason: string; owner: string; doc?: { phase: string; label: string } } | null;
 
 /** The doc keys that have a stored file, for one acquisition. */
 export function attachedKeys(

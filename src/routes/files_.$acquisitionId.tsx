@@ -849,8 +849,8 @@ function FilePage() {
     });
   }, [acq, currentPhase, attachments, savedKeys]);
 
-  const holdRequirementHref = currentPhase && missingCurrentRequirements[0]
-    ? `#${requirementId(currentPhase.phase, missingCurrentRequirements[0].label)}`
+  const holdRequirementHref = hold?.doc
+    ? `#${requirementId(hold.doc.phase, hold.doc.label)}`
     : "#launch-sequence";
 
   // The Required rows this phase has already satisfied. Named on the audit row
@@ -2182,7 +2182,7 @@ function FilePage() {
               : `No acquisition file was found for ${acquisitionId}. Check the link, or open Files to pick a record.`
           }
         />
-        <Link to="/files" className="mt-4 inline-block text-[15px] text-primary">
+        <Link to="/files" activeOptions={{ exact: true }} className="mt-4 inline-block text-[15px] text-primary">
           Back to Files
         </Link>
       </AppShell>
@@ -2211,7 +2211,16 @@ function FilePage() {
           <div className="grid min-w-0 grid-cols-1 items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0">
               <p className="max-w-[80ch] text-[15px] leading-[22px]">
-                <a href={holdRequirementHref} className="text-primary underline-offset-2 hover:underline">{hold.reason}</a>
+                <a
+                  href={holdRequirementHref}
+                  onClick={() => {
+                    const sequence = document.getElementById("launch-sequence");
+                    if (sequence instanceof HTMLDetailsElement) sequence.open = true;
+                  }}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  {hold.reason}
+                </a>
               </p>
               <p className="mt-1 text-[13px] text-muted-foreground">
                 Owner: {hold.owner}
@@ -4708,7 +4717,7 @@ function FilePage() {
       </div>
       ) : null}
 
-      <Link to="/files" className="text-primary underline underline-offset-2">
+      <Link to="/files" activeOptions={{ exact: true }} className="text-primary underline underline-offset-2">
         Back to Files
       </Link>
     </AppShell>
