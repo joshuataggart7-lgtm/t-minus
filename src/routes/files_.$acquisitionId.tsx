@@ -519,6 +519,7 @@ function FilePage() {
     getNextPageParam: (last) => {
       if (last.length < 200) return undefined;
       const row = last[last.length - 1];
+      if (!row) return undefined;
       return { logged_at: String(row.logged_at), log_id: String(row.log_id) };
     },
   });
