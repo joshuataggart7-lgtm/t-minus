@@ -260,7 +260,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               <label htmlFor="role-toggle" className="sr-only">Signed in as</label>
               <select
                 id="role-toggle"
-                value={role}
+                value={role ?? ""}
                 title={SEEDED_USERS.find((u) => u.role === role)?.title}
                  onChange={(e) => setRole(e.target.value as PersonaRole)}
                 className="min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
