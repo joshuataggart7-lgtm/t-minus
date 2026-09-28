@@ -27,7 +27,7 @@ import {
   type Announcement,
 } from "@/lib/announcements";
 
-const ROLE_OPTIONS: { id: RoleId; label: string }[] = SEEDED_USERS.map((u) => ({
+const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS].map((u) => ({
   id: u.role,
   label: u.title,
 }));

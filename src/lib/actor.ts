@@ -3,23 +3,23 @@
  *
  * Seeded demo personas live in public.users. A real signed-in account has a
  * profiles row instead, so the role is read from there and normalised onto the
- * five prototype roles. A signed-in account with no role recorded works the
- * contracting queue, which is the default for the first user in an org.
+ * prototype roles. A signed-in account with no role recorded, or an unknown
+ * role, gets no role at all.
  */
 
 import { accountName } from "@/lib/account-name";
 
 export type ActorRole = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
 
-export type Actor = { name: string; roles: ActorRole[]; role: ActorRole };
+export type Actor = { name: string; roles: ActorRole[]; role: ActorRole | null };
 
 type Ctx = {
   supabase: { from: (table: string) => any };
   userId: string;
 };
 
-/** 'contracting', 'co' and anything unrecognised work the contracting queue. */
-export function normalizeRole(value: string | null | undefined): ActorRole {
+/** 'contracting', 'co', empty and anything unrecognised get no role (null). */
+export function normalizeRole(value: string | null | undefined): ActorRole | null {
   switch ((value ?? "").trim().toLowerCase()) {
     case "executive":
       return "executive";
@@ -33,7 +33,7 @@ export function normalizeRole(value: string | null | undefined): ActorRole {
     case "admin":
       return "administrator";
     default:
-      return "specialist";
+      return null;
   }
 }
 
@@ -43,7 +43,7 @@ export async function currentActor(context: Ctx): Promise<Actor> {
     .select("role")
     .eq("user_id", context.userId);
   if (memberships.error) throw new Error(memberships.error.message);
-  const assigned = ((memberships.data ?? []) as { role: string }[]).map((row) => normalizeRole(row.role));
+  const assigned = ((memberships.data ?? []) as { role: string }[]).map((row) => normalizeRole(row.role)).filter((r): r is ActorRole => r !== null);
   const seeded = await context.supabase
     .from("users")
     .select("name,role")
@@ -52,8 +52,8 @@ export async function currentActor(context: Ctx): Promise<Actor> {
   if (seeded.error) throw new Error(seeded.error.message);
   if (seeded.data) {
     const role = normalizeRole(seeded.data.role as string);
-    const roles = assigned.length ? assigned : [role];
-    return { name: seeded.data.name as string, roles, role: roles[0] ?? role };
+    const roles = assigned.length ? assigned : role ? [role] : [];
+    return { name: seeded.data.name as string, roles, role: roles[0] ?? null };
   }
 
   const profile = await context.supabase
@@ -64,15 +64,23 @@ export async function currentActor(context: Ctx): Promise<Actor> {
   if (profile.error) throw new Error(profile.error.message);
   if (!profile.data) throw new Error("Your account was not found. Sign out and back in to try again.");
 
-  const legacyRole = profile.data.is_admin ? "administrator" : normalizeRole(profile.data.role as string);
-  const roles = assigned.length ? assigned : [legacyRole];
-  const role = roles[0] ?? legacyRole;
+  const legacyRole: ActorRole | null = profile.data.is_admin ? "administrator" : normalizeRole(profile.data.role as string);
+  const roles = assigned.length ? assigned : legacyRole ? [legacyRole] : [];
+  const role = roles[0] ?? null;
   const name = accountName(profile.data.display_name as string | null, profile.data.email as string | null);
   return { name, roles, role };
 }
 
+/** Demo (anonymous) sessions are view only: they may not take any action. */
+export function requireRealUser(context: unknown): void {
+  if ((context as { claims?: { is_anonymous?: boolean } }).claims?.is_anonymous === true) {
+    throw new Error("Demo sessions are view only.");
+  }
+}
+
 /** The actor, or an error naming the roles that may take this action. */
 export async function requireRole(context: Ctx, allowed: ActorRole[], message: string): Promise<Actor> {
+  requireRealUser(context);
   const actor = await currentActor(context);
   if (!actor.roles.includes("administrator") && !allowed.some((role) => actor.roles.includes(role))) {
     throw new Error(message);

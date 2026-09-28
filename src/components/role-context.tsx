@@ -26,7 +26,7 @@ type Profile = {
 };
 
 type RoleContextValue = {
-  role: RoleId;
+  role: RoleId | null;
   roles: RoleId[];
   hasRole: (role: RoleId) => boolean;
   hasAnyRole: (roles: RoleId[]) => boolean;
@@ -35,6 +35,7 @@ type RoleContextValue = {
   authMessage: string | null;
   setRole: (r: PersonaRole) => void;
   isAnonymous: boolean;
+  readOnly: boolean;
   canSwitchPersona: boolean;
   profile: Profile | null;
   signOut: () => Promise<void>;
@@ -42,8 +43,9 @@ type RoleContextValue = {
 
 const RoleContext = createContext<RoleContextValue | null>(null);
 
-// A profile role string maps onto one of the five prototype personas.
-function roleFromProfile(value: string | undefined | null): RoleId {
+// A profile role string maps onto one of the prototype roles. An unknown or
+// empty value (including 'contracting' and 'co') means no role at all.
+function roleFromProfile(value: string | undefined | null): RoleId | null {
   switch ((value ?? "").toLowerCase()) {
     case "executive":
       return "executive";
@@ -57,7 +59,7 @@ function roleFromProfile(value: string | undefined | null): RoleId {
     case "admin":
       return "administrator";
     default:
-      return "specialist"; // 'co' and anything unknown work the contracting queue
+      return null;
   }
 }
 
@@ -158,17 +160,24 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     setPersonaRole("executive");
   }, []);
 
-  const legacyRole = profile?.is_admin ? "administrator" : roleFromProfile(profile?.role);
+  const legacyRole: RoleId | null = profile?.is_admin ? "administrator" : roleFromProfile(profile?.role);
   const signedInRoles = orderRoles(
     profile?.is_admin ? ["administrator" as RoleId, ...assignedRoles] : assignedRoles,
   );
-  const roles: RoleId[] = isAnonymous ? [personaRole] : signedInRoles.length ? signedInRoles : [legacyRole];
-  const role: RoleId = isAnonymous ? personaRole : roles[0] ?? legacyRole;
+  const roles: RoleId[] = isAnonymous
+    ? [personaRole]
+    : signedInRoles.length
+      ? signedInRoles
+      : legacyRole
+        ? [legacyRole]
+        : [];
+  const role: RoleId | null = isAnonymous ? personaRole : roles[0] ?? null;
 
   const rolesKey = roles.join(",");
 
   const value = useMemo<RoleContextValue>(() => {
-    const seeded = userForRole(role);
+    // A role-less account navigates with the Executive defaults only.
+    const seeded = userForRole(role ?? "executive");
     const metadata = (session?.user?.user_metadata ?? {}) as Record<string, unknown>;
     const metaName = typeof metadata['display_name'] === "string" ? metadata['display_name'] : null;
     const user: SeededUser =
@@ -191,6 +200,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         if (canSwitchPersona && SEEDED_USERS.some((u) => u.role === r)) setPersonaRole(r);
       },
       isAnonymous,
+      readOnly: isAnonymous,
       canSwitchPersona,
       profile,
       signOut,
@@ -202,6 +212,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       {ready && !session ? <AuthScreen /> : children}
     </RoleContext.Provider>
   );
+}
+
+export function useReadOnly(): boolean {
+  return useRole().readOnly;
 }
 
 export function useRole() {
