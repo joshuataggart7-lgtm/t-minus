@@ -237,7 +237,7 @@ function stripDraftMarks(values: Values): Values {
 function DocumentPage() {
   const { templateKey, acquisitionId } = Route.useParams();
   const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
-  const { authState, hasRole, hasAnyRole, user } = useRole();
+  const { authState, hasRole, hasAnyRole, user, readOnly } = useRole();
   const queryClient = useQueryClient();
   const citeCorpus = useCiteCorpus();
   const def = templateByKey(templateKey);
@@ -683,6 +683,7 @@ function DocumentPage() {
 
   const addComment = useMutation({
     mutationFn: async (body: string) => {
+      if (!canWrite) throw new Error("Reading only. Editing and saving require Contracting or HQ.");
       if (!latest) throw new Error("Save a version first, then start the thread.");
       const { error } = await supabase
         .from("comments")
@@ -2235,12 +2236,14 @@ function DocumentPage() {
       >
 
         <div id="doc-save-export" className="mc-work-toolbar mb-6 flex flex-wrap items-center">
+          {canWrite ? (
           <Button
             type="submit"
             disabled={!canEdit || save.isPending}
           >
             {save.isPending ? "Saving" : "Save version"}
           </Button>
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button type="button" variant="outline">Export</Button>
@@ -3149,6 +3152,7 @@ function DocumentPage() {
         ) : (
           <p className="mb-4 text-muted-foreground">No comments yet. Start the thread below.</p>
         )}
+        {canWrite ? (<>
         <label htmlFor="new-comment" className="block text-[13px] text-muted-foreground">
           Add a comment
         </label>
@@ -3170,12 +3174,19 @@ function DocumentPage() {
         {!latest ? (
           <p className="mt-2 text-[13px] text-muted-foreground">Save a version first, then comment on it.</p>
         ) : null}
+        </>) : (
+          <p className="text-[13px] text-muted-foreground">
+            Reading only. Editing and saving require Contracting or HQ.
+          </p>
+        )}
       </section>
 
-      <ShareDocument
-        documentId={latest?.document_id ?? null}
-        canShare={hasAnyRole(["specialist", "hq"])}
-      />
+      {readOnly ? null : (
+        <ShareDocument
+          documentId={latest?.document_id ?? null}
+          canShare={hasAnyRole(["specialist", "hq"])}
+        />
+      )}
 
       <MissionNavSection id="doc-versions" label="Versions" collapsible summary={`${q.data?.versions.length ?? 0} saved`}>
       <section className="max-w-[80ch]">
