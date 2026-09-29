@@ -60,8 +60,24 @@ const RECORD_FIELDS = [
   "need_date",
 ] as const;
 
-/** Lovable AI Gateway model used for drafting. */
-const DRAFT_MODEL = "openai/gpt-6-astra";
+/** Ask Anthropic which Sonnet model is current, rather than pinning a guess. */
+async function currentSonnetModel(apiKey: string): Promise<string> {
+  const fallback = "claude-sonnet-4-5";
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/models?limit=50", {
+      headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+    });
+    if (!response.ok) return fallback;
+    const body = (await response.json()) as { data?: { id?: string; created_at?: string }[] };
+    const sonnets = (body.data ?? [])
+      .map((m) => ({ id: String(m.id ?? ""), created: String(m.created_at ?? "") }))
+      .filter((m) => m.id.includes("sonnet"))
+      .sort((a, b) => b.created.localeCompare(a.created));
+    return sonnets[0]?.id ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 export const draftJofocItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -73,8 +89,9 @@ export const draftJofocItem = createServerFn({ method: "POST" })
     }
 
     const me = await requireRole(context, ["specialist", "hq"], "Drafting is available to the contracting specialist and HQ roles.");
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) throw new Error("The drafting service is not configured yet.");
+    const rawKey = process.env["ANTHROPIC_API_KEY"]?.trim();
+    console.log(`[Claude] key present: ${Boolean(rawKey)}; length: ${rawKey?.length ?? 0}`);
+    if (!rawKey) throw new Error("The Claude API key has not been configured. Enter it in the secret dialog.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: acq, error: acqError } = await supabaseAdmin
@@ -108,7 +125,7 @@ export const draftJofocItem = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n");
 
-    const model = DRAFT_MODEL;
+    const model = await currentSonnetModel(rawKey);
     const prompt = [
       "You are drafting one item of a NASA Justification for Other than Full and Open Competition (JOFOC).",
       "Write only the paragraph for the item named below. No headings, no preamble, no citations invented.",
@@ -127,70 +144,54 @@ export const draftJofocItem = createServerFn({ method: "POST" })
 
     const promptWithoutAnswers = prompt.split("\nINTAKE ANSWERS:")[0] ?? prompt;
 
-    const callModel = async (content: string) => {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+    const callClaude = async (content: string) => {
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "X-Lovable-AIG-SDK": "fetch",
+          "x-api-key": rawKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
         },
         body: JSON.stringify({
           model,
-          stream: true,
-          store: false,
-          reasoning: { effort: "low" },
-          instructions:
+          max_tokens: 4000,
+          system:
             "You are a federal contracting writing assistant inside a NASA acquisition prototype. All records are fictional demonstration data. You draft ordinary procurement documentation paragraphs for a contracting officer to review and edit.",
-          input: [{ role: "user", content }],
+          messages: [{ role: "user", content }],
         }),
       });
-      if (response.status === 429) throw new Error("The drafting service is busy right now. Try again in a moment.");
-      if (response.status === 402) throw new Error("The workspace is out of AI credits. Add credits, then try again.");
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
         const body = (await response.text()).slice(0, 300);
-        console.error(`[AI draft] ${response.status} ${body}`);
-        throw new Error(`The drafting service responded ${response.status}. Try again.`);
+        console.error(`[Claude] ${response.status} ${body}`);
+        throw new Error(`Claude responded ${response.status}. ${body || "No detail was returned."}`);
       }
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let value = "";
-      for (;;) {
-        const { done, value: chunk } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(chunk, { stream: true });
-        const frames = buffer.split("\n\n");
-        buffer = frames.pop() ?? "";
-        for (const frame of frames) {
-          for (const line of frame.split("\n")) {
-            if (!line.startsWith("data:")) continue;
-            const json = line.slice(5).trim();
-            if (!json || json === "[DONE]") continue;
-            try {
-              const evt = JSON.parse(json) as { type?: string; delta?: string };
-              if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") value += evt.delta;
-              if (evt.type === "response.failed" || evt.type === "error") {
-                throw new Error("The drafting service could not finish this item. Try again.");
-              }
-            } catch (e) {
-              if (e instanceof Error && e.message.startsWith("The drafting")) throw e;
-            }
-          }
-        }
+      const payload = (await response.json()) as {
+        content?: { type?: string; text?: string }[];
+        stop_reason?: string;
+      };
+      const value = (payload.content ?? [])
+        .filter((c) => typeof c.text === "string" && c.type !== "thinking")
+        .map((c) => c.text ?? "")
+        .join("\n")
+        .trim();
+      if (!value) {
+        console.error(
+          `[Claude] empty text; stop_reason=${payload.stop_reason ?? "none"}; blocks=${(payload.content ?? []).map((c) => c.type).join(",")}`,
+        );
       }
-      return value.trim();
+      console.log(`[Claude] model=${model}; prompt chars=${content.length}; text chars=${value.length}`);
+      return value;
     };
 
     // Some intake answers describe hazards; when the model declines that
     // context, draft again from the record alone rather than failing.
-    let text = await callModel(prompt);
+    let text = await callClaude(prompt);
     let usedAnswers = true;
     if (!text) {
-      text = await callModel(promptWithoutAnswers);
+      text = await callClaude(promptWithoutAnswers);
       usedAnswers = false;
     }
-    if (!text) throw new Error("The drafting service returned no text for this item. Try again.");
+    if (!text) throw new Error("Claude returned no text for this item. Try again.");
 
 
     const generatedAt = new Date().toISOString();
