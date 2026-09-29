@@ -655,12 +655,15 @@ function DocumentPage() {
 
   const vote = useMutation({
     mutationFn: async ({ choice, reason }: { choice: "go" | "no-go"; reason: string | null }) => {
+      if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (!mySeat?.poll_id) throw new Error("The poll for this phase is not open yet.");
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("polls")
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
-        .eq("poll_id", mySeat.poll_id);
+        .eq("poll_id", mySeat.poll_id)
+        .select("poll_id");
       if (error) throw new Error(error.message);
+      if ((data ?? []).length === 0) throw new Error("no review was updated");
       const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
@@ -678,7 +681,7 @@ function DocumentPage() {
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
       await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
-    onError: (e: Error) => setMessage(`The vote did not save: ${e.message}`),
+    onError: (e: Error) => setMessage(failureText("The vote did not save", e)),
   });
 
   const addComment = useMutation({

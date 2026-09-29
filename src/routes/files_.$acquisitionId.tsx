@@ -1148,20 +1148,23 @@ function FilePage() {
       received: string;
       note: string;
     }) => {
+      if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (!acq) return;
       if (!input.entry.poll_id) throw new Error("Open the poll for this phase first");
       if (input.choice === "no-go" && !input.note.trim()) throw new Error("A No-go needs a reason");
       const who = await signedInName(actorName);
       const note = input.note.trim() || null;
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("polls")
         .update({
           vote: input.choice,
           reason: note,
           voted_at: new Date(`${input.received}T12:00:00Z`).toISOString(),
         })
-        .eq("poll_id", input.entry.poll_id);
+        .eq("poll_id", input.entry.poll_id)
+        .select("poll_id");
       if (error) throw new Error(error.message);
+      if ((data ?? []).length === 0) throw new Error("no review was updated");
       await writeAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
@@ -1181,7 +1184,7 @@ function FilePage() {
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(`The vote did not save: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(failureText("The vote did not save", e)),
   });
 
   // Age of the current hold, against the Center's own aging window.
