@@ -9,7 +9,7 @@ import { TableScrollRegion } from "@/components/table-scroll-region";
 
 /** Nightly exclusions sweep: last run time, HQ on-demand run, and the vendor results. */
 export function ExclusionsSweepPanel() {
-  const { hasRole } = useRole();
+  const { hasRole, readOnly } = useRole();
   const run = useServerFn(runExclusionsSweepNow);
   const [result, setResult] = useState<SweepResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -65,7 +65,7 @@ export function ExclusionsSweepPanel() {
             : "Exclusions sweep: never run"}
       </p>
 
-      {hasRole("hq") ? (
+      {hasRole("hq") && !readOnly ? (
         <button
           type="button"
           onClick={onRun}

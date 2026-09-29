@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/files")({
 });
 
 function FilesPage() {
-  const { authState, hasAnyRole } = useRole();
+  const { authState, hasAnyRole, readOnly } = useRole();
   const q = useQuery({
     queryKey: ["files"],
     enabled: authState === "signed-in",
@@ -125,7 +126,8 @@ function FilesPage() {
   return (
     <AppShell>
       <PageHeader title="Files" lead="Every acquisition file, its phase, and its days to award." />
-      {hasAnyRole(["specialist", "requester", "hq"]) ? (
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+      {hasAnyRole(["specialist", "requester", "hq"]) && !readOnly ? (
         <Link to="/intake" className="mb-6 inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
           Start an intake
         </Link>

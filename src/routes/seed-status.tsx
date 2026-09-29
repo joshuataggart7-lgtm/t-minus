@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -87,7 +88,7 @@ export const Route = createFileRoute("/seed-status")({
 });
 
 function SeedStatus() {
-  const { authState, hasRole } = useRole();
+  const { authState, hasRole, readOnly } = useRole();
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -154,8 +155,9 @@ function SeedStatus() {
   return (
     <AppShell>
       <PageHeader title="Seed status" lead="Row counts for every table the seed script loads." />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
-      {authState === "signed-in" && hasRole("hq") ? (
+      {authState === "signed-in" && hasRole("hq") && !readOnly ? (
         <section aria-label="Reset demo" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Reset demo</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
@@ -210,7 +212,7 @@ function SeedStatus() {
         </section>
       ) : null}
 
-      {authState === "signed-in" && hasRole("hq") ? (
+      {authState === "signed-in" && hasRole("hq") && !readOnly ? (
         <section aria-label="Agency backfill" className="mb-8 max-w-[640px] border border-border bg-background p-4 max-sm:max-w-[calc(100vw-2rem)]">
           <h2 className="text-[18px] leading-6 font-medium">Agency backfill</h2>
           <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">

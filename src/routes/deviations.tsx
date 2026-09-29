@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
+import { useCanWrite } from "@/lib/use-can-write";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
@@ -43,10 +45,10 @@ function statusColor(row: DeviationRow) {
 }
 
 function DeviationsPage() {
-  const { authState, user, hasAnyRole } = useRole();
+  const { authState, user, readOnly } = useRole();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canWrite = useCanWrite();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -121,6 +123,7 @@ function DeviationsPage() {
         title="Deviations and waivers"
         lead="FAR and NFS deviation requests, each with its own poll and its own clock to the decision."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
         {DEVIATION_TEMPLATE.name} · NF 1098 tab {DEVIATION_TEMPLATE.tab} · {DEVIATION_TEMPLATE.revision} ·{" "}

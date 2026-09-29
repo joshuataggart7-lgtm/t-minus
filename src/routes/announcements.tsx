@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -38,7 +39,7 @@ function fmt(ts: string | null): string {
 }
 
 function AnnouncementsPage() {
-  const { role, roles, hasRole, user, authState } = useRole();
+  const { role, roles, hasRole, user, authState, readOnly } = useRole();
   const [items, setItems] = useState<Announcement[]>([]);
   const [acks, setAcks] = useState<Ack[]>([]);
   const [people, setPeople] = useState<{ user_id: string; center_code: string | null }[]>([]);
@@ -130,7 +131,7 @@ function AnnouncementsPage() {
             )}
           </div>
         ) : null}
-        {hasRole("hq") && a.requires_acknowledgment ? (
+        {hasRole("hq") && !readOnly && a.requires_acknowledgment ? (
           <div className="mt-4 max-w-[520px] border border-border max-sm:max-w-[calc(100vw-2rem)]">
             <TableScrollRegion baseClassName="overflow-x-auto" label="Acknowledgments by Center table">
             <table className="w-full text-[13px]">
@@ -171,8 +172,9 @@ function AnnouncementsPage() {
   return (
     <AppShell>
       <PageHeader title="Announcements" lead="Notices posted by HQ, with the action each one asks for." />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
-      {hasRole("hq") ? <PostForm actor={user.name} onPosted={refresh} /> : null}
+      {hasRole("hq") && !readOnly ? <PostForm actor={user.name} onPosted={refresh} /> : null}
 
       {state === "loading" ? <LoadingNote what="announcements" /> : null}
       {state === "error" && error ? <ErrorNote message={error} /> : null}

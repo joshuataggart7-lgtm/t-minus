@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -87,7 +88,7 @@ export const Route = createFileRoute("/reg-intake")({
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 function RegIntakePage() {
-  const { authState, hasRole, user } = useRole();
+  const { authState, hasRole, user, readOnly } = useRole();
   const qc = useQueryClient();
   const isHq = hasRole("hq");
 
@@ -318,6 +319,7 @@ function RegIntakePage() {
         title="Regulatory data intake"
         lead="HQ loads a new PCD list, clause matrix, template list, or thresholds file. T-Minus shows what changes against what is loaded before anything is written."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {!isHq ? (
         <p className="max-w-[80ch] text-muted-foreground">
@@ -455,7 +457,7 @@ function RegIntakePage() {
           <SectionDiffTable heading="Replaced sections" rows={sectionDiff.changed} kind="changed" />
           <SectionDiffTable heading="New sections" rows={sectionDiff.added} kind="added" />
           <SectionDiffTable heading="Sections no longer in the file" rows={sectionDiff.removed} kind="removed" />
-          {isHq ? (
+          {isHq && !readOnly ? (
             <div className="mt-8 flex items-center gap-4">
               <button
                 type="button"
@@ -493,7 +495,7 @@ function RegIntakePage() {
           <DiffTable heading="New rows" rows={diff.added} kind="added" />
           <DiffTable heading="Rows no longer in the file" rows={diff.removed} kind="removed" />
 
-          {isHq ? (
+          {isHq && !readOnly ? (
             <div className="mt-8 flex items-center gap-4">
               <button
                 type="button"

@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/digest")({
 });
 
 function DigestPage() {
-  const { authState, user, hasRole } = useRole();
+  const { authState, user, hasRole, readOnly } = useRole();
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -180,6 +181,7 @@ function DigestPage() {
         title="Leadership digest"
         lead="The week in one page. Every figure is computed from the record; nothing here is typed by hand."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {q.isLoading ? <LoadingNote what="the week's figures" /> : null}
       {q.error ? <ErrorNote message={`The digest could not load: ${(q.error as Error).message}. Reload the page.`} /> : null}
@@ -202,7 +204,7 @@ function DigestPage() {
             >
               Export as PDF
             </button>
-            {hasRole("hq") ? (
+            {hasRole("hq") && !readOnly ? (
               <button
                 type="button"
                 className="border border-border px-3 py-2 text-[13px] [border-radius:var(--mc-radius-control)]"

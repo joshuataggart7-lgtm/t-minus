@@ -1,4 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
+import { useCanWrite } from "@/lib/use-can-write";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote } from "@/components/app-shell";
@@ -34,11 +36,11 @@ const totalPlannedDays = DEVIATION_REVIEWERS.reduce((n, r) => n + r.plannedDays,
 
 function DeviationDetail() {
   const { deviationId } = Route.useParams();
-  const { authState, user, hasAnyRole } = useRole();
+  const { authState, user, hasAnyRole, readOnly } = useRole();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const canWrite = hasAnyRole(["specialist", "hq"]);
-  const canVote = hasAnyRole(["reviewer", "hq"]);
+  const canWrite = useCanWrite();
+  const canVote = hasAnyRole(["reviewer", "hq"]) && !readOnly;
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [decisionReason, setDecisionReason] = useState("");
@@ -202,6 +204,7 @@ function DeviationDetail() {
   return (
     <AppShell>
       <PageHeader title={request.title} lead={`${request.citation} · ${typeLabel?.label ?? request.deviation_type}`} />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <p className="mb-2 text-[13px] text-muted-foreground">
         {DEVIATION_TEMPLATE.name} · NF 1098 tab {DEVIATION_TEMPLATE.tab} · {DEVIATION_TEMPLATE.revision} ·{" "}
