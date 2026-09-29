@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { supabase } from "@/integrations/supabase/client";
 import type { RoleId } from "@/lib/roles";
 
@@ -81,6 +82,7 @@ export async function currentUserId(): Promise<string | null> {
 }
 
 export async function acknowledge(a: Announcement, actor: string): Promise<void> {
+  if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
   const userId = await currentUserId();
   if (!userId) throw new Error("You are not signed in yet. Reload the page and try again.");
   const acknowledged_at = new Date().toISOString();

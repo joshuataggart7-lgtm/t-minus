@@ -41,6 +41,8 @@ type RoleContextValue = {
   signOut: () => Promise<void>;
 };
 
+const DEMO_PERSONA_KEY = "tminus-demo-persona";
+
 const RoleContext = createContext<RoleContextValue | null>(null);
 
 // A profile role string maps onto one of the prototype roles. An unknown or
@@ -92,6 +94,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (event === "SIGNED_OUT") {
+        try { window.sessionStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
         setSession(null);
         setProfile(null);
         setAssignedRoles([]);
@@ -107,6 +110,16 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAnonymous = Boolean(session?.user?.is_anonymous);
+
+  // Demo only: restore the picked persona for this tab after hydration.
+  useEffect(() => {
+    if (!isAnonymous) return;
+    try {
+      const saved = window.sessionStorage.getItem(DEMO_PERSONA_KEY);
+      const match = SEEDED_USERS.find((u) => u.role === saved);
+      if (match) setPersonaRole(match.role);
+    } catch { /* ignore */ }
+  }, [isAnonymous]);
 
   useEffect(() => {
     const refreshRoles = () => setRoleRevision((revision) => revision + 1);
@@ -155,6 +168,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    try { window.sessionStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
     setProfile(null);
     setAssignedRoles([]);
     setPersonaRole("executive");
@@ -197,7 +211,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       authState: session ? "signed-in" : ready ? "signed-out" : "signing-in",
       authMessage,
       setRole: (r) => {
-        if (canSwitchPersona && SEEDED_USERS.some((u) => u.role === r)) setPersonaRole(r);
+        if (canSwitchPersona && SEEDED_USERS.some((u) => u.role === r)) {
+          setPersonaRole(r);
+          try { window.sessionStorage.setItem(DEMO_PERSONA_KEY, r); } catch { /* ignore */ }
+        }
       },
       isAnonymous,
       readOnly: isAnonymous,

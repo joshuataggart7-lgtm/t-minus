@@ -1693,7 +1693,7 @@ function DocumentPage() {
 
   const documentSaveState: SaveState = heldByOther && checkout
     ? { kind: "readonly", reason: `Checked out by ${checkout.user_name}` }
-    : !canWrite
+    : !canWrite && !readOnly
       ? { kind: "readonly", reason: "Editing requires Contracting or HQ" }
       : save.isPending
         ? { kind: "saving" }

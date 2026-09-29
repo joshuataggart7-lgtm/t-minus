@@ -81,7 +81,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
     <section aria-label="People and roles" className="mt-8 max-w-[90ch] border-t border-border pt-6">
       <h2 className="text-lg font-medium">People and roles</h2>
       <p className="mt-1 text-[13px] text-muted-foreground">
-        A person may hold several roles. Administrator includes every permission. Every change is logged.
+        A person may hold several roles. Administrator includes every permission. Every change is logged. These boxes change this account's real permissions. To look at the app as another role, use Try the demo.
       </p>
 
       {problem ? <p role="alert" className="mt-3 text-[13px] text-destructive">{problem}</p> : null}

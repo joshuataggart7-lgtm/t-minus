@@ -372,7 +372,7 @@ function RegIntakePage() {
                 onChange={(e) => setEffective(e.target.value)}
               />
             </div>
-            <div>
+            {readOnly ? null : <div>
               <label htmlFor="file" className="text-[14px]">
                 {textType ? "File (one section per line)" : "File (comma separated values)"}
               </label>
@@ -383,7 +383,7 @@ function RegIntakePage() {
                 className={field}
                 onChange={(e) => void pick(e.target.files?.[0] ?? null)}
               />
-            </div>
+            </div>}
             <div>
               <label htmlFor="reason" className="text-[14px]">
                 Note for the record
