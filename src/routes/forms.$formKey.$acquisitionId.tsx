@@ -924,7 +924,7 @@ function FormPage() {
           {readOnly ? (
             <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>
           ) : null}
-          {!canWrite ? (
+          {!canWrite && !readOnly ? (
             <p className="mb-6 text-[13px] text-muted-foreground">Reading only. Editing and saving require Contracting or HQ.</p>
           ) : null}
 
