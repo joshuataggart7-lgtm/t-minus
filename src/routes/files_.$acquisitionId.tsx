@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
+import { useCanWrite } from "@/lib/use-can-write";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
@@ -292,7 +294,7 @@ function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
 function FilePage() {
   const { acquisitionId } = Route.useParams();
   const coldPathSample = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
-  const { authState, user, hasAnyRole } = useRole();
+  const { authState, user, readOnly } = useRole();
   const qc = useQueryClient();
   // Every audit row carries the real account name, never "Signed-in user".
   const [actorName, setActorName] = useState(user.name);
@@ -305,7 +307,7 @@ function FilePage() {
       live = false;
     };
   }, [user.name]);
-  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canWrite = useCanWrite();
   const [mode, setMode] = useState<Mode>("veteran");
   const presenter = usePresenter();
   const navigate = useNavigate();
@@ -1413,7 +1415,7 @@ function FilePage() {
         );
       }
     },
-    onError: (e: Error) => setBanner(`That file did not attach: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(failureText("That file did not attach", e)),
   });
 
   const detachDoc = useMutation({
@@ -2378,7 +2380,9 @@ function FilePage() {
 
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
-      {banner ? (
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+
+      {banner && banner !== DEMO_READ_ONLY_NOTE ? (
         <p className="mb-6 border-l-2 py-1 pl-3 text-[13px]" style={{ borderColor: "var(--attention)" }}>
           {banner}
         </p>
