@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -59,7 +60,7 @@ function useFeed() {
 }
 
 function WatchPage() {
-  const { hasRole, hasAnyRole, user } = useRole();
+  const { hasRole, hasAnyRole, user, readOnly } = useRole();
   const queryClient = useQueryClient();
   const q = useFeed();
   const [source, setSource] = useState<"all" | WatchSource>("all");
@@ -67,8 +68,8 @@ function WatchPage() {
   const [tag, setTag] = useState(initialTag ?? "all");
   const [runNote, setRunNote] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
-  const canPost = hasRole("hq");
-  const canFetch = hasAnyRole(["hq", "specialist"]);
+  const canPost = hasRole("hq") && !readOnly;
+  const canFetch = hasAnyRole(["hq", "specialist"]) && !readOnly;
 
   const items = q.data?.items ?? [];
   const tags = useMemo(
@@ -111,6 +112,7 @@ function WatchPage() {
         title="Watch"
         lead="Protest decisions, rule changes, and notices worth watching. Newest first."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {canFetch ? (
         <section aria-label="Run a fetch" className="mb-8">

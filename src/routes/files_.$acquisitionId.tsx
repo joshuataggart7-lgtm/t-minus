@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
+import { useCanWrite } from "@/lib/use-can-write";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { usePresenter } from "@/lib/presenter";
@@ -292,7 +294,7 @@ function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
 function FilePage() {
   const { acquisitionId } = Route.useParams();
   const coldPathSample = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
-  const { authState, user, hasAnyRole } = useRole();
+  const { authState, user, readOnly } = useRole();
   const qc = useQueryClient();
   // Every audit row carries the real account name, never "Signed-in user".
   const [actorName, setActorName] = useState(user.name);
@@ -305,7 +307,7 @@ function FilePage() {
       live = false;
     };
   }, [user.name]);
-  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canWrite = useCanWrite();
   const [mode, setMode] = useState<Mode>("veteran");
   const presenter = usePresenter();
   const navigate = useNavigate();
@@ -1148,20 +1150,23 @@ function FilePage() {
       received: string;
       note: string;
     }) => {
+      if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (!acq) return;
       if (!input.entry.poll_id) throw new Error("Open the poll for this phase first");
       if (input.choice === "no-go" && !input.note.trim()) throw new Error("A No-go needs a reason");
       const who = await signedInName(actorName);
       const note = input.note.trim() || null;
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("polls")
         .update({
           vote: input.choice,
           reason: note,
           voted_at: new Date(`${input.received}T12:00:00Z`).toISOString(),
         })
-        .eq("poll_id", input.entry.poll_id);
+        .eq("poll_id", input.entry.poll_id)
+        .select("poll_id");
       if (error) throw new Error(error.message);
+      if ((data ?? []).length === 0) throw new Error("no review was updated");
       await writeAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
@@ -1181,7 +1186,7 @@ function FilePage() {
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(`The vote did not save: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(failureText("The vote did not save", e)),
   });
 
   // Age of the current hold, against the Center's own aging window.
@@ -1410,7 +1415,7 @@ function FilePage() {
         );
       }
     },
-    onError: (e: Error) => setBanner(`That file did not attach: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(failureText("That file did not attach", e)),
   });
 
   const detachDoc = useMutation({
@@ -2375,7 +2380,9 @@ function FilePage() {
 
       {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
-      {banner ? (
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+
+      {banner && banner !== DEMO_READ_ONLY_NOTE ? (
         <p className="mb-6 border-l-2 py-1 pl-3 text-[13px]" style={{ borderColor: "var(--attention)" }}>
           {banner}
         </p>

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { useCanWrite } from "@/lib/use-can-write";
+import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
 import { RegulationSidebar } from "@/components/regulation-sidebar";
 import { DefectReport } from "@/components/defect-report";
 import { TableScrollRegion } from "@/components/table-scroll-region";
@@ -655,12 +656,15 @@ function DocumentPage() {
 
   const vote = useMutation({
     mutationFn: async ({ choice, reason }: { choice: "go" | "no-go"; reason: string | null }) => {
+      if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (!mySeat?.poll_id) throw new Error("The poll for this phase is not open yet.");
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("polls")
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
-        .eq("poll_id", mySeat.poll_id);
+        .eq("poll_id", mySeat.poll_id)
+        .select("poll_id");
       if (error) throw new Error(error.message);
+      if ((data ?? []).length === 0) throw new Error("no review was updated");
       const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
@@ -678,7 +682,7 @@ function DocumentPage() {
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
       await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
-    onError: (e: Error) => setMessage(`The vote did not save: ${e.message}`),
+    onError: (e: Error) => setMessage(failureText("The vote did not save", e)),
   });
 
   const addComment = useMutation({
@@ -2816,12 +2820,14 @@ function DocumentPage() {
 
 
 
-        {message ? (
+        {message && message !== DEMO_READ_ONLY_NOTE ? (
           <p role="status" className="mb-6 text-[15px]">
             {message}
           </p>
         ) : null}
-        {!canWrite ? (
+        {readOnly ? (
+          <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>
+        ) : !canWrite ? (
           <p className="mb-6 text-[13px] text-muted-foreground">
             Reading only. Editing and saving require Contracting or HQ.
           </p>
@@ -3087,7 +3093,7 @@ function DocumentPage() {
           <p className="text-muted-foreground">No review is triggered for this phase.</p>
         )}
 
-        {hasRole("reviewer") ? (
+        {hasRole("reviewer") && !readOnly ? (
           mySeat?.poll_id ? (
             <div className="mt-4">
               <label htmlFor="vote-reason" className="block text-[13px] text-muted-foreground">
@@ -3174,7 +3180,7 @@ function DocumentPage() {
         {!latest ? (
           <p className="mt-2 text-[13px] text-muted-foreground">Save a version first, then comment on it.</p>
         ) : null}
-        </>) : (
+        </>) : readOnly ? null : (
           <p className="text-[13px] text-muted-foreground">
             Reading only. Editing and saving require Contracting or HQ.
           </p>

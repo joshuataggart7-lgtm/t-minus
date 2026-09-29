@@ -221,11 +221,8 @@ that preserves the demo path.
 - **Seeding.** `scripts/seed.ts` reads `t-minus-seed/` and loads it exactly,
   inventing no records. Run with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
   in the environment; the service role key is never bundled. Auth users are
-  created with a shared demo password (`SEED_USER_PASSWORD`, default
-  `t-minus-demo-2027`).
-- **Role toggle.** The header toggle signs in as one of the five seeded
-  Supabase Auth users. If those accounts do not exist yet, the shell still
-  renders and shows a plain line pointing at Seed status rather than failing.
+  created with the password taken from the `SEED_USER_PASSWORD` environment
+  variable, which must be set.
 - **Landing pages.** Executive and HQ land on the Executive Overview;
   specialist, reviewer and requester land on the Work Queue.
 - **Rail.** Executive Overview, Work Queue, Files, Templates, Checks, Audit
@@ -2137,7 +2134,7 @@ Visual-only polish of the Overview Mission Clock navy band:
 
 - SF33/SF26 XFA datasets paths flattened to match blank packets: removed the erroneous `topmostSubform.Page1` nest so fields are direct children of `topmostSubform` (e.g. `topmostSubform.CONTRACTNUM`, `topmostSubform.CONTR2`). The SF26 page-number leaf `topmostSubform.PAGE1` keeps its field name. OF347 (`F.P1.*`), SF1449, SF30, NF 1787, pdf-out, and the forms route are untouched. Adobe Reader human check still required before any binding claim; Chrome PDF.js cannot verify XFA binding.
 
-- Walk fix (2026-09-16): Restored Joshua Taggart (Administrator) as the first demo persona in the Try-the-demo switcher. `PersonaRole` now includes `administrator`, `SEEDED_USERS` leads with Joshua (administrator@t-minus.demo, ARC, lands on /today), `userForRole("administrator")` returns Joshua directly, and role-context no longer remaps admin to HQ. The picker now shows six options with Joshua first; demo admin persona gets `roles: ["administrator"]` so Presenter toggle, Today, and admin privileges work via existing `hasRole`. Christina and Roger remain email/password-only and were not added to the switcher. Sample 1/2 clock_state, today.tsx logic, and the auth-screen password path are unchanged. Administrator persona name is now exactly "Joshua Taggart" (matches Sample 1/2 co_name).
+- Walk fix (2026-09-16): Restored Joshua Taggart (Administrator) as the first demo persona in the Try-the-demo switcher. `PersonaRole` now includes `administrator`, `SEEDED_USERS` leads with Joshua (ARC, lands on /today), `userForRole("administrator")` returns Joshua directly, and role-context no longer remaps admin to HQ. The picker now shows six options with Joshua first; demo admin persona gets `roles: ["administrator"]` so Presenter toggle, Today, and admin privileges work via existing `hasRole`. Christina and Roger remain email/password-only and were not added to the switcher. Sample 1/2 clock_state, today.tsx logic, and the auth-screen password path are unchanged. Administrator persona name is now exactly "Joshua Taggart" (matches Sample 1/2 co_name). Superseded 2026-09-28: the administrator persona was removed; Try the demo shows five personas.
 
 - P1 idle polish: PNM comparables field now reports the recorded comparables run (4 prior T-Minus actions, checked Sep 16 08:07) instead of the "no comparable awards are loaded" opener until the officer edits it; file header no longer pairs a day count with "No target award date recorded" (forecast labelled, stand-in stated on its own line); Today's three-things line names target vs forecast award date. Sample 1/2 clocks, phases and CO untouched; no new cites, no external writes.
 

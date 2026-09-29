@@ -16,6 +16,11 @@ if (!url || !key) {
   console.error("Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, then run again.");
   process.exit(1);
 }
+const seedPassword = process.env["SEED_USER_PASSWORD"];
+if (!seedPassword) {
+  console.error("SEED_USER_PASSWORD is required");
+  process.exit(1);
+}
 const db = createClient(url, key, { auth: { persistSession: false } });
 const SEED = join(process.cwd(), "t-minus-seed");
 const read = (f: string) => readFileSync(join(SEED, f), "utf8");
@@ -82,7 +87,7 @@ const USERS = [
   { role: "requester", name: "Dr. Elena Marsh (fictional)", title: "Requester", email: "requester@t-minus.demo", center_code: "ARC" },
   { role: "hq", name: "R. Calder (fictional)", title: "HQ", email: "hq@t-minus.demo", center_code: "HQ" },
 ];
-const DEMO_PASSWORD = process.env["SEED_USER_PASSWORD"] ?? "t-minus-demo-2027";
+const DEMO_PASSWORD: string = seedPassword;
 
 async function seedUsers() {
   const rows = [];

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { useDeskData, daysUntil, heroDocForReviewer, pollMatchesReviewer, type DeskCard } from "@/lib/desk-data";
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/reviewer-inbox")({
 type Row = { poll: PollRow; card: DeskCard };
 
 function ReviewerInbox() {
-  const { authState, user } = useRole();
+  const { authState, user, isAnonymous } = useRole();
   const qc = useQueryClient();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
   const [openPoll, setOpenPoll] = useState<string | null>(null);
@@ -97,14 +98,17 @@ function ReviewerInbox() {
   // writes, with the same audit entry.
   const vote = useMutation({
     mutationFn: async (input: { row: Row; choice: "go" | "no-go"; reason: string }) => {
+      if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (input.choice === "no-go" && !input.reason.trim()) throw new Error("A No-go needs a reason");
       const who = await signedInName(user.name);
       const reason = input.reason.trim() || null;
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("polls")
         .update({ vote: input.choice, reason, voted_at: new Date().toISOString() })
-        .eq("poll_id", input.row.poll.poll_id);
+        .eq("poll_id", input.row.poll.poll_id)
+        .select("poll_id");
       if (error) throw new Error(error.message);
+      if ((data ?? []).length === 0) throw new Error("no review was updated");
       await writeAudit({
         acquisition_id: input.row.card.m.acq.acquisition_id,
         actor: who,
@@ -123,7 +127,7 @@ function ReviewerInbox() {
       void qc.invalidateQueries({ queryKey: ["desk-data"] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(`The vote did not save: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(failureText("The vote did not save", e)),
   });
 
   return (
@@ -133,7 +137,9 @@ function ReviewerInbox() {
         lead={`Reviews waiting on ${user.name}. Read the one document for the phase, then vote Go or No-go.`}
       />
 
-      {banner ? (
+      {isAnonymous ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+
+      {banner && banner !== DEMO_READ_ONLY_NOTE ? (
         <p role="status" className="mb-6 max-w-[80ch] border-l-2 border-primary py-1 pl-3 text-[15px]">
           {banner}
         </p>
@@ -254,7 +260,7 @@ function ReviewerInbox() {
                     ) : null;
                   })()}
 
-                  {isOpen ? (
+                  {isAnonymous ? null : isOpen ? (
                     <div className="mt-3 max-w-[70ch] border border-border bg-background p-4 [border-radius:var(--mc-radius-control)]">
                       <label htmlFor={`note-${poll.poll_id}`} className="block text-[13px] text-muted-foreground">
                         Note. A No-go needs a reason.

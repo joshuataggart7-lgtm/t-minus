@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -37,10 +38,10 @@ export const Route = createFileRoute("/escalations")({
 });
 
 function EscalationsPage() {
-  const { authState, user, hasRole } = useRole();
+  const { authState, user, hasRole, readOnly } = useRole();
   const qc = useQueryClient();
   const [banner, setBanner] = useState<string | null>(null);
-  const canConfigure = hasRole("hq");
+  const canConfigure = hasRole("hq") && !readOnly;
 
   const q = useQuery({
     queryKey: ["aging-escalations"],
@@ -123,6 +124,7 @@ function EscalationsPage() {
         title="Aging holds and escalation"
         lead="Every hold and every pending Go/No-go poll carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {banner ? (
         <p role="status" className="mb-4 max-w-[70ch] text-[13px]">
           {banner}

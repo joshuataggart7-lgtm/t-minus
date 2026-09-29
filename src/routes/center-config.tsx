@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -36,9 +37,9 @@ export const Route = createFileRoute("/center-config")({
 });
 
 function CenterConfigPage() {
-  const { authState, hasRole, hasAnyRole, user } = useRole();
+  const { authState, hasRole, hasAnyRole, user, readOnly } = useRole();
   const qc = useQueryClient();
-  const mayEdit = hasAnyRole(["hq", "specialist"]);
+  const mayEdit = hasAnyRole(["hq", "specialist"]) && !readOnly;
 
   const [center, setCenter] = useState("");
   const [kind, setKind] = useState<"threshold" | "review_trigger">("review_trigger");
@@ -187,6 +188,7 @@ function CenterConfigPage() {
         title="Center configuration"
         lead="Threshold values and review rule triggers can be set per Center with an effective date. Legal and pricing triggers are Center policy; every change is logged."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {q.isLoading ? <LoadingNote what="the Center configuration" /> : null}
       {q.error ? <ErrorNote message="The Center configuration could not be read. Refresh the page to try again." /> : null}
@@ -455,7 +457,7 @@ function CenterConfigPage() {
         </>
       ) : null}
 
-      <TriggerTableEditor mayEdit={hasAnyRole(["hq"]) || hasRole("administrator")} actor={user.name} />
+      <TriggerTableEditor mayEdit={(hasAnyRole(["hq"]) || hasRole("administrator")) && !readOnly} actor={user.name} />
     </AppShell>
   );
 }

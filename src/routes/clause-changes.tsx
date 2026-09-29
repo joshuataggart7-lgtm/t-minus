@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
+import { useCanWrite } from "@/lib/use-can-write";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -50,7 +52,7 @@ const KIND_WORD: Record<string, string> = {
 };
 
 function ClauseChangesPage() {
-  const { authState, user, hasRole, hasAnyRole } = useRole();
+  const { authState, user, hasRole, readOnly } = useRole();
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string>("");
   const [message, setMessage] = useState<string | null>(null);
@@ -84,11 +86,11 @@ function ClauseChangesPage() {
   const rows = useMemo(() => allRows.filter((r) => r.hasContract), [allRows]);
   const solicitationRows = useMemo(() => allRows.filter((r) => !r.hasContract), [allRows]);
 
-  const canWrite = hasAnyRole(["specialist", "hq"]);
+  const canWrite = useCanWrite();
 
   const setDirection = useMutation({
     mutationFn: async (input: { required: boolean; deadline: string | null }) => {
-      if (!change || !hasRole("hq")) return;
+      if (!change || !hasRole("hq") || readOnly) return;
       const id = change.id.replace(/^watch:/, "");
       const query = change.id.startsWith("watch:")
         ? supabase.from("watch_items").update({ modification_required: input.required, change_deadline: input.deadline }).eq("item_id", id)
@@ -162,6 +164,7 @@ function ClauseChangesPage() {
         title="Clause change impact"
         lead="Under RFO FAR 1.107(d), incorporating a changed clause into an existing contract is generally discretionary and needs consideration unless the change direction says otherwise. This list shows candidates; the direction decides."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {loading ? <LoadingNote what="the clause changes" /> : null}
       {failed ? <ErrorNote message="The list did not load. Reload the page and try again." /> : null}
@@ -211,7 +214,7 @@ function ClauseChangesPage() {
                 </dd>
               </div>
             </dl>
-            {hasRole("hq") ? (
+            {hasRole("hq") && !readOnly ? (
               <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-border pt-4">
                 <label className="flex items-center gap-2 text-[13px]">
                   <input
