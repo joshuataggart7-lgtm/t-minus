@@ -134,7 +134,7 @@ function ReviewerInbox() {
     <AppShell>
       <PageHeader
         title="Reviewer inbox"
-        lead={`Reviews waiting on ${user.name}. Read the one document for the phase, then vote Go or No-go.`}
+        lead={isAnonymous ? `Reviews waiting on ${user.name}. Read the one document for the phase.` : `Reviews waiting on ${user.name}. Read the one document for the phase, then vote Go or No-go.`}
       />
 
       {isAnonymous ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}

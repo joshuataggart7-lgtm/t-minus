@@ -8,6 +8,7 @@
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useReadOnly } from "@/components/role-context";
 import { signedInName } from "@/lib/account-name";
 import { RFO_RESERVED_212_NOTE, type PacketClause } from "@/lib/clause-packet";
 import {
@@ -70,6 +71,7 @@ export function SolicitationKlmPanel({
   onBanner: (s: string) => void;
   regionContext?: string;
 }) {
+  const readOnly = useReadOnly();
   const qc = useQueryClient();
   const lQ = useQuery({
     queryKey: ["section-l", acquisitionId],
@@ -437,6 +439,9 @@ export function SolicitationKlmPanel({
               onChange={(e) => setLDraft({ ...lDraft, page_limit: e.target.value })}
             />
           </div>
+          {readOnly ? (
+            lDraft.submission_instructions ? <p className="whitespace-pre-wrap text-[15px] text-foreground sm:col-span-2">{lDraft.submission_instructions}</p> : null
+          ) : (
           <div className="sm:col-span-2">
             <label className="block text-[13px] text-muted-foreground" htmlFor="sec-l-instructions">
               Submission instructions
@@ -450,6 +455,7 @@ export function SolicitationKlmPanel({
               onChange={(e) => setLDraft({ ...lDraft, submission_instructions: e.target.value })}
             />
           </div>
+          )}
           <div className="sm:col-span-2">
             <label className="block text-[13px] text-muted-foreground" htmlFor="sec-l-response">
               Response date note
@@ -509,6 +515,9 @@ export function SolicitationKlmPanel({
               />
               Lowest price technically acceptable
             </label>
+            {readOnly ? (
+              mNotes ? <p className="mt-3 whitespace-pre-wrap text-[15px] text-foreground">{mNotes}</p> : null
+            ) : (
             <div className="mt-3">
               <label className="block text-[13px] text-muted-foreground" htmlFor="sec-m-notes">
                 Evaluation note (optional)
@@ -522,6 +531,7 @@ export function SolicitationKlmPanel({
                 onChange={(e) => setMNotes(e.target.value)}
               />
             </div>
+            )}
             {canWrite ? (
               <button
                 type="button"

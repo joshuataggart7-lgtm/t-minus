@@ -70,6 +70,16 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   };
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+
+  // Demo only: ?as=<role> opens that persona's home. Never runs for real accounts.
+  useEffect(() => {
+    if (!canSwitchPersona) return;
+    const as = new URLSearchParams(window.location.search).get("as");
+    const match = SEEDED_USERS.find((u) => u.role === as);
+    if (!match) return;
+    setRole(match.role);
+    void navigate({ to: match.landing, replace: true });
+  }, [canSwitchPersona]); // eslint-disable-line react-hooks/exhaustive-deps
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
@@ -262,7 +272,12 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                 id="role-toggle"
                 value={role ?? ""}
                 title={SEEDED_USERS.find((u) => u.role === role)?.title}
-                 onChange={(e) => setRole(e.target.value as PersonaRole)}
+                 onChange={(e) => {
+                  const r = e.target.value as PersonaRole;
+                  setRole(r);
+                  const landing = SEEDED_USERS.find((u) => u.role === r)?.landing;
+                  if (landing) void navigate({ to: landing });
+                }}
                 className="min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
               >
                 {SEEDED_USERS.map((u) => (

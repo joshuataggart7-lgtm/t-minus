@@ -1,5 +1,5 @@
 import { writeAudit } from "@/lib/audit";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
+import { DEMO_READ_ONLY_NOTE, failureText } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -84,11 +84,12 @@ function AnnouncementsPage() {
   const past = items.filter((a) => !isCurrent(a));
 
   const onAck = async (a: Announcement) => {
+    if (readOnly) return;
     try {
       await acknowledge(a, user.name);
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "The acknowledgment did not save. Try again.");
+      setError(failureText("The acknowledgment did not save", e instanceof Error ? e : new Error(String(e))));
     }
   };
 
@@ -116,7 +117,7 @@ function AnnouncementsPage() {
             Open the notice
           </a>
         ) : null}
-        {a.requires_acknowledgment && forMe ? (
+        {a.requires_acknowledgment && forMe && !readOnly ? (
           <div className="mt-3">
             {mine ? (
               <p className="text-[13px] text-muted-foreground">You acknowledged this.</p>

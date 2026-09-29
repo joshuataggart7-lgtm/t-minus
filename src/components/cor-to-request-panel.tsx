@@ -7,6 +7,7 @@ import { writeAudit } from "@/lib/audit";
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useReadOnly } from "@/components/role-context";
 import { postAward } from "@/lib/post-award";
 import {
   COR_TO_NOTE,
@@ -35,6 +36,7 @@ export function CorToRequestPanel({
   canWrite: boolean;
   onSaved?: () => void;
 }) {
+  const readOnly = useReadOnly();
   const applies = corToRequestApplies(acq, profile);
   const saved = useMemo(() => corToRequest(acq), [acq]);
   const defaults = useMemo(() => corToDefaults(acq), [acq]);
@@ -146,6 +148,9 @@ export function CorToRequestPanel({
       </div>
 
       <div className="mt-3">
+        {readOnly ? (
+          form.narrative ? <p className="whitespace-pre-wrap text-[15px] text-foreground">{form.narrative}</p> : null
+        ) : (<>
         <label className="text-[13px]" htmlFor="cor-to-narrative">Narrative</label>
         <textarea
           id="cor-to-narrative"
@@ -155,6 +160,7 @@ export function CorToRequestPanel({
           value={form.narrative ?? ""}
           onChange={(e) => setForm({ ...form, narrative: e.target.value })}
         />
+        </>)}
         {empty ? (
           <p className="mt-1 text-[13px] text-muted-foreground">
             Nothing written yet. The memo below shows "Not recorded" until it is.
@@ -163,14 +169,14 @@ export function CorToRequestPanel({
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button
+        {readOnly ? null : <button
           type="button"
           disabled={!canWrite || save.isPending}
           onClick={() => save.mutate()}
           className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-60"
         >
           Save the request
-        </button>
+        </button>}
         <button
           type="button"
           onClick={() => {

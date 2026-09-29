@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
+import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { supabase } from "@/integrations/supabase/client";
 import { FAIR_OPPORTUNITY_EXCEPTIONS, VEHICLE_DEFAULTS, type VehicleProfile } from "@/lib/vehicles";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
@@ -141,7 +142,7 @@ const inputClass =
   "w-full border border-border bg-background px-3 py-2 text-[15px] text-foreground [border-radius:var(--mc-radius-control)]";
 
 function IntakePage() {
-  const { user, hasAnyRole, authState, profile } = useRole();
+  const { user, hasAnyRole, authState, profile, readOnly } = useRole();
   const navigate = useNavigate();
   const data = useRefData(authState === "signed-in");
 
@@ -320,6 +321,10 @@ function IntakePage() {
   }
 
   async function addProject() {
+    if (await isDemoSession()) {
+      setProjectError(DEMO_READ_ONLY_NOTE);
+      return;
+    }
     if (!newProjectName.trim() || !newProjectDate || !facts.mission_directorate_code) {
       setProjectError("Enter a project name and need date after choosing a mission directorate.");
       return;
@@ -398,6 +403,10 @@ function IntakePage() {
   }
 
   async function startTheClock() {
+    if (await isDemoSession()) {
+      setSaveError(DEMO_READ_ONLY_NOTE);
+      return;
+    }
     if (!scan || scan.some((f) => f.blocking)) return;
     setSaving(true);
     setSaveError(null);
@@ -527,7 +536,7 @@ function IntakePage() {
         });
       }
 
-      if (profile) {
+      if (profile && !readOnly) {
         await supabase.from("profiles").update({
           last_center_code: facts.center_code,
           last_organization_code: facts.branch_code || null,
@@ -605,6 +614,7 @@ function IntakePage() {
         title="Intake: NF 1707"
         lead="Enter the acquisition once. Every document, check, and record reads from this file."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <div className="mc-work-toolbar mb-8 flex flex-wrap items-center">
         <button
@@ -742,7 +752,7 @@ function IntakePage() {
               <div className="mt-2 grid gap-2 sm:grid-cols-[1fr_auto_auto] max-sm:grid-cols-1">
                 <input aria-label="New project name" placeholder="Project name" className={inputClass} value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} />
                 <input aria-label="New project need date" type="date" className={inputClass} value={newProjectDate} onChange={(e) => setNewProjectDate(e.target.value)} />
-                <button type="button" className="rounded-lg bg-primary px-3 py-2 text-[14px] text-primary-foreground" onClick={() => void addProject()}>Add</button>
+                {readOnly ? null : <button type="button" className="rounded-lg bg-primary px-3 py-2 text-[14px] text-primary-foreground" onClick={() => void addProject()}>Add</button>}
               </div>
             ) : null}
             {projectError ? <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }}>{projectError}</p> : null}
@@ -1532,14 +1542,14 @@ function IntakePage() {
               </p>
             ) : null}
 
-            <button
+            {readOnly ? null : <button
               type="button"
               disabled={blocking.length > 0 || saving}
               onClick={() => void startTheClock()}
               className="bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50 [border-radius:var(--mc-radius-control)]"
             >
               {saving ? "Starting" : "Start the clock"}
-            </button>
+            </button>}
             {blocking.length > 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 Clear the {blocking.length} blocking flag{blocking.length === 1 ? "" : "s"} above to
