@@ -1085,8 +1085,23 @@ function DocumentPage() {
 
   // Packet documents in the contract file index, in NF 1098 tab order.
   const enclosures = useMemo(() => {
+    // An attachment and a document row can record the same official export.
+    // The document row's template name stays and wins: an attachment line is
+    // dropped only when a live official-export document row on this file
+    // carries exactly the same doc_key. Hand uploads, attachments with a
+    // different doc_key, and rows with no matching document row stay listed.
+    const officialExportKeys = new Set(
+      (q.data?.fileDocRows ?? []).flatMap((row) => {
+        const fv = (row.field_values ?? {}) as Record<string, unknown>;
+        if (fv["__retired"] || fv["kind"] !== "official-export") return [];
+        const key = fv["doc_key"];
+        return typeof key === "string" && key ? [key] : [];
+      }),
+    );
     const items: { tab: string; label: string }[] = [
-      ...(q.data?.attachments ?? []).map((a) => ({ tab: String(a.nf_1098_tab ?? ""), label: a.doc_label })),
+      ...(q.data?.attachments ?? [])
+        .filter((a) => !officialExportKeys.has(a.doc_key))
+        .map((a) => ({ tab: String(a.nf_1098_tab ?? ""), label: a.doc_label })),
       ...(q.data?.fileDocRows ?? [])
         .filter((d) => d.templates?.name)
         .map((d) => ({ tab: String(d.templates?.nf_1098_tab ?? ""), label: d.templates!.name })),
@@ -1580,11 +1595,13 @@ function DocumentPage() {
   const exportHeaderLine = `${acquisitionId} · ${
     chromeCountdown?.pastTarget
       ? countdownText(chromeCountdown)
-      : daysToAward === null
-        ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
-        : daysToAward < 0
-          ? `${Math.abs(daysToAward)} days past target`
-          : `${daysToAward} days to award`
+      : chromeCountdown && chromeCountdown.mode === "hold" && chromeCountdown.days !== null
+        ? countdownText(chromeCountdown)
+        : daysToAward === null
+          ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
+          : daysToAward < 0
+            ? `${Math.abs(daysToAward)} days past target`
+            : `${daysToAward} days to award`
   }`;
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown
