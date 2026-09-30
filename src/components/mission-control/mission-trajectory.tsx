@@ -8,6 +8,8 @@ import { overviewCountdownView } from "./operational-state";
 import { priorityTier } from "./executive-exceptions";
 import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
+import { dayWord } from "@/lib/pluralize";
+
 
 const NR = "Not recorded";
 const list = (items: string[]) => (items.length ? <ul>{items.map((i) => <li key={i}>{i}</li>)}</ul> : <span>None recorded</span>);
@@ -112,7 +114,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         <div className="mc-featured-clock">
           <strong data-numeric>{view.days === null ? (view.mode === "stopped" ? "Stopped" : "Not started") : view.pastTarget ? view.days : `${view.prefix}${view.days}`}</strong>
           {view.pastTarget ? (
-            <span>{view.days === 1 ? "day past target" : "days past target"}</span>
+            <span>{`${dayWord(view.days)} past target`}</span>
           ) : view.caption === state ? null : <span>{view.caption}</span>}
         </div>
         <div className="mc-featured-state">

@@ -4,6 +4,8 @@
 import { todayISO } from "@/lib/intake";
 import type { AcqMetrics } from "@/lib/metrics";
 import type { AgingItem } from "@/lib/aging";
+import { dayWord } from "@/lib/pluralize";
+
 
 export type DigestSection = { heading: string; lines: string[] };
 
@@ -159,8 +161,9 @@ export function digestSections(d: Digest): DigestSection[] {
                 r.daysToAward === null
                   ? "— days to award"
                   : r.daysToAward < 0
-                    ? `${Math.abs(r.daysToAward)} ${Math.abs(r.daysToAward) === 1 ? "day" : "days"} past target`
-                    : `${r.daysToAward} days to award`
+                    ? `${Math.abs(r.daysToAward)} ${dayWord(Math.abs(r.daysToAward))} past target`
+                    : `${r.daysToAward} ${dayWord(r.daysToAward)} to award`
+
               }`,
           )
         : ["No file is at risk."],

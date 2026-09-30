@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
 import { MissionReadinessChip, missionReadinessClass } from "./primitives";
+import { dayWord } from "@/lib/pluralize";
+
 
 export function AcquisitionScanCard({
   metric,
@@ -62,7 +64,7 @@ export function AcquisitionScanCard({
               {view.days}
             </strong>
           )}
-        <small>{view.pastTarget ? `${view.days === 1 ? "day" : "days"} past target${view.badge && view.badge !== state ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
+        <small>{view.pastTarget ? `${dayWord(view.days)} past target${view.badge && view.badge !== state ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
       </div>
       <div className="mc-strip-phase" data-label="Phase">
         <strong title={metric.currentPhase ?? "Not started"}>{metric.currentPhase ?? "Not started"}</strong>

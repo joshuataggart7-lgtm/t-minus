@@ -139,6 +139,8 @@ import {
   type MemoHeader,
   type MemoRoutingRow,
 } from "@/lib/nf1858";
+import { dayWord } from "@/lib/pluralize";
+
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
@@ -1600,8 +1602,9 @@ function DocumentPage() {
         : daysToAward === null
           ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
           : daysToAward < 0
-            ? `${Math.abs(daysToAward)} ${Math.abs(daysToAward) === 1 ? "day" : "days"} past target`
-            : `${daysToAward} days to award`
+            ? `${Math.abs(daysToAward)} ${dayWord(Math.abs(daysToAward))} past target`
+            : `${daysToAward} ${dayWord(daysToAward)} to award`
+
   }`;
   const headerLine = `${acquisitionId} · ${
     !chromeCountdown

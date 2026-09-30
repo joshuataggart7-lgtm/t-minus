@@ -11,6 +11,8 @@ import { LaunchCountdownCompact, countdownView } from "@/components/launch-count
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { dayWord } from "@/lib/pluralize";
+
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -319,7 +321,7 @@ function TodayPage() {
                     {c.m.nextAction} — <FileLink card={c} />
                     <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
                       {view.mode === "overdue" ? (
-                        <span className="mr-2" data-numeric>{`${view.days} ${view.days === 1 ? "day" : "days"} past target · OVERDUE`}</span>
+                        <span className="mr-2" data-numeric>{`${view.days} ${dayWord(view.days)} past target · OVERDUE`}</span>
                       ) : (
                         <LaunchCountdownCompact view={view} className="mr-2" />
                       )}
@@ -355,8 +357,9 @@ function TodayPage() {
                         {p.phase} ·{" "}
                         {p.due_date
                           ? due !== null && due < 0
-                            ? `due ${p.due_date}, ${Math.abs(due)} days past due`
-                            : `due ${p.due_date}, ${due} days left`
+                            ? `due ${p.due_date}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
+                            : `due ${p.due_date}, ${due} ${dayWord(due)} left`
+
                           : "no due date recorded"}
                       </span>
                     </li>

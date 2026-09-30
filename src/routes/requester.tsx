@@ -8,6 +8,8 @@ import { awardConfidence } from "@/lib/confidence";
 import { RequesterLoe } from "@/components/requester-loe";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { dayWord } from "@/lib/pluralize";
+
 
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
@@ -209,7 +211,7 @@ function RequesterPortal() {
                           ? `Launched ${c.m.daysSinceAward ?? 0} days ago`
                           : Number.isFinite(c.m.daysToAward)
                             ? c.m.daysToAward !== null && c.m.daysToAward < 0
-                              ? `${Math.abs(c.m.daysToAward)} ${Math.abs(c.m.daysToAward) === 1 ? "day" : "days"} past target`
+                              ? `${Math.abs(c.m.daysToAward)} ${dayWord(Math.abs(c.m.daysToAward))} past target`
                               : `${c.m.daysToAward} calendar days`
                             : "No target award date recorded"}
                       </dd>
