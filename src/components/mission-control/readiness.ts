@@ -1,5 +1,6 @@
 import type { AcqMetrics } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
+import { buildReadinessContext, type ReadinessKeys } from "@/lib/readiness-context";
 
 /**
  * Rule-driven readiness for the Executive Overview. Every trigger is a
@@ -45,7 +46,10 @@ export type ReadinessContext = {
 export const DEFAULT_WATCH_WINDOW_DAYS = 30;
 
 /** Shared readiness context for operational work surfaces. */
-export function explainWorkReadiness(metric: AcqMetrics): ReadinessExplanation {
+export function explainWorkReadiness(metric: AcqMetrics, keys?: ReadinessKeys): ReadinessExplanation {
+  if (keys) {
+    return explainReadiness(metric, buildReadinessContext({ metric, ...keys, today: todayISO() }));
+  }
   return explainReadiness(metric, {
     // AcqMetrics does not retain attachment/save sets, so never infer missing evidence here.
     missingEvidence: [],

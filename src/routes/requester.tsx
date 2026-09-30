@@ -127,7 +127,7 @@ function RequesterPortal() {
             const openDays = daysSince((acq['created_at'] as string | null) ?? null);
             const holdDays = daysSince((acq['hold_started_at'] as string | null) ?? null);
             const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
-            const readiness = explainWorkReadiness(c.m).state;
+            const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
             const waitingOnMe =
               c.m.clockState === "hold" &&
               (c.m.blockerOwner ?? "").toLowerCase().includes(user.name.split(" ")[1]?.toLowerCase() ?? "@@");

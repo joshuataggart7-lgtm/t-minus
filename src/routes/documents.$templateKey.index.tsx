@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { phaseAlias } from "@/lib/phase-alias";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -69,7 +70,7 @@ function ChooseAcquisition() {
               {a.acquisition_id} — {a.title}
             </Link>
             <p className="text-[13px] text-muted-foreground">
-              {a.center_code} · {a.current_phase}
+              {a.center_code} · {phaseAlias(a.current_phase)}
             </p>
           </li>
         ))}

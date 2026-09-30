@@ -845,11 +845,17 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
   // Phase windows. A phase cannot begin before the one before it ended, so the
   // dates are walked forward and held in order.
   const windows: { phase: string; status: string; entered: string; exited: string }[] = [];
+  const noise = /checked out|check-out released|reporting extract/i;
+  // The current phase is "as of" the newest recorded (non-noise) activity on the file.
+  const newestActivity = audit.filter((a) => !noise.test(a.action)).at(-1)?.at ?? "";
   let floor = "";
   for (const p of phases) {
     const own = audit.filter((a) => str(a.phase).toLowerCase() === p.phase.toLowerCase());
     let entered = own.length ? onlyDate(own[0]!.at) : floor;
-    let exited = own.length ? onlyDate(own[own.length - 1]!.at) : entered;
+    let exited =
+      p.status === "current" && newestActivity
+        ? onlyDate(newestActivity)
+        : own.length ? onlyDate(own[own.length - 1]!.at) : entered;
     if (floor && entered < floor) entered = floor;
     if (exited < entered) exited = entered;
     windows.push({ phase: p.phase, status: p.status, entered, exited });
@@ -867,7 +873,6 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
   const researchSentence = chronologyResearchSentence(ctx);
   const researchDay = (ctx.researchLog ?? []).map((line) => onlyDate(line.ranAt)).filter(Boolean).sort().at(-1) ?? "";
 
-  const noise = /checked out|check-out released|reporting extract/i;
   const paragraphs: string[] = [];
   const said = new Set<string>();
 
@@ -878,12 +883,16 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         (str(a.phase).toLowerCase() === w.phase.toLowerCase() || (!str(a.phase) && windowFor(a.at) === w.phase)),
     );
     const sentences: string[] = [];
-    const push = (text: string) => {
+    // Timestamp of the audit row each sentence describes ("" when none).
+    const stamps: string[] = [];
+    const pushAt = (text: string, at = "") => {
       const key = text.toLowerCase().replace(/\s+/g, " ").trim();
       if (said.has(key)) return;
       said.add(key);
       sentences.push(text);
+      stamps.push(at);
     };
+    const push = pushAt;
 
     push(
       w.status === "current"
@@ -904,7 +913,8 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
     }
     for (const list of groups.values()) {
       const label = docName(list[0]!);
-      const on = day(list[list.length - 1]!.at);
+      const groupAt = list[list.length - 1]!.at;
+      const on = day(groupAt);
       const attaches = list.filter((a) => /document attached/i.test(a.action));
       const removes = list.filter((a) => /document removed/i.test(a.action));
       const saves = list.filter((a) => /document saved|version saved/i.test(a.action));
@@ -915,11 +925,12 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
           `The ${label} was attached, removed and re-attached on ${on}${
             version ? `; the version on file is ${version}` : ""
           }.`,
+          groupAt,
         );
       } else if (attaches.length) {
-        push(`The ${label} was attached on ${on}${version ? ` as ${version}` : ""}.`);
+        push(`The ${label} was attached on ${on}${version ? ` as ${version}` : ""}.`, groupAt);
       } else if (removes.length) {
-        push(`The ${label} was removed from the file on ${on}.`);
+        push(`The ${label} was removed from the file on ${on}.`, groupAt);
       }
       if (saves.length) {
         const saved = saves[saves.length - 1]!;
@@ -929,6 +940,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
           /^\d+$/.test(versionNumber)
             ? `The ${label} was saved as version ${versionNumber} on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`
             : `A new version of the ${label} was saved on ${day(saved.at)} by ${personPhrase(ctx, saved.actor)}.`,
+          groupAt,
         );
       }
     }
@@ -966,16 +978,18 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         clear
           ? `The clock went on hold on ${stamp(h.at)} ${because}, and resumed ${resumed}.`
           : `The clock went on hold on ${stamp(h.at)} ${because}.`,
+        clear && clear.at > h.at ? clear.at : h.at,
       );
     });
     clears.filter((c) => !handled.has(c)).forEach((c) => {
       handled.add(c);
-      push(`The hold was lifted and the clock resumed on ${stamp(c.at)}.`);
+      push(`The hold was lifted and the clock resumed on ${stamp(c.at)}.`, c.at);
     });
 
     for (const a of rows) {
       if (handled.has(a)) continue;
       const on = day(a.at);
+      const push = (text: string) => pushAt(text, a.at);
       if (/poll opened/i.test(a.action)) {
         push(`The go/no-go poll was opened on ${on}.`);
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
@@ -1022,7 +1036,20 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
 
     if (sentences.length === 1) sentences.push("No further activity was recorded against this phase.");
     // At most six sentences to a phase, so the memorandum stays a narrative.
-    paragraphs.push(sentences.slice(0, 6).join(" "));
+    // For the current phase, keep the entry sentence plus the five newest facts,
+    // printed in their original order. Every other phase keeps the first six.
+    if (w.status === "current" && sentences.length > 6) {
+      const newest = new Set(
+        sentences
+          .map((_, i) => i)
+          .slice(1)
+          .sort((x, y) => (stamps[y] ?? "").localeCompare(stamps[x] ?? "") || x - y)
+          .slice(0, 5),
+      );
+      paragraphs.push(sentences.filter((_, i) => i === 0 || newest.has(i)).join(" "));
+    } else {
+      paragraphs.push(sentences.slice(0, 6).join(" "));
+    }
   }
 
   return paragraphs.join("\n\n");

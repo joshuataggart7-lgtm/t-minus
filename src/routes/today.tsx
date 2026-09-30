@@ -214,7 +214,7 @@ function TodayPage() {
                 <RowKeysHint />
                 <ul ref={rowsRef} className="mt-3 divide-y divide-border border-y border-border">
                   {waitingOnMe.map((c) => {
-                    const readiness = explainWorkReadiness(c.m).state;
+                    const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
                     return (
                     <li
                       key={c.m.acq.acquisition_id}
@@ -308,7 +308,7 @@ function TodayPage() {
             ) : (
               <ol className="space-y-3">
                 {topThree.map((c, i) => {
-                  const readiness = explainWorkReadiness(c.m).state;
+                  const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
                   const view = countdownView(c.m);
                   return (
                   <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>

@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { phaseAlias } from "@/lib/phase-alias";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -506,7 +507,7 @@ function DocumentPage() {
           ? await queryClient.fetchQuery({
               queryKey: ["document-context", templateKey, acquisitionId, "audit-history"],
               queryFn: () => loadFileAuditHistory(acquisitionId),
-              staleTime: Infinity,
+              staleTime: 30_000,
               gcTime: Infinity,
             })
           : [];
@@ -1056,9 +1057,15 @@ function DocumentPage() {
       savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),
     });
     const view = overviewCountdownView(metrics);
-    const readiness = explainWorkReadiness(metrics).state;
+    const keys = {
+      acq: metrics.acq,
+      attachedKeys: keysFrom(q.data.attachments ?? [], acquisitionId),
+      savedKeys: savedDocKeys(q.data.fileDocRows ?? [], templateRows, acquisitionId),
+    };
+    const readiness = explainWorkReadiness(metrics, keys).state;
     return {
       metrics,
+      keys,
       view,
       operational: {
         phase: metrics.currentPhase ?? "Not recorded",
@@ -1074,7 +1081,7 @@ function DocumentPage() {
     };
   }, [q.data, acquisitionId]);
   const chromeCountdown = chromeState?.view ?? null;
-  const chromeReadiness = chromeState ? explainWorkReadiness(chromeState.metrics) : null;
+  const chromeReadiness = chromeState ? explainWorkReadiness(chromeState.metrics, chromeState.keys) : null;
 
   // Packet documents in the contract file index, in NF 1098 tab order.
   const enclosures = useMemo(() => {
@@ -3227,7 +3234,7 @@ function DocumentPage() {
       </MissionNavSection>
 
       <MissionNavSection id="doc-regulations" label="Regulations">
-        <RegulationSidebar phase={(q.data?.acq?.["current_phase"] as string | null) || phase} />
+        <RegulationSidebar phase={(phaseAlias(q.data?.acq?.["current_phase"] as string | null) as string | null) || phase} />
       </MissionNavSection>
       <MissionNavSection id="doc-defect" label="Report a defect" collapsible summary="Support details">
         <DefectReport

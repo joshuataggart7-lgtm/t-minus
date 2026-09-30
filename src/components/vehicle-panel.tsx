@@ -3,6 +3,7 @@
 // period. On an order, the line that names the parent.
 
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { phaseAlias } from "@/lib/phase-alias";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -176,7 +177,7 @@ export function VehiclePanel({
                   <td className="py-2 pr-4">{r.title}</td>
                   <td className="py-2 pr-4" data-numeric>{money(Number(r.estimated_value ?? 0))}</td>
                   <td className="py-2">
-                    {r.clock_state === "launched" ? "Launched" : (r.current_phase ?? "Intake")}
+                    {r.clock_state === "launched" ? "Launched" : (phaseAlias(r.current_phase) ?? "Intake")}
                   </td>
                 </tr>
               ))}

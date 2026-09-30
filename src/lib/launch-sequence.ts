@@ -5,6 +5,7 @@
 // beyond the phase citation labels.
 
 import { matchStrategy, type RefData } from "@/lib/intake";
+import { phaseAlias } from "@/lib/phase-alias";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
@@ -1062,7 +1063,7 @@ export function buildSequence(
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const currentIndex = rows.findIndex(
-    (r) => (r.phase ?? "").toLowerCase() === String(acq.current_phase ?? "").toLowerCase(),
+    (r) => (r.phase ?? "").toLowerCase() === String(phaseAlias(acq.current_phase) ?? "").toLowerCase(),
   );
   const baseline = acq.regulatory_baseline_date ?? null;
   const elapsed = baseline ? Math.max(0, daysBetween(baseline, todayISO)) : null;

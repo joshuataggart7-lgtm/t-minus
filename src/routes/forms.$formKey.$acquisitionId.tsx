@@ -415,10 +415,15 @@ function FormPage() {
       attachedKeys: keysFrom(d.attachments, acquisitionId),
       savedKeys: savedDocKeys(d.documents, d.templates, acquisitionId),
     });
-    return { metrics, view: overviewCountdownView(metrics) };
+    const keys = {
+      acq: metrics.acq,
+      attachedKeys: keysFrom(d.attachments, acquisitionId),
+      savedKeys: savedDocKeys(d.documents, d.templates, acquisitionId),
+    };
+    return { metrics, keys, view: overviewCountdownView(metrics) };
   }, [countdownQ.data, acquisitionId]);
   const countdown = countdownState?.view ?? null;
-  const formReadiness = countdownState ? explainWorkReadiness(countdownState.metrics) : null;
+  const formReadiness = countdownState ? explainWorkReadiness(countdownState.metrics, countdownState.keys) : null;
   const headerLine = `${acquisitionId} · ${
     !countdown
       ? "Not recorded"

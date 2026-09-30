@@ -13,6 +13,7 @@ import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow, RequiredDoc } from "@/lib/launch-sequence";
 import { generatorKey } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { historyFrom, type HistoryFile } from "@/lib/confidence";
 import {
   computeMetrics,
@@ -27,6 +28,7 @@ export type DeskCard = {
   owner: string;
   requester: string;
   attachedKeys: Set<string>;
+  savedKeys: Set<string>;
 };
 
 export type DeskData = {
@@ -68,8 +70,8 @@ export function useDeskData(enabled: boolean) {
           loadLaunchEvents(),
         ]);
       const [attachments, documents, templateRows, modTasks] = await Promise.all([
-        supabase.from("document_attachments").select("acquisition_id,doc_key"),
-        supabase.from("documents").select("acquisition_id,template_id"),
+        loadAttachmentKeyRows(),
+        loadDocumentKeyRows(),
         supabase.from("templates").select("template_id,name"),
         supabase
           .from("clause_mod_tasks")
@@ -85,8 +87,8 @@ export function useDeskData(enabled: boolean) {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
-        attachments: attachments.data ?? [],
-        documents: documents.data ?? [],
+        attachments,
+        documents: documents as { acquisition_id: string | null; template_id: string | null }[],
         templates: templateRows.data ?? [],
         modTasks: (modTasks.data ?? []) as DeskData["modTasks"],
         stateLog: log,
@@ -127,9 +129,10 @@ export function useDeskData(enabled: boolean) {
         const mission = d.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
         const attachedKeys = keysFrom(d.attachments, acq.acquisition_id);
         const operational = deriveOverviewAcquisitionState(acq, [...d.stateLog, ...d.launches]);
+        const savedKeys = savedDocKeys(d.documents, d.templates, acq.acquisition_id);
         const m = computeMetrics(operational.acquisition, {
           attachedKeys,
-          savedKeys: savedDocKeys(d.documents, d.templates, acq.acquisition_id),
+          savedKeys,
           roster: d.users,
           plan: d.plan,
           rules: d.rules,
@@ -142,6 +145,7 @@ export function useDeskData(enabled: boolean) {
         return {
           m,
           attachedKeys,
+          savedKeys,
           mission: mission?.name ?? "No mission linked",
           owner: String(acq.co_name ?? "Unassigned"),
           requester: String(acq['requester_name'] ?? ""),

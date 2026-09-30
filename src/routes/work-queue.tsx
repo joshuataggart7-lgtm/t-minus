@@ -20,6 +20,7 @@ import {
 } from "@/lib/metrics";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { explainWorkReadiness, type ReadinessExplanation } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import {
@@ -128,9 +129,9 @@ function WorkQueuePage() {
         supabase.from("users").select("name,title,center_code"),
         loadLaunchEvents(),
       ]);
-      const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
+      const attachments = await loadAttachmentKeyRows();
       const [documents, templateRows] = await Promise.all([
-        supabase.from("documents").select("acquisition_id,template_id"),
+        loadDocumentKeyRows(),
         supabase.from("templates").select("template_id,name"),
       ]);
       return {
@@ -142,8 +143,8 @@ function WorkQueuePage() {
         thresholds: thresholds.data ?? [],
         strategies: strategies.data ?? [],
         polls: (polls.data ?? []) as PollRow[],
-        attachments: attachments.data ?? [],
-        documents: documents.data ?? [],
+        attachments,
+        documents: documents as { acquisition_id: string | null; template_id: string | null }[],
         templates: templateRows.data ?? [],
         stateLog: log,
         launches,
@@ -185,9 +186,14 @@ function WorkQueuePage() {
       .map((acq) => {
         const operational = deriveOverviewAcquisitionState(acq, [...q.data.stateLog, ...q.data.launches]);
         const mission = q.data.missions.find((m) => m.mission_id === acq.mission_id) ?? null;
-        const m = computeMetrics(operational.acquisition, {
+        const keys = {
+          acq: operational.acquisition,
           attachedKeys: keysFrom(q.data.attachments ?? [], acq.acquisition_id),
           savedKeys: savedDocKeys(q.data.documents ?? [], q.data.templates ?? [], acq.acquisition_id),
+        };
+        const m = computeMetrics(operational.acquisition, {
+          attachedKeys: keys.attachedKeys,
+          savedKeys: keys.savedKeys,
           roster: q.data.users ?? [],
           plan: q.data.plan,
           rules: q.data.rules,
@@ -198,7 +204,7 @@ function WorkQueuePage() {
           awardDate: operational.actualAwardDate,
         });
         const current = m.phases.find((p) => p.status === "current") ?? null;
-        const readiness = explainWorkReadiness(m);
+        const readiness = explainWorkReadiness(m, keys);
         const recordedValue = acq.estimated_value;
         const rawValue = recordedValue === null || recordedValue === undefined || recordedValue === ""
           ? null
