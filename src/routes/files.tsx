@@ -15,6 +15,7 @@ import { formatMoney, type RefData } from "@/lib/intake";
 import type { StoredEstimate } from "@/lib/estimator";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
+import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 
@@ -52,8 +53,8 @@ function FilesPage() {
         supabase.from("polls").select("*"),
         loadStateAuditRows(),
         supabase.from("users").select("name,title,center_code"),
-        supabase.from("document_attachments").select("acquisition_id,doc_key"),
-        supabase.from("documents").select("acquisition_id,template_id"),
+        loadAttachmentKeyRows(),
+        loadDocumentKeyRows(),
         supabase.from("templates").select("template_id,name"),
         supabase.from("center_overrides").select("*"),
         supabase.from("thresholds").select("*"),
@@ -69,8 +70,8 @@ function FilesPage() {
         stateLog: log,
         launches,
         users: users.data ?? [],
-        attachments: attachments.data ?? [],
-        documents: documents.data ?? [],
+        attachments,
+        documents: documents as { acquisition_id: string | null; template_id: string | null }[],
         templates: templates.data ?? [],
         overrides: overrides.data ?? [],
         thresholds: thresholds.data ?? [],
@@ -106,9 +107,14 @@ function FilesPage() {
     return q.data.acqs.map((acq) => {
       const operational = deriveOverviewAcquisitionState(acq, [...q.data.stateLog, ...q.data.launches]);
       const mission = q.data.missions.find((row) => row.mission_id === acq.mission_id) ?? null;
-      const metric = computeMetrics(operational.acquisition, {
+      const keys = {
+        acq: operational.acquisition,
         attachedKeys: attachedKeys(q.data.attachments, acq.acquisition_id),
         savedKeys: savedDocKeys(q.data.documents, q.data.templates, acq.acquisition_id),
+      };
+      const metric = computeMetrics(operational.acquisition, {
+        attachedKeys: keys.attachedKeys,
+        savedKeys: keys.savedKeys,
         roster: q.data.users,
         plan: q.data.plan,
         rules: q.data.rules,
@@ -118,7 +124,7 @@ function FilesPage() {
         holdSince: holdSince(acq, q.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
-      const readiness = explainWorkReadiness(metric);
+      const readiness = explainWorkReadiness(metric, keys);
       return { acq, operational: operational.acquisition, metric, mission, readiness };
     });
   }, [q.data, ref]);
