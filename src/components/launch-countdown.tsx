@@ -12,7 +12,6 @@ import { formatDate, type AcqMetrics } from "@/lib/metrics";
 import { cn } from "@/lib/utils";
 import { dayWord } from "@/lib/pluralize";
 
-
 export type CountdownMode =
   | "running"
   | "hold"
@@ -136,7 +135,6 @@ export function countdownText(view: CountdownView, opts?: { omitBadge?: boolean 
         : `${view.days} ${dayWord(view.days)} past target · OVERDUE`;
     }
     if (view.mode === "forecast") return `${view.days} ${dayWord(view.days)} past the forecast award date`;
-
   }
   const clock = `${view.prefix ?? ""}${view.days}`;
   if (view.mode === "hold") return `${clock} HOLD`;
@@ -194,7 +192,6 @@ export function LaunchCountdown({
           {view.prefix} {view.days}
           <span className="ml-2 text-[15px] font-medium text-chrome-muted">
             {view.pastTarget ? `${dayWord(view.days)} past target` : dayWord(view.days)}
-
           </span>
         </p>
       )}

@@ -19,7 +19,6 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { dayWord } from "@/lib/pluralize";
 
-
 export const Route = createFileRoute("/reviewer-inbox")({
   head: () => ({
     meta: [

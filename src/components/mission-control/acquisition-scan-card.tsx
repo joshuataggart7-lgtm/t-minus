@@ -8,7 +8,6 @@ import { overviewCountdownView } from "./operational-state";
 import { MissionReadinessChip, missionReadinessClass } from "./primitives";
 import { dayWord } from "@/lib/pluralize";
 
-
 export function AcquisitionScanCard({
   metric,
   mission,

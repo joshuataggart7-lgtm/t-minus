@@ -10,7 +10,6 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { dayWord } from "@/lib/pluralize";
 
-
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
 

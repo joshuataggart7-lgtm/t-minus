@@ -5,7 +5,6 @@ import { loadLaunchEvents, launchedIdSet } from "@/lib/launch-events";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
 import { dayWord } from "@/lib/pluralize";
 
-
 /**
  * Orby: a small line-drawn astronaut easter egg. Off by default, never shown on
  * load. Appears for five seconds with one line drawn from the file the user was

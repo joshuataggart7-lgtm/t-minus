@@ -6,7 +6,6 @@ import type { AcqMetrics } from "@/lib/metrics";
 import type { AgingItem } from "@/lib/aging";
 import { dayWord } from "@/lib/pluralize";
 
-
 export type DigestSection = { heading: string; lines: string[] };
 
 export type Digest = {

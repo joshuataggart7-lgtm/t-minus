@@ -141,7 +141,6 @@ import {
 } from "@/lib/nf1858";
 import { dayWord } from "@/lib/pluralize";
 
-
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
   // the evaluation record: /documents/postaward-letter-unsuccessful/ID?offeror=2

@@ -10,7 +10,6 @@ import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { dayWord } from "@/lib/pluralize";
 
-
 export const DEVIATION_TEMPLATE = {
   key: "far-nfs-deviation",
   name: "FAR & NFS Deviation Request",

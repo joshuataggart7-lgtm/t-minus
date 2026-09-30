@@ -11,7 +11,6 @@ import { Search } from "lucide-react";
 import { countdownText } from "@/components/launch-countdown";
 import { dayWord } from "@/lib/pluralize";
 
-
 type Row = {
   acquisition_id: string;
   title: string | null;

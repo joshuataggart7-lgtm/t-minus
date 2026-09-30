@@ -6,7 +6,6 @@ import { DEFAULT_WATCH_WINDOW_DAYS, sortHoldQueue, WATCH_RULES, type ReadinessEx
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 
-
 type Row = AcqMetrics & { readiness: ReadinessExplanation; whatIfReadiness?: ReadinessExplanation };
 
 const NR = "Not recorded";

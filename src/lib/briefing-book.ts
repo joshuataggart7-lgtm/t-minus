@@ -17,7 +17,6 @@ import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecas
 import { countdownText, type CountdownView } from "@/components/launch-countdown";
 import { dayWord } from "@/lib/pluralize";
 
-
 const esc = (s: unknown) =>
   String(s ?? "")
     .replace(/&/g, "&amp;")

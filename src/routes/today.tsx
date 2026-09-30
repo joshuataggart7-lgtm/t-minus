@@ -13,7 +13,6 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 
-
 export const Route = createFileRoute("/today")({
   head: () => ({
     meta: [

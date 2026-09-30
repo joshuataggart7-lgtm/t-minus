@@ -49,7 +49,6 @@ import { deriveOverviewAcquisitionState } from "@/components/mission-control/ope
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
