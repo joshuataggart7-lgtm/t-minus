@@ -8,6 +8,7 @@
 
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
+import { dayWord } from "@/lib/pluralize";
 
 export const DEVIATION_TEMPLATE = {
   key: "far-nfs-deviation",
@@ -92,8 +93,9 @@ export function deviationClock(row: DeviationRow) {
     : days === null
       ? "No decision date set"
       : days < 0
-        ? `${Math.abs(days)} days past the decision date`
-        : `${days} days to the decision`;
+        ? `${Math.abs(days)} ${dayWord(Math.abs(days))} past the decision date`
+        : `${days} ${dayWord(days)} to the decision`;
+
   return { days, state, reading, decided };
 }
 

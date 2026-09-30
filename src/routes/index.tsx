@@ -47,6 +47,7 @@ import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { dayWord } from "@/lib/pluralize";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -916,9 +917,10 @@ function EnterpriseTab({
                   {" "}
                   Status: {sample.status}. Phase: {sample.currentPhase}.{" "}
                   {sample.daysToAward !== null && sample.daysToAward >= 0
-                    ? `${sample.daysToAward} days to award.`
+                    ? `${sample.daysToAward} ${dayWord(sample.daysToAward)} to award.`
                     : sample.daysToAward !== null && sample.daysToAward < 0
-                      ? `${Math.abs(sample.daysToAward)} ${Math.abs(sample.daysToAward) === 1 ? "day" : "days"} past target.`
+                      ? `${Math.abs(sample.daysToAward)} ${dayWord(Math.abs(sample.daysToAward))} past target.`
+
                       : "Clock not started."}
                   {sample.blocker ? ` Blocker: ${sample.blocker}.` : ""}
                 </>

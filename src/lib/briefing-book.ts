@@ -15,6 +15,7 @@ import { RFO_RESERVED_212_NOTE } from "@/lib/clause-packet";
 import type { ScaffoldSectionK } from "@/lib/format-scaffold";
 import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import { countdownText, type CountdownView } from "@/components/launch-countdown";
+import { dayWord } from "@/lib/pluralize";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -288,17 +289,19 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
           : countdown.mode === "hold"
             ? "HOLD"
             : countdown.mode === "launched"
-              ? `${countdown.days} days since award`
+              ? `${countdown.days} ${dayWord(countdown.days)} since award`
               : countdown.mode === "running"
-                ? `${countdown.days} days to the target award date`
+                ? `${countdown.days} ${dayWord(countdown.days)} to the target award date`
+
                 : countdown.caption
     : input.days === null
       ? "No countdown recorded"
       : input.clockState === "launched"
-        ? `${input.days} days since award`
+        ? `${input.days} ${dayWord(input.days)} since award`
         : input.days < 0
-          ? `${Math.abs(input.days)} ${Math.abs(input.days) === 1 ? "day" : "days"} past target`
-          : `${input.days} days to the target award date`;
+          ? `${Math.abs(input.days)} ${dayWord(Math.abs(input.days))} past target`
+          : `${input.days} ${dayWord(input.days)} to the target award date`;
+
   const countdownFigure = countdown
     ? countdown.days === null ? "—" : countdown.pastTarget ? String(countdown.days) : `${countdown.prefix} ${countdown.days}`
     : input.days === null ? "—" : String(Math.abs(input.days));

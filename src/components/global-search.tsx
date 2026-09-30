@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRole } from "@/components/role-context";
 import { Search } from "lucide-react";
 import { countdownText } from "@/components/launch-countdown";
+import { dayWord } from "@/lib/pluralize";
 
 type Row = {
   acquisition_id: string;
@@ -41,7 +42,7 @@ function clockLine(display: OperationalDisplay | undefined, loading: boolean) {
     ? countdownText(view, { omitBadge: view.badge === display.readiness })
     : view.days === null
       ? view.caption
-      : `${view.prefix} ${view.days} days${view.badge && view.badge !== display.readiness ? ` ${view.badge}` : ""}${caption}`;
+      : `${view.prefix} ${view.days} ${dayWord(view.days)}${view.badge && view.badge !== display.readiness ? ` ${view.badge}` : ""}${caption}`;
   return [
     display.readiness,
     countdown,

@@ -4,6 +4,7 @@ import { todayISO } from "@/lib/intake";
 import type { MissionControlState } from "./mission-status-board";
 import { DEFAULT_WATCH_WINDOW_DAYS, sortHoldQueue, WATCH_RULES, type ReadinessExplanation } from "./readiness";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { dayWord } from "@/lib/pluralize";
 
 type Row = AcqMetrics & { readiness: ReadinessExplanation; whatIfReadiness?: ReadinessExplanation };
 
@@ -12,7 +13,7 @@ const NR = "Not recorded";
 function daysLabel(m: AcqMetrics) {
   if (m.awardDate) return m.daysSinceAward !== null ? `T+${m.daysSinceAward} since award` : NR;
   if (m.daysToAward === null) return NR;
-  return m.daysToAward < 0 ? `${Math.abs(m.daysToAward)} ${Math.abs(m.daysToAward) === 1 ? "day" : "days"} past target` : `T−${m.daysToAward} to award`;
+  return m.daysToAward < 0 ? `${Math.abs(m.daysToAward)} ${dayWord(Math.abs(m.daysToAward))} past target` : `T−${m.daysToAward} to award`;
 }
 
 export function ReadinessQueue({

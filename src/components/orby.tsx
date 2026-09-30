@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { daysBetween, todayISO } from "@/lib/intake";
 import { loadLaunchEvents, launchedIdSet } from "@/lib/launch-events";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
+import { dayWord } from "@/lib/pluralize";
 
 /**
  * Orby: a small line-drawn astronaut easter egg. Off by default, never shown on
@@ -64,7 +65,7 @@ function orbyLine(
   }
   const d = fetch.target_award_date ? daysBetween(todayISO(), fetch.target_award_date) : null;
   if (d !== null && d < 0) {
-    return `${acquisitionId}: ${Math.abs(d)} ${Math.abs(d) === 1 ? "day" : "days"} past target.`;
+    return `${acquisitionId}: ${Math.abs(d)} ${dayWord(Math.abs(d))} past target.`;
   }
   const countdown = operational.byId.get(acquisitionId)?.countdown;
   if (countdown?.mode === "hold") {
@@ -73,7 +74,7 @@ function orbyLine(
       : `${acquisitionId}: ${countdown.prefix}${countdown.days} HOLD.`;
   }
   if (d !== null && d >= 0) {
-    return `${acquisitionId}: ${d} days to award.`;
+    return `${acquisitionId}: ${d} ${dayWord(d)} to award.`;
   }
   return `${acquisitionId}: no target award date yet.`;
 }

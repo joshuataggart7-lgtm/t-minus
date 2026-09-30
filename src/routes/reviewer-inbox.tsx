@@ -17,6 +17,7 @@ import {
 } from "@/lib/read-receipts";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { dayWord } from "@/lib/pluralize";
 
 export const Route = createFileRoute("/reviewer-inbox")({
   head: () => ({
@@ -197,8 +198,9 @@ function ReviewerInbox() {
                     <p className="text-[13px] text-muted-foreground" data-numeric>
                       {poll.due_date
                         ? due !== null && due < 0
-                          ? `Due ${poll.due_date} · ${Math.abs(due)} days past due`
-                          : `Due ${poll.due_date} · ${due} days left`
+                          ? `Due ${poll.due_date} · ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
+                          : `Due ${poll.due_date} · ${due} ${dayWord(due)} left`
+
                         : "No due date recorded"}
                     </p>
                   </div>
