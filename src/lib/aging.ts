@@ -3,6 +3,7 @@
 // aging, and it goes to a digest for the owner's supervisor.
 
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
+import { phaseAlias } from "@/lib/phase-alias";
 
 export const DEFAULT_AGING_DAYS = 5;
 
@@ -96,7 +97,7 @@ export function agingItems(
       ageDays,
       thresholdDays,
       aging: ageDays >= thresholdDays,
-      phase: acq.current_phase ? String(acq.current_phase) : null,
+      phase: acq.current_phase ? String(phaseAlias(String(acq.current_phase))) : null,
     });
   }
 

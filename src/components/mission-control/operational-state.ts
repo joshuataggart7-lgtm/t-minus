@@ -1,4 +1,5 @@
 import { countdownView, type CountdownView } from "@/components/launch-countdown";
+import { phaseAlias } from "@/lib/phase-alias";
 import { dateCT } from "@/lib/calendar-date";
 import type { AcqRow } from "@/lib/launch-sequence";
 import type { AcqMetrics } from "@/lib/metrics";
@@ -42,7 +43,7 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
       clock_state: isAwarded ? "launched" : recordedClock === "launched" ? "running" : recordedClock,
       current_phase: isAwarded
         ? (isPostAwardPhase ? recordedPhase : "Administration")
-        : (isPostAwardPhase ? "Award" : (acq.current_phase ?? null)),
+        : (isPostAwardPhase ? "Award" : (phaseAlias(acq.current_phase) ?? null)),
     },
   };
 }

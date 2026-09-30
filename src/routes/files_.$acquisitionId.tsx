@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { phaseAlias } from "@/lib/phase-alias";
 import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { TableScrollRegion } from "@/components/table-scroll-region";
@@ -1585,7 +1586,7 @@ function FilePage() {
     mutationFn: async () => {
       if (!acq) return;
       const who = await signedInName(actorName);
-      const currentIndex = phases.findIndex((phase) => phase.phase === acq.current_phase);
+      const currentIndex = phases.findIndex((phase) => phase.phase === phaseAlias(acq.current_phase));
       const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
       const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
       const preAwardComplete = currentIndex >= 0 && (
@@ -4846,7 +4847,7 @@ function FilePage() {
                 "Current phase",
                 // The phase the file is actually in: a later phase cannot start
                 // while an earlier one is short a required document.
-                phases.find((p) => p.status === "current")?.phase ?? String(acq?.current_phase ?? "—"),
+                phases.find((p) => p.status === "current")?.phase ?? String(phaseAlias(acq?.current_phase) ?? "—"),
               ],
             ] as const
           ).map(([k, v]) => (

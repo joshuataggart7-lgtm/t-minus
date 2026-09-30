@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { phaseAlias } from "@/lib/phase-alias";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -172,7 +173,7 @@ function DirectivesPage() {
                 </td>
                 <td className="p-2">{r.title ?? "—"}</td>
                 <td className="p-2">{r.center_code ?? "—"}</td>
-                <td className="p-2">{r.current_phase ?? "—"}</td>
+                <td className="p-2">{phaseAlias(r.current_phase) ?? "—"}</td>
                 <td className="p-2">
                   <StatusMark color={r.statement === "attached" ? "var(--ontrack)" : "var(--atrisk)"}>
                     {r.statement === "attached" ? "Attached" : "Not attached"}

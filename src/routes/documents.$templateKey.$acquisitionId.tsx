@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { phaseAlias } from "@/lib/phase-alias";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -3233,7 +3234,7 @@ function DocumentPage() {
       </MissionNavSection>
 
       <MissionNavSection id="doc-regulations" label="Regulations">
-        <RegulationSidebar phase={(q.data?.acq?.["current_phase"] as string | null) || phase} />
+        <RegulationSidebar phase={(phaseAlias(q.data?.acq?.["current_phase"] as string | null) as string | null) || phase} />
       </MissionNavSection>
       <MissionNavSection id="doc-defect" label="Report a defect" collapsible summary="Support details">
         <DefectReport
