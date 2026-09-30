@@ -118,7 +118,7 @@ export function holdSince(
   log: { acquisition_id: string | null; action: string | null; field?: string | null; old_value?: string | null; new_value?: string | null; logged_at: string | null }[],
 ): string | null {
   const row = acq as Record<string, unknown>;
-  if (String(row["clock_state"] ?? "") !== "hold") return null;
+  if (String(row["clock_state"] ?? "").trim().toLowerCase() !== "hold") return null;
   const id = row["acquisition_id"];
   const rows = log
     .filter((l) => l.acquisition_id === id && l.field === "clock_state")
