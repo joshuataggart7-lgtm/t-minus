@@ -209,7 +209,7 @@ function RequesterPortal() {
                           ? `Launched ${c.m.daysSinceAward ?? 0} days ago`
                           : Number.isFinite(c.m.daysToAward)
                             ? c.m.daysToAward !== null && c.m.daysToAward < 0
-                              ? `${Math.abs(c.m.daysToAward)} days past target`
+                              ? `${Math.abs(c.m.daysToAward)} ${Math.abs(c.m.daysToAward) === 1 ? "day" : "days"} past target`
                               : `${c.m.daysToAward} calendar days`
                             : "No target award date recorded"}
                       </dd>

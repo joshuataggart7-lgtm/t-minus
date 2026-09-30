@@ -125,15 +125,15 @@ export function countdownText(view: CountdownView, opts?: { omitBadge?: boolean 
   if (view.pastTarget) {
     if (view.mode === "hold") {
       return opts?.omitBadge
-        ? `${view.days} days past target`
-        : `HOLD · ${view.days} days past target`;
+        ? `${view.days} ${view.days === 1 ? "day" : "days"} past target`
+        : `HOLD · ${view.days} ${view.days === 1 ? "day" : "days"} past target`;
     }
     if (view.mode === "overdue") {
       return opts?.omitBadge
-        ? `${view.days} days past target`
-        : `${view.days} days past target · OVERDUE`;
+        ? `${view.days} ${view.days === 1 ? "day" : "days"} past target`
+        : `${view.days} ${view.days === 1 ? "day" : "days"} past target · OVERDUE`;
     }
-    if (view.mode === "forecast") return `${view.days} days past the forecast award date`;
+    if (view.mode === "forecast") return `${view.days} ${view.days === 1 ? "day" : "days"} past the forecast award date`;
   }
   const clock = `${view.prefix ?? ""}${view.days}`;
   if (view.mode === "hold") return `${clock} HOLD`;
@@ -190,7 +190,7 @@ export function LaunchCountdown({
         <p className={cn("mt-2 text-[48px] leading-[52px] font-semibold tracking-tight [font-variant-numeric:tabular-nums]", toneDigit[view.tone])}>
           {view.prefix} {view.days}
           <span className="ml-2 text-[15px] font-medium text-chrome-muted">
-            {view.pastTarget ? "days past target" : "days"}
+            {view.pastTarget ? (view.days === 1 ? "day past target" : "days past target") : "days"}
           </span>
         </p>
       )}
@@ -230,7 +230,7 @@ export function LaunchCountdownCompact({
       <span className="text-[17px] font-semibold [font-variant-numeric:tabular-nums]" style={{ color: digitColor }}>
         {view.prefix} {view.days}
       </span>
-      <span className="text-[12px] text-muted-foreground">{view.pastTarget ? "days past target" : "days"}</span>
+      <span className="text-[12px] text-muted-foreground">{view.pastTarget ? (view.days === 1 ? "day past target" : "days past target") : "days"}</span>
       {view.badge && !hideBadge ? (
         <span
           className="rounded px-1 text-[10px] font-semibold tracking-wide"

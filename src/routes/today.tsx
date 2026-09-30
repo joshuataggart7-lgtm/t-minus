@@ -319,7 +319,7 @@ function TodayPage() {
                     {c.m.nextAction} — <FileLink card={c} />
                     <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
                       {view.mode === "overdue" ? (
-                        <span className="mr-2" data-numeric>{`${view.days} days past target · OVERDUE`}</span>
+                        <span className="mr-2" data-numeric>{`${view.days} ${view.days === 1 ? "day" : "days"} past target · OVERDUE`}</span>
                       ) : (
                         <LaunchCountdownCompact view={view} className="mr-2" />
                       )}

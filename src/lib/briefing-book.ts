@@ -297,7 +297,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
       : input.clockState === "launched"
         ? `${input.days} days since award`
         : input.days < 0
-          ? `${Math.abs(input.days)} days past target`
+          ? `${Math.abs(input.days)} ${Math.abs(input.days) === 1 ? "day" : "days"} past target`
           : `${input.days} days to the target award date`;
   const countdownFigure = countdown
     ? countdown.days === null ? "—" : countdown.pastTarget ? String(countdown.days) : `${countdown.prefix} ${countdown.days}`
