@@ -40,6 +40,8 @@ import { PortfolioHero } from "@/components/mission-control/portfolio-hero";
 import { derivePhaseEvidence } from "@/components/mission-control/gate-evidence";
 import { DEFAULT_WATCH_WINDOW_DAYS, explainReadiness } from "@/components/mission-control/readiness";
 import { docRowKey, docSatisfied, generatorKey } from "@/lib/launch-sequence";
+import { buildReadinessContext } from "@/lib/readiness-context";
+import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { AttentionSeverityList } from "@/components/mission-control/attention-severity-list";
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
@@ -114,12 +116,10 @@ export function ExecutiveOverview() {
         supabase
           .from("users")
           .select("name,role,title,center_code,supervisor_name,supervisor_email"),
-        supabase.from("documents").select("acquisition_id,template_id,saved_at,version"),
+        loadDocumentKeyRows(undefined, "acquisition_id,template_id,saved_at,version"),
         supabase.from("templates").select("template_id,name,hq_revision_date"),
       ]);
-      const attachments = await supabase
-        .from("document_attachments")
-        .select("acquisition_id,doc_key");
+      const attachments = { data: await loadAttachmentKeyRows() };
       return {
         missions: (missions.data ?? []) as MissionRow[],
         acqs: (acqs.data ?? []) as unknown as AcqRow[],
@@ -131,7 +131,7 @@ export function ExecutiveOverview() {
         polls: (polls.data ?? []) as PollRow[],
         centers: (centers.data ?? []) as unknown as CenterRow[],
         users: (users.data ?? []) as unknown as UserRow[],
-        documents: (documents.data ?? []) as unknown as CenterDocumentRow[],
+        documents: documents as unknown as CenterDocumentRow[],
         templates: (templateRows.data ?? []) as unknown as CenterTemplateRow[],
         attachments: attachments.data ?? [],
         log: log.data ?? [],
@@ -188,30 +188,20 @@ export function ExecutiveOverview() {
         holdSince: holdSince(sourceAcq, q.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
-      // Same Required-row predicate the metrics use for the blocker line.
-      const current = metric.phases.find((p) => p.status === "current");
-      const missingEvidence = (current?.docs ?? [])
-        .filter(
-          (d) =>
-            !d.optional &&
-            (d.field || generatorKey(d)) &&
-            docSatisfied(d, acq, attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined, savedKeys) === false,
-        )
-        .map((d) => d.label);
-      const center = (q.data.centers ?? []).find((c) => c.center_code === acq.center_code);
-      const centerAging = center?.aging_threshold_days;
-      const readiness = explainReadiness(metric, {
-        missingEvidence,
-        centerAgingDays: typeof centerAging === "number" ? centerAging : null,
-        watchWindowDays,
-        today,
-      });
+      // Official mark: phase-plan gate aging, real missing evidence, fixed 30-day window.
+      const context = buildReadinessContext({ metric, acq, attachedKeys, savedKeys, today });
+      const readiness = explainReadiness(metric, context);
+      // What-if list only: same context with the slider's window. Never feeds tiles or counts.
+      const whatIfReadiness =
+        watchWindowDays === DEFAULT_WATCH_WINDOW_DAYS
+          ? readiness
+          : explainReadiness(metric, { ...context, watchWindowDays });
       const phaseEvidence = derivePhaseEvidence(metric, q.data.log, (d) =>
         d.field || generatorKey(d)
           ? docSatisfied(d, acq, attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined, savedKeys)
           : null,
       );
-      return { ...metric, readiness, phaseEvidence };
+      return { ...metric, readiness, whatIfReadiness, phaseEvidence };
     });
   }, [q.data, ref, watchWindowDays]);
 

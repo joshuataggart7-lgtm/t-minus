@@ -2,10 +2,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { formatDate, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { todayISO } from "@/lib/intake";
 import type { MissionControlState } from "./mission-status-board";
-import { sortHoldQueue, WATCH_RULES, type ReadinessExplanation } from "./readiness";
+import { DEFAULT_WATCH_WINDOW_DAYS, sortHoldQueue, WATCH_RULES, type ReadinessExplanation } from "./readiness";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 
-type Row = AcqMetrics & { readiness: ReadinessExplanation };
+type Row = AcqMetrics & { readiness: ReadinessExplanation; whatIfReadiness?: ReadinessExplanation };
 
 const NR = "Not recorded";
 
@@ -32,7 +32,9 @@ export function ReadinessQueue({
 }) {
   const navigate = useNavigate();
   const today = todayISO();
-  const rows = (metrics as Row[]).filter((m) => m.readiness?.state === state);
+  // The WATCH list is the labelled what-if view; every other list reads the official mark.
+  const pick = (m: Row) => (state === "WATCH" ? (m.whatIfReadiness ?? m.readiness) : m.readiness);
+  const rows = (metrics as Row[]).filter((m) => pick(m)?.state === state);
   const sorted =
     state === "HOLD"
       ? sortHoldQueue(rows, today)
@@ -57,7 +59,7 @@ export function ReadinessQueue({
         <div className="flex items-center gap-3">
           {state === "WATCH" ? (
             <label className="flex items-center gap-2 text-[13px] text-muted-foreground">
-              Watch window (days)
+              What-if: watch window (days)
               <input
                 type="number"
                 min={0}
@@ -74,6 +76,10 @@ export function ReadinessQueue({
           </button>
         </div>
       </div>
+
+      {state === "WATCH" && watchWindowDays !== DEFAULT_WATCH_WINDOW_DAYS ? (
+        <p className="mt-3 text-[13px] text-muted-foreground">What-if view. The official WATCH count uses 30 days.</p>
+      ) : null}
 
       {state === "WATCH" ? (
         <details className="mt-3 text-[13px] text-muted-foreground">
@@ -108,7 +114,7 @@ export function ReadinessQueue({
             </thead>
             <tbody>
               {sorted.map((m) => {
-                const r = m.readiness;
+                const r = pick(m);
                 const mission = missions.find((x) => x.mission_id === m.acq.mission_id);
                 const title = String(m.acq.title ?? "").trim() || mission?.name || NR;
                 const id = m.acq.acquisition_id;
