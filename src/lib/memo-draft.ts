@@ -892,6 +892,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       sentences.push(text);
       stamps.push(at);
     };
+    const push = pushAt;
 
     push(
       w.status === "current"
@@ -899,7 +900,6 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         : `The file entered the ${w.phase} phase on ${day(w.entered)} and left it on ${day(w.exited)}.`,
     );
 
-    const push = pushAt;
     const handled = new Set<AuditLine>();
 
     // Documents. Every attach, remove and save on one document in one phase is
