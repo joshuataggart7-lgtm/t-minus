@@ -1093,7 +1093,7 @@ function DocumentPage() {
     const officialExportKeys = new Set(
       (q.data?.fileDocRows ?? []).flatMap((row) => {
         const fv = (row.field_values ?? {}) as Record<string, unknown>;
-        if (fv["__retired"] || fv["kind"] !== "official-export") return [];
+        if (fv["__retired"] || fv["kind"] !== "official-export" || !row.templates?.name) return [];
         const key = fv["doc_key"];
         return typeof key === "string" && key ? [key] : [];
       }),
@@ -1600,7 +1600,7 @@ function DocumentPage() {
         : daysToAward === null
           ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
           : daysToAward < 0
-            ? `${Math.abs(daysToAward)} days past target`
+            ? `${Math.abs(daysToAward)} ${Math.abs(daysToAward) === 1 ? "day" : "days"} past target`
             : `${daysToAward} days to award`
   }`;
   const headerLine = `${acquisitionId} · ${

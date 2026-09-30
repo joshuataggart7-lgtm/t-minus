@@ -64,7 +64,7 @@ function orbyLine(
   }
   const d = fetch.target_award_date ? daysBetween(todayISO(), fetch.target_award_date) : null;
   if (d !== null && d < 0) {
-    return `${acquisitionId}: ${Math.abs(d)} days past target.`;
+    return `${acquisitionId}: ${Math.abs(d)} ${Math.abs(d) === 1 ? "day" : "days"} past target.`;
   }
   const countdown = operational.byId.get(acquisitionId)?.countdown;
   if (countdown?.mode === "hold") {

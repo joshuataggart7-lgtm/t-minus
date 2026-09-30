@@ -159,7 +159,7 @@ export function digestSections(d: Digest): DigestSection[] {
                 r.daysToAward === null
                   ? "— days to award"
                   : r.daysToAward < 0
-                    ? `${Math.abs(r.daysToAward)} days past target`
+                    ? `${Math.abs(r.daysToAward)} ${Math.abs(r.daysToAward) === 1 ? "day" : "days"} past target`
                     : `${r.daysToAward} days to award`
               }`,
           )
