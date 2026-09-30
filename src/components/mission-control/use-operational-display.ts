@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
+import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
@@ -23,8 +24,8 @@ export function useOperationalDisplay(enabled: boolean) {
         supabase.from("polls").select("*"),
         loadStateAuditRows(),
         supabase.from("users").select("name,title,center_code"),
-        supabase.from("document_attachments").select("acquisition_id,doc_key"),
-        supabase.from("documents").select("acquisition_id,template_id"),
+        loadAttachmentKeyRows(),
+        loadDocumentKeyRows(),
         supabase.from("templates").select("template_id,name"),
         supabase.from("center_overrides").select("*"),
         supabase.from("thresholds").select("*"),
@@ -40,8 +41,8 @@ export function useOperationalDisplay(enabled: boolean) {
         stateLog,
         launches,
         users: users.data ?? [],
-        attachments: attachments.data ?? [],
-        documents: documents.data ?? [],
+        attachments,
+        documents: documents as { acquisition_id: string | null; template_id: string | null }[],
         templates: templates.data ?? [],
         overrides: overrides.data ?? [],
         thresholds: thresholds.data ?? [],
@@ -83,9 +84,14 @@ export function useOperationalDisplay(enabled: boolean) {
     };
     for (const acq of query.data.acqs) {
       const operational = deriveOverviewAcquisitionState(acq, [...query.data.stateLog, ...query.data.launches]);
-      const metric = computeMetrics(operational.acquisition, {
+      const keys = {
+        acq: operational.acquisition,
         attachedKeys: attachedKeys(query.data.attachments, acq.acquisition_id),
         savedKeys: savedDocKeys(query.data.documents, query.data.templates, acq.acquisition_id),
+      };
+      const metric = computeMetrics(operational.acquisition, {
+        attachedKeys: keys.attachedKeys,
+        savedKeys: keys.savedKeys,
         roster: query.data.users,
         plan: query.data.plan,
         rules: query.data.rules,
@@ -95,7 +101,7 @@ export function useOperationalDisplay(enabled: boolean) {
         holdSince: holdSince(acq, query.data.stateLog),
         awardDate: operational.actualAwardDate,
       });
-      const readiness = explainWorkReadiness(metric).state;
+      const readiness = explainWorkReadiness(metric, keys).state;
       const countdown = overviewCountdownView(metric);
       const clockMode = countdown.mode === "hold" || countdown.mode === "forecast" || countdown.mode === "launched"
         ? countdown.mode

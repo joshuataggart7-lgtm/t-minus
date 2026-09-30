@@ -175,7 +175,7 @@ function ReviewerInbox() {
               const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
               const due = daysUntil(poll.due_date);
               const isOpen = openPoll === poll.poll_id;
-              const readiness = explainWorkReadiness(card.m).state;
+              const readiness = explainWorkReadiness(card.m, { acq: card.m.acq, attachedKeys: card.attachedKeys, savedKeys: card.savedKeys }).state;
               return (
                 <li key={poll.poll_id} className={`mc-work-strip ${missionReadinessClass(readiness, "is")}`}>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
