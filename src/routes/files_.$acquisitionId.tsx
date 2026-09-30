@@ -814,7 +814,9 @@ function FilePage() {
 
   const hold = lifecycle?.hold ?? null;
   const effectiveState = lifecycle?.clockState ?? null;
-  const readiness = lifecycle ? explainWorkReadiness(lifecycle).state : null;
+  const readiness = lifecycle
+    ? explainWorkReadiness(lifecycle, { acq: lifecycle.acq, attachedKeys: keysFrom(attachments), savedKeys }).state
+    : null;
 
   // The one action for the current blocker, shown in the hero. It does the same
   // thing as the matching row in the launch sequence.
