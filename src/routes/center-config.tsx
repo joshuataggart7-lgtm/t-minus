@@ -37,7 +37,7 @@ export const Route = createFileRoute("/center-config")({
 });
 
 function CenterConfigPage() {
-  const { authState, hasRole, hasAnyRole, user, readOnly } = useRole();
+  const { authState, hasRole, hasAnyRole, user, readOnly, role, canSwitchPersona } = useRole();
   const qc = useQueryClient();
   const mayEdit = hasAnyRole(["hq", "specialist"]) && !readOnly;
 
@@ -291,7 +291,13 @@ function CenterConfigPage() {
         </form>
       ) : (
         <p className="mt-6 text-muted-foreground">
-          This action requires Contracting, HQ, or Administrator.
+          {readOnly
+            ? "This demo is view only. Center configuration can be changed by signed-in Contracting and HQ users."
+            : role === "executive"
+              ? canSwitchPersona
+                ? "Executive access is read-only. Switch to Contracting or HQ to change Center configuration."
+                : "Executive access is read-only. Changing Center configuration requires Contracting, HQ, or Administrator."
+              : "This action requires Contracting, HQ, or Administrator."}
         </p>
       )}
 

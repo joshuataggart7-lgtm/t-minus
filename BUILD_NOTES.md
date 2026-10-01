@@ -836,7 +836,7 @@ The About page reads this list at build time. Keep the format
 - live | Announcements and leadership digest | HQ notices and the weekly digest.
 - live | Clause change impact list | Affected contracts, mod tasks, SF 30 handoff packets.
 - live | Reporting views and Center configuration | Read-only views, nightly extracts, Center overrides.
-- next | Estimate | The level-of-effort estimator as its own page for the team.
+- live | Estimate | Contracting hours by phase and months to award for one acquisition, read from the record. Contracting and HQ roles.
 - next | Ask T-Minus citations | Widening the answer set to the full Companion Guide text.
 - planned | Teams bot | "@T-Minus where is PR 4200999101" in Microsoft Teams.
 - planned | NCMS write-back | Sending the handoff packet into NCMS rather than downloading it.
