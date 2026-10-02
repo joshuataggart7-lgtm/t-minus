@@ -199,10 +199,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         ? seeded
         : {
             ...seeded,
-            name:
-              !profile && !metaName
-                ? "Signed-in user"
-                : accountName(profile?.display_name ?? metaName, profile?.email ?? session.user.email),
+            name: accountName(profile?.display_name ?? metaName, profile?.email ?? session.user.email),
             email: profile?.email ?? session.user.email ?? seeded.email,
           };
     return {
