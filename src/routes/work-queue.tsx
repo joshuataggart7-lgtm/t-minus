@@ -405,6 +405,7 @@ function WorkQueuePage() {
             );
           })}
         </div>
+        </div>
       ) : (
         <>
         <div className="mb-4">
