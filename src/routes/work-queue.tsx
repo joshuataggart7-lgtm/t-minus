@@ -372,7 +372,13 @@ function WorkQueuePage() {
         />
       ) : view === "board" ? (
 
-        <div className="grid gap-4 lg:grid-cols-3 lg:max-xl:grid-cols-2 2xl:grid-cols-5">
+        <div
+          role="region"
+          aria-label="Work Queue board, scrolls horizontally"
+          tabIndex={0}
+          className="overflow-x-auto pb-2"
+        >
+        <div className="grid gap-4 md:grid-cols-[repeat(5,minmax(260px,1fr))]">
           {COLUMNS.map((col) => {
             const items = filtered
               .filter((c) => c.column === col)
