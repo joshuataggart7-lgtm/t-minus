@@ -21,7 +21,7 @@ import { TableScrollRegion } from "@/components/table-scroll-region";
 
 /** The same summary the requester saw when the clock started. */
 function estimateLine(est: StoredEstimate | null) {
-  if (!est) return "—";
+  if (!est) return "No estimate yet";
   return `About ${est.months_to_award} months, ${est.phases.length} phases, ${est.hours_total.toLocaleString("en-US")} hours`;
 }
 
