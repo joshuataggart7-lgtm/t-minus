@@ -7,7 +7,6 @@
 
 import { isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
-import { signedInName } from "@/lib/account-name";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ReceiptKind = "template" | "form" | "file";
@@ -99,7 +98,6 @@ export async function loadReceiptsForDoc(
 export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> {
   if (await isDemoSession()) return;
   if (!input.acquisitionId || !input.docKey || !input.openedBy) return;
-  const openedBy = await signedInName(input.openedBy);
   const since = new Date(Date.now() - DEDUPE_MS).toISOString();
   const recent = await supabase
     .from("document_read_receipts")
@@ -107,7 +105,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
     .eq("acquisition_id", input.acquisitionId)
     .eq("doc_kind", input.docKind)
     .eq("doc_key", input.docKey)
-    .eq("opened_by", openedBy)
+    .eq("opened_by", input.openedBy)
     .gte("opened_at", since)
     .order("opened_at", { ascending: false })
     .limit(1);
@@ -126,7 +124,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
     doc_kind: input.docKind,
     doc_key: input.docKey,
     doc_label: (input.docLabel ?? "").trim() || null,
-    opened_by: openedBy,
+    opened_by: input.openedBy,
     poll_id: input.pollId ?? null,
     source: input.source,
   } as never);
@@ -134,7 +132,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
 
   await writeAudit({
     acquisition_id: input.acquisitionId,
-    actor: openedBy,
+    actor: input.openedBy,
     action: "Document opened",
     field: input.docKey,
     old_value: null,

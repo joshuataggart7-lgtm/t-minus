@@ -46,15 +46,6 @@ type LogRow = {
   logged_at: string;
 };
 
-const SYSTEM_ACTORS = new Set(["scheduled job", "system migration", "demo-seed", "signed-in user", "demo user"]);
-
-/** Display name for a raw audit actor; loginId is the raw string only when it differs. */
-export function displayActor(raw: string, aliases: Map<string, string>): { name: string; loginId: string | null } {
-  const key = raw.trim().toLowerCase();
-  const name = SYSTEM_ACTORS.has(key) ? raw : aliases.get(key) ?? raw;
-  return { name, loginId: name !== raw ? raw : null };
-}
-
 function AuditLogPage() {
   const { authState } = useRole();
   const [actor, setActor] = useState("");
@@ -74,39 +65,10 @@ function AuditLogPage() {
     },
   });
 
-  const profilesQ = useQuery({
-    queryKey: ["audit-log-actor-aliases"],
-    enabled: authState === "signed-in",
-    queryFn: async () => {
-      try {
-        const { data, error } = await supabase.from("profiles").select("id,email,display_name");
-        if (error) return [];
-        return (data ?? []) as { id: string; email: string | null; display_name: string | null }[];
-      } catch {
-        return [];
-      }
-    },
-  });
-
   const rows = q.data ?? [];
-  const aliases = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const p of profilesQ.data ?? []) {
-      const dn = (p.display_name ?? "").trim();
-      const email = (p.email ?? "").trim().toLowerCase();
-      if (!dn || !email) continue;
-      const local = email.split("@")[0];
-      if (local) m.set(local, dn);
-      m.set(email, dn);
-      m.set(dn.toLowerCase(), dn);
-    }
-    return m;
-  }, [profilesQ.data]);
-  const actorName = (a: string | null) => (a ? displayActor(a, aliases).name : null);
   const actors = useMemo(
-    () => Array.from(new Set(rows.map((r) => actorName(r.actor)).filter((a): a is string => !!a))).sort(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [rows, aliases],
+    () => Array.from(new Set(rows.map((r) => r.actor).filter((a): a is string => !!a))).sort(),
+    [rows],
   );
   const phases = useMemo(
     () => Array.from(new Set(rows.map((r) => r.phase).filter((p): p is string => !!p))).sort(),
@@ -114,7 +76,7 @@ function AuditLogPage() {
   );
 
   const filtered = rows.filter(
-    (r) => (!actor || actorName(r.actor) === actor) && (!phase || r.phase === phase),
+    (r) => (!actor || r.actor === actor) && (!phase || r.phase === phase),
   );
 
   // One timeline per acquisition, newest activity first.
@@ -231,21 +193,7 @@ function AuditLogPage() {
                   <td className="px-3 py-2" data-numeric>
                     {new Date(r.logged_at).toLocaleString()}
                   </td>
-                  <td className="min-w-0 break-words px-3 py-2">
-                    {r.actor
-                      ? (() => {
-                          const d = displayActor(r.actor, aliases);
-                          return (
-                            <>
-                              {d.name}
-                              {d.loginId && (
-                                <div className="text-[12px] text-muted-foreground">Login: {d.loginId}</div>
-                              )}
-                            </>
-                          );
-                        })()
-                      : "—"}
-                  </td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.actor ?? "—"}</td>
                   <td className="min-w-0 break-words px-3 py-2">{r.action ?? "—"}</td>
                   <td className="min-w-0 break-words px-3 py-2">{r.phase ?? "—"}</td>
                   <td className="min-w-0 break-words px-3 py-2">{r.field ?? "—"}</td>
