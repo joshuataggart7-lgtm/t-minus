@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
@@ -26,6 +26,8 @@ export function AnnouncementBanner() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const firstLoad = useRef(true);
   // The urgent line sits in the page flow under the header so it never covers
   // the navigation headings.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -40,7 +42,18 @@ export function AnnouncementBanner() {
   useEffect(() => {
     if (authState !== "signed-in") return;
     setDismissed([]);
-    void refresh().catch(() => setItems([]));
+    // Only the first load shows the loading state; later re-fetches (for
+    // example after an acknowledge) keep the list in place.
+    if (firstLoad.current) {
+      firstLoad.current = false;
+      setStatus("loading");
+    }
+    void refresh()
+      .then(() => setStatus("ready"))
+      .catch(() => {
+        setItems([]);
+        setStatus("error");
+      });
   }, [authState, role, refresh]);
 
   const visible = items.filter(
@@ -87,20 +100,28 @@ export function AnnouncementBanner() {
               View all
             </Link>
           </div>
-          {visible.length === 0 ? <p className="text-[13px] text-muted-foreground">No unacknowledged announcements.</p> : null}
-          <ul className="divide-y divide-border">
-            {visible.map((a) => (
-              <li key={a.announcement_id} className="py-3 first:pt-0 last:pb-0">
-                <p className="text-[13px] font-medium">{severityWord(a.severity)}: {a.title}</p>
-                {a.body ? <p className="mt-1 text-[13px] text-muted-foreground">{a.body}</p> : null}
-                {a.requires_acknowledgment ? (
-                  <button type="button" onClick={() => void onAck(a)} disabled={busy === a.announcement_id} className="mt-2 text-[13px] text-primary">
-                    {busy === a.announcement_id ? "Saving" : "Acknowledge"}
-                  </button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          {status === "loading" ? (
+            <p className="text-[13px] text-muted-foreground" role="status">Loading announcements</p>
+          ) : status === "error" ? (
+            <p className="text-[13px] text-muted-foreground">Announcements did not load. Close this and open it again, or use View all.</p>
+          ) : (
+            <>
+              {visible.length === 0 ? <p className="text-[13px] text-muted-foreground">No unacknowledged announcements.</p> : null}
+              <ul className="divide-y divide-border">
+                {visible.map((a) => (
+                  <li key={a.announcement_id} className="py-3 first:pt-0 last:pb-0">
+                    <p className="text-[13px] font-medium">{severityWord(a.severity)}: {a.title}</p>
+                    {a.body ? <p className="mt-1 text-[13px] text-muted-foreground">{a.body}</p> : null}
+                    {a.requires_acknowledgment ? (
+                      <button type="button" onClick={() => void onAck(a)} disabled={busy === a.announcement_id} className="mt-2 text-[13px] text-primary">
+                        {busy === a.announcement_id ? "Saving" : "Acknowledge"}
+                      </button>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           {error ? <p role="alert" className="mt-3 text-[13px] text-destructive">{error}</p> : null}
         </div>
       ) : null}
