@@ -238,7 +238,11 @@ function RequesterPortal() {
                     ) : null}
                     <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
                       Next decision: {c.m.nextDecision}
-                      {c.m.nextDecisionDate ? ` by ${c.m.nextDecisionDate}` : ""}.
+                      {c.m.nextDecisionDate ? ` by ${c.m.nextDecisionDate}` : ""}
+                      {c.m.nextDecisionDate && c.m.daysToNextDecision != null && c.m.daysToNextDecision < 0 ? (
+                        <span style={{ color: "var(--mc-readiness-watch)" }}>, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} past due</span>
+                      ) : null}
+                      .
                     </p>
                   </div>
                 </div>
