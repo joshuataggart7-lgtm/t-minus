@@ -116,6 +116,9 @@
     "status": "active",
     "current_phase": "Market Research",
     "note": "Demo intake record. Submit with igce_attached=false to trigger the red flag, then attach the IGCE and start the clock. NAICS and PSC are placeholders for the CO to confirm.",
+    "scenario": {
+      "gfp": true
+    },
     "nf1707_answers": {
       "Section1_strategic_sourcing": "NotAvailable (no mandatory source contract; documentation attached)",
       "Section2_section_508": "UnderLimitNoIT (no information technology)",
@@ -130,7 +133,7 @@
       "Section5_VII_scv": "SCVIn2s1 (below the $20M threshold)",
       "Section6_quality": "S6IIn1 (neither critical nor complex; no higher-level quality)",
       "Section7_safety_health": "Part I: S7In2s5 RF and microwave emitters (the government-furnished snow radar is operated aboard the contractor aircraft). Part II: S7In4 yes, Center Safety and Mission Assurance involvement (contracted aircraft operated as a NASA public aircraft with a unique external payload; NPR 7900.3, NPR 8715.3 Ch. 7). Health and safety signature required.",
-      "Section8_property": "Government-furnished radar or lidar payload installed on the contractor aircraft; GFP addressed",
+      "Section8_property": "Government-furnished radar payload installed on the contractor aircraft; GFP addressed",
       "Section10_foreign_travel": "None",
       "Section11_promotional_items": "None"
     },
@@ -189,6 +192,9 @@
     "status": "active",
     "current_phase": "JOFOC",
     "note": "The JOFOC demo file. Legal reviewer votes No-go on the JOFOC in the demo, which places this file on hold. Vendor is fictional; the SAM.gov panel shows the labeled sample response for this UEI. Authority cite verified against the 04/2026 JOFOC template and RFO Parts 6 and 12 on 2026-09-11; Center counsel to validate the Item 4 wording. Demo provenance: funds certified yes for the period of performance 2026-12-01 to 2027-01-15 (sample); proposed price $812,400 is a fictional quote consistent with the $820,000 independent Government cost estimate, not a live market rate.",
+    "scenario": {
+      "gfp": true
+    },
     "nf1707_answers": {
       "Section1_strategic_sourcing": "NotAvailable (no mandatory source contract; documentation attached)",
       "Section2_section_508": "UnderLimitNoIT (no information technology)",
@@ -203,7 +209,7 @@
       "Section5_VII_scv": "SCVIn2s1 (below the $20M threshold)",
       "Section6_quality": "S6IIn1 (neither critical nor complex; no higher-level quality)",
       "Section7_safety_health": "Part I: S7In2s3 Lasers and hazardous optical radiation (the government-furnished aerosol lidar is operated aboard the contractor aircraft). Part II: S7In4 yes, Center Safety and Mission Assurance involvement (contracted aircraft operated as a NASA public aircraft with a unique external payload; NPR 7900.3, NPR 8715.3 Ch. 7). Health and safety signature required.",
-      "Section8_property": "Government-furnished radar or lidar payload installed on the contractor aircraft; GFP addressed",
+      "Section8_property": "Government-furnished lidar payload installed on the contractor aircraft; GFP addressed",
       "Section10_foreign_travel": "None",
       "Section11_promotional_items": "None"
     },
@@ -294,6 +300,7 @@
     "is_package_complete": false,
     "parent_contract_number": "80ARC26D0090",
     "scenario": {
+      "gfp": true,
       "parent_contract_number": "80ARC26D0090",
       "vehicle": "idiq_order"
     },
@@ -314,7 +321,7 @@
       "Section5_VII_scv": "SCVIn2s1 (below the $20M threshold)",
       "Section6_quality": "S6IIn1 (neither critical nor complex; no higher-level quality)",
       "Section7_safety_health": "Part I: S7In2s5 RF and microwave emitters (the government-furnished snow radar is operated aboard the contractor aircraft). Part II: S7In4 yes, Center Safety and Mission Assurance involvement (contracted aircraft operated as a NASA public aircraft with a unique external payload; NPR 7900.3, NPR 8715.3 Ch. 7). Health and safety signature required.",
-      "Section8_property": "Government-furnished radar or lidar payload installed on the contractor aircraft; GFP addressed",
+      "Section8_property": "Government-furnished radar payload installed on the contractor aircraft; GFP addressed",
       "Section10_foreign_travel": "None",
       "Section11_promotional_items": "None"
     },
