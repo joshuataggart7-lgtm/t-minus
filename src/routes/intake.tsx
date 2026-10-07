@@ -1530,6 +1530,9 @@ function IntakePage() {
               <li>Phases: {intakeEstimate?.phases.join(" · ")}</li>
             </ul>
             <p className="mt-2 text-[13px] text-muted-foreground">
+              The two figures come from different models, so they can differ.
+            </p>
+            <p className="mt-2 text-[13px] text-muted-foreground">
               This estimate is stored on the record as the estimate at intake when the clock starts.
             </p>
           </div>
