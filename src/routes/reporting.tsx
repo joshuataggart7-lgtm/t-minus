@@ -40,7 +40,10 @@ const REPORT_ORDER: Record<ReportViewName, string[]> = {
 function ReportingPage() {
   const { authState } = useRole();
   const [open, setOpen] = useState<ReportViewName>("v_report_acquisitions");
-  const operational = useOperationalDisplay(authState === "signed-in" && open === "v_report_acquisitions");
+  // Loaded for every view: the Views table explains how its recorded-holds row
+  // relates to the Executive Overview HOLD count.
+  const operational = useOperationalDisplay(authState === "signed-in");
+  const overviewHoldCount = [...operational.byId.values()].filter((row) => row.readiness === "HOLD").length;
 
   const counts = useQuery({
     queryKey: ["report-view-counts"],
@@ -135,6 +138,12 @@ function ReportingPage() {
           </tbody>
         </table>
         </TableScrollRegion>
+        {operational.byId.size ? (
+          <p className="mt-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+            The Executive Overview HOLD count also includes files blocked by a missing required item. That count is{" "}
+            <span data-numeric>{overviewHoldCount}</span> today.
+          </p>
+        ) : null}
         {counts.isLoading ? <LoadingNote what="the view counts" /> : null}
         {counts.error ? <ErrorNote message="The view counts could not be read. Refresh the page to try again." /> : null}
       </section>

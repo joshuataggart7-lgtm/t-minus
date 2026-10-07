@@ -11,7 +11,7 @@ import { deriveOverviewAcquisitionState } from "@/components/mission-control/ope
 import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
-import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { attachedKeys as keysFrom, savedDocKeys, withResolvedHolds } from "@/lib/hold";
 import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
@@ -131,7 +131,10 @@ function DigestPage() {
 
   const digest = useMemo(() => {
     if (!q.data) return null;
-    const aging = agingItems(q.data.acqs, q.data.polls, q.data.centers, q.data.users);
+    // Same hold reading as Escalations and the file page: recomputed cause and
+    // owner first, a differing typed hold as "Also recorded".
+    const resolved = withResolvedHolds(q.data.acqs, q.data.plan, q.data.attachments, q.data.documents, q.data.templates);
+    const aging = agingItems(resolved, q.data.polls, q.data.centers, q.data.users);
     return buildDigest(metrics, aging);
   }, [q.data, metrics]);
 

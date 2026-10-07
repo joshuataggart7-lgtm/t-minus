@@ -1,3 +1,4 @@
+import { phaseOverrunDays } from "@/lib/launch-sequence";
 // Launch sequence rail (ORBIT Chunk 3). A vertical scan view of the same
 // phases array the file page already computes via buildSequence(). Display
 // only: every figure is read from PhaseView; no date math, no hours/minutes.
@@ -45,8 +46,9 @@ export function LaunchSequenceRail({
         {phases.map((p, i) => {
           const isCurrent = p.status === "current";
           const isComplete = p.status === "complete";
-          const showExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit >= 0;
-          const pastExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit < 0 ? -daysToPhaseExit : null;
+          // The overrun is the same phaseOverrunDays() figure the file page uses.
+          const pastExit = isCurrent && daysToPhaseExit !== null ? phaseOverrunDays(p) : null;
+          const showExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit >= 0 && pastExit === null;
           return (
             <li
               key={`${p.phase}-${i}`}

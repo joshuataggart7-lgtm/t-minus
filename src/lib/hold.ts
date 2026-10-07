@@ -86,6 +86,49 @@ export function resolveHold(
   return { reason: recorded, owner: String(acq.hold_owner ?? acq.co_name ?? "Contracting officer") };
 }
 
+/**
+ * A typed hold a person recorded that differs from the cause shown. The shown
+ * cause keeps precedence (resolveHold puts the derived cause first); this is
+ * only the second line, "Also recorded: ...".
+ */
+export function alsoRecordedHold(acq: AcqRow, shown: Hold): string | null {
+  const reason = String(acq.hold_reason ?? "").trim();
+  if (!reason || isDerivedHoldReason(reason) || !shown || shown.reason.trim() === reason) return null;
+  const owner = String(acq.hold_owner ?? "").trim();
+  return `Also recorded: ${reason}${owner ? ` · ${owner}` : ""}`;
+}
+
+/**
+ * The record with each file's hold recomputed, for pages that list holds
+ * (Escalations and the Digest "Aging holds"), so both read the same cause and
+ * owner as the file page. The typed hold, when different, rides along as
+ * __also_recorded.
+ */
+export function withResolvedHolds(
+  acqs: AcqRow[],
+  plan: PhasePlanRow[],
+  attachments: { acquisition_id?: string | null; doc_key: string }[],
+  documents: { acquisition_id?: string | null; template_id: string | null }[],
+  templates: { template_id: string; name: string }[],
+): AcqRow[] {
+  return acqs.map((acq) => {
+    if (acq.clock_state === "launched" || acq.status === "scrubbed") return acq;
+    const cause = holdFromRecord(
+      acq,
+      plan,
+      attachedKeys(attachments, acq.acquisition_id),
+      savedDocKeys(documents, templates, acq.acquisition_id),
+    );
+    return {
+      ...acq,
+      hold_reason: cause?.reason ?? null,
+      hold_owner: cause?.owner ?? null,
+      clock_state: cause ? "hold" : acq.clock_state,
+      __also_recorded: alsoRecordedHold(acq, cause),
+    } as AcqRow;
+  });
+}
+
 /** Same reading without a poll board, for pages that only list holds. */
 export function holdFromRecord(
   acq: AcqRow,

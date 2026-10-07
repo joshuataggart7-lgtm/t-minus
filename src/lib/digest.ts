@@ -15,7 +15,7 @@ export type Digest = {
   quarterStart: string;
   launchedThisWeek: { id: string; title: string; center: string; date: string; timeSavedDays: number }[];
   atRisk: { id: string; title: string; center: string; blocker: string; owner: string; daysToAward: number | null }[];
-  agingHolds: { id: string; center: string; subject: string; owner: string; ageDays: number; thresholdDays: number }[];
+  agingHolds: { id: string; center: string; subject: string; owner: string; ageDays: number; thresholdDays: number; alsoRecorded?: string | null }[];
   holdsByReasonByCenter: { center: string; reason: string; count: number }[];
   daysReturned: { total: number; byCenter: [string, number][] };
   counts: { running: number; onHold: number; launchedThisQuarter: number; scrubbed: number };
@@ -78,6 +78,7 @@ export function buildDigest(metrics: AcqMetrics[], aging: AgingItem[], today = t
       owner: a.owner,
       ageDays: a.ageDays,
       thresholdDays: a.thresholdDays,
+      alsoRecorded: a.alsoRecorded ?? null,
     }));
 
   // Holds by reason within each Center. The reason is trimmed at the first dash,
@@ -170,10 +171,10 @@ export function digestSections(d: Digest): DigestSection[] {
     {
       heading: "Aging holds",
       lines: d.agingHolds.length
-        ? d.agingHolds.map(
-            (r) =>
-              `${r.id} · ${r.center} · ${r.subject} · owner ${r.owner} · ${r.ageDays} days, aging after ${r.thresholdDays}`,
-          )
+        ? d.agingHolds.flatMap((r) => [
+            `${r.id} · ${r.center} · ${r.subject} · owner ${r.owner} · ${r.ageDays} days, aging after ${r.thresholdDays}`,
+            ...(r.alsoRecorded ? [`${r.id} · ${r.alsoRecorded}`] : []),
+          ])
         : ["No hold is past its Center window."],
     },
     {

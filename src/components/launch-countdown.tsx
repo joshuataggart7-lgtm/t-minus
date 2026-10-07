@@ -113,7 +113,7 @@ export function countdownView(m: AcqMetrics): CountdownView {
       badge: "FORECAST",
       caption: pastTarget
         ? "days past the forecast award date"
-        : "days to the forecast award date; no target recorded",
+        : "days to forecast award. No target date on file.",
       tone: "cyan",
       pastTarget,
     };

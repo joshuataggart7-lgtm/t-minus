@@ -64,6 +64,19 @@ function ReviewerInbox() {
     return { rows: built, matchMode: named.length > 0 ? ("named" as const) : ("all-pending" as const) };
   }, [desk, user.name, user.title]);
 
+  // One card per file: the pending reviews on a file are listed under its
+  // title. Rows arrive sorted by due date, so files follow their earliest due.
+  const groups = useMemo(() => {
+    const byId = new Map<string, { card: DeskCard; polls: PollRow[] }>();
+    for (const { poll, card } of rows) {
+      const id = card.m.acq.acquisition_id;
+      const group = byId.get(id) ?? { card, polls: [] };
+      group.polls.push(poll);
+      byId.set(id, group);
+    }
+    return [...byId.values()];
+  }, [rows]);
+
   // Soft read receipts for the hero document on each row. Nothing here blocks a
   // vote, a phase or a file; an empty result simply shows nothing.
   const ids = useMemo(() => Array.from(new Set(rows.map((r) => r.card.m.acq.acquisition_id))), [rows]);
@@ -163,24 +176,18 @@ function ReviewerInbox() {
         <>
           {matchMode === "all-pending" ? (
             <p className="mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-              No open review names you as the reviewer of record, so every open review on the prototype is
-              listed for the walk. The reviewer of record on each row is shown beside it. The hero document
-              still follows that office.
+              No open review names you, so all open reviews in this prototype are shown. Each one lists its
+              reviewer of record.
             </p>
           ) : null}
 
           <ul className="space-y-3">
-            {rows.map(({ poll, card }) => {
+            {groups.map(({ card, polls }) => {
               const id = card.m.acq.acquisition_id;
-              const phase = poll.phase ?? "";
-              const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
-              const due = daysUntil(poll.due_date);
-              const isOpen = openPoll === poll.poll_id;
               const readiness = explainWorkReadiness(card.m, { acq: card.m.acq, attachedKeys: card.attachedKeys, savedKeys: card.savedKeys }).state;
               return (
-                <li key={poll.poll_id} className={`mc-work-strip ${missionReadinessClass(readiness, "is")}`}>
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                <li key={id} className={`mc-work-strip ${missionReadinessClass(readiness, "is")}`}>
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <h2 className="text-[15px] leading-6 font-medium">
                       <Link
                         to="/files/$acquisitionId"
@@ -194,129 +201,142 @@ function ReviewerInbox() {
                       </span>
                     </h2>
                     <MissionReadinessChip state={readiness} />
-                    </div>
-                    <p className="text-[13px] text-muted-foreground" data-numeric>
-                      {poll.due_date
-                        ? due !== null && due < 0
-                          ? `Due ${poll.due_date} · ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
-                          : `Due ${poll.due_date} · ${due} ${dayWord(due)} left`
-
-                        : "No due date recorded"}
-                    </p>
                   </div>
-
-                  <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
-                    {phase} · {poll.reviewer_role} · reviewer of record {poll.reviewer_name ?? "not named"} ·{" "}
-                    {phaseCitation(phase, card.m.acq)}
+                  <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
+                    {polls.length} open {polls.length === 1 ? "review" : "reviews"} on this file
                   </p>
+                  <ul className="mt-3 divide-y divide-border">
+                    {polls.map((poll) => {
+                      const phase = poll.phase ?? "";
+                      const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
+                      const due = daysUntil(poll.due_date);
+                      const isOpen = openPoll === poll.poll_id;
+                      return (
+                        <li key={poll.poll_id} className="min-w-0 py-3 first:pt-0 last:pb-0">
+                          <p className="text-[13px] font-medium" data-numeric>
+                            {poll.due_date
+                              ? due !== null && due < 0
+                                ? `Due ${poll.due_date} · ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
+                                : `Due ${poll.due_date} · ${due} ${dayWord(due)} left`
 
-                  <p className="mt-2 text-[15px] leading-[22px]">
-                    The one document to read:{" "}
-                    {hero ? (
-                      hero.kind === "file" ? (
-                        <Link
-                          to="/files/$acquisitionId"
-                          params={{ acquisitionId: id }}
-                          onClick={() => noteOpen(id, "file", "file", hero.doc.label, poll.poll_id)}
-                          className="text-primary hover:text-primary-hover"
-                        >
-                          {hero.doc.label}
-                        </Link>
-                      ) : hero.kind === "template" ? (
-                        <Link
-                          to="/documents/$templateKey/$acquisitionId"
-                          params={{ templateKey: hero.key, acquisitionId: id }}
-                          onClick={() => noteOpen(id, "template", hero.key, hero.doc.label, poll.poll_id)}
-                          className="text-primary hover:text-primary-hover"
-                        >
-                          {hero.doc.label}
-                        </Link>
-                      ) : (
-                        <Link
-                          to="/forms/$formKey/$acquisitionId"
-                          params={{ formKey: hero.key, acquisitionId: id }}
-                          onClick={() => noteOpen(id, "form", hero.key, hero.doc.label, poll.poll_id)}
-                          className="text-primary hover:text-primary-hover"
-                        >
-                          {hero.doc.label}
-                        </Link>
-                      )
-                    ) : (
-                      <Link
-                        to="/files/$acquisitionId"
-                        params={{ acquisitionId: id }}
-                        className="text-primary hover:text-primary-hover"
-                      >
-                        the file record for this phase
-                      </Link>
-                    )}
-                    {hero ? ` (${hero.doc.citation})` : ""}.
-                  </p>
+                              : "No due date recorded"}
+                          </p>
+                        <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
+                          {phase} · {poll.reviewer_role} · reviewer of record {poll.reviewer_name ?? "not named"} ·{" "}
+                          {phaseCitation(phase, card.m.acq)}
+                        </p>
 
-                  {(() => {
-                    const kind: ReceiptKind = hero ? (hero.kind as ReceiptKind) : "file";
-                    const key = hero ? (hero.kind === "file" ? "file" : hero.key) : "file";
-                    const note = openedNote(id, kind, key);
-                    return note ? (
-                      <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{note}</p>
-                    ) : null;
-                  })()}
+                        <p className="mt-2 text-[15px] leading-[22px]">
+                          The one document to read:{" "}
+                          {hero ? (
+                            hero.kind === "file" ? (
+                              <Link
+                                to="/files/$acquisitionId"
+                                params={{ acquisitionId: id }}
+                                onClick={() => noteOpen(id, "file", "file", hero.doc.label, poll.poll_id)}
+                                className="text-primary hover:text-primary-hover"
+                              >
+                                {hero.doc.label}
+                              </Link>
+                            ) : hero.kind === "template" ? (
+                              <Link
+                                to="/documents/$templateKey/$acquisitionId"
+                                params={{ templateKey: hero.key, acquisitionId: id }}
+                                onClick={() => noteOpen(id, "template", hero.key, hero.doc.label, poll.poll_id)}
+                                className="text-primary hover:text-primary-hover"
+                              >
+                                {hero.doc.label}
+                              </Link>
+                            ) : (
+                              <Link
+                                to="/forms/$formKey/$acquisitionId"
+                                params={{ formKey: hero.key, acquisitionId: id }}
+                                onClick={() => noteOpen(id, "form", hero.key, hero.doc.label, poll.poll_id)}
+                                className="text-primary hover:text-primary-hover"
+                              >
+                                {hero.doc.label}
+                              </Link>
+                            )
+                          ) : (
+                            <Link
+                              to="/files/$acquisitionId"
+                              params={{ acquisitionId: id }}
+                              className="text-primary hover:text-primary-hover"
+                            >
+                              the file record for this phase
+                            </Link>
+                          )}
+                          {hero ? ` (${hero.doc.citation})` : ""}.
+                        </p>
 
-                  {isAnonymous ? null : isOpen ? (
-                    <div className="mt-3 max-w-[70ch] border border-border bg-background p-4 [border-radius:var(--mc-radius-control)]">
-                      <label htmlFor={`note-${poll.poll_id}`} className="block text-[13px] text-muted-foreground">
-                        Note. A No-go needs a reason.
-                      </label>
-                      <textarea
-                        id={`note-${poll.poll_id}`}
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        rows={3}
-                        className="mt-1 w-full border border-border bg-background p-2 text-[15px] [border-radius:var(--mc-radius-control)]"
-                      />
-                      <div className="mt-3 flex flex-wrap gap-3">
-                        <button
-                          type="button"
-                          disabled={vote.isPending}
-                          onClick={() => vote.mutate({ row: { poll, card }, choice: "go", reason: note })}
-                          className="bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
-                        >
-                          Go
-                        </button>
-                        <button
-                          type="button"
-                          disabled={vote.isPending}
-                          onClick={() => vote.mutate({ row: { poll, card }, choice: "no-go", reason: note })}
-                          className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
-                          style={{ borderColor: "var(--mc-readiness-hold)" }}
-                        >
-                          No-go
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenPoll(null);
-                            setNote("");
-                          }}
-                          className="border border-border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpenPoll(poll.poll_id);
-                        setNote("");
-                        setBanner(null);
-                      }}
-                      className="mt-3 bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
-                    >
-                      Vote on this review
-                    </button>
-                  )}
+                        {(() => {
+                          const kind: ReceiptKind = hero ? (hero.kind as ReceiptKind) : "file";
+                          const key = hero ? (hero.kind === "file" ? "file" : hero.key) : "file";
+                          const note = openedNote(id, kind, key);
+                          return note ? (
+                            <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{note}</p>
+                          ) : null;
+                        })()}
+
+                        {isAnonymous ? null : isOpen ? (
+                          <div className="mt-3 max-w-[70ch] border border-border bg-background p-4 [border-radius:var(--mc-radius-control)]">
+                            <label htmlFor={`note-${poll.poll_id}`} className="block text-[13px] text-muted-foreground">
+                              Note. A No-go needs a reason.
+                            </label>
+                            <textarea
+                              id={`note-${poll.poll_id}`}
+                              value={note}
+                              onChange={(e) => setNote(e.target.value)}
+                              rows={3}
+                              className="mt-1 w-full border border-border bg-background p-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                            />
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              <button
+                                type="button"
+                                disabled={vote.isPending}
+                                onClick={() => vote.mutate({ row: { poll, card }, choice: "go", reason: note })}
+                                className="bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
+                              >
+                                Go
+                              </button>
+                              <button
+                                type="button"
+                                disabled={vote.isPending}
+                                onClick={() => vote.mutate({ row: { poll, card }, choice: "no-go", reason: note })}
+                                className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                                style={{ borderColor: "var(--mc-readiness-hold)" }}
+                              >
+                                No-go
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setOpenPoll(null);
+                                  setNote("");
+                                }}
+                                className="border border-border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setOpenPoll(poll.poll_id);
+                              setNote("");
+                              setBanner(null);
+                            }}
+                            className="mt-3 bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
+                          >
+                            Vote on this review
+                          </button>
+                        )}
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </li>
               );
             })}
