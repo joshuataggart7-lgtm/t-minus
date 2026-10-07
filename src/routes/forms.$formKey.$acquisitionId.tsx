@@ -893,7 +893,8 @@ function FormPage() {
         </p>
       </div>
       <p className="mc-work-summary mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-        {headerLine} · {form?.citation}
+        {headerLine}
+        {form?.citation ? ` · ${form.citation}` : ""}
         {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
         {formTemplateId === "sf1449"
           ? " · official PDF export: Live"

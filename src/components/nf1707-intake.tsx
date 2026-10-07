@@ -33,7 +33,7 @@ export const NF1707_SECTIONS: Section[] = [
     q("s2_no_authorization_reason", "No IT authorization number", "text", {short:"No IT authorization number",  when:a=>a["s2_authorization"]==="none" }),
   ]},
   { key: "3", title: "Environmental and sustainable acquisition", citation: "NF 1707 Section 3; FAR Part 23; NFS 1823; NPR 8530.1; NPR 8580.1", questions: [
-    q("s3_gpc", "Green Procurement Compilation (GPC) search result", "radio", { options:[{value:"none",label:"A. Acquires no products or services listed in the GPC"},{value:"requirements",label:"B. Acquires GPC-listed products or services"}], required:true }),
+    q("s3_gpc", "Green Procurement Compilation (GPC) search result", "radio", { options:[{value:"none",label:"I.A. Does not acquire any products or services listed in the GPC"},{value:"requirements",label:"I.B. Acquires products or services listed in the GPC"}], required:true }),
     q("s3_biobased", "Bio-based/Bio-preferred, USDA-designated items", "check", { when:a=>a["s3_gpc"]==="requirements", short:"Bio-based items" }),
     q("s3_smartway", "SmartWay Transportation Services", "check", { when:a=>a["s3_gpc"]==="requirements", short:"SmartWay transportation" }),
     q("s3_energy", "Energy Star, FEMP-designated, FEMP Low Standby Power, or WaterSense products", "check", { when:a=>a["s3_gpc"]==="requirements", short:"Energy efficient products" }),
