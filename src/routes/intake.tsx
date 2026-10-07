@@ -1501,8 +1501,18 @@ function IntakePage() {
             <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
             <ul className="mt-2 text-[13px] text-muted-foreground">
               <li>
-                Months to award: {intakeEstimate?.monthsToAward}. Planned days to award:{" "}
-                {intakeEstimate?.plannedDaysToAward}.
+                Estimator timeline: about {intakeEstimate?.monthsToAward}{" "}
+                {intakeEstimate?.monthsToAward === 1 ? "month" : "months"} to award (planning{" "}
+                {intakeEstimate?.months.planning}, solicitation {intakeEstimate?.months.solicitation},
+                evaluation {intakeEstimate?.months.evaluation}, award {intakeEstimate?.months.award}).
+              </li>
+              <li>
+                Phase plan: {intakeEstimate?.plannedDaysToAward} planned days to award, about{" "}
+                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).text}{" "}
+                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).value === 1
+                  ? "month"
+                  : "months"}
+                . The need-date check uses the phase plan.
               </li>
               <li>
                 Contracting hours: {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
