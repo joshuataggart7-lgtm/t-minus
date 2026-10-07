@@ -13,17 +13,18 @@ import type { RefData } from "@/lib/intake";
 import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/estimator";
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
+import { workingDaysIn, type AwardConfidence } from "@/lib/confidence";
 
 export function RequesterLoe({
   acq,
   plan,
-  awardRange,
+  confidence,
   missingCount,
 }: {
   acq: Record<string, unknown>;
   plan: PhasePlanRow[];
-  /** The honest days-to-award range for this file, or null when withheld. */
-  awardRange: string | null;
+  /** The planned duration and history confidence for this file, when available. */
+  confidence: AwardConfidence | null;
   /** Items the requesting organization still owes on this file. */
   missingCount?: number;
 }) {
@@ -88,18 +89,17 @@ export function RequesterLoe({
       </p>
 
       <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
-        <dt className="text-muted-foreground">Planned calendar days</dt>
+        <dt className="text-muted-foreground">Planned time to award</dt>
         <dd data-numeric>
-          {hasPlan
-            ? `${totalPlannedDays} planned calendar days to award`
-            : "Phase-plan days are not loaded for this file"}
+          {hasPlan ? (
+            <>
+              {`${totalPlannedDays} calendar days, about ${workingDaysIn(totalPlannedDays)} working days`}
+              <span className="block text-[13px] leading-[18px] text-muted-foreground">
+                From the phase plan for this acquisition type.{confidence ? ` ${confidence.rangeNote}` : ""}
+              </span>
+            </>
+          ) : "Not planned for this acquisition type"}
         </dd>
-        {awardRange ? (
-          <>
-            <dt className="text-muted-foreground">Days to award</dt>
-            <dd>{awardRange}</dd>
-          </>
-        ) : null}
         {missingCount != null ? (
           <>
             <dt className="text-muted-foreground">Items you still owe</dt>
