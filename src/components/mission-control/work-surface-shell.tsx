@@ -34,6 +34,7 @@ export function WorkShellHeader({
   countdown,
   saveState,
   completion,
+  detail,
 }: {
   acquisitionId: string;
   title?: string | null;
@@ -41,6 +42,8 @@ export function WorkShellHeader({
   countdown?: CountdownView | null;
   saveState: SaveState;
   completion?: string | null;
+  /** One compact muted line, such as the form citation and saved version. */
+  detail?: string | null;
 }) {
   return (
     <section className="mc-shell-header" aria-label="Working document status">
@@ -52,6 +55,7 @@ export function WorkShellHeader({
       {countdown ? <LaunchCountdownCompact view={countdown} hideBadge={countdown.badge === readiness?.state} /> : null}
       <SaveStateNote state={saveState} />
       {completion ? <span className="mc-shell-completion">{completion}</span> : null}
+      {detail ? <span className="mc-shell-completion lg:whitespace-nowrap">{detail}</span> : null}
     </section>
   );
 }

@@ -882,6 +882,12 @@ function FormPage() {
         readiness={formReadiness}
         countdown={countdown}
         saveState={formSaveState}
+        detail={[
+          form?.citation ? String(form.citation) : null,
+          latest
+            ? `Saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}`
+            : "No version saved yet",
+        ].filter(Boolean).join(" · ")}
       />
       <WorkShellLayout
         nav={<MissionNavigator items={formNavItems} label="In this form" ariaLabel="In this form" />}
