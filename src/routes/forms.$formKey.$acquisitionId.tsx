@@ -464,7 +464,9 @@ function FormPage() {
           : countdown.mode === "hold"
             ? `${countdown.prefix}${countdown.days} HOLD`
             : `${countdown.prefix}${countdown.days}${countdown.badge ? ` ${countdown.badge}` : ""} (${countdown.caption})`
-  }`;
+  }`.replace(/\u2212/g, "-");
+  // The flattened PDF's standard fonts have no minus sign, so the page header
+  // uses the same hyphen the PDF prints.
 
   // P0 fold-in: an official export is only Ready when the blank itself loads.
   // Mapping rows alone are not enough: a missing blank exports nothing.
@@ -577,6 +579,32 @@ function FormPage() {
     for (const section of form.sections) {
       blocks.push({ text: section.title, bold: true, size: 12, gap: 2 });
       if (section.citation) blocks.push({ text: section.citation, size: 9, gap: 4 });
+      if (form.key === "nf-1707" && section.title === "Sections 1 through 12") {
+        const bySection = new Map<number, string[]>();
+        for (const f of section.fields) {
+          const n = nf1707SectionOf(f.path.replace(/^.*?(Section\d+)/, "$1"));
+          if (!n) continue;
+          const value = typeof f.value === "boolean" ? (f.value ? "1" : "") : String(f.value ?? "");
+          if (!value || value === "0" || value === "2") continue;
+          bySection.set(n, [...(bySection.get(n) ?? []), value === "1" ? `Checked: ${f.label}` : `${f.label}: ${value}`]);
+        }
+        for (let n = 1; n <= 12; n += 1) {
+          blocks.push({ text: NF1707_SECTION_TITLES[n] ?? `Section ${n}`, bold: true, size: 11, indent: 12, gap: 2 });
+          const lines = bySection.get(n) ?? [];
+          if (!lines.length) blocks.push({ text: "Not yet answered", size: 11, indent: 24, gap: 2 });
+          for (const line of lines) blocks.push({ text: line, size: 11, indent: 24, gap: 2 });
+        }
+        blocks.push({ text: "", gap: 8 });
+        continue;
+      }
+      if (form.key === "nf-1707" && section.title === "Signatures, concurrence and approvals") {
+        for (const r of nf1707SignoffRows) {
+          blocks.push({ text: `${r.name}: ${r.label ?? "Not yet signed"}`, size: 11, indent: 12, gap: 2 });
+        }
+        blocks.push({ text: "Signatures are completed in the Approvals step and stay blank on the export.", size: 9, indent: 12, gap: 2 });
+        blocks.push({ text: "", gap: 8 });
+        continue;
+      }
       for (const field of section.fields) {
         // An empty block reads as prose, never as a filled dash.
         const value =
@@ -601,7 +629,22 @@ function FormPage() {
   const boundDatasets = async () => {
     if (!form) return "";
     const map = await blankPagePaths(form.pdf);
-    return xfaDatasets(withPagePaths(form, map));
+    let bound = withPagePaths(form, map);
+    if (form.key === "nf-1707") {
+      // The blank's Center list binds the Center code (ARC, GRC, and so on),
+      // not the Center name the page shows.
+      const code = String(q.data?.acq?.["center_code"] ?? "").trim();
+      if (code) {
+        bound = {
+          ...bound,
+          sections: bound.sections.map((section) => ({
+            ...section,
+            fields: section.fields.map((f) => (f.path.endsWith(".Header.Center") ? { ...f, value: code } : f)),
+          })),
+        };
+      }
+    }
+    return xfaDatasets(bound);
   };
 
   const exportPopulated = async () => {

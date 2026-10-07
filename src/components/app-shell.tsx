@@ -340,7 +340,16 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
 
        <div id="urgent-announcement-slot" {...inertProps} />
 
-      <div className="flex max-lg:block">
+      <div className="relative flex max-lg:block">
+        {/* The rail's dark column runs the full height of the page, so a long
+            page never shows canvas under the sticky navigation. */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            "chrome-rail pointer-events-none absolute inset-y-0 left-0 hidden border-r border-chrome-structure lg:block",
+            collapsed ? "w-14" : overviewMode ? "w-48" : "w-60",
+          )}
+        />
         {drawerOpen ? (
           <div
             aria-hidden="true"
@@ -466,15 +475,16 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             <PresenterScreensBeat />
             {children}
           </main>
-          <footer className="chrome-surface border-t-2 border-chrome-structure px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
-            Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
-            <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
-              About T-Minus
-            </Link>
-          </footer>
         </div>
 
       </div>
+
+      <footer {...inertProps} className="chrome-surface relative border-t-2 border-chrome-structure px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
+        Prototype. Not an official NASA system. Viewing as {user.title}, {user.center_code}.{" "}
+        <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
+          About T-Minus
+        </Link>
+      </footer>
 
       {orbyFor ? (
         <Orby key={orbyFor.key} acquisitionId={orbyFor.id} onDone={() => setOrbyFor(null)} />
