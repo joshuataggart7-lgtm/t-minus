@@ -141,6 +141,14 @@ function Field({
 const inputClass =
   "w-full border border-border bg-background px-3 py-2 text-[15px] text-foreground [border-radius:var(--mc-radius-control)]";
 
+// The estimator timeline counts months and the phase plan counts days. Show the
+// phase plan figure in months as well, rounded to the nearest half month, so the
+// two lines can be read side by side.
+function phasePlanMonths(days: number) {
+  const value = Math.round(days / 30.44 / 0.5) * 0.5;
+  return { value, text: Number.isInteger(value) ? String(value) : value.toFixed(1) };
+}
+
 function IntakePage() {
   const { user, hasAnyRole, authState, profile, readOnly, role, canSwitchPersona } = useRole();
   const navigate = useNavigate();
