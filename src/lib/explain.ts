@@ -179,8 +179,10 @@ const RED_FLAG_RULES: Record<string, string> = {
 
 function redFlagRule(flag: RedFlag): string {
   if (flag.id === "igce") {
-    if (flag.citation === "RFO FAR 12.204(a)" || flag.citation === "RFO FAR 13.203(a)")
-      return "Before award, the contracting officer must determine that the price is fair and reasonable, basing it on competitive quotations whenever possible. The IGCE gives the contracting officer a baseline for that finding.";
+    if (/^T-Minus\/Center practice/.test(flag.citation ?? "") && /12\.204\(a\)|13\.203\(a\)/.test(flag.citation ?? ""))
+      return "T-Minus/Center practice: the IGCE is on the file at intake. No regulation requires it on a simplified buy. It supports the rule that applies: before award, the contracting officer must determine that the price is fair and reasonable, basing it on competitive quotations whenever possible (RFO FAR 12.204(a); RFO FAR 13.203(a) on a noncommercial simplified buy).";
+    if (/^T-Minus\/Center practice/.test(flag.citation ?? "") && /15\.404-1\(b\)\(5\)/.test(flag.citation ?? ""))
+      return "T-Minus/Center practice: the IGCE is on the file at intake. It supports price analysis: comparing proposed prices with an independent government cost estimate is one of the listed techniques (RFO FAR 15.404-1(b)(5)).";
     if (flag.citation === "RFO FAR 15.404-1(b)(5)")
       return "The contracting officer must make sure the final price is fair and reasonable. Comparing proposed prices with an independent government cost estimate is one of the listed price analysis techniques (RFO FAR 15.404-1(b)(5)).";
     if (flag.citation === "NFS CG 1807.14(b)(3); RFO FAR 15.404-1(b)(5)")
@@ -211,8 +213,9 @@ export function explainRedFlag(flag: RedFlag): Explanation {
  */
 const ROW_PURPOSE: { match: RegExp; purpose: string }[] = [
   { match: /NF 1707/i, purpose: "The intake record is the requirement as the requester stated it. Every later document reads its facts from this row, so it is the first thing the file needs." },
-  { match: /cost estimate|IGCE/i, purpose: "The independent estimate is the government's own view of a fair price. Price reasonableness is judged against it, so it has to exist before quotations are seen." },
+  { match: /cost estimate|IGCE/i, purpose: "The independent estimate is the government's own view of what the work should cost. Having it on the file at intake is T-Minus/Center practice, not a regulation. It supports the price reasonableness determination: the contracting officer can compare the quoted or proposed prices with it." },
   { match: /statement of work|performance work statement/i, purpose: "The work description is what the quoters price and what the government later accepts. Without it there is nothing to solicit or to inspect against." },
+  { match: /NF 1787A/i, purpose: "The NF 1787A is NASA's market research report. For a procurement over $2,000,000 the contracting officer must document the market research results on it, and it accompanies the NF 1787 small business coordination (NFS CG 1810.12(c)(1)). At $2,000,000 or less it is optional, but market research must still be documented (NFS CG 1810.12(c)(2))." },
   { match: /market research/i, purpose: "The research memorandum records what the market can supply, whether commercial items meet the need, and whether two or more small businesses can compete. The acquisition method rests on it." },
   { match: /NF 1787/i, purpose: "The small business coordination record shows the set-aside decision was considered with the small business specialist before the requirement was released." },
   { match: /other than full and open competition|limited sources|brand name/i, purpose: "The justification is the written basis for not competing the requirement. Without it the file cannot support a sole-source or restricted award." },
@@ -229,7 +232,8 @@ const ROW_PURPOSE: { match: RegExp; purpose: string }[] = [
   { match: /recorded votes/i, purpose: "Each required reviewer votes by name, so the file shows who cleared the action and who did not." },
   { match: /FPDS/i, purpose: "The contract action report puts the award into the federal record. The file is not complete until it is reported." },
   { match: /CPARS|past performance/i, purpose: "The performance evaluation is what future buyers read when they assess this contractor." },
-  { match: /COR appointment/i, purpose: "The appointment letter names who may act on the government's behalf during performance and what they may not do." },
+  { match: /COR appointment/i, purpose: "The appointment letter (NF 1634) names who may act on the government's behalf during performance and what they may not do. A COR must be assigned on every contract or order other than firm-fixed-price; on a firm-fixed-price contract the contracting officer may assign one (RFO FAR 1.404(b))." },
+  { match: /postaward conference/i, purpose: "The report records the postaward conference with the contract administration office. NASA requires the conference over $10,000,000, for performance at or near a NASA installation, or where complex contract management problems are expected, unless the procurement officer approves a waiver (NFS CG 1842.32(a) and (b))." },
   { match: /option exercise/i, purpose: "Exercising an option is a unilateral act with conditions. The notice and the determination are the record that they were met." },
   { match: /SF 30/i, purpose: "The modification packet carries the change, its authority, and the clause effect so the change is administered from one record." },
   { match: /closeout/i, purpose: "Closeout settles the money, the property, and the claims, and closes the file for retention." },
@@ -247,26 +251,33 @@ export function explainDocRow(doc: RequiredDoc, phase: string, satisfied: boolea
   const why = [rowPurpose(doc)];
   why.push(
     doc.optional
-      ? `${phase} offers this row. It never holds the clock and never blocks the exit from the phase.`
+      ? `${phase} offers this row. It is not required, so it never holds the clock and never blocks the exit from the phase.`
       : `${phase} requires this row, so the file cannot leave the phase until the record shows it.`,
   );
   why.push(
     satisfied
       ? "The record shows it, so this row is satisfied."
-      : "The record does not show it yet.",
+      : doc.optional
+        ? "The record does not show it. Nothing is owed for an offered row."
+        : "The record does not show it yet.",
   );
+  const make = doc.field
+    ? "attach it and mark it on the file"
+    : "produce it from the template or the check it links to";
   return {
-    heading: satisfied ? `Why ${doc.label} is on this file` : `${doc.label} is missing`,
+    heading: satisfied
+      ? `Why ${doc.label} is on this file`
+      : doc.optional
+        ? `About ${doc.label}`
+        : `${doc.label} is missing`,
     why,
     rule: `${phase} ${doc.optional ? "offered" : "required"} row: ${doc.label}`,
     citation: doc.citation,
     clears: satisfied
       ? ["Nothing is outstanding on this row."]
-      : [
-          doc.field
-            ? `Attach it and mark it on the file. The hold lifts as soon as the record shows it.`
-            : `Produce it from the template or the check it links to. The hold lifts as soon as the file shows it.`,
-        ],
+      : doc.optional
+        ? [`Nothing has to clear: leaving it out does not hold the file. If it helps the record, ${make}.`]
+        : [`${make.charAt(0).toUpperCase()}${make.slice(1)}. The hold lifts as soon as the record shows it.`],
     note: doc.note ?? null,
   };
 }

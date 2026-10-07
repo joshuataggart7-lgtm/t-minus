@@ -6,6 +6,7 @@
 // anything on its own -- the contracting officer confirms each suggestion.
 
 import type { PacketClause } from "@/lib/clause-packet";
+import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 export const SOW_ASSIST_BANNER =
   "Suggested from method and requirement cues on the record. Confirm before applying. T-Minus does not write the FAR body.";
@@ -108,12 +109,15 @@ export function sowClauseAssist(
   return out;
 }
 
-export function assistSourceLine(facts: Record<string, unknown>): string {
+export function assistSourceLine(facts: Record<string, unknown>, sowOnFile?: boolean): string {
   const bits: string[] = [];
   const method = text(facts, "acquisition_method");
   const format = text(facts, "contract_format");
-  if (method) bits.push(`method ${method}`);
+  if (method) bits.push(`method ${methodDisplayLabel(method)}`);
   if (format) bits.push(`format ${format}`);
-  bits.push(facts["sow_attached"] === true ? "SOW or PWS attached" : "no SOW or PWS recorded");
+  // The SOW counts as on the file when the record flag is set or a stored copy
+  // is attached, the same test the Intake row uses.
+  const sow = facts["sow_attached"] === true || sowOnFile === true;
+  bits.push(sow ? "SOW or PWS attached" : "no SOW or PWS recorded");
   return `Cues read from: ${bits.join(", ")}.`;
 }

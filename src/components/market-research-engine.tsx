@@ -86,6 +86,9 @@ export function MarketResearchEngine({
   const [suggested, setSuggested] = useState<string | null>(null);
   const [latestRanAt, setLatestRanAt] = useState<string | null>(null);
   const [latestIncompleteRanAt, setLatestIncompleteRanAt] = useState<string | null>(null);
+  // A failed read is not the same as no research: never report "not run" when
+  // the log simply could not be read.
+  const [readFailed, setReadFailed] = useState(false);
   const [previousRuns, setPreviousRuns] = useState<
     { runId: string; ranAt: string; log: ResearchLogEntry[] }[]
   >([]);
@@ -105,11 +108,13 @@ export function MarketResearchEngine({
         setLatestRanAt(result.latestRanAt);
         setLatestIncompleteRanAt(result.latestIncompleteRanAt);
         setPreviousRuns(result.previousRuns);
+        setReadFailed(false);
       })
       .catch(() => {
         if (live) {
           setFindings([]);
           setLog([]);
+          setReadFailed(true);
         }
       });
     return () => {
@@ -124,6 +129,7 @@ export function MarketResearchEngine({
       setLog(result.log);
       setLatestRanAt(result.ranAt);
       setLatestIncompleteRanAt(null);
+      setReadFailed(false);
       setSuggested(result.suggestedSetAside);
       setSourcesSought(result.noticesSearched ? result.sourcesSought : []);
       setBlackoutNotices(result.noticesSearched ? result.blackoutNotices : []);
@@ -289,6 +295,11 @@ export function MarketResearchEngine({
               <p className="mt-2 text-[13px] text-muted-foreground">
                 The latest research run did not save a source log. Run the research again
                 {previousRuns.length ? " or open a previous completed run below." : "."}
+              </p>
+            ) : readFailed ? (
+              <p className="mt-2 text-[13px] text-muted-foreground">
+                The research log could not be read just now, so this page cannot say whether research has run. Reload the
+                page to try again.
               </p>
             ) : (
               <p className="mt-2 text-[13px] text-muted-foreground">

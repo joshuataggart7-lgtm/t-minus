@@ -9,6 +9,7 @@ import { RequesterLoe } from "@/components/requester-loe";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
 import { dayWord } from "@/lib/pluralize";
+import { nf1707SectionProgress } from "@/components/nf1707-intake";
 
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
@@ -39,8 +40,12 @@ type Owed = { label: string; present: boolean; note: string };
 function owedRows(card: DeskCard): Owed[] {
   const acq = card.m.acq as Record<string, unknown>;
   const answers = acq['nf1707_answers'];
-  const answered =
-    answers && typeof answers === "object" ? Object.keys(answers as Record<string, unknown>).length : 0;
+  // Counted the way the Intake page counts: sections answered of sections shown.
+  const progress =
+    answers && typeof answers === "object"
+      ? nf1707SectionProgress(answers as Record<string, unknown>, acq)
+      : { answered: 0, total: 0 };
+  const answered = progress.answered;
   const attached = card.attachedKeys;
   return [
     {
@@ -51,7 +56,10 @@ function owedRows(card: DeskCard): Owed[] {
     {
       label: "NF 1707 intake answers",
       present: answered > 0,
-      note: answered > 0 ? `${answered} answers recorded.` : "No answers recorded yet.",
+      note:
+        answered > 0
+          ? `${answered} of ${progress.total} ${progress.total === 1 ? "section" : "sections"} answered.`
+          : "No answers recorded yet.",
     },
     {
       label: "Statement of work",

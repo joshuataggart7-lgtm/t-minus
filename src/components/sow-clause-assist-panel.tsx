@@ -27,6 +27,7 @@ export function SowClauseAssistPanel({
   phase,
   onBanner,
   regionContext,
+  sowOnFile,
 }: {
   acquisitionId: string;
   facts: Record<string, unknown> | null;
@@ -36,6 +37,8 @@ export function SowClauseAssistPanel({
   phase: string;
   onBanner: (s: string) => void;
   regionContext?: string;
+  /** A stored SOW or PWS copy is attached to the file. */
+  sowOnFile?: boolean;
 }) {
   const [confirmed, setConfirmed] = useState<string[]>([]);
   const suggestions: AssistSuggestion[] = facts ? sowClauseAssist(facts, recommended) : [];
@@ -69,7 +72,7 @@ export function SowClauseAssistPanel({
       <p className="mt-1 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">{SOW_ASSIST_BANNER}</p>
       {facts ? (
         <p className="mt-1 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-          {assistSourceLine(facts)}
+          {assistSourceLine(facts, sowOnFile)}
         </p>
       ) : null}
       {suggestions.length === 0 ? (

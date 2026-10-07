@@ -265,7 +265,11 @@ function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "p
   const dayWord = (n: number) => (n === 1 ? "day" : "days");
   const planned = p.planned_days;
   const actual = p.actual_days;
-  if (actual === null) return `${planned} planned ${dayWord(planned)}`;
+  if (actual === null) {
+    return p.status === "complete"
+      ? `Start or end date not recorded, ${planned} planned ${dayWord(planned)}`
+      : `${planned} planned ${dayWord(planned)}`;
+  }
   const diff = Math.abs(actual - planned);
   if (p.status === "complete") {
     const note = actual > planned ? `${diff} over` : actual < planned ? `${diff} under` : "on plan";
@@ -3709,6 +3713,7 @@ function FilePage() {
                   {acq ? (
                     <SowClauseAssistPanel
                       acquisitionId={acquisitionId}
+                      sowOnFile={keysFrom(attachments).has("sow_attached")}
                       facts={acq as Record<string, unknown>}
                       recommended={packetClauses}
                       canWrite={canWrite}

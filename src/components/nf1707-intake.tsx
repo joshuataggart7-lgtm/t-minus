@@ -186,6 +186,12 @@ export function sectionApplies(s:Section,a:NfAnswers){return !s.gates||s.gates.s
 function answered(v?:string){return !!v&&v!=="false"}
 function sectionAnswered(s:Section,a:NfAnswers){return s.questions.some(question=>answered(a[question.key]))}
 function sectionVisible(s:Section,a:NfAnswers){return s.key==="2"||sectionApplies(s,a)||sectionAnswered(s,a)}
+/** Sections answered out of sections shown, counted exactly as the Intake page counts them, from a stored record. */
+export function nf1707SectionProgress(stored:Record<string,unknown>|null|undefined, facts:Partial<IntakeFacts>):{answered:number;total:number}{
+ const merged={...canonicalFromFacts(facts as IntakeFacts),...answersFromStored((stored??{}) as Record<string,unknown>)};
+ const sections=NF1707_SECTIONS.filter(s=>sectionVisible(s,merged));
+ return {answered:sections.filter(s=>sectionAnswered(s,merged)).length,total:sections.length};
+}
 function choiceText(question:Question,value:string){
  if(question.kind==="check")return value==="true"?(question.short??question.label):"";
  if(question.kind==="checklist")return value.split("|").map(v=>question.options?.find(o=>o.value===v)?.label).filter(Boolean).join(", ");

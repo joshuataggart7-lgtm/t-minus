@@ -64,8 +64,11 @@ export const WRITTEN_ACQUISITION_PLAN_THRESHOLD = 10_000_000;
  * provide the IGCE.
  */
 export function igceCite(method: string | null | undefined, value: number): string {
-  if (/13/.test(String(method ?? ""))) return simplifiedPriceCite(method);
+  // Only the written acquisition plan rule actually requires an IGCE. Elsewhere
+  // the IGCE on the file is T-Minus/Center practice, and the cite named is the
+  // price rule it supports, not a requirement for the estimate itself.
+  if (/13/.test(String(method ?? ""))) return `T-Minus/Center practice; supports ${simplifiedPriceCite(method)}`;
   return value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
     ? "NFS CG 1807.14(b)(3); RFO FAR 15.404-1(b)(5)"
-    : "RFO FAR 15.404-1(b)(5)";
+    : "T-Minus/Center practice; supports RFO FAR 15.404-1(b)(5)";
 }

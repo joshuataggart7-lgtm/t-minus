@@ -46,6 +46,7 @@ export function LaunchSequenceRail({
           const isCurrent = p.status === "current";
           const isComplete = p.status === "complete";
           const showExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit >= 0;
+          const pastExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit < 0 ? -daysToPhaseExit : null;
           return (
             <li
               key={`${p.phase}-${i}`}
@@ -93,6 +94,11 @@ export function LaunchSequenceRail({
                       style={{ color: "color-mix(in oklab, var(--accent-cyan) 50%, var(--foreground))" }}
                     >
                       T− {daysToPhaseExit} to exit
+                    </span>
+                  ) : null}
+                  {pastExit !== null ? (
+                    <span className="font-semibold tabular-nums text-foreground">
+                      {pastExit} day{pastExit === 1 ? "" : "s"} past planned exit
                     </span>
                   ) : null}
                 </span>

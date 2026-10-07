@@ -220,17 +220,13 @@ export function computeMetrics(
         ? "hold"
         : String(acq.clock_state ?? "running");
 
-  const baseline = acq.regulatory_baseline_date ?? null;
-
-  // planned exit date of the current phase, measured from the baseline
+  // Planned exit of the current phase. One source of truth with the launch
+  // sequence line and the award forecast: the days already worked in the phase
+  // (PhaseView.actual_days, from the recorded day the phase began) against its
+  // planned days. A phase already past its plan has a planned exit in the past.
   let plannedExit: string | null = null;
-  if (current && baseline) {
-    let cum = 0;
-    for (const p of phases) {
-      cum += p.planned_days;
-      if (p.phase === current.phase) break;
-    }
-    plannedExit = addDays(baseline, cum);
+  if (current && current.actual_days !== null) {
+    plannedExit = addDays(today, current.planned_days - current.actual_days);
   }
 
   const pendingDue = board
@@ -262,9 +258,15 @@ export function computeMetrics(
 
   const awardIndex = phases.findIndex((p) => p.phase === "Award");
   const throughAward = awardIndex >= 0 ? phases.slice(0, awardIndex + 1) : phases;
+  // Days still to run through award: what is left of the current phase (none
+  // once it is past plan) plus every later phase's planned days.
   const remaining = throughAward
     .filter((p) => p.status !== "complete")
-    .reduce((sum, p) => sum + p.planned_days, 0);
+    .reduce(
+      (sum, p) =>
+        sum + (p.status === "current" && p.actual_days !== null ? Math.max(0, p.planned_days - p.actual_days) : p.planned_days),
+      0,
+    );
   const holdDays = clockState === "hold" && opts.holdSince ? Math.max(0, daysBetween(opts.holdSince, today)) : 0;
   const forecastAwardDate =
     clockState === "launched" ? (acq.target_award_date ? String(acq.target_award_date) : null) : addDays(today, remaining + holdDays);

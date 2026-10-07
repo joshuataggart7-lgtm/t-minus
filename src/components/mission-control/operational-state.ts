@@ -8,7 +8,37 @@ type LaunchEvent = {
   acquisition_id: string | null;
   action: string | null;
   logged_at: string | null;
+  field?: string | null;
+  new_value?: string | null;
 };
+
+/**
+ * The America/Chicago day each phase was entered, read from the recorded phase
+ * changes (audit rows on current_phase, written when a phase is exited). Keys
+ * are lower-case phase names; a phase entered more than once keeps the latest
+ * entry. Empty when the file has no recorded phase change.
+ */
+export function phaseEntryDates(acquisitionId: string, log: LaunchEvent[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  const rows = log
+    .filter(
+      (r) =>
+        r.acquisition_id === acquisitionId &&
+        r.logged_at &&
+        (r.field === "current_phase" || /^Phase exited: /.test(r.action ?? "")),
+    )
+    .sort((a, b) => String(a.logged_at).localeCompare(String(b.logged_at)));
+  for (const r of rows) {
+    let next = r.field === "current_phase" ? (r.new_value ?? null) : null;
+    if (!next) {
+      const m = /\u2192\s*(.+)$/.exec(r.action ?? "");
+      next = m ? m[1]! : null;
+    }
+    const day = dateCT(String(r.logged_at));
+    if (next && next.trim() && day) out[String(phaseAlias(next.trim())).toLowerCase()] = day;
+  }
+  return out;
+}
 
 export type OverviewAcquisitionState = {
   acquisition: AcqRow;
@@ -44,6 +74,8 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
       current_phase: isAwarded
         ? (isPostAwardPhase ? recordedPhase : "Administration")
         : (isPostAwardPhase ? "Award" : (phaseAlias(acq.current_phase) ?? null)),
+      // Derived only, never written back: the recorded day each phase began.
+      __phase_entered_at: phaseEntryDates(acq.acquisition_id, log),
     },
   };
 }
