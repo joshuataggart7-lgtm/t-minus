@@ -8,6 +8,7 @@ import {
   formatThresholdValue,
   loadThresholdRows,
 } from "@/lib/threshold-conflicts";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function ThresholdConflictsPanel() {
   const q = useQuery({ queryKey: ["threshold-rows"], queryFn: loadThresholdRows });
@@ -21,9 +22,7 @@ export function ThresholdConflictsPanel() {
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Threshold conflicts: FAR text vs statute</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       {rows.length === 0 ? (

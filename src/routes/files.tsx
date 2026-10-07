@@ -171,8 +171,8 @@ function FilesPage() {
           Start an intake
         </Link>
       ) : null}
-      {q.isLoading ? <LoadingNote what="the files" /> : null}
-      {q.isError ? <ErrorNote message="The file list did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." /> : null}
+      {q.isLoading ? <LoadingNote what="the files" layout="table" /> : null}
+      {q.isError ? <ErrorNote message="The file list did not load. Refresh the page. If it still fails, tell the T-Minus team." /> : null}
 
       {scrubbedCount ? (
         <button

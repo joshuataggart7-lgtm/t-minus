@@ -8,6 +8,7 @@ import {
   loadEnterpriseStrategies,
   loadSatThreshold,
 } from "@/lib/enterprise-psl";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function EnterprisePslPanel({ acq }: { acq: Record<string, unknown> | null | undefined }) {
   const satQ = useQuery({ queryKey: ["sat-threshold"], queryFn: loadSatThreshold });
@@ -25,9 +26,7 @@ export function EnterprisePslPanel({ acq }: { acq: Record<string, unknown> | nul
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Enterprise PSL check</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       <p className="mt-2 text-[15px] leading-[22px]">{advisory.headline}</p>

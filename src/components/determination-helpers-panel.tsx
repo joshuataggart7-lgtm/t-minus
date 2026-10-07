@@ -1,9 +1,10 @@
 // Plain-language determination helpers: commerciality, competition, price
-// reasonableness. Advisory only — never holds the file or blocks a phase exit.
+// reasonableness. Advisory only: never holds the file or blocks a phase exit.
 
 import { Link } from "@tanstack/react-router";
 import { ShowTheText } from "@/components/show-the-text";
 import { determinationHelpers } from "@/lib/determination-helpers";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function DeterminationHelpersPanel({
   acq,
@@ -17,9 +18,7 @@ export function DeterminationHelpersPanel({
     <section aria-label="Determination helpers" className="mt-6 max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Determination helpers</h3>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       {helpers.length === 0 ? (

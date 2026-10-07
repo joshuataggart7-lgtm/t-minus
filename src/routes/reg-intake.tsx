@@ -31,6 +31,7 @@ import {
   type SectionDiffRow,
   type SectionUpload,
 } from "@/lib/regulation-sections";
+import { corpusLabel } from "@/lib/corpus-label";
 
 /** The two text intake types. Both stage a difference before anything is written. */
 const TEXT_TYPES = [
@@ -127,9 +128,9 @@ function RegIntakePage() {
     const all = [...BINDING_CORPORA, ...GUIDANCE_CORPORA];
     return all.map((corpus) => {
       const hit = loaded.find((l) => l.corpus === corpus);
-      if (!seen.has(corpus) || !hit) return `${corpus} text not loaded`;
+      if (!seen.has(corpus) || !hit) return `${corpusLabel(corpus)} text not loaded`;
       const days = daysSince(hit.retrieved_at);
-      return `${corpus} text last loaded ${days === null ? "on an unrecorded date" : `${days} day${days === 1 ? "" : "s"} ago`}`;
+      return `${corpusLabel(corpus)} text last loaded ${days === null ? "on an unrecorded date" : `${days} day${days === 1 ? "" : "s"} ago`}`;
     });
   }, [live.data]);
 
@@ -350,12 +351,12 @@ function RegIntakePage() {
               >
                 {DATASETS.map((d) => (
                   <option key={d.id} value={d.id}>
-                    {d.label} ({d.fileHint})
+                    {d.label}
                   </option>
                 ))}
                 {TEXT_TYPES.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.label} ({t.fileHint})
+                    {t.label}
                   </option>
                 ))}
               </select>
@@ -382,7 +383,11 @@ function RegIntakePage() {
                 accept={textType ? ".jsonl,.json,application/json" : ".csv,text/csv"}
                 className={field}
                 onChange={(e) => void pick(e.target.files?.[0] ?? null)}
+                aria-describedby="file-expected"
               />
+              <p id="file-expected" className="mt-1 text-[13px] text-muted-foreground">
+                Expected file: {(textType ?? dataset).fileHint}
+              </p>
             </div>}
             <div>
               <label htmlFor="reason" className="text-[14px]">
@@ -440,7 +445,7 @@ function RegIntakePage() {
             sentence={
               textType
                 ? `Nothing is staged. ${(live.data ?? []).filter((r) => textType.corpora.includes(r.corpus)).length} live sections are loaded for ${textType.label.toLowerCase()} today.`
-                : `Nothing is staged. ${dataset.table} holds ${q.data?.length ?? 0} rows today.`
+                : `Nothing is staged. ${dataset.label} holds ${q.data?.length ?? 0} rows today.`
             }
           />
         </div>
@@ -626,7 +631,7 @@ function SectionDiffTable({
               <th scope="row" className="py-2 pr-4 text-left font-normal">
                 {r.citation}
               </th>
-              <td className="py-2 pr-4">{r.corpus}</td>
+              <td className="py-2 pr-4">{corpusLabel(r.corpus)}</td>
               <td className="py-2 pr-4">
                 {r.existing
                   ? `${r.existing.corpus_revision} · ${r.existing.text.length} characters`

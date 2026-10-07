@@ -186,9 +186,9 @@ function TodayPage() {
       />
 
       {isLoading ? (
-        <LoadingNote what="your day" />
+        <LoadingNote what="your day" layout="table" />
       ) : isError ? (
-        <ErrorNote message="Today did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+        <ErrorNote message="Today did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : (
         <div className="max-w-[80ch] space-y-8 lg:max-w-none">
           {isAdmin ? (

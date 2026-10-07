@@ -7,6 +7,7 @@ import {
   blackoutDraft,
   blackoutFacts,
 } from "@/lib/blackout-notice";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function BlackoutNoticePanel({
   acq,
@@ -27,9 +28,7 @@ export function BlackoutNoticePanel({
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Blackout notice</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{BLACKOUT_NOT_RECORDED}</p>

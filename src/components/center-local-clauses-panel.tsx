@@ -4,6 +4,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export const NO_LOCAL_CLAUSES_NOTE = "No Center-local clauses are loaded.";
 
@@ -37,9 +38,7 @@ export function CenterLocalClausesPanel() {
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Center-local (local)</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       {rows.length === 0 ? (

@@ -109,9 +109,9 @@ function RequesterPortal() {
       />
 
       {isLoading ? (
-        <LoadingNote what="your requests" />
+        <LoadingNote what="your requests" layout="cards" />
       ) : isError ? (
-        <ErrorNote message="Your requests did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+        <ErrorNote message="Your requests did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : mine.length === 0 ? (
         <EmptyState
           sentence="No file on this prototype lists you as the requester."

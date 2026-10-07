@@ -243,7 +243,7 @@ export function ExecutiveOverview() {
       <MissionMasthead />
 
       {q.isError ? (
-        <ErrorNote message="The overview did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+        <ErrorNote message="The overview did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : null}
 
       <section aria-label="Mission clock" className="mb-8 w-full">

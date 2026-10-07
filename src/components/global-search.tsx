@@ -93,7 +93,7 @@ function haystack(r: Row) {
 }
 
 export function GlobalSearch() {
-  const { authState, role, roles } = useRole();
+  const { authState, role, roles, readOnly } = useRole();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const presenter = usePresenter();
   const navigate = useNavigate();
@@ -186,6 +186,7 @@ export function GlobalSearch() {
     pathname,
     openAcquisitionId: /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null,
     presenter,
+    demo: readOnly,
     navigate: (to: string) => void navigate({ to }),
   };
   const commands = matchCommands(commandCtx, q, { providers: SHELL_COMMAND_PROVIDERS, limit: 40 });

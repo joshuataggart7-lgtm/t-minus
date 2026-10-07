@@ -7,7 +7,7 @@ const navigationProvider: CommandProvider = {
   group: "Pages",
   when: () => true,
   commands: (ctx) =>
-    sidebarNavGroups(ctx.roles, ctx.presenter).flatMap((group) =>
+    sidebarNavGroups(ctx.roles, ctx.presenter, Boolean(ctx.demo)).flatMap((group) =>
       group.items.map((item) => ({
         id: `nav:${item.to}`,
         label: `Go to ${item.label}`,

@@ -354,7 +354,7 @@ function WorkQueuePage() {
       {q.isLoading ? (
         <LoadingNote what="the queue" />
       ) : q.isError ? (
-        <ErrorNote message="The queue did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+        <ErrorNote message="The queue did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : filtered.length === 0 ? (
         <EmptyState
           sentence="No file matches this filter."

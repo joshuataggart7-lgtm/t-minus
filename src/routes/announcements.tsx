@@ -63,7 +63,7 @@ function AnnouncementsPage() {
     } catch (e) {
       setError(
         e instanceof Error
-          ? `${e.message} Reload the page, or open Seed status to confirm the data loaded.`
+          ? `${e.message} Refresh the page. If it still fails, tell the T-Minus team.`
           : "Announcements did not load. Reload the page.",
       );
       setState("error");

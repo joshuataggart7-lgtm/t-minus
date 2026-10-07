@@ -7,6 +7,7 @@
 
 import { useId, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { CORPUS_LABEL, corpusLabel } from "@/lib/corpus-label";
 import {
   CITE_HEADING_ONLY_NOTE,
   citationHasCompanionGuide,
@@ -27,14 +28,7 @@ const NO_BODY_NOTE =
 
 const NFS_CG_NOTE = "NFS Companion Guide text is not loaded in this prototype.";
 
-const CORPUS_LABEL: Record<string, string> = {
-  far_rfo: "FAR (RFO)",
-  nfs: "NFS",
-  pcd: "PCD",
-  far_companion: "FAR Companion",
-  nfs_companion: "NFS Companion Guide",
-  buying_guide: "Buying guide",
-};
+export { CORPUS_LABEL, corpusLabel };
 
 function normalise(value: string): string {
   return value.replace(/\s+/g, " ").trim().toUpperCase();
@@ -88,7 +82,7 @@ function SectionBlock({ s }: { s: RegulationSection }) {
         {s.heading ? ` · ${s.heading}` : ""}
       </p>
       <p className="text-muted-foreground">
-        {CORPUS_LABEL[s.corpus] ?? s.corpus} · {s.corpus_revision} · loaded {formatRetrieved(s.retrieved_at)}
+        {corpusLabel(s.corpus)} · {s.corpus_revision} · loaded {formatRetrieved(s.retrieved_at)}
       </p>
       <p className="mt-1">
         {s.binding ? (

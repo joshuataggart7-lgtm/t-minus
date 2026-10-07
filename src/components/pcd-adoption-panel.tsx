@@ -9,6 +9,7 @@ import {
   deviationStatusLine,
   type DeviationSummary,
 } from "@/lib/pcd-adoption";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 /**
  * Regulatory baseline & deviations (advisory). Reads only what the record
@@ -28,7 +29,7 @@ export function PcdAdoptionPanel({
     <section aria-label="Regulatory baseline and deviations" className="mt-6 max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Regulatory baseline &amp; deviations</h3>
-        <span className="text-[13px] text-muted-foreground">Advisory — never holds the file or blocks a phase exit.</span>
+        <AdvisoryTag />
       </div>
 
       <dl className="mt-3 text-[13px] leading-[18px]">

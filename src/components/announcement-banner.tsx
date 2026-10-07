@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import { Bell, X } from "lucide-react";
@@ -42,14 +43,10 @@ function writeDismissed(ids: string[]): void {
 export function AnnouncementBanner() {
   const presenter = usePresenter();
   const { role, roles, user, authState } = useRole();
-  const [items, setItems] = useState<Announcement[]>([]);
-  const [ackedIds, setAckedIds] = useState<string[]>([]);
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
-  const firstLoad = useRef(true);
   // The urgent line sits in the page flow under the header so it never covers
   // the navigation headings.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -57,27 +54,34 @@ export function AnnouncementBanner() {
   // Read prior dismissals on mount only; sessionStorage does not exist on the server.
   useEffect(() => setDismissed(readDismissed()), []);
 
-  const refresh = useCallback(async () => {
-    const [all, acks, uid] = await Promise.all([loadAnnouncements(), loadAcks(), currentUserId()]);
-    setItems(all);
-    setAckedIds(acks.filter((a) => a.user_id === uid).map((a) => a.announcement_id));
-  }, []);
-
-  useEffect(() => {
-    if (authState !== "signed-in") return;
-    // Only the first load shows the loading state; later re-fetches (for
-    // example after an acknowledge) keep the list in place.
-    if (firstLoad.current) {
-      firstLoad.current = false;
-      setStatus("loading");
-    }
-    void refresh()
-      .then(() => setStatus("ready"))
-      .catch(() => {
-        setItems([]);
-        setStatus("error");
-      });
-  }, [authState, role, refresh]);
+  // Announcements and this user's acknowledgments live in the query cache, so
+  // the banner and bell badge stay in place across route changes instead of
+  // emptying on every remount. Later re-fetches keep the list in place.
+  const qc = useQueryClient();
+  const queryKey = ["announcements", user.name, role] as const;
+  const announcementsQ = useQuery({
+    queryKey,
+    enabled: authState === "signed-in",
+    staleTime: 60_000,
+    queryFn: async () => {
+      const [all, acks, uid] = await Promise.all([loadAnnouncements(), loadAcks(), currentUserId()]);
+      return {
+        items: all,
+        ackedIds: acks.filter((a) => a.user_id === uid).map((a) => a.announcement_id),
+      };
+    },
+  });
+  const items: Announcement[] = announcementsQ.data?.items ?? [];
+  const ackedIds: string[] = announcementsQ.data?.ackedIds ?? [];
+  const status: "loading" | "ready" | "error" = announcementsQ.isError
+    ? "error"
+    : announcementsQ.data
+      ? "ready"
+      : "loading";
+  const refresh = useCallback(
+    () => qc.invalidateQueries({ queryKey: ["announcements"] }),
+    [qc],
+  );
 
   const visible = items.filter(
     (a) => isCurrent(a) && inAudience(a, roles, user.center_code) && !ackedIds.includes(a.announcement_id),
