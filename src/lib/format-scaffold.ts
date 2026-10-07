@@ -5,7 +5,7 @@
 // anything else is laid out in Uniform Contract Format sections. Clauses are
 // the ones already selected for this file by the clause engine, each keeping
 // the reason it is there. Nothing here is a signed form and nothing is written
-// to NCMS; NCMS stays the system of record (NFS 1804.171) and this is the
+// to NCMS; NCMS stays the system of record (NFS CG 1804.11(b)) and this is the
 // local handoff scaffold an officer carries over by hand.
 
 import type { PacketClause } from "@/lib/clause-packet";
@@ -236,11 +236,11 @@ export function buildFormatScaffold(
             : { text: "Evaluation factors are stated to offerors in the solicitation.", citation: "FAR 13.106-1(a)(2)" },
           {
             text: "Quotations are evaluated against the factors stated, and the evaluation of quotations on this file records the result.",
-            citation: "FAR 13.106-2(b)",
+            citation: "RFO FAR 12.203",
           },
           {
             text: "Award is made to the quotation that represents the best value to the Government on the stated factors.",
-            citation: "FAR 13.106-2(b)(3)",
+            citation: null,
           },
         ],
       };

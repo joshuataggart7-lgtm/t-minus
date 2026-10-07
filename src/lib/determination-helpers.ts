@@ -63,7 +63,7 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
       citation: soleSource
         ? `FAR 6.303 justification${jofoc ? `; authority on the record: ${jofoc}` : ""}`
         : simplified
-          ? "FAR 13.106-2 (evaluation of quotations)"
+          ? "RFO FAR 12.203 (evaluation of quotations)"
           : "FAR 15.305 (proposal evaluation)",
       templateKey: soleSource ? "jofoc" : null,
       templateLabel: soleSource ? "Justification for other than full and open competition" : null,

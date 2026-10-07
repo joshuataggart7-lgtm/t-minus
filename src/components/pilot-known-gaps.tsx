@@ -11,7 +11,7 @@ export const PILOT_KNOWN_GAPS: { title: string; body: string }[] = [
   },
   {
     title: "No write-back to NCMS",
-    body: "T-Minus assembles a local handoff packet. NCMS stays the system of record (NFS 1804.171) and the officer keys the award there.",
+    body: "T-Minus assembles a local handoff packet. NCMS stays the system of record (NFS CG 1804.11(b)) and the officer keys the award there.",
   },
   {
     title: "The FPDS sheet is a fill aid",

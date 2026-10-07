@@ -386,7 +386,7 @@ export function modsByCenter(tasks: ModTaskRow[]) {
 
 /**
  * SF 30 handoff packet for one file, showing the clause delta this change
- * makes. NCMS writes the modification of record (NFS 1804.171).
+ * makes. NCMS writes the modification of record (NFS CG 1804.11(b)).
  */
 export async function sf30PacketFor(change: ClauseChange, row: ImpactRow) {
   const { data: acq, error } = await supabase

@@ -7,7 +7,7 @@
 // slot with nothing behind it reads "Not recorded". No FAR or NFS body text is
 // written here, no number or date is invented, and nothing is applied: the
 // clause picker stays the only place a clause goes on a file. NCMS remains the
-// system of record (NFS 1804.171); none of this is written back.
+// system of record (NFS CG 1804.11(b)); none of this is written back.
 
 import { OPTION_NOTICE_LEAD_DAYS } from "@/lib/post-award";
 
@@ -135,4 +135,4 @@ export function clauseFillinText(
 }
 
 export const CLAUSE_FILLIN_NOTE =
-  "Fill-ins from the record — blanks read Not recorded. Advisory only; NCMS is the system of record (NFS 1804.171).";
+  "Fill-ins from the record — blanks read Not recorded. Advisory only; NCMS is the system of record (NFS CG 1804.11(b)).";

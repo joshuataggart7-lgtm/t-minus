@@ -673,10 +673,10 @@ function samNotice(ctx: MemoDraftCtx): Values {
     ? entered && fifteen ? (entered > fifteen ? entered : fifteen) : fifteen || entered
     : entered;
   // A sole-source notice of intent is not a combined synopsis/solicitation, so
-  // it carries the notice authority, never FAR 12.603(c).
+  // it carries the notice authority, never RFO FAR 12.202(b).
   const ruleCite = isSoleSourceRecord(a)
-    ? "RFO FAR 5.203; RFO FAR 6.104."
-    : "RFO FAR 5.203; FAR 12.603(c).";
+    ? "Notice timing: RFO FAR 5.101(d), Table 5-2."
+    : "RFO FAR 12.202(b)(2): a reasonable opportunity to respond.";
   return {
     period_of_performance: start && end ? `${start} to ${end}` : start || end,
     response_date: response,
@@ -686,7 +686,7 @@ function samNotice(ctx: MemoDraftCtx): Values {
         }. ${ruleCite}`
       : `Later of 15 calendar days after posting and the date the contracting officer enters. Not yet posted. ${ruleCite}`,
     evaluation_basis:
-      "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (FAR 13.106-2(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
+      "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (RFO FAR 12.203(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
     // The public notice carries one sentence of the reason from item 5 of the
     // justification, not the whole item.
@@ -695,8 +695,8 @@ function samNotice(ctx: MemoDraftCtx): Values {
       gap("state why only this source can meet the need, or draft the JOFOC first"),
     authority: samNoticeAuthority(a),
     response_period_basis: posting
-      ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (RFO FAR 5.203; RFO FAR 6.104).`
-      : "At least 15 calendar days after publication (RFO FAR 5.203; RFO FAR 6.104).",
+      ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2.`
+      : "At least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2.",
     poc_email: ctx.co?.email ?? "",
     poc_phone: ctx.co?.phone ?? "",
   };

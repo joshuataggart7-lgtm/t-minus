@@ -7,7 +7,7 @@
  * never holds the file.
  */
 
-export const BLACKOUT_CITATION = "NFS 1815.201(f)";
+export const BLACKOUT_CITATION = "NFS CG 1815.11(i)";
 
 export const BLACKOUT_NOT_RECORDED =
   "No blackout notice is recorded on this file. T-Minus does not record blackout issuance; this panel is a local draft aid, not an issued notice and not an email send.";

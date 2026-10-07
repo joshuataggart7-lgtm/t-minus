@@ -11,7 +11,7 @@
 import type { PacketClause } from "@/lib/clause-packet";
 
 export const TABLE12_BANNER =
-  "Advisory — fill-ins are local handoff aids. NCMS is the system of record (NFS 1804.171). Nothing here holds phase exit.";
+  "Advisory — fill-ins are local handoff aids. NCMS is the system of record (NFS CG 1804.11(b)). Nothing here holds phase exit.";
 
 export const TABLE12_EMPTY =
   "No commercial Table 12-2/12-3 fill-ins to show on this file.";

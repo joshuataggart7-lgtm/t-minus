@@ -2643,8 +2643,8 @@ function FilePage() {
           ) : null}
           <p className="mt-2 text-[13px] text-muted-foreground">
             NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
-            The handoff is a local packet you key into NCMS, which stays the system of record under NFS
-            1804.171; writing into NCMS from here is planned and not available in this prototype.
+            The handoff is a local packet you key into NCMS, which stays the system of record under NFS CG
+            1804.11(b); writing into NCMS from here is planned and not available in this prototype.
           </p>
         </section>
         <p className="mb-8 max-w-[80ch] border-t border-border pt-3 text-[13px] leading-[18px] text-muted-foreground">
@@ -2974,7 +2974,7 @@ function FilePage() {
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
           Every document on this file, drafted or uploaded: its NF 1098 tab, version, who saved or
           uploaded it and when. Each row opens the official version. Required tabs with no document
-          are listed at the end. FAR 4.801 contract file.
+          are listed at the end. RFO FAR 4.101 contract file.
         </p>
         <button
           type="button"
@@ -4034,7 +4034,7 @@ function FilePage() {
                     </button>
                     <p className="mt-2 text-[13px] text-muted-foreground">
                       SF 30 block 13 authority: {optionExercise.authority}. The signed modification is
-                      built and signed in NCMS (NFS 1804.171); T-Minus produces the handoff packet only.
+                      built and signed in NCMS (NFS CG 1804.11(b)); T-Minus produces the handoff packet only.
                     </p>
                     <p className="mt-2 text-[13px] text-muted-foreground">
                       To draft the modification itself, open Modifications on this file, choose New
@@ -4058,7 +4058,7 @@ function FilePage() {
                             patch: { cor_appointed_date: e.target.value },
                             action: "COR appointment recorded",
                             field: "cor_appointed_date",
-                            reason: "FAR 1.602-2(d) written appointment",
+                            reason: "RFO FAR 1.404(a) written appointment",
                             phase: "Administration",
                           })
                         }
@@ -4078,7 +4078,7 @@ function FilePage() {
                             patch: { cor_cancelled_date: e.target.value },
                             action: "COR appointment cancelled",
                             field: "cor_cancelled_date",
-                            reason: "FAR 1.602-2(d) appointment cancelled",
+                            reason: "RFO FAR 1.404(a) appointment cancelled",
                             phase: "Administration",
                           })
                         }
@@ -4102,7 +4102,7 @@ function FilePage() {
                       >
                         Open the cancellation memorandum
                       </Link>
-                      <span className="ml-2 text-muted-foreground">NF 1098 tab 074 · FAR 1.602-2(d)</span>
+                      <span className="ml-2 text-muted-foreground">NF 1098 tab 074 · RFO FAR 1.404(a)</span>
                     </p>
                   </div>
 
@@ -4167,7 +4167,7 @@ function FilePage() {
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                      The modification of record is written in NCMS (NFS 1804.171). The clause set is read from the
+                      The modification of record is written in NCMS (NFS CG 1804.11(b)). The clause set is read from the
                       clause matrices; removed clauses are struck and never carried forward.
                     </p>
                     {clauseDeltaWithheld ? (
@@ -4281,7 +4281,7 @@ function FilePage() {
                           patch: { final_payment_date: e.target.value },
                           action: "Final payment recorded",
                           field: "final_payment_date",
-                          reason: "Records retention runs from final payment (FAR 4.805)",
+                          reason: "Records retention runs from final payment (RFO FAR 4.309)",
                           phase: "Closeout",
                         })
                       }
@@ -4314,7 +4314,7 @@ function FilePage() {
                     >
                       Open the Closeout Transfer Checklist
                     </Link>
-                    <span className="ml-2 text-muted-foreground">HQ 06/2026 · FAR 4.804-5; FAR 4.805</span>
+                    <span className="ml-2 text-muted-foreground">HQ 06/2026 · RFO FAR 4.308-1; RFO FAR 4.309</span>
                   </p>
                 </div>
               ) : null}

@@ -107,7 +107,7 @@ const postawardSuccessful: TemplateDef = {
     citationFor: noticeCitation3(
       "FAR 15.207-1(a); FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
       "RFO FAR 12.301",
-      "FAR 13.301",
+      "RFO FAR 13.301",
     ),
     tier: "binding",
     revision: "HQ base issuance 09/2020, revisions 02/2025 and 04/2026",
@@ -127,7 +127,7 @@ const postawardSuccessful: TemplateDef = {
       id: "selection",
       title: "Selection",
       citation: "FAR 15.207-1(a)",
-      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "FAR 13.301"),
+      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
       tier: "binding",
       fields: [
         X("company_name", "Successful offeror company name"),
@@ -141,16 +141,17 @@ const postawardSuccessful: TemplateDef = {
       id: "debriefing",
       title: "Debriefing",
       citation: "FAR 15.301-1(a)(1); NFS CG 1815.31",
-      citationFor: noticeCitation(
+      citationFor: noticeCitation3(
         "FAR 15.301-1(a)(1); NFS CG 1815.31",
-        "FAR 13.106-3(d)",
+        "RFO FAR 12.301(b)",
+        "RFO FAR 13.301",
       ),
       tier: "binding",
       standingText:
         "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
       standingTextFor: noticeCitation(
         "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
-        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On written request, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
+        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file).",
       ),
       fields: [],
     },
@@ -158,7 +159,7 @@ const postawardSuccessful: TemplateDef = {
       id: "closing",
       title: "Closing and signature",
       citation: "FAR 15.207-1(a)",
-      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "FAR 13.301"),
+      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
       tier: "binding",
 
       standingText:
@@ -189,7 +190,7 @@ const postawardUnsuccessful: TemplateDef = {
     citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
     citationFor: noticeCitation(
       "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
-      "FAR 13.106-3(d) (notification to unsuccessful quoters)",
+      "RFO FAR 12.301(b) (explanation to an unsuccessful quoter, on request)",
 
     ),
     tier: "binding",
@@ -200,14 +201,14 @@ const postawardUnsuccessful: TemplateDef = {
   lead: "Letter notifying an unsuccessful offeror.",
   leadFor: noticeCitation(
     "Letter notifying an unsuccessful offeror, with the five items FAR 15.207-2(b) requires.",
-    "Letter notifying an unsuccessful quoter that its quotation was not accepted (FAR 13.106-3(d)).",
+    "Letter notifying an unsuccessful quoter that its quotation was not accepted. Not required on a simplified acquisition; an explanation is owed on request (RFO FAR 12.301(b), RFO FAR 13.301).",
   ),
   sections: [
     {
       id: "recipient",
       title: "Recipient",
       citation: "FAR 15.207-2",
-      citationFor: noticeCitation("FAR 15.207-2", "FAR 13.106-3(d)"),
+      citationFor: noticeCitation3("FAR 15.207-2", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       fields: [
         // Left empty so the letter opens on the first unsuccessful offeror on
@@ -228,7 +229,7 @@ const postawardUnsuccessful: TemplateDef = {
       id: "notification",
       title: "Notification",
       citation: "FAR 15.207-2(b)",
-      citationFor: noticeCitation("FAR 15.207-2(b)", "FAR 13.106-3(d)"),
+      citationFor: noticeCitation3("FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
         "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
@@ -236,7 +237,7 @@ const postawardUnsuccessful: TemplateDef = {
       // simplified rules; the Part 15 negotiated sentence does not apply.
       standingTextFor: noticeCitation(
         "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
-        "This notification is to inform the quoter named above that the National Aeronautics and Space Administration (NASA) has made an award under the subject solicitation and your quotation was not selected. Pursuant to Federal Acquisition Regulation (FAR) 13.106-3(d), the following information is provided:",
+        "This notification is to inform the quoter named above that the National Aeronautics and Space Administration (NASA) has made an award under the subject solicitation and your quotation was not selected. The following information is provided:",
       ),
       fields: [
         X("center_name", "Center or installation", "center_name"),
@@ -256,15 +257,15 @@ const postawardUnsuccessful: TemplateDef = {
       id: "debriefing",
       title: "Debriefing and proposal disposition",
       citation: "FAR 15.301-1",
-      citationFor: noticeCitation("FAR 15.301-1", "FAR 13.106-3(d)"),
+      citationFor: noticeCitation3("FAR 15.301-1", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
         "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
       // Part 15 debriefing rights do not run on a simplified acquisition. The
-      // quoter may ask why the quotation was not selected, under FAR 13.106-3(d).
+      // quoter may ask why the quotation was not selected (RFO FAR 12.301(b), 13.301).
       standingTextFor: noticeCitation(
         "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
-        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On written request, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d). One copy of your quotation will be retained in the contract file and the remaining copies destroyed.",
+        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file). One copy of your quotation will be retained in the contract file and the remaining copies destroyed.",
       ),
       fields: [],
     },
@@ -272,7 +273,7 @@ const postawardUnsuccessful: TemplateDef = {
       id: "closing",
       title: "Closing and signature",
       citation: "FAR 15.207-2(b)",
-      citationFor: noticeCitation("FAR 15.207-2(b)", "FAR 13.106-3(d)"),
+      citationFor: noticeCitation3("FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
         "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",

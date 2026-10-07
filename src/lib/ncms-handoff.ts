@@ -6,7 +6,7 @@
  * file page already builds and prints the fill-in values from the record.
  *
  * Nothing here writes to NCMS. NCMS remains the contract writing system of
- * record (NFS 1804.171); this is a local file the officer keys from.
+ * record (NFS CG 1804.11(b)); this is a local file the officer keys from.
  *
  * Signature blocks are deliberately carried as empty and flagged: the
  * contracting officer signs in NCMS, never here.

@@ -71,7 +71,15 @@ export function isPart15NotificationPath(ctx: PostawardDocxContext): boolean {
 export function simplifiedNoticeCitation(ctx: PostawardDocxContext): string {
   return /commercial|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx))
     ? "RFO FAR 12.301"
-    : "FAR 13.301";
+    : "RFO FAR 13.301";
+}
+
+/** Where an unsuccessful quoter's brief explanation comes from: on request
+ *  only, RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 otherwise. */
+export function unsuccessfulExplanationCitation(ctx: PostawardDocxContext): string {
+  return /commercial|\bFAR\s*12\b|\bpart\s*12\b|13\.5/i.test(methodText(ctx))
+    ? "RFO FAR 12.301(b)"
+    : "RFO FAR 13.301";
 }
 
 function officerBlock(ctx: PostawardDocxContext) {
@@ -197,10 +205,10 @@ export async function generatePostawardUnsuccessDocx(ctx: PostawardDocxContext):
  * A commercial or simplified file is not dressed in Part 15 prose, but it
  * still notifies. The companion letters are written plainly from the record:
  *   Successful   — award notice; RFO FAR 12.301 on a commercial file,
- *                  FAR 13.301 on a simplified noncommercial file.
+ *                  RFO FAR 13.301 on a simplified noncommercial file.
  *   Unsuccessful — notice that the quotation was not selected, with the brief
- *                  explanation available on written request under
- *                  FAR 13.106-3(d).
+ *                  explanation available on request under
+ *                  RFO FAR 12.301(b) or RFO FAR 13.301.
  * No Part 15 citation appears on either face. Signature ink stays blank.
  * ------------------------------------------------------------------ */
 
@@ -276,7 +284,7 @@ async function buildCompanionDocx(
     }
     lines.push(
       p(
-        "This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On written request received within three days of this notice, the contracting officer will provide a brief explanation of the basis for the award decision under FAR 13.106-3(d).",
+        `This acquisition was conducted using simplified procedures, so a postaward debriefing is not conducted. On request, the contracting officer will provide a brief explanation of the award decision (${unsuccessfulExplanationCitation(ctx)}).`,
       ),
     );
   }

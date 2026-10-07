@@ -162,7 +162,7 @@ const qasp: TemplateDef = {
     {
       id: "s2",
       title: "2 ROLES AND RESPONSIBILITIES",
-      citation: "FAR 1.602-2; FAR 46.103",
+      citation: "RFO FAR 1.402-2; FAR 46.103",
       tier: "binding",
       standingText:
         "2.1 Contracting Officer (CO)\n\n2.1.1 The CO is responsible for monitoring contract compliance, contract administration, and cost control, and resolving any differences between observations documented by the Contracting Officer's Representative (COR) and the contractor. The CO will delegate a COR as the Government authority for performance management.\n\n2.1.2 The CO is ultimately responsible for the acceptance of services received under this contract. The CO will complete an annual contractor performance assessment report using the Contractor Performance Assessment Reporting System (CPARS) that will also be reviewed by the contractor.",
@@ -618,7 +618,7 @@ const preconstruction: TemplateDef = {
     {
       id: "personnel",
       title: "Function and Authority of Government Personnel/support contractors",
-      citation: "FAR 1.602-1; FAR 1.602-2",
+      citation: "RFO FAR 1.402-1; RFO FAR 1.402-2",
       tier: "binding",
       standingText:
         "Only NASA Contracting Officers are authorized to enter into any contract or agreement that binds NASA. Another designated contracting officer may sign contract documents or enter into agreements in the absence of the primary contracting officer.",

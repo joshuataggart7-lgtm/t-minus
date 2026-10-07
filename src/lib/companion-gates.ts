@@ -14,6 +14,7 @@ import {
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
 import type { RefData } from "@/lib/intake";
+import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
 
 export type GateStatus = "Satisfied" | "Open" | "Not applicable";
 
@@ -83,7 +84,7 @@ export function evaluateCompanionGates(
     name: "Technical evaluation report",
     applies: terApplies,
     trigger: `Sole source above the simplified acquisition threshold (${`$${threshold(ref, "Simplified acquisition threshold", 350_000).toLocaleString("en-US")}`}).`,
-    citation: "FAR 13.106-2 (evaluation of quotations); NFS CG 1815.45(b), guidance: Companion Guide process for the technical evaluation report on a sole source above the threshold",
+    citation: "RFO FAR 12.203 (evaluation of quotations); NFS CG 1815.45(b), guidance: Companion Guide process for the technical evaluation report on a sole source above the threshold",
     status: !terApplies ? "Not applicable" : terSat ? "Satisfied" : "Open",
     evidence: !terApplies
       ? "This file is not a sole-source proposal above the threshold."
@@ -92,23 +93,41 @@ export function evaluateCompanionGates(
         : NOT_EVIDENCED,
   });
 
-  // NF 1787 small business coordination above the micro-purchase threshold.
+  // NF 1787 small business coordination, per NFS CG 1819.11(a) (Companion
+  // Guide guidance). A seeded Center review-chain row still shows on the
+  // board; this gate is about the Companion Guide trigger only.
   const micro = threshold(ref, "Micro-purchase threshold", 10_000);
-  const sbApplies = value > micro;
+  const sb = nf1787Trigger(acq as Record<string, unknown>, { micro });
+  const sbApplies = sb.required;
   const sbSat = hasKey(evidence, ["nf-1787", "nf-1787a"]);
   const sbVote = fromBoard(evidence.board, /^small business/i);
   gates.push({
     key: "nf-1787",
     name: "NF 1787 small business coordination",
     applies: sbApplies,
-    trigger: `Value above the micro-purchase threshold ($${micro.toLocaleString("en-US")}).`,
-    citation: "NFS 1819.202-70 (binding); NFS CG 1819.11, guidance: Companion Guide process for the NF 1787",
+    trigger:
+      "Over $2,000,000 and not set aside under FAR Part 19, an out-of-scope modification, or contemplated bundling or consolidation, unless an NFS CG 1819.11(a)(2) exception applies.",
+    citation: `${NF1787_CITATION}, guidance`,
     status: !sbApplies ? "Not applicable" : sbSat || sbVote.status === "Satisfied" ? "Satisfied" : "Open",
-    evidence: !sbApplies
-      ? "The value is at or below the micro-purchase threshold."
-      : sbSat
-        ? "An NF 1787 coordination form is on the file."
-        : sbVote.evidence,
+    evidence: `${!sbApplies ? sb.reason : sbSat ? "An NF 1787 coordination form is on the file." : sbVote.evidence}${sb.advisory ? ` ${sb.advisory}` : ""}`,
+  });
+
+  // RFO FAR 19.102(e)(1): the proposed acquisition package goes to the SBA
+  // procurement center representative at least 30 days before the solicitation.
+  const pcrSat = hasKey(evidence, ["sba-pcr-package"]);
+  gates.push({
+    key: "sba-pcr-30-day",
+    name: "SBA PCR 30-day review",
+    applies: Boolean(sb.pcr),
+    trigger:
+      "A consolidated or bundled requirement, packaged construction, or a requirement small business provides today at a size that makes small business competition unlikely (RFO FAR 19.102(e)(1)).",
+    citation: sb.pcr ? sb.pcr.citation : "RFO FAR 19.102(e)(1)",
+    status: !sb.pcr ? "Not applicable" : pcrSat ? "Satisfied" : "Open",
+    evidence: !sb.pcr
+      ? "No consolidation or bundling is recorded. Case (e)(1)(i) is not read from the record; the contracting officer confirms it."
+      : pcrSat
+        ? "The PCR package is on the file."
+        : sb.pcr.text,
   });
 
   // Gates carried by the seeded review rules: CIO/IT, Section 508, aviation

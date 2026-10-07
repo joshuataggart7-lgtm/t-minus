@@ -146,7 +146,7 @@ export function retentionView(
   };
 }
 
-/** FAR 4.804-5 closeout steps, shown as the transfer checklist. */
+/** RFO FAR 4.308-1 closeout steps, shown as the transfer checklist. */
 export const CLOSEOUT_CHECKLIST = [
   "Disposition of classified material is completed.",
   "Final patent and royalty reports are cleared.",
@@ -161,7 +161,7 @@ export const CLOSEOUT_CHECKLIST = [
   "Contractor's closing statement and final invoice are received.",
   "Final payment is made and the requisition is recorded.",
   "Contract funds status is reconciled and excess funds are deobligated.",
-  "The contract file is complete and ready for transfer to records (FAR 4.801, FAR 4.805).",
+  "The contract file is complete and ready for transfer to records (RFO FAR 4.101, RFO FAR 4.309).",
 ];
 
 // ------------------------------------------------------- SF 30 clause delta
@@ -223,7 +223,7 @@ export function buildModificationPacket(
 ) {
   return {
     generated: new Date().toISOString(),
-    note: "T-Minus handoff packet for an SF 30 modification. NCMS is the contract writing system of record (NFS 1804.171). This packet is not the modification.",
+    note: "T-Minus handoff packet for an SF 30 modification. NCMS is the contract writing system of record (NFS CG 1804.11(b)). This packet is not the modification.",
     form: "SF 30, Amendment of Solicitation/Modification of Contract",
     modification_kind: kind,
     modification_authority: authority,

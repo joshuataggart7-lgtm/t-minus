@@ -908,7 +908,7 @@ function FormPage() {
       <p className="mc-work-form-section mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
         Prototype. Not an official NASA system.
         {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
-        signature. It is not the NCMS document of record (NFS 1804.171). Signature blocks are left empty. Fields the record
+        signature. It is not the NCMS document of record (NFS CG 1804.11(b)). Signature blocks are left empty. Fields the record
         does not carry read “Not recorded on this file.”
       </p>
       <p className="mb-6 text-[15px]">

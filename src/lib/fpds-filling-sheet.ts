@@ -5,7 +5,7 @@
  * out the fields a person keys into FPDS, read only from the acquisition
  * record. Anything the record does not hold is printed as a blank with the
  * reason, never guessed. NCMS remains the peer system for writing the award
- * document (NFS 1804.171); this sheet only helps the human key accurately.
+ * document (NFS CG 1804.11(b)); this sheet only helps the human key accurately.
  */
 
 import { writeAudit } from "@/lib/audit";

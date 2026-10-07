@@ -61,7 +61,7 @@ export function deadlineRows(opts: {
     date: quoteDueDate ?? null,
     from: noticePostedDate ? `notice posted ${noticePostedDate}` : "the notice is not posted yet",
     count: "set by the record",
-    citation: soleSource ? "RFO FAR 5.203; FAR 6.104" : "RFO FAR 5.203",
+    citation: soleSource ? "RFO FAR 5.101(d); FAR 6.104" : "RFO FAR 5.201(d); RFO FAR 12.202(b)(2)",
     verified: false,
     note: "Stub: the response date shown is the one on the notice. The minimum response period for this method is not verified against the seeded RFO text.",
   });
@@ -123,14 +123,14 @@ export function deadlineRows(opts: {
     ...(cpars.applies ? {} : { note: "Below the CPARS threshold on this record." }),
   });
 
-  // 6. Retention. Six years after final payment, FAR 4.805.
+  // 6. Retention. Six years after final payment, RFO FAR 4.309.
   const retention = retentionView(thresholds as never, postAward(acq as never).final_payment_date ?? null, awardDate);
   rows.push({
     label: "Contract file retention date",
     date: retention.date,
     from: retention.from ? `${retention.fromLabel}, ${retention.from}` : "final payment is not recorded yet",
     count: "calendar days",
-    citation: retention.citation ?? "FAR 4.805",
+    citation: retention.citation ?? "RFO FAR 4.309",
     verified: true,
   });
 

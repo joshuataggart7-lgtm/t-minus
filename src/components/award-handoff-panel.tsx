@@ -8,7 +8,7 @@ import { CLAUSE_FILLIN_NOTE } from "@/lib/clause-fillins";
 // evaluation, the ordered clauses with their fill-ins, the attachments, the
 // data requirements, and an unsigned signature block. Signatures are never
 // invented; the contracting officer signs in NCMS, which stays the system of
-// record (NFS 1804.171). T-Minus does not write to NCMS.
+// record (NFS CG 1804.11(b)). T-Minus does not write to NCMS.
 
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";

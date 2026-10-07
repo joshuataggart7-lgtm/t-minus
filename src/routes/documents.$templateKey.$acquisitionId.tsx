@@ -121,6 +121,7 @@ import {
   generatePostawardUnsuccessCompanionDocx,
   isPart15NotificationPath,
   simplifiedNoticeCitation,
+  unsuccessfulExplanationCitation,
 } from "@/lib/postaward-letters-docx";
 
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
@@ -2307,7 +2308,7 @@ function DocumentPage() {
                         );
                       } else {
                         setMessage(
-                          "The unsuccessful-offeror companion notice was written under FAR 13.106-3(d), with a brief explanation available on written request.",
+                          `The unsuccessful-offeror companion notice was written with a brief explanation available on request (${unsuccessfulExplanationCitation(exportContext)}).`,
                         );
                       }
                       return;
