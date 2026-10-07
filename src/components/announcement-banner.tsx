@@ -16,7 +16,29 @@ import {
   type Announcement,
 } from "@/lib/announcements";
 
-/** Compact header notification control plus one dismissible urgent line. */
+const DISMISS_KEY = "tminus-dismissed-announcements";
+
+/** Dismissals read back from the browser session; empty when storage is unavailable. */
+function readDismissed(): string[] {
+  try {
+    const raw = window.sessionStorage.getItem(DISMISS_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeDismissed(ids: string[]): void {
+  try {
+    window.sessionStorage.setItem(DISMISS_KEY, JSON.stringify(ids));
+  } catch {
+    /* session storage is not required for the dismissal to work */
+  }
+}
+
+/** Compact header notification control plus one dismissible urgent line at a time. */
 export function AnnouncementBanner() {
   const presenter = usePresenter();
   const { role, roles, user, authState } = useRole();
@@ -32,6 +54,8 @@ export function AnnouncementBanner() {
   // the navigation headings.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   useEffect(() => setSlot(document.getElementById("urgent-announcement-slot")), []);
+  // Read prior dismissals on mount only; sessionStorage does not exist on the server.
+  useEffect(() => setDismissed(readDismissed()), []);
 
   const refresh = useCallback(async () => {
     const [all, acks, uid] = await Promise.all([loadAnnouncements(), loadAcks(), currentUserId()]);
@@ -41,7 +65,6 @@ export function AnnouncementBanner() {
 
   useEffect(() => {
     if (authState !== "signed-in") return;
-    setDismissed([]);
     // Only the first load shows the loading state; later re-fetches (for
     // example after an acknowledge) keep the list in place.
     if (firstLoad.current) {
@@ -59,7 +82,16 @@ export function AnnouncementBanner() {
   const visible = items.filter(
     (a) => isCurrent(a) && inAudience(a, roles, user.center_code) && !ackedIds.includes(a.announcement_id),
   );
-  const urgent = visible.find((a) => isBlocking(a) && !dismissed.includes(a.announcement_id));
+  const blocking = visible.filter((a) => isBlocking(a) && !dismissed.includes(a.announcement_id));
+  const urgent = blocking[0] ?? null;
+
+  // Dismissal is per announcement id and lives in the browser session, so a closed
+  // line stays closed across routes and a new announcement still shows.
+  const dismiss = (ids: string[]) => {
+    const next = Array.from(new Set([...dismissed, ...ids]));
+    setDismissed(next);
+    writeDismissed(next);
+  };
 
   const onAck = async (a: Announcement) => {
     setBusy(a.announcement_id);
@@ -129,10 +161,22 @@ export function AnnouncementBanner() {
       {urgent && slot
         ? createPortal(
             <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
-              <p className="truncate max-xl:whitespace-normal max-xl:[overflow-wrap:anywhere] max-xl:py-1" title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
-              <button type="button" onClick={() => setDismissed((value) => [...value, urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
-                <X className="size-4" aria-hidden="true" />
-              </button>
+              <div className="flex min-w-0 items-baseline gap-2">
+                <p className="min-w-0 truncate max-xl:whitespace-normal max-xl:[overflow-wrap:anywhere] max-xl:py-1" title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+                {blocking.length > 1 ? (
+                  <span className="shrink-0 text-muted-foreground" data-numeric>{blocking.indexOf(urgent) + 1} of {blocking.length}</span>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                {blocking.length > 1 ? (
+                  <button type="button" onClick={() => dismiss(blocking.map((a) => a.announcement_id))} className="text-[13px] text-primary">
+                    Dismiss all
+                  </button>
+                ) : null}
+                <button type="button" onClick={() => dismiss([urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
+                  <X className="size-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>,
             slot,
           )
