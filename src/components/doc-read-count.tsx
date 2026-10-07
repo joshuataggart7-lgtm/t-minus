@@ -25,7 +25,7 @@ export function DocReadCount({
   return (
     <span className="text-[13px] text-muted-foreground" data-numeric>
       Opened {rows.length} {rows.length === 1 ? "time" : "times"} by {readers}{" "}
-      {readers === 1 ? "person" : "people"} — soft tracking, does not hold the file.
+      {readers === 1 ? "person" : "people"}. Soft tracking only; it does not hold the file.
     </span>
   );
 }

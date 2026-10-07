@@ -16,6 +16,7 @@
 
 import type { FormCtx, FormField, GeneratedForm } from "@/lib/nf1787";
 import { pathForLeaf, pathForSubformLeaf, type BlankPaths } from "@/lib/xfa-blank-paths";
+import { nf1707CellText } from "@/lib/nf1707-cells";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -61,7 +62,7 @@ export function buildNf1707Form(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Sections 1 through 12",
-        citation: "Answered on Intake",
+        citation: "From the NF 1707 answers on this file",
         fields: [],
       },
       {
@@ -116,7 +117,7 @@ export function withNf1707Answers(
       unmapped += 1;
       continue;
     }
-    fields.push({ path, label: labels.get(key) ?? leaf, value });
+    fields.push({ path, label: nf1707CellText(key) ?? labels.get(key) ?? leaf, value });
   }
   fields.sort((a, b) => a.path.localeCompare(b.path));
 
