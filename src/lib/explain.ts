@@ -164,6 +164,28 @@ export function explainReview(entry: BoardEntry, acq: AcqRow): Explanation {
   };
 }
 
+const RED_FLAG_RULES: Record<string, string> = {
+  sow: "Agencies state their needs in requirements documents and should prefer performance-oriented documents, such as a PWS, over detailed design documents (FAR 11.101). A description of services must not hand inherently governmental functions to a contractor (FAR 11.106).",
+  "far135-ceiling": "Simplified procedures for commercial products and services may be used only up to the dollar ceiling in RFO FAR 12.201-1(a). RFO FAR 12.001(c) raises that ceiling for a few special cases. Above it, use other procedures.",
+  jofoc: "A justification for other than full and open competition must identify the statutory authority that permits it (RFO FAR 6.104-1) and be approved in writing at the level its dollar value requires (RFO FAR 6.104-2).",
+  funding: "Money limited to a fiscal year is available only for expenses properly incurred in that period or for contracts properly made within it (31 U.S.C. 1502). A contract funded by annual appropriations may not cross fiscal years unless a statute allows it or the end product cannot feasibly be split by fiscal year (FAR 32.703-3).",
+  cio: "Under FITARA, the agency CIO, or the CIO's delegate, must review and approve contracts for information technology.",
+  schedule: "T-Minus check: the planned phase days to award plus the days from award to delivery must land on or before the need date.",
+  psl: "T-Minus check: above the simplified acquisition threshold, a requirement that matches an agency enterprise procurement strategy needs a recorded contracting officer determination. Follow the strategy, record that no mandatory strategy applies, or attach an approved deviation.",
+  "right-to-repair": "T-Minus check: a requirement with a hardware deliverable needs a Right to Repair requirements statement before the clock starts. The source documents are listed under Citation.",
+};
+
+function redFlagRule(flag: RedFlag): string {
+  if (flag.id === "igce") {
+    if (flag.citation === "FAR 13.106-3")
+      return "Before award, the contracting officer must determine that the price is fair and reasonable. If only one quote comes in, the file needs a written statement of price reasonableness, and comparison to an independent government estimate is one accepted basis.";
+    if (flag.citation === "FAR 15.404-1")
+      return "The contracting officer must make sure the final price is fair and reasonable. Comparing proposed prices with an independent government cost estimate is one of the listed price analysis techniques.";
+    return flag.detail;
+  }
+  return RED_FLAG_RULES[flag.id] ?? flag.detail;
+}
+
 export function explainRedFlag(flag: RedFlag): Explanation {
   return {
     heading: flag.title,
@@ -173,7 +195,7 @@ export function explainRedFlag(flag: RedFlag): Explanation {
         : "This flag does not block the clock, but the record does not yet satisfy the rule below.",
       flag.detail,
     ],
-    rule: flag.title,
+    rule: redFlagRule(flag),
     citation: flag.citation ?? null,
     clears: [flag.detail],
   };

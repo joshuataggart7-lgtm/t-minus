@@ -312,7 +312,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       id: "sow",
       title: "No statement of work or performance work statement attached",
       detail: "Attach the SOW or PWS so the requirement can be solicited as written.",
-      citation: "FAR 11.101",
+      citation: "FAR 11.101; FAR 11.106",
       blocking: true,
     });
 
@@ -322,7 +322,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       id: "far135-ceiling",
       title: "Estimated value is above the commercial simplified procedures ceiling",
       detail: `${formatMoney(value)} is above ${formatMoney(ceiling)}. Choose another method or reduce the estimate.`,
-      citation: "RFO FAR 12.001, 12.102, 12.201-1 Table 12-1 (formerly 13.500)",
+      citation: "RFO FAR 12.201-1(a); RFO FAR 12.001(c); RFO FAR 12.102 Table 12-1 (formerly FAR 13.500)",
       blocking: true,
     });
   }
@@ -332,7 +332,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       id: "jofoc",
       title: "Sole source selected with no JOFOC authority cited",
       detail: "Record the authority for other than full and open competition.",
-      citation: "RFO FAR 6.104-2",
+      citation: "RFO FAR 6.104-1(a)(4); RFO FAR 6.104-2",
       blocking: true,
     });
 
