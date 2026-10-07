@@ -43,6 +43,51 @@ type RoleContextValue = {
 
 const DEMO_PERSONA_KEY = "tminus-demo-persona";
 
+function readSavedPersona(): PersonaRole | null {
+  try {
+    const stores = [window.localStorage, window.sessionStorage];
+    for (const store of stores) {
+      const saved = store.getItem(DEMO_PERSONA_KEY);
+      const match = SEEDED_USERS.find((u) => u.role === saved);
+      if (match) return match.role;
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function savePersona(r: PersonaRole) {
+  try { window.localStorage.setItem(DEMO_PERSONA_KEY, r); } catch { /* ignore */ }
+  try { window.sessionStorage.setItem(DEMO_PERSONA_KEY, r); } catch { /* ignore */ }
+}
+
+function clearSavedPersona() {
+  try { window.localStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
+  try { window.sessionStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
+}
+
+function SessionStatus({ slow }: { slow: boolean }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background p-6">
+      <div role="status" aria-live="polite" className="text-[15px] leading-[22px] text-muted-foreground">
+        {slow ? (
+          <div className="flex flex-col items-start gap-3">
+            <p>Your session is taking longer than usual to load.</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="rounded-lg bg-primary px-4 py-2 text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Reload
+            </button>
+          </div>
+        ) : (
+          <p>Loading your session.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const RoleContext = createContext<RoleContextValue | null>(null);
 
 // A profile role string maps onto one of the prototype roles. An unknown or
@@ -82,19 +127,32 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   const [assignedRoles, setAssignedRoles] = useState<RoleId[]>([]);
   const [roleRevision, setRoleRevision] = useState(0);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [personaRestored, setPersonaRestored] = useState(false);
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
     // A signed-in session only ends on a definite sign-out. Token refreshes and
     // client-side navigations must never drop the account back to the sign-in
     // screen or to a blank profile.
+    // Demo sessions restore the saved persona in the same step that sets the
+    // session, so the first render of the app already uses it.
+    const applySession = (next: Session) => {
+      if (next.user?.is_anonymous) {
+        setPersonaRole(readSavedPersona() ?? "executive");
+        setPersonaRestored(true);
+      }
+      setSession(next);
+      setReady(true);
+    };
     const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
       if (next) {
-        setSession(next);
-        setReady(true);
+        applySession(next);
         return;
       }
       if (event === "SIGNED_OUT") {
-        try { window.sessionStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
+        clearSavedPersona();
+        setPersonaRestored(false);
+        setPersonaRole("executive");
         setSession(null);
         setProfile(null);
         setAssignedRoles([]);
@@ -102,24 +160,21 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       }
     });
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setSession(data.session);
-      else setSession((current) => current);
-      setReady(true);
+      if (data.session) applySession(data.session);
+      else setReady(true);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
   const isAnonymous = Boolean(session?.user?.is_anonymous);
 
-  // Demo only: restore the picked persona for this tab after hydration.
+  // Never fall back to rendering the app as Executive: if the session does
+  // not resolve, offer a reload instead.
   useEffect(() => {
-    if (!isAnonymous) return;
-    try {
-      const saved = window.sessionStorage.getItem(DEMO_PERSONA_KEY);
-      const match = SEEDED_USERS.find((u) => u.role === saved);
-      if (match) setPersonaRole(match.role);
-    } catch { /* ignore */ }
-  }, [isAnonymous]);
+    if (ready) return;
+    const timer = setTimeout(() => setSlow(true), 8000);
+    return () => clearTimeout(timer);
+  }, [ready]);
 
   useEffect(() => {
     const refreshRoles = () => setRoleRevision((revision) => revision + 1);
@@ -168,7 +223,8 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
-    try { window.sessionStorage.removeItem(DEMO_PERSONA_KEY); } catch { /* ignore */ }
+    clearSavedPersona();
+    setPersonaRestored(false);
     setProfile(null);
     setAssignedRoles([]);
     setPersonaRole("executive");
@@ -215,7 +271,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       setRole: (r) => {
         if (canSwitchPersona && SEEDED_USERS.some((u) => u.role === r)) {
           setPersonaRole(r);
-          try { window.sessionStorage.setItem(DEMO_PERSONA_KEY, r); } catch { /* ignore */ }
+          savePersona(r);
         }
       },
       isAnonymous,
@@ -228,7 +284,13 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   return (
     <RoleContext.Provider value={value}>
-      {ready && !session ? <AuthScreen /> : children}
+      {!ready || (isAnonymous && !personaRestored) ? (
+        <SessionStatus slow={slow && !ready} />
+      ) : !session ? (
+        <AuthScreen />
+      ) : (
+        children
+      )}
     </RoleContext.Provider>
   );
 }
