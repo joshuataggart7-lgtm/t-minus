@@ -52,7 +52,7 @@ export function successorRows(
         !!a.period_of_performance_end,
     )
     .map((acq) => {
-      const plannedDays = plannedDaysForType(acquisitionType(acq), plan);
+      const plannedDays = plannedDaysForType(acquisitionType(acq, plan), plan);
       const end = String(acq.period_of_performance_end);
       const startBy = addDays(end, -(plannedDays + SUCCESSOR_TRANSITION_DAYS));
       const successorId = linked.get(acq.acquisition_id) ?? null;

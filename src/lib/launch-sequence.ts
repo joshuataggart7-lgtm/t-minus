@@ -24,6 +24,8 @@ import {
 } from "@/lib/vehicles";
 import { igceCite, isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 import { dateCT } from "@/lib/calendar-date";
+import { newContractPlanKey } from "@/lib/phase-plan-key";
+import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -126,14 +128,17 @@ export type RequiredDoc = {
   handoff?: boolean;
 };
 
-export function acquisitionType(acq: AcqRow) {
+export function acquisitionType(acq: AcqRow, plan?: { acquisition_type: string | null }[] | null) {
   // A vehicle answered at intake decides the phase plan: a parent IDIQ, an
   // order under one, a BPA, or a schedule order each run their own sequence.
   const profile = acquisitionProfile(acq as Record<string, unknown>);
   if (profile !== "new_contract") return profile;
-  return /sole/i.test(String(acq.competition ?? ""))
-    ? "commercial_ffp_13_5_sole_source"
-    : "commercial_ffp_13_5_competed";
+  // Competed, noncommercial FAR Part 15 buys run the negotiated plan; every
+  // other new contract keeps the commercial plans (see phase-plan-key.ts).
+  return newContractPlanKey(
+    { competition: acq.competition, method: (acq as Record<string, unknown>)["acquisition_method"], commercial: isCommercialBuy(acq) },
+    plan,
+  );
 }
 
 /** True when the record itself says the buy is commercial. */
@@ -819,12 +824,23 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
   const trigger = overrideValue(ref.overrides, center, "review_trigger", rule.reviewer_role);
   const sat = thr("Simplified acquisition threshold") ?? 350_000;
   const micro = thr("Micro-purchase threshold") ?? 15_000;
-  const certified = thr("Certified cost or pricing data (FAR text)") ?? 2_500_000;
+  // The award date picks the figure: the statute's $10,000,000 for contracts
+  // entered into after June 30, 2026, else the RFO FAR 15.403-3(a) $2.5 million.
+  const certifiedBasis = certifiedDataBasis(acq as Record<string, unknown>, ref.thresholds, {
+    farText: thr(CERTIFIED_FAR_TEXT_NAME),
+    statute: thr(CERTIFIED_STATUTE_NAME),
+  });
+  const certified = certifiedBasis.threshold;
   const jofoc = Boolean(String(acq.jofoc_authority_citation ?? "").trim());
 
   if (role.startsWith("legal review")) return jofoc || value >= (trigger ?? sat);
   if (role.startsWith("pricing review"))
-    return /cost/i.test(String(acq.contract_type ?? "")) || value >= (trigger ?? certified);
+    return /cost/i.test(String(acq.contract_type ?? "")) ||
+      (trigger !== null && trigger !== undefined
+        ? value >= trigger
+        : certifiedBasis.rule === "statute"
+          ? value > certified
+          : value >= certified);
   if (role.startsWith("small business")) return value > (trigger ?? micro);
   if (role.startsWith("procurement strategy meeting")) return value > (trigger ?? 10_000_000);
   if (role.includes("notification of procurement action"))
@@ -1117,7 +1133,7 @@ export function buildSequence(
    */
   known?: { attachedKeys?: Set<string> | undefined; savedKeys?: Set<string> | undefined },
 ): PhaseView[] {
-  const type = acquisitionType(acq);
+  const type = acquisitionType(acq, plan);
   const rows = plan
     .filter((p) => p.acquisition_type === type && p.phase)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

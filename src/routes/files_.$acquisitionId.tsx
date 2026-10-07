@@ -66,6 +66,7 @@ import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
+import { certifiedDataBasis, CERTIFIED_DATA_LABEL } from "@/lib/certified-data";
 import { AdvisoryTag } from "@/components/advisory-tag";
 import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
@@ -1282,6 +1283,9 @@ function FilePage() {
               tone: hasTargetAward && days < 0 ? "red" : "cyan",
               pastTarget: days < 0,
             };
+  // Which certified cost or pricing data figure this file reads (award date
+  // decides), and the informational note for $2.5M to $10M under the statute.
+  const certifiedBasis = certifiedDataBasis(acq as Record<string, unknown> | null, q.data?.thresholds ?? []);
   const statusLine = readinessExplanation ? fileStatusLine(readinessExplanation, fileCountdownView, currentPhase) : null;
 
   const currentIndex = Math.max(
@@ -2670,6 +2674,7 @@ function FilePage() {
       </section>
       </MissionNavSection>
 
+      <PilotKnownGapsLine className="mb-4" />
       <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
         Panels marked Advisory never hold the file or block a phase exit.
       </p>
@@ -2717,7 +2722,6 @@ function FilePage() {
             1804.11(b); writing into NCMS from here is planned and not available in this prototype.
           </p>
         </section>
-        <PilotKnownGapsLine className="mb-8" />
         </>
       ) : null}
       </MissionNavSection>
@@ -3731,6 +3735,12 @@ function FilePage() {
               ) : null}
 
 
+              {p.phase === "Price Reasonableness" && certifiedBasis.gapNote ? (
+                <div className="mt-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+                  <AdvisoryTag text="Informational. Never holds the file or blocks a phase exit." />
+                  <p className="mt-1">{certifiedBasis.gapNote}</p>
+                </div>
+              ) : null}
               {p.phase === packetPhase ? (
                 <div id="clause-packet" className="mt-3 max-w-[80ch] scroll-mt-[96px] border border-border p-4">
                   <p className="text-[15px]">
@@ -4675,7 +4685,12 @@ function FilePage() {
               const above = value !== null && tv !== null ? value >= tv : null;
               return (
                 <tr key={t.threshold_id} className="border-b border-border align-top">
-                  <td className="p-2">{t.name}</td>
+                  <td className="p-2">
+                    {t.name}
+                    {/^certified cost or pricing data \(statute/i.test(t.name ?? "") ? (
+                      <span className="mt-1 block text-[12px] text-muted-foreground">{CERTIFIED_DATA_LABEL}</span>
+                    ) : null}
+                  </td>
                   <td className="p-2" data-numeric>
                     {tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}
                   </td>

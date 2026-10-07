@@ -1,5 +1,6 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { COMMERCIAL_SIMPLIFIED_METHOD, igceCite, isCommercialSimplifiedMethod, WRITTEN_ACQUISITION_PLAN_THRESHOLD } from "@/lib/rfo-simplified-cites";
+import { newContractPlanKey } from "@/lib/phase-plan-key";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -239,10 +240,9 @@ function threshold(ref: RefData, name: string): number | null {
   return row?.value ?? null;
 }
 
-export function phaseDaysToAward(ref: RefData, competition: string): number {
-  const type = /sole/i.test(competition)
-    ? "commercial_ffp_13_5_sole_source"
-    : "commercial_ffp_13_5_competed";
+export function phaseDaysToAward(ref: RefData, competition: string, method?: string): number {
+  // Competed, noncommercial FAR 15 reads the negotiated plan when it is seeded.
+  const type = newContractPlanKey({ competition, method }, ref.phasePlan);
   const rows = ref.phasePlan.filter((p) => p.acquisition_type === type);
   let total = 0;
   for (const r of rows) {
@@ -391,7 +391,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
 
   if (f.need_date) {
     const lead = Number(f.lead_to_delivery_days) || 0;
-    const planned = phaseDaysToAward(ref, f.competition);
+    const planned = phaseDaysToAward(ref, f.competition, f.acquisition_method);
     const earliest = addDays(todayISO(), planned + lead);
     if (earliest > f.need_date)
       flags.push({

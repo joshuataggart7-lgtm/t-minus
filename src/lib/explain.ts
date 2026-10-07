@@ -8,6 +8,7 @@
 import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } from "@/lib/launch-sequence";
 import type { RedFlag } from "@/lib/intake";
 import { acquisitionProfile } from "@/lib/vehicles";
+import { certifiedDataBasis, certifiedDataBasisLine } from "@/lib/certified-data";
 
 /** One calm sentence under the file header: what this file is and why it
  *  exists, assembled from the recorded facts (method, competition, mission,
@@ -122,7 +123,7 @@ function reviewEvidence(role: string, acq: AcqRow): string[] {
     return [
       /cost/i.test(String(acq.contract_type ?? ""))
         ? `The contract type is recorded as ${acq.contract_type}.`
-        : `The estimated value ${value} is at or above the certified cost or pricing data threshold in effect.`,
+        : `The estimated value ${value} is above the certified cost or pricing data threshold for this file: ${certifiedDataBasisLine(certifiedDataBasis(acq as Record<string, unknown>))}`,
     ];
   if (r.startsWith("small business")) return [`The estimated value ${value} is above the micro-purchase threshold.`];
   if (r.startsWith("cio authorization") || r.startsWith("section 508"))

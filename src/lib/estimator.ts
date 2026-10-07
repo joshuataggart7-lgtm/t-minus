@@ -12,9 +12,16 @@
 
 import type { IntakeFacts, RefData } from "@/lib/intake";
 import { parseMoney } from "@/lib/intake";
+import { isNoncommercialFar15Method, newContractPlanKey } from "@/lib/phase-plan-key";
+import { CERTIFIED_FAR_TEXT_DEFAULT, CERTIFIED_STATUTE_DEFAULT } from "@/lib/certified-data";
 
-/** RFO FAR thresholds, Oct 1, 2025 inflation adjustment (estimator model). */
-const TH = { SAT: 350_000, CCPD: 2_500_000 };
+/**
+ * Estimator thresholds. SAT: RFO FAR, Oct 1, 2025 inflation adjustment.
+ * CCPD: the estimator always models a new award, entered into after June 30,
+ * 2026, so it reads $10,000,000 (10 U.S.C. 3702(a)(1)(A), as amended by Pub. L.
+ * 119-60 sec. 1804(c)). RFO FAR 15.403-3(a) still reads $2.5 million.
+ */
+const TH = { SAT: 350_000, CCPD: CERTIFIED_STATUTE_DEFAULT, CCPD_FAR_TEXT: CERTIFIED_FAR_TEXT_DEFAULT };
 
 export type Pricing = "FFP" | "COST" | "TM";
 export type Instrument = "STANDALONE" | "IDIQ" | "TO";
@@ -30,6 +37,8 @@ export type EstimatorInputs = {
   procedures: "SAP" | "COMM_SIMP" | "NEGOTIATED";
   /** The vehicle answered at intake (scenario.vehicle), when there is one. */
   vehicle?: string;
+  /** The method names noncommercial FAR Part 15 (the negotiated phase plan). */
+  noncommercialFar15?: boolean;
 };
 
 export type EstimateTask = {
@@ -103,7 +112,8 @@ export function inputsFromFacts(f: IntakeFacts, vehicle?: string): EstimatorInpu
         ? "SERVICES"
         : "SUPPLIES";
 
-  return { value, soleSource, pricing, instrument, reqType, procedures, ...(vehicle ? { vehicle } : {}) };
+  const noncommercialFar15 = isNoncommercialFar15Method(f.acquisition_method);
+  return { value, soleSource, pricing, instrument, reqType, procedures, noncommercialFar15, ...(vehicle ? { vehicle } : {}) };
 }
 
 /** The same five answers, read off a stored acquisition record. */
@@ -142,8 +152,12 @@ export function inputsFromAcq(acq: {
 
 /** Phase names from intake through award, from the seeded phase plan for the
  *  file's vehicle (the commercial plan when no vehicle plan is seeded). */
-export function phasesToAward(ref: RefData, soleSource: boolean, vehicle?: string) {
-  const commercial = soleSource ? "commercial_ffp_13_5_sole_source" : "commercial_ffp_13_5_competed";
+export function phasesToAward(ref: RefData, soleSource: boolean, vehicle?: string, noncommercialFar15 = false) {
+  // Competed, noncommercial FAR 15 reads the negotiated plan when it is seeded.
+  const commercial = newContractPlanKey(
+    { competition: soleSource ? "sole source" : "competitive", method: noncommercialFar15 ? "FAR 15" : "" },
+    ref.phasePlan,
+  );
   const vehiclePlan = vehicle ? PLAN_BY_VEHICLE[vehicle] : undefined;
   const type =
     vehiclePlan && ref.phasePlan.some((p) => p.acquisition_type === vehiclePlan) ? vehiclePlan : commercial;
@@ -277,7 +291,11 @@ export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   if (V > 10e6) h = 24;
   if (V > 50e6) h = 40;
   if (isCost) h = Math.round(h * 1.5);
-  add("Evaluation and award", "Cost or price analysis", h, 0.6, true, isCost ? "Cost reimbursement pricing takes half again the analysis of a fixed price buy." : valueWhy(V));
+  const ccpdNote =
+    V > TH.CCPD_FAR_TEXT
+      ? ` Certified cost or pricing data: required above $10,000,000 for prime contracts entered into after June 30, 2026 (10 U.S.C. 3702(a)(1)(A)); RFO FAR 15.403-3(a) still reads $2.5 million.${V <= TH.CCPD ? " Below $10,000,000, requiring it takes a written HCA determination (10 U.S.C. 3704; RFO FAR 15.403-3(e))." : ""}`
+      : "";
+  add("Evaluation and award", "Cost or price analysis", h, 0.6, true, (isCost ? "Cost reimbursement pricing takes half again the analysis of a fixed price buy." : valueWhy(V)) + ccpdNote);
 
   if (soleSource && V > TH.SAT) {
     h = 12;
@@ -323,7 +341,7 @@ export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   }
   const monthsToAward = planning + solicitation + evaluation + award;
 
-  const { names: phases, days: plannedDaysToAward } = phasesToAward(ref, soleSource, inputs.vehicle);
+  const { names: phases, days: plannedDaysToAward } = phasesToAward(ref, soleSource, inputs.vehicle, Boolean(inputs.noncommercialFar15));
 
   const sentence =
     `This request is expected to take about ${inWords(monthsToAward)} month${monthsToAward === 1 ? "" : "s"} ` +

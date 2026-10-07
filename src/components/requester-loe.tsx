@@ -97,7 +97,7 @@ export function RequesterLoe({
   // Planned calendar days from the seeded phase plan for this file's type.
   // Display only: nothing here recomputes a clock or writes to the record.
   const planRows = useMemo(() => {
-    const type = acquisitionType(acq as unknown as AcqRow);
+    const type = acquisitionType(acq as unknown as AcqRow, plan);
     return plan.filter((p) => p.acquisition_type === type && p.phase);
   }, [plan, acq]);
 
@@ -110,7 +110,7 @@ export function RequesterLoe({
   // Pre-award planned days only: summed in phase order through the last
   // pre-award phase, the same figure the file page and the days-to-award line use.
   const totalPlannedDays = useMemo(
-    () => plannedDaysForType(acquisitionType(acq as unknown as AcqRow), plan),
+    () => plannedDaysForType(acquisitionType(acq as unknown as AcqRow, plan), plan),
     [acq, plan],
   );
   const hasPlan = totalPlannedDays > 0;

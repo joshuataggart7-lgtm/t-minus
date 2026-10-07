@@ -11,9 +11,10 @@
  * planned days of the review steps that appear or disappear.
  */
 
-import { reviewApplies, type AcqRow, type PhasePlanRow, type ReviewRuleRow } from "@/lib/launch-sequence";
+import { isCommercialBuy, reviewApplies, type AcqRow, type PhasePlanRow, type ReviewRuleRow } from "@/lib/launch-sequence";
 import type { RefData } from "@/lib/intake";
 import type { CenterOverrideRow } from "@/lib/center-config";
+import { newContractPlanKey } from "@/lib/phase-plan-key";
 
 export type SimChange = {
   kind: "threshold" | "review_trigger";
@@ -57,9 +58,12 @@ export function isActive(acq: AcqRow): boolean {
 }
 
 function phaseDays(acq: AcqRow, plan: PhasePlanRow[]): number {
-  const type = /sole/i.test(String(acq.competition ?? ""))
-    ? "commercial_ffp_13_5_sole_source"
-    : "commercial_ffp_13_5_competed";
+  // Vehicle plans are not modelled here; a new contract reads the plan key
+  // (competed noncommercial FAR 15 runs the negotiated plan).
+  const type = newContractPlanKey(
+    { competition: acq.competition, method: (acq as Record<string, unknown>)["acquisition_method"], commercial: isCommercialBuy(acq) },
+    plan,
+  );
   const rows = plan
     .filter((p) => p.acquisition_type === type && p.phase)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));

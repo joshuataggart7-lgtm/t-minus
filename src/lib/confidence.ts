@@ -61,7 +61,7 @@ export function awardConfidence(
   history: HistoryFile[],
   plan: PhasePlanRow[],
 ): AwardConfidence {
-  const type = acquisitionType(acq);
+  const type = acquisitionType(acq, plan);
   const plannedDays = plannedDaysForType(type, plan);
   const plannedWorkingDays = workingDaysIn(plannedDays);
 
@@ -69,7 +69,7 @@ export function awardConfidence(
     (h) =>
       h.acq.acquisition_id !== acq.acquisition_id &&
       h.awardDate !== null &&
-      acquisitionType(h.acq) === type,
+      acquisitionType(h.acq, plan) === type,
   );
 
   const center = acq.center_code ? String(acq.center_code) : null;
