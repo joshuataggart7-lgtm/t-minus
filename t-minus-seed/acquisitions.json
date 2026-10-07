@@ -30,8 +30,8 @@
     "funds_certified": true,
     "acquisition_forecast_verified": true,
     "co_name": "Jim Lovell (fictional CO)",
-    "vendor_legal_name": "University of Mississippi (public SAM UEI for exclusions smoke test \u2014 not a DEMO vendor)",
-    "vendor_uei": "G1THVER8BNL4",
+    "vendor_legal_name": "Magnolia Airborne Research Institute (fictional)",
+    "vendor_uei": "DEMOSAMPLE04",
     "mission_directorate_code": "SMD",
     "mission_directorate_name": "Science Mission Directorate",
     "is_reimbursable": false,
@@ -67,7 +67,7 @@
         }
       ]
     },
-    "note": "Launched parent IDIQ seed: post-award Administration, not Intake. Fictional multiple-award vehicle; child order A-2027-0104 is placed under 80ARC26D0090. Vendor UEI G1THVER8BNL4 is a public SAM UEI used only for the exclusions smoke test. No FPDS, no NCMS write-back."
+    "note": "Launched parent IDIQ seed: post-award Administration, not Intake. Fictional multiple-award vehicle; child order A-2027-0104 is placed under 80ARC26D0090. Vendor UEI DEMOSAMPLE04 is a fictional sample UEI. No FPDS, no NCMS write-back."
   },
   {
     "acquisition_id": "A-2027-0101",
@@ -773,7 +773,7 @@
       "vehicle": "option"
     },
     "contract_number": "80SAMPLE2026C0122",
-    "vendor_legal_name": "Meridian Airborne Science Services, LLC"
+    "vendor_legal_name": "Meridian Airborne Science Services, LLC (fictional)"
   },
   {
     "acquisition_id": "A-2027-0123",
@@ -813,7 +813,7 @@
       "fair_opportunity_exception": "brand_name"
     },
     "contract_number": "80SAMPLE2026C0123",
-    "vendor_legal_name": "Cascade Photonics Instruments, LLC"
+    "vendor_legal_name": "Cascade Photonics Instruments, LLC (fictional)"
   },
   {
     "acquisition_id": "A-2027-0124",
@@ -853,6 +853,6 @@
       "letter_contract": true
     },
     "contract_number": "80SAMPLE2026C0124",
-    "vendor_legal_name": "Northline Cryogenic Services, Inc."
+    "vendor_legal_name": "Northline Cryogenic Services, Inc. (fictional)"
   }
 ]

@@ -12,10 +12,17 @@ import type { ScaffoldFacts, ScaffoldLine } from "@/lib/format-scaffold";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { isSimplifiedCommercial, isSoleSourceRecord } from "@/lib/memo-draft";
 import { methodDisplayLabel, simplifiedPriceCite, simplifiedFactorsCite } from "@/lib/rfo-simplified-cites";
+import { isCommercialBuy, type AcqRow } from "@/lib/launch-sequence";
 
 export type MethodShell = {
   path: "sf1449" | "ucf";
   partFamily: "12_13" | "15";
+  /**
+   * The RFO part this file runs under. Under the RFO, Part 12 carries commercial
+   * buys including their simplified procedures (RFO FAR 12.000, 12.201-1), and
+   * Part 13 covers only noncommercial buys at or below the SAT (RFO FAR 13.000).
+   */
+  partLabel: "RFO FAR Part 12" | "RFO FAR Part 13" | "RFO FAR Part 15";
   methodLabel: string;
   formatLabel: string;
   formatSource: string;
@@ -73,6 +80,7 @@ export function methodShell(facts: ScaffoldFacts | null | undefined): MethodShel
   return {
     path: streamlined && !part15 ? "sf1449" : "ucf",
     partFamily: part15 ? "15" : "12_13",
+    partLabel: part15 ? "RFO FAR Part 15" : isCommercialBuy(facts as unknown as AcqRow) ? "RFO FAR Part 12" : "RFO FAR Part 13",
     methodLabel: methodDisplayLabel(method) || "Acquisition method not recorded",
     formatLabel:
       format || (streamlined && !part15 ? "SF 1449 streamlined (from the commercial determination)" : "Uniform Contract Format"),

@@ -329,7 +329,7 @@ Accessibility
 - `scope="col"` added to every table header cell across all routes.
 - Status is never colour alone: new `StatusMark` component pairs a small colour marker with the status word. The word renders in text colour #1D1D1F, so every status label clears 4.5:1; the marker carries the palette colour and clears 3:1 as a graphic. Applied to Executive Overview status words, document attachment state, both poll boards, the templates catalogue, and seed status.
   - Reason: #1E8E3E as text on white measures 4.37:1, below AA for body text. The palette is unchanged; only where it was used as text has it moved to a marker.
-- Go / No-go buttons changed from filled #1E8E3E / #C8321E with white text to white with a 2px status border and #1D1D1F text, for the same contrast reason.
+- Review decision buttons (favorable and unfavorable) changed from filled #1E8E3E / #C8321E with white text to white with a 2px status border and #1D1D1F text, for the same contrast reason.
 - The file-page back link is underlined (axe `link-in-text-block`).
 - axe-core 4.10 run on Executive Overview, Work Queue, Files, an acquisition file, Templates, a JOFOC document, Checks, Audit Log, Intake, and Seed status: zero violations remaining, no console errors.
 - Keyboard-only pass along the demo path: skip link → rail → role toggle → filters → file → poll controls, all reachable and operable.
@@ -585,7 +585,7 @@ fields filled and the badge showing the HQ effective date.
 
 - `deviation_requests` and `deviation_votes` tables hold each request and its three votes, so a deviation can stand alone (no acquisition) or hang off one.
 - `src/lib/deviations.ts` holds the template metadata (NF 1098 tab 33, HQ effective 4/27/2026, guidance tier, FAR 1.402/1.403/1.404 and NFS 1801.4), the three reviewers (legal 5 days, policy 5, HCA 7), the clock reading and the poll board.
-- `/deviations` lists requests with their clock and state and carries the request form; `/deviations/$deviationId` shows the clock line, the request, the legal/policy/HCA poll with Go/No-go (a No-go needs a reason), the HCA decision and a delete action.
+- `/deviations` lists requests with their clock and state and carries the request form; `/deviations/$deviationId` shows the clock line, the request, the legal/policy/HCA review board with Approve or Disapprove (a Disapprove needs a written rationale), the approving official's decision and a delete action.
 - Start the clock sets the decision date 17 days out (the sum of the reviewer days) and opens the three votes with staggered due dates.
 - Every create, clock start, vote, decision and delete writes an audit entry with phase "Deviation request".
 - `templates.csv` row for tab 33 is now `live` and the catalog links it to `/deviations`.
@@ -828,7 +828,7 @@ The About page reads this list at build time. Keep the format
 - live | Executive Overview (Mission Clock) | Priority projects, statuses, blockers, callouts, Centers and Enterprise tabs.
 - live | Work Queue | Five-column board and list view for the team, with filters.
 - live | Intake (NF 1707) | The form, validation, red flags, the estimate, and Start the clock.
-- live | The acquisition file | Launch sequence, polls, holds, thresholds, NCMS handoff, contract file index.
+- live | The acquisition file | Launch sequence, reviews and approvals, holds, thresholds, NCMS handoff, contract file index.
 - live | Template engine | Versioned HTML forms with binding, exports, defect reporting, and the regulation sidebar.
 - live | Checks | SAM.gov entity, exclusions sweep, set-aside evidence, comparables.
 - live | Audit log | Every action, with actor and phase filters.
@@ -922,8 +922,8 @@ fallback was removed.
   acquisition citations.
 - **Sample 1 evaluation record.** A-2027-0101 now carries a saved Evaluation of
   Quotations Record with three fictional quoters, so the postaward letters fill
-  from it: Corsair Aviation Services successful, Strategic Aviation Partners
-  and SciFly Research Aviation unsuccessful.
+  from it: Polar Survey Aviation (fictional) successful, Kestrel Ridge Aviation
+  (fictional) and Bluewater Airborne Research (fictional) unsuccessful.
 
 ## Security / RLS tightening (16 September 2026)
 
@@ -961,9 +961,9 @@ role check using the existing `private.*` helpers.
   The postaward successful and unsuccessful notification letters prefill from
   the evaluation of quotations record (selected offeror plus one letter per
   unsuccessful offeror). No NCMS write-back.
-- **Public UEI for the exclusions smoke test.** A-2026-0090 carries public SAM
-  UEI `G1THVER8BNL4`, labelled "University of Mississippi (public SAM UEI for
-  exclusions smoke test — not a DEMO vendor)". DEMO* vendors are unchanged.
+- **Exclusions sample.** A-2026-0090 carries the sample UEI `DEMOSAMPLE04`,
+  labelled "Magnolia Airborne Research Institute (fictional)" (round J replaced
+  an earlier public UEI). DEMO* vendors are unchanged.
 - **Contract awards entitlement errors are visible.** When the live SAM.gov
   Contract Awards call fails, the comparables panel keeps its sample or cached
   label and adds a plain sentence naming the cause (401 key rejected, 403 key
@@ -1279,7 +1279,7 @@ Deferred: the fuller validated phase exit with linked requirements and audit bey
 ## 16 Sep 2026 — In-page confirmations for every file action
 
 - Audited the file page and the rest of the app for native browser confirmations: none remain. Exit, Scrub, Remove, Record vote and Open poll all run through the one in-page `actionDialog` pattern already on the file page; no new modal system was introduced.
-- The confirm button now names the action it performs ("Exit Solicitation/Quote", "Scrub the acquisition", "Remove the file", "Record Go", "Record No-go", "Open the poll") instead of a generic Confirm, and reads as destructive for Scrub, Remove and a No-go vote.
+- The confirm button now names the action it performs ("Exit Solicitation/Quote", "Scrub the acquisition", "Remove the file", "Record <decision>", for example "Record Approve" or "Record Nonconcur", and "Send the review requests") instead of a generic Confirm, and reads as destructive for Scrub, Remove and an unfavorable decision.
 - Reason fields say they are required and carry `required` / `aria-required`, so keyboard and screen-reader users learn the rule before the button refuses.
 - Memorandum hold, vote and saved-version sentences were read again at these touch points and were already correct prose; nothing was rewritten, so that roadmap item stays open.
 - Verification: TypeScript clean, Sample 1 and Sample 2 cold load with no console errors, and the validated-exit refusal links are unchanged. The exit dialog itself could not be opened under the read-only demo persona; the signed-in path is unchanged code. Sample 2's JOFOC No-go hold path, seeds and audit writes untouched.
@@ -1435,15 +1435,15 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
 - **Export cleanliness.** `cleanExportText` (template-engine) and `memoParagraphs`
   (nf1858) strip the literal "Draft, confirm." from exported Word/PDF/NF 1858 bodies.
   The on-screen "Drafted from the record — confirm." flag is unchanged.
-- **P0.1** vendor/quoter data (CORSAIR AVIATION, LLC HCH5G9HLMVZ5 / CAGE 7K7J6;
-  Strategic SK4DHMRD7M13; SciFly R7LBZTAG8N98) is already in the database; no seed edits.
+- **P0.1** vendor/quoter data (Polar Survey Aviation LLC (fictional) DEMOSAMPLE01 / CAGE SAMPLE;
+  Kestrel Ridge DEMOSAMPLE02; Bluewater DEMOSAMPLE03) is already in the database; no seed edits.
 - **P0.3** `RFO_RESERVED_212_NOTE`, picker disclosure and sanitize blocks on
   52.212-3 / 52.212-5 are untouched.
 - **P0.4 demo note.** Do not open the clause delta on A-2026-0090 (IDIQ vehicle):
   the seeded clause set is contradictory. No IDIQ rewrite in this chunk.
 - **Tier-1 #3 postaward letters (A-2027-0101).** Successful letter carries an
   award amount field filled from the evaluation record's recommended price
-  ($1,385,000 to CORSAIR AVIATION, LLC). The unsuccessful-offeror row now yields one
+  ($1,385,000 to Polar Survey Aviation LLC (fictional)). The unsuccessful-offeror row now yields one
   letter per unsuccessful quoter: choosing Offeror 1..4 redrafts the letter for that
   quoter, filling company name, UEI and a quotation summary (price quoted and rating)
   from the evaluation record, with item 4 reporting the value awarded. Citation stays
@@ -1464,8 +1464,8 @@ Deferred: Track D GSA SF/FPDS forms, IDIQ/BPA screens, SEB, staff-profile RLS.
 ## Tier-1 #3 Sample 1 postaward letters (16 Sep 2026)
 
 - A-2027-0101 postaward letters are drawn from the saved evaluation of quotations, never invented.
-  - Successful: CORSAIR AVIATION, LLC, award amount $1,385,000 (recommended quoter / recommended price).
-  - Unsuccessful: one letter per unsuccessful quoter — STRATEGIC AVIATION LLC (UEI SK4DHMRD7M13, $1,462,000, Acceptable) and SCIFLY, LLC (UEI R7LBZTAG8N98, $1,521,500, Acceptable).
+  - Successful: Polar Survey Aviation LLC (fictional), award amount $1,385,000 (recommended quoter / recommended price).
+  - Unsuccessful: one letter per unsuccessful quoter: Kestrel Ridge Aviation LLC (fictional) (UEI DEMOSAMPLE02, $1,462,000, Acceptable) and Bluewater Airborne Research LLC (fictional) (UEI DEMOSAMPLE03, $1,521,500, Acceptable).
 - The unsuccessful letter now names each company in the chooser, accepts ?offeror=N on the URL, opens on the first unsuccessful quoter, and reports the awarded value from the evaluation record rather than the intake estimate.
 - Click path: file A-2027-0101 → Award phase → "Postaward notification letters to the unsuccessful offerors", or directly /documents/postaward-letter-unsuccessful/A-2027-0101?offeror=2 and ?offeror=3; successful letter at /documents/postaward-letter-successful/A-2027-0101.
 - Citation stays FAR 13.106-3(d) on this commercial simplified file. No seed edits, no new holds, no NCMS/FedRAMP/live FPDS claims.
@@ -1602,7 +1602,7 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
   field body; the confirmation stays as the chip beside the field. Basis of the IGCE,
   Certified cost or pricing data (Not required; commercial products or services, FAR 15.403-1(b)(3)
   on a commercial simplified file) and Date of determination now prefill from the record.
-- Unchanged and verified: Corsair UEI HCH5G9HLMVZ5, PNM citations RFO FAR 12.204(a); FAR 13.106-3(b)(3),
+- Unchanged and verified: Polar Survey sample UEI DEMOSAMPLE01, PNM citations RFO FAR 12.204(a); FAR 13.106-3(b)(3),
   and the RFO Reserved note for 52.212-3 / 52.212-5 in the clause picker.
 - No seed rewrites of Sample 1/2 acquisition facts, no new auto-holds, no NCMS write-back,
   no FedRAMP or live FPDS claims.
@@ -1668,10 +1668,10 @@ Click paths (Try the demo, then the role toggle in the header):
 
 - Requester: role toggle → Requester → left rail → Requester portal.
 - Reviewer: role toggle → Reviewer → left rail → Reviewer inbox →
-  Vote on this review → Go or No-go with a note.
+  Record a decision → the decision that review takes (for example Approve, Concur or Legally sufficient) with a note.
 - CO: role toggle → Contracting specialist / officer → left rail → Today.
 
-Protected and unchanged: Sample 1 A-2027-0101 Corsair UEI HCH5G9HLMVZ5 and
+Protected and unchanged: Sample 1 A-2027-0101 Polar Survey sample UEI DEMOSAMPLE01 and
 the live SAM path, the PNM citations RFO FAR 12.204(a) and FAR 13.106-3(b)(3),
 the P0.3 Reserved 52.212-3 / 52.212-5 note, and the hidden A-2026-0090
 SF30 clause delta. No seed facts were rewritten, no holds added and no
@@ -1887,7 +1887,7 @@ evaluation and UEI facts.
   specialist write, audit entries "Section L saved", "Section M saved",
   "Evaluation factor added/edited/deleted".
 - `src/lib/solicitation-lm.ts` reads the method shell from the record:
-  SF 1449 / FAR Parts 12 and 13, or Uniform Contract Format / FAR Part 15.
+  SF 1449 / RFO FAR Part 12 (commercial) or Part 13 (noncommercial at or below the SAT), or Uniform Contract Format / FAR Part 15.
 - `SolicitationKlmPanel` is a first-class workspace on the file in Solicitation/Quote and
   Award — visible without opening the scaffold. K is thin (reps/certs bucket from the
   selected clauses; the Reserved 52.212-5 note stays honest on commercial, no checkbox
@@ -2633,12 +2633,14 @@ Visual-only evolution of the navy Mission Clock band on the Executive Overview. 
 ## P0 before morning (Claude audit)
 
 - P0.1 (data, applied outside code — honored by code, not undone): Evaluation of
-  Quotations v2 on A-2027-0101 carries real public UEIs — Corsair Aviation, LLC
-  (recommended) UEI HCH5G9HLMVZ5, CAGE 7K7J6; Strategic Aviation LLC UEI
-  SK4DHMRD7M13; SciFly, LLC UEI R7LBZTAG8N98. acquisition_facts for A-2027-0101
+  Quotations v2 on A-2027-0101 carries fictional sample vendors (round J
+  replaced earlier real names): Polar Survey Aviation LLC (fictional)
+  (recommended) UEI DEMOSAMPLE01, CAGE SAMPLE; Kestrel Ridge Aviation LLC
+  (fictional) UEI DEMOSAMPLE02; Bluewater Airborne Research LLC (fictional) UEI
+  DEMOSAMPLE03. acquisition_facts for A-2027-0101
   carries vendor_legal_name / vendor_uei / vendor_cage and proposed_price
-  1,385,000, so Checks -> Record vendor lists A-2027-0101 - CORSAIR AVIATION,
-  LLC - HCH5G9HLMVZ5.
+  1,385,000, so Checks -> Record vendor lists A-2027-0101 - Polar Survey Aviation
+  LLC (fictional) - DEMOSAMPLE01.
 - P0.2 Ref line: the PNM memo header seeds __method from acquisition_method +
   contract_format before badgeCitation runs, so a simplified file prints
   "RFO FAR 12.204(a); FAR 13.106-3(b)(3)" and never FAR 15.406-3 alone.
@@ -2720,7 +2722,7 @@ No residual citation bugs found in this pass.
 ## Walk QA Sample 1 — unstick
 
 - PNM body text carries no draft wording; the "Drafted from the record — confirm." flag is a chip beside the field only (document form, prefilled and stored values alike).
-- A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (FAR 15.403-1(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI HCH5G9HLMVZ5, prices and clock are untouched.
+- A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (FAR 15.403-1(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI DEMOSAMPLE01, prices and clock are untouched.
 - Contracting officer of record on A-2027-0101 restored to J. Rivera (fictional CO) on the file header, evaluation and PNM sign-off; the signed-in admin name is never written onto the synthetic file.
 - P0.3 reserved-clause note stays visible on the Sample 1 clause packet.
 - PNM citations unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files.
@@ -3189,4 +3191,4 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Aging: open (pending) reviews age from `opened_at`; a recorded decision stops aging.
 - Requester, Reviewer and HQ menus show their primary pages first; the rest sit in a
   collapsed "More" group and stay in the command menu.
-- The deviation board still uses Go/No-go (follow-up).
+- The deviation board records Approve or Disapprove (round J); older Go and No-go values read as Approve and Disapprove.

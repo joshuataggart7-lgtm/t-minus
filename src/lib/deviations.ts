@@ -2,8 +2,17 @@
  * FAR & NFS Deviation Request (NF 1098 tab 33).
  *
  * A deviation request is its own small file: it has its own form, its own
- * go/no-go poll (legal, policy, HCA) and its own clock to the decision date.
- * It can hang off an acquisition or stand on its own.
+ * review board (legal, policy, HCA) recording Approve or Disapprove, and its
+ * own clock to the decision date. It can hang off an acquisition or stand on
+ * its own.
+ *
+ * Authority (verified on acquisition.gov and in the NFS CG, Sept 11, 2026):
+ * RFO FAR 1.303 "The agency head may authorize individual deviations."
+ * RFO FAR 1.304(b) "Agency heads may authorize class deviations from the FAR."
+ * NFS CG 1801.31(b) "The Assistant Administrator for Procurement is the
+ * approval authority for deviations to the FAR, NFS, and this NFS CG, unless
+ * otherwise stated." The three-seat review board before that decision is
+ * T-Minus practice; no source prescribes it.
  */
 
 import { writeAudit } from "@/lib/audit";
@@ -29,10 +38,41 @@ export const DEVIATION_TYPES: { value: DeviationType; label: string; citation: s
 
 /** The three reviewers every deviation request goes to, with their planned days. */
 export const DEVIATION_REVIEWERS: { role: string; who: string; plannedDays: number; citation: string }[] = [
-  { role: "Legal", who: "Office of the Chief Counsel", plannedDays: 5, citation: "NFS CG 1801.4; Center policy" },
-  { role: "Policy", who: "Center procurement policy", plannedDays: 5, citation: "NFS 1801.404; Center policy" },
-  { role: "HCA", who: "Head of the contracting activity", plannedDays: 7, citation: "RFO FAR 1.304; NFS 1801.404" },
+  { role: "Legal", who: "Office of the Chief Counsel", plannedDays: 5, citation: "Center policy (T-Minus practice)" },
+  { role: "Policy", who: "Center procurement policy", plannedDays: 5, citation: "Center policy (T-Minus practice)" },
+  { role: "HCA", who: "Head of the contracting activity", plannedDays: 7, citation: "Center policy (T-Minus practice)" },
 ];
+
+/** Who decides a deviation, by type, with the verified authority. */
+export function deviationAuthority(type: string | null | undefined) {
+  const cite = type === "class" ? "RFO FAR 1.304(b)" : "RFO FAR 1.303";
+  return {
+    citation: `${cite}; NFS CG 1801.31(b)`,
+    official: "the designated approving official (the Assistant Administrator for Procurement unless otherwise stated, NFS CG 1801.31(b))",
+  };
+}
+
+/** Board seats record Approve or Disapprove. Old Go / No-go values still read. */
+export type DeviationVote = "approve" | "disapprove" | "pending";
+
+export function normalizeDeviationVote(raw: string | null | undefined): DeviationVote {
+  const v = String(raw ?? "").trim().toLowerCase();
+  if (v === "approve" || v === "approved" || v === "go") return "approve";
+  if (v === "disapprove" || v === "disapproved" || v === "no-go" || v === "nogo") return "disapprove";
+  return "pending";
+}
+
+export const DEVIATION_VOTE_LABEL: Record<DeviationVote, string> = {
+  approve: "Approve",
+  disapprove: "Disapprove",
+  pending: "No decision yet",
+};
+
+/** The request decision: stored "approved" or "disapproved"; old "denied" reads as disapproved. */
+export function isDisapproved(decision: string | null | undefined) {
+  const v = String(decision ?? "").toLowerCase();
+  return v === "disapproved" || v === "denied";
+}
 
 export type DeviationRow = {
   deviation_id: string;
@@ -84,7 +124,7 @@ export function deviationClock(row: DeviationRow) {
   const state = decided
     ? row.decision === "approved"
       ? "Approved"
-      : "Denied"
+      : "Disapproved"
     : row.clock_state === "running"
       ? "Running"
       : "Not started";
@@ -103,7 +143,7 @@ export type DeviationBoardRow = {
   reviewer_role: string;
   who: string;
   citation: string;
-  vote: "Go" | "No-go" | "pending";
+  vote: DeviationVote;
   reviewer_name: string | null;
   reason: string | null;
   due_date: string | null;
@@ -114,12 +154,11 @@ export type DeviationBoardRow = {
 export function deviationBoard(votes: DeviationVoteRow[]): DeviationBoardRow[] {
   return DEVIATION_REVIEWERS.map((r) => {
     const row = votes.find((v) => v.reviewer_role.toLowerCase() === r.role.toLowerCase());
-    const raw = (row?.vote ?? "").toLowerCase();
     return {
       reviewer_role: r.role,
       who: r.who,
       citation: r.citation,
-      vote: raw === "go" ? "Go" : raw === "no-go" ? "No-go" : "pending",
+      vote: normalizeDeviationVote(row?.vote),
       reviewer_name: row?.reviewer_name ?? null,
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? null,
@@ -129,12 +168,12 @@ export function deviationBoard(votes: DeviationVoteRow[]): DeviationBoardRow[] {
   });
 }
 
-/** One line describing where the poll stands. */
+/** One line describing where the review board stands. */
 export function boardSummary(board: DeviationBoardRow[]) {
-  const nogo = board.find((b) => b.vote === "No-go");
-  if (nogo) return `No-go from ${nogo.reviewer_role}${nogo.reason ? ` — ${nogo.reason}` : ""}`;
+  const against = board.find((b) => b.vote === "disapprove");
+  if (against) return `Disapprove from ${against.reviewer_role}${against.reason ? `: ${against.reason}` : ""}`;
   const pending = board.filter((b) => b.vote === "pending");
-  if (pending.length === 0) return "All three reviewers voted Go. The HCA decision can be recorded.";
+  if (pending.length === 0) return "All three reviewers recorded Approve. The approving official's decision can be recorded.";
   return `Waiting on ${pending.map((p) => p.reviewer_role).join(", ")}`;
 }
 

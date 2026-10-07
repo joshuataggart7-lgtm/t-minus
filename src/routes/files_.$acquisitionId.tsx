@@ -130,7 +130,7 @@ import { exportNearBundle } from "@/lib/near-export";
 import { exportBriefingBook, briefingFacts } from "@/lib/briefing-book";
 import { exportFpdsFillingSheet } from "@/lib/fpds-filling-sheet";
 import { exportEvidencePack } from "@/lib/evidence-pack";
-import { requiredTabs, buildFileIndex, type IndexOpen } from "@/lib/file-index";
+import { requiredTabs, offeredTabs, buildFileIndex, type IndexOpen } from "@/lib/file-index";
 
 /** The stored upload behind an index row, when the row is an upload. */
 const attachmentIdOf = (open: IndexOpen | null) => (open?.kind === "attachment" ? open.attachmentId : "");
@@ -819,6 +819,12 @@ function FilePage() {
 
   const requiredTabSet = useMemo(
     () => new Set(requiredTabs(phases.map((p) => p.phase), acq ?? undefined).map((t) => t.tab)),
+    [phases, acq],
+  );
+  // Offered tabs come from the same launch sequence rule, so the index and the
+  // sequence always read the same (RFO FAR 1.404(b) for the COR appointment).
+  const offeredTabSet = useMemo(
+    () => new Set(offeredTabs(phases.map((p) => p.phase), acq ?? undefined).map((t) => t.tab)),
     [phases, acq],
   );
 
@@ -3152,7 +3158,7 @@ function FilePage() {
                     {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
                   </td>
                   <td className="px-3 py-2">{latest?.savedBy ?? "Not recorded"}</td>
-                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : "Not required"}</td>
+                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : offeredTabSet.has(t.tab) ? "Offered" : "Not required"}</td>
                   <td className="px-3 py-2">
                     {latest?.memo ? `Yes, to ${latest.memoTo ?? "addressee not set"}` : "No"}
                   </td>

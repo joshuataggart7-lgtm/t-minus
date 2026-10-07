@@ -8,7 +8,7 @@
 
 import { TEMPLATES } from "./template-engine";
 import { FORM_NAMES, type FormKey } from "./nf1787";
-import { phaseForTemplate, isTerRequired, type AcqRow } from "./launch-sequence";
+import { phaseForTemplate, requiredDocs, type AcqRow } from "./launch-sequence";
 import { isOfficialFinal } from "./official-file";
 import { nearForTemplateKey, type NearElement } from "./near-crosswalk";
 
@@ -91,6 +91,25 @@ export type IndexTemplateRow = {
   nf_1098_tab: string | null;
 };
 
+/**
+ * A saved version marked out of the file keeps its row (nothing is deleted).
+ * field_values.__retired carries { status, reason } and the plain note reads
+ * from it, for example "Superseded: ...".
+ */
+export function retiredNote(fieldValues: unknown): string | null {
+  const r = (fieldValues as { __retired?: unknown } | null | undefined)?.__retired;
+  if (!r) return null;
+  if (typeof r === "object") {
+    const o = r as Record<string, unknown>;
+    const status = typeof o["status"] === "string" && o["status"] ? o["status"] : "Retired from the file";
+    return typeof o["reason"] === "string" && o["reason"] ? `${status}: ${o["reason"]}` : status;
+  }
+  return "Retired from the file";
+}
+
+/** An upload kept on the file but superseded by another form carries a doc_key ending "-superseded". */
+export const isSupersededAttachmentKey = (key: string | null | undefined) => /-superseded$/.test(String(key ?? ""));
+
 export function tabRank(tab: string | null | undefined): number {
   const n = Number(String(tab ?? "").replace(/[^0-9]/g, ""));
   return Number.isFinite(n) && String(tab ?? "").trim() !== "" ? n : 9999;
@@ -152,30 +171,55 @@ function openFor(templateName: string, templateKey: string | undefined): IndexOp
 }
 
 /** Tabs the acquisition type requires, from the phases in its sequence. */
-export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
-  const inSequence = new Set(phases.map((p) => p.toLowerCase()));
+/**
+ * What the launch sequence asks of each core template on this file: the phase
+ * that names it and whether it is Required or Offered there. The index reads
+ * this, so the two always agree (for example the COR appointment is Offered
+ * on a firm-fixed-price file, RFO FAR 1.404(b), and Required otherwise).
+ */
+export function sequenceRequirements(phases: string[], acq?: AcqRow) {
+  const out = new Map<string, { phase: string; optional: boolean }>();
+  for (const phase of phases) {
+    for (const doc of requiredDocs(phase, acq)) {
+      if (!doc.templateKey || !(CORE_KEYS as readonly string[]).includes(doc.templateKey)) continue;
+      const seen = out.get(doc.templateKey);
+      const optional = Boolean(doc.optional);
+      if (!seen || (seen.optional && !optional)) out.set(doc.templateKey, { phase, optional });
+    }
+  }
+  return out;
+}
+
+function coreTabs(phases: string[], acq: AcqRow | undefined, wantOptional: boolean): IndexTab[] {
+  const req = sequenceRequirements(phases, acq);
   return TEMPLATES.filter((t) => (CORE_KEYS as readonly string[]).includes(t.key))
-    // The technical evaluation report is required only for a sole-source
-    // proposal above the simplified acquisition threshold; on a competed
-    // simplified acquisition it is offered, not required.
-    .filter((t) => t.key !== "technical-evaluation-report" || isTerRequired(acq))
-    // The evaluation of quotations record is the requirement on a competed
-    // simplified acquisition, in place of the report.
-    .filter((t) => t.key !== "evaluation-of-quotations" || !isTerRequired(acq))
+    .filter((t) => {
+      const r = req.get(t.key);
+      return Boolean(r) && r!.optional === wantOptional;
+    })
     .map((t) => {
       const { tab, near } = nearFields(t.key, normTab(t.tab));
       return {
         tab: displayTab(tab),
         templateName: t.name,
-        phase: phaseForTemplate(t.key),
+        phase: req.get(t.key)!.phase,
         origin: "generated" as const,
         open: { kind: "document" as const, templateKey: t.key },
         documents: [],
         ...near,
       };
     })
-    .filter((t) => !blankTab(t.tab))
-    .filter((t) => inSequence.has(t.phase.toLowerCase()));
+    .filter((t) => !blankTab(t.tab));
+}
+
+/** Core tabs the launch sequence marks Required on this file. */
+export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
+  return coreTabs(phases, acq, false);
+}
+
+/** Core tabs the launch sequence marks Offered (optional) on this file. */
+export function offeredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
+  return coreTabs(phases, acq, true);
 }
 
 /** An uploaded file on the record, indexed by the tab it belongs under. */
