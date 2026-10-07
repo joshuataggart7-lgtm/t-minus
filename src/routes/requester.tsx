@@ -55,12 +55,16 @@ function owedRows(card: DeskCard): Owed[] {
     },
     {
       label: "Statement of work",
-      present: Boolean(acq['sow_attached']) || attached.has("sow"),
+      present:
+        Boolean(acq['sow_attached']) || attached.has("sow_attached") || attached.has("sow"),
       note: "Recorded on the file by the requesting organization.",
     },
     {
       label: "Independent government cost estimate",
-      present: Boolean(acq['igce_attached']) || attached.has("igce"),
+      present:
+        Boolean(acq['igce_attached']) ||
+        attached.has("igce_attached") ||
+        attached.has("igce"),
       note: "Recorded on the file by the requesting organization.",
     },
   ];
