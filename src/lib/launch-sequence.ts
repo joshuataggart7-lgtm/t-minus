@@ -789,7 +789,7 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
       Boolean(matchStrategy(ref, `${acq.title ?? ""} ${acq.description_of_requirement ?? ""}`))
     );
   if (role.startsWith("flight operations")) return /A-102\.7/i.test(String(acq.enterprise_psl_check ?? ""));
-  if (role.startsWith("aviation safety")) return answeredYes(acq, /S5V/i);
+  if (role.startsWith("aviation safety")) return answeredYes(acq, /S5Vn2/i);
   if (role.startsWith("section 508")) return Boolean(acq.includes_it);
   if (role.startsWith("quality assurance")) return Boolean(acq.hardware_deliverable);
   if (role.startsWith("sources sought")) return value >= 50_000_000;

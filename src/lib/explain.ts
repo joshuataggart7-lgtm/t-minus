@@ -105,7 +105,7 @@ function reviewEvidence(role: string, acq: AcqRow): string[] {
   const r = role.toLowerCase();
   const value = money(acq.estimated_value);
   if (r.startsWith("aviation safety")) {
-    const key = answerYes(acq, /S5V/i);
+    const key = answerYes(acq, /S5Vn2/i);
     return [
       key
         ? `NF 1707 Section 5.V is answered yes on this record (answer ${key}): the requirement covers the acquisition or use of aircraft.`
