@@ -258,6 +258,25 @@ function statusColor(state: string | null | undefined) {
   return "var(--mc-readiness-go)";
 }
 
+/* The launch sequence phase line. Plain wording built only from the phase row's
+ * own figures: days worked so far, the planned days, and the phase name. */
+function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "planned_days">) {
+  const dayWord = (n: number) => (n === 1 ? "day" : "days");
+  const planned = p.planned_days;
+  const actual = p.actual_days;
+  if (actual === null) return `${planned} planned ${dayWord(planned)}`;
+  const diff = Math.abs(actual - planned);
+  if (p.status === "complete") {
+    const note = actual > planned ? `${diff} over` : actual < planned ? `${diff} under` : "on plan";
+    return `Took ${actual} ${dayWord(actual)}, ${planned} planned (${note})`;
+  }
+  if (p.status === "current") {
+    const note = actual > planned ? `${diff} over` : actual < planned ? `${diff} left` : "on plan";
+    return `${actual} ${dayWord(actual)} in ${p.phase}, ${planned} planned (${note})`;
+  }
+  return `${planned} planned ${dayWord(planned)}`;
+}
+
 function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
   const { authState } = useRole();
   const q = useQuery({
@@ -3198,7 +3217,7 @@ function FilePage() {
                   {p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
                 </span>
                 <span className="text-[13px] text-muted-foreground" data-numeric>
-                  {p.actual_days === null ? "—" : p.actual_days} of {p.planned_days} planned days
+                  {phaseDayLine(p)}
                 </span>
               </div>
               <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{p.citation}</p>
@@ -3221,12 +3240,15 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      className="scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-2 flex flex-wrap items-baseline gap-3 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className="scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-3 flex flex-wrap items-baseline gap-3 rounded-lg border border-border px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                     >
                       <span>{d.label}</span>
                       <span className="text-[13px] text-muted-foreground">
                         {d.optional ? "Offered" : "Required"}
                       </span>
+                      {d.citation ? (
+                        <span className="text-[13px] text-muted-foreground">{d.citation}</span>
+                      ) : null}
                       {generator ? (
                         <>
                           <StatusMark
@@ -3564,7 +3586,6 @@ function FilePage() {
 
                         </>
                       )}
-                      <span className="text-[13px] text-muted-foreground">{d.citation}</span>
                       {d.note ? (
                         <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
                       ) : null}
