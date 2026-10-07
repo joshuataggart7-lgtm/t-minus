@@ -15,7 +15,7 @@ INSERT INTO public.acquisition_facts (
   'Negotiated, single offer under urgency',
   'CPFF, to be definitized', 'Uniform Contract Format (FAR 15.204)', 'Award', 'running', 'FY28',
   '2027-11-15', '2027-10-15', '2028-10-14', '2027-10-01',
-  true, 'Joshua Taggart', 'Moffett Field, California', '541330', true,
+  true, 'Pete Conrad (fictional CO)', 'Moffett Field, California', '541330', true,
   'SMD', 'Science Mission Directorate', true,
   '{"commercial": false, "contract_type": "CPFF", "deliverable": "services", "vehicle": "letter_contract", "undefinitized": true, "letter_contract": true}'::jsonb,
   '80SAMPLE2026C0124', 'Northline Cryogenic Services, Inc.'

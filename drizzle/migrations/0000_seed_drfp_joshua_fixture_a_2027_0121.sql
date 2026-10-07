@@ -12,7 +12,7 @@ INSERT INTO public.acquisition_facts (
   'ARC', 'Ames Research Center', 18500000, 'FAR 15 negotiated, competitive', 'Full and open competition',
   'CPFF', 'Uniform Contract Format (FAR 15.204)', 'Solicitation', 'running', 'FY28',
   '2028-01-15', '2028-01-15', '2033-01-14', '2027-12-10',
-  true, 'Joshua Taggart', 'Moffett Field, California', '541715', false,
+  true, 'John Glenn (fictional CO)', 'Moffett Field, California', '541715', false,
   'SMD', 'Science Mission Directorate', true,
   '{"commercial": false, "contract_type": "CPFF", "deliverable": "services", "vehicle": "new"}'::jsonb
 )

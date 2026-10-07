@@ -13,7 +13,7 @@ INSERT INTO public.acquisition_facts (
   'ARC', 'Ames Research Center', 9400000, 'FAR 15 negotiated, competitive', 'Full and open competition',
   'CPFF', 'Uniform Contract Format (FAR 15.204)', 'Administration', 'running', 'FY28',
   '2028-03-01', '2026-03-01', '2031-02-28', '2026-02-10',
-  true, 'Joshua Taggart', 'Moffett Field, California', '541715', true,
+  true, 'Neil Armstrong (fictional CO)', 'Moffett Field, California', '541715', true,
   'SMD', 'Science Mission Directorate', true,
   '{"commercial": false, "contract_type": "CPFF", "deliverable": "services", "vehicle": "option"}'::jsonb,
   '80SAMPLE2026C0122', 'Meridian Airborne Science Services, LLC'

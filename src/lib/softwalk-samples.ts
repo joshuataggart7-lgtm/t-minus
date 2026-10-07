@@ -36,7 +36,20 @@ const SAMPLE_COMMERCIAL_IDS = new Set([
   "80SAMPLE2026C0002",
 ]);
 
-const SOFT_WALK_OFFICER = "Joshua Taggart";
+/**
+ * Fictional officer of record for each sample when the live row is blank.
+ * Sample people are fictional and labelled so; no real person is named here.
+ */
+const SOFT_WALK_OFFICERS: Record<string, string> = {
+  "A-2027-0101": "Michael Collins (fictional CO)",
+  "A-2027-0102": "John Young (fictional CO)",
+  "A-2026-0090": "Jim Lovell (fictional CO)",
+  "80ARC26D0090": "Jim Lovell (fictional CO)",
+  "BF-80SAMPLE2026C0001": "Frank Borman (fictional CO)",
+  "80SAMPLE2026C0001": "Frank Borman (fictional CO)",
+  "BF-80SAMPLE2026C0002": "Wally Schirra (fictional CO)",
+  "80SAMPLE2026C0002": "Wally Schirra (fictional CO)",
+};
 
 const idsOf = (a: Record<string, unknown> | null | undefined): string[] =>
   a
@@ -57,7 +70,8 @@ export function resolveOfficerName(
   if (carried) return carried;
   const ids = idsOf(acq);
   if (ids.some((id) => RIVERA_IDS.has(id))) return "";
-  if (ids.some((id) => SAMPLE_OFFICER_IDS.has(id))) return SOFT_WALK_OFFICER;
+  const sampleId = ids.find((id) => SAMPLE_OFFICER_IDS.has(id));
+  if (sampleId) return SOFT_WALK_OFFICERS[sampleId] ?? "";
   return "";
 }
 

@@ -15,7 +15,7 @@ INSERT INTO public.acquisition_facts (
   'Fair opportunity excepted, brand name',
   'FFP', 'Uniform Contract Format (FAR 15.204)', 'Solicitation', 'running', 'FY28',
   '2028-05-01', '2027-10-01', '2028-09-30', '2027-08-15',
-  true, 'Joshua Taggart', 'Moffett Field, California', '334511', true,
+  true, 'Alan Shepard (fictional CO)', 'Moffett Field, California', '334511', true,
   'SMD', 'Science Mission Directorate', true,
   '{"commercial": false, "contract_type": "FFP", "deliverable": "supplies", "vehicle": "idiq_order", "brand_name": true, "fair_opportunity_exception": "brand_name"}'::jsonb,
   '80SAMPLE2026C0123', 'Cascade Photonics Instruments, LLC'
