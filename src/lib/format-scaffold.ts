@@ -128,7 +128,7 @@ const dollars = (v: number) => (v > 0 ? `$${v.toLocaleString("en-US")}` : "Not r
 export function isStreamlined(facts: ScaffoldFacts): boolean {
   const format = s(facts, "contract_format").toLowerCase();
   if (format) return /1449|streamlin|commercial/.test(format);
-  // No format recorded: a commercial determination still points at FAR 12.
+  // No format recorded: a commercial determination still points at RFO FAR Part 12.
   return /commercial/i.test(s(facts, "commercial_determination"));
 }
 
@@ -192,8 +192,8 @@ export function buildFormatScaffold(
   const instructions: ScaffoldLine[] = [];
   if (has("52.212-1")) {
     instructions.push({
-      text: `Quotations are submitted under FAR 52.212-1. ${reasonFor("52.212-1") ?? ""}`.trim(),
-      citation: "FAR 12.301(b)(1)",
+      text: `Quotations are submitted under RFO FAR 52.212-1. ${reasonFor("52.212-1") ?? ""}`.trim(),
+      citation: "RFO FAR 12.205(a)(1)",
     });
   }
   instructions.push({
@@ -207,7 +207,7 @@ export function buildFormatScaffold(
   if (s(facts, "set_aside")) {
     instructions.push({
       text: `The set-aside on this record is ${s(facts, "set_aside")}; offerors represent their size against NAICS ${s(facts, "naics_code") || "on this file"}.`,
-      citation: "FAR 19.301-1",
+      citation: "RFO FAR 19.201-1",
     });
   }
 
@@ -225,7 +225,7 @@ export function buildFormatScaffold(
           },
           {
             text: "The justification on this file states why only one source can meet the need.",
-            citation: "FAR 6.303; FAR 13.501",
+            citation: "RFO FAR 6.104; RFO FAR 12.102",
           },
         ],
       }
@@ -233,7 +233,7 @@ export function buildFormatScaffold(
         mode: "competitive",
         lines: [
           has("52.212-2")
-            ? { text: `Evaluation factors are stated to offerors under FAR 52.212-2. ${reasonFor("52.212-2") ?? ""}`.trim(), citation: "FAR 12.301(c)" }
+            ? { text: `Evaluation factors are stated to offerors under RFO FAR 52.212-2. ${reasonFor("52.212-2") ?? ""}`.trim(), citation: "RFO FAR 12.205(a)(2)" }
             : { text: "Evaluation factors are stated to offerors in the solicitation.", citation: simplifiedFactorsCite(s(facts, "acquisition_method")) },
           {
             text: "Quotations are evaluated against the factors stated, and the evaluation of quotations on this file records the result.",

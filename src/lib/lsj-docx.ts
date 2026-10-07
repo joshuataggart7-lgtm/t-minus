@@ -8,7 +8,7 @@
  * fills [[CO_NAME]] on the active band only — it does not collapse the ladder
  * to one CO forever. Signature underscore lines stay blank (never auto-ink).
  *
- * Authority exception lines are the exact FAR 8.401(b)/GSAM face text from the
+ * Authority exception lines are the exact RFO FAR 8.401(b)/GSAM face text from the
  * Soft Walk Batch2 cite-fixed master Soft Walk — not invented cites Soft Walk.
  */
 import { type ExportContext } from "@/lib/template-engine";
@@ -47,7 +47,7 @@ export type LsjAuthorityKey =
   | "AUTH_BRAND_NAME";
 
 /**
- * Exact Soft Walk Batch2 cite-fixed face lines (FAR 8.401(b)/GSAM Soft Walk — not 8.104(b)).
+ * Exact Soft Walk Batch2 cite-fixed face lines (RFO FAR 8.401(b)/GSAM Soft Walk - not 8.104(b)).
  * Copied verbatim from the NASA OP cite-fixed master Soft Walk.
  */
 export const LSJ_AUTH_CITATIONS: Record<LsjAuthorityKey, string> = {

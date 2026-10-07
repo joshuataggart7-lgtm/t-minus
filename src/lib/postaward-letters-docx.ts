@@ -8,12 +8,12 @@
  * scratch OOXML, no letterhead or media added here.
  *
  * Both letters are Part 15 notifications:
- *   Successful  — FAR 15.207-1(a), FAR 15.301-1(a)(1); NFS CG 1815.29,
+ *   Successful  - RFO FAR 15.207-1(a), RFO FAR 15.301-1(a)(1); NFS CG 1815.29,
  *                 1815.31 and 1815.32 carry the debriefing process.
- *   Unsuccessful — FAR 15.207-2(b), FAR 15.301-1.
+ *   Unsuccessful - RFO FAR 15.207-2(b), RFO FAR 15.301-1.
  *
  * A commercial or simplified file (Sample 1) is refused rather than dressed in
- * Part 15 prose: that path notifies under RFO FAR 12.301, or FAR 13.301 on a
+ * Part 15 prose: that path notifies under RFO FAR 12.301, or RFO FAR 13.301 on a
  * simplified noncommercial file, and gives a brief explanation on request.
  *
  * Signature ink stays blank. The contracting officer's name prints on the
@@ -56,7 +56,7 @@ export function isCommercialOrSimplified(ctx: PostawardDocxContext): boolean {
 }
 
 /**
- * True only on a FAR Part 15 negotiated path. A commercial or simplified file
+ * True only on a RFO FAR Part 15 negotiated path. A commercial or simplified file
  * is refused so the Part 15 notification is never forced onto the wrong record.
  */
 export function isPart15NotificationPath(ctx: PostawardDocxContext): boolean {
@@ -66,7 +66,7 @@ export function isPart15NotificationPath(ctx: PostawardDocxContext): boolean {
 
 /**
  * The notice a commercial or simplified file makes instead. RFO FAR 12.301 on
- * a commercial file; FAR 13.301 on a simplified noncommercial file.
+ * a commercial file; RFO FAR 13.301 on a simplified noncommercial file.
  */
 export function simplifiedNoticeCitation(ctx: PostawardDocxContext): string {
   return /commercial|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx))
@@ -125,9 +125,9 @@ export function postawardSuccessMarkers(ctx: PostawardDocxContext): MarkerMap {
     "[[EFFECTIVE_DATE]]": value("effective_date") || KEEP,
     "[[CO_EMAIL]]": co.email || KEEP,
     // The authority for this notification, from the master's own reference
-    // list: FAR 15.207-1(a) with the NFS CG debriefing process.
+    // list: RFO FAR 15.207-1(a) with the NFS CG debriefing process.
     "[[NOTICE_AUTHORITY_LINE]]":
-      "This notification is provided under FAR 15.207-1(a). Debriefings are conducted under FAR 15.301-1(b) and (c) and the NASA Procurement Debriefing Guide (NFS CG 1815.31); NFS CG 1815.29 carries the notification process and NFS CG 1815.32 applies to major system acquisitions.",
+      "This notification is provided under RFO FAR 15.207-1(a). Debriefings are conducted under RFO FAR 15.301-1(b) and (c) and the NASA Procurement Debriefing Guide (NFS CG 1815.31); NFS CG 1815.29 carries the notification process and NFS CG 1815.32 applies to major system acquisitions.",
     "[[CO_PHONE]]": co.phone || KEEP,
     "[[CO_NAME]]": co.name || KEEP,
     "[[CO_TITLE]]": "Contracting Officer",
@@ -155,10 +155,10 @@ export function postawardUnsuccessMarkers(ctx: PostawardDocxContext): MarkerMap 
     "[[COMPANY_NAME]]": company || KEEP,
     "[[COMPANY_NAME_2]]": company || KEEP,
     "[[CENTER_NAME_BODY]]": center,
-    // FAR 15.207-2(b) is the written notification requirement on a negotiated
+    // RFO FAR 15.207-2(b) is the written notification requirement on a negotiated
     // acquisition. The stale FAR 15.502-7 reference is not carried here.
     "[[NOTICE_AUTHORITY_LINE]]":
-      "Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
+      "Pursuant to RFO FAR 15.207-2(b), the following information is provided:",
     "[[OFFERORS_SOLICITED]]": value("offerors_solicited") || KEEP,
     "[[PROPOSALS_RECEIVED]]": value("proposals_received") || KEEP,
     "[[AWARDEES]]": value("awardees") || KEEP,

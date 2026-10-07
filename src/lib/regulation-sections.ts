@@ -42,10 +42,13 @@ export async function loadLiveSections(): Promise<RegulationSection[]> {
 }
 
 export function normaliseCitation(value: string | null | undefined): string {
+  // The loaded far_rfo rows are keyed "FAR 10.001(e)"; the app prints the same
+  // section as "RFO FAR 10.001(e)", so the RFO label is not part of the match.
   return String(value ?? "")
     .replace(/\s+/g, " ")
     .trim()
-    .toUpperCase();
+    .toUpperCase()
+    .replace(/\bRFO (?=FAR\b)/g, "");
 }
 
 /** True when the whole string is one citation, e.g. "FAR 10.002(e)". */

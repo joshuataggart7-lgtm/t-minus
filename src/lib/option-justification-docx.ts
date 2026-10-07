@@ -88,8 +88,8 @@ export function optionJustificationMarkers(ctx: OptionJustificationContext): Mar
       ? `The inclusion of ${optionDescription} in the ${instrument} is hereby determined to be in the best interest of the Government.`
       : `The inclusion of options in the ${instrument} is hereby determined to be in the best interest of the Government.`,
     basePeriod ? `The base period is ${basePeriod}.` : "",
-    "As a result, in accordance with FAR 17.201-1 the following information is provided.",
-    "This justification is documented in writing in accordance with FAR 17.201-2 and follows the format at NFS CG 1817.25.",
+    "As a result, in accordance with RFO FAR 17.201-1 the following information is provided.",
+    "This justification is documented in writing in accordance with RFO FAR 17.201-2 and follows the format at NFS CG 1817.25.",
   ]
     .filter(Boolean)
     .join(" ");

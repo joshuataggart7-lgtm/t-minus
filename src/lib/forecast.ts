@@ -1,4 +1,4 @@
-/** Acquisition Forecast entry, NFS 1807.72.
+/** Acquisition Forecast entry, NFS CG 1807.70.
  *
  *  Every intake above the simplified acquisition threshold produces a forecast
  *  entry as a byproduct of the record: nothing is retyped and nothing is
@@ -7,7 +7,7 @@
  *  they are recorded in BUILD_NOTES.md.
  */
 
-export const FORECAST_CITATION = "NFS 1807.72";
+export const FORECAST_CITATION = "NFS CG 1807.70";
 
 /** Anticipated award date when the CO has not set a target award date. */
 export const ANTICIPATED_AWARD_TBD = "Not yet determined";

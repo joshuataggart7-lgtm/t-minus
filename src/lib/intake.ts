@@ -104,18 +104,18 @@ export const CONTRACT_TYPES = [
 
 export const ACQUISITION_METHODS = [
   "FAR 13.5 commercial simplified procedures",
-  "FAR 13 simplified acquisition (non-commercial)",
-  "FAR 12 commercial, Part 15 procedures",
-  "FAR 15 negotiated",
-  "FAR 8.4 GSA schedule order",
-  "FAR 16.5 order under existing IDIQ / GWAC",
-  "FAR 14 sealed bidding",
+  "RFO FAR Part 13 simplified acquisition (non-commercial)",
+  "RFO FAR Part 12 commercial, Part 15 procedures",
+  "RFO FAR Part 15 negotiated",
+  "RFO FAR subpart 8.4 GSA schedule order",
+  "RFO FAR subpart 16.5 order under existing IDIQ / GWAC",
+  "RFO FAR Part 14 sealed bidding",
   "Other transaction / Space Act (not a FAR contract)",
 ];
 
 export const COMPETITION_CHOICES = [
   "Competitive",
-  "Limited sources (FAR 8.405-6 / 16.505)",
+  "Limited sources (RFO FAR 8.401(b); GSAR subpart 538.71 / 16.505)",
   "Sole source",
   "Brand name",
 ];
@@ -132,7 +132,7 @@ export const SET_ASIDES = [
   "SDVOSB sole source",
   "Women-owned small business",
   "WOSB/EDWOSB sole source",
-  "Local area (FAR 26.2)",
+  "Local area (RFO FAR subpart 26.2)",
 ];
 
 export const CENTERS = [
@@ -350,7 +350,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
       id: "far135-ceiling",
       title: "Estimated value is above the commercial simplified procedures ceiling",
       detail: `${formatMoney(value)} is above ${formatMoney(ceiling)}. Choose another method or reduce the estimate.`,
-      citation: "RFO FAR 12.201-1(a); RFO FAR 12.001(c); RFO FAR 12.102 Table 12-1 (formerly FAR 13.500)",
+      citation: "RFO FAR 12.201-1(a); RFO FAR 12.001(c); RFO FAR 12.102 Table 12-1 (formerly RFO FAR 12.201-1)",
       blocking: true,
     });
   }
@@ -373,7 +373,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
       id: "funding",
       title: "Period of performance crosses October 1 without funds certified for the full period",
       detail: "Certify funds for the full period or plan a severable period within the fiscal year.",
-      citation: "31 U.S.C. 1502; FAR 32.703-3",
+      citation: "31 U.S.C. 1502; RFO FAR 32.703-3",
       blocking: true,
     });
 
@@ -382,7 +382,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
       id: "cio",
       title: "Information technology selected without CIO review flagged",
       detail: "CIO authorization applies to IT at any value. Flag the review in Section 2.",
-      citation: "FITARA; NFS CG 1839; PCD 25-06A",
+      citation: "FITARA; NFS CG 1839.11; PCD 25-06A",
       blocking: true,
     });
 

@@ -21,7 +21,7 @@ const str = (v: unknown): string => (v === null || v === undefined ? "" : String
 
 /**
  * Face authority for the urgency path, from the record when it carries one,
- * otherwise the FAR Part 6 urgency face cite the OP master itself prints.
+ * otherwise the RFO FAR Part 6 urgency face cite the OP master itself prints.
  * Never a brand-name or Part 12 commercial cite.
  */
 export function urgencyAuthorityLine(recorded: string): string {
@@ -31,7 +31,7 @@ export function urgencyAuthorityLine(recorded: string): string {
       ? text
       : `The statutory authority permitting other than full and open competition is ${text}`;
   }
-  return "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by FAR 6.103-2, Unusual and compelling urgency.";
+  return "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by RFO FAR 6.103-2, Unusual and compelling urgency.";
 }
 
 /** True when the record actually carries an unusual and compelling urgency path. */
@@ -69,7 +69,7 @@ export function jofocUrgencyMarkers(ctx: JofocDocxContext): MarkerMap {
   map["[[URGENCY_NOT_DELAY]]"] = value("urgency_not_delay") || KEEP;
   map["[[NOTICE_URGENCY_EXEMPTION]]"] =
     value("notice_exemption") ||
-    "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d). This justification for other than full and open competition, approved under FAR 6.301(b)(1), will be posted within 30 days after contract award as required by FAR 6.305.";
+    "The contracting officer has determined in accordance with RFO FAR 5.101(b)(2) that this action is exempt from the presolicitation notice required by RFO FAR 5.101(a), because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the posting timeframes in RFO FAR 5.101(d). This justification for other than full and open competition under RFO FAR 6.103-2 will be made publicly available within 30 days after contract award as required by RFO FAR 6.301(b)(1).";
   map["[[MARKET_RESEARCH_PROSE]]"] = shared["[[MARKET_RESEARCH_PROSE]]"] || KEEP;
 
   return map;

@@ -7,8 +7,8 @@
  * the master writes them. Only marker runs are filled from the record.
  *
  * Authority on the face, from the master's own text:
- *   FAR 15.206-1(b)(1) — preaward notification on a negotiated acquisition.
- *   FAR 19.201-2 and 19.201-2(d)(1) — small business size status challenge,
+ *   RFO FAR 15.206-1(b)(1) - preaward notification on a negotiated acquisition.
+ *   RFO FAR 19.201-2 and 19.201-2(d)(1) - small business size status challenge,
  *     five business days.
  *   NFS CG 1815.28 — NASA preaward notification process.
  *
@@ -65,7 +65,7 @@ export function hasSmallBusinessSetAside(ctx: SetAsidePreawardContext): boolean 
 }
 
 /**
- * True only on a FAR Part 15 negotiated set-aside. A commercial or simplified
+ * True only on a RFO FAR Part 15 negotiated set-aside. A commercial or simplified
  * file is refused so the Part 15 preaward notice is never forced onto the
  * wrong record, and a file with no set-aside on it is refused as well.
  */
@@ -130,14 +130,14 @@ export function setAsidePreawardMarkers(ctx: SetAsidePreawardContext): MarkerMap
 
     // Unsuccessful offeror paragraphs; emptied on the successful variant.
     "[[UNSUCCESS_INTRO]]": unsuccessful
-      ? "In accordance with FAR 15.206-1(b)(1), this notification follows NFS CG 1815.28 and identifies the apparent successful offeror for the subject solicitation:"
+      ? "In accordance with RFO FAR 15.206-1(b)(1), this notification follows NFS CG 1815.28 and identifies the apparent successful offeror for the subject solicitation:"
       : "",
     "[[UNSUCCESS_SELECTED_OFFEROR]]": unsuccessful ? selectedAddress || KEEP : "",
     "[[UNSUCCESS_REVISIONS]]": unsuccessful
       ? "The Government will not consider subsequent revisions to your proposal."
       : "",
     "[[UNSUCCESS_CHALLENGE]]": unsuccessful
-      ? "In accordance with FAR 19.201-2(d)(1), a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the contracting officer in writing by the close of business of the fifth business day after receipt of this letter."
+      ? "In accordance with RFO FAR 19.201-2(d)(1), a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the contracting officer in writing by the close of business of the fifth business day after receipt of this letter."
       : "",
     "[[UNSUCCESS_FOLLOWUP]]": unsuccessful
       ? "If no size status or small business status challenge is received within five business days of this letter, a postaward notification will be sent with information on how to request a debriefing along with the Source Selection Statement detailing the Government\u2019s selection decision."

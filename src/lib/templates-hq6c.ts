@@ -102,7 +102,7 @@ const qasp: TemplateDef = {
   name: "QASP Template for Performance-Based Services Contracts",
   tab: "NA",
   badge: {
-    citation: "FAR 37.601(b)(3); FAR 46.103; FAR 46.401",
+    citation: "RFO FAR 46.103; RFO FAR 46.401",
     tier: "binding",
     revision: "HQ base issuance 04/08/2025, revisions 09/2025 and 02/2026",
     effective: "2026-02-01",
@@ -115,7 +115,7 @@ const qasp: TemplateDef = {
     {
       id: "cover",
       title: "Cover",
-      citation: "FAR 46.401",
+      citation: "RFO FAR 46.401",
       tier: "binding",
       standingText:
         "NATIONAL AERONAUTICS AND SPACE ADMINISTRATION\n(Insert Center name)\nQUALITY ASSURANCE SURVEILLANCE PLAN (QASP)\nFOR THE\n(Insert name of acquisition)\n\nThis Quality Assurance Surveillance Plan (QASP) was prepared by the following:",
@@ -148,7 +148,6 @@ const qasp: TemplateDef = {
     {
       id: "s1",
       title: "1 INTRODUCTION",
-      citation: "FAR 37.601(b)(3)",
       tier: "binding",
       standingText:
         "This quality assurance surveillance plan (QASP) is pursuant to the requirements listed in the performance work statement (PWS) entitled (insert name of services). This plan sets forth the procedures and guidelines NASA (insert Center name and or program/project office performing monitoring/surveillance activity) will use in ensuring the required performance standards or services levels are achieved by the contractor.\n\n1.1 Purpose\n\n1.1.1 The purpose of the QASP is to describe the systematic methods used to monitor performance and identify required documentation and resources to be employed. The QASP provides a means for evaluating whether the contractor is meeting the performance standards/quality levels identified in the PWS and the contractor's quality control plan (QCP), and ensure the Government pays only for the level of services received.\n\n1.1.2 This QASP defines the roles and responsibilities of all surveillance members, identifies the performance objectives, defines the methodologies used to monitor and evaluate the contractor's performance, describes quality assurance documentation requirements, and describes the analysis of quality assurance monitoring results.",
@@ -162,7 +161,7 @@ const qasp: TemplateDef = {
     {
       id: "s2",
       title: "2 ROLES AND RESPONSIBILITIES",
-      citation: "RFO FAR 1.402-2; FAR 46.103",
+      citation: "RFO FAR 1.402-2; RFO FAR 46.103",
       tier: "binding",
       standingText:
         "2.1 Contracting Officer (CO)\n\n2.1.1 The CO is responsible for monitoring contract compliance, contract administration, and cost control, and resolving any differences between observations documented by the Contracting Officer's Representative (COR) and the contractor. The CO will delegate a COR as the Government authority for performance management.\n\n2.1.2 The CO is ultimately responsible for the acceptance of services received under this contract. The CO will complete an annual contractor performance assessment report using the Contractor Performance Assessment Reporting System (CPARS) that will also be reviewed by the contractor.",
@@ -181,14 +180,14 @@ const qasp: TemplateDef = {
     {
       id: "s3",
       title: "3 IDENTIFICATION OF REQUIRED PERFORMANCE STANDARDS/QUALITY LEVELS",
-      citation: "FAR 37.601(b)(2)",
+      citation: "RFO FAR 37.102-1(a)(3)",
       tier: "binding",
       fields: [T("applicable_documents", "Applicable documents containing the performance standards or quality levels")],
     },
     {
       id: "s4",
       title: "4 METHODOLOGIES TO MONITOR PERFORMANCE",
-      citation: "FAR 46.401",
+      citation: "RFO FAR 46.401",
       tier: "binding",
       fields: [
         S(
@@ -227,7 +226,7 @@ const qasp: TemplateDef = {
     {
       id: "s5",
       title: "5 QUALITY ASSURANCE (QA) DOCUMENTATION",
-      citation: "FAR 46.104",
+      citation: "RFO FAR 46.104",
       tier: "binding",
       fields: [
         T("feedback_loop", "5.1 The Performance Management Feedback Loop"),
@@ -239,7 +238,7 @@ const qasp: TemplateDef = {
     {
       id: "s6",
       title: "6 ANALYSIS OF QUALITY ASSURANCE ASSESSMENT",
-      citation: "FAR 46.401",
+      citation: "RFO FAR 46.401",
       tier: "binding",
       fields: [
         T("determining_performance", "6.1 Determining Performance"),
@@ -253,7 +252,7 @@ const qasp: TemplateDef = {
     {
       id: "prs",
       title: "PERFORMANCE REQUIREMENTS SUMMARY (PRS)",
-      citation: "FAR 37.601(b)",
+      citation: "RFO FAR 37.102-1",
       tier: "guidance",
       collapsed: true,
       standingText:
@@ -269,7 +268,7 @@ const qasp: TemplateDef = {
     {
       id: "monitoring_form",
       title: "SAMPLE QUALITY ASSURANCE MONITORING FORM",
-      citation: "FAR 46.401",
+      citation: "RFO FAR 46.401",
       tier: "guidance",
       collapsed: true,
       fields: [
@@ -294,7 +293,7 @@ const qasp: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer's representative and contracting officer",
-    citation: "FAR 46.401",
+    citation: "RFO FAR 46.401",
     blocks: ["Contracting Officer's Representative (COR)", "Date", "Contracting Officer (CO)", "Date"],
   }),
 };
@@ -447,7 +446,7 @@ const drdTemplate: TemplateDef = {
   name: "Data Requirements Description (DRD) Template",
   tab: "DRD",
   badge: {
-    citation: "NFS Appendix C",
+    citation: "NFS CG 1811.25",
     tier: "binding",
     revision: "HQ base issuance 04/28/2021, revisions 10/2021, 01/2025 and 04/2025",
     effective: "2025-04-01",
@@ -458,7 +457,7 @@ const drdTemplate: TemplateDef = {
     {
       id: "blocks",
       title: "Data Requirements Description",
-      citation: "NFS Appendix C",
+      citation: "NFS CG 1811.25",
       tier: "binding",
       standingText:
         "Type 1 \u2013 All submittals of and interim changes to Type 1 DRDs require written approval from the contracting officer before formal release for use or implementation.\nType 2 \u2013 NASA reserves a time-limited right to disapprove in writing any submittal of and interim changes to those Type 2 DRDs.\nType 3 \u2013 These data shall be delivered by the contractor as required by the contract and do not require NASA approval.",
@@ -467,14 +466,14 @@ const drdTemplate: TemplateDef = {
     {
       id: "description",
       title: "10. Description/Use",
-      citation: "NFS Appendix C",
+      citation: "NFS CG 1811.25",
       tier: "binding",
       fields: [T("description_use", "Description and intended use of the data")],
     },
     {
       id: "distribution",
       title: "11. Distribution",
-      citation: "NFS Appendix C",
+      citation: "NFS CG 1811.25",
       tier: "binding",
       fields: [
         T("distribution", "Distribution", "Names and organizational codes of the recipients, where the contract does not address it."),
@@ -492,7 +491,7 @@ const drdTemplate: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "NFS Appendix C",
+    citation: "NFS CG 1811.25",
     blocks: ["Contracting Officer: Approve / Disapprove", "Date"],
   }),
 };
@@ -502,7 +501,7 @@ const ociPlanDrd: TemplateDef = {
   name: "OCI Plan DRD",
   tab: "DRD",
   badge: {
-    citation: "FAR Subpart 9.5; NFS 1809.5; NFS Appendix C-202.1",
+    citation: "RFO FAR subpart 9.5; NFS subpart 1809.5; NFS CG 1809.53",
     tier: "binding",
     revision: "HQ base issuance 10/28/2021, revisions 03/2022, 01/2024 and 05/2025",
     effective: "2025-05-01",
@@ -513,7 +512,7 @@ const ociPlanDrd: TemplateDef = {
     {
       id: "blocks",
       title: "Data Requirements Description",
-      citation: "NFS Appendix C-202.1",
+      citation: "NFS CG 1809.53",
       tier: "binding",
       standingText:
         "1. DRD Title: Organizational Conflicts of Interest (OCI) Plan\n3. Data Type: 1\n4. OPR: OP\n9. DRD Category: Administrative",
@@ -528,7 +527,7 @@ const ociPlanDrd: TemplateDef = {
     {
       id: "description",
       title: "10. Description/Use",
-      citation: "FAR Subpart 9.5",
+      citation: "RFO FAR subpart 9.5",
       tier: "binding",
       standingText:
         "The Plan will communicate the contractor's approach to identify and resolve OCIs. The contractor will be held accountable for identifying, dispositioning, and reporting OCIs during contract performance.",
@@ -540,7 +539,7 @@ const ociPlanDrd: TemplateDef = {
       citation: "NFS 1809.5",
       tier: "binding",
       standingText:
-        "Distribution shall be as instructed by the contracting officer.\n\nInitial Submission: Plan shall be submitted with the initial proposal.\n\nSubmission Frequency: As needed.\n\nFormat: Contractor's format is acceptable. The electronic format shall be compatible with Microsoft Office.\n\nInterrelationship: NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1852.209-71, Limitation of Future Contracting, NFS 1852.237-72, Access to Sensitive Information, NFS 1852.237-73, Release of Sensitive Information.\n\nApplicable Documents: FAR Subpart 9.5, Organizational and Consultant Conflicts of Interest, NFS 1809.5, Organizational and Consultant Conflicts of Interest, NASA Guide on Organizational Conflicts of Interest.\n\nScope: The OCI Plan describes the contractor's comprehensive approach to identify, avoid, mitigate, neutralize, and report potential OCI issues, including conflicts described in the solicitation and those discovered during contract performance.",
+        "Distribution shall be as instructed by the contracting officer.\n\nInitial Submission: Plan shall be submitted with the initial proposal.\n\nSubmission Frequency: As needed.\n\nFormat: Contractor's format is acceptable. The electronic format shall be compatible with Microsoft Office.\n\nInterrelationship: NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1852.209-71, Limitation of Future Contracting, NFS 1852.237-72, Access to Sensitive Information, NFS 1852.237-73, Release of Sensitive Information.\n\nApplicable Documents: RFO FAR subpart 9.5, Organizational and Consultant Conflicts of Interest, NFS 1809.5, Organizational and Consultant Conflicts of Interest, NASA Guide on Organizational Conflicts of Interest.\n\nScope: The OCI Plan describes the contractor's comprehensive approach to identify, avoid, mitigate, neutralize, and report potential OCI issues, including conflicts described in the solicitation and those discovered during contract performance.",
       fields: [
         X("initial_submission_tailoring", "Initial Submission, where the contracting officer tailors it", undefined, "For example 30 days after award."),
         X("submission_frequency_tailoring", "Submission Frequency, where the contracting officer tailors it"),
@@ -550,10 +549,10 @@ const ociPlanDrd: TemplateDef = {
     {
       id: "contents",
       title: "Contents",
-      citation: "FAR 9.5",
+      citation: "RFO FAR subpart 9.5",
       tier: "binding",
       standingText:
-        "The OCI Plan shall meet the requirements of FAR 9.5 and include the following:\n\n1. Point of contact for OCI issues and reports.\n2. Demonstrate an understanding of (1) OCI principles and (2) the full breadth of OCI issues and the types of harm that can result. The Plan at a minimum addresses the three primary types of OCIs (i.e., biased ground rules, unequal access to information, and impaired objectivity).\n3. Define company roles, responsibilities, and procedures for (1) screening (i.e., identifying/recognizing, analyzing/evaluating, resolving, and reporting) existing and new business opportunities for actual/potential OCIs and (2) monitoring and reporting all potential/actual OCIs that arise, resolving conflicts, and reporting previously unidentified OCIs or potential OCIs to the Government.\n4. Describe how employees are notified of the Plan's requirements and how this notification will be documented. Establish and require entrance training for new employees, refresher training for existing employees, and exit training for departing employees. Describe how completion of this training will be documented, including a copy of any training certification template that the contractor will use to document that its employees have completed training.\n5. Describe how the contractor will report breaches of the protective measures in the Plan to the contracting officer. Describe what processes the contractor will implement following any breach and indicate that final resolution of the corrective action must be approved by the contracting officer.\n6. Identify any affiliated companies/entities (e.g., a parent company or a wholly owned subsidiary) and procedures for coordinating OCIs with such affiliated companies/entities.\n7. Address the process for reporting all potential/actual OCIs that arise during performance of the contract. An OCI report shall include (1) a description of the conflict, (2) the plan for resolving the conflict, and (3) the benefits/risks to contract performance associated with plan approval/acceptance. Specific resolution strategies shall be appended to the Plan upon approval by the Government.\n8. Explain how the contractor will flow down the provisions of this Plan to any subcontractor that may have a conflict with regard to performing the requirements of this contract. Discuss affected subcontractors' OCI program as it relates to this contract and specifically explain how affected subcontractors will identify, resolve, and report actual/potential OCIs associated with this contract.\n9. Define organizational and employee sanctions for violations of established OCI procedures/requirements/guidelines.\n10. Include an assertion from the offeror that to the best of its knowledge no OCIs exist currently, if applicable. Provide a list of all the prime's and proposed subcontractor(s)'s NASA contracts and subcontracts currently being performed and contracts performed within the last five years of the release of this solicitation, in order to provide the CO a better understanding of other NASA work performed by the offeror that may give rise to an actual or potential conflict. For each prime contract and subcontract listed, the offeror shall: (1) identify the contract number; (2) describe the scope of work in sufficient detail to ascertain the likelihood of a conflict with performance of this contract; and (3) discuss any conflicts that may arise from performance of the listed contracts and award of this contract.\n11. The offeror shall also list any non-NASA Federal contracts and subcontracts that it or its proposed subcontractors are currently performing or have performed in the five years preceding the release of the solicitation that may give rise to an OCI. For each and subcontract listed, the offeror shall: (1) identify the contract by number and name; (2) identify the name, address and contact information of the customer(s); (3) describe the scope of work in sufficient detail to ascertain the likelihood of a conflict with performance of this contract; and (4) discuss any conflicts that may arise from performance of the listed contracts and award of this contract.\n12. For financial or other interests or relationships beyond Federal contracts or subcontracts that may give rise to an OCI, the offeror shall (1) address the nature and extent of the interest(s) or relationship(s); (2) list any entity or entities involved in the interest(s) or relationship(s) and award of this contract.\n13. The offeror shall address how it will avoid, neutralize, or mitigate each potential OCI listed above. Sufficient information must be provided to allow a meaningful evaluation of the potential effect of the interest on the performance of the statement of work.\n14. Include a requirement to update this plan as necessary to address specific OCIs. All updates to the plan must be approved by the contracting officer and the updates/changes must be incorporated in the contract to be effective.\n15. Require periodic self-audits to ensure compliance with established OCI procedures/requirements/guidelines.\n16. Define records related to the OCI plan (e.g., training and audit records) that will be made available to the Government upon request. Note: The OCI Plan as outlined in paragraphs 1 through 12 above is not for the purpose of addressing other very important contractual obligations such as (1) the contractor's obligation to protect sensitive information in accordance with NFS 1852.237-72, Access to Sensitive Information, (2) the contractor's obligation to conduct business in an ethical manner in accordance with FAR 52.203-13, contractor's Code of Business Ethics and Conduct, and (3) the contractor's obligation to prevent personal conflicts of interest in accordance with FAR 52.203-16, Preventing Personal Conflicts of Interest.\n17. In an appendix to the OCI Plan identify the strategy (e.g., mitigation, limitation on future contracting) for resolving each OCI that is either identified in the solicitation or created by the requirements of the solicitation/contract and explain the effect of such strategy on performance of the contract. If using a firewall, explain how these actions will operate to successfully address the conflict without adversely affecting performance of the contract. (Note: Specific plans to limit future competition are reflected in the clause at NFS 1852.209-71, Limitation of Future Contracting.)",
+        "The OCI Plan shall meet the requirements of RFO FAR subpart 9.5 and include the following:\n\n1. Point of contact for OCI issues and reports.\n2. Demonstrate an understanding of (1) OCI principles and (2) the full breadth of OCI issues and the types of harm that can result. The Plan at a minimum addresses the three primary types of OCIs (i.e., biased ground rules, unequal access to information, and impaired objectivity).\n3. Define company roles, responsibilities, and procedures for (1) screening (i.e., identifying/recognizing, analyzing/evaluating, resolving, and reporting) existing and new business opportunities for actual/potential OCIs and (2) monitoring and reporting all potential/actual OCIs that arise, resolving conflicts, and reporting previously unidentified OCIs or potential OCIs to the Government.\n4. Describe how employees are notified of the Plan's requirements and how this notification will be documented. Establish and require entrance training for new employees, refresher training for existing employees, and exit training for departing employees. Describe how completion of this training will be documented, including a copy of any training certification template that the contractor will use to document that its employees have completed training.\n5. Describe how the contractor will report breaches of the protective measures in the Plan to the contracting officer. Describe what processes the contractor will implement following any breach and indicate that final resolution of the corrective action must be approved by the contracting officer.\n6. Identify any affiliated companies/entities (e.g., a parent company or a wholly owned subsidiary) and procedures for coordinating OCIs with such affiliated companies/entities.\n7. Address the process for reporting all potential/actual OCIs that arise during performance of the contract. An OCI report shall include (1) a description of the conflict, (2) the plan for resolving the conflict, and (3) the benefits/risks to contract performance associated with plan approval/acceptance. Specific resolution strategies shall be appended to the Plan upon approval by the Government.\n8. Explain how the contractor will flow down the provisions of this Plan to any subcontractor that may have a conflict with regard to performing the requirements of this contract. Discuss affected subcontractors' OCI program as it relates to this contract and specifically explain how affected subcontractors will identify, resolve, and report actual/potential OCIs associated with this contract.\n9. Define organizational and employee sanctions for violations of established OCI procedures/requirements/guidelines.\n10. Include an assertion from the offeror that to the best of its knowledge no OCIs exist currently, if applicable. Provide a list of all the prime's and proposed subcontractor(s)'s NASA contracts and subcontracts currently being performed and contracts performed within the last five years of the release of this solicitation, in order to provide the CO a better understanding of other NASA work performed by the offeror that may give rise to an actual or potential conflict. For each prime contract and subcontract listed, the offeror shall: (1) identify the contract number; (2) describe the scope of work in sufficient detail to ascertain the likelihood of a conflict with performance of this contract; and (3) discuss any conflicts that may arise from performance of the listed contracts and award of this contract.\n11. The offeror shall also list any non-NASA Federal contracts and subcontracts that it or its proposed subcontractors are currently performing or have performed in the five years preceding the release of the solicitation that may give rise to an OCI. For each and subcontract listed, the offeror shall: (1) identify the contract by number and name; (2) identify the name, address and contact information of the customer(s); (3) describe the scope of work in sufficient detail to ascertain the likelihood of a conflict with performance of this contract; and (4) discuss any conflicts that may arise from performance of the listed contracts and award of this contract.\n12. For financial or other interests or relationships beyond Federal contracts or subcontracts that may give rise to an OCI, the offeror shall (1) address the nature and extent of the interest(s) or relationship(s); (2) list any entity or entities involved in the interest(s) or relationship(s) and award of this contract.\n13. The offeror shall address how it will avoid, neutralize, or mitigate each potential OCI listed above. Sufficient information must be provided to allow a meaningful evaluation of the potential effect of the interest on the performance of the statement of work.\n14. Include a requirement to update this plan as necessary to address specific OCIs. All updates to the plan must be approved by the contracting officer and the updates/changes must be incorporated in the contract to be effective.\n15. Require periodic self-audits to ensure compliance with established OCI procedures/requirements/guidelines.\n16. Define records related to the OCI plan (e.g., training and audit records) that will be made available to the Government upon request. Note: The OCI Plan as outlined in paragraphs 1 through 12 above is not for the purpose of addressing other very important contractual obligations such as (1) the contractor's obligation to protect sensitive information in accordance with NFS 1852.237-72, Access to Sensitive Information, (2) the contractor's obligation to conduct business in an ethical manner in accordance with RFO FAR 52.203-13, contractor's Code of Business Ethics and Conduct, and (3) the contractor's obligation to prevent personal conflicts of interest in accordance with RFO FAR 52.203-16, Preventing Personal Conflicts of Interest.\n17. In an appendix to the OCI Plan identify the strategy (e.g., mitigation, limitation on future contracting) for resolving each OCI that is either identified in the solicitation or created by the requirements of the solicitation/contract and explain the effect of such strategy on performance of the contract. If using a firewall, explain how these actions will operate to successfully address the conflict without adversely affecting performance of the contract. (Note: Specific plans to limit future competition are reflected in the clause at NFS 1852.209-71, Limitation of Future Contracting.)",
       fields: [
         T("center_specific_contents", "Center-specific provisions, clauses or other requirements added to the contents"),
         T("remarks", "Remarks"),
@@ -562,7 +561,7 @@ const ociPlanDrd: TemplateDef = {
     {
       id: "maintenance",
       title: "Maintenance",
-      citation: "NFS Appendix C",
+      citation: "NFS CG 1811.25",
       tier: "binding",
       standingText:
         "The contractor shall review the OCI Plan on an annual basis or as directed by the contracting officer to revise the OCI Plan if necessary. Revisions are subject to contracting officer approval and shall be incorporated by change page or complete reissue.",
@@ -594,11 +593,11 @@ const preconstruction: TemplateDef = {
   name: "Preconstruction Orientation Checklist",
   tab: "077",
   badge: {
-    citation: "FAR 36.212; NFS CG 1836.22",
+    citation: "NFS CG 1836.22",
     tier: "binding",
     revision: "HQ base issuance 10/22/2020, revision 04/10/2025",
     effective: "2025-04-10",
-    note: "The 04/2025 revision removed the reference to FAR 52.222-26, Equal Opportunity (Ref: PCD 25-01).",
+    note: "The 04/2025 revision removed the reference to 52.222-26, Equal Opportunity (Reserved in RFO FAR Part 52; Ref: PCD 25-01).",
   },
   lead:
     "The topics the contracting officer covers with the construction contractor, by explanatory letter or at a preconstruction conference.",
@@ -630,16 +629,16 @@ const preconstruction: TemplateDef = {
         T("personnel_notes", "Notes"),
       ],
     },
-    preconstructionSection("admin", "Contract Administration", "FAR 52.243-4; FAR 52.236-2; FAR 52.232-5; FAR 52.246-12; FAR 52.242-14", [
+    preconstructionSection("admin", "Contract Administration", "RFO FAR 52.243-4; RFO FAR 52.236-2; RFO FAR 52.232-5; RFO FAR 52.246-12; RFO FAR 52.242-14", [
       ["proposal", "1. Request for Proposal/Change Order (52.243-4)"],
-      ["site_conditions", "2. Differing Site Conditions (FAR 52.236-2)"],
+      ["site_conditions", "2. Differing Site Conditions (RFO FAR 52.236-2)"],
       ["gfp", "3. Government-Furnished Property"],
       ["invoicing", "4. Invoicing/Progress Payments (52.232-5)"],
       ["inspection", "5. Inspection of Construction (52.246-12)"],
       ["suspension", "6. Suspension of Work (52.242-14)"],
     ]),
-    preconstructionSection("submittals", "Submittals", "FAR 52.236-15; FAR Subpart 19.7", [
-      ["schedule", "1. Project Schedule (FAR 52.236-15)"],
+    preconstructionSection("submittals", "Submittals", "RFO FAR 52.236-15; RFO FAR 19.109", [
+      ["schedule", "1. Project Schedule (RFO FAR 52.236-15)"],
       ["values", "2. Schedule of Values"],
       ["register", "3. Submittal Register"],
       ["app", "4. Accident Prevention Plan (APP)"],
@@ -661,35 +660,35 @@ const preconstruction: TemplateDef = {
       ["photography", "8. Prohibition of Flight Line Photography"],
       ["hours", "9. Working Hours/After Hours Notification"],
     ]),
-    preconstructionSection("labor", "Labor", "FAR Subpart 22.4", [
+    preconstructionSection("labor", "Labor", "RFO FAR subpart 22.4", [
       ["provisions", "1. Labor Provisions"],
-      ["wage_rates", "2. FAR 52.222-6 Construction Wage Rate Requirements (formerly Davis Bacon Act)"],
+      ["wage_rates", "2. RFO FAR 52.222-6 Construction Wage Rate Requirements (formerly Davis Bacon Act)"],
       ["classification", "2.A. Classification and Wage Rates (including fringe benefits, where appropriate)"],
       ["site_of_work", "2.B. Site of the Work"],
       ["posting", "2.C. Posting Requirements (Wage Determination, WH-1321 Poster)"],
-      ["overtime", "3. FAR 52.222-4 Contract Work Hours and Safety Standards Act. Overtime Compensation"],
-      ["payrolls", "4. FAR 52.222-8 Payrolls and Basic Records. Submission of Weekly Payrolls and Statements of Compliance"],
-      ["apprentices", "5. FAR 52.222-9 Apprentices and Trainees. DOL Registered Apprenticeship/Trainee programs"],
-      ["copeland", "6. FAR 52.222-10 Compliance with Copeland Act Requirements. \u201cAnti-Kickback\u201d and Payroll Deductions"],
-      ["subcontracts", "7. FAR 52.222-11 Subcontracts (Labor Standards). List of subcontractors, SF 1413 completed for all subcontractors"],
+      ["overtime", "3. RFO FAR 52.222-4 Contract Work Hours and Safety Standards Act. Overtime Compensation"],
+      ["payrolls", "4. RFO FAR 52.222-8 Payrolls and Basic Records. Submission of Weekly Payrolls and Statements of Compliance"],
+      ["apprentices", "5. RFO FAR 52.222-9 Apprentices and Trainees. DOL Registered Apprenticeship/Trainee programs"],
+      ["copeland", "6. RFO FAR 52.222-10 Compliance with Copeland Act Requirements. \u201cAnti-Kickback\u201d and Payroll Deductions"],
+      ["subcontracts", "7. RFO FAR 52.222-11 Subcontracts (Labor Standards). List of subcontractors, SF 1413 completed for all subcontractors"],
     ]),
-    preconstructionSection("onsite", "On-Site Work Operations", "FAR 52.236-5 through FAR 52.236-21; NFS 1852.242-72", [
-      ["superintendence", "1. Superintendence by the Contractor (FAR 52.236-6)"],
+    preconstructionSection("onsite", "On-Site Work Operations", "RFO FAR 52.236-5 through RFO FAR 52.236-21; NFS 1852.242-72", [
+      ["superintendence", "1. Superintendence by the Contractor (RFO FAR 52.236-6)"],
       ["sub_superintendence", "2. Superintendence of Subcontractors"],
       ["daily_review", "3. Daily Site Coordination Review"],
-      ["layout", "4. Layout of Work (FAR 52.236-17)"],
-      ["permits", "5. Permits and Responsibilities (FAR 52.236-7)"],
-      ["utilities", "6. Availability and use of Utility Services (FAR 52.236-14)"],
+      ["layout", "4. Layout of Work (RFO FAR 52.236-17)"],
+      ["permits", "5. Permits and Responsibilities (RFO FAR 52.236-7)"],
+      ["utilities", "6. Availability and use of Utility Services (RFO FAR 52.236-14)"],
       ["denied_access", "7. Denied Access to NASA Facilities (NFS 1852.242-72)"],
-      ["protection", "8. Protection of Existing Vegetation, Structures, Equipment, Utilities, and Improvements (FAR 52.236-9)"],
-      ["cleanup", "9. Clean-Up (FAR 52.236-12)"],
-      ["workmanship", "10. Material and Workmanship (FAR 52.236-5)"],
+      ["protection", "8. Protection of Existing Vegetation, Structures, Equipment, Utilities, and Improvements (RFO FAR 52.236-9)"],
+      ["cleanup", "9. Clean-Up (RFO FAR 52.236-12)"],
+      ["workmanship", "10. Material and Workmanship (RFO FAR 52.236-5)"],
       ["delivery", "11. Material Delivery"],
-      ["storage", "12. Operations and Storage Areas (FAR 52.236-10)"],
+      ["storage", "12. Operations and Storage Areas (RFO FAR 52.236-10)"],
       ["route", "13. Construction Site Access Route"],
       ["drawings", "14. Specifications and Drawings for Construction (52.236-21)"],
     ]),
-    preconstructionSection("quality", "Quality Control/Assurance and Progress Reporting", "FAR 52.246-12", [
+    preconstructionSection("quality", "Quality Control/Assurance and Progress Reporting", "RFO FAR 52.246-12", [
       ["daily_report", "1. Daily Superintendent Report"],
       ["weekly_meetings", "2. Weekly Construction Progress Meetings"],
       ["certification", "3. Certification Requirements"],
@@ -697,7 +696,7 @@ const preconstruction: TemplateDef = {
       ["records", "5. Maintenance of Records Including Warranties and Operation Manuals"],
       ["final_inspection", "6. Final Inspection and Acceptance"],
     ]),
-    preconstructionSection("environment", "Environmental Aspects", "FAR 52.236-9", [
+    preconstructionSection("environment", "Environmental Aspects", "RFO FAR 52.236-9", [
       ["preferable", "1. Environmentally Preferable Products"],
       ["water", "2. Water Quality"],
       ["dust", "3. Dust Controls"],
@@ -707,10 +706,10 @@ const preconstruction: TemplateDef = {
       ["asbestos_removal", "7. Asbestos Removal"],
       ["other", "8. Other Environmental Considerations"],
     ]),
-    preconstructionSection("safety", "Safety and Health Requirements", "FAR 52.236-13; NFS 1852.223-70", [
-      ["accident_prevention", "1. Accident Prevention (FAR 52.236-13)"],
+    preconstructionSection("safety", "Safety and Health Requirements", "RFO FAR 52.236-13; NFS 1852.226-71", [
+      ["accident_prevention", "1. Accident Prevention (RFO FAR 52.236-13)"],
       ["covid", "2. Novel Coronavirus Disease 2019 (COVID-19) Contractor Guidance"],
-      ["mishap", "3. Notification of Injuries Sent to Contracting Officer, Safety and Health Measures & Mishap Reporting (1852.223-70)"],
+      ["mishap", "3. Notification of Injuries Sent to Contracting Officer, Safety and Health Measures & Mishap Reporting (NFS 1852.226-71)"],
       ["emergency", "4. Emergency Telephone Numbers for Installation"],
       ["osha", "5. OSHA Regulations/Formal Inspections"],
       ["training", "6. Safety Training Records"],
@@ -750,7 +749,7 @@ const constructionBonds: TemplateDef = {
   name: "Construction Bond Checklist",
   tab: "088",
   badge: {
-    citation: "FAR Part 28; FAR 28.102-1(b); FAR 28.202; FAR 28.203",
+    citation: "RFO FAR Part 28; RFO FAR 28.102-1(b); RFO FAR 28.202; RFO FAR 28.203",
     tier: "binding",
     revision: "HQ base issuance 06/08/2021",
     effective: "2021-06-08",
@@ -762,7 +761,7 @@ const constructionBonds: TemplateDef = {
     {
       id: "header",
       title: "Bonds under review",
-      citation: "FAR Part 28",
+      citation: "RFO FAR Part 28",
       tier: "binding",
       standingText:
         "INSTRUCTIONS: Review each item with the corresponding part of the Bond and indicate either by a \u201cX\u201d or \u201cN/A\u201d (not applicable) for each item. File this completed form in the appropriate part of the contract file.",
@@ -790,13 +789,13 @@ const constructionBonds: TemplateDef = {
     {
       id: "corporate_surety",
       title: "5. Corporate Surety",
-      citation: "FAR 28.202; Treasury Department Circular 570",
+      citation: "RFO FAR 28.202; Treasury Department Circular 570",
       tier: "binding",
       fields: [
         ...bondRow("i5a", "5.A. Name of Surety and state in which Surety was incorporated"),
         ...bondRow(
           "i5b",
-          "5.B. Surety listed on current list of the Treasury's Listing of approved Sureties (Treasury Department Circular 570) for the appropriate amount (FAR 28.202)",
+          "5.B. Surety listed on current list of the Treasury's Listing of approved Sureties (Treasury Department Circular 570) for the appropriate amount (RFO FAR 28.202)",
         ),
         ...bondRow("i5c1", "5.C.I. Excess amount covered by coinsurance (in accordance with 28.202)"),
         ...bondRow("i5c2_bid", "5.C.II.1. Reinsurance for the bid bond (SF 275)", ["sf25", "sf25a"]),
@@ -807,10 +806,10 @@ const constructionBonds: TemplateDef = {
     {
       id: "individual_surety",
       title: "6. Individual Sureties",
-      citation: "FAR 28.203; FAR 28.203-1(c)",
+      citation: "RFO FAR 28.203; RFO FAR 28.203-1(c)",
       tier: "binding",
       fields: [
-        ...bondRow("i6a", "6.A. Contractor complies with FAR 28.203"),
+        ...bondRow("i6a", "6.A. Contractor complies with RFO FAR 28.203"),
         ...bondRow("i6b", "6.B. SF 28, Affidavit Of Individual Surety, executed correctly by each Surety and submitted with Bonds"),
         ...bondRow("i6c1", "6.C.I. Contracting Officer has consulted with Treasury on each individual surety bond in accordance with 28.203-1(c)"),
         ...bondRow("i6c2", "6.C.II. Contracting Officer has determined whether or not the bond is acceptable based on the above consultation with Treasury"),
@@ -824,7 +823,7 @@ const constructionBonds: TemplateDef = {
     {
       id: "items_7_16",
       title: "Items 7 through 16",
-      citation: "FAR 28.102-1(b)",
+      citation: "RFO FAR 28.102-1(b)",
       tier: "binding",
       fields: [
         ...bondRow(

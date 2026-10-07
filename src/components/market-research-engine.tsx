@@ -131,7 +131,7 @@ export function MarketResearchEngine({
       setSummary(
         `${result.entityCount} registrants, ${result.noticeCount} notices, ${result.awardCount} prior awards. ${result.smallBusinessCount} small business under NAICS ${result.naics}; Rule of Two ${
           result.ruleOfTwoMet ? "met" : "not met"
-        } (FAR 19.502-2).`,
+        } (RFO FAR 19.104-1).`,
       );
       setMessage(null);
       const refreshed = await read({ data: { acquisitionId } });
@@ -173,7 +173,7 @@ export function MarketResearchEngine({
       <h4 className="text-[15px] font-medium">Market research</h4>
       <p className="mt-1 text-[13px] text-muted-foreground">
         Searches public sources for this record's NAICS code and place of performance: SAM.gov registrants and notices,
-        USAspending awards, the SBA size standard, GSA CALC and eLibrary on FAR 8.4 buys, and prior T-Minus actions on
+        USAspending awards, the SBA size standard, GSA CALC and eLibrary on RFO FAR subpart 8.4 buys, and prior T-Minus actions on
         the same code. It fills the market research memorandum, NF 1787 and NF 1787A. Every value stays marked with its
         source and date until you confirm it, and nothing runs on its own.
       </p>

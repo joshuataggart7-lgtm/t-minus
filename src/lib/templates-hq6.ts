@@ -22,7 +22,7 @@ const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
 /** Three-way notice routing: Part 15 negotiated, Part 12 commercial, and
  *  simplified noncommercial. The postaward notification letters separate the
  *  last two: a commercial file notifies under RFO FAR 12.301, a simplified
- *  noncommercial file under FAR 13.301. */
+ *  noncommercial file under RFO FAR 13.301. */
 const noticeCitation3 =
   (part15: string, commercial: string, simplifiedNoncommercial: string) => (v: Values) => {
     const method = v["__method"] ?? "";
@@ -103,9 +103,9 @@ const postawardSuccessful: TemplateDef = {
   layout: "memo",
   badge: {
     citation:
-      "FAR 15.207-1(a); FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
+      "RFO FAR 15.207-1(a); RFO FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
     citationFor: noticeCitation3(
-      "FAR 15.207-1(a); FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
+      "RFO FAR 15.207-1(a); RFO FAR 15.301-1(a)(1); NFS CG 1815.29; NFS CG 1815.31; NFS CG 1815.32",
       "RFO FAR 12.301",
       "RFO FAR 13.301",
     ),
@@ -126,8 +126,8 @@ const postawardSuccessful: TemplateDef = {
     {
       id: "selection",
       title: "Selection",
-      citation: "FAR 15.207-1(a)",
-      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.207-1(a)",
+      citationFor: noticeCitation3("RFO FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
       tier: "binding",
       fields: [
         X("company_name", "Successful offeror company name"),
@@ -140,26 +140,26 @@ const postawardSuccessful: TemplateDef = {
     {
       id: "debriefing",
       title: "Debriefing",
-      citation: "FAR 15.301-1(a)(1); NFS CG 1815.31",
+      citation: "RFO FAR 15.301-1(a)(1); NFS CG 1815.31",
       citationFor: noticeCitation3(
-        "FAR 15.301-1(a)(1); NFS CG 1815.31",
+        "RFO FAR 15.301-1(a)(1); NFS CG 1815.31",
         "RFO FAR 12.301(b)",
         "RFO FAR 13.301",
       ),
       tier: "binding",
       standingText:
-        "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+        "Pursuant to RFO FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
       standingTextFor: noticeCitation(
-        "Pursuant to FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
-        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file).",
+        "Pursuant to RFO FAR 15.301-1(a)(1), offerors may request a postaward debriefing in writing within three calendar days of receipt of this letter. In the event a debriefing is requested, one will be arranged upon receipt of the written request.",
+        "This is a simplified acquisition; the debriefing procedures of RFO FAR Part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file).",
       ),
       fields: [],
     },
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.207-1(a)",
-      citationFor: noticeCitation3("FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.207-1(a)",
+      citationFor: noticeCitation3("RFO FAR 15.207-1(a)", "RFO FAR 12.301", "RFO FAR 13.301"),
       tier: "binding",
 
       standingText:
@@ -187,9 +187,9 @@ const postawardUnsuccessful: TemplateDef = {
   tab: "069",
   layout: "memo",
   badge: {
-    citation: "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
+    citation: "RFO FAR 15.207-2; RFO FAR 15.207-2(b); RFO FAR 15.301-1; NFS CG 1815.28",
     citationFor: noticeCitation(
-      "FAR 15.207-2; FAR 15.207-2(b); FAR 15.301-1; NFS CG 1815.28",
+      "RFO FAR 15.207-2; RFO FAR 15.207-2(b); RFO FAR 15.301-1; NFS CG 1815.28",
       "RFO FAR 12.301(b) (explanation to an unsuccessful quoter, on request)",
 
     ),
@@ -200,15 +200,15 @@ const postawardUnsuccessful: TemplateDef = {
   },
   lead: "Letter notifying an unsuccessful offeror.",
   leadFor: noticeCitation(
-    "Letter notifying an unsuccessful offeror, with the five items FAR 15.207-2(b) requires.",
+    "Letter notifying an unsuccessful offeror, with the five items RFO FAR 15.207-2(b) requires.",
     "Letter notifying an unsuccessful quoter that its quotation was not accepted. Not required on a simplified acquisition; an explanation is owed on request (RFO FAR 12.301(b), RFO FAR 13.301).",
   ),
   sections: [
     {
       id: "recipient",
       title: "Recipient",
-      citation: "FAR 15.207-2",
-      citationFor: noticeCitation3("FAR 15.207-2", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.207-2",
+      citationFor: noticeCitation3("RFO FAR 15.207-2", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       fields: [
         // Left empty so the letter opens on the first unsuccessful offeror on
@@ -228,15 +228,15 @@ const postawardUnsuccessful: TemplateDef = {
     {
       id: "notification",
       title: "Notification",
-      citation: "FAR 15.207-2(b)",
-      citationFor: noticeCitation3("FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.207-2(b)",
+      citationFor: noticeCitation3("RFO FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
-        "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
+        "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to RFO FAR 15.207-2(b), the following information is provided:",
       // On a FAR 13.5 or Part 12 commercial file the notice is made under the
       // simplified rules; the Part 15 negotiated sentence does not apply.
       standingTextFor: noticeCitation(
-        "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to Federal Acquisition Regulation (FAR) 15.207-2(b), the following information is provided:",
+        "This notification is to inform the offeror named above that the National Aeronautics and Space Administration (NASA) has awarded a contract under the subject solicitation and your proposal was not selected for award. Pursuant to RFO FAR 15.207-2(b), the following information is provided:",
         "This notification is to inform the quoter named above that the National Aeronautics and Space Administration (NASA) has made an award under the subject solicitation and your quotation was not selected. The following information is provided:",
       ),
       fields: [
@@ -256,24 +256,24 @@ const postawardUnsuccessful: TemplateDef = {
     {
       id: "debriefing",
       title: "Debriefing and proposal disposition",
-      citation: "FAR 15.301-1",
-      citationFor: noticeCitation3("FAR 15.301-1", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.301-1",
+      citationFor: noticeCitation3("RFO FAR 15.301-1", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
-        "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
+        "Pursuant to RFO FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
       // Part 15 debriefing rights do not run on a simplified acquisition. The
       // quoter may ask why the quotation was not selected (RFO FAR 12.301(b), 13.301).
       standingTextFor: noticeCitation(
-        "Pursuant to FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
-        "This is a simplified acquisition; the debriefing procedures of FAR part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file). One copy of your quotation will be retained in the contract file and the remaining copies destroyed.",
+        "Pursuant to RFO FAR 15.301-1, offerors may request a post award debriefing in writing within three calendar days after receipt of this letter. In the event a debriefing is requested, one will be arranged after receipt of the written request by the contracting officer. One copy of your proposal will be retained in the permanent contract file, and all remaining copies will be destroyed.",
+        "This is a simplified acquisition; the debriefing procedures of RFO FAR Part 15 do not apply. On request, the contracting officer will provide a brief explanation of the award decision (RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 on a noncommercial file). One copy of your quotation will be retained in the contract file and the remaining copies destroyed.",
       ),
       fields: [],
     },
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.207-2(b)",
-      citationFor: noticeCitation3("FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
+      citation: "RFO FAR 15.207-2(b)",
+      citationFor: noticeCitation3("RFO FAR 15.207-2(b)", "RFO FAR 12.301(b)", "RFO FAR 13.301"),
       tier: "binding",
       standingText:
         "NASA appreciates your proposal submission and encourages continued interest in future NASA acquisitions. For additional information, please contact the undersigned by telephone or e-mail. Please confirm receipt of this letter by replying to this e-mail.",
@@ -301,22 +301,22 @@ const setAsidePreaward: TemplateDef = {
   layout: "memo",
   badge: {
     citation:
-      "FAR 15.206-1(b)(1); FAR 19.201-2; FAR 19.201-2(d)(1); NFS CG 1815.28",
+      "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2; RFO FAR 19.201-2(d)(1); NFS CG 1815.28",
     citationFor: noticeCitation(
-      "FAR 15.206-1(b)(1); FAR 19.201-2; FAR 19.201-2(d)(1); NFS CG 1815.28",
-      "FAR 19.201-2; FAR 19.201-2(d)(1)",
+      "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2; RFO FAR 19.201-2(d)(1); NFS CG 1815.28",
+      "RFO FAR 19.201-2; RFO FAR 19.201-2(d)(1)",
     ),
     tier: "binding",
     revision: "HQ base issuance 01/2021, revision 04/2026",
     effective: "2026-04-01",
-    note: "The preaward notice runs on a FAR Part 15 negotiated set-aside; NFS CG 1815.28 carries the NASA notification process.",
+    note: "The preaward notice runs on a RFO FAR Part 15 negotiated set-aside; NFS CG 1815.28 carries the NASA notification process.",
   },
   lead: "Preaward notice on a set-aside: to the apparent successful offeror, or to the unsuccessful offerors.",
   sections: [
     {
       id: "variant",
       title: "Which notice this is",
-      citation: "FAR 15.206-1(b)(1)",
+      citation: "RFO FAR 15.206-1(b)(1)",
       tier: "binding",
       fields: [
         S(
@@ -331,7 +331,7 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "opening",
       title: "Opening",
-      citation: "FAR 15.206-1(b)",
+      citation: "RFO FAR 15.206-1(b)",
       tier: "binding",
       standingText:
         "In reference to proposals submitted in response to the subject solicitation, the Government has completed evaluations and has selected an offeror.",
@@ -340,11 +340,11 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "successful",
       title: "Notice to the apparent successful offeror",
-      citation: "FAR 15.206-1(b)(1); FAR 19.201-2",
+      citation: "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2",
       tier: "binding",
       showIf: (v: Values) => v["notice_variant"] !== "Unsuccessful offeror",
       standingText:
-        "In accordance with Federal Acquisition Regulation (FAR) 15.206-1(b)(1), the purpose of this letter is to provide written notification that the offeror named below has been selected as the apparent successful offeror for the acquisition named above. Other offerors are being notified in accordance with FAR 19.201-2. No response to this letter is required. If there are no protests to the offeror's small business size status, the Government intends to proceed with formal contract award on or near the anticipated award date stated below.",
+        "In accordance with RFO FAR 15.206-1(b)(1), the purpose of this letter is to provide written notification that the offeror named below has been selected as the apparent successful offeror for the acquisition named above. Other offerors are being notified in accordance with RFO FAR 19.201-2. No response to this letter is required. If there are no protests to the offeror's small business size status, the Government intends to proceed with formal contract award on or near the anticipated award date stated below.",
       fields: [
         X("selected_offeror", "Apparent successful offeror"),
         D("anticipated_award_date", "Anticipated award date", "target_award_date"),
@@ -353,17 +353,17 @@ const setAsidePreaward: TemplateDef = {
     {
       id: "unsuccessful",
       title: "Notice to the unsuccessful offerors",
-      citation: "FAR 15.206-1(b)(1); FAR 19.201-2(d)(1)",
+      citation: "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2(d)(1)",
       tier: "binding",
       showIf: (v: Values) => v["notice_variant"] === "Unsuccessful offeror",
       standingText:
-        "In accordance with FAR 15.206-1(b)(1), this is a notification that the apparent successful offeror for the subject solicitation is named below. The Government will not consider subsequent revisions to your proposal. In accordance with FAR 19.201-2(d)(1), a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the contracting officer in writing by the close of business of the fifth business day after receipt of this letter. If no size status or small business status challenge is received within five business days of this letter, a postaward notification will be sent with information on how to request a debriefing along with the Source Selection Statement detailing the Government's selection decision.",
+        "In accordance with RFO FAR 15.206-1(b)(1), this is a notification that the apparent successful offeror for the subject solicitation is named below. The Government will not consider subsequent revisions to your proposal. In accordance with RFO FAR 19.201-2(d)(1), a response is not required unless a basis exists to challenge the size status or small business status of the apparently successful offeror. Size status or small business status challenges must be submitted to the contracting officer in writing by the close of business of the fifth business day after receipt of this letter. If no size status or small business status challenge is received within five business days of this letter, a postaward notification will be sent with information on how to request a debriefing along with the Source Selection Statement detailing the Government's selection decision.",
       fields: [T("selected_offeror_address", "Name and address of selected offeror")],
     },
     {
       id: "closing",
       title: "Closing and signature",
-      citation: "FAR 15.206-1(b)",
+      citation: "RFO FAR 15.206-1(b)",
       tier: "binding",
       standingText: "For additional information, please contact the undersigned by telephone or e-mail.",
       fields: coContact,
@@ -398,7 +398,7 @@ const postawardConference: TemplateDef = {
   tab: "077",
   layout: "plan",
   badge: {
-    citation: "FAR 42.503; FAR 42.503-1; FAR 42.503-1(a)(4); FAR 42.503-2; FAR 42.503-3; NFS Subpart 1842.5",
+    citation: "RFO FAR 42.302(a)(3); NFS CG 1842.32",
     tier: "binding",
     revision: "HQ base issuance 05/2021, revisions 03/2025 and 08/2025",
     effective: "2025-08-01",
@@ -409,7 +409,7 @@ const postawardConference: TemplateDef = {
     {
       id: "header",
       title: "Postaward conference report",
-      citation: "FAR 42.503",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       fields: [
         X("contract_number", "Contract No.", "contract_number"),
@@ -426,7 +426,7 @@ const postawardConference: TemplateDef = {
     {
       id: "attendees",
       title: "Attendees",
-      citation: "FAR 42.503-1",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       fields: [
         T("government_attendees", "Government attendees: name and title, one per line"),
@@ -436,50 +436,50 @@ const postawardConference: TemplateDef = {
     {
       id: "agenda",
       title: "Agenda",
-      citation: "FAR 42.503-1",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       fields: [T("agenda", "Agenda")],
     },
-    conferenceSection("general", "Contract administration — general", "FAR 1.602", [
-      ["a1", "Function and authority of Government personnel", "FAR 1.602"],
+    conferenceSection("general", "Contract administration: general", "RFO FAR 1.402", [
+      ["a1", "Function and authority of Government personnel", "RFO FAR 1.402"],
       ["a2", "Personal vs. nonpersonal services", "RFO FAR 37.201-2; RFO FAR 37.202-1"],
-      ["a3", "Technical direction and contracting officer's representative delegations", "NFS 1801.602-2; NF 1634"],
-      ["a4", "Contract administration delegations", "NFS 1842.102; NFS Subpart 1842.2; NF 1430; NF 1433"],
-      ["a5", "On-site performance, access and personal identity verification", "FAR 52.204-9"],
+      ["a3", "Technical direction and contracting officer's representative delegations", "NFS CG 1801.42; NF 1634"],
+      ["a4", "Contract administration delegations", "NFS CG 1842.21; NFS CG 1842.2; NF 1430; NF 1433"],
+      ["a5", "On-site performance, access and personal identity verification", "RFO FAR 52.204-9"],
       ["a6", "Organizational charts and phone listings", ""],
       ["a7", "Location of Government forms and routing of correspondence", ""],
-      ["a8", "Exercising options", "FAR 52.217-9"],
-      ["a9", "Contractor system reviews", "FAR Subpart 42.3; FAR 44.3"],
-      ["a10", "Bilateral vs. unilateral modification", "FAR Subpart 43.1"],
-      ["a11", "Incremental funding", "FAR 52.232-20; FAR 52.232-22"],
+      ["a8", "Exercising options", "RFO FAR 52.217-9"],
+      ["a9", "Contractor system reviews", "RFO FAR subpart 42.3; RFO FAR 44.301"],
+      ["a10", "Bilateral vs. unilateral modification", "RFO FAR subpart 43.2"],
+      ["a11", "Incremental funding", "RFO FAR 52.232-20; RFO FAR 52.232-22"],
       ["a12", "Other", ""],
     ]),
     conferenceSection("reports", "Contract administration — reports and plans", "NFS 1852.242-73", [
       ["b1", "Standard operating procedures", ""],
-      ["b2", "Phase-in / phase-out plan", "FAR 52.237-3"],
-      ["b3", "Task ordering plans and procedures", "NFS 1852.216-80; FAR 52.216-32"],
-      ["b4", "Scientific and technical reports", "NFS 1835.010; NFS 1852.235-73; NFS 1852.235-74"],
-      ["b5", "IT security plan", "NFS 1804.470; NFS 1852.204-76"],
-      ["b6", "Safety and health plan", "NFS 1852.223-70; NFS 1852.223-72; NFS 1853.223-75; FAR 52.236-13"],
+      ["b2", "Phase-in / phase-out plan", "RFO FAR 52.237-3"],
+      ["b3", "Task ordering plans and procedures", "NFS 1852.216-80; RFO FAR 52.216-32"],
+      ["b4", "Scientific and technical reports", "NFS 1835.101(d); NFS 1852.235-73; NFS 1852.235-74"],
+      ["b5", "IT security plan", "NFS 1840.303-2; NFS 1852.240-76"],
+      ["b6", "Safety and health plan", "NFS 1852.226-71; NFS 1852.226-74; NFS 1852.226-73; RFO FAR 52.236-13"],
       ["b7", "NASA mishap report", "NFS 1852.233-70; NF 1627"],
       ["b8", "Initial financial management report", "NFS 1852.242-73; NF 533M; NF 533Q"],
       ["b9", "Monthly financial management report", "NFS 1852.242-73; NF 533M"],
       ["b10", "Quarterly financial management report", "NFS 1852.242-73; NF 533Q"],
       ["b11", "Property reporting", "NFS 1845.71; NFS 1852.245-73; NF 1018"],
-      ["b12", "New technology and patent reports", "NFS 1827.305; NFS 1852.227-70; NF 1679"],
+      ["b12", "New technology and patent reports", "NFS 1852.227-70; NF 1679"],
       ["b13", "Earned value management", "NFS 1852.234-2 (Deviation)"],
       ["b14", "Award and incentive fee plans", "Award Fee or Incentive Fee Plan"],
-      ["b15", "Performance evaluation boards and award fee determinations", "NFS 1816.405-275; NFS 1852.216-76"],
+      ["b15", "Performance evaluation boards and award fee determinations", "NFS 1816.402-475; NFS 1852.216-76"],
       ["b16", "Other", ""],
     ]),
-    conferenceSection("subcontracting", "Contract administration — subcontracting", "FAR Subpart 44.2", [
+    conferenceSection("subcontracting", "Contract administration: subcontracting", "RFO FAR 44.201", [
       ["c1", "Prime's responsibility for administration", ""],
-      ["c2", "Subcontract consent requirements", "FAR 44.201-1; FAR 52.244-2"],
-      ["c3", "Consent considerations and limitations", "FAR 44.203; FAR 44.204"],
-      ["c4", "Pricing data requirements", "FAR 15.404-3"],
-      ["c5", "Contractor purchasing system reviews", "FAR Subpart 44.3"],
-      ["c6", "Subcontracting plans and reports", "FAR Subpart 19.7; FAR 52.219-9"],
-      ["c7", "Limitations on subcontracting", "FAR 52.219-14"],
+      ["c2", "Subcontract consent requirements", "RFO FAR 44.201-1; RFO FAR 52.244-2"],
+      ["c3", "Consent considerations and limitations", "RFO FAR 44.201-4; RFO FAR 44.201-5"],
+      ["c4", "Pricing data requirements", "RFO FAR 15.404-8"],
+      ["c5", "Contractor purchasing system reviews", "RFO FAR 44.301"],
+      ["c6", "Subcontracting plans and reports", "RFO FAR 19.109; RFO FAR 52.219-9"],
+      ["c7", "Limitations on subcontracting", "RFO FAR 52.219-14"],
       ["c8", "Clauses required to flow down to subcontracts", ""],
       ["c9", "Other", ""],
     ]),
@@ -491,41 +491,41 @@ const postawardConference: TemplateDef = {
     {
       id: "gfi",
       title: "Contract administration — Government furnished information",
-      citation: "FAR 42.503-2",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       collapsed: true,
       fields: [T("gfi_topics", "Topics, comments and action items")],
     },
-    conferenceSection("special", "Contract administration — special contract requirements", "FAR 42.503-2", [
+    conferenceSection("special", "Contract administration: special contract requirements", "RFO FAR 42.302(a)(3)", [
       ["f1", "Contractor access to sensitive information", "NFS 1852.237-72"],
-      ["f2", "Data rights and patent clauses", "FAR Part 27; NFS 1827.4; NFS 1852.227-14; NFS 1852.227-84"],
-      ["f3", "Emergency preparedness", "NFS 1818.000-70; NFS 1852.237-70; NFS 1852.242-78"],
+      ["f2", "Data rights and patent clauses", "RFO FAR Part 27; NFS 1827.4; NFS 1852.227-14; NFS 1852.227-84"],
+      ["f3", "Emergency preparedness", "NFS 1852.237-70; NFS 1852.225-74"],
       ["f4", "Key personnel and facilities", "NFS 1852.235-71"],
-      ["f5", "Liquidated damages", "FAR 22.302"],
-      ["f6", "Government financing", "FAR Subpart 32.5; FAR Subpart 32.10; NFS Subpart 1832.5"],
+      ["f5", "Liquidated damages", "RFO FAR 22.302"],
+      ["f6", "Government financing", "RFO FAR subpart 32.5; RFO FAR subpart 32.10; NFS Subpart 1832.5"],
       ["f7", "Overtime", ""],
       ["f8", "Denied access", "NFS 1852.242-72"],
       ["f9", "Severance pay", ""],
-      ["f10", "Document availability authorization review", "NFS 1835.010"],
-      ["f11", "Contractor performance assessment reporting system", "FAR Subpart 42.15"],
-      ["f12", "Revisions to wage determinations or collective bargaining agreements", "FAR 22.1002"],
-      ["f13", "Requirements of foreign travel", "NFS 1852.242-71; NPR 1660.1"],
-      ["f14", "Submission of insurance certificates", "FAR 52.228-7; NFS Subpart 1828.3; NFS 1852.228-75"],
-      ["f15", "NASA vehicle reports", "FAR 52.251-2; NPR 6200.1; NFS 1852.223-76"],
+      ["f10", "Document availability authorization review", "NFS 1852.235-73"],
+      ["f11", "Contractor performance assessment reporting system", "RFO FAR subpart 42.11"],
+      ["f12", "Revisions to wage determinations or collective bargaining agreements", "RFO FAR 22.1004-1"],
+      ["f13", "Requirements of foreign travel", "NFS 1852.225-73; NPR 1660.1"],
+      ["f14", "Submission of insurance certificates", "RFO FAR 52.228-7; NFS Subpart 1828.3; NFS 1852.228-75"],
+      ["f15", "NASA vehicle reports", "RFO FAR 52.208-91; NPR 6200.1; NFS 1852.208-82"],
       ["f16", "Other", ""],
     ]),
     conferenceSection("payment", "Contract administration — payment", "NFS 1852.232-80", [
-      ["g1", "Limitation of funds and limitation of costs", "FAR 52.232-20; FAR 52.232-22; NFS 1852.232-77"],
-      ["g2", "Allowability of cost", "FAR 52.216-7"],
+      ["g1", "Limitation of funds and limitation of costs", "RFO FAR 52.232-20; RFO FAR 52.232-22; NFS 1852.232-77"],
+      ["g2", "Allowability of cost", "RFO FAR 52.216-7"],
       ["g3", "Submission of vouchers for payment", "NFS 1852.232-80"],
-      ["g4", "Determination of performance fees and deductions", "NFS 1816.405-275; NFS 1816.405-273"],
+      ["g4", "Determination of performance fees and deductions", "NFS 1816.402-475; NFS 1816.402-473"],
       ["g5", "Other", ""],
     ]),
-    conferenceSection("interpretation", "Statement of requirements interpretation", "FAR 42.503-2", [
+    conferenceSection("interpretation", "Statement of requirements interpretation", "RFO FAR 42.302(a)(3)", [
       ["h1", "Differences", ""],
       ["h2", "Other", ""],
     ]),
-    conferenceSection("quality", "Quality assurance and engineering", "FAR Subpart 46.1", [
+    conferenceSection("quality", "Quality assurance and engineering", "RFO FAR subpart 46.1", [
       ["q1", "Quality assurance system", ""],
       ["q2", "Waivers and deviations", ""],
       ["q3", "Drawing and design approval", ""],
@@ -536,7 +536,7 @@ const postawardConference: TemplateDef = {
       ["q8", "Value engineering", ""],
       ["q9", "Other", ""],
     ]),
-    conferenceSection("security", "Security", "FAR Part 4", [
+    conferenceSection("security", "Security", "RFO FAR Part 4", [
       ["s1", "Special security handling", ""],
       ["s2", "Disposition of classified material", ""],
       ["s3", "Other", ""],
@@ -544,17 +544,17 @@ const postawardConference: TemplateDef = {
     {
       id: "other_items",
       title: "Other items",
-      citation: "FAR 42.503-2",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       fields: [T("other_items", "Other topics, comments and action items")],
     },
     {
       id: "chair",
       title: "Conference chair signature",
-      citation: "FAR 42.503-1(a)(4)",
+      citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       standingText:
-        "In accordance with FAR 42.503-1(a)(4), this individual can be either a contracting officer or designated by a contracting officer.",
+        "In accordance with RFO FAR 42.302(a)(3), this individual can be either a contracting officer or designated by a contracting officer.",
       fields: [X("conference_chair", "Conference chair")],
     },
   ],
@@ -567,7 +567,7 @@ const awardTermDetermination: TemplateDef = {
   tab: "076",
   layout: "memo",
   badge: {
-    citation: "NFS 1816.405-277",
+    citation: "NFS 1816.402-477",
     tier: "binding",
     revision: "HQ base issuance 04/2021, revision 09/2024",
     effective: "2024-09-01",
@@ -578,7 +578,7 @@ const awardTermDetermination: TemplateDef = {
     {
       id: "purpose",
       title: "Award Term Determination",
-      citation: "NFS 1816.405-277",
+      citation: "NFS 1816.402-477",
       tier: "binding",
       standingText:
         "The purpose of this memorandum is to document the Term Determination Official's decision regarding the award term option period's performance rating and consideration of the contractor's eligibility for the award term option period of the contract identified below.",
@@ -594,7 +594,7 @@ const awardTermDetermination: TemplateDef = {
     {
       id: "board",
       title: "Award Term Board evaluation",
-      citation: "NFS 1816.405-277",
+      citation: "NFS 1816.402-477",
       tier: "binding",
       standingText:
         "The Award Term Board (ATB) met on the date stated above and completed its evaluation of the contractor's performance under this contract during the period being evaluated. The ATB considered the award term evaluation report, as well as other factors pertinent to the evaluation period. Based on its evaluation, the ATB has recommended the performance rating and score stated above for the contract period being evaluated.",
@@ -603,7 +603,7 @@ const awardTermDetermination: TemplateDef = {
     {
       id: "determination",
       title: "DETERMINATION",
-      citation: "NFS 1816.405-277",
+      citation: "NFS 1816.402-477",
       tier: "binding",
       standingText:
         "As Term-Determining Official, upon the information available, it is hereby determined that the contractor has earned a performance rating under the contract identified above during the above referenced period as follows:",
@@ -612,7 +612,7 @@ const awardTermDetermination: TemplateDef = {
     {
       id: "rating",
       title: "PERFORMANCE RATING",
-      citation: "NFS 1816.405-277",
+      citation: "NFS 1816.402-477",
       tier: "binding",
       fields: [
         X("determined_adjective", "Adjective"),
@@ -626,7 +626,7 @@ const awardTermDetermination: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Term-Determining Official",
-    citation: "NFS 1816.405-277",
+    citation: "NFS 1816.402-477",
     blocks: ["Term-Determining Official", "Date"],
   }),
 };
@@ -692,7 +692,7 @@ const fdoAppointment: TemplateDef = {
   tab: "076",
   layout: "memo",
   badge: {
-    citation: "NFS 1816.401; NFS 1816.401(e)(3)(i); NFS 1816.405-273(d)",
+    citation: "NFS CG 1816.01(b); NFS 1816.402-473(b)",
     tier: "binding",
     revision: "HQ base issuance 03/2021",
     effective: "2021-03-29",
@@ -717,7 +717,7 @@ const fdoAppointment: TemplateDef = {
     {
       id: "appointment_fdo",
       title: "Appointment",
-      citation: "NFS 1816.401",
+      citation: "NFS CG 1816.01(b)",
       tier: "binding",
       showIf: (v: Values) => v["official_kind"] !== "Term Determination Official (TDO)",
       standingText:
@@ -727,7 +727,7 @@ const fdoAppointment: TemplateDef = {
     {
       id: "appointment_tdo",
       title: "Appointment",
-      citation: "NFS 1816.401(e)(3)(i)",
+      citation: "NFS CG 1816.01(b)",
       tier: "binding",
       showIf: (v: Values) => v["official_kind"] === "Term Determination Official (TDO)",
       standingText:
@@ -737,7 +737,7 @@ const fdoAppointment: TemplateDef = {
     {
       id: "closing",
       title: "Effect and signature",
-      citation: "NFS 1816.401",
+      citation: "NFS CG 1816.01(b)",
       tier: "binding",
       standingText:
         "This non delegable appointment is effective immediately and supersedes any previous FDO appointments related to this acquisition.",
@@ -758,18 +758,18 @@ const subcontractConsent: TemplateDef = {
   tab: "079",
   layout: "plan",
   badge: {
-    citation: "FAR 44.201-1(b); FAR 44.202-2; FAR 44.203; FAR 52.244-2; NFS 1844.202-1",
+    citation: "RFO FAR 44.201-1(b); RFO FAR 44.201-3; RFO FAR 44.201-4; RFO FAR 52.244-2; NFS CG 1844.202-1",
     tier: "binding",
     revision: "HQ base issuance 12/2020",
     effective: "2020-12-10",
     note: "The contracting officer considers each item below before consenting to a subcontract.",
   },
-  lead: "Review supporting consent to, or denial of, a subcontract under FAR 44.202-2.",
+  lead: "Review supporting consent to, or denial of, a subcontract under RFO FAR 44.201-3.",
   sections: [
     {
       id: "header",
       title: "Subcontract consent review",
-      citation: "FAR 52.244-2(d)",
+      citation: "RFO FAR 52.244-2(d)",
       tier: "binding",
       fields: [
         X("prime_contract_number", "PRIME CONTRACT NUMBER", "contract_number"),
@@ -792,38 +792,38 @@ const subcontractConsent: TemplateDef = {
     {
       id: "instructions",
       title: "Instructions",
-      citation: "FAR 44.202-2",
+      citation: "RFO FAR 44.201-3",
       tier: "binding",
       standingText:
-        "Instructions: Prior to providing subcontract consent to a prime contractor, the contracting officer must consider, at a minimum, the items identified below in accordance with FAR 44.202-2. Document all technical input received and attach any additional evaluations or include other considerations provided by the government in support of this review.",
+        "Instructions: Prior to providing subcontract consent to a prime contractor, the contracting officer must consider, at a minimum, the items identified below in accordance with RFO FAR 44.201-3. Document all technical input received and attach any additional evaluations or include other considerations provided by the government in support of this review.",
       fields: [],
     },
     {
       id: "review",
       title: "Review items",
-      citation: "FAR 44.202-2",
+      citation: "RFO FAR 44.201-3",
       tier: "binding",
       fields: [
-        ...consentItem(1, "Is the decision to subcontract consistent with the contractor's approved make or buy plan, if any (see FAR 15.407-2)?", "FAR 15.407-2"),
-        ...consentItem(2, "Is the subcontract for special test equipment, equipment or real property that are available from Government sources (see FAR Subpart 45.3)?", "FAR Subpart 45.3"),
-        ...consentItem(3, "Is the selection of the particular supplies, equipment or services technically justified?", "FAR 44.202-2"),
-        ...consentItem(4, "Has the contractor complied with the prime's contract requirements regarding small business subcontracting: (i) if applicable, its plan for subcontracting with small, veteran-owned, service-disabled veteran-owned, HUBZone, small disadvantaged and women-owned small business concerns and (ii) purchase from nonprofit agencies designated by the Committee for Purchase From People Who Are Blind or Severely Disabled, 41 U.S.C. 8504 (see FAR Part 8)?", "41 U.S.C. 8504; FAR Part 8"),
-        ...consentItem(5, "Was adequate price competition obtained or its absence properly justified (see FAR Subpart 6.3)?", "FAR Subpart 6.3"),
-        ...consentItem(6, "Did the contractor adequately assess and dispose of subcontractors' alternate proposals, if offered?", "FAR 44.202-2"),
-        ...consentItem(7, "Does the contractor have a sound basis for selecting and determining the responsibility of the particular subcontractor (see FAR 9.104-4)?", "FAR 9.104-4"),
-        ...consentItem(8, "Has the contractor performed adequate cost or price analysis or price comparisons and obtained certified cost or pricing data and data other than certified cost or pricing data (see FAR Subpart 15.4)?", "FAR Subpart 15.4"),
-        ...consentItem(9, "In accordance with FAR 15.404-3(c), a contractor or subcontractor is required to submit certified cost or pricing data and analyze it prior to awarding any subcontract, purchase order, or modification expected to exceed the certified cost or pricing data threshold, unless an exception in 15.403-1(b) applies to that action. Was the necessary subcontractor certified cost and pricing data submitted to the Government?", "FAR 15.404-3(c); FAR 15.403-1(b)"),
-        ...consentItem(10, "Is the proposed subcontract type appropriate for the risks involved and consistent with current policy (see FAR Part 16)?", "FAR Part 16"),
-        ...consentItem(11, "Has adequate consideration been obtained for any proposed subcontract that will involve the use of Government-provided equipment and real property (see FAR Subpart 45.3)?", "FAR Subpart 45.3"),
-        ...consentItem(12, "Has the contractor adequately and reasonably translated prime contract technical requirements into subcontract requirements?", "FAR 44.202-2"),
-        ...consentItem(13, "Does the prime contractor comply with applicable cost accounting standards for awarding the subcontract (see FAR Part 30)?", "FAR Part 30"),
-        ...consentItem(14, "Is the proposed subcontractor in the System for Award Management Exclusions (see FAR Subpart 9.4)?", "FAR Subpart 9.4"),
+        ...consentItem(1, "Is the decision to subcontract consistent with the contractor's approved make or buy plan, if any (see RFO FAR 15.405-2)?", "RFO FAR 15.405-2"),
+        ...consentItem(2, "Is the subcontract for special test equipment, equipment or real property that are available from Government sources (see RFO FAR subpart 45.3)?", "RFO FAR subpart 45.3"),
+        ...consentItem(3, "Is the selection of the particular supplies, equipment or services technically justified?", "RFO FAR 44.201-3"),
+        ...consentItem(4, "Has the contractor complied with the prime's contract requirements regarding small business subcontracting: (i) if applicable, its plan for subcontracting with small, veteran-owned, service-disabled veteran-owned, HUBZone, small disadvantaged and women-owned small business concerns and (ii) purchase from nonprofit agencies designated by the Committee for Purchase From People Who Are Blind or Severely Disabled, 41 U.S.C. 8504 (see RFO FAR Part 8)?", "41 U.S.C. 8504; RFO FAR Part 8"),
+        ...consentItem(5, "Was adequate price competition obtained or its absence properly justified (see RFO FAR 6.103)?", "RFO FAR 6.103"),
+        ...consentItem(6, "Did the contractor adequately assess and dispose of subcontractors' alternate proposals, if offered?", "RFO FAR 44.201-3"),
+        ...consentItem(7, "Does the contractor have a sound basis for selecting and determining the responsibility of the particular subcontractor (see RFO FAR 9.104-4)?", "RFO FAR 9.104-4"),
+        ...consentItem(8, "Has the contractor performed adequate cost or price analysis or price comparisons and obtained certified cost or pricing data and data other than certified cost or pricing data (see RFO FAR subpart 15.4)?", "RFO FAR subpart 15.4"),
+        ...consentItem(9, "In accordance with RFO FAR 15.404-8(b), a contractor or subcontractor is required to submit certified cost or pricing data and analyze it prior to awarding any subcontract, purchase order, or modification expected to exceed the certified cost or pricing data threshold, unless an exception in 15.403-1(b) applies to that action. Was the necessary subcontractor certified cost and pricing data submitted to the Government?", "RFO FAR 15.404-8(b); RFO FAR 15.403-2(b)"),
+        ...consentItem(10, "Is the proposed subcontract type appropriate for the risks involved and consistent with current policy (see RFO FAR Part 16)?", "RFO FAR Part 16"),
+        ...consentItem(11, "Has adequate consideration been obtained for any proposed subcontract that will involve the use of Government-provided equipment and real property (see RFO FAR subpart 45.3)?", "RFO FAR subpart 45.3"),
+        ...consentItem(12, "Has the contractor adequately and reasonably translated prime contract technical requirements into subcontract requirements?", "RFO FAR 44.201-3"),
+        ...consentItem(13, "Does the prime contractor comply with applicable cost accounting standards for awarding the subcontract (see RFO FAR Part 30)?", "RFO FAR Part 30"),
+        ...consentItem(14, "Is the proposed subcontractor in the System for Award Management Exclusions (see RFO FAR subpart 9.4)?", "RFO FAR subpart 9.4"),
       ],
     },
     {
       id: "decision",
       title: "Decision",
-      citation: "FAR 44.202-2",
+      citation: "RFO FAR 44.201-3",
       tier: "binding",
       fields: [
         S("decision", "Decision", ["Consent granted", "Consent denied"], "Consent granted"),
@@ -834,7 +834,7 @@ const subcontractConsent: TemplateDef = {
     {
       id: "consent_text",
       title: "Consent",
-      citation: "FAR 44.201-1(b)",
+      citation: "RFO FAR 44.201-1(b)",
       tier: "binding",
       showIf: (v: Values) => v["decision"] !== "Consent denied",
       standingText:
@@ -844,17 +844,17 @@ const subcontractConsent: TemplateDef = {
     {
       id: "denial_text",
       title: "Denial",
-      citation: "FAR 44.202-2",
+      citation: "RFO FAR 44.201-3",
       tier: "binding",
       showIf: (v: Values) => v["decision"] === "Consent denied",
       standingText:
-        "The contractor has not met the above criteria as required by FAR 44.202-2; as a result, consent to subcontract is not granted. The reasons for denial have been identified in the above review. The contractor has been notified of the specific concerns and is required to resubmit its request with adequate documentation to address the Government's concerns.",
+        "The contractor has not met the above criteria as required by RFO FAR 44.201-3; as a result, consent to subcontract is not granted. The reasons for denial have been identified in the above review. The contractor has been notified of the specific concerns and is required to resubmit its request with adequate documentation to address the Government's concerns.",
       fields: [X("co_name_denial", "Contracting officer", "co_name")],
     },
   ],
   signature: () => ({
     tierLabel: "Contracting Officer",
-    citation: "FAR 44.202-2",
+    citation: "RFO FAR 44.201-3",
     blocks: ["Contracting Officer", "Date"],
   }),
 };
@@ -866,7 +866,7 @@ const provisionalIncrease: TemplateDef = {
   tab: "NA",
   layout: "plan",
   badge: {
-    citation: "NFS 1832.704-71; FAR 52.232-20; FAR 52.232-22; FAR 16.603; NFS 1802.101",
+    citation: "NFS CG 1832.74; RFO FAR 52.232-20; RFO FAR 52.232-22; RFO FAR 16.603; NFS CG 1802.2",
     tier: "binding",
     revision: "HQ base issuance 08/2021, revisions 10/2024 and 01/2025",
     effective: "2025-01-01",
@@ -877,7 +877,7 @@ const provisionalIncrease: TemplateDef = {
     {
       id: "request",
       title: "Request",
-      citation: "NFS 1832.704-71",
+      citation: "NFS CG 1832.74",
       tier: "binding",
       fields: [
         X("contract_number", "1. Contract number", "contract_number"),
@@ -898,7 +898,7 @@ const provisionalIncrease: TemplateDef = {
       id: "adjustments",
       title:
         "9. Description and estimate of expected dollar amounts for adjustments of the contract estimated cost",
-      citation: "FAR 52.243",
+      citation: "NFS CG 1832.74",
       tier: "binding",
       standingText:
         "Do not include the cost of any work that is not contractually authorized, such as pending changes and new work.",
@@ -915,7 +915,7 @@ const provisionalIncrease: TemplateDef = {
     {
       id: "remarks",
       title: "Remarks/Justification",
-      citation: "NFS 1832.704-71",
+      citation: "NFS CG 1832.74",
       tier: "binding",
       standingText:
         "The requested provisional increase will permit continued performance of the previously authorized scope of work on the contract. This contract action is within the scope of the existing contract and does not add any new scope.",
@@ -928,12 +928,12 @@ const provisionalIncrease: TemplateDef = {
     {
       id: "funds",
       title: "Available Funds",
-      citation: "FAR 52.232-22",
+      citation: "RFO FAR 52.232-22",
       tier: "binding",
       fields: [
         M("current_funding", "Present total funding on this contract"),
         M("funding_added", "Additional funding to be provided"),
-        S("limitation_clause", "Funding clause", ["FAR 52.232-22, Limitation of Funds", "FAR 52.232-20, Limitation of Cost"], "FAR 52.232-22, Limitation of Funds"),
+        S("limitation_clause", "Funding clause", ["RFO FAR 52.232-22, Limitation of Funds", "RFO FAR 52.232-20, Limitation of Cost"], "RFO FAR 52.232-22, Limitation of Funds"),
         M("total_funding", "Resulting total funding"),
         D("allotment_date", "Date through which the revised funding is sufficient"),
         X("purchase_request", "Purchase request number", "pr_number"),
@@ -947,7 +947,7 @@ const provisionalIncrease: TemplateDef = {
     {
       id: "signature_page",
       title: "Signature page",
-      citation: "NFS 1802.101",
+      citation: "NFS CG 1802.2",
       tier: "binding",
       fields: [
         X("program_identifier", "Program or project name and contract identifier", "title"),
@@ -959,7 +959,7 @@ const provisionalIncrease: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer and head of contracting activity",
-    citation: "NFS 1832.704-71",
+    citation: "NFS CG 1832.74",
     blocks: ["Contracting Officer", "Date", "APPROVAL: Head of Contracting Activity", "Date"],
   }),
 };

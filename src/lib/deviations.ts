@@ -14,7 +14,7 @@ export const DEVIATION_TEMPLATE = {
   key: "far-nfs-deviation",
   name: "FAR & NFS Deviation Request",
   tab: "33",
-  citation: "FAR 1.402; FAR 1.403; FAR 1.404; NFS 1801.4",
+  citation: "RFO FAR 1.302; RFO FAR 1.303; RFO FAR 1.304; NFS CG 1801.3",
   tier: "guidance" as const,
   revision: "HQ 04/2026 revision, effective 4/27/2026",
   effective: "2026-04-27",
@@ -23,15 +23,15 @@ export const DEVIATION_TEMPLATE = {
 export type DeviationType = "individual" | "class";
 
 export const DEVIATION_TYPES: { value: DeviationType; label: string; citation: string }[] = [
-  { value: "individual", label: "Individual deviation (this acquisition only)", citation: "FAR 1.403" },
-  { value: "class", label: "Class deviation (a class of contracts)", citation: "FAR 1.404" },
+  { value: "individual", label: "Individual deviation (this acquisition only)", citation: "RFO FAR 1.303" },
+  { value: "class", label: "Class deviation (a class of contracts)", citation: "RFO FAR 1.304" },
 ];
 
 /** The three reviewers every deviation request goes to, with their planned days. */
 export const DEVIATION_REVIEWERS: { role: string; who: string; plannedDays: number; citation: string }[] = [
   { role: "Legal", who: "Office of the Chief Counsel", plannedDays: 5, citation: "NFS CG 1801.4; Center policy" },
   { role: "Policy", who: "Center procurement policy", plannedDays: 5, citation: "NFS 1801.404; Center policy" },
-  { role: "HCA", who: "Head of the contracting activity", plannedDays: 7, citation: "FAR 1.404; NFS 1801.404" },
+  { role: "HCA", who: "Head of the contracting activity", plannedDays: 7, citation: "RFO FAR 1.304; NFS 1801.404" },
 ];
 
 export type DeviationRow = {

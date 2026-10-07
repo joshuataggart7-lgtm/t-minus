@@ -85,11 +85,11 @@ const PO_BLOCK = {
 const HQ_OGC_BLOCK = { label: "Office of the General Counsel at Headquarters" };
 const HCA_BLOCK = {
   label: "Head of the Contracting Activity",
-  note: "Refer to the NFS 1802.101 definition of head of the contracting activity.",
+  note: "Refer to the NFS CG 1802.2 definition of head of the contracting activity.",
 };
 const SPE_BLOCK = { label: "Senior Procurement Executive" };
 
-/** FAR 16.104 factors, addressed in every contract-type determination. */
+/** RFO FAR 16.102(a)(1) factors, addressed in every contract-type determination. */
 const far16104Fields = (): FieldDef[] =>
   [
     "Price competition",
@@ -114,8 +114,8 @@ const far16104Fields = (): FieldDef[] =>
 
 const generalDescription = (typeLabel: string): SectionDef => ({
   id: "general_description",
-  title: `II. General Description- FAR 1.704(b)`,
-  citation: "FAR 1.704(b)",
+  title: `II. General Description- RFO FAR 1.504(b)`,
+  citation: "RFO FAR 1.504(b)",
   tier: "binding",
   fields: [
     {
@@ -139,7 +139,7 @@ const writtenAcquisitionPlan: TemplateDef = {
   tab: "002",
   layout: "plan",
   badge: {
-    citation: "FAR Subpart 7.1; NFS Subpart 1807.1; NFS 1807.103",
+    citation: "RFO FAR subpart 7.1; NFS CG 1807.1; NFS CG 1807.11",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2025-04-01",
@@ -151,10 +151,10 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "cover",
       title: "Cover",
-      citation: "FAR 2.101; FAR 3.104",
+      citation: "RFO FAR 2.101; RFO FAR 3.104",
       tier: "binding",
       standingText:
-        "Information included in this plan is considered \"SOURCE SELECTION INFORMATION\" and must be handled in accordance with FAR 2.101 and 3.104.",
+        "Information included in this plan is considered \"SOURCE SELECTION INFORMATION\" and must be handled in accordance with RFO FAR 2.101 and 3.104.",
       fields: [
         X("center_name", "Center name and acronym", "center_code"),
         X("acquisition_name", "Acquisition name and acronym", "title"),
@@ -238,7 +238,7 @@ const writtenAcquisitionPlan: TemplateDef = {
       title: "Sources",
       citation: "NFS CG 1807.14(c)(1); RFO FAR Part 8",
       tier: "binding",
-      fields: [T("sources", "Sources considered, including AbilityOne, strategic sourcing and NFS Appendix A"), T("sources_sought", "Sources sought notice or request for information and the responses")],
+      fields: [T("sources", "Sources considered, including AbilityOne, strategic sourcing and NFS CG 1808.11"), T("sources_sought", "Sources sought notice or request for information and the responses")],
     },
     {
       id: "competition",
@@ -309,14 +309,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "inherently_governmental",
       title: "Inherently Governmental Functions",
-      citation: "FAR 7.503(e); NFS 1807.503(e)",
+      citation: "RFO FAR 7.503(e); NFS CG 1807.51",
       tier: "binding",
       fields: [
         X("requiring_office_name", "Requiring office name", "requester_org_code"),
         T(
           "inherently_governmental",
           "Written determination provided to the contracting officer",
-          "In accordance with FAR 7.503(e) and NFS 1807.503(e), the requiring office has provided the contracting officer with a written determination that none of the Statement of Work requirements include inherently governmental functions.",
+          "In accordance with RFO FAR 7.503(e) and NFS CG 1807.51, the requiring office has provided the contracting officer with a written determination that none of the Statement of Work requirements include inherently governmental functions.",
         ),
       ],
     },
@@ -387,7 +387,7 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "approval",
       title: "Stakeholder Concurrence and Approval",
-      citation: "NFS 1807.103",
+      citation: "NFS CG 1807.11",
       tier: "binding",
       fields: [
         X("sig_co", "Contracting Officer"),
@@ -422,7 +422,7 @@ const psm: TemplateDef = {
   tab: "002",
   layout: "plan",
   badge: {
-    citation: "FAR Subpart 7.1; NFS Subpart 1807.1; PIC 25-03A; PIC 24-04A",
+    citation: "RFO FAR subpart 7.1; NFS CG 1807.1; PIC 25-03A; PIC 24-04A",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2025-04-01",
@@ -433,10 +433,10 @@ const psm: TemplateDef = {
     {
       id: "front",
       title: "Front matter",
-      citation: "FAR 2.101; FAR 3.104",
+      citation: "RFO FAR 2.101; RFO FAR 3.104",
       tier: "binding",
       standingText:
-        "Information included in this presentation is considered \"SOURCE SELECTION INFORMATION\" and must be handled in accordance with FAR 2.101 and 3.104.",
+        "Information included in this presentation is considered \"SOURCE SELECTION INFORMATION\" and must be handled in accordance with RFO FAR 2.101 and 3.104.",
       fields: [
         X("center_name", "Center name and acronym", "center_code"),
         X("acquisition_name", "Acquisition name and acronym", "title"),
@@ -447,7 +447,7 @@ const psm: TemplateDef = {
     {
       id: "ethics",
       title: "Compliance with Ethical Obligations",
-      citation: "18 U.S.C. §208; 5 CFR 2635.502; FAR 3.104",
+      citation: "18 U.S.C. §208; 5 CFR 2635.502; RFO FAR 3.104",
       tier: "binding",
       standingText:
         "By attendance at this meeting, participants hereby affirm the following:\n" +
@@ -483,7 +483,7 @@ const psm: TemplateDef = {
       X("competition", "Competition", "competition"),
       T("competition_narrative", "How competition will be sought, promoted and sustained"),
     ]),
-    execChart("Small Business Program", "FAR Part 19; NFS 1810.002", [
+    execChart("Small Business Program", "RFO FAR Part 19; NFS CG 1810.11", [
       X("set_aside", "Set-aside", "set_aside"),
       T("small_business", "Small business strategy and subcontracting goals"),
     ]),
@@ -491,24 +491,24 @@ const psm: TemplateDef = {
       X("contract_type", "Contract type selected", "contract_type"),
       T("contract_type_rationale", "Rationale"),
     ]),
-    execChart("Bundling or Consolidation", "FAR 7.107; NFS 1807.107", [
+    execChart("Bundling or Consolidation", "RFO FAR 7.107; NFS CG 1807.15", [
       S("bundling", "Bundling or consolidation", ["None", "Bundling", "Consolidation"], "None"),
       T("bundling_narrative", "Narrative and approving official"),
     ]),
-    execChart("Made In America", "FAR 25.103(b)(2)(i)", [T("made_in_america", "Made in America")]),
+    execChart("Made In America", "RFO FAR 25.103(b)(2)(i)", [T("made_in_america", "Made in America")]),
     execChart("Strategic Sourcing Considerations", "NFS CG 1807.14(c)(1)", [T("strategic_sourcing", "Strategic sourcing considerations")]),
     execChart("Challenges or Unique Aspects", "NFS CG 1807.14(a) (agency-wide template topic)", [
       T("challenges", "Challenges or unique aspects", "Enter N/A – Routine competition with no anticipated challenges or unique aspects where none exist."),
     ]),
-    execChart("Sources Sought Notice/RFI", "FAR Part 10; NFS 1810.002", [T("sources_sought", "Sources sought notice or request for information")]),
-    execChart("Source Selection Procedures", "FAR 15.3; NFS 1815.3", [
+    execChart("Sources Sought Notice/RFI", "RFO FAR Part 10; NFS CG 1810.11", [T("sources_sought", "Sources sought notice or request for information")]),
+    execChart("Source Selection Procedures", "RFO FAR subpart 15.2; NFS CG 1815.2", [
       S("selection", "Source-selection procedures", ["Trade-off", "Lowest price technically acceptable", "Other", "N/A – Non-competitive acquisition."], "Trade-off"),
       T("mission_suitability", "Mission suitability factor and subfactor points, totalling 1,000"),
     ]),
-    execChart("D&Fs, Deviations, Waivers and Approvals", "FAR 1.7; NFS 1801.4", [T("dandfs", "Each determination, deviation, waiver and approval with its status")]),
-    execChart("Source Selection Authority", "NFS 1815.303", [X("ssa", "Source selection authority: name, title and organizational identifier")]),
-    execChart("SEB Chairperson and Voting Membership", "NFS 1815.370", [T("seb", "Chair, other voting members, and the contracting officer or procurement member")]),
-    execChart("Organizational Conflicts of Interest", "FAR 9.5", [T("oci", "OCIs identified and any waiver status")]),
+    execChart("D&Fs, Deviations, Waivers and Approvals", "RFO FAR subpart 1.5; NFS CG 1801.3", [T("dandfs", "Each determination, deviation, waiver and approval with its status")]),
+    execChart("Source Selection Authority", "NFS CG 1815.22", [X("ssa", "Source selection authority: name, title and organizational identifier")]),
+    execChart("SEB Chairperson and Voting Membership", "NFS CG 1815.27", [T("seb", "Chair, other voting members, and the contracting officer or procurement member")]),
+    execChart("Organizational Conflicts of Interest", "RFO FAR subpart 9.5", [T("oci", "OCIs identified and any waiver status")]),
     execChart("Status of Technical Documents", "NFS CG 1807.14(a) (agency-wide template topic)", [T("technical_documents", "Status of the SOW, PWS or SOO, evaluation criteria and eLibrary")]),
     execChart("Schedule", "NFS CG 1807.14(c)(12)", [T("schedule", "Dates from plan approval through contract effective date")]),
 
@@ -528,15 +528,15 @@ const psm: TemplateDef = {
       T("bu_igce_method", "IGCE estimating methodology: labor hours, labor rates, indirect rates, other direct costs, fee, escalation"),
     ]),
     backupChart("Back-up: Capability or Performance", "NFS CG 1807.14(b)(4)", [T("bu_capability", "Required capabilities, performance standards, QASP and performance evaluation plan")]),
-    backupChart("Back-up: Delivery or Performance-Period Requirements", "NFS CG 1807.14(b)(5); FAR 52.217-8", [T("bu_delivery", "Period of performance and option strategy")]),
+    backupChart("Back-up: Delivery or Performance-Period Requirements", "NFS CG 1807.14(b)(5); RFO FAR 52.217-8", [T("bu_delivery", "Period of performance and option strategy")]),
     backupChart("Back-up: Trade-offs", "NFS CG 1807.14(b)(3)", [T("bu_tradeoffs", "Trade-offs")]),
     backupChart("Back-up: Acquisition Streamlining", "NFS CG 1807.14(b)(7)", [T("bu_streamlining", "Acquisition streamlining")]),
-    backupChart("Back-up: Sources", "FAR 8.002; FAR 8.003; NFS Appendix A", [T("bu_sources", "AbilityOne, best-in-class vehicles, NFS Appendix A, FAR Part 12 and FAR Part 10 methods")]),
-    backupChart("Back-up: Sources Sought Notice/RFI", "FAR Part 10", [T("bu_sources_sought", "Interested businesses and the small business office recommendation")]),
+    backupChart("Back-up: Sources", "RFO FAR subpart 8.1; NFS CG 1808.11", [T("bu_sources", "AbilityOne, best-in-class vehicles, NFS CG 1808.11, RFO FAR Part 12 and RFO FAR Part 10 methods")]),
+    backupChart("Back-up: Sources Sought Notice/RFI", "RFO FAR Part 10", [T("bu_sources_sought", "Interested businesses and the small business office recommendation")]),
     backupChart("Back-up: Competition", "NFS CG 1807.14(c)(4)", [T("bu_competition", "Competition, subcontract competition, major components and spares")]),
-    backupChart("Back-up: Small Business Program", "FAR Part 19", [T("bu_small_business", "Subcontracting goals by category")]),
-    backupChart("Back-up: Contract Type Selection", "FAR Part 16; NFS 1816", [T("bu_contract_type", "Contract type rationale, incentive or award-fee structure and share ratios")]),
-    backupChart("Back-up: Source-Selection Procedures", "FAR 15.3; NFS 1815.3", [
+    backupChart("Back-up: Small Business Program", "RFO FAR Part 19", [T("bu_small_business", "Subcontracting goals by category")]),
+    backupChart("Back-up: Contract Type Selection", "RFO FAR Part 16; NFS 1816", [T("bu_contract_type", "Contract type rationale, incentive or award-fee structure and share ratios")]),
+    backupChart("Back-up: Source-Selection Procedures", "RFO FAR subpart 15.2; NFS CG 1815.2", [
       T("bu_selection", "Procedures, evaluation factors and weighting"),
       T("bu_board", "Board membership, advisors and ex-officio members"),
       T("bu_past_performance", "Past performance factor and confidence scale"),
@@ -556,16 +556,16 @@ const psm: TemplateDef = {
     backupChart("Back-up: Contractor versus Government Performance", "OMB Circular No. A-76", [
       T("bu_contractor_v_government", "Statements", "This is not an acquisition subject to OMB Circular No. A-76. The work has historically been performed by contractors. Civil servant resources are not available for this effort."),
     ]),
-    backupChart("Back-up: Inherently Governmental Functions", "FAR 7.503(e); NFS 1807.503(e)", [
-      T("bu_inherently_governmental", "Written determination", "In accordance with FAR 7.503(e) and NFS 1807.503(e), the requiring office has provided the CO with a written determination that none of the Statement of Work requirements include inherently governmental functions."),
+    backupChart("Back-up: Inherently Governmental Functions", "RFO FAR 7.503(e); NFS CG 1807.51", [
+      T("bu_inherently_governmental", "Written determination", "In accordance with RFO FAR 7.503(e) and NFS CG 1807.51, the requiring office has provided the CO with a written determination that none of the Statement of Work requirements include inherently governmental functions."),
     ]),
     backupChart("Back-up: Management Information Requirements", "NFS CG 1807.14(c)(10)", [T("bu_management", "QASP, CPARS, NF 533 reporting, award-fee evaluations and earned value management")]),
-    backupChart("Back-up: Make or Buy", "FAR 15.407-2(d)(2)", [T("bu_make_or_buy", "Make-or-buy program")]),
+    backupChart("Back-up: Make or Buy", "RFO FAR 15.405-2", [T("bu_make_or_buy", "Make-or-buy program")]),
     backupChart("Back-up: Test and Evaluation", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_test", "Test and evaluation, or mission assurance requirements")]),
     backupChart("Back-up: Logistics Considerations", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_logistics", "Logistics considerations and data rights")]),
-    backupChart("Back-up: Government-Furnished Property", "FAR Part 45; NF 1739", [T("bu_gfp", "IAGP, GFP, capital asset determination and property clauses")]),
+    backupChart("Back-up: Government-Furnished Property", "RFO FAR Part 45; NF 1739", [T("bu_gfp", "IAGP, GFP, capital asset determination and property clauses")]),
     backupChart("Back-up: Government-Furnished Information", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_gfi", "Government-furnished information")]),
-    backupChart("Back-up: Environmental and Energy Conservation Objectives", "FAR Part 23", [T("bu_environment", "Environmental and energy conservation objectives")]),
+    backupChart("Back-up: Environmental and Energy Conservation Objectives", "RFO FAR Part 23", [T("bu_environment", "Environmental and energy conservation objectives")]),
     backupChart("Back-up: Security Considerations", "NFS CG 1807.14(b)(6)(iv); NPR 1660.1", [T("bu_security", "PIV, classified work, controlled information and foreign travel")]),
     backupChart("Back-up: Contract Administration", "NFS CG 1807.14(c)(11); NF 1634", [
       T("bu_administration", "COR appointment, surveillance, data requirements descriptions and required plans"),
@@ -579,7 +579,7 @@ const psm: TemplateDef = {
     backupChart("Back-up: Identification of Participants", "NFS CG 1807.14(a) (agency-wide template topic)", [
       T("bu_participants", "This PSM was developed by the following team members: name, organizational code identifier, title and contact"),
     ]),
-    backupChart("Back-up: Source Evaluation Qualifications", "NFS 1815.370", [T("bu_qualifications", "Qualification statements for each voting member")]),
+    backupChart("Back-up: Source Evaluation Qualifications", "NFS CG 1815.27", [T("bu_qualifications", "Qualification statements for each voting member")]),
   ],
 };
 
@@ -590,7 +590,7 @@ const psmSignaturePage: TemplateDef = {
   tab: "002",
   layout: "plan",
   badge: {
-    citation: "NFS 1807.103; PIC 24-06",
+    citation: "NFS CG 1807.11; PIC 24-06",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2025-04-01",
@@ -601,7 +601,7 @@ const psmSignaturePage: TemplateDef = {
     {
       id: "concurrence",
       title: "PSM STAKEHOLDER CONCURRENCE",
-      citation: "NFS 1807.103",
+      citation: "NFS CG 1807.11",
       tier: "binding",
       fields: [
         X("acquisition_name", "Acquisition name and acronym", "title"),
@@ -636,7 +636,7 @@ const psmAddendum: TemplateDef = {
   tab: "002",
   layout: "memo",
   badge: {
-    citation: "NFS 1807.103(j)(vii); NFS 1802.101",
+    citation: "NFS CG 1807.11(l); NFS CG 1802.2",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2025-04-01",
@@ -647,7 +647,7 @@ const psmAddendum: TemplateDef = {
     {
       id: "opening",
       title: "Addendum Outlining Significant Changes to Approved Procurement Strategy Meeting/Written Acquisition Plan",
-      citation: "NFS 1807.103(j)(vii)",
+      citation: "NFS CG 1807.11(l)",
       tier: "binding",
       fields: [
         S("plan_kind", "Approved document", ["Procurement Strategy Meeting (PSM)", "written Acquisition Plan (AP)"], "Procurement Strategy Meeting (PSM)"),
@@ -657,7 +657,7 @@ const psmAddendum: TemplateDef = {
     {
       id: "background",
       title: "Background",
-      citation: "NFS 1807.103(j)(vii)",
+      citation: "NFS CG 1807.11(l)",
       tier: "binding",
       fields: [
         T("background", "What is being acquired, current status, the date the PSM was held and approved or the plan approved, and the approval authority"),
@@ -666,7 +666,7 @@ const psmAddendum: TemplateDef = {
     {
       id: "changes",
       title: "Proposed Change(s)",
-      citation: "NFS 1807.103(j)(vii)",
+      citation: "NFS CG 1807.11(l)",
       tier: "binding",
       fields: [
         T("change_reference", "PSM or plan section, chart or page number, summary and reason"),
@@ -678,7 +678,7 @@ const psmAddendum: TemplateDef = {
     {
       id: "signature_page",
       title: "SIGNATURE PAGE — Addendum Outlining Significant Changes to Approved PSM/Written Acquisition Plan",
-      citation: "NFS 1802.101",
+      citation: "NFS CG 1802.2",
       tier: "binding",
       standingText: "Additional signatures may be added below to comply with local Center procedures.",
       fields: [
@@ -754,32 +754,32 @@ const asmNotConducted: TemplateDef = {
 // -------------------------------------------------------------- 6. RDT letters
 const RDT_CHECKLIST = [
   "Implementing project management principles to achieve timely completion of actions",
-  "Conducting market research prior to developing a PWS, SOW, or SOO, including risk and constraints (FAR Part 10, NFS 1810.002)",
+  "Conducting market research prior to developing a PWS, SOW, or SOO, including risk and constraints (RFO FAR Part 10, NFS CG 1810.11)",
   "Create e-Library, as applicable",
-  "Defining and preparing PWS/SOW/SOO requirements (FAR Part 11, NFS Part 1811)",
-  "Developing drawings for industry use, as applicable (FAR Part 11, FAR Subpart 39.2, NFS 1839.203-70)",
-  "Preparing all programmatic and technical CDRL/DRD (FAR Part 11, NFS Part 1811)",
-  "Support completion of NF 1787 in consultation with the OSBP SBS and completion of NPD 5000 (FAR Part 19, NFS Part 1819)",
-  "Assess the amount of work performed on and offsite and other Government furnished facilities or IAGP/services (FAR Part 45, NFS Part 1845)",
+  "Defining and preparing PWS/SOW/SOO requirements (RFO FAR Part 11, NFS Part 1811)",
+  "Developing drawings for industry use, as applicable (RFO FAR Part 11, RFO FAR 39.104)",
+  "Preparing all programmatic and technical CDRL/DRD (RFO FAR Part 11, NFS Part 1811)",
+  "Support completion of NF 1787 in consultation with the OSBP SBS and completion of NPD 5000 (RFO FAR Part 19, NFS Part 1819)",
+  "Assess the amount of work performed on and offsite and other Government furnished facilities or IAGP/services (RFO FAR Part 45, NFS Part 1845)",
   "Health and Safety (NFS CG 1807.12(a)(1) and (2), NFS CG 1807.14(b)(6)(iii))",
   "Identification and description of risks (NFS CG 1807.14(b)(6))",
-  "Mission assurance requirements, as applicable (FAR Part 46, NFS Part 1846, NPR 8705.4, NPR 8705.2)",
+  "Mission assurance requirements, as applicable (RFO FAR Part 46, NFS Part 1846, NPR 8705.4, NPR 8705.2)",
   "Initial draft CLIN structure, used when developing the IGCE (RFO FAR 4.202, NFS CG 1804.23)",
   "Identify the estimated cost and describe the estimating methodology (NFS CG 1807.14(b)(3))",
   "Drafting the Quality Assurance Surveillance Plan (RFO FAR 46.401(a))",
-  "Support the Procurement Office in selection of contract type, including any applicable Determination & Findings (FAR Part 16, NFS Part 1816)",
+  "Support the Procurement Office in selection of contract type, including any applicable Determination & Findings (RFO FAR Part 16, NFS Part 1816)",
   "Budget Estimate and Funding by Government fiscal year (NFS CG 1807.14(c)(8)(B))",
   "Completion of the NF 1707 Special Approvals and Affirmations of Requisitions (NFS CG 1807.711(a))",
   "Incorporate Supply Chain Visibility Reporting DRD as applicable (NPR 7120.5)",
   "Completion of the NF 1739 NASA Projects Capitalization Determination Form (NPR 9250.1)",
   "Assessing and establishing citation of required technical reference documents, including ITAR, EAR and proprietary information prior to release",
-  "Provisioning any necessary GFP and establishing the list of GFP to be provided (FAR Part 45, NFS Part 1845)",
+  "Provisioning any necessary GFP and establishing the list of GFP to be provided (RFO FAR Part 45, NFS Part 1845)",
   "Coordinating the acquisition package with required review and approval organizations (NFS CG 1807.12(a))",
-  "Support the Procurement Office in drafting and obtaining approval of any applicable JOFOC, Determinations and Findings, and deviations (FAR Subpart 1.7, Subpart 6.3, NFS 1801.4, NFS Subpart 1806.3)",
+  "Support the Procurement Office in drafting and obtaining approval of any applicable JOFOC, Determinations and Findings, and deviations (RFO FAR subpart 1.5, Subpart 6.3, NFS CG 1801.3, NFS CG 1806.1)",
   "Support the Procurement Office in preparing the initial draft of the proposal instructions and evaluation criteria (NFS CG 1807.14(c)(6))",
   "Support the Acquisition Planning Team in drafting the PSM Charts (RFO FAR 7.104, NFS CG 1807.13, NFS CG 1807.14)",
   "Coordinating requirements with the ERM for acquisitions associated with a product service line, or with the requirements owner organization designee",
-  "Support the Procurement Office in drafting the Organizational Conflicts of Interest Limitation of Future Contracting documentation (FAR 9.5, NFS Part 1809)",
+  "Support the Procurement Office in drafting the Organizational Conflicts of Interest Limitation of Future Contracting documentation (RFO FAR subpart 9.5, NFS Part 1809)",
 ];
 
 const rdtLetters: TemplateDef = {
@@ -826,11 +826,11 @@ const rdtLetters: TemplateDef = {
     {
       id: "letter2",
       title: "Letter 2 — Appointment of the Requirements Development Team (RDT)",
-      citation: "FAR 3.104; NFS 1803.104",
+      citation: "RFO FAR 3.104; NFS 1803.104",
       tier: "guidance",
       standingText:
         "The purpose of this letter is to formally begin the acquisition development process by appointing members to the RDT. Coordination with stakeholders has resulted in the selection and appointment of the following RDT members to support this effort:\n" +
-        "The RDT Chair and all members must comply with FAR 3.104 and NFS 1803.104, which provide requirements related to the protection and disclosure of source selection information.",
+        "The RDT Chair and all members must comply with RFO FAR 3.104 and NFS 1803.104, which provide requirements related to the protection and disclosure of source selection information.",
       fields: [
         { key: "l2_date", label: "Date", kind: "date" },
         X("l2_org_code", "Reply to Attn of: organizational code", "requester_org_code"),
@@ -907,11 +907,11 @@ const dandfCpif = contractTypeDandF({
   name: "Determination and Findings Authority to Execute a CPIF Contract",
   typeLabel: "cost-plus-incentive-fee (CPIF)",
   titleLine: "Authority to Execute a Cost-Plus-Incentive-Fee (CPIF) Contract",
-  authorityHeading: "I. Authority – FAR 16.401(d) and NFS 1816.401(d)",
+  authorityHeading: "I. Authority – RFO FAR 16.401-2(a) and NFS CG 1816.42",
   authoritySentence:
-    "In accordance with FAR 16.401(d) and as supplemented by the NASA FAR Supplement (NFS) 1816.401(d) the following determination and findings support the use of a CPIF contract for this acquisition.",
+    "In accordance with RFO FAR 16.401-2(a) and as supplemented by the NASA FAR Supplement Companion Guide (NFS CG) 1816.42, the following determination and findings support the use of a CPIF contract for this acquisition.",
   badge: {
-    citation: "FAR 16.401(d); NFS 1816.401(d); FAR 16.405-1",
+    citation: "RFO FAR 16.401-2(a); NFS CG 1816.42; RFO FAR 16.405",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
@@ -921,7 +921,7 @@ const dandfCpif = contractTypeDandF({
     {
       id: "iii_a",
       title: "III. CONSIDERATION OF CONTRACT TYPES — A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
-      citation: "FAR 16.301-3",
+      citation: "RFO FAR 16.301-3",
       tier: "binding",
       standingText:
         "The acquisition is not for commercial products or commercial services (see parts 2 and 12) since use of cost-reimbursement contracts are prohibited for these acquisition IAW 16.301-3.",
@@ -930,7 +930,7 @@ const dandfCpif = contractTypeDandF({
     {
       id: "iii_b",
       title: "B. USE OF COST-REIMBURSEMENT CONTRACT TYPE",
-      citation: "FAR 16.301-2",
+      citation: "RFO FAR 16.301-2",
       tier: "binding",
       fields: [
         T("iii_b_1", "1. Uncertainties in performance"),
@@ -941,17 +941,17 @@ const dandfCpif = contractTypeDandF({
     },
     {
       id: "iii_c",
-      title: "C. FACTORS IN SELECTING CONTRACT TYPES IN FAR 16.104",
-      citation: "FAR 16.104",
+      title: "C. FACTORS IN SELECTING CONTRACT TYPES IN RFO FAR 16.102(a)(1)",
+      citation: "RFO FAR 16.102(a)(1)",
       tier: "binding",
       standingText:
-        "All factors in selecting contract types in FAR 16.104 have been thoroughly considered and those applicable to this contract are noted below:",
+        "All factors in selecting contract types in RFO FAR 16.102(a)(1) have been thoroughly considered and those applicable to this contract are noted below:",
       fields: far16104Fields(),
     },
     {
       id: "iii_d",
       title: "D. USE OF INCENTIVE FEE",
-      citation: "FAR 16.405-1(b)",
+      citation: "RFO FAR 16.405",
       tier: "binding",
       fields: [
         T("iii_d", "How the target cost and fee adjustment formula will be negotiated"),
@@ -963,10 +963,10 @@ const dandfCpif = contractTypeDandF({
     },
   ],
   determination:
-    "In accordance with FAR 16.401(d) and 16.405-1(b), I have determined the following: A. A cost-reimbursement contract is necessary because uncertainties involved in contract performance do not permit costs to be estimated with sufficient accuracy to use any type of fixed price arrangement. B. A target cost and a cost incentive fee adjustment formula based on the relationship of total allowable costs to total target costs can be negotiated that are likely to motivate the contractor to manage cost effectively. C. Predetermined objective, measurable technical performance requirements levels can be established that relate the amount of technical incentive fee earned to the technical performance level achieved by the contract to encourage excellent technical performance. In accordance with the authority at NFS 1816.401(d), and based on the findings herein, I have determined that a CPIF contract type is appropriate for this acquisition. The use of this contract type is in the best interest of the Government.",
+    "In accordance with RFO FAR 16.401-2(a) and 16.405-1(b), I have determined the following: A. A cost-reimbursement contract is necessary because uncertainties involved in contract performance do not permit costs to be estimated with sufficient accuracy to use any type of fixed price arrangement. B. A target cost and a cost incentive fee adjustment formula based on the relationship of total allowable costs to total target costs can be negotiated that are likely to motivate the contractor to manage cost effectively. C. Predetermined objective, measurable technical performance requirements levels can be established that relate the amount of technical incentive fee earned to the technical performance level achieved by the contract to encourage excellent technical performance. In accordance with the authority at NFS CG 1816.42, and based on the findings herein, I have determined that a CPIF contract type is appropriate for this acquisition. The use of this contract type is in the best interest of the Government.",
   signaturePageTitle: "DETERMINATION AND FINDINGS FOR USE OF A COST-PLUS INCENTIVE FEE CONTRACT",
   signatureBlocks: [CO_BLOCK, LEGAL_BLOCK, PO_BLOCK, HQ_OGC_BLOCK, HCA_BLOCK],
-  approvalCitation: "FAR 16.401(d); NFS 1816.401(d)",
+  approvalCitation: "RFO FAR 16.401-2(a); NFS CG 1816.42",
 });
 
 const dandfCpaf = contractTypeDandF({
@@ -974,11 +974,11 @@ const dandfCpaf = contractTypeDandF({
   name: "Determination and Findings Authority to Execute a CPAF Contract",
   typeLabel: "cost-plus-award-fee (CPAF)",
   titleLine: "Authority to Execute a Cost-Plus-Award-Fee (CPAF) Contract",
-  authorityHeading: "I. Authority- FAR 16.401(d), NFS 1816.401(d) and 1816.405-270(a)",
+  authorityHeading: "I. Authority- RFO FAR 16.401-2(a), NFS CG 1816.42 and NFS 1816.402-470(a)",
   authoritySentence:
-    "In accordance with Federal Acquisition Regulation (FAR) 16.401(d), as supplemented by the NASA FAR Supplement (NFS) 1816.401(d) and 1816.405-270(a), the following determination and findings support the use of a Cost-Plus-Award-Fee (CPAF) contract for this proposed acquisition.",
+    "In accordance with RFO FAR 16.401-2(a), as supplemented by NFS CG 1816.42 and NFS 1816.402-470(a), the following determination and findings support the use of a Cost-Plus-Award-Fee (CPAF) contract for this proposed acquisition.",
   badge: {
-    citation: "FAR 16.401(d); NFS 1816.401(d); NFS 1816.405-270(a)",
+    citation: "RFO FAR 16.401-2(a); NFS CG 1816.42; NFS 1816.402-470(a)",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
@@ -987,27 +987,27 @@ const dandfCpaf = contractTypeDandF({
   sectionThree: [
     {
       id: "iii_a",
-      title: "III. Consideration of Contract Types — A. Evaluation of Fixed Price versus Cost Reimbursement Contract Type- FAR 16.202-2",
-      citation: "FAR 16.202-2; FAR 16.301-2; FAR 16.104",
+      title: "III. Consideration of Contract Types: A. Evaluation of Fixed Price versus Cost Reimbursement Contract Type- RFO FAR 16.202-2",
+      citation: "RFO FAR 16.202-2; RFO FAR 16.301-2; RFO FAR 16.102(a)(1)",
       tier: "binding",
       standingText:
-        "In accordance with FAR 16.301-2, a cost-reimbursement contract type is appropriate, as the uncertainties involved in contract performance do not permit costs to be estimated with sufficient accuracy to use any type of fixed price arrangement. Therefore a reasonable basis for firm fixed pricing under this contract does not exist, and a cost reimbursement contract is appropriate.\nAll factors in FAR 16.104 have been thoroughly considered for this contract and are addressed below.",
+        "In accordance with RFO FAR 16.301-2, a cost-reimbursement contract type is appropriate, as the uncertainties involved in contract performance do not permit costs to be estimated with sufficient accuracy to use any type of fixed price arrangement. Therefore a reasonable basis for firm fixed pricing under this contract does not exist, and a cost reimbursement contract is appropriate.\nAll factors in RFO FAR 16.102(a)(1) have been thoroughly considered for this contract and are addressed below.",
       fields: [T("iii_a", "Evaluation of fixed price versus cost reimbursement"), ...far16104Fields()],
     },
     {
       id: "iii_b",
-      title: "B. Evaluation of Other Contract Types- NFS 1816.405-270(a)",
-      citation: "NFS 1816.405-270(a)",
+      title: "B. Evaluation of Other Contract Types- NFS 1816.402-470(a)",
+      citation: "NFS 1816.402-470(a)",
       tier: "binding",
       fields: [T("iii_b_cpff", "Cost-Plus-Fixed-Fee (CPFF)"), T("iii_b_cpif", "Cost-Plus-Incentive-Fee (CPIF)")],
     },
     {
       id: "iv",
-      title: "IV. Use of Award Fee- FAR 16.401(e)(1)",
-      citation: "FAR 16.401(e)(1)",
+      title: "IV. Use of Award Fee- RFO FAR 16.402-1",
+      citation: "RFO FAR 16.402-1",
       tier: "binding",
       standingText:
-        "In consideration of FAR 16.401(e)(1), utilization of an award fee contract is suitable for this acquisition for the following reasons. The use of Award Fee will incentivize the contractor to excel in technical and schedule performance while effectively managing cost.",
+        "In consideration of RFO FAR 16.402-1, utilization of an award fee contract is suitable for this acquisition for the following reasons. The use of Award Fee will incentivize the contractor to excel in technical and schedule performance while effectively managing cost.",
       fields: [
         T("iv_a", "A. Why predetermined objective incentive targets are neither feasible nor effective"),
         T("iv_b", "B. How the award fee has motivated performance on the predecessor or similar contracts"),
@@ -1017,7 +1017,7 @@ const dandfCpaf = contractTypeDandF({
     {
       id: "nfs_compliance",
       title: "Compliance with NFS Requirements- NFS 1816.4",
-      citation: "NFS 1816.4; NFS 1816.402; NFS 1816.405-271",
+      citation: "NFS 1816.4; NFS 1816.402; NFS 1816.402-471",
       tier: "binding",
       fields: [
         T("nfs_compliance", "How the requirements of NFS 1816.4 are met, with rationale for any that do not apply"),
@@ -1026,10 +1026,10 @@ const dandfCpaf = contractTypeDandF({
     },
   ],
   determination:
-    "In accordance with FAR 16.401(e), an award fee contract is suitable for this acquisition for the following reasons: The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Additionally, in accordance with NFS 1816.405-270, the use of an award fee contract for this acquisition is appropriate after consideration of other types of contracts. Based on the aforementioned, the use of a Cost-Plus-Award-Fee contract is considered to be in the best interest of the Government.",
+    "In accordance with RFO FAR 16.402, an award fee contract is suitable for this acquisition for the following reasons: The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Additionally, in accordance with NFS 1816.402-470, the use of an award fee contract for this acquisition is appropriate after consideration of other types of contracts. Based on the aforementioned, the use of a Cost-Plus-Award-Fee contract is considered to be in the best interest of the Government.",
   signaturePageTitle: "AWARD FEE DETERMINATION AND FINDINGS FOR USE OF AN AWARD FEE CONTRACT",
   signatureBlocks: [CO_BLOCK, LEGAL_BLOCK, { label: "Procurement Officer", note: "Include this concurrence only for NSSC, NMO and HEOMD actions." }, HCA_BLOCK, HQ_OGC_BLOCK, SPE_BLOCK],
-  approvalCitation: "FAR 16.401(e); NFS 1816.405-270",
+  approvalCitation: "RFO FAR 16.402; NFS 1816.402-470",
 });
 
 const dandfFpaf = contractTypeDandF({
@@ -1037,11 +1037,11 @@ const dandfFpaf = contractTypeDandF({
   name: "Determination and Findings Authority to Execute a FPAF Contract",
   typeLabel: "fixed-price-award-fee (FPAF)",
   titleLine: "Authority to Execute a Fixed-Price-Award-Fee (FPAF) Contract",
-  authorityHeading: "I. Authority- FAR 16.401(d), NFS 1816.401(d) and 1816.405-270(a)",
+  authorityHeading: "I. Authority- RFO FAR 16.401-2(a), NFS CG 1816.42 and NFS 1816.402-470(a)",
   authoritySentence:
-    "In accordance with Federal Acquisition Regulation (FAR) 16.401(d), as supplemented by the NASA FAR Supplement (NFS) 1816.401(d) and NFS 1816.405-270(a), the following determination and findings support the use of a Fixed-Price-Award-Fee (FPAF) or Firm-Fixed-Price contract type for this proposed acquisition.",
+    "In accordance with RFO FAR 16.401-2(a), as supplemented by NFS CG 1816.42 and NFS 1816.402-470(a), the following determination and findings support the use of a Fixed-Price-Award-Fee (FPAF) or Firm-Fixed-Price contract type for this proposed acquisition.",
   badge: {
-    citation: "FAR 16.401(d); NFS 1816.401(d); NFS 1816.405-270(a)",
+    citation: "RFO FAR 16.401-2(a); NFS CG 1816.42; NFS 1816.402-470(a)",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2024-07-16",
@@ -1051,21 +1051,21 @@ const dandfFpaf = contractTypeDandF({
     {
       id: "iii_a",
       title: "III. CONSIDERATION OF CONTRACT TYPES — A. USE OF A FIXED-PRICE CONTRACT TYPE",
-      citation: "FAR 16.202-2; FAR 16.202-1",
+      citation: "RFO FAR 16.202-2; RFO FAR 16.202-1",
       tier: "binding",
       fields: [
         S("variant", "Variant", ["Firm-fixed-price award fee", "Fixed-price award fee"], "Fixed-price award fee"),
-        T("iii_a_ffp", "How the intended contract meets the conditions in FAR 16.202-2", "Used for the firm-fixed-price award fee variant."),
+        T("iii_a_ffp", "How the intended contract meets the conditions in RFO FAR 16.202-2", "Used for the firm-fixed-price award fee variant."),
         T("iii_a_fp", "Why a firm-fixed-price contract is not suitable", "Used for the fixed-price award fee variant."),
       ],
     },
     {
       id: "iii_b",
       title: "B. USE OF AWARD FEE INCENTIVE",
-      citation: "FAR 16.401(e)(1); NFS 1816.405-270(a)",
+      citation: "RFO FAR 16.402-1; NFS 1816.402-470(a)",
       tier: "binding",
       standingText:
-        "In accordance with FAR 16.401(e)(1), the following items should be addressed to support use of an award fee contract type:\n" +
+        "In accordance with RFO FAR 16.402-1, the following items should be addressed to support use of an award fee contract type:\n" +
         "(i) The work to be performed is such that it is neither feasible nor effective to devise predetermined objective incentive targets applicable to cost, schedule, and technical performance;\n" +
         "(ii) The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved;\n" +
         "(iii) Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits as documented by a risk and cost benefit analysis.",
@@ -1078,11 +1078,11 @@ const dandfFpaf = contractTypeDandF({
     },
   ],
   determination:
-    "For a firm-fixed-price award fee contract: In accordance with FAR 16.401(e) and NFS 1816.405-270, a firm-fixed-price award fee contract is suitable for this acquisition for the following reasons: A. The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule/delivery. B. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. C. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Based on the aforementioned, the use of a Firm-Fixed-Price-Award-Fee contract is considered to be in the best interest of the Government.\n" +
-    "For a fixed-price award fee contract: In accordance with FAR 16.401(e)(1) and NFS 1816.405-270, a fixed-price award fee contract is suitable for this acquisition for the following reasons: A. The use of a firm-fixed contract type is not suitable for this acquisition. B. The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule/delivery. C. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. D. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Based on the aforementioned, the use of a Fixed-Price-Award-Fee contract is considered to be in the best interest of the Government.",
+    "For a firm-fixed-price award fee contract: In accordance with RFO FAR 16.402 and NFS 1816.402-470, a firm-fixed-price award fee contract is suitable for this acquisition for the following reasons: A. The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule/delivery. B. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. C. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Based on the aforementioned, the use of a Firm-Fixed-Price-Award-Fee contract is considered to be in the best interest of the Government.\n" +
+    "For a fixed-price award fee contract: In accordance with RFO FAR 16.402-1 and NFS 1816.402-470, a fixed-price award fee contract is suitable for this acquisition for the following reasons: A. The use of a firm-fixed contract type is not suitable for this acquisition. B. The work to be performed is such that it is neither feasible nor effective to utilize predetermined objective incentive targets applicable to cost, technical performance, or schedule/delivery. C. The likelihood of meeting acquisition objectives will be enhanced by using a contract that effectively motivates the contractor toward exceptional performance and provides the Government with the flexibility to evaluate both actual performance and the conditions under which it was achieved. D. Any additional administrative effort and cost required to monitor and evaluate performance are justified by the expected benefits. Based on the aforementioned, the use of a Fixed-Price-Award-Fee contract is considered to be in the best interest of the Government.",
   signaturePageTitle: "DETERMINATION AND FINDINGS FOR USE OF A FIXED-PRICE AWARD FEE CONTRACT",
   signatureBlocks: [CO_BLOCK, LEGAL_BLOCK, PO_BLOCK, HCA_BLOCK, HQ_OGC_BLOCK, SPE_BLOCK],
-  approvalCitation: "FAR 16.401(e); NFS 1816.405-270",
+  approvalCitation: "RFO FAR 16.402; NFS 1816.402-470",
 });
 
 const dandfFpi = contractTypeDandF({
@@ -1090,11 +1090,11 @@ const dandfFpi = contractTypeDandF({
   name: "Determination and Findings Authority to Execute a FPI Contract",
   typeLabel: "fixed-price-incentive (FPI)",
   titleLine: "Authority to Execute a Fixed-Price-Incentive (FPI) Contract",
-  authorityHeading: "I. Authority- FAR 16.401(d), NFS 1816.401(d)",
+  authorityHeading: "I. Authority- RFO FAR 16.401-2(a), NFS CG 1816.42",
   authoritySentence:
-    "In accordance with Federal Acquisition Regulation (FAR) 16.401(d), as supplemented by the NASA FAR Supplement (NFS) 1816.401(d), the following determination and findings support the use of a FPI contract for this acquisition.",
+    "In accordance with RFO FAR 16.401-2(a), as supplemented by NFS CG 1816.42, the following determination and findings support the use of a FPI contract for this acquisition.",
   badge: {
-    citation: "FAR 16.401(d); NFS 1816.401(d); FAR 16.403",
+    citation: "RFO FAR 16.401-2(a); NFS CG 1816.42; RFO FAR 16.404",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2023-07-20",
@@ -1104,7 +1104,7 @@ const dandfFpi = contractTypeDandF({
     {
       id: "iii_a",
       title: "III. CONSIDERATION OF CONTRACT TYPES — A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
-      citation: "FAR 16.202",
+      citation: "RFO FAR 16.202",
       tier: "binding",
       standingText: "A firm-fixed-price contract is not suitable for the following reasons:",
       fields: [T("iii_a", "Reasons")],
@@ -1112,10 +1112,10 @@ const dandfFpi = contractTypeDandF({
     {
       id: "iii_b",
       title: "B. USE OF FIXED-PRICE INCENTIVE (FPI) CONTRACT TYPE",
-      citation: "FAR 16.403(b); FAR 16.403-1; FAR 16.403-2",
+      citation: "RFO FAR 16.404(b); RFO FAR 16.404-1; RFO FAR 16.404-2",
       tier: "binding",
       standingText:
-        "In accordance with FAR 16.403(b), the following items support use of an incentive contract type for this acquisition:\n" +
+        "In accordance with RFO FAR 16.404(b), the following items support use of an incentive contract type for this acquisition:\n" +
         "Since it is usually to the Government's advantage for the contractor to assume substantial cost responsibility and an appropriate share of the cost risk, fixed-price contracts are preferred when contract costs and performance requirements are reasonably certain. Fixed-price incentive contracts provide for an adjustable price that includes a ceiling price, a target price (including target cost), or both. Unless otherwise specified in the contract, the ceiling price or target price is subject to adjustment only by operation of contract clauses providing for equitable adjustment or other revision of the contract price under stated circumstances.",
       fields: [
         S("variant", "Variant", ["Firm Target contract type", "Successive Target contract type"], "Firm Target contract type"),
@@ -1129,13 +1129,13 @@ const dandfFpi = contractTypeDandF({
     },
   ],
   determination:
-    "In accordance with FAR 16.401, I have determined the following: A. A fixed-price incentive (FPI) contract is necessary because a firm-fixed-price contract is not appropriate and the required supplies or services can be acquired at lower cost and with improved technical and schedule/delivery performance, by relating the amount of profit payable under the contract to the contractor's performance.\n" +
+    "In accordance with RFO FAR 16.401, I have determined the following: A. A fixed-price incentive (FPI) contract is necessary because a firm-fixed-price contract is not appropriate and the required supplies or services can be acquired at lower cost and with improved technical and schedule/delivery performance, by relating the amount of profit payable under the contract to the contractor's performance.\n" +
     "For a firm target contract: B. The contractor's accounting system is adequate for providing data to support negotiation of final cost and incentive price revision; and C. Adequate cost or pricing information for establishing reasonable firm targets is available at the time of initial contract negotiation.\n" +
     "For successive targets: B. The contractor's accounting system is adequate for providing data for negotiating firm targets and a realistic profit adjustment formula, as well as later negotiation of final costs; and C. Cost or pricing information adequate for establishing a reasonable firm target cost is reasonably expected to be available at an early point in contract performance.\n" +
-    "In accordance with the authority at NFS 1816.401(d), and based on the findings herein, I have determined that a FPI contract type is appropriate for this acquisition. The use of this contract type is in the best interest of the Government.",
+    "In accordance with the authority at NFS CG 1816.42, and based on the findings herein, I have determined that a FPI contract type is appropriate for this acquisition. The use of this contract type is in the best interest of the Government.",
   signaturePageTitle: "DETERMINATION AND FINDINGS FOR USE OF A FIXED-PRICE INCENTIVE CONTRACT",
   signatureBlocks: [CO_BLOCK, LEGAL_BLOCK, PO_BLOCK, HCA_BLOCK],
-  approvalCitation: "FAR 16.401(d); NFS 1816.401(d)",
+  approvalCitation: "RFO FAR 16.401-2(a); NFS CG 1816.42",
 });
 
 // ---------------------------------------------- 11-12. T&M or labor-hour D&Fs
@@ -1167,7 +1167,7 @@ function tmLhDandF(opts: {
     {
       id: "finding_1",
       title: "Findings — 1. Description of the Requirement.",
-      citation: "FAR 16.601",
+      citation: "RFO FAR 16.601",
       tier: "binding",
       fields: [
         { key: "scope", label: "Purpose and scope of the effort", kind: "textarea", bind: "description_of_requirement", required: true },
@@ -1180,7 +1180,7 @@ function tmLhDandF(opts: {
     {
       id: "finding_2",
       title: "2. Description of the market research conducted.",
-      citation: "FAR Part 10",
+      citation: "RFO FAR Part 10",
       tier: "binding",
       fields: [T("market_research", "Market research description and results")],
     },
@@ -1188,7 +1188,7 @@ function tmLhDandF(opts: {
       id: "finding_3",
       title:
         "3. Demonstrate why no other contract type is suitable and establish that it is not possible at the time of placing the action to accurately estimate the extent or duration of the work or to anticipate costs with any reasonable degree of certainty.",
-      citation: "FAR 16.601(c)",
+      citation: "RFO FAR 16.601-2",
       tier: "binding",
       fields: [T("no_other_type", "Detailed explanation with specific examples")],
     },
@@ -1199,7 +1199,7 @@ function tmLhDandF(opts: {
       id: "finding_surveillance",
       title:
         "Describe the government's surveillance of the contractor's performance to ensure reasonable assurance that efficient methods and effective cost controls are being used.",
-      citation: "FAR 16.601(c)(1)",
+      citation: "RFO FAR 16.601-2(a)",
       tier: "binding",
       fields: [T("surveillance", "Surveillance")],
     },
@@ -1242,22 +1242,22 @@ const dandfTmLhNoncommercial = tmLhDandF({
   instrumentOptions: ["Contract", "Order"],
   titleLine: "Authority to enter into a Time and Materials (T&M) or Labor Hour Contract/Order.",
   authoritySentence:
-    "Upon the basis of the following D&F, made under the authority of Federal Acquisition Regulation (FAR) 16.601(d)(1), the acquisition described below may be entered into on a time-and-materials or labor-hour basis.",
+    "Upon the basis of the following D&F, made under the authority of RFO FAR 16.601-3(a), the acquisition described below may be entered into on a time-and-materials or labor-hour basis.",
   badge: {
-    citation: "FAR 16.601(d)(1); FAR 16.601(c)(2)(i)",
+    citation: "RFO FAR 16.601-3(a); RFO FAR 16.601-2(b)(1)",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2020-12-10",
     note: "The Head of the Contracting Activity approves this determination where the period of performance or ordering period exceeds three years.",
   },
   finalFinding: {
-    title: "In accordance with FAR 16.601(c)(2)(i) the contract or order shall specify separate fixed hourly rates.",
-    text: "In accordance with FAR 16.601(c)(2)(i) the contract or order shall specify separate fixed hourly rates that include wages, overhead, general and administrative expenses, and profit for each category of labor (see 16.601(f)(2)).",
+    title: "In accordance with RFO FAR 16.601-2(b)(1) the contract or order shall specify separate fixed hourly rates.",
+    text: "In accordance with RFO FAR 16.601-2(b)(1) the contract or order shall specify separate fixed hourly rates that include wages, overhead, general and administrative expenses, and profit for each category of labor (see 16.601(f)(2)).",
   },
   determination:
     "There are too many variables in the services required to accurately establish a reasonable fixed price. In addition, the duration or extent of the work cannot be accurately estimated with a degree of certainty or anticipated costs estimated with any reasonable degree of confidence for use of a cost type contract. Therefore, it is considered impracticable to secure services of this kind or quality required without the use of a time-and-materials or labor-hour contract or order. Based on the findings above, I have determined that the issuance of a time-and-materials or labor-hour contract or order is in the best interest of the Government.",
   approvalNote:
-    "In accordance with FAR 16.601(d)(1)(ii), the Head of the Contracting Activity (HCA) is the approver of this D&F if the period of performance or ordering period of the acquisition will exceed three years.",
+    "In accordance with RFO FAR 16.601-3(a)(2), the Head of the Contracting Activity (HCA) is the approver of this D&F if the period of performance or ordering period of the acquisition will exceed three years.",
 });
 
 const dandfGsaTmLh = tmLhDandF({
@@ -1266,9 +1266,9 @@ const dandfGsaTmLh = tmLhDandF({
   instrumentOptions: ["Order", "Blanket Purchase Agreement (BPA)"],
   titleLine: "Authority to enter into a Time and Materials (T&M) or Labor Hour Order or BPA",
   authoritySentence:
-    "Based on the following determination and findings, made under the authority of Federal Acquisition Regulation (FAR) 12.104(b), the acquisition described below may be entered into on a time-and-materials or labor-hour basis.",
+    "Based on the following determination and findings, made under the authority of RFO FAR 12.104(b), the acquisition described below may be entered into on a time-and-materials or labor-hour basis.",
   badge: {
-    citation: "FAR 8.401; FAR 12.104(b); FAR 16.601-4(c); FAR 16.601-3(a)(2)",
+    citation: "RFO FAR 8.401; RFO FAR 12.104(b); RFO FAR 16.601-4(c); RFO FAR 16.601-3(a)(2)",
     tier: "binding",
     revision: "HQ 11/2025 revision",
     effective: "2025-11-01",
@@ -1278,7 +1278,7 @@ const dandfGsaTmLh = tmLhDandF({
     id: "finding_fixed_price",
     title:
       "4. Establish that the current requirement has been structured to maximize the use of fixed-price orders on future acquisitions for the same or similar requirements.",
-    citation: "FAR 16.601-3",
+    citation: "RFO FAR 16.601-3",
     tier: "binding",
     fields: [T("fixed_price_structure", "How the requirement is structured, and actions to maximize the use of fixed-price orders in future")],
   },
@@ -1289,7 +1289,7 @@ const dandfGsaTmLh = tmLhDandF({
   determination:
     "There are too many variables in the services required to accurately establish a reasonable fixed price. Therefore, it is considered impracticable to secure services of this kind or quality required without the use of a time-and-materials or labor-hour order or BPA. Based on the findings above, I have determined that the issuance of a time-and-materials or labor-hour order or BPA is in the best interest of the Government.",
   approvalNote:
-    "In accordance with FAR 16.601-3(a)(2), the Head of the Contracting Activity (HCA) is the approver of this D&F if the period of performance or ordering period of the acquisition will exceed three years.",
+    "In accordance with RFO FAR 16.601-3(a)(2), the Head of the Contracting Activity (HCA) is the approver of this D&F if the period of performance or ordering period of the acquisition will exceed three years.",
 });
 
 // ----------------------------------------------- 13. Over five years D&F
@@ -1299,7 +1299,7 @@ const dandfOverFiveYears: TemplateDef = {
   tab: "003",
   layout: "dandf",
   badge: {
-    citation: "FAR 17.204; NFS 1817.204(e)(5); NFS 1816.505-71; FAR 16.501-2(c); 10 U.S.C. 3206(c)",
+    citation: "RFO FAR 17.201-2; NFS CG 1817.22; RFO FAR 16.501-2(b)(1); 10 U.S.C. 3206(c)",
     tier: "binding",
     revision: "HQ 03/2026 revision",
     effective: "2026-01-26",
@@ -1309,19 +1309,19 @@ const dandfOverFiveYears: TemplateDef = {
   sections: [
     hqHeader(
       "DETERMINATION AND FINDINGS (D&F)\nAuthority to enter into a contract, Blanket Purchase Agreement (BPA), Order or Interagency Agreement (IAA) exceeding 5 years",
-      "FAR 17.204; NFS 1817.204(e)(5)",
+      "RFO FAR 17.201-2; NFS CG 1817.22",
     ),
     {
       id: "authority",
       title: "Authority",
-      citation: "FAR 16.501-2(c); 10 U.S.C. 3206(c)",
+      citation: "RFO FAR 16.501-2(b)(1); 10 U.S.C. 3206(c)",
       tier: "binding",
       standingText:
         "Based on the following determination and findings, the acquisition described below may be entered into with a total potential ordering period or period of performance exceeding 5 years.",
       fields: [
         S("instrument", "Instrument", ["contract", "Blanket Purchase Agreement (BPA)", "Order", "Interagency Agreement (IAA)"], "contract"),
         S("authority_basis", "Authority", [
-          "For task and delivery order contracts: FAR 16.501-2(c) and 10 U.S.C. 3206(c)",
+          "For task and delivery order contracts: RFO FAR 16.501-2(b)(1) and 10 U.S.C. 3206(c)",
           "For all other contracts: NASA Internal Instructions",
         ]),
         S("period_kind", "Period", ["ordering period", "period of performance", "ordering period and period of performance"], "period of performance"),
@@ -1330,7 +1330,7 @@ const dandfOverFiveYears: TemplateDef = {
     {
       id: "finding_1",
       title: "Findings — 1. Nature and/or description of the action being approved.",
-      citation: "NFS 1817.204(e)(5)",
+      citation: "NFS CG 1817.22",
       tier: "binding",
       fields: [
         { key: "scope", label: "Purpose and scope of the effort", kind: "textarea", bind: "description_of_requirement", required: true },
@@ -1344,7 +1344,7 @@ const dandfOverFiveYears: TemplateDef = {
     {
       id: "finding_2",
       title: "2. Findings that detail the particular circumstances, facts, or reasoning essential to support the determination.",
-      citation: "NFS 1817.204(e)(5)",
+      citation: "NFS CG 1817.22",
       tier: "binding",
       fields: [
         T("circumstances", "Exceptional circumstances, why the longer period is the most prudent business course of action, the best-value discussion, pricing evidence, and the planned future assessment"),
@@ -1353,7 +1353,7 @@ const dandfOverFiveYears: TemplateDef = {
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 17.204; NFS 1817.204(e)(5)",
+      citation: "RFO FAR 17.201-2; NFS CG 1817.22",
       tier: "binding",
       standingText:
         "The exceptional circumstances surrounding this acquisition necessitate a total potential period of performance or ordering period exceeding 5 years. Based on the findings above, I have determined that the issuance of the instrument with the period specified in item 1 is in the best interest of the Government.",
@@ -1391,7 +1391,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
   tab: "011",
   layout: "dandf",
   badge: {
-    citation: "FAR 16.504-3(a)(4)(i); NFS 1816.504(c)(1)(ii)(D)(1)",
+    citation: "RFO FAR 16.504-3(a)(4)(i); NFS CG 1816.52(a)",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-01-01",
@@ -1400,25 +1400,25 @@ const dandfSingleAwardIdiq: TemplateDef = {
   lead: "Determination supporting a single-award IDIQ contract estimated to exceed $150,000,000 including all options.",
   sections: [
     hqHeader(
-      "DETERMINATION AND FINDINGS FOR SINGLE AWARD INDEFINITE DELIVERY INDEFINITE QUANTITY (IDIQ) CONTRACT OVER $150M\nAuthority to Award a Single Contract Containing an indefinite-delivery indefinite-quantity (IDIQ) Task/Delivery Order Mechanism Notwithstanding the Restrictions in FAR 16.504-3.",
-      "FAR 16.504-3(a)(4)(i)",
+      "DETERMINATION AND FINDINGS FOR SINGLE AWARD INDEFINITE DELIVERY INDEFINITE QUANTITY (IDIQ) CONTRACT OVER $150M\nAuthority to Award a Single Contract Containing an indefinite-delivery indefinite-quantity (IDIQ) Task/Delivery Order Mechanism Notwithstanding the Restrictions in RFO FAR 16.504-3.",
+      "RFO FAR 16.504-3(a)(4)(i)",
     ),
     {
       id: "authority",
       title: "Authority",
-      citation: "FAR 16.504-3(a)(4)(i)",
+      citation: "RFO FAR 16.504-3(a)(4)(i)",
       tier: "binding",
       standingText:
-        "Based on the following findings and determination, which I make under the authority provided at FAR 16.504-3(a)(4)(i), the proposed contract action described below may be awarded on a single-award basis.",
+        "Based on the following findings and determination, which I make under the authority provided at RFO FAR 16.504-3(a)(4)(i), the proposed contract action described below may be awarded on a single-award basis.",
       fields: [],
     },
     {
       id: "finding_1",
       title: "Findings — 1. The exception relied on",
-      citation: "FAR 16.504-3(a)(4)(i)",
+      citation: "RFO FAR 16.504-3(a)(4)(i)",
       tier: "binding",
       standingText:
-        "This document addresses the requirement in FAR 16.504-3(a)(4)(i), which states \"No task or delivery order contract in an amount estimated to exceed $150 million (including all options) may be awarded to a single source unless the head of the agency determines in writing\" that one of the four specific exceptions in FAR 16.504-3(a)(4)(i) applies.",
+        "This document addresses the requirement in RFO FAR 16.504-3(a)(4)(i), which states \"No task or delivery order contract in an amount estimated to exceed $150 million (including all options) may be awarded to a single source unless the head of the agency determines in writing\" that one of the four specific exceptions in RFO FAR 16.504-3(a)(4)(i) applies.",
       fields: [
         S("exception", "Exception", [
           "(A) The task or delivery orders expected under the contract are so integrally related that only a single source can reasonably perform the work.",
@@ -1431,7 +1431,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
     {
       id: "finding_2",
       title: "2. Contract structure",
-      citation: "NFS 1816.504(c)(1)(ii)(D)(1)(v)(B)",
+      citation: "NFS CG 1816.52(d)",
       tier: "binding",
       fields: [
         S("structure", "Structure", ["IDIQ without a Core", "Core and IDIQ of the same contract type", "Core and IDIQ of different contract types"], "IDIQ without a Core"),
@@ -1445,7 +1445,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
     {
       id: "finding_3",
       title: "3. Description and single-award rationale",
-      citation: "FAR 16.504(c)(1)(ii)(A)",
+      citation: "RFO FAR 16.504-3(a)(2)",
       tier: "binding",
       fields: [
         { key: "description", label: "Purpose, scope and places of performance", kind: "textarea", bind: "description_of_requirement", required: true },
@@ -1455,14 +1455,14 @@ const dandfSingleAwardIdiq: TemplateDef = {
     {
       id: "finding_4",
       title: "4. Why the exception applies",
-      citation: "FAR 16.504-3(a)(4)(i)",
+      citation: "RFO FAR 16.504-3(a)(4)(i)",
       tier: "binding",
       fields: [T("exception_rationale", "Rationale with examples showing why the requirements preclude the effective use of multiple contractors")],
     },
     {
       id: "finding_5",
       title: "5. Effective period",
-      citation: "FAR 16.504-3",
+      citation: "RFO FAR 16.504-3",
       tier: "binding",
       standingText: "The Determination and Findings shall be effective for the life of the contract.",
       fields: [],
@@ -1470,16 +1470,16 @@ const dandfSingleAwardIdiq: TemplateDef = {
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 16.504-3(a)(4)(i); NFS 1816.504(c)(1)(ii)(D)(1)",
+      citation: "RFO FAR 16.504-3(a)(4)(i); NFS CG 1816.52(a)",
       tier: "binding",
       standingText:
-        "For the reasons identified and explained above, although award of the subject IDIQ contract is estimated to exceed $150,000,000 (including all options) to a single source and is generally not permitted under FAR 16.504-3, it is determined permissible in this event because the work to be performed under the contract falls within the exception selected in item 1.",
+        "For the reasons identified and explained above, although award of the subject IDIQ contract is estimated to exceed $150,000,000 (including all options) to a single source and is generally not permitted under RFO FAR 16.504-3, it is determined permissible in this event because the work to be performed under the contract falls within the exception selected in item 1.",
       fields: [{ key: "determined_on", label: "Date", kind: "date" }],
     },
     signaturePage(
       "DETERMINATION AND FINDINGS FOR SINGLE AWARD INDEFINITE-DELIVERY INDEFINITE-QUANTITY (IDIQ) CONTRACT OVER $150M",
       [CO_BLOCK, LEGAL_BLOCK, { label: "Procurement Officer" }, HQ_OGC_BLOCK, SPE_BLOCK],
-      "NFS 1816.504(c)(1)(ii)(D)(1)",
+      "NFS CG 1816.52(a)",
     ),
   ],
 };
@@ -1600,6 +1600,6 @@ export function contractTypeTemplateKey(contractType: string): string | null {
 }
 
 /** CPFF carries no determination of its own; the file says so on the row. */
-export const NO_DANDF_NOTE = "No D&F required for CPFF, FAR 16.306.";
+export const NO_DANDF_NOTE = "No D&F required for CPFF, RFO FAR 16.304.";
 
 export type { Values };

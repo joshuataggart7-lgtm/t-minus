@@ -61,23 +61,23 @@ export function deadlineRows(opts: {
     date: quoteDueDate ?? null,
     from: noticePostedDate ? `notice posted ${noticePostedDate}` : "the notice is not posted yet",
     count: "set by the record",
-    citation: soleSource ? "RFO FAR 5.101(d); FAR 6.104" : "RFO FAR 5.201(d); RFO FAR 12.202(b)(2)",
+    citation: soleSource ? "RFO FAR 5.101(d); RFO FAR 6.104" : "RFO FAR 5.201(d); RFO FAR 12.202(b)(2)",
     verified: false,
     note: "Stub: the response date shown is the one on the notice. The minimum response period for this method is not verified against the seeded RFO text.",
   });
 
-  // 2. Size protest. FAR 19.302(d)(1): five business days after the
+  // 2. Size protest. RFO FAR 19.201-2(d)(1): five business days after the
   // contracting officer notifies the apparent successful offeror.
   rows.push({
     label: "Size protest window",
     date: awardDate ? addBusinessDays(awardDate, 5) : null,
     from: awardDate ? `notice of the apparent successful offeror, ${awardDate}` : "award is not recorded yet",
     count: "business days",
-    citation: "FAR 19.302(d)(1)",
+    citation: "RFO FAR 19.201-2(d)(1)",
     verified: true,
   });
 
-  // 3. CICA stay. FAR 33.104(c)(1) and 31 U.S.C. 3553(d)(4): a protest filed
+  // 3. CICA stay. RFO FAR 33.105-3(b)(1) and 31 U.S.C. 3553(d)(4): a protest filed
   // within ten days of award, or within five days after a required debriefing,
   // suspends performance.
   rows.push({
@@ -85,7 +85,7 @@ export function deadlineRows(opts: {
     date: awardDate ? addDays(awardDate, 10) : null,
     from: awardDate ? `award ${awardDate}` : "award is not recorded yet",
     count: "calendar days",
-    citation: "FAR 33.104(c)(1); 31 U.S.C. 3553(d)(4)",
+    citation: "RFO FAR 33.105-3(b)(1); 31 U.S.C. 3553(d)(4)",
     verified: true,
   });
   rows.push({
@@ -93,7 +93,7 @@ export function deadlineRows(opts: {
     date: debriefingDate ? addDays(debriefingDate, 5) : null,
     from: debriefingDate ? `debriefing ${debriefingDate}` : "no debriefing date is recorded",
     count: "calendar days",
-    citation: "FAR 33.104(c)(1); 31 U.S.C. 3553(d)(4)",
+    citation: "RFO FAR 33.105-3(b)(1); 31 U.S.C. 3553(d)(4)",
     verified: true,
   });
 
@@ -107,7 +107,7 @@ export function deadlineRows(opts: {
       ? `${options.noticeLeadDays} days before the option period starts ${nextOption.start}`
       : "no option period is recorded",
     count: "calendar days",
-    citation: "FAR 52.217-9, as filled in on this contract",
+    citation: "RFO FAR 52.217-9, as filled in on this contract",
     verified: true,
   });
 
@@ -118,7 +118,7 @@ export function deadlineRows(opts: {
     date: cpars.dueDate,
     from: cpars.periodEnd ? `120 days after the evaluation period ends ${cpars.periodEnd}` : "award is not recorded yet",
     count: "calendar days",
-    citation: cpars.citation ?? "FAR 42.1502(a); FAR 42.1503(f)",
+    citation: cpars.citation ?? "RFO FAR 42.1102(a)",
     verified: true,
     ...(cpars.applies ? {} : { note: "Below the CPARS threshold on this record." }),
   });

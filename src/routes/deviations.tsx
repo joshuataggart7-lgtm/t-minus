@@ -175,7 +175,7 @@ function DeviationsPage() {
                 <input
                   id="dv-citation"
                   className={inputClass}
-                  placeholder="FAR 52.216-18"
+                  placeholder="RFO FAR 52.216-18"
                   value={form.citation}
                   onChange={(e) => setForm({ ...form, citation: e.target.value })}
                 />

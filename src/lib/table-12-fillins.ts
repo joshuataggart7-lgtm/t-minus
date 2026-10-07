@@ -1,6 +1,6 @@
-// FAR Tables 12-2 and 12-3 fill-in aid.
+// RFO FAR Tables 12-2 and 12-3 fill-in aid.
 //
-// FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause
+// RFO FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause
 // content is carried through Tables 12-2 (provisions) and 12-3 (clauses) and
 // each clause's own prescription. This module does one honest thing: for the
 // clauses the matrix-backed recommendation already put on the file, it lists
@@ -45,23 +45,19 @@ export function isCommercialFile(facts: Record<string, unknown> | null | undefin
 
 // The small honest map. Only numbers whose table placement is settled appear
 // here; everything else falls through to "Table not confirmed".
-const PROVISIONS = new Set(["52.212-1", "52.212-2", "52.204-7", "52.204-16", "52.204-22", "52.225-25"]);
+// Checked against RFO FAR 12.205(a) and (b) and Tables 12-2 and 12-3. Numbers
+// Reserved in RFO FAR Part 52 (for example 52.204-16, -18, -21, -22, -24, -25,
+// 52.223-18, 52.225-13) are not listed.
+const PROVISIONS = new Set(["52.212-1", "52.212-2", "52.204-7", "52.225-25"]);
 const CLAUSES = new Set([
   "52.212-4",
   "52.204-13",
-  "52.204-18",
-  "52.204-21",
-  "52.204-24",
-  "52.204-25",
   "52.232-33",
   "52.232-40",
   "52.222-50",
-  "52.223-18",
-  "52.225-13",
   "52.233-3",
   "52.233-4",
   "52.244-6",
-  "52.247-34",
 ]);
 
 function tagFor(c: PacketClause): { table: TableTag; note: string } {
@@ -69,21 +65,21 @@ function tagFor(c: PacketClause): { table: TableTag; note: string } {
   if (PROVISIONS.has(n)) {
     return {
       table: "Table 12-2 (provision)",
-      note: "Solicitation provision on a commercial buy, FAR 12.301 and Table 12-2.",
+      note: "Solicitation provision on a commercial buy, RFO FAR 12.205 and Table 12-2.",
     };
   }
   if (CLAUSES.has(n) || c.formerly_bundled) {
     return {
       table: "Table 12-3 (clause)",
       note: c.formerly_bundled
-        ? "Carried on its own prescription now that FAR 52.212-5 is Reserved (RFO / PCD 26-03B), Table 12-3."
-        : "Contract clause on a commercial buy, FAR 12.301 and Table 12-3.",
+        ? "Carried on its own prescription now that RFO FAR 52.212-5 is Reserved (RFO / PCD 26-03B), Table 12-3."
+        : "Contract clause on a commercial buy, RFO FAR 12.205 and Table 12-3.",
     };
   }
   if (n.startsWith("1852")) {
     return {
       table: TABLE12_UNCONFIRMED,
-      note: "NFS clause. Interim NFS matrix (PCD 26-03B) governs; the FAR Part 12 table placement is not confirmed here.",
+      note: "NFS clause. Interim NFS matrix (PCD 26-03B) governs; the RFO FAR Part 12 table placement is not confirmed here.",
     };
   }
   return { table: TABLE12_UNCONFIRMED, note: TABLE12_UNCONFIRMED + "." };

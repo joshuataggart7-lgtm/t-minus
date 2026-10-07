@@ -1,6 +1,6 @@
 /**
  * HQ Office of Procurement solicitation and evaluation templates (Batch 5,
- * FAR Part 15 and NFS Part 1815).
+ * RFO FAR Part 15 and NFS Part 1815).
  *
  * Headings, determination, certification and appointment sentences and the
  * signature-block titles are taken verbatim from the HQ Word masters and the
@@ -74,7 +74,7 @@ const AI_TRANSPARENCY_CHOICES = [
 ];
 
 const PROCUREMENT_INTEGRITY = (body: string) =>
-  `The ${body} Chairperson and other members must comply with the FAR, NFS, and other legal requirements regarding personal conflicts of interest, as well as the requirements of FAR 3.104, Procurement Integrity, which prohibits the disclosure of information to individuals not also participating in the same evaluation proceedings. After receipt of proposals, all information contained in the proposals submitted for evaluation shall be protected and shall be made available only to members (voting and non-voting) of the ${body} and to properly designated committees and panels on a need-to-know basis. The right to information on a need-to-know basis does not extend to the normal chain of supervision of any member of the ${body}, nor to any individual having technical responsibility for the effort being evaluated, except as specifically approved by the ${body} Chairperson on a case-by-case basis. Individuals so designated by the ${body} Chairperson shall be notified, in writing, of the sensitive nature of proposal information.`;
+  `The ${body} Chairperson and other members must comply with the FAR, NFS, and other legal requirements regarding personal conflicts of interest, as well as the requirements of RFO FAR 3.104, Procurement Integrity, which prohibits the disclosure of information to individuals not also participating in the same evaluation proceedings. After receipt of proposals, all information contained in the proposals submitted for evaluation shall be protected and shall be made available only to members (voting and non-voting) of the ${body} and to properly designated committees and panels on a need-to-know basis. The right to information on a need-to-know basis does not extend to the normal chain of supervision of any member of the ${body}, nor to any individual having technical responsibility for the effort being evaluated, except as specifically approved by the ${body} Chairperson on a case-by-case basis. Individuals so designated by the ${body} Chairperson shall be notified, in writing, of the sensitive nature of proposal information.`;
 
 function memoHeader(subjectHelp: string, extra: FieldDef[] = []): SectionDef {
   return {
@@ -100,7 +100,7 @@ const sebAppointment: TemplateDef = {
   tab: "036",
   layout: "memo",
   badge: {
-    citation: "FAR Subpart 15.3; FAR 15.303(b)(1); NFS Subpart 1815.3; NFS 1815.303(b)(i)(B); NFS 1815.370",
+    citation: "RFO FAR subpart 15.2; RFO FAR 15.201(b)(1); NFS CG 1815.2; NFS CG 1815.27",
     tier: "binding",
     revision: "HQ base issuance 04/2020",
     effective: "2020-04-20",
@@ -115,16 +115,16 @@ const sebAppointment: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "NFS 1815.303(b)(i)(B)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       standingText:
-        "Pursuant to the NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1815.303(b)(i)(B), I hereby recommend appointment of the individuals identified below to serve as members of the SEB for the acquisition named above competitive acquisition:",
+        "Pursuant to the NASA FAR Supplement Companion Guide (NFS CG) 1815.27, I hereby recommend appointment of the individuals identified below to serve as members of the SEB for the acquisition named above competitive acquisition:",
       fields: [],
     },
     {
       id: "voting_members",
       title: "Voting Members",
-      citation: "NFS 1815.370",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         X("chairperson", "SEB Chairperson: name, title, organization code"),
@@ -136,7 +136,7 @@ const sebAppointment: TemplateDef = {
     {
       id: "non_voting_members",
       title: "Non-Voting Members:",
-      citation: "NFS 1815.370",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         X("cost_price_analyst", "Cost/Price Analyst (if applicable): name, title, organization code and organization name"),
@@ -147,7 +147,7 @@ const sebAppointment: TemplateDef = {
     {
       id: "consultants",
       title: "Consultants",
-      citation: "NFS 1815.370",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         X("technical_representative", "Technical Representative(s)", "cor_name"),
@@ -159,7 +159,7 @@ const sebAppointment: TemplateDef = {
     {
       id: "ex_officio",
       title: "Ex-Officio Members",
-      citation: "NFS 1815.303",
+      citation: "NFS CG 1815.22",
       tier: "binding",
       fields: [
         S(
@@ -179,17 +179,17 @@ const sebAppointment: TemplateDef = {
     {
       id: "conduct",
       title: "Conduct of the board",
-      citation: "FAR Subpart 15.3; NFS Subpart 1815.3; NFS 1815.370",
+      citation: "RFO FAR subpart 15.2; NFS CG 1815.2; NFS CG 1815.27",
       tier: "binding",
       standingText:
-        "The SEB will conduct its business in accordance with the FAR, NFS, and Center acquisition policies and procedures, as applicable. The SEB Chairperson is responsible for determining that all SEB members (voting and non-voting) are fully conversant with the instructions and requirements of FAR Subpart 15.3 and NFS Subpart 1815.3, Source Selection. The SEB Chairperson and each member are responsible for being familiar with and following the procedures outlined in NFS 1815.370, which describes the SEB designation, organization, and process, and any Center-level SEB policies on SEB membership, roles, and responsibilities. SEB membership shall take precedence over other duties of members.\n\nIt is emphasized that the SEB report and/or presentation are the principal tools available to the Source Selection Authority to perform a comparative analysis for making the final source selection decision. The findings of the SEB must be documented and presented in sufficient depth to permit intelligent weighing of alternatives. All proposals shall be evaluated and reported in accordance with the solicitation evaluation criteria, the FAR, and the NFS. The SEB's written findings will give no consideration to elements that are extraneous to the objectives of this acquisition.\n\n" +
+        "The SEB will conduct its business in accordance with the FAR, NFS, and Center acquisition policies and procedures, as applicable. The SEB Chairperson is responsible for determining that all SEB members (voting and non-voting) are fully conversant with the instructions and requirements of RFO FAR subpart 15.2 and NFS CG 1815.2, Source Selection. The SEB Chairperson and each member are responsible for being familiar with and following the procedures outlined in NFS CG 1815.27, which describes the SEB designation, organization, and process, and any Center-level SEB policies on SEB membership, roles, and responsibilities. SEB membership shall take precedence over other duties of members.\n\nIt is emphasized that the SEB report and/or presentation are the principal tools available to the Source Selection Authority to perform a comparative analysis for making the final source selection decision. The findings of the SEB must be documented and presented in sufficient depth to permit intelligent weighing of alternatives. All proposals shall be evaluated and reported in accordance with the solicitation evaluation criteria, the FAR, and the NFS. The SEB's written findings will give no consideration to elements that are extraneous to the objectives of this acquisition.\n\n" +
         PROCUREMENT_INTEGRITY("SEB"),
       fields: [],
     },
     {
       id: "delegation",
       title: "Delegation of membership changes",
-      citation: "NFS 1815.303(b)(i)(C)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         S("delegation", "Delegation narrative", [
@@ -203,7 +203,7 @@ const sebAppointment: TemplateDef = {
     {
       id: "signature",
       title: "Signature and approval",
-      citation: "NFS 1815.303(b)(i)(B)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         X("sig_name", "Name"),
@@ -225,7 +225,7 @@ const setAppointment: TemplateDef = {
   layout: "memo",
   badge: {
     citation:
-      "FAR Subpart 15.3; FAR 15.303(b)(1); NFS Subpart 1815.3; NFS 1815.300-70(a)(1)(ii); NFS 1815.303(b)(i)(B)",
+      "RFO FAR subpart 15.2; RFO FAR 15.201(b)(1); NFS CG 1815.2; NFS CG 1815.21(a)(2); NFS CG 1815.27",
     tier: "binding",
     revision: "HQ base issuance 04/2020",
     effective: "2020-04-20",
@@ -243,16 +243,16 @@ const setAppointment: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "NFS 1815.303(b)(i)(B)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       standingText:
-        "Pursuant to the NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1815.303(b)(i)(B), I hereby recommend appointment of the individuals identified below to serve as members of the evaluation team named above for the acquisition named above competitive acquisition:",
+        "Pursuant to the NASA FAR Supplement Companion Guide (NFS CG) 1815.27, I hereby recommend appointment of the individuals identified below to serve as members of the evaluation team named above for the acquisition named above competitive acquisition:",
       fields: [],
     },
     {
       id: "voting_members",
       title: "Voting Members",
-      citation: "FAR 15.303(b)(1)",
+      citation: "RFO FAR 15.201(b)(1)",
       tier: "binding",
       fields: [
         X("chairperson", "Evaluation team Chairperson: name, title, organization code"),
@@ -264,7 +264,7 @@ const setAppointment: TemplateDef = {
     {
       id: "non_voting_members",
       title: "Non-Voting Members:",
-      citation: "FAR Subpart 15.3",
+      citation: "RFO FAR subpart 15.2",
       tier: "binding",
       fields: [
         X("cost_price_analyst", "Cost/Price Analyst (if applicable): name, title, organization code and organization name"),
@@ -275,7 +275,7 @@ const setAppointment: TemplateDef = {
     {
       id: "consultants",
       title: "Consultants",
-      citation: "FAR Subpart 15.3",
+      citation: "RFO FAR subpart 15.2",
       tier: "binding",
       fields: [
         X("technical_representative", "Technical Representative(s)", "cor_name"),
@@ -287,24 +287,24 @@ const setAppointment: TemplateDef = {
     {
       id: "ex_officio",
       title: "Ex-Officio Members",
-      citation: "NFS 1815.303",
+      citation: "NFS CG 1815.22",
       tier: "binding",
       fields: [T("ex_officio_members", "Ex-officio members: name, title, organization code, organization name")],
     },
     {
       id: "conduct",
       title: "Conduct of the evaluation team",
-      citation: "FAR Subpart 15.3; NFS Subpart 1815.3",
+      citation: "RFO FAR subpart 15.2; NFS CG 1815.2",
       tier: "binding",
       standingText:
-        "The evaluation team will conduct its business in accordance with the FAR, NFS, and Center acquisition policies and procedures, as applicable. The evaluation team Chairperson is responsible for determining that all evaluation team members (voting and non-voting) are fully conversant with the instructions and requirements of FAR Subpart 15.3 and NFS Subpart 1815.3. The evaluation team Chairperson and each member are responsible for being familiar with and comply with the Center policies and procedures identified below. These policies/procedures describe the evaluation team designation, organization, roles, and responsibilities. Evaluation team duties will take precedence over other duties of members.\n\nIt is emphasized that the evaluation team report and/or presentation are the principal tools available to the Source Selection Authority to perform a comparative analysis for making the final source selection decision. The findings of the evaluation team must be documented and presented in sufficient depth to permit intelligent weighing of alternatives. All proposals shall be evaluated and reported in accordance with the solicitation evaluation criteria, the FAR, and the NFS. The evaluation team's written findings will give no consideration to elements that are extraneous to the objectives of this acquisition.\n\n" +
+        "The evaluation team will conduct its business in accordance with the FAR, NFS, and Center acquisition policies and procedures, as applicable. The evaluation team Chairperson is responsible for determining that all evaluation team members (voting and non-voting) are fully conversant with the instructions and requirements of RFO FAR subpart 15.2 and NFS CG 1815.2. The evaluation team Chairperson and each member are responsible for being familiar with and comply with the Center policies and procedures identified below. These policies/procedures describe the evaluation team designation, organization, roles, and responsibilities. Evaluation team duties will take precedence over other duties of members.\n\nIt is emphasized that the evaluation team report and/or presentation are the principal tools available to the Source Selection Authority to perform a comparative analysis for making the final source selection decision. The findings of the evaluation team must be documented and presented in sufficient depth to permit intelligent weighing of alternatives. All proposals shall be evaluated and reported in accordance with the solicitation evaluation criteria, the FAR, and the NFS. The evaluation team's written findings will give no consideration to elements that are extraneous to the objectives of this acquisition.\n\n" +
         PROCUREMENT_INTEGRITY("evaluation team"),
       fields: [T("center_policies", "Applicable Center source selection policies and procedures")],
     },
     {
       id: "delegation",
       title: "Delegation of membership changes",
-      citation: "NFS 1815.303(b)(i)(C)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         S("delegation", "Delegation narrative", [
@@ -318,7 +318,7 @@ const setAppointment: TemplateDef = {
     {
       id: "signature",
       title: "Signature and approval",
-      citation: "NFS 1815.303(b)(i)(B)",
+      citation: "NFS CG 1815.27",
       tier: "binding",
       fields: [
         X("sig_name", "Name"),
@@ -338,7 +338,7 @@ const ssaAppointment: TemplateDef = {
   tab: "036",
   layout: "memo",
   badge: {
-    citation: "NFS 1801.603-1; FAR 15.303(a); NFS 1815.303(a); NPD 1000.3",
+    citation: "NFS CG 1815.22(a); RFO FAR 15.201(a); NPD 1000.3",
     tier: "binding",
     revision: "HQ 03/2021 revision",
     effective: "2021-03-01",
@@ -355,17 +355,17 @@ const ssaAppointment: TemplateDef = {
         D("letter_date", "Date"),
         X("reply_to", "Reply to the attn. of", "requester_org_code"),
         X("to_line", "TO: name and title of the SSA designee"),
-        X("from_line", "FROM: title of the approval authority", undefined, "The Senior Procurement Executive or the Procurement Officer, in accordance with NFS 1801.603-1."),
+        X("from_line", "FROM: title of the approval authority", undefined, "The Senior Procurement Executive or the Procurement Officer, in accordance with NFS CG 1815.22(a)."),
         X("acquisition_name", "Acquisition name", "title"),
       ],
     },
     {
       id: "appointment",
       title: "Appointment",
-      citation: "NFS 1801.603-1; NPD 1000.3",
+      citation: "NFS CG 1815.22(a); NPD 1000.3",
       tier: "binding",
       standingText:
-        "Pursuant to NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1801.603-1 and NASA Procedural Directive 1000.3, I hereby appoint you to serve as the SSA for the subject acquisition.\n\nAs the SSA, you will be responsible for the review and approval of the major elements of this acquisition. This includes appointment of the source evaluation board/committee and approval of the acquisition strategy, request for proposal, and evaluation plan. Finally, you are responsible for making the contractor selection decision based on your independent judgement after considering the evaluation findings.\n\nA detailed explanation of SSA responsibilities is contained in NFS 1815.303 and section 2.5.2 of the NASA Source Selection Guide.\n\nThis appointment is effective immediately.",
+        "Pursuant to NASA FAR Supplement Companion Guide (NFS CG) 1815.22(a) and NASA Procedural Directive 1000.3, I hereby appoint you to serve as the SSA for the subject acquisition.\n\nAs the SSA, you will be responsible for the review and approval of the major elements of this acquisition. This includes appointment of the source evaluation board/committee and approval of the acquisition strategy, request for proposal, and evaluation plan. Finally, you are responsible for making the contractor selection decision based on your independent judgement after considering the evaluation findings.\n\nA detailed explanation of SSA responsibilities is contained in NFS CG 1815.22 and section 2.5.2 of the NASA Source Selection Guide.\n\nThis appointment is effective immediately.",
       fields: [
         X("supersedes", "This appointment cancels and supersedes the previous appointment of", undefined, "Leave empty when there is no previous appointment."),
       ],
@@ -373,7 +373,7 @@ const ssaAppointment: TemplateDef = {
     {
       id: "signature",
       title: "Signature",
-      citation: "NFS 1801.603-1",
+      citation: "NFS CG 1815.22(a)",
       tier: "binding",
       fields: [X("sig_name", "Name"), T("cc", "cc")],
     },
@@ -398,7 +398,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "letter_header",
       title: "Letter",
-      citation: "FAR 15.201",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       fields: [
         D("letter_date", "Date the notification is signed and sent by the contracting officer"),
@@ -411,7 +411,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "purpose",
       title: "Purpose and scope",
-      citation: "FAR 15.201",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       fields: [
         X("center_name", "Center name", "center_code"),
@@ -422,7 +422,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "competition",
       title: "Competition, contract type and period",
-      citation: "FAR 15.201; FAR 19.2",
+      citation: "RFO FAR 15.101; RFO FAR Part 19",
       tier: "binding",
       fields: [
         X("competition_type", "NASA will conduct this acquisition as a", "competition"),
@@ -436,7 +436,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "databases",
       title: "Databases offerors must be registered in",
-      citation: "FAR 52.204-7",
+      citation: "RFO FAR 52.204-7",
       tier: "binding",
       standingText:
         "1. System for Award Management: https://www.sam.gov/SAM/\n2. U.S. Department of Labor VETS-4212 Reports: https://vets4212.dol.gov/vets4212/\n3. Unique Entity Identifier (UEI), obtained through SAM.gov.",
@@ -445,7 +445,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "schedule",
       title: "Schedule and place of performance",
-      citation: "FAR 15.201",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       fields: [
         D("final_rfp_date", "Planned release date for the final RFP"),
@@ -458,14 +458,14 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "additional",
       title: "Additional information",
-      citation: "FAR 15.201; NFS 1852.209-71",
+      citation: "RFO FAR 15.101; NFS 1852.209-71",
       tier: "binding",
       fields: [
         T("phase_in", "Phase-in period and the method used to establish it"),
         YESNO("gfp_offsite", "Government Furnished Property for offsite use at the Contractor's facility is described in the DRFP"),
         S("industry_event", "Industry engagement after release of the final RFP", ["", "Industry Day", "Pre-proposal Conference"]),
         D("industry_event_date", "Date of the industry day or pre-proposal conference"),
-        T("site_visits", "Site visits or conferences (FAR 52.236-27, FAR 52.237-1, NFS 1852.215-77)"),
+        T("site_visits", "Site visits or conferences (RFO FAR 52.237-1, NFS 1852.215-77)"),
         T("oci", "Organizational conflicts of interest information in the DRFP", "NFS clause 1852.209-71, Limitation of Future Contracting, applies."),
         X("security_level", "Facilities clearance level required"),
         T("security_timing", "When the security clearance is required"),
@@ -494,7 +494,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "disclaimer",
       title: "Disclaimer",
-      citation: "FAR 15.201(e)",
+      citation: "RFO FAR 15.101(c)",
       tier: "binding",
       standingText:
         "This DRFP is not a solicitation and NASA is not requesting proposals. This DRFP does not commit NASA to pay any proposal preparation costs, nor does it obligate NASA to procure or contract for this requirement. This request is not an authorization to proceed and does not authorize payment for any charges incurred by the offeror for performing any of the work called for in this solicitation.",
@@ -503,7 +503,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "comments",
       title: "Comments",
-      citation: "FAR 15.201(c)",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       standingText:
         "Any comments regarding the DRFP should be submitted electronically in writing to the Contracting Officer named below. If a respondent believes their comments contain confidential, proprietary, competition sensitive, or business information, those questions and comments shall be marked appropriately. However, questions that are marked as containing confidential, proprietary, competition sensitive or business information will not be provided a Government response. The Government will consider all comments received in preparation of the Final RFP. To the extent a comment leads the Government to revise the acquisition approach or requirements, the change will be reflected in the Final RFP. Some DRFP questions and comments may receive a posted response to the GPE if the Contracting Officer determines that a response would facilitate additional understanding of the solicitation. The Government may also respond via the GPE to comments and questions received following the issuance of the Final Request for Proposal (RFP).",
@@ -516,7 +516,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "signature",
       title: "Signature and enclosures",
-      citation: "FAR 15.201",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       fields: [
         X("sig_name", "Contracting Officer name", "co_name"),
@@ -535,18 +535,18 @@ const finalRfpCoverLetter: TemplateDef = {
   tab: "040",
   layout: "memo",
   badge: {
-    citation: "FAR 15.201; FAR 15.203; NFS CG 1815.12(b); NFS CG 1815.11(i); NFS 1852.215-84",
+    citation: "RFO FAR 15.101; RFO FAR 15.102; NFS CG 1815.12(b); NFS CG 1815.11(i); NFS 1852.215-84",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-02-01",
-    note: "Mandatory for acquisitions under FAR Part 15 and NFS Part 1815; recommended for FAR Parts 8, 12 and 13.",
+    note: "Mandatory for acquisitions under RFO FAR Part 15 and NFS Part 1815; recommended for FAR Parts 8, 12 and 13.",
   },
   lead: "Cover letter releasing the final request for proposal to industry.",
   sections: [
     {
       id: "letter_header",
       title: "Letter",
-      citation: "FAR 15.203",
+      citation: "RFO FAR 15.102",
       tier: "binding",
       fields: [
         D("letter_date", "Date"),
@@ -560,7 +560,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "competition",
       title: "Competition, contract type and period",
-      citation: "FAR 15.203; FAR 19.2",
+      citation: "RFO FAR 15.102; RFO FAR Part 19",
       tier: "binding",
       fields: [
         X("competition_type", "NASA will conduct this acquisition as a", "competition"),
@@ -577,12 +577,12 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "special_emphasis",
       title: "Items of special emphasis",
-      citation: "FAR 15.203; NFS 1852.209-71",
+      citation: "RFO FAR 15.102; NFS 1852.209-71",
       tier: "binding",
       fields: [
         T("phase_in", "Phase-in period and the method used to establish it"),
         YESNO("gfp_offsite", "Government Furnished Property for offsite use at the Contractor's facility is described in the RFP"),
-        T("site_visits", "Site visits or conferences (FAR 52.236-27, FAR 52.237-1, NFS 1852.215-77)"),
+        T("site_visits", "Site visits or conferences (RFO FAR 52.237-1, NFS 1852.215-77)"),
         T("oci", "Organizational conflicts of interest information in the RFP", "Clause 1852.209-71, Limitation of Future Contracting."),
         X("security_level", "Facilities clearance level required"),
         T("security_timing", "When the security clearance is required"),
@@ -604,7 +604,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "evaluation_team",
       title: "Source selection officials",
-      citation: "NFS 1815.303",
+      citation: "NFS CG 1815.22",
       tier: "binding",
       standingText:
         "Other than the Contracting Officer, the individuals identified below shall not be contacted regarding this acquisition.",
@@ -616,14 +616,14 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "standing",
       title: "Standing instructions",
-      citation: "FAR 52.215-1; NFS CG 1804.93; NFS CG 1815.11(i)",
+      citation: "RFO FAR 52.215-1; NFS CG 1804.93; NFS CG 1815.11(i)",
       tier: "binding",
       standingText:
         "Offerors are required to have a Commercial and Government Entity (CAGE) code that matches the corporate address submitted with its proposal.\n\nIn order to control and protect sensitive data owned by the Government and its Contractors, NASA policy required all acquisition-related documents be released in Adobe Portable Document Format (PDF).\n\nThis RFP and any amendments are posted to the Governmentwide point of entry at SAM.gov.\n\nNASA FAR Supplement (NFS) clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition can be found in the NASA Procurement Ombudsman and Competition Advocate listing.\n\nIn accordance with NFS CG 1815.11(i), a \u201cBlackout Notice\u201d has been issued to NASA personnel. All inquiries and communications pertaining to this acquisition shall be directed only to the Contracting Officer listed below.",
       fields: [
         S("award_without_discussions", "Instructions to offerors provision", [
           "Offerors are encouraged to refer to Federal Acquisition Regulation (FAR) provision 52.215-1, INSTRUCTIONS TO OFFERORS\u2013COMPETITIVE ACQUISITION, in particular paragraph (f)(4) which discusses the Government's right to award a contract without discussions.",
-          "Offerors are encouraged to refer to Federal Acquisition Regulation (FAR) provision 52.212-1, INSTRUCTIONS TO OFFERORS-COMMERCIAL ITEMS, in particular paragraph (g), which states that the Government intends to evaluate offers and award a contract without discussions with offerors.",
+          "Offerors are encouraged to refer to Federal Acquisition Regulation (FAR) provision 52.212-1, INSTRUCTIONS TO OFFERORS-COMMERCIAL PRODUCTS AND COMMERCIAL SERVICES, in particular paragraph (d), which states that the Government intends to evaluate offers and award a contract without discussions with offerors.",
         ]),
         S("cost_or_price", "Volume named in the exhibit instruction", ["Cost", "Price"], "Cost"),
         X("exhibit_instruction_source", "Provision or document that carries the exhibit instructions"),
@@ -632,7 +632,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "disclaimer",
       title: "Disclaimer",
-      citation: "FAR 15.201(e)",
+      citation: "RFO FAR 15.101(c)",
       tier: "binding",
       standingText:
         "This RFP does not commit NASA to pay any proposal preparation costs, nor does it obligate NASA to procure or contract for these services. This request is not an authorization to proceed and does not authorize payment for any charges incurred by the offeror for performing any of the work called for in this solicitation.",
@@ -641,7 +641,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "due_dates",
       title: "Proposal and question due dates",
-      citation: "FAR 15.208",
+      citation: "RFO FAR 15.107",
       tier: "binding",
       fields: [
         X("proposals_due", "Proposals are due no later than (date, time and time zone)"),
@@ -653,7 +653,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "signature",
       title: "Signature",
-      citation: "FAR 15.203",
+      citation: "RFO FAR 15.102",
       tier: "binding",
       standingText: "Thank you for your support. We look forward to receiving your proposals.",
       fields: [
@@ -709,23 +709,23 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "certified_data",
       title: "Certified cost or pricing data",
-      citation: "FAR 15.403-4; FAR 52.215-20; FAR 15.408 Table 15-2; FAR 15.406-2",
+      citation: "RFO FAR 15.403-3(a); RFO FAR 52.215-20; RFO FAR 15.408-2, Table 15-1; RFO FAR 15.403-4",
       tier: "binding",
       standingText:
-        "Please be advised, in accordance with Federal Acquisition Regulation (FAR) 15.403-4, Requiring Cost or Pricing Data (10 U.S.C. 2306a and 41 U.S.C. 254b), certified cost or pricing data is required for this contract (see FAR 52.215-20, Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data). The cost or pricing data must be prepared in accordance with the instructions contained in Table 15-2 under FAR 15.408. As soon as practicable after agreement on price, but before contract award, a Certificate of Current Cost or Pricing Data must be submitted to the contracting officer in accordance with FAR 15.406-2.",
+        "Please be advised, in accordance with RFO FAR 15.403-3, Certified cost or pricing data, certified cost or pricing data is required for this contract (see RFO FAR 52.215-20, Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data). The cost or pricing data must be prepared in accordance with the instructions contained in Table 15-2 under RFO FAR 15.408. As soon as practicable after agreement on price, but before contract award, a Certificate of Current Cost or Pricing Data must be submitted to the contracting officer in accordance with RFO FAR 15.403-4.",
       fields: [
         YESNO("certified_data_required", "Certified cost or pricing data is required"),
-        T("subcontractor_data", "Subcontractor certified cost or pricing data required under FAR 15.404-3(c)(1)"),
+        T("subcontractor_data", "Subcontractor certified cost or pricing data required under RFO FAR 15.404-8(b)(1)"),
       ],
       showIf: (v: Values) => v["certified_data_required"] === "Yes",
     },
     {
       id: "volumes",
       title: "Proposal volumes",
-      citation: "FAR 15.204",
+      citation: "RFO FAR 15.109",
       tier: "binding",
       standingText:
-        "Contract Volume \u2014 the signed award form and the draft contract, with any Safety and Health Plan and Small Business Subcontracting Plan attachments.\nOffer Volume \u2014 technical approach, business systems, contract administration and other information, any Cost Accounting Standards Disclosure Statement, and the Total Compensation Plan (see FAR 22.1103).\nCost or Price Volume \u2014 the cost or price exhibits with supporting documentation and NFS provision 1852.215-85, Proposal Adequacy Checklist.",
+        "Contract Volume \u2014 the signed award form and the draft contract, with any Safety and Health Plan and Small Business Subcontracting Plan attachments.\nOffer Volume \u2014 technical approach, business systems, contract administration and other information, any Cost Accounting Standards Disclosure Statement, and the Total Compensation Plan, if the solicitation calls for one.\nCost or Price Volume \u2014 the cost or price exhibits with supporting documentation and NFS provision 1852.215-85, Proposal Adequacy Checklist.",
       fields: [
         S("award_form", "Award form in the Contract Volume", ["SF 26", "SF 33", "SF 1449"], "SF 33"),
         S("cost_or_price", "Cost or Price Volume", ["Cost", "Price"], "Cost"),
@@ -736,7 +736,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "enclosures_detail",
       title: "Enclosure content",
-      citation: "NFS 1852.245-80; NFS 1852.245-81; NFS 1852.234-1 (DEVIATION); FAR 44.3",
+      citation: "NFS 1852.245-80; NFS 1852.245-81; NFS 1852.234-1 (DEVIATION); RFO FAR 44.301",
       tier: "binding",
       collapsed: true,
       fields: [
@@ -747,7 +747,7 @@ const rfpNoncompetitive: TemplateDef = {
         T("cas", "Cost Accounting Standards"),
         X("security_classification_level", "Contract security classification level"),
         T("government_property", "Government property information required (NFS 1852.245-80 and 1852.245-81)"),
-        T("total_compensation_plan", "Total Compensation Plan instructions (FAR 22.1103)"),
+        T("total_compensation_plan", "Total Compensation Plan instructions"),
         T("evms", "Earned value management system (NFS 1852.234-1 (DEVIATION))"),
         T("subcontracting_goals", "Small business subcontracting goals, by category"),
       ],
@@ -755,7 +755,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "optional_paragraphs",
       title: "Conditional paragraphs",
-      citation: "NFS 1852.215-85; NFS 1852.223-73; FAR 9.504; NFS 1852.240-76 (DEVIATION)",
+      citation: "NFS 1852.215-85; NFS 1852.226-72; RFO FAR 9.504; NFS 1852.240-76 (DEVIATION)",
       tier: "binding",
       fields: [
         YESNO("adequacy_checklist", "The Proposal Adequacy Checklist is included as an enclosure"),
@@ -780,7 +780,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "standing",
       title: "Standing instructions",
-      citation: "FAR 52.204-7; 18 USC \u00a7 1001",
+      citation: "RFO FAR 52.204-7; 18 USC \u00a7 1001",
       tier: "binding",
       standingText:
         "In accordance with FAR provision 52.204-7, System for Award Management (SAM), register and complete representations and certifications via the SAM web site accessed through https://www.sam.gov/SAM/.\n\nPlease submit an electronic copy of your proposal in Microsoft Office Word or Adobe Portable Document Format (PDF). DO NOT compress any electronic files. DO NOT password protect any portion of your electronic submission.\n\nThe proposal must set forth full, accurate, and complete information as required by this letter. The penalty for making false statements in a proposal is prescribed in 18 USC \u00a7 1001. This request is not to be construed in any way as a commitment of Government funds. Any award as a result of this request is contingent upon approval of the authority to negotiate and the availability of Government funds.\n\nThis RFP does not commit NASA to pay any proposal preparation costs, nor does it obligate NASA to procure or contract for these services. This request must not be construed as authorization to proceed with, or be paid for charges incurred by performing any of the work called for in this solicitation.",
@@ -837,11 +837,11 @@ const rfpExistingContract: TemplateDef = {
       fields: [
         T("scope", "The principal purpose of this requirement is to provide", "description_of_requirement"),
         S("authority_basis", "Authority for this action", [
-          "Other than full and open competition under FAR Part 6",
+          "Other than full and open competition under RFO FAR Part 6",
           "The changes clause, following a previously issued change order",
           "Another authority described below",
         ]),
-        X("far6_citation", "FAR Part 6 citation and title", "jofoc_authority_citation"),
+        X("far6_citation", "RFO FAR Part 6 citation and title", "jofoc_authority_citation"),
         X("prior_modification", "Previously issued change order modification number(s)"),
         X("changes_clause", "Changes clause number"),
         T("authority_narrative", "Authority paragraph tailored to this action"),
@@ -851,13 +851,13 @@ const rfpExistingContract: TemplateDef = {
     {
       id: "certified_data",
       title: "Certified cost or pricing data",
-      citation: "FAR 15.403-4; FAR 52.215-21; FAR 15.408 Table 15-2; FAR 15.406-2",
+      citation: "RFO FAR 15.403-3(a); RFO FAR 52.215-21; RFO FAR 15.408-2, Table 15-1; RFO FAR 15.403-4",
       tier: "binding",
       standingText:
-        "Please be advised, in accordance with Federal Acquisition Regulation (FAR) 15.403-4, Requiring Cost or Pricing Data (10 U.S.C. 2306a and 41 U.S.C. 254b), certified cost or pricing data is required for this contract modification (see FAR 52.215-21, Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data \u2013 Modifications). The cost or pricing data shall be prepared in accordance with the instructions contained at FAR 15.408, Table 15-2, and NFS 1852.215-85, Proposal Adequacy Checklist. As soon as practicable after agreement on price, but before contract modification award, a Certificate of Current Cost or Pricing Data shall be submitted to the Contracting Officer in accordance with FAR 15.406-2.",
+        "Please be advised, in accordance with RFO FAR 15.403-3, Certified cost or pricing data, certified cost or pricing data is required for this contract modification (see RFO FAR 52.215-21, Requirements for Certified Cost or Pricing Data and Data Other Than Certified Cost or Pricing Data \u2013 Modifications). The cost or pricing data shall be prepared in accordance with the instructions contained at RFO FAR 15.408, Table 15-2, and NFS 1852.215-85, Proposal Adequacy Checklist. As soon as practicable after agreement on price, but before contract modification award, a Certificate of Current Cost or Pricing Data shall be submitted to the Contracting Officer in accordance with RFO FAR 15.403-4.",
       fields: [
         YESNO("certified_data_required", "Certified cost or pricing data is required"),
-        T("subcontractor_data", "Subcontractor certified cost or pricing data required under FAR 15.404-3(c)(1)"),
+        T("subcontractor_data", "Subcontractor certified cost or pricing data required under RFO FAR 15.404-8(b)(1)"),
       ],
       showIf: (v: Values) => v["certified_data_required"] === "Yes",
     },
@@ -897,7 +897,7 @@ const blackoutNotice: TemplateDef = {
   tab: "039",
   layout: "memo",
   badge: {
-    citation: "FAR 15.101",
+    citation: "RFO FAR 15.101",
     tier: "binding",
     revision: "HQ 01/2025 revision",
     effective: "2025-01-01",
@@ -921,7 +921,7 @@ const blackoutNotice: TemplateDef = {
     {
       id: "release",
       title: "Release to industry",
-      citation: "FAR 15.101",
+      citation: "RFO FAR 15.101",
       tier: "binding",
       standingText:
         "The solicitation is located at the Governmentwide point of entry (GPE) (https://SAM.gov) and can be found by entering the solicitation number into the \u201ckeywords\u201d field.",
@@ -990,7 +990,7 @@ const electronicPostingChecklist: TemplateDef = {
     {
       id: "review",
       title: "CO/CS Review",
-      citation: "FAR 3.104-4; NAII 2190.1",
+      citation: "RFO FAR 3.104-4; NAII 2190.1",
       tier: "binding",
       fields: [
         S("check_1", "Ensure all files to be posted (e.g. RFP and other acquisition documents) contain no proprietary information about manufacturing processes, operations, or contractor unique approaches, sensitive, CUI, or export controlled information in accordance with applicable law or regulation. This includes confirming that the predecessor contract, if applicable, was provided with the appropriate data rights. Page by page review of the actual electronic documents is required.", CHECK),
@@ -1026,7 +1026,7 @@ const cbaNotification: TemplateDef = {
   tab: "030",
   layout: "memo",
   badge: {
-    citation: "FAR 22.1004-6(a); FAR 22.1010(a); FAR 22.1002-3(b)(2); FAR 22.1005-6; NFS 1822.1008-2(b)(2)",
+    citation: "RFO FAR 22.1004-6(a); RFO FAR 22.1002-3; NFS 1822.1008-2(b)(2)",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-01",
@@ -1037,7 +1037,7 @@ const cbaNotification: TemplateDef = {
     {
       id: "letter_header",
       title: "Letter",
-      citation: "FAR 22.1004-6(a)",
+      citation: "RFO FAR 22.1004-6(a)",
       tier: "binding",
       fields: [
         D("letter_date", "Date"),
@@ -1053,10 +1053,10 @@ const cbaNotification: TemplateDef = {
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 22.1010(a)",
+      citation: "RFO FAR 22.1004-6(a)",
       tier: "binding",
       standingText:
-        "In accordance with Federal Acquisition Regulation (FAR) section 22.1010(a), I have determined that service employees performing under the subject contract for the prime contractor named below and the number of its subcontractors shown are represented by collective bargaining agents (CBAs). NASA is required by the FAR to notify the prime contractor and the collective bargaining agent for the prime contractor's service employees of information pertaining to forthcoming modifications (e.g., contract extension, option exercise) and successor contracts. We encourage the prime contractor to forward this notification to any subcontractors with service employees performing under the subject contract, as well as the collective bargaining agents for those subcontractor service employees, as appropriate.",
+        "In accordance with RFO FAR 22.1004-6(a), I have determined that service employees performing under the subject contract for the prime contractor named below and the number of its subcontractors shown are represented by collective bargaining agents (CBAs). NASA is required by the FAR to notify the prime contractor and the collective bargaining agent for the prime contractor's service employees of information pertaining to forthcoming modifications (e.g., contract extension, option exercise) and successor contracts. We encourage the prime contractor to forward this notification to any subcontractors with service employees performing under the subject contract, as well as the collective bargaining agents for those subcontractor service employees, as appropriate.",
       fields: [
         X("prime_contractor", "Prime contractor's name", "vendor_legal_name"),
         X("subcontractor_count", "Number of subcontractors with CBAs"),
@@ -1065,7 +1065,7 @@ const cbaNotification: TemplateDef = {
     {
       id: "kind",
       title: "Action covered",
-      citation: "FAR 22.1004-6(a)",
+      citation: "RFO FAR 22.1004-6(a)",
       tier: "binding",
       fields: [
         S("action_kind", "This notification covers", [
@@ -1079,7 +1079,7 @@ const cbaNotification: TemplateDef = {
     {
       id: "anniversary",
       title: "Multiple-year contract anniversary date",
-      citation: "FAR 22.1004-6(a)",
+      citation: "RFO FAR 22.1004-6(a)",
       tier: "binding",
       standingText:
         "The forthcoming multiple year contract anniversary date (annual anniversary date or biennial date) is shown below.",
@@ -1089,7 +1089,7 @@ const cbaNotification: TemplateDef = {
     {
       id: "dates",
       title: "Acquisition dates",
-      citation: "FAR 22.1004-6(a)",
+      citation: "RFO FAR 22.1004-6(a)",
       tier: "binding",
       standingText:
         "I hereby notify you that the applicable acquisition dates for the forthcoming action identified below are as follows.",
@@ -1107,10 +1107,10 @@ const cbaNotification: TemplateDef = {
     {
       id: "option",
       title: "Option exercise",
-      citation: "FAR 52.217-9",
+      citation: "RFO FAR 52.217-9",
       tier: "binding",
       standingText:
-        "In accordance with contract clause at FAR 52.217-9, Option to Extend the Term of the Contract (Mar 2000), this letter is to provide preliminary notice that the Government intends to exercise the option identified below for the period shown. This preliminary notice does not commit the Government to an extension, nor obligate the Government to acquire additional services under the contract.",
+        "In accordance with contract clause at RFO FAR 52.217-9, Option to Extend the Term of the Contract (Mar 2000), this letter is to provide preliminary notice that the Government intends to exercise the option identified below for the period shown. This preliminary notice does not commit the Government to an extension, nor obligate the Government to acquire additional services under the contract.",
       fields: [
         X("option_number", "Option to be exercised, with contract year"),
         D("option_date", "Planned date for exercising the option"),
@@ -1144,7 +1144,7 @@ const ppm: TemplateDef = {
   tab: "063",
   layout: "memo",
   badge: {
-    citation: "FAR 15.4; FAR 15.408; FAR 15.408-1(b); NFS CG 1815.48",
+    citation: "RFO FAR subpart 15.4; RFO FAR 15.408; RFO FAR 15.408-1(b); NFS CG 1815.48",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-01",
@@ -1155,10 +1155,10 @@ const ppm: TemplateDef = {
     {
       id: "title",
       title: "PRENEGOTIATION POSITION MEMORANDUM",
-      citation: "FAR 15.408; NFS CG 1815.48",
+      citation: "RFO FAR 15.408; NFS CG 1815.48",
       tier: "binding",
       standingText:
-        "The contracting officer (CO) has prepared this Prenegotiation Position Memorandum (PPM) pursuant to Federal Acquisition Regulation (FAR) 15.408 and NASA FAR Supplement (NFS) Companion Guide (CG) 1815.48.",
+        "The contracting officer (CO) has prepared this Prenegotiation Position Memorandum (PPM) pursuant to RFO FAR 15.408 and NASA FAR Supplement (NFS) Companion Guide (CG) 1815.48.",
       fields: [
         X("requirement_title", "Title of the requirement being negotiated, with contract, order and modification number", "title"),
       ],
@@ -1166,7 +1166,7 @@ const ppm: TemplateDef = {
     {
       id: "introduction",
       title: "I. INTRODUCTION",
-      citation: "FAR 15.408-1(b)",
+      citation: "RFO FAR 15.408-1(b)",
       tier: "binding",
       fields: [
         T("description_background", "A. Description and Background of the proposed action:", "description_of_requirement"),
@@ -1179,36 +1179,36 @@ const ppm: TemplateDef = {
     {
       id: "compliance",
       title: "D. Documentation Pertaining to Compliance with Law, Regulations, And Policy:",
-      citation: "FAR 5.101; FAR 44.301; NFS CG 1844.3; FAR 19.302(a); FAR 30.301; FAR 44.201-1; NFS CG 1845.23; FAR 15.404-9(c)(3)",
+      citation: "RFO FAR 5.101; RFO FAR 44.301-1; NFS CG 1844.3; RFO FAR 19.109; RFO FAR 30.301; RFO FAR 44.201-1; NFS CG 1845.23; RFO FAR 15.404-9(c)(3)",
       tier: "binding",
       fields: [
         X("jofoc_status", "1. Justification for Other Than Full and Open Competition (JOFOC): exception, 10 U.S.C. 3204(a)( )", "jofoc_authority_citation"),
         D("jofoc_approved_on", "1. JOFOC approved on"),
-        D("synopsis_date", "2. Presolicitation Notice posted to the Government Point of Entry (FAR 5.101) on"),
+        D("synopsis_date", "2. Presolicitation Notice posted to the Government Point of Entry (RFO FAR 5.101) on"),
         X("interested_companies", "2. Number of interested companies"),
         S("accounting_system", "3(a). Accounting system is", CHECKBOX_SYSTEM),
         X("accounting_determined_by", "3(a). Determined by and on, and verified by the contract specialist on"),
         S("estimating_system", "3(b). Estimating system is", CHECKBOX_SYSTEM),
         X("estimating_determined_by", "3(b). Determined by and on, and verified by the contract specialist on"),
-        S("purchasing_system", "3(c). Purchasing system (FAR 44.301; NFS CG 1844.3) is", ["", "Approved", "Approval Withheld", "Approval Withdrawn", "Other", "N/A (sales to Government less than $25M during next 12 months)"]),
+        S("purchasing_system", "3(c). Purchasing system (RFO FAR 44.301-1; NFS CG 1844.3) is", ["", "Approved", "Approval Withheld", "Approval Withdrawn", "Other", "N/A (sales to Government less than $25M during next 12 months)"]),
         X("purchasing_determined_by", "3(c). Determined by and on, and verified by the contract specialist on"),
         S("tcp_received", "4. Total Compensation Plan received", ["", "Yes", "N/A (under $750K)", "Other"]),
         X("tcp_reviewed_by", "4. Reviewed by and on"),
-        S("subcontracting_plan", "5. Small Business Subcontracting Plan (or revision) received (FAR 19.302(a))", ["", "Yes", "N/A (under $900K, or $2M construction)", "Other"]),
+        S("subcontracting_plan", "5. Small Business Subcontracting Plan (or revision) received (RFO FAR 19.109)", ["", "Yes", "N/A (under $900K, or $2M construction)", "Other"]),
         S("subcontracting_plan_position", "5. The Small Business Specialist", ["", "Concurred", "Non-concurred"]),
-        S("consent_subcontractors", "6. Subcontractors require special surveillance consent and designation under FAR 52.244-2, paragraphs (c) and (d) (see FAR 44.201-1(a) and (b))", ["", "Yes", "No", "N/A", "As yet undetermined; addressed in item M below"]),
-        S("cas_disclosure", "7. Contractor's Cost Accounting Standards Disclosure Statement (FAR 30.301) is", ["", "Adequate", "Inadequate", "Other", "N/A (Small Business or Foreign Government)"]),
+        S("consent_subcontractors", "6. Subcontractors require special surveillance consent and designation under RFO FAR 52.244-2, paragraphs (c) and (d) (see RFO FAR 44.201-1(a) and (b))", ["", "Yes", "No", "N/A", "As yet undetermined; addressed in item M below"]),
+        S("cas_disclosure", "7. Contractor's Cost Accounting Standards Disclosure Statement (RFO FAR 30.301) is", ["", "Adequate", "Inadequate", "Other", "N/A (Small Business or Foreign Government)"]),
         S("ipo_review", "8. Industrial Property Officer (IPO) review received (NFS CG 1845.23)", ["", "Yes", "N/A (contract under $250K, modification or change order, contract not onsite, existing property not being furnished, or contractor not acquiring property)", "Other"]),
         S("ipo_position", "8. The Industrial Property Officer", ["", "Concurred", "Nonconcurred"]),
-        S("fccm", "9. Contractor has proposed Facilities Capital Cost of Money (FCCM); if yes, the FCCM cost objective amounts have been excluded from the profit/fee base in accordance with FAR 15.404-9(c)(3)(ii)", ["No", "Yes"]),
-        S("cap_equipment", "10. Contractor has proposed Contractor-Acquired Property categorized as equipment (FAR 45.101) charged directly to the contract; if yes, those amounts have been excluded from the profit/fee base in accordance with FAR 15.404-9(c)(3)(i)", ["No", "Yes"]),
+        S("fccm", "9. Contractor has proposed Facilities Capital Cost of Money (FCCM); if yes, the FCCM cost objective amounts have been excluded from the profit/fee base in accordance with RFO FAR 15.404-9(c)(3)(ii)", ["No", "Yes"]),
+        S("cap_equipment", "10. Contractor has proposed Contractor-Acquired Property categorized as equipment (RFO FAR 45.101) charged directly to the contract; if yes, those amounts have been excluded from the profit/fee base in accordance with RFO FAR 15.404-9(c)(3)(i)", ["No", "Yes"]),
         T("compliance_explanations", "Explanations for any item above"),
       ],
     },
     {
       id: "chronology",
       title: "E. Evaluation Documentation Chronology:",
-      citation: "FAR 15.408-1(b)",
+      citation: "RFO FAR 15.408-1(b)",
       tier: "binding",
       fields: [
         S("igce_developed", "1. Was an Independent Government Cost Estimate (IGCE) developed for this action?", ["Yes", "No"], "Yes"),
@@ -1225,7 +1225,7 @@ const ppm: TemplateDef = {
     {
       id: "data_schedule_team",
       title: "F. Certified Cost or Pricing Data; G. Proposed Negotiation Schedule; H. Negotiation Team:",
-      citation: "FAR 15.403; FAR 15.408",
+      citation: "RFO FAR 15.403; RFO FAR 15.408",
       tier: "binding",
       standingText: "Negotiations will commence upon approval of this PPM.",
       fields: [
@@ -1237,7 +1237,7 @@ const ppm: TemplateDef = {
     {
       id: "contract_type",
       title: "II. TYPE OF CONTRACT CONTEMPLATED",
-      citation: "FAR 16.4; NFS 1816.4",
+      citation: "RFO FAR subpart 16.4; NFS 1816.4",
       tier: "binding",
       fields: [
         X("contract_type", "Contract type", "contract_type"),
@@ -1247,7 +1247,7 @@ const ppm: TemplateDef = {
     {
       id: "special_features",
       title: "III. SPECIAL FEATURES AND REQUIREMENTS",
-      citation: "FAR 15.408",
+      citation: "RFO FAR 15.408",
       tier: "binding",
       standingText:
         "Checking \u201cNo\u201d means none or not applicable to the requirement. Checking \u201cYes\u201d means the item applies to this requirement. The CO will address any \u201cYes\u201d items under this section.",
@@ -1266,7 +1266,7 @@ const ppm: TemplateDef = {
     {
       id: "cost_analysis",
       title: "IV. COST ANALYSIS \u2014 PARALLEL TABULATION BY ELEMENT OF COST AND PROFIT/FEE",
-      citation: "FAR 15.404-1; FAR 15.404-1(b)",
+      citation: "RFO FAR 15.404; RFO FAR 15.404-1(b)",
       tier: "binding",
       standingText:
         "The Maximum position (if used) for each individual element of cost must be explained in detail (basis and why it is fair and reasonable) in the Section IV reference notes. Rationale for the Government's profit/fee objectives must be explained in the Section IV reference notes and, if appropriate, attach a completed NASA Form 634, Structured Approach\u2014Profit/Fee Objective.",
@@ -1277,7 +1277,7 @@ const ppm: TemplateDef = {
     {
       id: "reference_notes",
       title: "IV. COST ANALYSIS \u2014 REFERENCE NOTES",
-      citation: "FAR 15.404-1(b)(2); FAR 15.404-4",
+      citation: "RFO FAR 15.404-1(b); RFO FAR 15.404-9",
       tier: "binding",
       fields: [
         T("note_a", "A. Direct Labor"),
@@ -1299,7 +1299,7 @@ const ppm: TemplateDef = {
     {
       id: "approval",
       title: "V. NEGOTIATION APPROVAL SOUGHT",
-      citation: "FAR 15.408; NFS CG 1815.48",
+      citation: "RFO FAR 15.408; NFS CG 1815.48",
       tier: "binding",
       standingText:
         "The prenegotiation position above represents the Government's realistic assessment of fair and reasonable prices for the requirement named in this memorandum. Based on the information provided herein, approval is sought for the prenegotiation positions set forth in this document.",
@@ -1339,7 +1339,7 @@ const tcpEvaluationMemo: TemplateDef = {
   tab: "54",
   layout: "memo",
   badge: {
-    citation: "FAR 15.104(d); 29 CFR 541.300; DOL Fact Sheet #17D",
+    citation: "29 CFR 541.300; DOL Fact Sheet #17D",
     tier: "binding",
     revision: "HQ Enterprise Instructions for Total Compensation Plans",
     effective: "2026-04-01",
@@ -1402,7 +1402,6 @@ const tcpEvaluationMemo: TemplateDef = {
     {
       id: "rate_comparison",
       title: "C. Comparison of direct labor rates to market data",
-      citation: "FAR 15.104(d)",
       tier: "binding",
       standingText:
         "Rates were assessed in the aggregate to determine whether the offeror's total compensation plan envisions professional compensation levels sufficient to keep suitably qualified personnel to meet mission objectives and provide uninterrupted high-quality work. The aggregate value is determined based on the sum of the rate delta, the proposed direct labor rate minus the applicable market direct labor rate used by the Government, for each classification multiplied by the respective proposed hours for the classification for each year. The aggregate analysis considers proposed rates below the respective market rate data used by the Government, as well as rates that are above, or significantly above.",
@@ -1416,7 +1415,6 @@ const tcpEvaluationMemo: TemplateDef = {
     {
       id: "findings",
       title: "D. Findings",
-      citation: "FAR 15.104(d)",
       tier: "binding",
       fields: [
         T("findings", "Findings, including any total compensation plan or staffing related finding and the rationale supporting it"),
@@ -1517,23 +1515,23 @@ const requirementsStatementsList: TemplateDef = {
     {
       id: "right_to_repair_text",
       title: "C-301.5, Right to Repair (JUN 2026)",
-      citation: "NFS CG 1827; FAR 52.227-14; NFS 1852.227-14",
+      citation: "NFS CG 1827; RFO FAR 52.227-14; NFS 1852.227-14",
       tier: "binding",
       collapsed: true,
       showIf: (v: Values) => v["right_to_repair"] === "Yes",
       standingText:
-        "Right to repair means the ability of the Government to diagnose, maintain, repair, reconstruct, remanufacture, re-flash, or rebuild the product(s) delivered under the contract without waiting for the contractor to perform these tasks, and without negating any warranty clause or otherwise excusing the contractor from performance obligations. The right to repair supersedes any requirement, clause, or provision stated elsewhere in this contract that requires the contractor to attempt repair before the Government can attempt repair.\n\nUse, Maintenance, Repair Data and Instructions (UMRDI) means all documentation, data, and other information necessary to enable the Government to perform maintenance and repair such as specifications, parts, tools, schematics, software, and technical documentation necessary for internal manufacturing, repair, and operations.\n\nTo preserve NASA's repair and operation autonomy, the contractor must provide UMRDI data in accordance with the DRD entitled \u201cUMRDI.\u201d NASA may conduct these activities itself or designate another entity to perform repairs on its behalf without waiting for the contractor to perform these tasks. The rights in any UMRDI will be in accordance with FAR 52.227-14 (as modified by NFS 1852.227-14). The contractor must not impose restrictions on the use of UMRDI when it is used in accordance with the contract's data rights terms. Contractors must supply or provide access to original equipment manufacturer (OEM) parts and tools necessary to complete the Government's right to repair activities, unless prior approval is obtained for non-OEM parts or tools.\n\nFailure to comply with these requirements may affect contractor performance ratings, result in withholding of contract payments, or render the contractor noncompliant with the contract requirements.",
+        "Right to repair means the ability of the Government to diagnose, maintain, repair, reconstruct, remanufacture, re-flash, or rebuild the product(s) delivered under the contract without waiting for the contractor to perform these tasks, and without negating any warranty clause or otherwise excusing the contractor from performance obligations. The right to repair supersedes any requirement, clause, or provision stated elsewhere in this contract that requires the contractor to attempt repair before the Government can attempt repair.\n\nUse, Maintenance, Repair Data and Instructions (UMRDI) means all documentation, data, and other information necessary to enable the Government to perform maintenance and repair such as specifications, parts, tools, schematics, software, and technical documentation necessary for internal manufacturing, repair, and operations.\n\nTo preserve NASA's repair and operation autonomy, the contractor must provide UMRDI data in accordance with the DRD entitled \u201cUMRDI.\u201d NASA may conduct these activities itself or designate another entity to perform repairs on its behalf without waiting for the contractor to perform these tasks. The rights in any UMRDI will be in accordance with RFO FAR 52.227-14 (as modified by NFS 1852.227-14). The contractor must not impose restrictions on the use of UMRDI when it is used in accordance with the contract's data rights terms. Contractors must supply or provide access to original equipment manufacturer (OEM) parts and tools necessary to complete the Government's right to repair activities, unless prior approval is obtained for non-OEM parts or tools.\n\nFailure to comply with these requirements may affect contractor performance ratings, result in withholding of contract payments, or render the contractor noncompliant with the contract requirements.",
       fields: [],
     },
     {
       id: "drone_text",
       title: "C-301.6, Drone Procurement (JUL 2026)",
-      citation: "NFS CG 1840.21(a); FAR 40.201",
+      citation: "NFS CG 1840.21(a); RFO FAR 40.201",
       tier: "binding",
       collapsed: true,
       showIf: (v: Values) => v["drone_procurement"] === "Yes",
       standingText:
-        "(a) Definitions. Federal information means information created, collected, processed, maintained, disseminated, disclosed, or disposed of by or for the Federal Government, in any medium or form. Unmanned aircraft system (UAS) is defined in FAR 40.201, Definitions.\n\n(b) Security requirements for UAS procurements. Contractors (and subcontractors in relevant subcontracts) providing one or more UASs that will process, store, or transmit federal information must adhere to the following information security requirements for each UAS provided:\n\n(1) Access control. If personnel will remotely access UAS ground control stations, the contractor must require and enforce appropriate authentication at the identification and authorization levels, including multifactor authentication per National Institute of Standards and Technology (NIST) Special Publication (SP) 800-63, Digital Identity Guidelines, or any successor publication.\n\n(2) Software and firmware updates. Updates proposed by the contractor must come only from the UAS manufacturer or a trusted third party. Information technology used for the installation and download of UAS software and firmware must be isolated from the information systems owned or controlled by the contractor, the UAS manufacturer, and any trusted third parties.\n\n(3) Data protection. To the extent practicable, federal information must be encrypted at rest and during the collection and transmittal of such information. Sensitive data collected, stored, or processed by the UAS, or transmitted to or from it, must be cryptographically secured using an approved and validated cryptographic algorithm and module. NASA retains the ability to opt out of any uploading, downloading, or transmitting of UAS data that is not required by law or regulation.",
+        "(a) Definitions. Federal information means information created, collected, processed, maintained, disseminated, disclosed, or disposed of by or for the Federal Government, in any medium or form. Unmanned aircraft system (UAS) is defined in RFO FAR 40.201, Definitions.\n\n(b) Security requirements for UAS procurements. Contractors (and subcontractors in relevant subcontracts) providing one or more UASs that will process, store, or transmit federal information must adhere to the following information security requirements for each UAS provided:\n\n(1) Access control. If personnel will remotely access UAS ground control stations, the contractor must require and enforce appropriate authentication at the identification and authorization levels, including multifactor authentication per National Institute of Standards and Technology (NIST) Special Publication (SP) 800-63, Digital Identity Guidelines, or any successor publication.\n\n(2) Software and firmware updates. Updates proposed by the contractor must come only from the UAS manufacturer or a trusted third party. Information technology used for the installation and download of UAS software and firmware must be isolated from the information systems owned or controlled by the contractor, the UAS manufacturer, and any trusted third parties.\n\n(3) Data protection. To the extent practicable, federal information must be encrypted at rest and during the collection and transmittal of such information. Sensitive data collected, stored, or processed by the UAS, or transmitted to or from it, must be cryptographically secured using an approved and validated cryptographic algorithm and module. NASA retains the ability to opt out of any uploading, downloading, or transmitting of UAS data that is not required by law or regulation.",
       fields: [
         S("uas_sensitive_data", "Does the UAS store or process sensitive data?", ["", "Yes", "No"]),
         S("uas_integrity_level", "Overall system impact level for integrity", ["", "Low", "Moderate", "High"]),

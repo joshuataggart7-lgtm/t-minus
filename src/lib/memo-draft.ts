@@ -8,7 +8,7 @@
  * rather than a heading with nothing under it.
  *
  * Citations follow the record's own acquisition method: the simplified
- * commercial citations on FAR 13, FAR 13.5 and FAR 12 files, the Part 15
+ * commercial citations on RFO FAR Part 13, FAR 13.5 and RFO FAR Part 12 files, the Part 15
  * citations otherwise.
  */
 
@@ -165,7 +165,7 @@ const dollars = (v: unknown) => {
     : "";
 };
 
-/** True on a FAR 13, FAR 13.5 or FAR Part 12 commercial file. */
+/** True on a RFO FAR Part 13, FAR 13.5 or RFO FAR Part 12 commercial file. */
 export function isSimplifiedCommercial(acq: Record<string, unknown>): boolean {
   const method = `${str(acq["acquisition_method"])} ${str(acq["contract_format"])}`;
   if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
@@ -271,8 +271,8 @@ function ruleOfTwo(ctx: MemoDraftCtx, inJofoc = false): string {
   if (engine) return engine;
   if (ctx.evidence) {
     return ctx.evidence.smallBusinesses >= 2
-      ? `${ctx.evidence.smallBusinesses} small business concerns were identified as capable of meeting the requirement. The expectation of offers from two or more responsible small business concerns at fair market prices is met (FAR 19.502-2).`
-      : `${ctx.evidence.smallBusinesses} small business concerns were identified. The expectation of offers from two or more responsible small business concerns is not supported on this record (FAR 19.502-2).`;
+      ? `${ctx.evidence.smallBusinesses} small business concerns were identified as capable of meeting the requirement. The expectation of offers from two or more responsible small business concerns at fair market prices is met (RFO FAR 19.104-1).`
+      : `${ctx.evidence.smallBusinesses} small business concerns were identified. The expectation of offers from two or more responsible small business concerns is not supported on this record (RFO FAR 19.104-1).`;
   }
   return gap("state the number of sources, their small business capability and the Rule of Two result");
 }
@@ -324,13 +324,13 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   // competition code itself.
   const methodProse = (() => {
     const m = `${str(a["acquisition_method"])} ${commercialDetermination}`.toLowerCase();
-    if (m.includes("8.4")) return "the ordering procedures of FAR Subpart 8.4 apply";
+    if (m.includes("8.4")) return "the ordering procedures of RFO FAR subpart 8.4 apply";
     if (m.includes("part 15") || m.includes("far 15") || m.includes("negotiat"))
-      return "the procedures of FAR Part 15 apply";
+      return "the procedures of RFO FAR Part 15 apply";
     if (m.includes("13.5") || m.includes("commercial") || m.includes("part 12"))
       return "the simplified procedures for commercial products and services under RFO FAR 12.201-1 (Table 12-1) apply";
     if (m.includes("13") || m.includes("simplified"))
-      return "the simplified acquisition procedures of FAR Part 13 apply";
+      return "the simplified acquisition procedures of RFO FAR Part 13 apply";
     return "";
   })();
   const basis = [
@@ -355,7 +355,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
         : gap("state the competition and set-aside the research supports");
 
   return {
-    purpose: `This memorandum records the market research conducted for ${str(a["title"]) || ctx.acquisitionId} and the conclusions drawn from it (FAR 10.002(e)).`,
+    purpose: `This memorandum records the market research conducted for ${str(a["title"]) || ctx.acquisitionId} and the conclusions drawn from it (RFO FAR 10.001(e)).`,
     requirement: `${str(a["description_of_requirement"]) || gap("add the description of the requirement to the record")} The requirement supports ${
       ctx.missionName || gap("name the mission")
     }${start && end ? `, with performance from ${start} through ${end}` : ""}${value ? `, at an estimated value of ${value}` : ""}.`,
@@ -363,7 +363,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     research: humanMemoProse(research.join("\n")),
     findings: humanMemoProse(ruleOfTwo(ctx)),
     commercial: commercialDetermination
-      ? `The requirement is a ${commercialDetermination.toLowerCase()} within FAR 2.101, so the procedures of FAR Part 12 apply.${
+      ? `The requirement is a ${commercialDetermination.toLowerCase()} within RFO FAR 2.101, so the procedures of RFO FAR Part 12 apply.${
           commercialityOnFile ? " The commerciality determination on this file states the basis in full." : ""
         }`
       : gap("record the commerciality determination, then cross-reference it here"),
@@ -390,13 +390,13 @@ function commerciality(ctx: MemoDraftCtx): Values {
   const determination = str(a["commercial_determination"]);
   const simplified = isSimplifiedCommercial(a);
   const category = /product|item/i.test(determination)
-    ? "Commercial product (FAR 2.101 'commercial product')"
+    ? "Commercial product (RFO FAR 2.101 'commercial product')"
     : determination
-    ? "Commercial service (FAR 2.101 'commercial service')"
+    ? "Commercial service (RFO FAR 2.101 'commercial service')"
     : "";
   const procedures = simplified
     ? "FAR Part 12 with FAR 13.5 simplified procedures"
-    : "FAR Part 12 with FAR Part 15 procedures";
+    : "RFO FAR Part 12 with RFO FAR Part 15 procedures";
   return {
     requirement_description: str(a["description_of_requirement"]) || gap("add the description of the requirement to the record"),
     determination_basis:
@@ -412,9 +412,9 @@ function commerciality(ctx: MemoDraftCtx): Values {
         );
       }
       const sentence = pricing.charAt(0).toUpperCase() + pricing.slice(1);
-      return `${sentence} is the pricing arrangement on the record and the customary commercial practice for this requirement; no tailoring of FAR 52.212-4 is proposed. Drafted from the record, confirm.`;
+      return `${sentence} is the pricing arrangement on the record and the customary commercial practice for this requirement; no tailoring of RFO FAR 52.212-4 is proposed. Drafted from the record, confirm.`;
     })(),
-    determination: `The requirement is a commercial service within the meaning of FAR 2.101 and will be acquired under FAR Part 12 using the simplified procedures of FAR 12.201-1.`,
+    determination: `The requirement is a commercial service within the meaning of RFO FAR 2.101 and will be acquired under RFO FAR Part 12 using the simplified procedures of RFO FAR 12.201-1.`,
     determined_on: ctx.today ?? "",
   };
 }
@@ -434,7 +434,7 @@ function competitionBasis(ctx: MemoDraftCtx): string {
   if (/sole/i.test(str(a["competition"]))) {
     const authority = str(a["jofoc_authority_citation"]);
     return [
-      `${ctx.operational?.readiness === "LAUNCHED" ? "Awarded" : "This acquisition is being conducted"} on a sole-source basis under FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1) and the limitation on competition at FAR 6.104${
+      `${ctx.operational?.readiness === "LAUNCHED" ? "Awarded" : "This acquisition is being conducted"} on a sole-source basis under RFO FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1) and the limitation on competition at RFO FAR 6.104${
         authority ? `, on the authority of ${authority}` : ""
       }.`,
       `NAICS ${naics || "[not recorded]"}, ${size}.`,
@@ -446,7 +446,7 @@ function competitionBasis(ctx: MemoDraftCtx): string {
     ].join(" ");
   }
   return [
-    `Competed as a ${setAside ? setAside.toLowerCase() : "[set-aside not recorded]"} under FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1), NAICS ${
+    `Competed as a ${setAside ? setAside.toLowerCase() : "[set-aside not recorded]"} under RFO FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1), NAICS ${
       naics || "[not recorded]"
     }, ${size}.`,
     posted
@@ -532,7 +532,7 @@ function waiverDeviation(ctx: MemoDraftCtx): Values {
  */
 export function jofocAuthorityDefault(acq: Record<string, unknown>): string {
   if (!isSoleSourceRecord(acq)) return "";
-  if (isSimplifiedCommercial(acq)) return "41 U.S.C. 1901 (FAR 12.102 procedures)";
+  if (isSimplifiedCommercial(acq)) return "41 U.S.C. 1901 (RFO FAR 12.102 procedures)";
   return "";
 }
 
@@ -548,7 +548,7 @@ function jofoc(ctx: MemoDraftCtx): Values {
         "state the authority for other than full and open competition and the basis for it; this file is recorded as competed",
       )
     : authority.includes("1901")
-    ? `The authority cited is 41 U.S.C. 1901, carried out through the procedures of FAR 12.102 as applied by RFO FAR 12.201-1. The requirement is a commercial service with an estimated value of ${
+    ? `The authority cited is 41 U.S.C. 1901, carried out through the procedures of RFO FAR 12.102 as applied by RFO FAR 12.201-1. The requirement is a commercial service with an estimated value of ${
         value || "the amount on the record"
       }, within the ceiling for simplified procedures for commercial products and services, so the acquisition is conducted under those procedures rather than full and open competition. ${vendor} is the only responsible source able to meet the requirement within the mission need date on the record. Drafted from the record, confirm.`
     : authority
@@ -1060,7 +1060,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
  * Situation-memo starter. An unexpected event is written onto the file as a
  * memorandum for record: what the file was doing when the event happened, the
  * dates already on the record, and blanks the officer fills. Nothing here is a
- * new award requirement, and no citation is asserted beyond FAR 4.801/4.803,
+ * new award requirement, and no citation is asserted beyond RFO FAR 4.101/4.803,
  * which the template badge already carries.
  */
 function situationScaffold(ctx: MemoDraftCtx): string {
@@ -1120,7 +1120,7 @@ function memorandumForRecord(ctx: MemoDraftCtx): Values {
 }
 
 /**
- * Evaluation of quotations record (FAR 13.106-2). The basis for award and the
+ * Evaluation of quotations record (RFO FAR 13.202). The basis for award and the
  * criteria come from the notice on the file; the rest is the officer's.
  */
 function evaluationOfQuotations(ctx: MemoDraftCtx): Values {

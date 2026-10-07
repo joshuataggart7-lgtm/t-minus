@@ -296,7 +296,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
       .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")
       .replace(/^[\s,;:.-]+/, "")
       .trim();
-    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (FAR 12.102 procedures)"}`;
+    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (RFO FAR 12.102 procedures)"}`;
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);

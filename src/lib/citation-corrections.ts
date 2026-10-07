@@ -26,7 +26,7 @@ const CORRECTED: Record<string, string> = {
   "NFS 1819.202-70":
     "NFS CG 1819.11(a) (Companion Guide)",
   "NFS 1819.202-70; NFS CG 1819.11: required above the micro-purchase threshold (exceptions such as within-scope modifications, SBIR/STTR); NF 1787A market research documentation at $2M and above (CG 1810.12(c))":
-    "NFS CG 1819.11(a) (Companion Guide): required above $2,000,000 when not set aside under FAR Part 19, for a modification adding out-of-scope work, and when bundling or consolidation is contemplated; exceptions in CG 1819.11(a)(2); NF 1787A market research documentation at $2M and above (CG 1810.12(c))",
+    "NFS CG 1819.11(a) (Companion Guide): required above $2,000,000 when not set aside under RFO FAR Part 19, for a modification adding out-of-scope work, and when bundling or consolidation is contemplated; exceptions in CG 1819.11(a)(2); NF 1787A market research documentation at $2M and above (CG 1810.12(c))",
   "NFS 1807.7201: contract opportunity means planned new contract awards exceeding the simplified acquisition threshold":
     "NFS CG 1807.703(a): the acquisition forecast must identify all known contract opportunities that exceed the simplified acquisition threshold",
   "RFO FAR 5.203: at least 15 days; commercial may be shorter or combined synopsis/solicitation (12.603)":

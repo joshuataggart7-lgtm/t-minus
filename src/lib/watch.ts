@@ -78,7 +78,7 @@ export function toISODate(value: string | null | undefined): string | null {
   return null;
 }
 
-/** FAR and NFS parts named anywhere in a piece of text, as tags such as "FAR 6" and "NFS 1806". */
+/** FAR and NFS parts named anywhere in a piece of text, as tags such as "RFO FAR Part 6" and "NFS 1806". */
 export function partTags(...texts: (string | null | undefined)[]): string[] {
   const found = new Set<string>();
   const all = texts.filter(Boolean).join(" ");

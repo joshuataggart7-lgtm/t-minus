@@ -1,7 +1,7 @@
 // Sections L and M on a file, and the method shell that decides their voice.
 //
 // The record decides the shell: a commercial streamlined file carries the SF
-// 1449 path and Part 12/13 voice; a FAR 15 file carries the Uniform Contract
+// 1449 path and Part 12/13 voice; a RFO FAR Part 15 file carries the Uniform Contract
 // Format and Part 15 voice. Nothing here invents authority text. Officer-saved
 // content is the source of truth for the scaffold and the local handoff packet;
 // where nothing is saved the lines print "Not recorded".
@@ -111,14 +111,14 @@ export function sectionLLines(
   const lines: ScaffoldLine[] = [];
   if (shell.partFamily === "12_13" && hasClause52_212_1) {
     lines.push({
-      text: "Quotations are submitted under FAR 52.212-1 as it is included on this file.",
-      citation: "FAR 12.301(b)(1)",
+      text: "Quotations are submitted under RFO FAR 52.212-1 as it is included on this file.",
+      citation: "RFO FAR 12.205(a)(1)",
     });
   }
   if (shell.partFamily === "15") {
     lines.push({
       text: "Proposals are prepared and submitted in the Uniform Contract Format; instructions to offerors ride in Section L.",
-      citation: "FAR 15.203",
+      citation: "RFO FAR 15.102",
     });
   }
   lines.push({
@@ -151,7 +151,7 @@ export function sectionLLines(
       text: `The set-aside on this record is ${str(facts, "set_aside")}; offerors represent their size against NAICS ${
         str(facts, "naics_code") || "on this file"
       }.`,
-      citation: "FAR 19.301-1",
+      citation: "RFO FAR 19.201-1",
     });
   }
   return lines;
@@ -178,7 +178,7 @@ export function sectionMLines(
         },
         {
           text: "The justification on this file states why only one source can meet the need.",
-          citation: "FAR 6.303; FAR 13.501",
+          citation: "RFO FAR 6.104; RFO FAR 12.102",
         },
       ],
     };
@@ -188,12 +188,12 @@ export function sectionMLines(
   if (shell.partFamily === "15") {
     lines.push({
       text: "Evaluation factors and significant subfactors for award are stated to offerors in Section M.",
-      citation: "FAR 15.304",
+      citation: "RFO FAR 15.104",
     });
   } else if (hasClause52_212_2) {
     lines.push({
-      text: "Evaluation factors are stated to offerors under FAR 52.212-2 as it is included on this file.",
-      citation: "FAR 12.301(c)",
+      text: "Evaluation factors are stated to offerors under RFO FAR 52.212-2 as it is included on this file.",
+      citation: "RFO FAR 12.205(a)(2)",
     });
   } else {
     lines.push({
@@ -205,7 +205,7 @@ export function sectionMLines(
   if (m?.lpta) {
     lines.push({
       text: "Award is on a lowest price technically acceptable basis: quotations found technically acceptable are ranked by price.",
-      citation: shell.partFamily === "15" ? "FAR 15.305" : "RFO FAR 12.203(c)(2)",
+      citation: shell.partFamily === "15" ? "RFO FAR 15.202" : "RFO FAR 12.203(c)(2)",
     });
   }
 
@@ -215,12 +215,12 @@ export function sectionMLines(
         text: `Factor: ${f.name}. Relative importance: ${(f.relative_importance ?? "").trim() || NOT_RECORDED}.${
           (f.description ?? "").trim() ? ` ${(f.description ?? "").trim()}` : ""
         }`,
-        citation: shell.partFamily === "15" ? "FAR 15.304" : simplifiedFactorsCite(shell.methodLabel),
+        citation: shell.partFamily === "15" ? "RFO FAR 15.104" : simplifiedFactorsCite(shell.methodLabel),
       });
     }
     lines.push({
       text: `${shell.partFamily === "15" ? "Proposals" : "Quotations"} are evaluated against the factors stated, and the evaluation record on this file carries the result.`,
-      citation: shell.partFamily === "15" ? "FAR 15.305" : "RFO FAR 12.203",
+      citation: shell.partFamily === "15" ? "RFO FAR 15.202" : "RFO FAR 12.203",
     });
   } else if (!m?.lpta) {
     lines.push({
@@ -239,7 +239,7 @@ export function sectionMLines(
   if (shell.partFamily === "15" && !m?.lpta) {
     lines.push({
       text: "Award is made to the proposal that represents the best value on the factors stated, as the comparative assessment records.",
-      citation: "FAR 15.305",
+      citation: "RFO FAR 15.202",
     });
   }
   if ((m?.notes ?? "").trim()) {

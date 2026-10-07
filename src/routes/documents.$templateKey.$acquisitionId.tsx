@@ -1784,7 +1784,7 @@ function DocumentPage() {
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
           The contracting officer's signature on the SF 1449 is the affirmative responsibility determination
-          (FAR 9.105-2(a)(1)). A separate memorandum is written only on a finding of nonresponsibility.
+          (RFO FAR 9.105-2(a)(1)). A separate memorandum is written only on a finding of nonresponsibility.
         </p>
         <p className="mt-6">
           <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
@@ -1889,8 +1889,8 @@ function DocumentPage() {
           lead={`${acquisitionId} · this record is not on a Part 15 negotiated set-aside.`}
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
-          The preaward notice to the apparent successful offeror runs under FAR 15.206-1(b)(1) with the size
-          status challenge period at FAR 19.201-2(d)(1). Record a FAR Part 15 negotiated path and a small
+          The preaward notice to the apparent successful offeror runs under RFO FAR 15.206-1(b)(1) with the size
+          status challenge period at RFO FAR 19.201-2(d)(1). Record a RFO FAR Part 15 negotiated path and a small
           business set-aside on the acquisition before opening or exporting this notice. Commercial and
           simplified files notify under Parts 12 and 13 instead.
         </p>
@@ -1903,17 +1903,17 @@ function DocumentPage() {
     );
   }
 
-  // A DRFP cover is used only for a competed FAR Part 15 negotiated path.
+  // A DRFP cover is used only for a competed RFO FAR Part 15 negotiated path.
   // Commercial, simplified, and sole-source records get an honest refusal.
   if (def.key === "drfp-cover-letter" && exportContext && !isDrfpCoverPath(exportContext)) {
     return (
       <AppShell>
         <PageHeader
           title="Draft RFP cover letter not available"
-          lead={`${acquisitionId} · this record is not on a competed FAR Part 15 negotiated path.`}
+          lead={`${acquisitionId} · this record is not on a competed RFO FAR Part 15 negotiated path.`}
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
-          The HQ Draft RFP cover letter is for competed negotiated acquisitions. Record the FAR Part 15
+          The HQ Draft RFP cover letter is for competed negotiated acquisitions. Record the RFO FAR Part 15
           competitive path before opening or exporting it. Commercial, simplified, and sole-source files do not
           receive this Part 15 cover.
         </p>
@@ -1941,7 +1941,7 @@ function DocumentPage() {
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
           The HQ option justification is written before a negotiated or sealed bid solicitation includes
-          options, under FAR 17.201-1 and FAR 17.201-2 in the format at NFS CG 1817.25. Record that path on the
+          options, under RFO FAR 17.201-1 and RFO FAR 17.201-2 in the format at NFS CG 1817.25. Record that path on the
           acquisition before opening or exporting it. Commercial and simplified files do not use this memorandum.
         </p>
         <p className="mt-6">
@@ -1967,7 +1967,7 @@ function DocumentPage() {
           lead={`${acquisitionId} · this record is not on a path that exercises a contract option.`}
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
-          The HQ determination is written on an awarded contract that carries an option, under FAR 17.204
+          The HQ determination is written on an awarded contract that carries an option, under RFO FAR 17.201-2
           and NFS CG 1817.27 and 1817.28. Record the awarded contract and the option being exercised before
           opening or exporting it.
         </p>
@@ -1995,7 +1995,7 @@ function DocumentPage() {
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
           The HQ justification is written on an undefinitized contract action or a letter contract, under
-          FAR 16.603 and NFS CG 1816.65 and 1816.66. Record that action before opening or exporting it.
+          RFO FAR 16.603 and NFS CG 1816.65 and 1816.66. Record that action before opening or exporting it.
         </p>
         <p className="mt-6">
           <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
@@ -2027,7 +2027,7 @@ function DocumentPage() {
     );
   }
 
-  // The brand-name justification belongs to a FAR Part 16 ordering path. The
+  // The brand-name justification belongs to a RFO FAR Part 16 ordering path. The
   // protected commercial samples are refused rather than shown this face.
   if (
     def.key === "fair-opportunity-brand-name" &&
@@ -2331,7 +2331,7 @@ function DocumentPage() {
                     // The prenegotiation position is written into the NASA OP master.
                     if (!isPpmPath(exportContext)) {
                       setMessage(
-                        "This file does not record a FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
+                        "This file does not record a RFO FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
                       );
                     } else {
                       void generatePpmDocx(exportContext)
@@ -2342,7 +2342,7 @@ function DocumentPage() {
                     // The set-aside preaward notice is written into the NASA OP master.
                     if (!isSetAsidePreawardPath(exportContext)) {
                       setMessage(
-                        "This file does not record a FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
+                        "This file does not record a RFO FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
                       );
                     } else {
                       void generateSetAsidePreawardDocx(exportContext)
@@ -2354,7 +2354,7 @@ function DocumentPage() {
                   } else if (def.key === "drfp-cover-letter" && exportContext) {
                     if (!isDrfpCoverPath(exportContext)) {
                       setMessage(
-                        "This file is not on a competed FAR Part 15 negotiated path, so the Draft RFP cover letter was not written.",
+                        "This file is not on a competed RFO FAR Part 15 negotiated path, so the Draft RFP cover letter was not written.",
                       );
                     } else {
                       void generateDrfpCoverDocx(exportContext)
