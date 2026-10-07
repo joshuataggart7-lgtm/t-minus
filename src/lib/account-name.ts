@@ -17,13 +17,26 @@ export function accountName(displayName?: string | null, email?: string | null, 
  */
 export async function signedInName(given?: string | null): Promise<string> {
   const name = (given ?? "").trim();
-  if (name && name !== "Signed-in user") return name;
   const { supabase } = await import("@/integrations/supabase/client");
   const { data } = await supabase.auth.getUser();
   const user = data.user;
   if (!user) return name || "Demo user";
   if (user.is_anonymous) return "Demo user";
+  const mail = (user.email ?? "").trim().toLowerCase();
+  const lower = name.toLowerCase();
+  const isLoginForm = !!mail && (lower === mail || lower === (mail.split("@")[0] ?? mail));
+  if (name && name !== "Signed-in user" && !isLoginForm) return name;
   const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const display = typeof meta['display_name'] === "string" ? meta['display_name'] : null;
-  return accountName(display, user.email ?? null, name || "Signed-in user");
+  const metaName = typeof meta['display_name'] === "string" ? meta['display_name'].trim() : "";
+  if (metaName) return metaName;
+  try {
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    const profName = ((prof as { display_name: string | null } | null)?.display_name ?? "").trim();
+    if (profName) return profName;
+  } catch { /* fall through */ }
+  return accountName(null, user.email ?? null, "Signed-in user");
 }
