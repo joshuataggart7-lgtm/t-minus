@@ -36,7 +36,7 @@ const CUES: Cue[] = [
     label: (hit) => `The requirement text mentions ${hit.toLowerCase()}, so the labor clauses are in play.`,
   },
   {
-    prefixes: ["52.204-21", "52.204-25", "52.239"],
+    prefixes: ["52.240-91", "52.240-93", "52.239"],
     test: /\b(software|information system|IT|cyber|cloud|network|data system)\b/i,
     label: (hit) => `The requirement text mentions ${hit.toLowerCase()}, so the information-security clauses are in play.`,
   },

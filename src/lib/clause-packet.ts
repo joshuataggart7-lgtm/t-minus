@@ -98,6 +98,8 @@ type Ctx = {
   soleSource: boolean;
   options: boolean;
   onInstallation: boolean;
+  /** The vehicle reads as a Federal Supply Schedule, GWAC, or multi-agency contract (RFO FAR 40.205(c)(1)). */
+  multiAgency: boolean;
   /** The clause set recorded on the vehicle, verbatim. */
   clauseSet: string;
   money: (n: number) => string;
@@ -124,12 +126,14 @@ const RULES: Rule[] = [
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // Replaced by 52.240-90 (RFO FAR 40.205(a)).
     number: "52.204-24",
     title: "Representation Regarding Certain Telecommunications and Video Surveillance Services or Equipment",
     applies: () => null,
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // Replaced by 52.240-93 (RFO FAR 40.303-2).
     number: "52.204-21",
     title: "Basic Safeguarding of Covered Contractor Information Systems",
     applies: () => null,
@@ -222,6 +226,7 @@ const RULES: Rule[] = [
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // No RFO replacement clause (RFO FAR Subpart 22.8 is Reserved).
     number: "52.222-21",
     formerlyBundled: true,
     title: "Prohibition of Segregated Facilities",
@@ -229,6 +234,7 @@ const RULES: Rule[] = [
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // No RFO replacement clause (RFO FAR Subpart 22.8 is Reserved).
     number: "52.222-26",
     formerlyBundled: true,
     title: "Equal Opportunity",
@@ -245,6 +251,7 @@ const RULES: Rule[] = [
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // No RFO replacement clause found in RFO FAR Parts 23, 40, or 52.
     number: "52.223-18",
     formerlyBundled: true,
     title: "Encouraging Contractor Policies to Ban Text Messaging While Driving",
@@ -252,6 +259,7 @@ const RULES: Rule[] = [
   },
   {
     // Reserved in RFO FAR Part 52; never recommended on a new packet.
+    // Replaced by 52.240-91, paragraph (d)(2) (RFO FAR 40.205(b)).
     number: "52.225-13",
     formerlyBundled: true,
     title: "Restrictions on Certain Foreign Purchases",
@@ -279,6 +287,41 @@ const RULES: Rule[] = [
     number: "52.233-4",
     title: "Applicable Law for Breach of Contract Claim",
     applies: () => "Required in every solicitation and contract (RFO FAR 33.205-9(b)).",
+  },
+  {
+    // RFO replacement for the Reserved 52.204-24 and 52.204-26 telecommunications
+    // representations: paragraph (c) of this provision carries them now, with the
+    // FASCSA, Sudan, and Iran representations (RFO FAR 40.205(a); Table 12-2).
+    number: "52.240-90",
+    title: "Security Prohibitions and Exclusions Representations and Certifications",
+    applies: (c) =>
+      `Required in every solicitation (RFO FAR 40.205(a)); it carries the covered telecommunications representations formerly at 52.204-24 and 52.204-26.${
+        c.commercial ? " Listed in RFO FAR Table 12-2 for a commercial buy." : ""
+      }`,
+  },
+  {
+    // RFO replacement for the Reserved 52.225-13: the OFAC restriction now sits at
+    // paragraph (d)(2) of this clause (RFO FAR 40.202(f), 40.205(b); Table 12-3).
+    number: "52.240-91",
+    title: "Security Prohibitions and Exclusions",
+    applies: (c) =>
+      `Required in every solicitation and contract (RFO FAR 40.205(b)); it carries the OFAC restrictions formerly at 52.225-13.${
+        c.multiAgency
+          ? " The vehicle on the record reads as a Federal Supply Schedule, GWAC, or multi-agency contract: the basic contract uses Alternate I (RFO FAR 40.205(c)(1)), and an ordering officer need not identify FASCSA orders again (RFO FAR 40.204-1(b)(1))."
+          : " Use Alternate I only where the program office or requiring activity selects specific FASCSA order types (RFO FAR 40.205(c)(2))."
+      }${c.commercial ? " Listed in RFO FAR Table 12-3 for a commercial buy." : ""}`,
+  },
+  {
+    // RFO replacement for the Reserved 52.204-21 (PCD 26-03B matrix: moved to
+    // 52.240-93, same title, no change in obligation).
+    number: "52.240-93",
+    title: "Basic Safeguarding of Covered Contractor Information Systems",
+    applies: (c) =>
+      `${
+        c.it ? "The record flags information technology on this buy. " : ""
+      }Include when the contractor or a subcontractor at any tier may have Federal contract information residing in or moving through its information system (RFO FAR 40.303-2); that is non-public information provided by or generated for the Government under the contract, so leave it out only if none will. Formerly 52.204-21.${
+        c.commercial ? " Listed in RFO FAR Table 12-3 for a commercial buy." : ""
+      }`,
   },
   {
     number: "52.216-7",
@@ -469,6 +512,9 @@ export function selectPacketClauses(
     soleSource: /sole source|limited source|brand name/i.test(`${str(facts, "competition")} ${str(facts, "acquisition_method")}`),
     options: Array.isArray(optionList) && optionList.length > 0,
     onInstallation: INSTALLATION_HINTS.some((h) => place.toLowerCase().includes(h)),
+    multiAgency:
+      scenarioVehicle === "gsa_fss" ||
+      /federal supply schedule|\bfss\b|gsa schedule|\bgwac\b|governmentwide acquisition contract|multi-agency contract/i.test(vehicleText),
     clauseSet,
     money,
   };
