@@ -76,7 +76,7 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
         "The price negotiation memorandum is the price reasonableness determination of record on this file. T-Minus never performs or invents a price analysis; the contracting officer writes the finding.",
       citation: simplified
         ? `${simplifiedPriceCite(str(acq["acquisition_method"]))}; ${simplifiedDocCite(str(acq["acquisition_method"]))}`
-        : "FAR 15.406-3",
+        : "RFO FAR 15.408-2(a)",
       templateKey: "pnm",
       templateLabel: "Price negotiation memorandum",
     },

@@ -38,11 +38,15 @@ export function simplifiedFactorsCite(method: string | null | undefined): string
 /**
  * Display label for a stored method value. A stored "FAR 13.5" method reads as
  * the current RFO provision for commercial simplified procedures; the stored
- * value itself is left as it is.
+ * value itself is left as it is. A bare "FAR 13" or "FAR 15" reads as the RFO
+ * part of the same number (Part 13, simplified procedures for noncommercial
+ * acquisitions; Part 15, contracting by negotiation).
  */
 export function methodDisplayLabel(method: string | null | undefined): string {
   const m = String(method ?? "");
-  return m.replace(/\bFAR 13\.5\b/g, "RFO FAR 12.201-1");
+  return m
+    .replace(/\bFAR 13\.5\b/g, "RFO FAR 12.201-1")
+    .replace(/(^|[^.\w])FAR (13|15)(?![.\d])/g, "$1RFO FAR Part $2");
 }
 
 /**

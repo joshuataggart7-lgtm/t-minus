@@ -165,7 +165,7 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "need",
       title: "Statement of Need",
-      citation: "FAR 7.105(a)(1)",
+      citation: "NFS CG 1807.14(b)(1)",
       tier: "binding",
       fields: [
         { key: "need", label: "Statement of need", kind: "textarea", bind: "description_of_requirement", required: true },
@@ -176,14 +176,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "conditions",
       title: "Applicable Conditions",
-      citation: "FAR 7.105(a)(2)",
+      citation: "NFS CG 1807.14(b)(2)",
       tier: "binding",
       fields: [T("conditions", "Applicable conditions, directives and constraints"), T("place", "Place of performance")],
     },
     {
       id: "cost",
       title: "Cost",
-      citation: "FAR 7.105(a)(3); NFS 1807.105(a)(3)",
+      citation: "NFS CG 1807.14(b)(3)",
       tier: "binding",
       fields: [
         { key: "igce_total", label: "Independent government cost estimate", kind: "money", bind: "igce_total" },
@@ -194,14 +194,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "capability",
       title: "Capability or Performance",
-      citation: "FAR 7.105(a)(4)",
+      citation: "NFS CG 1807.14(b)(4)",
       tier: "binding",
       fields: [S("sow_type", "Requirement document", ["Statement of Work", "Performance Work Statement", "Statement of Objectives"], "Performance Work Statement"), T("capability", "Required capabilities and performance standards")],
     },
     {
       id: "delivery",
       title: "Delivery or Performance-Period Requirements",
-      citation: "FAR 7.105(a)(5)",
+      citation: "NFS CG 1807.14(b)(5)",
       tier: "binding",
       fields: [
         { key: "pop_start", label: "Period of performance start", kind: "date", bind: "period_of_performance_start" },
@@ -212,7 +212,7 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "tradeoffs",
       title: "Trade-offs",
-      citation: "FAR 7.105(a)(6)",
+      citation: "NFS CG 1807.14(b)(3)",
       tier: "binding",
       standingText:
         "The Government is willing to pay more for a contract that offers increased value through an innovative approach, superior technical performance, or lower risk, either individually or in any combination.",
@@ -221,29 +221,29 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "risks",
       title: "Risks",
-      citation: "FAR 7.105(a)(7); NFS 1807.105(a)(7)",
+      citation: "NFS CG 1807.14(b)(6)",
       tier: "binding",
       fields: [T("risks", "Technical, cost, schedule, safety, security and OCI risks with mitigations")],
     },
     {
       id: "streamlining",
       title: "Acquisition Streamlining",
-      citation: "FAR 7.105(a)(8); NFS 1807.105(a)(8)",
+      citation: "NFS CG 1807.14(b)(7)",
       tier: "binding",
-      standingText: "Comply with the requirements of FAR 7.105(a)(8) and NFS 1807.105(a)(8).",
+      standingText: "Comply with the requirements of NFS CG 1807.14(b)(7).",
       fields: [T("streamlining", "Acquisition streamlining")],
     },
     {
       id: "sources",
       title: "Sources",
-      citation: "FAR 7.105(b)(1); NFS 1807.105(b)(1); FAR Part 8; NFS Appendix A",
+      citation: "NFS CG 1807.14(c)(1); RFO FAR Part 8",
       tier: "binding",
       fields: [T("sources", "Sources considered, including AbilityOne, strategic sourcing and NFS Appendix A"), T("sources_sought", "Sources sought notice or request for information and the responses")],
     },
     {
       id: "competition",
       title: "Competition",
-      citation: "FAR 7.105(b)(2)",
+      citation: "NFS CG 1807.14(c)(4)",
       tier: "binding",
       fields: [
         X("competition", "Competition", "competition"),
@@ -254,7 +254,7 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "source_selection",
       title: "Source-Selection Procedures",
-      citation: "FAR 7.105(b)(4); NFS 1815.3",
+      citation: "NFS CG 1807.14(c)(6)",
       tier: "binding",
       fields: [
         S("selection", "Source-selection procedures", ["Trade-off", "Lowest price technically acceptable", "Other", "N/A – Non-competitive acquisition."], "Trade-off"),
@@ -264,7 +264,7 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "contract_type",
       title: "Contracting Considerations",
-      citation: "FAR 7.105(b)(3); FAR Part 16",
+      citation: "NFS CG 1807.14(c)(5); RFO FAR 16.103",
       tier: "binding",
       fields: [
         X("contract_type", "Contract type selected", "contract_type"),
@@ -275,14 +275,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "budget",
       title: "Budgeting and Funding",
-      citation: "FAR 7.105(b)(6); NFS 1807.105(b)(6)",
+      citation: "NFS CG 1807.14(c)(8)",
       tier: "binding",
       fields: [T("budget", "Budget estimate and funding profile by government fiscal year"), T("bona_fide", "Bona fide needs and severability")],
     },
     {
       id: "descriptions",
       title: "Product or Service Descriptions",
-      citation: "FAR 7.105(b)(7)",
+      citation: "NFS CG 1807.14(c)(9)",
       tier: "binding",
       fields: [
         X("naics_code", "NAICS code and title", "naics_code"),
@@ -293,14 +293,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "priorities",
       title: "Priorities, Allocations, and Allotments",
-      citation: "FAR 7.105(b)(8)",
+      citation: "RFO FAR subpart 11.5",
       tier: "binding",
       fields: [X("dpas", "DPAS priority rating"), T("dpas_rationale", "Rationale")],
     },
     {
       id: "contractor_v_government",
       title: "Contractor versus Government Performance",
-      citation: "FAR 7.105(b)(9); OMB Circular No. A-76",
+      citation: "OMB Circular No. A-76",
       tier: "binding",
       standingText:
         "This is not an acquisition subject to OMB Circular No. A-76. The work has historically been performed by contractors. Civil servant resources are not available for this effort.",
@@ -323,46 +323,46 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "management_information",
       title: "Management Information Requirements",
-      citation: "FAR 7.105(b)(12)",
+      citation: "NFS CG 1807.14(c)(10)",
       tier: "binding",
       fields: [T("management_information", "Surveillance, CPARS, NF 533 reporting and earned value management")],
     },
-    { id: "make_or_buy", title: "Make or Buy", citation: "FAR 7.105(b)(13); FAR 15.407-2", tier: "binding", fields: [T("make_or_buy", "Make-or-buy program")] },
-    { id: "test", title: "Test and Evaluation", citation: "FAR 7.105(b)(14)", tier: "binding", fields: [T("test", "Test and evaluation")] },
-    { id: "logistics", title: "Logistics Considerations", citation: "FAR 7.105(b)(15)", tier: "binding", fields: [T("logistics", "Logistics considerations")] },
+    { id: "make_or_buy", title: "Make or Buy", citation: "RFO FAR 15.105-5", tier: "binding", fields: [T("make_or_buy", "Make-or-buy program")] },
+    { id: "test", title: "Test and Evaluation", citation: "NFS CG 1807.14(a) (agency-wide template topic)", tier: "binding", fields: [T("test", "Test and evaluation")] },
+    { id: "logistics", title: "Logistics Considerations", citation: "NFS CG 1807.14(a) (agency-wide template topic)", tier: "binding", fields: [T("logistics", "Logistics considerations")] },
     {
       id: "gfp",
       title: "Government-Furnished Property",
-      citation: "FAR 7.105(b)(16); FAR Part 45",
+      citation: "RFO FAR Part 45",
       tier: "binding",
       fields: [T("gfp", "Government-furnished property and installation-accountable government property")],
     },
-    { id: "gfi", title: "Government-Furnished Information", citation: "FAR 7.105(b)(17)", tier: "binding", fields: [T("gfi", "Government-furnished information")] },
+    { id: "gfi", title: "Government-Furnished Information", citation: "NFS CG 1807.14(a) (agency-wide template topic)", tier: "binding", fields: [T("gfi", "Government-furnished information")] },
     {
       id: "environment",
       title: "Environmental and Energy Conservation Objectives",
-      citation: "FAR 7.105(b)(18); FAR Part 23",
+      citation: "RFO FAR Part 23",
       tier: "binding",
       fields: [T("environment", "Environmental and energy conservation objectives")],
     },
     {
       id: "security",
       title: "Security Considerations",
-      citation: "FAR 7.105(b)(19); NFS 1807.105(b)(19)",
+      citation: "NFS CG 1807.14(b)(6)(iv)",
       tier: "binding",
       fields: [T("security", "Personal identity verification, classified work, controlled information and foreign travel")],
     },
     {
       id: "administration",
       title: "Contract Administration",
-      citation: "FAR 7.105(b)(20)",
+      citation: "NFS CG 1807.14(c)(11)",
       tier: "binding",
       fields: [T("administration", "Contract administration, COR appointment, surveillance and data requirements")],
     },
     {
       id: "other",
       title: "Other Considerations",
-      citation: "FAR 7.105(b)(21); FAR 7.107",
+      citation: "NFS CG 1807.14(a) (agency-wide template topic); RFO FAR 7.107",
       tier: "binding",
       fields: [
         T("pcd", "Procurement class deviation review", "A review of impactful Executive Orders as implemented via Procurement Class Deviations (PCDs) has been completed and the solicitation reflects compliance with the PCDs."),
@@ -372,14 +372,14 @@ const writtenAcquisitionPlan: TemplateDef = {
     {
       id: "milestones",
       title: "Milestones for the Acquisition Cycle",
-      citation: "FAR 7.105(b)(22)",
+      citation: "NFS CG 1807.14(c)(12)",
       tier: "binding",
       fields: [T("milestones", "Milestones from plan approval through contract effective date")],
     },
     {
       id: "participants",
       title: "Identification of Participants in Acquisition Plan Preparation",
-      citation: "FAR 7.105(b)(23)",
+      citation: "NFS CG 1807.14(a) (agency-wide template topic)",
       tier: "binding",
       standingText: "This plan was developed by the following team members:",
       fields: [T("participants", "Name, organizational code, title and contact for each team member")],
@@ -456,30 +456,30 @@ const psm: TemplateDef = {
         "You do not have any other ongoing relationships with, or interests in, any entity on the enclosed Interested Parties list, that would either give rise to a conflict of interest or an appearance of a conflict of interest. Further, neither you nor your spouse, parent, dependent child, or member of your household is seeking employment with any of the Interested Parties expressing interest in this procurement.",
       fields: [T("interested_parties", "Interested parties list")],
     },
-    execChart("Potential Sources", "FAR 7.105(b)(1)", [
+    execChart("Potential Sources", "NFS CG 1807.14(c)(1)", [
       T("potential_sources", "Potential sources", "Any person with a potential conflict of interest with any of the following potential sources must now excuse themselves from this presentation."),
     ]),
-    execChart("Statement of Need", "FAR 7.105(a)(1)", [
+    execChart("Statement of Need", "NFS CG 1807.14(b)(1)", [
       { key: "need", label: "Statement of need", kind: "textarea", bind: "description_of_requirement", required: true },
     ]),
-    execChart("Applicable Conditions", "FAR 7.105(a)(2)", [T("conditions", "Applicable conditions")]),
-    execChart("Cost", "FAR 7.105(a)(3)", [
+    execChart("Applicable Conditions", "NFS CG 1807.14(b)(2)", [T("conditions", "Applicable conditions")]),
+    execChart("Cost", "NFS CG 1807.14(b)(3)", [
       { key: "igce_total", label: "Independent government cost estimate", kind: "money", bind: "igce_total" },
       T("cost_basis", "Basis of the estimate"),
     ]),
-    execChart("Capability or Performance", "FAR 7.105(a)(4)", [T("capability", "Required capabilities")]),
-    execChart("Delivery or Performance-Period Requirements", "FAR 7.105(a)(5)", [
+    execChart("Capability or Performance", "NFS CG 1807.14(b)(4)", [T("capability", "Required capabilities")]),
+    execChart("Delivery or Performance-Period Requirements", "NFS CG 1807.14(b)(5)", [
       { key: "pop_start", label: "Period of performance start", kind: "date", bind: "period_of_performance_start" },
       { key: "pop_end", label: "Period of performance end", kind: "date", bind: "period_of_performance_end" },
       T("delivery", "Delivery or performance-period requirements"),
     ]),
-    execChart("Trade-offs", "FAR 7.105(a)(6)", [
+    execChart("Trade-offs", "NFS CG 1807.14(b)(3)", [
       T("tradeoffs", "Trade-offs", "The Government is willing to pay more for a contract that offers increased value through an innovative approach, superior technical performance, or lower risk, either individually or in any combination."),
     ]),
-    execChart("Risks", "FAR 7.105(a)(7); NFS 1807.105(a)(7)", [T("risks", "Risks and mitigations")]),
-    execChart("Acquisition Streamlining", "FAR 7.105(a)(8)", [T("streamlining", "Acquisition streamlining")]),
-    execChart("Sources", "FAR 7.105(b)(1)", [T("sources", "Sources")]),
-    execChart("Competition", "FAR 7.105(b)(2)", [
+    execChart("Risks", "NFS CG 1807.14(b)(6)", [T("risks", "Risks and mitigations")]),
+    execChart("Acquisition Streamlining", "NFS CG 1807.14(b)(7)", [T("streamlining", "Acquisition streamlining")]),
+    execChart("Sources", "NFS CG 1807.14(c)(1)", [T("sources", "Sources")]),
+    execChart("Competition", "NFS CG 1807.14(c)(4)", [
       X("competition", "Competition", "competition"),
       T("competition_narrative", "How competition will be sought, promoted and sustained"),
     ]),
@@ -487,7 +487,7 @@ const psm: TemplateDef = {
       X("set_aside", "Set-aside", "set_aside"),
       T("small_business", "Small business strategy and subcontracting goals"),
     ]),
-    execChart("Contract Type Selection", "FAR 7.105(b)(3); FAR Part 16", [
+    execChart("Contract Type Selection", "NFS CG 1807.14(c)(5); RFO FAR 16.103", [
       X("contract_type", "Contract type selected", "contract_type"),
       T("contract_type_rationale", "Rationale"),
     ]),
@@ -496,8 +496,8 @@ const psm: TemplateDef = {
       T("bundling_narrative", "Narrative and approving official"),
     ]),
     execChart("Made In America", "FAR 25.103(b)(2)(i)", [T("made_in_america", "Made in America")]),
-    execChart("Strategic Sourcing Considerations", "FAR 7.105(b)(1)", [T("strategic_sourcing", "Strategic sourcing considerations")]),
-    execChart("Challenges or Unique Aspects", "NFS 1807.105", [
+    execChart("Strategic Sourcing Considerations", "NFS CG 1807.14(c)(1)", [T("strategic_sourcing", "Strategic sourcing considerations")]),
+    execChart("Challenges or Unique Aspects", "NFS CG 1807.14(a) (agency-wide template topic)", [
       T("challenges", "Challenges or unique aspects", "Enter N/A – Routine competition with no anticipated challenges or unique aspects where none exist."),
     ]),
     execChart("Sources Sought Notice/RFI", "FAR Part 10; NFS 1810.002", [T("sources_sought", "Sources sought notice or request for information")]),
@@ -509,31 +509,31 @@ const psm: TemplateDef = {
     execChart("Source Selection Authority", "NFS 1815.303", [X("ssa", "Source selection authority: name, title and organizational identifier")]),
     execChart("SEB Chairperson and Voting Membership", "NFS 1815.370", [T("seb", "Chair, other voting members, and the contracting officer or procurement member")]),
     execChart("Organizational Conflicts of Interest", "FAR 9.5", [T("oci", "OCIs identified and any waiver status")]),
-    execChart("Status of Technical Documents", "FAR 7.105(b)(4)", [T("technical_documents", "Status of the SOW, PWS or SOO, evaluation criteria and eLibrary")]),
-    execChart("Schedule", "FAR 7.105(b)(22)", [T("schedule", "Dates from plan approval through contract effective date")]),
+    execChart("Status of Technical Documents", "NFS CG 1807.14(a) (agency-wide template topic)", [T("technical_documents", "Status of the SOW, PWS or SOO, evaluation criteria and eLibrary")]),
+    execChart("Schedule", "NFS CG 1807.14(c)(12)", [T("schedule", "Dates from plan approval through contract effective date")]),
 
-    backupChart("Back-up: Statement of Need", "FAR 7.105(a)(1)", [
+    backupChart("Back-up: Statement of Need", "NFS CG 1807.14(b)(1)", [
       T("bu_need", "Technical organization, mission, scope and objectives"),
       T("bu_current_contract", "Current contract history"),
       T("bu_alternatives", "Feasible acquisition alternatives"),
       T("bu_in_house", "Any related in-house effort", "There are no related in-house resources available currently capable of providing these services."),
     ]),
-    backupChart("Back-up: Applicable Conditions", "FAR 7.105(a)(2); NPR 7120.5", [
+    backupChart("Back-up: Applicable Conditions", "NFS CG 1807.14(b)(2); NPR 7120.5", [
       T("bu_conditions", "Compatibility, NPR applicability, earned value management and Section 508"),
       T("bu_constraints", "Cost, schedule and capability constraints"),
       T("bu_place", "Place of performance"),
     ]),
-    backupChart("Back-up: Cost/Price", "FAR 7.105(a)(3)", [
+    backupChart("Back-up: Cost/Price", "NFS CG 1807.14(b)(3)", [
       T("bu_igce", "IGCE totals"),
       T("bu_igce_method", "IGCE estimating methodology: labor hours, labor rates, indirect rates, other direct costs, fee, escalation"),
     ]),
-    backupChart("Back-up: Capability or Performance", "FAR 7.105(a)(4)", [T("bu_capability", "Required capabilities, performance standards, QASP and performance evaluation plan")]),
-    backupChart("Back-up: Delivery or Performance-Period Requirements", "FAR 7.105(a)(5); FAR 52.217-8", [T("bu_delivery", "Period of performance and option strategy")]),
-    backupChart("Back-up: Trade-offs", "FAR 7.105(a)(6)", [T("bu_tradeoffs", "Trade-offs")]),
-    backupChart("Back-up: Acquisition Streamlining", "FAR 7.105(a)(8)", [T("bu_streamlining", "Acquisition streamlining")]),
+    backupChart("Back-up: Capability or Performance", "NFS CG 1807.14(b)(4)", [T("bu_capability", "Required capabilities, performance standards, QASP and performance evaluation plan")]),
+    backupChart("Back-up: Delivery or Performance-Period Requirements", "NFS CG 1807.14(b)(5); FAR 52.217-8", [T("bu_delivery", "Period of performance and option strategy")]),
+    backupChart("Back-up: Trade-offs", "NFS CG 1807.14(b)(3)", [T("bu_tradeoffs", "Trade-offs")]),
+    backupChart("Back-up: Acquisition Streamlining", "NFS CG 1807.14(b)(7)", [T("bu_streamlining", "Acquisition streamlining")]),
     backupChart("Back-up: Sources", "FAR 8.002; FAR 8.003; NFS Appendix A", [T("bu_sources", "AbilityOne, best-in-class vehicles, NFS Appendix A, FAR Part 12 and FAR Part 10 methods")]),
     backupChart("Back-up: Sources Sought Notice/RFI", "FAR Part 10", [T("bu_sources_sought", "Interested businesses and the small business office recommendation")]),
-    backupChart("Back-up: Competition", "FAR 7.105(b)(2)", [T("bu_competition", "Competition, subcontract competition, major components and spares")]),
+    backupChart("Back-up: Competition", "NFS CG 1807.14(c)(4)", [T("bu_competition", "Competition, subcontract competition, major components and spares")]),
     backupChart("Back-up: Small Business Program", "FAR Part 19", [T("bu_small_business", "Subcontracting goals by category")]),
     backupChart("Back-up: Contract Type Selection", "FAR Part 16; NFS 1816", [T("bu_contract_type", "Contract type rationale, incentive or award-fee structure and share ratios")]),
     backupChart("Back-up: Source-Selection Procedures", "FAR 15.3; NFS 1815.3", [
@@ -541,42 +541,42 @@ const psm: TemplateDef = {
       T("bu_board", "Board membership, advisors and ex-officio members"),
       T("bu_past_performance", "Past performance factor and confidence scale"),
     ]),
-    backupChart("Back-up: Acquisition Considerations", "FAR 17.202; FAR 7.105(b)(5)", [
+    backupChart("Back-up: Acquisition Considerations", "RFO FAR 17.201-1; NFS CG 1807.14(c)(7)", [
       T("bu_special_methods", "Special contracting methods, warranties and special clauses"),
-      T("bu_options", "Option justification", "In accordance with FAR 17.202, the CO has determined (see contract file) the inclusion of option periods is in the best interest of the Government based on the following: The Government has a bona fide need for continuity of services to be provided under the contract; and The potential exists for additional costs due to disrupted support because there is an anticipated need for similar services beyond the basic period for which funds may not be available at this time."),
+      T("bu_options", "Option justification", "In accordance with RFO FAR 17.201-1, the CO has determined (see contract file) the inclusion of option periods is in the best interest of the Government based on the following: The Government has a bona fide need for continuity of services to be provided under the contract; and The potential exists for additional costs due to disrupted support because there is an anticipated need for similar services beyond the basic period for which funds may not be available at this time."),
       T("bu_clin", "CLIN structure"),
     ]),
-    backupChart("Back-up: Budgeting and Funding", "FAR 7.105(b)(6)", [T("bu_budget", "Budget estimate and funding profile by government fiscal year"), T("bu_shortfalls", "Approaches to eliminate funding shortfalls")]),
-    backupChart("Back-up: Product or Service Descriptions", "FAR 7.105(b)(7); FAR 37.104", [
+    backupChart("Back-up: Budgeting and Funding", "NFS CG 1807.14(c)(8)", [T("bu_budget", "Budget estimate and funding profile by government fiscal year"), T("bu_shortfalls", "Approaches to eliminate funding shortfalls")]),
+    backupChart("Back-up: Product or Service Descriptions", "NFS CG 1807.14(c)(9); RFO FAR 37.201-2; RFO FAR 37.202-1", [
       X("bu_naics", "NAICS code and title", "naics_code"),
       X("bu_psc", "Product or service code", "psc_code"),
       T("bu_descriptions", "Commerciality, non-personal services and Service Contract Labor Standards"),
     ]),
-    backupChart("Back-up: Priorities, Allocations, and Allotments", "FAR 7.105(b)(8)", [X("bu_dpas", "DPAS priority rating"), T("bu_dpas_rationale", "Rationale")]),
+    backupChart("Back-up: Priorities, Allocations, and Allotments", "RFO FAR subpart 11.5", [X("bu_dpas", "DPAS priority rating"), T("bu_dpas_rationale", "Rationale")]),
     backupChart("Back-up: Contractor versus Government Performance", "OMB Circular No. A-76", [
       T("bu_contractor_v_government", "Statements", "This is not an acquisition subject to OMB Circular No. A-76. The work has historically been performed by contractors. Civil servant resources are not available for this effort."),
     ]),
     backupChart("Back-up: Inherently Governmental Functions", "FAR 7.503(e); NFS 1807.503(e)", [
       T("bu_inherently_governmental", "Written determination", "In accordance with FAR 7.503(e) and NFS 1807.503(e), the requiring office has provided the CO with a written determination that none of the Statement of Work requirements include inherently governmental functions."),
     ]),
-    backupChart("Back-up: Management Information Requirements", "FAR 7.105(b)(12)", [T("bu_management", "QASP, CPARS, NF 533 reporting, award-fee evaluations and earned value management")]),
+    backupChart("Back-up: Management Information Requirements", "NFS CG 1807.14(c)(10)", [T("bu_management", "QASP, CPARS, NF 533 reporting, award-fee evaluations and earned value management")]),
     backupChart("Back-up: Make or Buy", "FAR 15.407-2(d)(2)", [T("bu_make_or_buy", "Make-or-buy program")]),
-    backupChart("Back-up: Test and Evaluation", "FAR 7.105(b)(14)", [T("bu_test", "Test and evaluation, or mission assurance requirements")]),
-    backupChart("Back-up: Logistics Considerations", "FAR 7.105(b)(15)", [T("bu_logistics", "Logistics considerations and data rights")]),
+    backupChart("Back-up: Test and Evaluation", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_test", "Test and evaluation, or mission assurance requirements")]),
+    backupChart("Back-up: Logistics Considerations", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_logistics", "Logistics considerations and data rights")]),
     backupChart("Back-up: Government-Furnished Property", "FAR Part 45; NF 1739", [T("bu_gfp", "IAGP, GFP, capital asset determination and property clauses")]),
-    backupChart("Back-up: Government-Furnished Information", "FAR 7.105(b)(17)", [T("bu_gfi", "Government-furnished information")]),
+    backupChart("Back-up: Government-Furnished Information", "NFS CG 1807.14(a) (agency-wide template topic)", [T("bu_gfi", "Government-furnished information")]),
     backupChart("Back-up: Environmental and Energy Conservation Objectives", "FAR Part 23", [T("bu_environment", "Environmental and energy conservation objectives")]),
-    backupChart("Back-up: Security Considerations", "NFS 1807.105(b)(19); NPR 1660.1", [T("bu_security", "PIV, classified work, controlled information and foreign travel")]),
-    backupChart("Back-up: Contract Administration", "FAR 7.105(b)(20); NF 1634", [
+    backupChart("Back-up: Security Considerations", "NFS CG 1807.14(b)(6)(iv); NPR 1660.1", [T("bu_security", "PIV, classified work, controlled information and foreign travel")]),
+    backupChart("Back-up: Contract Administration", "NFS CG 1807.14(c)(11); NF 1634", [
       T("bu_administration", "COR appointment, surveillance, data requirements descriptions and required plans"),
       T("bu_undefinitized", "Undefinitized contractual actions", "No undefinitized contractual actions are anticipated."),
     ]),
-    backupChart("Back-up: Other Considerations", "FAR 7.105(b)(21)", [
+    backupChart("Back-up: Other Considerations", "NFS CG 1807.14(a) (agency-wide template topic)", [
       T("bu_pcd", "Procurement class deviation review", "A review of impactful Executive Orders as implemented via Procurement Class Deviations (PCDs) has been completed and the solicitation reflects compliance with the PCDs."),
       T("bu_it", "Information technology, ORCA authorization number and artificial intelligence"),
     ]),
-    backupChart("Back-up: Milestones for the Acquisition Cycle", "FAR 7.105(b)(22)", [T("bu_milestones", "Milestone dates from sources sought through contract effective date")]),
-    backupChart("Back-up: Identification of Participants", "FAR 7.105(b)(23)", [
+    backupChart("Back-up: Milestones for the Acquisition Cycle", "NFS CG 1807.14(c)(12)", [T("bu_milestones", "Milestone dates from sources sought through contract effective date")]),
+    backupChart("Back-up: Identification of Participants", "NFS CG 1807.14(a) (agency-wide template topic)", [
       T("bu_participants", "This PSM was developed by the following team members: name, organizational code identifier, title and contact"),
     ]),
     backupChart("Back-up: Source Evaluation Qualifications", "NFS 1815.370", [T("bu_qualifications", "Qualification statements for each voting member")]),
@@ -761,23 +761,23 @@ const RDT_CHECKLIST = [
   "Preparing all programmatic and technical CDRL/DRD (FAR Part 11, NFS Part 1811)",
   "Support completion of NF 1787 in consultation with the OSBP SBS and completion of NPD 5000 (FAR Part 19, NFS Part 1819)",
   "Assess the amount of work performed on and offsite and other Government furnished facilities or IAGP/services (FAR Part 45, NFS Part 1845)",
-  "Health and Safety (FAR 7.105(a)(7), NFS 1807.104(a), NFS 1807.105(a)(7), NFS 1823.7001(d)(2))",
-  "Identification and description of risks (FAR 7.105(a)(7), NFS 1807.105(a)(7))",
+  "Health and Safety (NFS CG 1807.12(a)(1) and (2), NFS CG 1807.14(b)(6)(iii))",
+  "Identification and description of risks (NFS CG 1807.14(b)(6))",
   "Mission assurance requirements, as applicable (FAR Part 46, NFS Part 1846, NPR 8705.4, NPR 8705.2)",
-  "Initial draft CLIN structure, used when developing the IGCE (FAR Subpart 4.10, NFS 1804.10)",
-  "Identify the estimated cost and describe the estimating methodology (FAR 7.105(a)(3), NFS 1807.105(a)(3))",
-  "Drafting the Quality Assurance Surveillance Plan (FAR Part 37.6, NFS Part 1837.6)",
+  "Initial draft CLIN structure, used when developing the IGCE (RFO FAR 4.202, NFS CG 1804.23)",
+  "Identify the estimated cost and describe the estimating methodology (NFS CG 1807.14(b)(3))",
+  "Drafting the Quality Assurance Surveillance Plan (RFO FAR 46.401(a))",
   "Support the Procurement Office in selection of contract type, including any applicable Determination & Findings (FAR Part 16, NFS Part 1816)",
-  "Budget Estimate and Funding by Government fiscal year (FAR 7.105(b)(6), NFS 1807.105(b)(6)(B))",
+  "Budget Estimate and Funding by Government fiscal year (NFS CG 1807.14(c)(8)(B))",
   "Completion of the NF 1707 Special Approvals and Affirmations of Requisitions (NFS CG 1807.711(a))",
   "Incorporate Supply Chain Visibility Reporting DRD as applicable (NPR 7120.5)",
   "Completion of the NF 1739 NASA Projects Capitalization Determination Form (NPR 9250.1)",
   "Assessing and establishing citation of required technical reference documents, including ITAR, EAR and proprietary information prior to release",
   "Provisioning any necessary GFP and establishing the list of GFP to be provided (FAR Part 45, NFS Part 1845)",
-  "Coordinating the acquisition package with required review and approval organizations (NFS 1807.104)",
+  "Coordinating the acquisition package with required review and approval organizations (NFS CG 1807.12(a))",
   "Support the Procurement Office in drafting and obtaining approval of any applicable JOFOC, Determinations and Findings, and deviations (FAR Subpart 1.7, Subpart 6.3, NFS 1801.4, NFS Subpart 1806.3)",
-  "Support the Procurement Office in preparing the initial draft of the proposal instructions and evaluation criteria (FAR 7.105(b)(4), NFS 1807.105(b)(4))",
-  "Support the Acquisition Planning Team in drafting the PSM Charts (FAR 7.104, NFS Subpart 1807.104, FAR 7.105, NFS 1807.105)",
+  "Support the Procurement Office in preparing the initial draft of the proposal instructions and evaluation criteria (NFS CG 1807.14(c)(6))",
+  "Support the Acquisition Planning Team in drafting the PSM Charts (RFO FAR 7.104, NFS CG 1807.13, NFS CG 1807.14)",
   "Coordinating requirements with the ERM for acquisitions associated with a product service line, or with the requirements owner organization designee",
   "Support the Procurement Office in drafting the Organizational Conflicts of Interest Limitation of Future Contracting documentation (FAR 9.5, NFS Part 1809)",
 ];
@@ -788,7 +788,7 @@ const rdtLetters: TemplateDef = {
   tab: "002",
   layout: "memo",
   badge: {
-    citation: "FAR Part 7; FAR 3.104; NFS 1803.104; NFS 1804.7103",
+    citation: "RFO FAR Part 7; RFO FAR 3.104; NFS 1803.104",
     tier: "guidance",
     revision: "HQ 05/2026 revision",
     effective: "2025-01-01",
@@ -799,7 +799,7 @@ const rdtLetters: TemplateDef = {
     {
       id: "letter1",
       title: "Letter 1 — Requirements Development Team (RDT) Membership Request",
-      citation: "FAR Part 7; NFS Subpart 1807.104",
+      citation: "RFO FAR Part 7; NFS CG 1807.12(a)",
       tier: "guidance",
       standingText:
         "The purpose of this letter is to begin the acquisition development process by soliciting appointment of members for the RDT.",
@@ -847,7 +847,7 @@ const rdtLetters: TemplateDef = {
     {
       id: "enclosure",
       title: "Enclosure — RDT ACQUISITION PACKAGE PRODUCTS AND SUPPORT",
-      citation: "NFS 1807.104",
+      citation: "NFS CG 1807.12(a)",
       tier: "guidance",
       standingText: RDT_CHECKLIST.join("\n"),
       fields: [T("enclosure_tailoring", "Products and support tailored to this acquisition")],

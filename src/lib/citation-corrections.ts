@@ -3,7 +3,7 @@
  * superseded text (templates, thresholds, review_rules). Display only: the
  * stored rows are not rewritten here. Once the prepared UPDATEs run, the old
  * strings no longer occur and this map is a no-op.
- * Sources: RFO FAR parts 1, 4, 5, 12, 13 on acquisition.gov; interim NFS
+ * Sources: RFO FAR parts 1, 4, 5, 12, 13, 15 on acquisition.gov; interim NFS
  * (Sept 15, 2026); NFS Companion Guide (Sept 11, 2026).
  */
 const CORRECTED: Record<string, string> = {
@@ -40,7 +40,11 @@ const CORRECTED: Record<string, string> = {
   "NFS 1819.202-70; NFS CG 1819.11; NFS CG 1810.12(c)":
     "NFS CG 1819.11(a) (Companion Guide guidance); NFS CG 1810.12(c)",
   "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15":
-    "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3 part 15",
+    "RFO FAR 12.204(a) and (b)(1) simplified, RFO FAR 15.408-2(a) part 15",
+  // The PNM row as stored today: the RFO has no FAR 15.406-3; the price
+  // negotiation memorandum is documented under RFO FAR 15.408-2(a).
+  "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3 part 15":
+    "RFO FAR 12.204(a) and (b)(1) simplified, RFO FAR 15.408-2(a) part 15",
 };
 
 /** The corrected citation for a stored reference string, or the string as stored. */

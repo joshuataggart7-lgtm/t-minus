@@ -447,7 +447,7 @@ const drdTemplate: TemplateDef = {
   name: "Data Requirements Description (DRD) Template",
   tab: "DRD",
   badge: {
-    citation: "NFS Appendix C; NFS 1804.7103",
+    citation: "NFS Appendix C",
     tier: "binding",
     revision: "HQ base issuance 04/28/2021, revisions 10/2021, 01/2025 and 04/2025",
     effective: "2025-04-01",

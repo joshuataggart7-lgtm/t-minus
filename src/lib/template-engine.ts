@@ -415,9 +415,9 @@ const jofoc: TemplateDef = {
     {
       id: "item7",
       title: "7. Determination that the anticipated cost will be fair and reasonable",
-      citation: "FAR 6.104-1(a)(7)",
+      citation: "RFO FAR 6.104-1(a)(7)",
       citationFor: (v) =>
-        `FAR 6.104-1(a)(7); price analysis under ${simplifiedValues(v) ? simplifiedPriceCite(v["__method"]) : "FAR 15.404-1"}`,
+        `RFO FAR 6.104-1(a)(7); price analysis under ${simplifiedValues(v) ? simplifiedPriceCite(v["__method"]) : "RFO FAR 15.404-1(b)"}`,
       tier: "binding",
       standingText:
         "The Contracting Officer's signature on this document indicates that the Contracting Officer has determined that the anticipated cost to the Government will be fair and reasonable. The contractor must submit a proposal to be evaluated and negotiated by the Government. Prior to execution of the contractual instrument a proposal analysis will be performed to ensure the final agreed-to price is fair and reasonable.",
@@ -829,11 +829,11 @@ const pnm: TemplateDef = {
   tab: "065",
   badge: {
     citation:
-      "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3 part 15",
+      "RFO FAR 12.204(a) and (b)(1) simplified, RFO FAR 15.408-2(a) part 15",
     citationFor: (v) =>
       simplifiedValues(v)
         ? `${simplifiedPriceCite(v["__method"])}; ${simplifiedDocCite(v["__method"])}`
-        : "FAR 15.406-3; FAR 15.408-2; FAR 15.407; FAR 15.403; NFS CG 1815.48; NFS CG 1815.49",
+        : "RFO FAR 15.408-2(a); RFO FAR 15.407; RFO FAR 15.403; NFS CG 1815.48; NFS CG 1815.49",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-07",
@@ -841,15 +841,15 @@ const pnm: TemplateDef = {
     noteFor: (v) =>
       simplifiedValues(v)
         ? `This memorandum records the price reasonableness finding under ${simplifiedPriceCite(v["__method"])}, with the file documentation required by ${simplifiedDocCite(v["__method"])}. No separate price reasonableness determination is generated.`
-        : "This memorandum is the documentation of negotiation under FAR 15.406-3. No separate price reasonableness determination is generated.",
+        : "This memorandum is the documentation of negotiation under RFO FAR 15.408-2(a). No separate price reasonableness determination is generated.",
   },
   lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
   sections: [
     {
       id: "header",
       title: "Acquisition and vendor",
-      citation: "RFO FAR 12.204(b)(1) simplified, FAR 15.406-3(a)(1) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "FAR 15.406-3(a)(1)"),
+      citation: "RFO FAR 12.204(b)(1) simplified, RFO FAR 15.408-2(a)(1) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "RFO FAR 15.408-2(a)(1)"),
       tier: "binding",
       fields: [
         { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
@@ -868,8 +868,8 @@ const pnm: TemplateDef = {
     {
       id: "pricing",
       title: "Government estimate and quoted price",
-      citation: "RFO FAR 12.204(b)(1) simplified, FAR 15.406-3(a)(7) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "FAR 15.406-3(a)(7)"),
+      citation: "RFO FAR 12.204(b)(1) simplified, RFO FAR 15.408-2(a)(7) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "RFO FAR 15.408-2(a)(7)"),
       tier: "binding",
       standingText:
         "The independent government cost estimate and the quote of record are the starting point for the analysis.",
@@ -909,8 +909,8 @@ const pnm: TemplateDef = {
     {
       id: "analysis",
       title: "Price analysis and negotiation",
-      citation: "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3(a)(7) through (a)(11) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? `${simplifiedPriceCite(v["__method"])}; ${simplifiedDocCite(v["__method"])}` : "FAR 15.406-3(a)(7) through (a)(11)"),
+      citation: "RFO FAR 12.204(a) and (b)(1) simplified, RFO FAR 15.408-2(a)(7) through (a)(11) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? `${simplifiedPriceCite(v["__method"])}; ${simplifiedDocCite(v["__method"])}` : "RFO FAR 15.408-2(a)(7) through (a)(11)"),
       tier: "binding",
       fields: [
         {
@@ -947,14 +947,14 @@ const pnm: TemplateDef = {
       citationFor: (v) =>
         simplifiedValues(v)
           ? simplifiedPriceCite(v["__method"])
-          : "FAR 15.406-3; FAR 15.408-2; NFS CG 1815.48; NFS CG 1815.49",
+          : "RFO FAR 15.408-2(a); NFS CG 1815.48; NFS CG 1815.49",
       tier: "binding",
       standingText:
         "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the file documentation required by RFO FAR 12.204(b)(1). No separate price reasonableness determination is written.",
       standingTextFor: (v) =>
         simplifiedValues(v)
           ? `The contracting officer records the price reasonableness finding here under ${simplifiedPriceCite(v["__method"])}, supported by the file documentation required by ${simplifiedDocCite(v["__method"])}. No separate price reasonableness determination is written.`
-          : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by FAR 15.406-3, following the format at FAR 15.408-2 and the process in NFS CG 1815.48 and NFS CG 1815.49.",
+          : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by RFO FAR 15.408-2(a), following the process in NFS CG 1815.48 and NFS CG 1815.49.",
       fields: [
         {
           key: "determination",

@@ -48,8 +48,8 @@ export function emailCiteForMethod(acq: Facts | null): {
         methodLabel: "simplified commercial procedures",
       }
       : {
-        unsuccessful: "FAR 15.207-2",
-        priceReasonableness: "FAR 15.404-1",
+        unsuccessful: "RFO FAR 15.207-2(b)",
+        priceReasonableness: "RFO FAR 15.402(a) and 15.404-1(b)",
         methodLabel: "negotiated procedures",
       };
 }

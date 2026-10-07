@@ -381,6 +381,12 @@ function IntakePage() {
     }));
     const carriedAnswers = (row.nf1707_answers ?? {}) as Record<string, unknown>;
     setAnswers(answersFromStored(carriedAnswers));
+    // The sample's stored scenario answers (GFP, OCI, vehicle and the rest)
+    // load with it, so the conditions match the NF 1707 answers it carries.
+    const storedScenario = row.scenario && typeof row.scenario === "object" && !Array.isArray(row.scenario)
+      ? (row.scenario as Partial<ScenarioAnswers>)
+      : {};
+    setScenario({ ...SCENARIO_DEFAULTS, ...storedScenario });
     setScan(null);
   }
 
@@ -457,7 +463,7 @@ function IntakePage() {
       setScan(null);
       return;
     }
-    const result = scanRedFlags(facts, data.data!.ref);
+    const result = scanRedFlags(facts, data.data!.ref, { pr: !!docFiles.pr, nf1707: !!docFiles["nf-1707"] });
     setScan(result);
     // A matched enterprise strategy preselects the determination; the CO's
     // choice then clears or keeps the flag on the next scan.
@@ -1485,6 +1491,23 @@ function IntakePage() {
                     <button type="button" className="text-[13px] text-primary" onClick={() => removeStaged(key)}>
                       Remove
                     </button>
+                  </>
+                ) : key === "pr" && facts.pr_number.trim() ? (
+                  <>
+                    <span className="text-[13px] text-muted-foreground">PR {facts.pr_number.trim()} recorded; copy not attached</span>
+                    <label className="cursor-pointer text-[13px] text-primary">
+                      Attach
+                      <input
+                        type="file"
+                        className="sr-only"
+                        accept={ATTACHMENT_ACCEPT}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void stageFile(key, file);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
                   </>
                 ) : (
                   <>

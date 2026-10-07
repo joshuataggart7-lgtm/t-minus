@@ -485,7 +485,7 @@ const drfpCoverLetter: TemplateDef = {
     {
       id: "standing",
       title: "Release, posting and ombudsman",
-      citation: "NFS 1804.7103; NFS 1852.215-84",
+      citation: "NFS CG 1804.93; NFS 1852.215-84",
       tier: "binding",
       standingText:
         "To control and protect sensitive data owned by the Government and its Contractors, NASA policy requires all acquisition-related documents be released in Adobe Portable Document Format (PDF).\n\nThis DRFP and any amendments are posted to the Governmentwide point of entry at SAM.gov.\n\nNASA FAR Supplement (NFS) clause 1852.215-84, OMBUDSMAN, is applicable.",
@@ -616,7 +616,7 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "standing",
       title: "Standing instructions",
-      citation: "FAR 52.215-1; NFS 1804.7103; NFS CG 1815.11(i)",
+      citation: "FAR 52.215-1; NFS CG 1804.93; NFS CG 1815.11(i)",
       tier: "binding",
       standingText:
         "Offerors are required to have a Commercial and Government Entity (CAGE) code that matches the corporate address submitted with its proposal.\n\nIn order to control and protect sensitive data owned by the Government and its Contractors, NASA policy required all acquisition-related documents be released in Adobe Portable Document Format (PDF).\n\nThis RFP and any amendments are posted to the Governmentwide point of entry at SAM.gov.\n\nNASA FAR Supplement (NFS) clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition can be found in the NASA Procurement Ombudsman and Competition Advocate listing.\n\nIn accordance with NFS CG 1815.11(i), a \u201cBlackout Notice\u201d has been issued to NASA personnel. All inquiries and communications pertaining to this acquisition shall be directed only to the Contracting Officer listed below.",
@@ -671,7 +671,7 @@ const rfpNoncompetitive: TemplateDef = {
   tab: "040",
   layout: "memo",
   badge: {
-    citation: "FAR 15.203(e); FAR 15.203(e)(3) and (4); NFS 1815.203-70; NFS 1804.7103",
+    citation: "RFO FAR 15.002(a); RFO FAR 15.102(b)(1)(i); NFS CG 1815.01; NFS CG 1804.93",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-02-01",
@@ -682,7 +682,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "letter_header",
       title: "Letter",
-      citation: "FAR 15.203(e)",
+      citation: "RFO FAR 15.102(b)(1)(i); NFS CG 1815.01",
       tier: "binding",
       fields: [
         X("org_code", "Procurement office code or identifier", "requester_org_code"),
@@ -695,7 +695,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "purpose",
       title: "Purpose and authority",
-      citation: "FAR 15.203(e)(3) and (4); FAR Part 6",
+      citation: "RFO FAR 15.002(a); RFO FAR Part 6",
       tier: "binding",
       fields: [
         T("scope", "The principal purpose of this requirement is to provide", "description_of_requirement"),
@@ -789,7 +789,7 @@ const rfpNoncompetitive: TemplateDef = {
     {
       id: "signature",
       title: "Signature and enclosures",
-      citation: "FAR 15.203(e)",
+      citation: "RFO FAR 15.102(b)(1)(i); NFS CG 1815.01",
       tier: "binding",
       fields: [
         X("co_contact", "For questions associated with this RFP, please contact the undersigned at"),
@@ -808,7 +808,7 @@ const rfpExistingContract: TemplateDef = {
   tab: "040",
   layout: "memo",
   badge: {
-    citation: "FAR 15.203(e); FAR 43.102(b); FAR 15.403-4; NFS 1815.403-3",
+    citation: "RFO FAR 15.102(b)(1)(i); RFO FAR 43.202(b); RFO FAR 15.403-4; NFS CG 1815.43",
     tier: "binding",
     revision: "HQ 02/2025 revision",
     effective: "2025-02-01",
@@ -819,7 +819,7 @@ const rfpExistingContract: TemplateDef = {
     {
       id: "letter_header",
       title: "Letter",
-      citation: "FAR 15.203(e)",
+      citation: "RFO FAR 15.102(b)(1)(i)",
       tier: "binding",
       fields: [
         X("org_code", "Procurement office code or identifier", "requester_org_code"),
@@ -832,7 +832,7 @@ const rfpExistingContract: TemplateDef = {
     {
       id: "purpose",
       title: "Purpose and authority",
-      citation: "FAR 43.102(b); FAR Part 6",
+      citation: "RFO FAR 43.202(b); RFO FAR Part 6",
       tier: "binding",
       fields: [
         T("scope", "The principal purpose of this requirement is to provide", "description_of_requirement"),
@@ -864,7 +864,7 @@ const rfpExistingContract: TemplateDef = {
     {
       id: "submission",
       title: "Submission",
-      citation: "FAR 15.203(e)",
+      citation: "RFO FAR 15.102(b)(1)(i)",
       tier: "binding",
       standingText:
         "Submit an electronic copy of your proposal in Microsoft Office Word, Adobe Portable Document Format (PDF), or Microsoft Excel spreadsheets (containing unlocked cells with formulas). DO NOT compress any electronic files. DO NOT password protect any portion of your electronic submission.\n\nPrepare the proposal in accordance with the instructions in this letter and any enclosures. Information contained in the proposal must be in sufficient detail to allow adequate technical, business and cost/price evaluation.\n\nThis RFP does not commit NASA to pay any proposal preparation costs, nor does it obligate NASA to procure or contract for these services. This request shall not be construed as authorization to proceed with or be paid for charges incurred by performing any of the work called for in this solicitation.\n\nThe proposal must set forth full, accurate, and complete information as required by this letter. The penalty for making false statements in a proposal is prescribed in 18 USC \u00a7 1001. This request is not to be construed in any way as a commitment of Government funds. Any award as a result of this request is contingent upon approval of the authority to negotiate and the availability of Government funds.",
@@ -878,7 +878,7 @@ const rfpExistingContract: TemplateDef = {
     {
       id: "signature",
       title: "Signature and enclosures",
-      citation: "FAR 15.203(e)",
+      citation: "RFO FAR 15.102(b)(1)(i)",
       tier: "binding",
       fields: [
         X("co_contact", "For questions associated with this request, please contact the undersigned at"),
@@ -969,7 +969,7 @@ const electronicPostingChecklist: TemplateDef = {
   name: "Electronic Document Posting Checklist",
   tab: "38",
   badge: {
-    citation: "NFS 1804.7103; FAR 3.104-4; NAII 2190.1",
+    citation: "NFS CG 1804.93; RFO FAR 3.104-4; NAII 2190.1",
     tier: "binding",
     revision: "HQ 01/2025 revision",
     effective: "2025-01-01",
@@ -980,7 +980,7 @@ const electronicPostingChecklist: TemplateDef = {
     {
       id: "header",
       title: "Electronic Document Posting Checklist",
-      citation: "NFS 1804.7103",
+      citation: "NFS CG 1804.93",
       tier: "binding",
       fields: [
         X("posting_action", "Acquisition title and posting action", "title"),
@@ -1005,7 +1005,7 @@ const electronicPostingChecklist: TemplateDef = {
     {
       id: "certification",
       title: "Certification",
-      citation: "NFS 1804.7103",
+      citation: "NFS CG 1804.93",
       tier: "binding",
       standingText:
         "I hereby certify that the checklist has been completed for all documents summarized above.\n\nApproval must be conducted by an individual at least one level above the contracting officer who is independent from the drafting of the documents.",

@@ -22,17 +22,17 @@ const yna = [...yn, { value: "na", label: "Not applicable" }];
 const q = (key: string, label: string, kind: Question["kind"], extra: Partial<Question> = {}): Question => ({ key, label, kind, ...extra });
 
 export const NF1707_SECTIONS: Section[] = [
-  { key: "1", title: "NASA strategic sourcing initiative", citation: "NF 1707 Section 1; NFS 1808.003-72", questions: [
+  { key: "1", title: "NASA strategic sourcing initiative", citation: "NF 1707 Section 1; NFS CG 1808.13(c); NFS CG 1808.14", questions: [
     q("s1_strategy", "Is the requirement available through a NASA strategic sourcing contract?", "yesno", {yesText:"Available through a strategic sourcing contract", noText:"Not available through a strategic sourcing contract",  options: yn, short: "strategic sourcing", help: "If no, attach documentation of the review." }),
     q("s1_contract_number", "Strategic sourcing contract number", "text", {short:"Contract number",  when: a => a["s1_strategy"] === "yes" }),
   ]},
-  { key: "2", title: "Information systems and ICT accessibility (Section 508)", citation: "NF 1707 Section 2; FAR 2.101 (IT definition)", gates: ["it"], questions: [
+  { key: "2", title: "Information systems and ICT accessibility (Section 508)", citation: "NF 1707 Section 2; RFO FAR 2.101 (information technology definition)", gates: ["it"], questions: [
     q("s2_authorization", "Which Section 2 statement applies? Complete only one.", "radio", { options: [{value:"citr",label:"I. CITR authorization"},{value:"orca",label:"II. ORCA authorization"},{value:"under_limit",label:"III. Under $7.5M and contains no information technology"},{value:"none",label:"III. No IT authorization number"},{value:"not_reviewed",label:"IV. Not yet reviewed by the OCIO because the manufacturer is not yet known"}], required:true }),
     q("s2_citr_number", "CITR authorization number", "text", {short:"CITR number",  when:a=>a["s2_authorization"]==="citr" }),
     q("s2_orca_number", "ORCA authorization number", "text", {short:"ORCA number",  when:a=>a["s2_authorization"]==="orca" }),
     q("s2_no_authorization_reason", "No IT authorization number", "text", {short:"No IT authorization number",  when:a=>a["s2_authorization"]==="none" }),
   ]},
-  { key: "3", title: "Environmental and sustainable acquisition", citation: "NF 1707 Section 3; FAR Part 23; NFS 1823; NPR 8530.1; NPR 8580.1", questions: [
+  { key: "3", title: "Environmental and sustainable acquisition", citation: "NF 1707 Section 3; RFO FAR Part 23; NFS CG 1823; NPR 8530.1; NPR 8580.1", questions: [
     q("s3_gpc", "Green Procurement Compilation (GPC) search result", "radio", { options:[{value:"none",label:"I.A. Does not acquire any products or services listed in the GPC"},{value:"requirements",label:"I.B. Acquires products or services listed in the GPC"}], required:true }),
     q("s3_biobased", "Bio-based/Bio-preferred, USDA-designated items", "check", { when:a=>a["s3_gpc"]==="requirements", short:"Bio-based items" }),
     q("s3_smartway", "SmartWay Transportation Services", "check", { when:a=>a["s3_gpc"]==="requirements", short:"SmartWay transportation" }),
@@ -79,7 +79,7 @@ export const NF1707_SECTIONS: Section[] = [
     q("s5_scv_modification", "Modification of an existing contract, not a new procurement", "check", {when:a=>a["s5_scv"]==="not-required", short:"Modification of an existing contract"}),
     q("s5_scv_waiver", "Waiver approved by the NASA Supply Chain Resiliency Board", "check", {when:a=>a["s5_scv"]==="not-required", short:"SCRB waiver"}),
   ]},
-  { key:"6", title:"Quality assurance", citation:"NPR 8735.2C; NPR 8735.1; FAR 46.202-4; NFS 1846", questions:[
+  { key:"6", title:"Quality assurance", citation:"NPR 8735.2C; NPR 8735.1; RFO FAR 46.202-4; NFS Part 1846", questions:[
     q("s6_exempt_it_infra", "Information technology or institutional infrastructure projects", "check", {exclusive:["s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_commercial","s6_rd"], short:"IT or institutional infrastructure"}), q("s6_exempt_it_services", "Information technology services", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_commercial","s6_rd"], short:"IT services"}), q("s6_exempt_software", "Software assurance functions under NASA-STD-8739.8 and NPR 7150.2", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_commercial","s6_rd"], short:"Software assurance"}), q("s6_exempt_support", "Contractor support services that do not directly affect product configuration", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_commercial","s6_rd"], short:"Contractor support services"}), q("s6_exempt_facilities", "NASA institutional facilities or facility maintenance", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_agreement","s6_exempt_other","s6_commercial","s6_rd"], short:"Facilities"}), q("s6_exempt_agreement", "Grants, cooperative agreements, or Space Act agreements", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_other","s6_commercial","s6_rd"], short:"Grants or agreements"}), q("s6_exempt_other", "Other acquisition. NPR 8735.2C does not apply", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_commercial","s6_rd"], short:"Other acquisition"}),
     q("s6_commercial", "Commercial or COTS items under FAR Part 12. NPR 8735.2C paragraph 5.1 applies", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_rd"], when:a=>!qualityExempt(a), short:"Commercial or COTS"}), q("s6_rd", "Research and development. NPR 8735.2C paragraph 5.2 applies", "check", {exclusive:["s6_exempt_it_infra","s6_exempt_it_services","s6_exempt_software","s6_exempt_support","s6_exempt_facilities","s6_exempt_agreement","s6_exempt_other","s6_commercial"], when:a=>!qualityExempt(a), short:"Research and development"}),
     q("s6_neither", "Neither critical nor complex. Higher-level quality is not required", "check", {exclusive:["s6_critical","s6_complex"], when:a=>!qualityExempt(a), short:"Neither critical nor complex"}), q("s6_critical", "Critical items or critical work under NPR 8735.2C, Appendix A", "check", {exclusive:["s6_neither"], when:a=>!qualityExempt(a), short:"Critical"}), q("s6_complex", "Complex items or complex work under NPR 8735.2C, Appendix A", "check", {exclusive:["s6_neither"], when:a=>!qualityExempt(a), short:"Complex"}),
@@ -101,7 +101,7 @@ export const NF1707_SECTIONS: Section[] = [
   ]},
   { key:"9", title:"Required special approvals, Center-specific supplements", citation:"NF 1707 Section 9; Center policy", questions:[q("s9_required", "Which special approvals statement applies?", "radio", {options:[{value:"no",label:"There are no items requiring special approval"},{value:"sap",label:"Approvals were obtained through the SAP release strategy"},{value:"yes",label:"Approvals for special items are attached"}]}),q("s9_which", "Which approval? (kept on the file)", "text", {short:"Approval", when:a=>a["s9_required"]==="yes"||a["s9_required"]==="sap"})]},
   { key:"10", title:"Foreign travel briefings for NASA contractors", citation:"NPR 1660.1", questions:[q("s10_foreign_travel", "Will NASA contractor employees go on official travel to Designated Countries, Russia, or other high-threat locations?", "yesno", {yesText:"Travel to high-threat locations", noText:"No travel to high-threat locations", options:yn, short:"high-threat travel", help:"If yes, the contract includes the Counterintelligence Briefings requirement."})]},
-  { key:"11", title:"Extraneous promotional and personal use items", citation:"MSC-2011-12-001", questions:[q("s11_extraneous", "Does this procurement involve any prohibited extraneous promotional or personal use items?", "yesno", {yesText:"Involves prohibited promotional items", noText:"No prohibited promotional items", options:yn, short:"prohibited items", help:"The form only allows the statement that none are involved. Remove any such items before submitting."})]},
+  { key:"11", title:"Extraneous promotional and personal use items", citation:"NF 1707 Section 11 (the form cites MSC-2011-12-001, as amended)", questions:[q("s11_extraneous", "Does this procurement involve any prohibited extraneous promotional or personal use items?", "yesno", {yesText:"Involves prohibited promotional items", noText:"No prohibited promotional items", options:yn, short:"prohibited items", help:"The form only allows the statement that none are involved. Remove any such items before submitting."})]},
   { key:"12", title:"Other current NASA directives", citation:"NF 1707 Section 12; NODIS", questions:[q("s12_directives", "After reviewing NODIS, do additional NASA directives apply?", "radio", {options:[{value:"none",label:"No additional NASA directives apply"},{value:"attached",label:"Additional directives apply and the list is attached"}]})]},
 ];
 
@@ -124,7 +124,9 @@ export function answersFromStored(stored:Record<string,unknown>):NfAnswers{
  const space=text("Section5_I_space_flight"); const aviation=text("Section5_V_aviation"); const safety=text("Section7_safety_health");
  if(services) out["gate.services"]=/\bservices?\b/i.test(services)?"yes":"no";
  if(it) out["gate.it"]=/no information technology|UnderLimitNoIT/i.test(it)?"no":"yes";
- if(property) out["gate.hardware"]=has("Section8_property")?"yes":"no";
+ // Section 8 property text (often government-furnished property) says nothing
+ // about a contractor hardware deliverable, so the hardware gate is not derived
+ // from it; it follows the Hardware deliverable fact unless answered directly.
  if(space) out["gate.space"]=/S5In1|not space flight/i.test(space)?"no":"yes";
  if(aviation) out["gate.aviation"]=/\byes\b|S5Vn2/i.test(aviation)&&!/S5Vn1\b/i.test(aviation)?"yes":"no";
  if(safety) out["gate.hazards"]=has("Section7_safety_health")?"yes":"no";
@@ -160,6 +162,24 @@ export function answersFromStored(stored:Record<string,unknown>):NfAnswers{
  // Answers saved from Intake or the form page win over the older narrative keys.
  for(const [key,value] of Object.entries(stored)) if(/^(gate\.|derived\.|s\d)/.test(key)&&typeof value==="string") out[key]=value;
  return out;
+}
+
+/**
+ * The hardware and IT gates sit next to the Hardware deliverable and Includes
+ * information technology facts, which drive the Right to Repair and CIO checks.
+ * When they disagree, say so rather than silently picking one.
+ */
+export function gateFactNote(key:GateKey,a:NfAnswers,facts:Pick<IntakeFacts,"hardware_deliverable"|"includes_it">):string{
+ const gate=a[`gate.${key}`];
+ if(key==="hardware"){
+  if(gate==="yes"&&!facts.hardware_deliverable)return "Hardware deliverable is unchecked under Attachments and conditions. Check it if the contractor delivers hardware (Right to Repair applies); materials or other physical items alone do not need it.";
+  if(gate==="no"&&facts.hardware_deliverable)return "Hardware deliverable is checked under Attachments and conditions, so this answer should be Yes.";
+ }
+ if(key==="it"){
+  if(gate==="yes"&&!facts.includes_it)return "Includes information technology is unchecked under Attachments and conditions. Check it so the CIO review check runs.";
+  if(gate==="no"&&facts.includes_it)return "Includes information technology is checked under Attachments and conditions, so this answer should be Yes.";
+ }
+ return "";
 }
 
 export function sectionApplies(s:Section,a:NfAnswers){return !s.gates||s.gates.some(g=>a[`gate.${g}`]==="yes")}
@@ -276,7 +296,7 @@ export function Nf1707Intake({answers,setAnswers,fields,facts,evmThreshold}:{ans
  const [preview,setPreview]=useState(false); const mapped=useMemo(()=>mappedNf1707(fields,merged,{},facts),[fields,merged,facts]);
  return <section aria-labelledby="nf1707-title" className="mb-10 border-t border-border pt-6"><div className="mb-2 flex flex-wrap items-start justify-between gap-3"><div><h2 id="nf1707-title" className="text-[18px] font-medium leading-6">NF 1707 requester questions</h2><p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">Approvals and signatures are tracked later in the acquisition roadmap.</p></div><Button type="button" variant="link" className="h-auto p-0" onClick={()=>setPreview(true)}>Export preview</Button></div>
  <p className="mb-5 text-[13px] text-muted-foreground">{answeredCount} of {sections.length} sections answered.</p>
- <fieldset className="mb-6 max-w-[70ch] border border-border bg-background p-4"><legend className="px-1 text-[15px] font-medium">Gate questions</legend>{GATES.map(g=><div key={g.key} className="flex flex-wrap items-center justify-between gap-3 border-b border-border py-3 last:border-b-0"><span className="text-[15px]">{g.label}</span><div className="flex gap-4">{yn.map(o=><label key={o.value} className="flex items-center gap-2 text-[14px]"><input type="radio" name={`gate-${g.key}`} checked={merged[`gate.${g.key}`]===o.value} onChange={()=>setAnswers(a=>({...a,[`gate.${g.key}`]:o.value}))}/>{o.label}</label>)}</div></div>)}</fieldset>
+ <fieldset className="mb-6 max-w-[70ch] border border-border bg-background p-4"><legend className="px-1 text-[15px] font-medium">Gate questions</legend>{GATES.map(g=><div key={g.key} className="flex flex-wrap items-center justify-between gap-3 border-b border-border py-3 last:border-b-0"><span className="text-[15px]">{g.label}</span><div className="flex gap-4">{yn.map(o=><label key={o.value} className="flex items-center gap-2 text-[14px]"><input type="radio" name={`gate-${g.key}`} checked={merged[`gate.${g.key}`]===o.value} onChange={()=>setAnswers(a=>({...a,[`gate.${g.key}`]:o.value}))}/>{o.label}</label>)}</div>{gateFactNote(g.key,merged,facts)?<p className="w-full text-[13px] text-muted-foreground">{gateFactNote(g.key,merged,facts)}</p>:null}</div>)}</fieldset>
  <div className="max-w-[70ch] space-y-3">{sections.map(s=>{const qs=questionsFor(s);const summary=qs.length?sectionSummary(qs,merged):"Not applicable";return <details key={s.key} id={`nf-section-${s.key}`} className="rounded-lg border border-border bg-background" open={false}><summary className="cursor-pointer list-none px-4 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span className="text-[18px] font-medium">Section {s.key} · {s.title}</span><span className="mt-1 block text-[13px] text-muted-foreground">{s.citation}</span>{summary?<span className="mt-1 block text-[13px]">{summary}</span>:null}</summary><div className="divide-y divide-border border-t border-border px-4">{qs.length?qs.map(question=><QuestionRow key={question.key} question={question} answers={merged} setAnswers={setAnswers}/>):<p className="py-4 text-[15px] text-muted-foreground">Answered by the gate question above. The form prints the matching statement.</p>}</div></details>})}</div>
  {preview?<div role="dialog" aria-modal="true" aria-labelledby="export-title" className="fixed inset-0 z-50 grid place-items-center bg-foreground/60 p-4"><div className="max-h-[88vh] w-full max-w-4xl overflow-auto rounded-xl bg-background p-6 shadow-lg"><div className="mb-4 flex items-center justify-between gap-4"><div><h2 id="export-title" className="text-[18px] font-medium">NF 1707 export preview</h2><p className="text-[13px] text-muted-foreground">{Object.values(mapped).filter(Boolean).length} filled form fields. Approval fields fill from the Approvals step.</p></div><Button type="button" variant="outline" onClick={()=>setPreview(false)}>Close</Button></div><div className="overflow-x-auto"><table className="w-full border border-border text-[13px]"><thead><tr><th className="px-3 py-2 text-left">Form field</th><th className="px-3 py-2 text-left">Filled value</th></tr></thead><tbody>{Object.entries(mapped).filter(([,v])=>!!v).map(([k,v])=><tr key={k} className="border-t border-border"><td className="px-3 py-2 text-muted-foreground">{nf1707CellText(k)??k}</td><td className="px-3 py-2">{v==="1"?"Checked":v}</td></tr>)}</tbody></table></div></div></div>:null}</section>
 }
