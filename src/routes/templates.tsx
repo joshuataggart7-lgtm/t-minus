@@ -45,10 +45,29 @@ function statusColor(status: string | null) {
   return "var(--muted-foreground)";
 }
 
+/**
+ * The HQ effective date cell. Only a date-shaped value is shown; any other
+ * stored text reads "Not dated" (it can name internal files, so it is not
+ * exposed in a tooltip either).
+ */
+const NO_TAB = "__none__";
+
+function formatEffective(raw: string | null | undefined): string {
+  const text = (raw ?? "").trim();
+  if (!text) return "Not recorded";
+  if (
+    /^\d{4}-\d{2}(-\d{2})?$/.test(text) ||
+    /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.? \d{4}$/i.test(text) ||
+    /^\d{1,2}\/(\d{1,2}\/)?\d{4}$/.test(text)
+  )
+    return text;
+  return "Not dated";
+}
+
 /** Placeholder text carried in the seed is not a citation. */
 function citationText(value: string | null | undefined) {
   const text = (value ?? "").trim();
-  if (!text || /^\[.*\]$/.test(text) || /fill from template/i.test(text)) return "—";
+  if (!text || /^\[.*\]$/.test(text) || /fill from template/i.test(text)) return "Not cited";
   return text;
 }
 
@@ -88,7 +107,7 @@ function TemplatesPage() {
   });
 
   const rows = q.data ?? [];
-  const tabs = [...new Set(rows.map((r) => r.nf_1098_tab ?? "—"))].sort((a, b) => a.localeCompare(b));
+  const tabs = [...new Set(rows.map((r) => r.nf_1098_tab ?? NO_TAB))].sort((a, b) => a.localeCompare(b));
   const live = rows.filter((r) => isLiveStatus(r.status)).length;
   const next = rows.filter((r) => (r.status ?? "").toLowerCase().startsWith("build next")).length;
 
@@ -102,7 +121,7 @@ function TemplatesPage() {
       {authState !== "signed-in" ? (
         <LoadingNote what="your sign-in" />
       ) : q.isError ? (
-        <ErrorNote message="The template list did not load. Refresh the page; if it stays empty, open Seed status to confirm the templates loaded." />
+        <ErrorNote message="The template list did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : q.isLoading ? (
         <LoadingNote what="the template list" />
       ) : (
@@ -113,7 +132,7 @@ function TemplatesPage() {
           </p>
 
           {tabs.map((tab) => {
-            const sectionHeading = tab === "—" ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`;
+            const sectionHeading = tab === NO_TAB ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`;
             return (
             <section key={tab} className="mb-10">
               <h2 className="mb-3 text-[18px] leading-6 font-medium">
@@ -132,7 +151,7 @@ function TemplatesPage() {
                 </thead>
                 <tbody className="max-sm:block">
                   {rows
-                    .filter((r) => (r.nf_1098_tab ?? "—") === tab)
+                    .filter((r) => (r.nf_1098_tab ?? NO_TAB) === tab)
                     .map((r) => {
                       const key = isLiveStatus(r.status) ? liveKeyFor(r.name) : null;
                       const isDeviation = r.name === DEVIATION_TEMPLATE.name && isLiveStatus(r.status);
@@ -152,10 +171,10 @@ function TemplatesPage() {
                             )}
                           </td>
                           <td data-label="HQ effective date" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>
-                            {r.hq_revision_date ?? "—"}
+                            {formatEffective(r.hq_revision_date)}
                           </td>
                           <td data-label="Citation" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{citationText(r.governing_citation)}</td>
-                          <td data-label="Tier" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{r.citation_tier ?? "—"}</td>
+                          <td data-label="Tier" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{r.citation_tier ?? "Not set"}</td>
                           <td data-label="State" className="px-3 py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
                             <StatusMark color={statusColor(r.status)}>{statusLabel(r.status)}</StatusMark>
                           </td>

@@ -16,6 +16,7 @@ import {
   openPolls,
   voteLabel,
 } from "@/lib/office-invite";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function OfficeInvitePanel({
   acquisitionId,
@@ -70,9 +71,7 @@ export function OfficeInvitePanel({
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Invite another office</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       <h3 className="mt-4 text-[15px] font-medium leading-[22px]">Reviews open on this file</h3>

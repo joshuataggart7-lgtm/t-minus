@@ -160,9 +160,9 @@ function ReviewerInbox() {
       ) : null}
 
       {isLoading ? (
-        <LoadingNote what="your reviews" />
+        <LoadingNote what="your reviews" layout="cards" />
       ) : isError ? (
-        <ErrorNote message="Your reviews did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." />
+        <ErrorNote message="Your reviews did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : rows.length === 0 ? (
         <EmptyState
           sentence="No review is waiting on a vote."

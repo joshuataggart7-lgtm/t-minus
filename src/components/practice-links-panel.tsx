@@ -6,6 +6,7 @@
 // is fabricated here: the panel says so plainly.
 
 import { RFO_SOURCE_URL } from "@/lib/pcd-adoption";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 const NON_BINDING = "Non-binding practice — not FAR / not NFS.";
 
@@ -14,9 +15,7 @@ export function PracticeLinksPanel() {
     <section aria-label="Buying guides and practice guidance" className="mt-6 max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Buying guides &amp; practice guidance</h3>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       <ul className="mt-3 list-none space-y-3 text-[13px] leading-[18px]">

@@ -93,7 +93,7 @@ function AboutPage() {
       <PilotKnownGaps />
 
       {q.isError ? (
-        <ErrorNote message="The template list did not load. Refresh the page; if it fails again, open Seed status." />
+        <ErrorNote message="The template list did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : null}
       {q.isLoading ? <LoadingNote what="the build detail" /> : null}
 

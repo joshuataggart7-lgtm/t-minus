@@ -2,6 +2,7 @@
 // SAM.gov; nothing here holds the file or blocks a phase exit.
 
 import { DRFP_CITATION, DRFP_NO_SAM_PUBLISH, draftRfpAlert } from "@/lib/draft-rfp-alert";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function DraftRfpAlertPanel({ acq }: { acq: Record<string, unknown> | null | undefined }) {
   if (!acq) return null;
@@ -15,9 +16,7 @@ export function DraftRfpAlertPanel({ acq }: { acq: Record<string, unknown> | nul
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Draft RFP alert</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       <p className="mt-2 text-[15px] leading-[22px]">{alert.headline}</p>

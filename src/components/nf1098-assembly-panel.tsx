@@ -7,6 +7,7 @@ import {
   buildNf1098Assembly,
   type Nf1098AssemblyInput,
 } from "@/lib/nf1098-assembly";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 /**
  * Contract-file assembly checklist: NF 1098 tabs on the record, required tabs
@@ -43,7 +44,10 @@ export function Nf1098AssemblyPanel({
 
   return (
     <div className="mt-3 border border-border p-4">
-      <h4 className="text-[15px] font-medium">Contract-file assembly (NF 1098)</h4>
+      <div className="flex flex-wrap items-center gap-2">
+        <h4 className="text-[15px] font-medium">Contract-file assembly (NF 1098)</h4>
+        <AdvisoryTag />
+      </div>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{assembly.chip}</p>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         <span data-numeric>{assembly.counts.presentTabs}</span> tabs present ·{" "}
@@ -53,9 +57,8 @@ export function Nf1098AssemblyPanel({
       </p>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         Present means a document is on the file under that tab. Missing means the required tab has
-        nothing filed yet. Not recorded means the record has no value for that enclosure. A missing
-        tab is advisory: it never holds the file or a phase exit, and the list only names tabs the
-        phase plan requires — no enclosure is invented here.
+        nothing filed yet. Not recorded means the record has no value for that enclosure. The list only
+        names tabs the phase plan requires. No enclosure is invented here.
       </p>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         The NF 1098 form blank is not packaged. This checklist is assembled from the record; it is

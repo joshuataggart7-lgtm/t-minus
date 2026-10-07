@@ -15,11 +15,15 @@ export type SidebarItem = ReturnType<typeof navFor>[number];
  * state. Shared by the sidebar and the navigation command provider so they
  * cannot drift. Empty groups are omitted (the sidebar renders nothing for them).
  */
-export function sidebarNavGroups(roles: PersonaRole[], presenter: boolean) {
+export function sidebarNavGroups(roles: PersonaRole[], presenter: boolean, demo = false) {
   const allItems = navFor(roles);
+  // The demo (read-only) session hides Seed status the way presenter mode
+  // does. A real HQ sign-in keeps it; the route itself is unchanged.
   const items = presenter
     ? allItems.filter((item) => item.label !== "Seed status" && item.label !== "Simulate")
-    : allItems;
+    : demo
+      ? allItems.filter((item) => item.label !== "Seed status")
+      : allItems;
   const groups = presenter ? NAV_GROUPS.filter((group) => group.label !== "Setup") : NAV_GROUPS;
   return groups
     .map((group) => ({

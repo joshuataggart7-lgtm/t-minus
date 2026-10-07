@@ -102,7 +102,7 @@ function ReportingPage() {
     <AppShell>
       <PageHeader
         title="Reporting views"
-        lead="Read-only views of the record for ORBIT's Power BI. Nothing here is editable; every figure is computed in the database."
+        lead="Read-only views of the record for agency reporting. Nothing here is editable. Every figure is computed from the record."
       />
 
       <section className="mt-8">
@@ -207,7 +207,7 @@ function ReportingPage() {
         <p className="max-w-[70ch] break-words text-muted-foreground">
           A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
           Power BI reads a view directly at{" "}
-          <span className="tabular-nums">/api/public/hooks/reporting-extract?view=v_report_acquisitions</span>, with the
+          <code className="break-all rounded bg-muted px-1 font-mono text-[13px]">/api/public/hooks/reporting-extract?view=v_report_acquisitions</code>, with the
           extract token supplied by HQ.
         </p>
         </section>

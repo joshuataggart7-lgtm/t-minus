@@ -6,6 +6,8 @@ export type CommandContext = {
   pathname: string;
   openAcquisitionId: string | null;
   presenter: boolean;
+  /** Read-only demo session. */
+  demo?: boolean;
   navigate: (to: string) => void;
 };
 

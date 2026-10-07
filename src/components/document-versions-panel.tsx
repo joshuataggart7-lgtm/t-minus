@@ -10,6 +10,7 @@ import {
   stampOrBlank,
   textOrBlank,
 } from "@/lib/document-versions";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string }) {
   const q = useQuery({
@@ -27,9 +28,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
     >
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Who signed / saved what</h2>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory — never holds the file or blocks a phase exit.
-        </span>
+        <AdvisoryTag />
       </div>
 
       {rows.length === 0 ? (

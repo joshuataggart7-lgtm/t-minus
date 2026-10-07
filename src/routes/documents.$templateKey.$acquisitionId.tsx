@@ -141,6 +141,7 @@ import {
   type MemoRoutingRow,
 } from "@/lib/nf1858";
 import { dayWord } from "@/lib/pluralize";
+import { AdvisoryTag } from "@/components/advisory-tag";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
@@ -412,118 +413,129 @@ function DocumentPage() {
       ]);
       if (acq.error) throw new Error(acq.error.message);
       const templateId = tpl.data?.template_id ?? null;
-      const versions = templateId
-        ? await supabase
-            .from("documents")
-            .select(
-              "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at,issue_on_nf1858,memo_header",
-            )
-            .eq("acquisition_id", acquisitionId)
-            .eq("template_id", templateId)
-            .order("version", { ascending: false })
-        : { data: [], error: null };
-      const latestId = versions.data?.[0]?.document_id ?? null;
-      const comments = latestId
-        ? await supabase
-            .from("comments")
-            .select("*")
-            .eq("document_id", latestId)
-            .order("created_at", { ascending: true })
-        : { data: [] };
-      // The nonresponsibility memo reads the vendor facts from the entity
-      // check stored on this acquisition, never from typing.
-      const samCheck = await supabase
-        .from("sam_checks")
-        .select("response_json,checked_at")
-        .eq("acquisition_id", acquisitionId)
-        .order("checked_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      // The price negotiation memorandum reads the comparables check that has
-      // already run on this file, so the table is not asked for twice.
-      const comparablesCheck = await supabase
-        .from("sam_checks")
-        .select("response_json,checked_at")
-        .eq("acquisition_id", acquisitionId)
-        .eq("check_type", "Contract awards comparables")
-        .order("checked_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const missionId = String((acq.data as Record<string, unknown> | null)?.["mission_id"] ?? "");
-      const mission = missionId
-        ? await supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
-        : { data: null };
-      // The set-aside evidence search, when it has been run, is what the
-      // market research memorandum reports.
-      const evidence = await supabase
-        .from("sam_checks")
-        .select("response_json,checked_at")
-        .eq("acquisition_id", acquisitionId)
-        .like("check_type", "Set-aside entities%")
-        .order("checked_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      // Values drafted by the market research evidence engine, with their
-      // source and date, so the memorandum shows where each came from.
-      const research = await supabase
-        .from("research_findings")
-        .select("target,label,value,source,source_date,confirmed,confirmed_by")
-        .eq("acquisition_id", acquisitionId);
-      // Public-source searches the engine ran on this file, one line per source.
-      // Only the most recent run is printed; earlier runs stay on the file page.
-      const latestRun = await supabase
-        .from("research_runs")
-        .select("run_id")
-        .eq("acquisition_id", acquisitionId)
-        .order("ran_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const researchLog = latestRun.data?.run_id
-        ? await supabase
-            .from("research_log")
-            .select("source,query,result_count,outcome,ran_at")
-            .eq("acquisition_id", acquisitionId)
-            .eq("run_id", latestRun.data.run_id)
-            .order("ran_at", { ascending: true })
-        : { data: [] };
-      const naics = String((acq.data as Record<string, unknown> | null)?.["naics_code"] ?? "");
-      const sizeStandard = naics
-        ? await supabase
-            .from("naics_size_standards")
-            .select("standard_type,employees,receipts_usd,citation")
-            .eq("naics_code", naics)
-            .maybeSingle()
-        : { data: null };
-      const clauseRows = await supabase
-        .from("clauses")
-        .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins");
-      const attachments = await supabase
-        .from("document_attachments")
-        .select("acquisition_id,doc_key,doc_label,nf_1098_tab,file_name,created_at")
-        .eq("acquisition_id", acquisitionId);
-      // The memorandum for record drafts its chronology from the audit trail
-      // and the phase plan for this acquisition type.
-      // Cached so the 5 s poll does not re-read the full history.
-      const auditRows =
+      const acqRecord = acq.data as Record<string, unknown> | null;
+      const missionId = String(acqRecord?.["mission_id"] ?? "");
+      const naics = String(acqRecord?.["naics_code"] ?? "");
+      const centerCode = String(acqRecord?.["center_code"] ?? "");
+      // These reads depend only on the acquisition row and template above, not
+      // on each other, so they run together. The Center row arrives with the
+      // rest instead of last.
+      const [
+        versions, samCheck, comparablesCheck, mission, evidence, research, latestRun,
+        sizeStandard, clauseRows, attachments, auditRows, phasePlan, center, stateLog,
+      ] = await Promise.all([
+        templateId
+          ? supabase
+              .from("documents")
+              .select(
+                "document_id,version,saved_by,saved_at,field_values,ai_model,ai_generated_at,reviewed_by,reviewed_at,issue_on_nf1858,memo_header",
+              )
+              .eq("acquisition_id", acquisitionId)
+              .eq("template_id", templateId)
+              .order("version", { ascending: false })
+          : Promise.resolve({ data: [], error: null }),
+        // The nonresponsibility memo reads the vendor facts from the entity
+        // check stored on this acquisition, never from typing.
+        supabase
+          .from("sam_checks")
+          .select("response_json,checked_at")
+          .eq("acquisition_id", acquisitionId)
+          .order("checked_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        // The price negotiation memorandum reads the comparables check that has
+        // already run on this file, so the table is not asked for twice.
+        supabase
+          .from("sam_checks")
+          .select("response_json,checked_at")
+          .eq("acquisition_id", acquisitionId)
+          .eq("check_type", "Contract awards comparables")
+          .order("checked_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        missionId
+          ? supabase.from("missions").select("name").eq("mission_id", missionId).maybeSingle()
+          : Promise.resolve({ data: null }),
+        // The set-aside evidence search, when it has been run, is what the
+        // market research memorandum reports.
+        supabase
+          .from("sam_checks")
+          .select("response_json,checked_at")
+          .eq("acquisition_id", acquisitionId)
+          .like("check_type", "Set-aside entities%")
+          .order("checked_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        // Values drafted by the market research evidence engine, with their
+        // source and date, so the memorandum shows where each came from.
+        supabase
+          .from("research_findings")
+          .select("target,label,value,source,source_date,confirmed,confirmed_by")
+          .eq("acquisition_id", acquisitionId),
+        // Public-source searches the engine ran on this file, one line per source.
+        // Only the most recent run is printed; earlier runs stay on the file page.
+        supabase
+          .from("research_runs")
+          .select("run_id")
+          .eq("acquisition_id", acquisitionId)
+          .order("ran_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        naics
+          ? supabase
+              .from("naics_size_standards")
+              .select("standard_type,employees,receipts_usd,citation")
+              .eq("naics_code", naics)
+              .maybeSingle()
+          : Promise.resolve({ data: null }),
+        supabase
+          .from("clauses")
+          .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins"),
+        supabase
+          .from("document_attachments")
+          .select("acquisition_id,doc_key,doc_label,nf_1098_tab,file_name,created_at")
+          .eq("acquisition_id", acquisitionId),
+        // The memorandum for record drafts its chronology from the audit trail
+        // and the phase plan for this acquisition type.
+        // Cached so the 5 s poll does not re-read the full history.
         def?.key === MFR_KEY
-          ? await queryClient.fetchQuery({
+          ? queryClient.fetchQuery({
               queryKey: ["document-context", templateKey, acquisitionId, "audit-history"],
               queryFn: () => loadFileAuditHistory(acquisitionId),
               staleTime: 30_000,
               gcTime: Infinity,
             })
-          : [];
-      const phasePlan = await supabase.from("phase_plan").select("*");
-      const centerCode = String((acq.data as Record<string, unknown> | null)?.["center_code"] ?? "");
-      const center = centerCode
-        ? await supabase
-            .from("centers")
-            .select("center_code,center_name,address_line")
-            .eq("center_code", centerCode)
-            .maybeSingle()
-        : { data: null };
+          : Promise.resolve([]),
+        supabase.from("phase_plan").select("*"),
+        centerCode
+          ? supabase
+              .from("centers")
+              .select("center_code,center_name,address_line")
+              .eq("center_code", centerCode)
+              .maybeSingle()
+          : Promise.resolve({ data: null }),
+        loadStateAuditRows(acquisitionId),
+      ]);
+      const latestId = versions.data?.[0]?.document_id ?? null;
+      const [comments, researchLog] = await Promise.all([
+        latestId
+          ? supabase
+              .from("comments")
+              .select("*")
+              .eq("document_id", latestId)
+              .order("created_at", { ascending: true })
+          : Promise.resolve({ data: [] }),
+        latestRun.data?.run_id
+          ? supabase
+              .from("research_log")
+              .select("source,query,result_count,outcome,ran_at")
+              .eq("acquisition_id", acquisitionId)
+              .eq("run_id", latestRun.data.run_id)
+              .order("ran_at", { ascending: true })
+          : Promise.resolve({ data: [] }),
+      ]);
       return {
-        stateLog: await loadStateAuditRows(acquisitionId),
+        stateLog,
         auditRows: auditRows as {
           action: string;
           field: string | null;
@@ -2219,9 +2231,24 @@ function DocumentPage() {
         </p>
       </section>
 
-      {q.isLoading ? <p className="text-muted-foreground">Loading the record.</p> : null}
-
-      
+      {/* Until the record is in hand the form frame is drawn empty of fields,
+          so no field reads blank while its value is still on the way. */}
+      {q.isLoading ? (
+        <div className="max-w-[80ch]">
+          <p role="status" aria-live="polite" className="sr-only">Loading the record.</p>
+          <div aria-hidden="true" className="mc-work-form-section mb-6 min-w-0">
+            <span className="block h-5 w-1/3 animate-pulse rounded-sm bg-muted" />
+            {[0, 1].map((i) => (
+              <div key={i} className="mt-5 grid min-w-0 gap-2">
+                <span className="block h-3 w-1/4 animate-pulse rounded-sm bg-muted" />
+                <span className="block h-9 w-full animate-pulse rounded-md bg-muted" />
+              </div>
+            ))}
+          </div>
+          <div aria-hidden="true" className="mb-10 h-64 min-w-0 rounded-xl border border-dashed border-border" />
+        </div>
+      ) : (
+      <>
       {heldByOther && checkout ? (
         <div
           role="status"
@@ -2860,6 +2887,8 @@ function DocumentPage() {
           </p>
         ) : null}
       </form>
+      </>
+      )}
 
       {def.key === "pnm" ? (
         <section id="doc-comparables" aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
@@ -2972,10 +3001,10 @@ function DocumentPage() {
       </MissionNavSection>
 
       <section id="doc-official-copy" aria-label="Official file copy" className="mb-10 max-w-[80ch] rounded-xl border border-border bg-background p-5">
-        <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
-        <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">
-          Advisory — filing a version never holds the file or blocks a phase exit.
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-[18px] leading-6 font-medium">Official file copy</h2>
+          <AdvisoryTag text="Advisory. Filing a version never holds the file or blocks a phase exit." />
+        </div>
 
         <h3 className="mt-4 text-[15px] leading-[22px] font-medium">Route</h3>
         {memoHeader?.to || q.data?.routing ? (

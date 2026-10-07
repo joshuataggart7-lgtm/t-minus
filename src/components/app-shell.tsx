@@ -42,7 +42,7 @@ const drawerNavFocus = { pending: false, at: 0 };
 
 export function AppShell({ children, wide = false, overviewMode = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean }) {
 
-  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut, profile, authState } = useRole();
+  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut, profile, authState, readOnly } = useRole();
   useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,7 +84,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const isAdministrator = roles.includes("administrator");
-  const navGroups = sidebarNavGroups(roles, presenter);
+  const navGroups = sidebarNavGroups(roles, presenter, readOnly);
   const activeGroupLabel = navGroups.find((group) =>
     group.items.some((item) => pathname === item.to || (item.to === "/overview" && pathname === "/")),
   )?.label;
@@ -530,11 +530,87 @@ export function StatusMark({
   );
 }
 
-export function LoadingNote({ what }: { what: string }) {
+/**
+ * The loading line. With a layout it draws neutral placeholders at the page's
+ * real widths instead, and keeps the same words for screen readers only.
+ */
+export function LoadingNote({ what, layout }: { what: string; layout?: "cards" | "table" }) {
+  if (!layout) {
+    return (
+      <p role="status" className="text-muted-foreground">
+        Loading {what}.
+      </p>
+    );
+  }
   return (
-    <p role="status" className="text-muted-foreground">
-      Loading {what}.
-    </p>
+    <div className="min-w-0">
+      <p role="status" aria-live="polite" className="sr-only">
+        Loading {what}.
+      </p>
+      {layout === "cards" ? (
+        <ul aria-hidden="true" className="grid min-w-0 gap-4">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-5">
+              <span className="block h-4 w-2/5 animate-pulse rounded-sm bg-muted" />
+              <span className="mt-3 block h-3 w-4/5 animate-pulse rounded-sm bg-muted" />
+              <span className="mt-2 block h-3 w-3/5 animate-pulse rounded-sm bg-muted" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div aria-hidden="true" className="min-w-0 border-t border-border">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] gap-4 border-b border-border px-3 py-3">
+              <span className="block h-3 w-3/4 animate-pulse rounded-sm bg-muted" />
+              <span className="block h-3 w-5/6 animate-pulse rounded-sm bg-muted" />
+              <span className="block h-3 w-1/2 animate-pulse rounded-sm bg-muted" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The file page frame while the record loads: the ID from the route, a title
+ * bar, the summary card with the countdown box outlined, and three collapsed
+ * section headers, at the real widths so nothing jumps when data arrives.
+ */
+export function FilePageSkeleton({ acquisitionId }: { acquisitionId: string }) {
+  return (
+    <div className="min-w-0">
+      <p role="status" aria-live="polite" className="sr-only">
+        Loading the acquisition file.
+      </p>
+      <div className="mb-2 grid min-w-0 gap-6 min-[1440px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:gap-8">
+        <aside aria-hidden="true" className="hidden min-[1440px]:block">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span key={i} className="mb-3 block h-3 w-3/4 animate-pulse rounded-sm bg-muted" />
+          ))}
+        </aside>
+        <div className="min-w-0">
+          <section className="mb-10 min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-7 lg:p-10">
+            <div className="grid min-w-0 gap-10 min-[1440px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] min-[1440px]:items-start min-[1440px]:gap-12">
+              <div className="min-w-0">
+                <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+                <span aria-hidden="true" className="mt-3 block h-7 w-3/4 animate-pulse rounded-sm bg-muted" />
+                <span aria-hidden="true" className="mt-3 block h-4 w-1/2 animate-pulse rounded-sm bg-muted" />
+                <span aria-hidden="true" className="mt-4 block h-4 w-11/12 animate-pulse rounded-sm bg-muted" />
+              </div>
+              <div aria-hidden="true" className="min-w-0 border-t border-border pt-7 min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
+                <div className="h-32 min-w-0 rounded-[var(--mc-radius-control)] border border-dashed border-border" />
+              </div>
+            </div>
+          </section>
+          {[0, 1, 2].map((i) => (
+            <div key={i} aria-hidden="true" className="mb-3 min-w-0 border-y border-border px-3 py-3">
+              <span className="block h-4 w-1/3 animate-pulse rounded-sm bg-muted" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 

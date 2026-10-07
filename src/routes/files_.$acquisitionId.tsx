@@ -10,7 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { loadStateAuditRows } from "@/lib/launch-events";
 import { cparsRecorded } from "@/lib/state-audit";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState, FilePageSkeleton } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -65,6 +65,8 @@ import {
 import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
+import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
+import { AdvisoryTag } from "@/components/advisory-tag";
 import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
@@ -208,6 +210,17 @@ import {
   type PostAward,
 } from "@/lib/post-award";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
+
+/** Phases that carry the NCMS clause packet. */
+const PACKET_PHASES: readonly string[] = [
+  "Solicitation/Quote",
+  "Technical Evaluation",
+  "Price Reasonableness",
+  "Award",
+  // An awarded vehicle still shows the clauses it carries, so the packet can
+  // be read on a file already in administration.
+  "Administration",
+];
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -362,7 +375,12 @@ function FilePage() {
     // The poll board updates live as reviewers vote.
     refetchInterval: 5000,
     queryFn: async () => {
-      const [acq, auditHead, stateLog, plan, rules, thresholds, strategies, polls, clauses, nfApprovals] = await Promise.all([
+      // Every read here is independent of the others, so they run together.
+      // Only the mission read below needs the acquisition row first.
+      const [
+        acq, auditHead, stateLog, plan, rules, thresholds, strategies, polls, clauses, nfApprovals,
+        memoRoutingRes, centersRes, overridesRes, peopleRes, successorsRes, researchRunsRes, fileDocs, fileTemplates,
+      ] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("audit_log").select("log_id", { count: "exact", head: true }).eq("acquisition_id", acquisitionId),
         loadStateAuditRows(acquisitionId),
@@ -376,33 +394,37 @@ function FilePage() {
           .select("clause_number,title,ucf_section,source,status,effective_date,disposition,fill_ins")
           .in("clause_number", PACKET_CANDIDATE_NUMBERS),
         supabase.from("nf1707_approvals").select("*").eq("acquisition_id", acquisitionId).order("form_section"),
-      ]);
-      const { data: memoRouting } = await supabase
-        .from("memo_routing")
-        .select("center_code,document_key,approving_official_title");
-      const { data: centers } = await supabase
-        .from("centers")
-        .select("center_code,aging_threshold_days");
-      const { data: overrides } = await supabase.from("center_overrides").select("*");
-      const { data: people } = await supabase
-        .from("users")
-        .select("name,role,title,center_code,warrant_limit");
-      const { data: successors } = await supabase
-        .from("acquisition_facts")
-        .select("acquisition_id")
-        .eq("successor_of", acquisitionId);
-      // Whether market research has already been run on this file.
-      const { data: researchRuns } = await supabase
-        .from("research_runs")
-        .select("run_id")
-        .eq("acquisition_id", acquisitionId);
-      const [fileDocs, fileTemplates] = await Promise.all([
+        supabase
+          .from("memo_routing")
+          .select("center_code,document_key,approving_official_title"),
+        supabase
+          .from("centers")
+          .select("center_code,aging_threshold_days"),
+        supabase.from("center_overrides").select("*"),
+        supabase
+          .from("users")
+          .select("name,role,title,center_code,warrant_limit"),
+        supabase
+          .from("acquisition_facts")
+          .select("acquisition_id")
+          .eq("successor_of", acquisitionId),
+        // Whether market research has already been run on this file.
+        supabase
+          .from("research_runs")
+          .select("run_id")
+          .eq("acquisition_id", acquisitionId),
         supabase
           .from("documents")
           .select("template_id,version,saved_by,saved_at,issue_on_nf1858,memo_header,field_values")
           .eq("acquisition_id", acquisitionId),
         supabase.from("templates").select("template_id,name,nf_1098_tab"),
       ]);
+      const memoRouting = memoRoutingRes.data;
+      const centers = centersRes.data;
+      const overrides = overridesRes.data;
+      const people = peopleRes.data;
+      const successors = successorsRes.data;
+      const researchRuns = researchRunsRes.data;
       let mission = null as { name: string | null; milestone_date: string | null } | null;
       if (acq.data?.mission_id) {
         const m = await supabase
@@ -1267,6 +1289,26 @@ function FilePage() {
     phases.findIndex((p) => p.status === "current"),
   );
   const focusIndex = mode === "novice" ? (step ?? currentIndex) : currentIndex;
+  // The NCMS clause packet renders once, under the phase in work. A file past
+  // Administration keeps it under the last packet phase it reached; a file not
+  // yet at Solicitation/Quote shows none.
+  const packetPhase = (() => {
+    const cur = lifecycle?.currentPhase ?? null;
+    if (cur && PACKET_PHASES.includes(cur)) return cur;
+    const curIdx = cur ? phases.findIndex((x) => x.phase === cur) : -1;
+    const reached = phases.filter((x, i) =>
+      PACKET_PHASES.includes(x.phase) && (curIdx >= 0 ? i <= curIdx : x.status !== "upcoming"),
+    );
+    return reached.length ? reached[reached.length - 1]!.phase : null;
+  })();
+  const goToPacket = () => {
+    const show = () => document.getElementById("clause-packet")?.scrollIntoView({ block: "start" });
+    if (document.getElementById("clause-packet")) return show();
+    const idx = phases.findIndex((x) => x.phase === packetPhase);
+    if (idx >= 0) setStep(idx);
+    window.setTimeout(show, 50);
+  };
+
   const shownPhases = showFullSequence
     ? phases
     : phases.slice(Math.max(0, focusIndex - 1), Math.min(phases.length, focusIndex + 2));
@@ -2378,7 +2420,7 @@ function FilePage() {
   if (q.isPending || q.isLoading || q.isFetching && !q.data) {
     return (
       <AppShell>
-        <LoadingNote what="the acquisition file" />
+        <FilePageSkeleton acquisitionId={acquisitionId} />
       </AppShell>
     );
   }
@@ -2391,7 +2433,7 @@ function FilePage() {
         <ErrorNote
           message={
             q.isError
-              ? "The acquisition file did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded."
+              ? "The acquisition file did not load. Refresh the page. If it still fails, tell the T-Minus team."
               : `No acquisition file was found for ${acquisitionId}. Check the link, or open Files to pick a record.`
           }
         />
@@ -2409,8 +2451,6 @@ function FilePage() {
         <p className="text-[13px]">{acquisitionId}</p>
         <p className="text-[15px] font-medium">{acq?.title ?? acquisitionId}</p>
       </div>
-
-      {q.isLoading ? <LoadingNote what="the acquisition file" /> : null}
 
       {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
@@ -2630,7 +2670,11 @@ function FilePage() {
       </section>
       </MissionNavSection>
 
-      <MissionNavSection id="exports-peer-systems" label="Exports & peer systems">
+      <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+        Panels marked Advisory never hold the file or block a phase exit.
+      </p>
+
+      <MissionNavSection id="exports-peer-systems" label="Exports & peer systems" collapsible summary="NEAR export, NCMS packet and peer systems">
       {acq ? (
         <>
         <section aria-label="Peer systems" className="mb-8 max-w-[80ch] border-t border-border pt-3">
@@ -2673,17 +2717,12 @@ function FilePage() {
             1804.11(b); writing into NCMS from here is planned and not available in this prototype.
           </p>
         </section>
-        <p className="mb-8 max-w-[80ch] border-t border-border pt-3 text-[13px] leading-[18px] text-muted-foreground">
-          Pilot known gaps: Adobe human-only · no NCMS write-back · FPDS fill aid · advisories never hold exit.{" "}
-          <Link to="/about" className="text-primary underline-offset-2 hover:underline">
-            About this prototype
-          </Link>
-        </p>
+        <PilotKnownGapsLine className="mb-8" />
         </>
       ) : null}
       </MissionNavSection>
 
-      <MissionNavSection id="coordination" label="Coordination">
+      <MissionNavSection id="coordination" label="Coordination" collapsible summary="Requests and offices on this file">
       {acq ? (
         <CorToRequestPanel
           acq={acq as unknown as Record<string, unknown>}
@@ -2928,7 +2967,7 @@ function FilePage() {
       />
       </MissionNavSection>
 
-      <MissionNavSection id="vehicle-orders-post-award" label="Vehicle, orders & post-award">
+      <MissionNavSection id="vehicle-orders-post-award" label="Vehicle, orders & post-award" collapsible summary="Standalone drafts, orders and modifications">
       <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
 
       <NewOrderPanel
@@ -2993,8 +3032,13 @@ function FilePage() {
       />
       </MissionNavSection>
 
-      <MissionNavSection id="contract-file-index" label="Contract file index">
-      <details data-print="index" aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
+      <MissionNavSection
+        id="contract-file-index"
+        label="Contract file index"
+        collapsible
+        summary={`${fileIndex.present.length} of ${fileIndex.present.length + fileIndex.missing.length} tabs on file`}
+      >
+      <details data-print="index" open aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
@@ -3131,7 +3175,7 @@ function FilePage() {
       </details>
       </MissionNavSection>
 
-      <MissionNavSection id="companion-gates" label="Companion gates">
+      <MissionNavSection id="companion-gates" label="Companion gates" collapsible summary={`${companionGates.length} gate${companionGates.length === 1 ? "" : "s"}`}>
       <ClauseChangeBanner acquisitionId={acquisitionId} />
 
       <CompanionGatesPanel gates={companionGates} />
@@ -3687,14 +3731,8 @@ function FilePage() {
               ) : null}
 
 
-              {(p.phase === "Solicitation/Quote" ||
-                p.phase === "Technical Evaluation" ||
-                p.phase === "Price Reasonableness" ||
-                p.phase === "Award" ||
-                // An awarded vehicle still shows the clauses it carries, so the
-                // packet can be read on a file already in administration.
-                p.phase === "Administration") && (
-                <div className="mt-3 max-w-[80ch] border border-border p-4">
+              {p.phase === packetPhase ? (
+                <div id="clause-packet" className="mt-3 max-w-[80ch] scroll-mt-[96px] border border-border p-4">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.
                   </p>
@@ -3708,12 +3746,6 @@ function FilePage() {
                       ? "Loading the clause list."
                       : `${packetSelection.length} clauses in the packet, selected from this record and read from the PCD 26-03B and NFS 1852 matrices.`}
                   </p>
-                  {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
-                    <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px]">
-                      <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
-                      {RFO_RESERVED_212_NOTE}
-                    </p>
-                  ) : null}
                   {acq && (acquisitionProfile(acq) === "idiq_parent" || acquisitionProfile(acq) === "order_under_idiq") ? (
                     <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
                       {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
@@ -3884,7 +3916,22 @@ function FilePage() {
                     Download the handoff packet
                   </button>
                 </div>
-              )}
+              ) : packetPhase && p.status === "complete" && PACKET_PHASES.includes(p.phase) ? (
+                <p className="mt-3 text-[13px] text-muted-foreground">
+                  Clause packet: see{" "}
+                  <a
+                    href="#clause-packet"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      goToPacket();
+                    }}
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    {packetPhase}
+                  </a>
+                  .
+                </p>
+              ) : null}
 
               {p.phase === "Administration" ? (
                 <div className="mt-3 max-w-[80ch] space-y-4">
@@ -3943,10 +3990,11 @@ function FilePage() {
                       };
                       return (
                         <>
-                          <h5 className="mt-4 text-[15px] font-medium">What an option exercise carries</h5>
-                          <p className="mt-1 text-[13px] text-muted-foreground">
-                            Advisory checklist read from the record. It does not hold phase exit.
-                          </p>
+                          <div className="mt-4 flex flex-wrap items-center gap-2">
+                            <h5 className="text-[15px] font-medium">What an option exercise carries</h5>
+                            <AdvisoryTag />
+                          </div>
+                          <p className="mt-1 text-[13px] text-muted-foreground">Checklist read from the record.</p>
                           <TableScrollRegion baseClassName="overflow-x-auto" label="Option checklist table">
 <table className="mt-2 w-full text-[13px] leading-[18px]">
                             <caption className="sr-only">Option exercise checklist</caption>
@@ -4532,7 +4580,7 @@ function FilePage() {
         </div>
       </details>
 
-      <MissionNavSection id="directive-compliance" label="Directive compliance">
+      <MissionNavSection id="directive-compliance" label="Directive compliance" collapsible summary="Directive checklist for this file">
       <section className="mb-12 max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
         <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
