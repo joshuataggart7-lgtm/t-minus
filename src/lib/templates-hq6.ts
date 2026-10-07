@@ -15,8 +15,8 @@ import type { FieldDef, SectionDef, TemplateDef, Values } from "@/lib/template-e
  *  commercial simplified procedures, not under the Part 15 negotiated rules. */
 const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
   const method = v["__method"] ?? "";
-  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
-  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|12\.201-1|\b13\b|simplified/i.test(method)) return part15;
+  return /13\.5|12\.201-1|\b13\b|\b12\b|simplified|commercial/i.test(method) ? simplified : part15;
 };
 
 /** Three-way notice routing: Part 15 negotiated, Part 12 commercial, and
@@ -26,8 +26,8 @@ const noticeCitation = (part15: string, simplified: string) => (v: Values) => {
 const noticeCitation3 =
   (part15: string, commercial: string, simplifiedNoncommercial: string) => (v: Values) => {
     const method = v["__method"] ?? "";
-    const simplified = /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
-    if (/part\s*15|15\.\d/i.test(method) && !/13\.5|\b13\b|simplified/i.test(method)) return part15;
+    const simplified = /13\.5|12\.201-1|\b13\b|\b12\b|simplified|commercial/i.test(method);
+    if (/part\s*15|15\.\d/i.test(method) && !/13\.5|12\.201-1|\b13\b|simplified/i.test(method)) return part15;
     if (!simplified) return part15;
     return /\b12\b|commercial/i.test(method) ? commercial : simplifiedNoncommercial;
   };

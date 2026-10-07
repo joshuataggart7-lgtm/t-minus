@@ -54,7 +54,7 @@ function setAsideText(ctx: SetAsidePreawardContext): string {
 
 /** True where the file records a commercial or simplified path. */
 export function isCommercialOrSimplified(ctx: SetAsidePreawardContext): boolean {
-  return /commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx));
+  return /commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx));
 }
 
 /** True where the record carries a small business set-aside. */

@@ -52,7 +52,7 @@ function methodText(ctx: PostawardDocxContext): string {
 
 /** True where the file records a commercial or simplified path. */
 export function isCommercialOrSimplified(ctx: PostawardDocxContext): boolean {
-  return /commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx));
+  return /commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(methodText(ctx));
 }
 
 /**
@@ -77,7 +77,7 @@ export function simplifiedNoticeCitation(ctx: PostawardDocxContext): string {
 /** Where an unsuccessful quoter's brief explanation comes from: on request
  *  only, RFO FAR 12.301(b) on a commercial file, RFO FAR 13.301 otherwise. */
 export function unsuccessfulExplanationCitation(ctx: PostawardDocxContext): string {
-  return /commercial|\bFAR\s*12\b|\bpart\s*12\b|13\.5/i.test(methodText(ctx))
+  return /commercial|\bFAR\s*12\b|\bpart\s*12\b|13\.5|12\.201-1/i.test(methodText(ctx))
     ? "RFO FAR 12.301(b)"
     : "RFO FAR 13.301";
 }

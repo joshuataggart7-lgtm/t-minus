@@ -43,7 +43,7 @@ function methodText(ctx: BlackoutContext): string {
 export function isBlackoutPath(ctx: BlackoutContext): boolean {
   if (isSoftWalkCommercialSample({ ...(ctx.acq ?? {}), acquisition_id: ctx.acquisitionId })) return false;
   const method = methodText(ctx);
-  if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*1[23]\b/i.test(method)) return false;
+  if (/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*1[23]\b/i.test(method)) return false;
   if (/sole[- ]?source|non-?competitive|8\(a\) direct/i.test(method)) return false;
   const part15 = /\b15\b|15\.\d|negotiat/i.test(method);
   const competed = /compet|full and open|source selection|SEB/i.test(method);

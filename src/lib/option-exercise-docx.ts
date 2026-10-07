@@ -62,7 +62,7 @@ export function isOptionExercisePath(ctx: OptionExerciseContext): boolean {
   )
     return false;
   const method = methodText(ctx);
-  if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
+  if (/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
   const values = ctx.values ?? {};
   const acq = ctx.acq ?? {};
   const contract = clean(values["contract_number"]) || str(acq["contract_number"]);

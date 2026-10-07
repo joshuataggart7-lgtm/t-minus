@@ -76,7 +76,7 @@ export function isUcaJustPath(ctx: UcaJustContext): boolean {
   )
     return false;
   const method = methodText(ctx);
-  if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*1[23]\b/i.test(method)) return false;
+  if (/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*1[23]\b/i.test(method)) return false;
   return /letter contract|undefinitized|\bUCA\b|16\.603|1843\.6|1816\.6[56]/i.test(method);
 }
 

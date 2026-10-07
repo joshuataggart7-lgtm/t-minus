@@ -41,7 +41,7 @@ import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
 import { SCENARIO_DEFAULTS, performanceDays, type ScenarioAnswers } from "@/lib/scenario";
-import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
+import { isCommercialSimplifiedMethod, methodDisplayLabel, methodKey } from "@/lib/rfo-simplified-cites";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -283,7 +283,8 @@ function IntakePage() {
   const packageComplete = facts.funds_certified && facts.igce_attached && facts.sow_attached;
   const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
   const authorityOptions = (data.data?.authorities ?? []).filter(
-    (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
+    // Reference rows may carry the legacy "FAR ..." method labels; match on the method itself.
+    (row) => methodKey(row.acquisition_method) === methodKey(facts.acquisition_method) && row.competition_type === facts.competition,
   );
   const strategies = data.data?.ref.strategies ?? [];
   const pslOptionValues = new Set<string>([
@@ -356,7 +357,7 @@ function IntakePage() {
         ? "Firm-fixed-price (FFP)"
         : (row.contract_type ?? ""),
       hybrid_contract_type: row.hybrid_contract_type ?? "",
-      acquisition_method: /13\.5/.test(row.acquisition_method ?? "")
+      acquisition_method: isCommercialSimplifiedMethod(row.acquisition_method)
         ? ACQUISITION_METHODS[0] ?? ""
         : /13/.test(row.acquisition_method ?? "")
           ? ACQUISITION_METHODS[1] ?? ""

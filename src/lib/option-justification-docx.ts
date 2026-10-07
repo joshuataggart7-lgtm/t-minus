@@ -57,7 +57,7 @@ export function isOptionJustificationPath(ctx: OptionJustificationContext): bool
     acquisition_id: ctx.acquisitionId,
   })) return false;
   const method = methodText(ctx);
-  if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
+  if (/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
   return /\b15\b|15\.\d|negotiat|sealed bid|\b14\b/i.test(method);
 }
 

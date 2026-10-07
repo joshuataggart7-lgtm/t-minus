@@ -14,10 +14,41 @@
  * The RFO has no FAR 13.106 or FAR 13.5; these replace those classic cites.
  */
 
+/**
+ * Stored and displayed label for commercial simplified procedures. Older rows
+ * carry the legacy "FAR 13.5 commercial simplified procedures" label; every
+ * matcher accepts both.
+ */
+export const COMMERCIAL_SIMPLIFIED_METHOD = "RFO FAR 12.201-1 commercial simplified procedures";
+export const LEGACY_COMMERCIAL_SIMPLIFIED_METHOD = "FAR 13.5 commercial simplified procedures";
+
+/** True for commercial simplified procedures under either the current or the legacy label. */
+export function isCommercialSimplifiedMethod(method: string | null | undefined): boolean {
+  return /13\.5|12\.201-1|commercial simplified/i.test(String(method ?? ""));
+}
+
+/**
+ * A comparison key for a stored method, so the legacy "FAR ..." labels and the
+ * current "RFO FAR ..." labels of the same method match each other.
+ */
+export function methodKey(method: string | null | undefined): string {
+  const m = String(method ?? "").toLowerCase();
+  if (!m.trim()) return "";
+  if (isCommercialSimplifiedMethod(m)) return "commercial-simplified";
+  if (/other transaction|space act/.test(m)) return "other-transaction";
+  if (/\b8\.4/.test(m)) return "schedule-8.4";
+  if (/\b16\.5/.test(m)) return "idiq-16.5";
+  if (/\b14\b/.test(m)) return "sealed-14";
+  if (/\b12\b/.test(m) && /\b15\b/.test(m)) return "commercial-15";
+  if (/\b13\b/.test(m)) return "simplified-13";
+  if (/\b15\b/.test(m)) return "negotiated-15";
+  return m.trim();
+}
+
 /** True when the stored method names classic RFO FAR Part 13 but not FAR 13.5. */
 export function isNoncommercialSimplifiedMethod(method: string | null | undefined): boolean {
   const m = String(method ?? "");
-  return /\b13\b(?!\.5)/.test(m) && !/13\.5/.test(m);
+  return /\b13\b(?!\.5)/.test(m) && !/13\.5|12\.201-1/.test(m);
 }
 
 /** Price reasonableness on a simplified file. */
@@ -67,7 +98,7 @@ export function igceCite(method: string | null | undefined, value: number): stri
   // Only the written acquisition plan rule actually requires an IGCE. Elsewhere
   // the IGCE on the file is T-Minus/Center practice, and the cite named is the
   // price rule it supports, not a requirement for the estimate itself.
-  if (/13/.test(String(method ?? ""))) return `T-Minus/Center practice; supports ${simplifiedPriceCite(method)}`;
+  if (/13/.test(String(method ?? "")) || isCommercialSimplifiedMethod(method)) return `T-Minus/Center practice; supports ${simplifiedPriceCite(method)}`;
   return value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
     ? "NFS CG 1807.14(b)(3); RFO FAR 15.404-1(b)(5)"
     : "T-Minus/Center practice; supports RFO FAR 15.404-1(b)(5)";

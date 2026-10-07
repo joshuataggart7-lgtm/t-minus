@@ -83,8 +83,8 @@ export function badgeCitation(def: { badge: { citation: string; citationFor?: (v
 /** True when the values carry a RFO FAR Part 13, FAR 13.5 or RFO FAR Part 12 method. */
 export function simplifiedValues(v: Values): boolean {
   const method = v["__method"] ?? "";
-  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
-  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|12\.201-1|13\b|simplified/i.test(method)) return false;
+  return /13\.5|12\.201-1|\b13\b|\b12\b|simplified|commercial/i.test(method);
 }
 
 export type TemplateDef = {
@@ -1097,7 +1097,7 @@ const commerciality: TemplateDef = {
           kind: "select",
           required: true,
           options: [
-            "FAR Part 12 with FAR 13.5 simplified procedures",
+            "RFO FAR Part 12 with RFO FAR 12.201-1 simplified procedures",
             "RFO FAR Part 12 with RFO FAR Part 15 procedures",
             "RFO FAR Part 12 with RFO FAR Part 13 simplified acquisition procedures",
             "Not applicable; the requirement is not commercial",
@@ -2876,7 +2876,7 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
         else if (stored) out["authority"] = stored;
         else {
           const method = String(acq["acquisition_method"] ?? "").toLowerCase();
-          const commercial = /12\.102|13\.5|commercial simplified/.test(method);
+          const commercial = /12\.102|13\.5|12\.201-1|commercial simplified/.test(method);
           out["authority"] =
             options.find((o) =>
               commercial ? o.startsWith("41 U.S.C. 1901") : o.startsWith("10 U.S.C. 3204(a)(1)"),

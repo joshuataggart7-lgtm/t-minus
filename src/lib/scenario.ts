@@ -546,7 +546,7 @@ export const TRIGGERS: TriggerDef[] = [
       Boolean((c.s.set_aside_type || "").trim()) &&
       !/none|full and open/i.test(c.s.set_aside_type) &&
       /\b15\b|15\.\d|negotiat/i.test(c.method) &&
-      !/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(c.method),
+      !/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(c.method),
     docs: [
       { doc_key: "preaward-apparent-successful", label: "Preaward notification to the apparent successful offeror", citation: "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2(d)", phase: "Award", state: "required", templateKey: "setaside-preaward-notification", tab: "069" },
     ],
@@ -718,7 +718,7 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
   // The notice citations follow the method the award is made under. A FAR 13.5
   // or Part 12 commercial file never carries a Part 15 negotiated notice cite.
   const simplified = /\b13\b/.test(context.method);
-  const commercialSimplified = /13\.5|\b12\b|commercial simplified/i.test(context.method);
+  const commercialSimplified = /13\.5|12\.201-1|\b12\b|commercial simplified/i.test(context.method);
   for (const d of out) {
     // RFO FAR 13.301 on a simplified noncommercial file: the award notice
     // posting, and a brief explanation only when a quoter asks.

@@ -1,5 +1,5 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
-import { igceCite, WRITTEN_ACQUISITION_PLAN_THRESHOLD } from "@/lib/rfo-simplified-cites";
+import { COMMERCIAL_SIMPLIFIED_METHOD, igceCite, isCommercialSimplifiedMethod, WRITTEN_ACQUISITION_PLAN_THRESHOLD } from "@/lib/rfo-simplified-cites";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -103,7 +103,7 @@ export const CONTRACT_TYPES = [
 ];
 
 export const ACQUISITION_METHODS = [
-  "FAR 13.5 commercial simplified procedures",
+  COMMERCIAL_SIMPLIFIED_METHOD,
   "RFO FAR Part 13 simplified acquisition (non-commercial)",
   "RFO FAR Part 12 commercial, Part 15 procedures",
   "RFO FAR Part 15 negotiated",
@@ -306,7 +306,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
       id: "igce",
       title: "No independent government cost estimate attached",
       detail:
-        !/13/.test(String(f.acquisition_method ?? "")) && value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
+        !/13/.test(String(f.acquisition_method ?? "")) && !isCommercialSimplifiedMethod(f.acquisition_method) && value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
           ? "Attach the IGCE before the clock starts. Where a written acquisition plan applies, its cost/price element must provide it."
           : "Attach the IGCE before the clock starts. Requiring it at intake is a T-Minus/Center rule; it supports the price reasonableness determination.",
       // Simplified acquisitions rest on RFO FAR 12.204(a) (commercial) or RFO FAR
@@ -348,7 +348,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
     });
 
   const ceiling = threshold(ref, "Commercial simplified procedures ceiling");
-  if (/13\.5|commercial simplified/i.test(f.acquisition_method) && ceiling && value > ceiling) {
+  if (isCommercialSimplifiedMethod(f.acquisition_method) && ceiling && value > ceiling) {
     flags.push({
       id: "far135-ceiling",
       title: "Estimated value is above the commercial simplified procedures ceiling",

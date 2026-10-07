@@ -485,7 +485,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
  */
 function soleSourceAuthority(a: Record<string, unknown>): string {
   const method = str(a["acquisition_method"]).toLowerCase();
-  if (has(method, "13.5") || has(method, "far 13"))
+  if (has(method, "13.5") || has(method, "12.201-1") || has(method, "commercial simplified") || has(method, "far 13"))
     return "41 U.S.C. 1901, commercial simplified procedures under RFO FAR 12.201-1";
   const cited = str(a["jofoc_authority_citation"])
     .replace(/\[[^\]]*\]/g, "")
@@ -530,7 +530,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   const bpa = has(contractType, "bpa") || has(method, "8.4") || has(method, "blanket");
   const mac = has(contractType, "mac") || has(contractType, "gwac") || has(method, "gwac");
   const idiq = !mac && (has(contractType, "idiq") || has(contractType, "indefinite") || has(method, "16.5"));
-  const simplified = has(method, "far 13") || has(method, "13.5") || has(method, "simplified");
+  const simplified = has(method, "far 13") || has(method, "13.5") || has(method, "12.201-1") || has(method, "simplified");
   const po = !bpa && !mac && !idiq && (has(contractType, "purchase order") || simplified);
   const negotiated =
     has(method, "far 15") || has(method, "part 15") || (has(method, "far 12") && has(method, "15"));

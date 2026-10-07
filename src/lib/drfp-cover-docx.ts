@@ -67,7 +67,7 @@ export function isDrfpCoverPath(ctx: DrfpCoverContext): boolean {
     acquisition_id: ctx.acquisitionId,
   })) return false;
   const method = methodText(ctx);
-  if (/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
+  if (/commercial|simplified|13\.5|12\.201-1|\bFAR\s*12\b|\bpart\s*12\b/i.test(method)) return false;
   if (/sole[- ]?source|non-?competitive|8\(a\) direct/i.test(method)) return false;
   return /\b15\b|15\.\d|negotiat/i.test(method) && /compet|full and open|negotiat/i.test(method);
 }
