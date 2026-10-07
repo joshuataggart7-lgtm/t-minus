@@ -22,16 +22,16 @@ export type SectionGroup = {
 };
 
 export const SECTION_GROUPS: SectionGroup[] = [
-  { key: "s1", title: "Section 1. Strategic sourcing", raw: ["Section1"] },
-  { key: "s2", title: "Section 2. Section 508 and information technology", raw: ["Section2"] },
+  { key: "s1", title: "Section 1. NASA strategic sourcing initiative", raw: ["Section1"] },
+  { key: "s2", title: "Section 2. Information systems and ICT accessibility (Section 508)", raw: ["Section2"] },
   {
     key: "s3",
-    title: "Section 3. Environmental",
+    title: "Section 3. Environmental and sustainable acquisition",
     raw: ["Section3", "Section3s2", "Section3s3"],
     parts: [
-      { raw: "Section3", title: "Environmental review" },
-      { raw: "Section3s2", title: "Sustainable acquisition" },
-      { raw: "Section3s3", title: "NEPA categorical exclusion" },
+      { raw: "Section3", title: "I. Products or services listed in the GPC" },
+      { raw: "Section3s2", title: "II. Memo or waiver of sustainability standards" },
+      { raw: "Section3s3", title: "III. National Environmental Policy Act (NEPA)" },
     ],
   },
   { key: "s4", title: "Section 4. Service contracting", raw: ["Section4"] },
@@ -48,13 +48,13 @@ export const SECTION_GROUPS: SectionGroup[] = [
       "Section5s7",
     ],
     parts: [
-      { raw: "Section5s1", title: "I. Space flight hardware and software" },
-      { raw: "Section5s2", title: "II. SCaN and radio frequency" },
-      { raw: "Section5s3", title: "III. Earned value management" },
+      { raw: "Section5s1", title: "I. Space flight and ground support programs" },
+      { raw: "Section5s2", title: "II. Communication and navigation capabilities" },
+      { raw: "Section5s3", title: "III. Earned value management system" },
       { raw: "Section5s4", title: "IV. Communications" },
-      { raw: "Section5s5", title: "V. Aviation" },
-      { raw: "Section5s6", title: "VI. Software" },
-      { raw: "Section5s7", title: "VII. Sensitive and controlled items" },
+      { raw: "Section5s5", title: "V. Manned commercial aviation services and unmanned aircraft systems" },
+      { raw: "Section5s6", title: "VI. Software engineering per NPR 7150.2" },
+      { raw: "Section5s7", title: "VII. Supply chain visibility (SCV) reporting" },
     ],
   },
   {
@@ -74,10 +74,10 @@ export const SECTION_GROUPS: SectionGroup[] = [
   },
   { key: "s7", title: "Section 7. Safety and health", raw: ["Section7"] },
   { key: "s8", title: "Section 8. Property management", raw: ["Section8"] },
-  { key: "s9", title: "Section 9. Center-specific approvals", raw: ["Section9", "Section9s1"] },
-  { key: "s10", title: "Section 10. Foreign travel briefings", raw: ["Section10"] },
-  { key: "s11", title: "Section 11. Extraneous items", raw: ["Section11"] },
-  { key: "s12", title: "Section 12. Signatures and affirmations", raw: ["Section12"] },
+  { key: "s9", title: "Section 9. Required special approvals, Center-specific supplements", raw: ["Section9", "Section9s1"] },
+  { key: "s10", title: "Section 10. Foreign travel briefings for NASA contractors", raw: ["Section10"] },
+  { key: "s11", title: "Section 11. Extraneous promotional and personal use items", raw: ["Section11"] },
+  { key: "s12", title: "Section 12. Other current NASA directives", raw: ["Section12"] },
 ];
 
 export function answerKey(f: Nf1707Field) {
