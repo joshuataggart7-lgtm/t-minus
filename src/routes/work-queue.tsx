@@ -30,6 +30,7 @@ import {
   type PriorityBandValue,
 } from "@/components/mission-control/work-triage";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
@@ -221,7 +222,7 @@ function WorkQueuePage() {
           owner: String(acq.co_name ?? "").trim() || "Not recorded",
           mission: mission?.name ?? "No mission linked",
           value: rawValue !== null && Number.isFinite(rawValue) ? `IGCE ${formatMoney(rawValue)}` : "Not recorded",
-          method: String(acq.acquisition_method ?? "").trim() || "Not recorded",
+          method: methodDisplayLabel(String(acq.acquisition_method ?? "").trim()) || "Not recorded",
           priority,
           priorityBand: priorityBand(priority),
           readiness,

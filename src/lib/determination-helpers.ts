@@ -1,3 +1,4 @@
+import { simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
 // Plain-language determination helpers (Parts 10 / 12 / 13 / 15).
 //
 // Every citation below is one already carried by a live template badge or the
@@ -73,7 +74,9 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
       title: "Price reasonableness",
       plain:
         "The price negotiation memorandum is the price reasonableness determination of record on this file. T-Minus never performs or invents a price analysis; the contracting officer writes the finding.",
-      citation: simplified ? "RFO FAR 12.204(a); FAR 13.106-3(b)(3)" : "FAR 15.406-3",
+      citation: simplified
+        ? `${simplifiedPriceCite(str(acq["acquisition_method"]))}; ${simplifiedDocCite(str(acq["acquisition_method"]))}`
+        : "FAR 15.406-3",
       templateKey: "pnm",
       templateLabel: "Price negotiation memorandum",
     },

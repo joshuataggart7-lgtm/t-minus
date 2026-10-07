@@ -5,6 +5,7 @@
 // and hands over a packet.
 
 import { scenarioOf } from "@/lib/scenario";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type Awardee = { name: string; uei: string };
 
@@ -250,7 +251,7 @@ export function modRows(
   if ((mod.mod_type === "change_order" || mod.mod_type === "supplemental") && value > sat) {
     rows.push({
       label: "Price negotiation memorandum for the modification",
-      citation: simplified ? "FAR 13.106-3" : "FAR 15.406-3",
+      citation: simplified ? simplifiedPriceCite(opts.method) : "FAR 15.406-3",
       state: "required",
       templateKey: "pnm",
     });

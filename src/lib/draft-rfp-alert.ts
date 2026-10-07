@@ -10,7 +10,7 @@
 export const DRFP_NO_SAM_PUBLISH =
   "T-Minus does not publish to SAM.gov. This is a local reminder, not a SAM posting and not a Sources Sought post.";
 
-export const DRFP_CITATION = "FAR 15.201 · NFS 1815.201";
+export const DRFP_CITATION = "RFO FAR 15.101(b) · NFS CG 1815.11(a)";
 
 export type DraftRfpAlert = {
   applicable: boolean;

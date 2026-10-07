@@ -41,6 +41,7 @@ import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
 import { SCENARIO_DEFAULTS, performanceDays, type ScenarioAnswers } from "@/lib/scenario";
+import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 export const Route = createFileRoute("/intake")({
   head: () => ({
@@ -999,7 +1000,7 @@ function IntakePage() {
               <option value="">Choose a method</option>
               {ACQUISITION_METHODS.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {methodDisplayLabel(c)}
                 </option>
               ))}
             </select>

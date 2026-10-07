@@ -12,6 +12,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireRealUser } from "@/lib/actor";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { correctedCitation } from "@/lib/citation-corrections";
 
 /** The gateway model this project is required to use. */
 export const ASK_MODEL = "openai/gpt-6-astra";
@@ -99,7 +100,7 @@ export const askTMinus = createServerFn({ method: "POST" })
     for (const t of thresholds.data ?? []) {
       if (t.superseded_date) continue;
       const s: AskSource = {
-        citation: t.citation ?? t.name,
+        citation: correctedCitation(t.citation ?? t.name),
         title: `${t.name}${t.value !== null ? ` — ${amount(t.name, t.value)}` : ""}`,
         tier: tierLabel(t.tier),
         source: "thresholds",
@@ -114,7 +115,7 @@ export const askTMinus = createServerFn({ method: "POST" })
     for (const r of rules.data ?? []) {
       if (!r.citation) continue;
       const s: AskSource = {
-        citation: r.citation,
+        citation: correctedCitation(r.citation),
         title: `${r.reviewer_role} review — ${r.trigger ?? "trigger not recorded"}`,
         tier: "binding",
         source: "review rules",
@@ -131,7 +132,7 @@ export const askTMinus = createServerFn({ method: "POST" })
     for (const t of templates.data ?? []) {
       if (!t.governing_citation) continue;
       const s: AskSource = {
-        citation: t.governing_citation,
+        citation: correctedCitation(t.governing_citation),
         title: `${t.name}${t.nf_1098_tab ? ` (NF 1098 tab ${t.nf_1098_tab})` : ""}`,
         tier: tierLabel(t.citation_tier),
         source: "templates",

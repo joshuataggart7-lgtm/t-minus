@@ -52,8 +52,8 @@ N/A,Commerciality Determination and Findings,,live,FAR 2.101; FAR 10.002(e); FAR
 069,Set-Aside Preaward Apparent Successful Offeror Notification,4/21/2026,planned,[fill from template header],guidance
 072,Fair Opportunity Exception - Brand Name Justification,4/10/2026,live,FAR 16.505(b)(2); FAR 11.105; FAR 8.405-6,guidance
 072,Option Exercise Contractor Preliminary Notification,7/21/2026,live,FAR 17.207(a),guidance
-074,Recommendation for Appointment of COR or Alternate COR,5/22/2026,live,FAR 1.602-2(d); NFS 1801.670; NFS CG 1842.2,binding
-074,Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum,5/22/2026,live,FAR 1.602-2(d); NFS CG 1842.2,binding
+074,Recommendation for Appointment of COR or Alternate COR,5/22/2026,live,RFO FAR 1.404(a); NFS 1801.404; NFS CG 1801.42(e); NFS CG 1842.2,binding
+074,Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum,5/22/2026,live,RFO FAR 1.404(a); NFS 1801.404; NFS CG 1842.2,binding
 076,Award Term Determination,4/14/2026,planned,[fill from template header],binding
 076,Fee Determining Official (FDO) Appointment,4/14/2026,planned,[fill from template header],guidance
 076,Performance Evaluation Board (PEB) Appointment,4/8/2026,planned,[fill from template header],guidance
@@ -91,7 +91,7 @@ NA,NASA Enterprise Contracting Officer Appointment Letter,5/22/2026,planned,[fil
 NA,Ratification of Unauthorized Commitments,4/27/2026,planned,[fill from template header],guidance
 NA,Request for Provisional Increase in the Estimated Cost,4/23/2026,planned,[fill from template header],guidance
 NA,Location of Contract Files prior to NEAR Transition Memo,4/27/2026,planned,[fill from template header],guidance
-NA,Closeout Transfer Checklist,6/10/2026,live,FAR 4.804-5; FAR 4.805,binding
+NA,Closeout Transfer Checklist,6/10/2026,live,RFO FAR 4.308-1; RFO FAR 4.309,binding
 099,Contractor Performance Assessment Reporting System (CPARS) Input,4/21/2026,live,"RFO FAR Part 42 (formerly 42.1502, 42.1503)",binding
 DRD,Contract Data Requirements List (AW-DRD),5/1/2026,planned,NFS 1852 / DRD program,guidance
 DRD,Data Requirements Description (DRD) Template,5/1/2026,planned,NFS 1852 / DRD program,guidance
@@ -100,5 +100,5 @@ DRD,OCI Plan DRD,5/1/2026,planned,NFS 1852 / DRD program,guidance
 DRD,Supply Chain Visibility (SCV) Reporting DRD,7/1/2024,planned,NFS 1852 / DRD program,guidance
 N/A,Market Research Memorandum,,live,FAR Part 10; NFS 1810,binding
 N/A,Waiver or Deviation Request,,live,FAR 1.402; NFS 1801.404,binding
-N/A,Coordination Memorandum,,live,FAR 4.801; NFS CG 1804.8,guidance
-N/A,Pre-award Package Transmittal Memorandum,,live,NF 1098 Checklist for Contract Award File Content; FAR 4.801,binding
+N/A,Coordination Memorandum,,live,RFO FAR 4.101; NFS CG 1804.8,guidance
+N/A,Pre-award Package Transmittal Memorandum,,live,NF 1098 Checklist for Contract Award File Content; RFO FAR 4.101,binding

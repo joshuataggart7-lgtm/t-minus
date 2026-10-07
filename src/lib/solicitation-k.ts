@@ -43,7 +43,7 @@ export const K_SAM_STATUS_OPTIONS = [
 ];
 
 export const K_HANDOFF_CHIP =
-  "Section K is a handoff aid — NCMS remains the system of record (NFS CG 1804.11(b)). It does not hold phase exit.";
+  "Section K is a handoff aid. NCMS remains the system of record (NFS CG 1804.11(b)). It does not hold phase exit.";
 
 export const K_EMPTY_NOTE =
   "Section K is not recorded on this file yet.";
