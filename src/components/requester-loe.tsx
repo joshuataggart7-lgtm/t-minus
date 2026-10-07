@@ -14,6 +14,47 @@ import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/est
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
 import { workingDaysIn, type AwardConfidence } from "@/lib/confidence";
+import { phaseAlias } from "@/lib/phase-alias";
+
+const STAGE_BY_PHASE = new Map<string, string>([
+  ["intake", "Acquisition planning"],
+  ["market research", "Acquisition planning"],
+  ["jofoc", "Acquisition planning"],
+  ["fair opportunity", "Acquisition planning"],
+  ["synopsis", "Solicitation"],
+  ["solicitation/quote", "Solicitation"],
+  ["technical evaluation", "Evaluation and award"],
+  ["price reasonableness", "Evaluation and award"],
+  ["responsibility check", "Evaluation and award"],
+  ["go/no-go poll", "Evaluation and award"],
+  ["award", "Evaluation and award"],
+  ["fpds-ng report", "Evaluation and award"],
+]);
+
+function plannedStages(rows: PhasePlanRow[]) {
+  const ordered = [...rows].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const last = ordered.reduce(
+    (index, row, i) => row.phase === "Award" || row.phase === "FPDS-NG Report" ? i : index,
+    -1,
+  );
+  const stages = new Map<string, { days: number; phases: string[] }>();
+  for (const row of ordered.filter((_, i) => last < 0 || i <= last)) {
+    if (row.planned_days == null || !row.phase) continue;
+    const phase = phaseAlias(row.phase).trim();
+    const stage = STAGE_BY_PHASE.get(phase.toLowerCase());
+    if (!stage) continue;
+    const entry = stages.get(stage) ?? { days: 0, phases: [] };
+    entry.days += row.planned_days;
+    entry.phases.push(phase);
+    stages.set(stage, entry);
+  }
+  return stages;
+}
+
+function joinPhases(phases: string[]) {
+  if (phases.length < 2) return phases.join("");
+  return `${phases.slice(0, -1).join(", ")} and ${phases[phases.length - 1]}`;
+}
 
 export function RequesterLoe({
   acq,
@@ -60,14 +101,11 @@ export function RequesterLoe({
     return plan.filter((p) => p.acquisition_type === type && p.phase);
   }, [plan, acq]);
 
-  const plannedByPhase = useMemo(() => {
-    const out = new Map<string, number>();
-    for (const r of planRows) {
-      const key = (r.phase ?? "").toLowerCase();
-      if (r.planned_days != null) out.set(key, (out.get(key) ?? 0) + r.planned_days);
-    }
-    return out;
-  }, [planRows]);
+  const plannedByStage = useMemo(() => plannedStages(planRows), [planRows]);
+  const stageCoverage = byPhase.flatMap(([stage]) => {
+    const entry = plannedByStage.get(stage);
+    return entry ? [`${stage} covers ${joinPhases(entry.phases)}`] : [];
+  });
 
   // Pre-award planned days only: summed in phase order through the last
   // pre-award phase, the same figure the file page and the days-to-award line use.
@@ -110,18 +148,24 @@ export function RequesterLoe({
 
       <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
         {byPhase.map(([phase, hours]) => {
-          const days = plannedByPhase.get(phase.toLowerCase());
+          const planned = plannedByStage.get(phase);
           return (
             <div key={phase} className="contents">
               <dt className="text-muted-foreground">{phase}</dt>
               <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
               <dd className="text-muted-foreground" data-numeric>
-                {days != null ? `${days} planned days` : "Planned days not loaded"}
+                {planned ? `${planned.days} planned days` : "Not planned"}
               </dd>
             </div>
           );
         })}
       </dl>
+
+      {stageCoverage.length > 0 ? (
+        <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
+          Planned days group this file's phase plan by stage: {stageCoverage.join("; ")}.
+        </p>
+      ) : null}
 
       <h4 className="mt-4 text-[15px] font-medium">What drives it on this file</h4>
       <ul className="mt-2 max-w-[70ch] space-y-2 text-[15px] leading-[22px]">
