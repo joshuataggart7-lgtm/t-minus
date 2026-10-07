@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
 import type { Explanation } from "@/lib/explain";
-import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
+import { citationParts } from "@/lib/citation-links";
 import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 
 /**
@@ -12,8 +12,6 @@ import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 export function ExplainThis({ explanation, label = "Explain this" }: { explanation: Explanation; label?: string }) {
   const [open, setOpen] = useState(false);
   const id = useId();
-  const corpus = useCiteCorpus();
-  const cite = citeStatus(explanation.citation, corpus.rows, corpus.state);
   // The loaded regulation corpus wins: never say the text is not loaded when
   // regulation_sections already resolves this citation.
   const textState = useCitationTextState(explanation.citation);
@@ -72,13 +70,35 @@ export function ExplainThis({ explanation, label = "Explain this" }: { explanati
             <p className="mt-3 font-medium">The rule</p>
             <p className="mt-1">{explanation.rule ?? "Not recorded"}</p>
             <p className="mt-3 font-medium">Citation</p>
-            <p className="mt-1 text-muted-foreground">{explanation.citation ?? "Not recorded"}</p>
-            {textState === "heading" ? (
-              <p className="mt-1 text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
-            ) : cite.kind === "stub" && textState === "none" ? (
-              <p className="mt-1 text-muted-foreground">{cite.note}</p>
-            ) : null}
             {explanation.citation ? (
+              <>
+                <p className="mt-1 text-muted-foreground">
+                  {citationParts(explanation.citation).map((part, i) =>
+                    part.href ? (
+                      <a
+                        key={i}
+                        href={part.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        {part.text}
+                      </a>
+                    ) : (
+                      <span key={i}>{part.text}</span>
+                    ),
+                  )}
+                </p>
+                <p className="mt-1 text-muted-foreground">
+                  {citationParts(explanation.citation).some((p) => p.href)
+                    ? "Opens the official text on acquisition.gov."
+                    : "This source is not published on acquisition.gov."}
+                </p>
+              </>
+            ) : (
+              <p className="mt-1 text-muted-foreground">Not recorded</p>
+            )}
+            {explanation.citation && textState === "body" ? (
               <p className="mt-1">
                 <ShowTheText citation={explanation.citation} />
               </p>
