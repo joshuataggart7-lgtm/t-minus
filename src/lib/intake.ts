@@ -1,4 +1,5 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -302,8 +303,9 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       id: "igce",
       title: "No independent government cost estimate attached",
       detail: "Attach the IGCE before the clock starts. Price reasonableness rests on it.",
-      // Simplified acquisitions rest on FAR 13.106-3; Part 15 buys on 15.404-1.
-      citation: /13/.test(String(f.acquisition_method ?? "")) ? "FAR 13.106-3" : "FAR 15.404-1",
+      // Simplified acquisitions rest on RFO FAR 12.204(a) (commercial) or RFO FAR
+      // 13.203(a) (noncommercial); Part 15 buys on 15.404-1.
+      citation: /13/.test(String(f.acquisition_method ?? "")) ? simplifiedPriceCite(String(f.acquisition_method ?? "")) : "FAR 15.404-1",
       blocking: true,
     });
 

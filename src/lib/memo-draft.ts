@@ -17,6 +17,7 @@ import { MFR_SITUATION_PURPOSE } from "@/lib/template-engine";
 import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
 import { findingText, type FindingMap } from "@/lib/research-findings";
 import { humanMemoProse } from "@/lib/memo-prose";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type ResearchLogLine = {
   source: string;
@@ -173,7 +174,7 @@ export function isSimplifiedCommercial(acq: Record<string, unknown>): boolean {
 
 /** The price-analysis citation this record calls for. */
 export function priceAnalysisCitation(acq: Record<string, unknown>): string {
-  return isSimplifiedCommercial(acq) ? "FAR 13.106-3 and FAR 12.209" : "FAR 15.404-1";
+  return isSimplifiedCommercial(acq) ? simplifiedPriceCite(str(acq["acquisition_method"])) : "FAR 15.404-1";
 }
 
 /**
@@ -1208,7 +1209,10 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
     if (determination) out["determination"] = determination;
     out["technique"] = "Comparison with the independent government cost estimate";
     const priceProseCite = isSimplifiedCommercial(a)
-      ? { analysis: "FAR 13.106-3(a)", record: "This memorandum is the determination of record under FAR 12.209." }
+      ? {
+          analysis: simplifiedPriceCite(str(a["acquisition_method"])),
+          record: `This memorandum is the determination of record under ${simplifiedPriceCite(str(a["acquisition_method"]))}.`,
+        }
       : {
           analysis: "FAR 15.404-1",
           record:

@@ -22,6 +22,7 @@ import {
   isOrderProfile,
   vehicleOf,
 } from "@/lib/vehicles";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -159,7 +160,7 @@ export function acquisitionTypeWords(acq: AcqRow) {
     : typeWords || "Non-commercial";
   const method = String((acq as Record<string, unknown>)["acquisition_method"] ?? "");
   const methodWords = /13\.5/.test(method)
-    ? "FAR 13.5"
+    ? "RFO FAR 12.201-1"
     : /13/.test(method)
       ? "FAR 13"
       : /15/.test(method)
@@ -169,7 +170,7 @@ export function acquisitionTypeWords(acq: AcqRow) {
           : /12/.test(method)
             ? "FAR 12"
             : commercial
-              ? "FAR 13.5"
+              ? "RFO FAR 12.201-1"
               : "FAR 15";
   const competition = String(acq.competition ?? "");
   const compWords = /sole/i.test(competition)
@@ -190,7 +191,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
   "Solicitation/Quote": "RFO FAR 12.202(b); NFS CG 1804.11(b) (NCMS is the system of record)",
   "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
-  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3 where simplified procedures apply",
+  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); RFO FAR 13.203(a) on a noncommercial simplified file",
   "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
   "Go/No-go Poll": "Center policy for the review chain",
   Award: "FAR 13.302-3; NFS CG 1804.11(b) (award written in NCMS)",
@@ -206,7 +207,7 @@ const COMMERCIAL_PHASE_CITATIONS: Record<string, string> = {
   "Solicitation/Quote":
     "RFO FAR 12.202(b); RFO FAR 12.201-1 (commercial simplified procedures); NFS CG 1804.11(b) (NCMS is the system of record)",
   "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
-  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3",
+  "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness)",
   Award:
     "RFO FAR 12.201-1 (commercial simplified procedures, within the commercial simplified ceiling); NFS CG 1804.11(b) (award written in NCMS)",
 };
@@ -227,11 +228,11 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   // A sole-source notice is a notice of intent, never a combined
   // synopsis/solicitation, so FAR 12.603 has no part in it.
   const soleSource = /sole|brand/i.test(String(((acq ?? {}) as Record<string, unknown>)["competition"] ?? ""));
-  if (soleSource && phase === "Synopsis") return "RFO FAR 5.101; RFO FAR 6.104 (notice of intent to sole source)";
+  if (soleSource && phase === "Synopsis") return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
   // commercial FAR 12.603 citation has no part in its Solicitation/Quote row.
   if (soleSource && phase === "Solicitation/Quote")
-    return "RFO FAR 5.101; RFO FAR 6.104 (notice of intent to sole source); NFS CG 1804.11(b) (NCMS is the system of record)";
+    return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source); NFS CG 1804.11(b) (NCMS is the system of record)";
   if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
   if (!negotiated && isCommercialBuy(acq) && COMMERCIAL_PHASE_CITATIONS[phase])
     return COMMERCIAL_PHASE_CITATIONS[phase]!;
@@ -362,7 +363,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         },
         {
           label: "Independent government cost estimate (IGCE)",
-          citation: /13/.test(String(acq?.acquisition_method ?? "")) ? "FAR 13.106-3" : "FAR 15.404-1",
+          citation: /13/.test(String(acq?.acquisition_method ?? "")) ? simplifiedPriceCite(String(acq?.acquisition_method ?? "")) : "FAR 15.404-1",
           field: "igce_attached",
         },
         {
@@ -438,7 +439,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         sole
           ? {
               label: "Notice of intent to sole source",
-              citation: "RFO FAR 5.101; RFO FAR 6.104",
+              citation: "RFO FAR 5.101(c)(4)(vii)",
               link: "templates",
               templateKey: "sam-notice",
               note: "Allow at least 15 days for responses unless an exception applies.",
@@ -460,7 +461,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           ? [
               {
                 label: "Proposed price from the intended source",
-                citation: "FAR 13.106-3(a)",
+                citation: /\b15\b/.test(String(acq?.acquisition_method ?? "")) ? "RFO FAR 15.201(c)(3)" : simplifiedPriceCite(String(acq?.acquisition_method ?? "")),
                 field: "proposed_price",
                 note: "Record the price the single source proposed and the date it was received; the technical evaluation report and the price negotiation memorandum read it from here.",
               } as RequiredDoc,

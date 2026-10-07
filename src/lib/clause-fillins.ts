@@ -135,4 +135,4 @@ export function clauseFillinText(
 }
 
 export const CLAUSE_FILLIN_NOTE =
-  "Fill-ins from the record — blanks read Not recorded. Advisory only; NCMS is the system of record (NFS CG 1804.11(b)).";
+  "Fill-ins from the record; blanks read Not recorded. Advisory only; NCMS is the system of record (NFS CG 1804.11(b)).";

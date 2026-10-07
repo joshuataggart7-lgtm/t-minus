@@ -387,7 +387,7 @@ const drfpCoverLetter: TemplateDef = {
   tab: "037",
   layout: "memo",
   badge: {
-    citation: "FAR 15.201; NFS 1815.201; NFS 1815.201(c)(6)(A); NFS 1852.215-84",
+    citation: "RFO FAR 15.101(b); NFS CG 1815.11(a); NFS CG 1815.11(c); NFS 1852.215-84",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-02-01",
@@ -535,7 +535,7 @@ const finalRfpCoverLetter: TemplateDef = {
   tab: "040",
   layout: "memo",
   badge: {
-    citation: "FAR 15.201; FAR 15.203; NFS 1815.201(c)(6)(D); NFS CG 1815.11(i); NFS 1852.215-84",
+    citation: "FAR 15.201; FAR 15.203; NFS CG 1815.12(b); NFS CG 1815.11(i); NFS 1852.215-84",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-02-01",

@@ -18,6 +18,7 @@ import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 /** The same summary the requester saw when the clock started. */
 function estimateLine(est: StoredEstimate | null) {
@@ -170,7 +171,7 @@ function FilesPage() {
                       {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
                     </span>
                     <span className="mt-1 block text-[12px] text-muted-foreground">
-                      {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {String(acq.acquisition_method ?? "Not recorded")} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null)}
+                      {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null)}
                     </span>
                   </td>
                   <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>

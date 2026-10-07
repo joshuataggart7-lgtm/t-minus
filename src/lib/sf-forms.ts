@@ -20,6 +20,7 @@ import { faceLine, packSentences, setAsideFlags } from "@/lib/official-acroform-
 import { of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
 import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v).trim());
 
@@ -223,7 +224,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 26 to 33. Award and signatures",
-      citation: "FAR 13.106-3; FAR 12.204(a)",
+      citation: simplifiedPriceCite(String(a["acquisition_method"] ?? "")),
       fields: [
         field("topmostSubform.RFQ", "Solicitation is a request for quotation (block 8)", commercial),
         field("topmostSubform.RFP", "Solicitation is a request for proposal (block 8)", !commercial),

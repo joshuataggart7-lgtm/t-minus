@@ -205,6 +205,7 @@ import {
   type OptionPeriod,
   type PostAward,
 } from "@/lib/post-award";
+import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
@@ -4853,7 +4854,7 @@ function FilePage() {
               ["Mission need date", String(acq?.need_date ?? "—")],
               ["Estimated value", value === null ? "—" : formatMoney(value)],
               ["Contract type", String(acq?.contract_type ?? "—")],
-              ["Acquisition method", String(acq?.acquisition_method ?? "—")],
+              ["Acquisition method", methodDisplayLabel(String(acq?.acquisition_method ?? "—"))],
               ["Competition", String(acq?.competition ?? "—")],
               ["Set-aside", String(acq?.set_aside ?? "—")],
               ["NAICS", String(acq?.naics_code ?? "—")],

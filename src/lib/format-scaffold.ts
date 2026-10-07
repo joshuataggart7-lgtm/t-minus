@@ -10,7 +10,7 @@
 
 import type { PacketClause } from "@/lib/clause-packet";
 import { clauseFillinText } from "@/lib/clause-fillins";
-import { isSoleSourceRecord } from "@/lib/memo-draft";
+import { isSimplifiedCommercial, isSoleSourceRecord } from "@/lib/memo-draft";
 import { SECTION_J_EMPTY, type SectionJAttachment } from "@/lib/section-j";
 import { CDRL_EMPTY, CDRL_LABEL, cdrlPackNotes, type PacketCdrlItem } from "@/lib/cdrl";
 import {
@@ -19,6 +19,7 @@ import {
   paymentPlanNotes,
   type PacketPaymentMilestone,
 } from "@/lib/payment-milestones";
+import { simplifiedPriceCite, simplifiedFactorsCite } from "@/lib/rfo-simplified-cites";
 
 export type ScaffoldFacts = Record<string, unknown>;
 
@@ -216,11 +217,11 @@ export function buildFormatScaffold(
         lines: [
           {
             text: "This is a sole-source file. Competitive evaluation factors are not the path; the technical evaluation of the single proposal carries the finding.",
-            citation: "FAR 13.106-3(a); NFS CG 1815.3",
+            citation: isSimplifiedCommercial(facts as Record<string, unknown>) ? "RFO FAR 12.203(c)(2)" : "NFS CG 1815.24",
           },
           {
             text: "Price reasonableness is determined in the price negotiation memorandum.",
-            citation: "RFO FAR 12.204(a); FAR 13.106-3",
+            citation: isSimplifiedCommercial(facts as Record<string, unknown>) ? simplifiedPriceCite(s(facts, "acquisition_method")) : "RFO FAR 15.201(c)(3)",
           },
           {
             text: "The justification on this file states why only one source can meet the need.",
@@ -233,7 +234,7 @@ export function buildFormatScaffold(
         lines: [
           has("52.212-2")
             ? { text: `Evaluation factors are stated to offerors under FAR 52.212-2. ${reasonFor("52.212-2") ?? ""}`.trim(), citation: "FAR 12.301(c)" }
-            : { text: "Evaluation factors are stated to offerors in the solicitation.", citation: "FAR 13.106-1(a)(2)" },
+            : { text: "Evaluation factors are stated to offerors in the solicitation.", citation: simplifiedFactorsCite(s(facts, "acquisition_method")) },
           {
             text: "Quotations are evaluated against the factors stated, and the evaluation of quotations on this file records the result.",
             citation: "RFO FAR 12.203",

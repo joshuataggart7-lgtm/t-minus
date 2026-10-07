@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ScaffoldFacts, ScaffoldLine } from "@/lib/format-scaffold";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { isSimplifiedCommercial, isSoleSourceRecord } from "@/lib/memo-draft";
+import { methodDisplayLabel, simplifiedPriceCite, simplifiedFactorsCite } from "@/lib/rfo-simplified-cites";
 
 export type MethodShell = {
   path: "sf1449" | "ucf";
@@ -72,7 +73,7 @@ export function methodShell(facts: ScaffoldFacts | null | undefined): MethodShel
   return {
     path: streamlined && !part15 ? "sf1449" : "ucf",
     partFamily: part15 ? "15" : "12_13",
-    methodLabel: method || "Acquisition method not recorded",
+    methodLabel: methodDisplayLabel(method) || "Acquisition method not recorded",
     formatLabel:
       format || (streamlined && !part15 ? "SF 1449 streamlined (from the commercial determination)" : "Uniform Contract Format"),
     formatSource: format
@@ -169,11 +170,11 @@ export function sectionMLines(
       lines: [
         {
           text: "This is a sole-source file. Competitive evaluation factors are not the path; the technical evaluation of the single proposal carries the finding.",
-          citation: "FAR 13.106-3(a); NFS CG 1815.3",
+          citation: shell.partFamily === "15" ? "NFS CG 1815.24" : "RFO FAR 12.203(c)(2)",
         },
         {
           text: "Price reasonableness is determined in the price negotiation memorandum.",
-          citation: "RFO FAR 12.204(a); FAR 13.106-3",
+          citation: shell.partFamily === "15" ? "RFO FAR 15.201(c)(3)" : simplifiedPriceCite(shell.methodLabel),
         },
         {
           text: "The justification on this file states why only one source can meet the need.",
@@ -197,7 +198,7 @@ export function sectionMLines(
   } else {
     lines.push({
       text: "Evaluation factors are stated to offerors in the solicitation.",
-      citation: "FAR 13.106-1(a)(2)",
+      citation: simplifiedFactorsCite(shell.methodLabel),
     });
   }
 
@@ -214,7 +215,7 @@ export function sectionMLines(
         text: `Factor: ${f.name}. Relative importance: ${(f.relative_importance ?? "").trim() || NOT_RECORDED}.${
           (f.description ?? "").trim() ? ` ${(f.description ?? "").trim()}` : ""
         }`,
-        citation: shell.partFamily === "15" ? "FAR 15.304" : "FAR 13.106-1(a)(2)",
+        citation: shell.partFamily === "15" ? "FAR 15.304" : simplifiedFactorsCite(shell.methodLabel),
       });
     }
     lines.push({

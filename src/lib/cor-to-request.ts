@@ -22,7 +22,7 @@ export type CorToRequest = {
 };
 
 export const COR_TO_NOTE =
-  "Local memo and handoff aid. Advisory only — it never places a hold or changes the phase. NCMS is the system of record (NFS CG 1804.11(b)).";
+  "Local memo and handoff aid. Advisory only; it never places a hold or changes the phase. NCMS is the system of record (NFS CG 1804.11(b)).";
 
 export const NOT_RECORDED = "Not recorded";
 

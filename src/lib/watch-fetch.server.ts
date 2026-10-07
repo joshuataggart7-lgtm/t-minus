@@ -84,7 +84,7 @@ function gaoSample(): Row[] {
       outcome_or_type: "Denied",
       agency: "Government Accountability Office",
       url: "https://www.gao.gov/legal/bid-protests/recent",
-      summary: "Sample data, GAO not reachable from this environment. Evaluation of quotations under FAR 13.5.",
+      summary: "Sample data, GAO not reachable from this environment. Evaluation of quotations under RFO FAR 12.203.",
       tags: ["Bid protest", "Sample", "FAR 13"],
     },
     {

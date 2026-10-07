@@ -15,6 +15,7 @@ import { HQ5_TEMPLATES } from "@/lib/templates-hq5";
 import { HQ6_TEMPLATES } from "@/lib/templates-hq6";
 import { HQ6B_TEMPLATES } from "@/lib/templates-hq6b";
 import { HQ6C_TEMPLATES } from "@/lib/templates-hq6c";
+import { simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -338,7 +339,7 @@ const jofoc: TemplateDef = {
             "41 U.S.C. 1901 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
             "41 U.S.C. 1903 (FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
           ],
-          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by FAR 6.103-1, or, on a FAR 12.102 or FAR 13.5 commercial simplified file, the 41 U.S.C. 1901 or 1903 option that names that basis. Item 5 must then document the only-one-responsible-source rationale.",
+          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by FAR 6.103-1, or, on a commercial simplified file under RFO FAR 12.201-1, the 41 U.S.C. 1901 or 1903 option that names that basis. Item 5 must then document the only-one-responsible-source rationale.",
           helpFor: (v) =>
             (v["action_type"] ?? "").startsWith("Sole-source") &&
             (v["authority"] ?? "") !== "" &&
@@ -416,7 +417,7 @@ const jofoc: TemplateDef = {
       title: "7. Determination that the anticipated cost will be fair and reasonable",
       citation: "FAR 6.104-1(a)(7)",
       citationFor: (v) =>
-        `FAR 6.104-1(a)(7); price analysis under ${simplifiedValues(v) ? "FAR 13.106-3 and FAR 12.209" : "FAR 15.404-1"}`,
+        `FAR 6.104-1(a)(7); price analysis under ${simplifiedValues(v) ? simplifiedPriceCite(v["__method"]) : "FAR 15.404-1"}`,
       tier: "binding",
       standingText:
         "The Contracting Officer's signature on this document indicates that the Contracting Officer has determined that the anticipated cost to the Government will be fair and reasonable. The contractor must submit a proposal to be evaluated and negotiated by the Government. Prior to execution of the contractual instrument a proposal analysis will be performed to ensure the final agreed-to price is fair and reasonable.",
@@ -821,17 +822,17 @@ const nonresponsibility: TemplateDef = {
 
 // ------------------------------------------- Price Negotiation Memorandum
 // The PNM records the price reasonableness the contracting officer reaches
-// under RFO FAR 12.204(a); FAR 13.106-3 applies where simplified procedures do.
+// under RFO FAR 12.204(a), or RFO FAR 13.203(a) on a noncommercial simplified file.
 const pnm: TemplateDef = {
   key: "pnm",
   name: "Price Negotiation Memorandum (PNM)",
   tab: "065",
   badge: {
     citation:
-      "RFO FAR 12.204(a); FAR 13.106-3(b)(3) simplified, FAR 15.406-3 part 15",
+      "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3 part 15",
     citationFor: (v) =>
       simplifiedValues(v)
-        ? "RFO FAR 12.204(a); FAR 13.106-3(b)(3)"
+        ? `${simplifiedPriceCite(v["__method"])}; ${simplifiedDocCite(v["__method"])}`
         : "FAR 15.406-3; FAR 15.408-2; FAR 15.407; FAR 15.403; NFS CG 1815.48; NFS CG 1815.49",
     tier: "binding",
     revision: "HQ 04/2026 revision",
@@ -839,7 +840,7 @@ const pnm: TemplateDef = {
     note: "This memorandum records the price reasonableness finding under RFO FAR 12.204(a). No separate price reasonableness determination is generated.",
     noteFor: (v) =>
       simplifiedValues(v)
-        ? "This memorandum records the price reasonableness finding under RFO FAR 12.204(a), with the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is generated."
+        ? `This memorandum records the price reasonableness finding under ${simplifiedPriceCite(v["__method"])}, with the file documentation required by ${simplifiedDocCite(v["__method"])}. No separate price reasonableness determination is generated.`
         : "This memorandum is the documentation of negotiation under FAR 15.406-3. No separate price reasonableness determination is generated.",
   },
   lead: "Price negotiation memorandum, pre-filled from the record, the IGCE, and the quote.",
@@ -847,8 +848,8 @@ const pnm: TemplateDef = {
     {
       id: "header",
       title: "Acquisition and vendor",
-      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(1) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(1)"),
+      citation: "RFO FAR 12.204(b)(1) simplified, FAR 15.406-3(a)(1) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "FAR 15.406-3(a)(1)"),
       tier: "binding",
       fields: [
         { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
@@ -867,8 +868,8 @@ const pnm: TemplateDef = {
     {
       id: "pricing",
       title: "Government estimate and quoted price",
-      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(7)"),
+      citation: "RFO FAR 12.204(b)(1) simplified, FAR 15.406-3(a)(7) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? simplifiedDocCite(v["__method"]) : "FAR 15.406-3(a)(7)"),
       tier: "binding",
       standingText:
         "The independent government cost estimate and the quote of record are the starting point for the analysis.",
@@ -890,8 +891,8 @@ const pnm: TemplateDef = {
     {
       id: "comparables",
       title: "Comparable prior awards",
-      citation: "FAR 13.106-3(a)(2)(ii); FAR 15.404-1(b)(2)(ii)",
-      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(a)(2)(ii)" : "FAR 15.404-1(b)(2)(ii)"),
+      citation: "RFO FAR 12.204(a) simplified, FAR 15.404-1(b)(2)(ii) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? simplifiedPriceCite(v["__method"]) : "FAR 15.404-1(b)(2)(ii)"),
       tier: "binding",
       standingText:
         "Run comparables to pull prior awards for this NAICS and PSC between half and double the estimated value. Prior awards support the comparison; they do not replace the contracting officer's judgment.",
@@ -908,8 +909,8 @@ const pnm: TemplateDef = {
     {
       id: "analysis",
       title: "Price analysis and negotiation",
-      citation: "FAR 13.106-3(b)(3) simplified, FAR 15.406-3(a)(7) through (a)(11) part 15",
-      citationFor: (v) => (simplifiedValues(v) ? "FAR 13.106-3(a); FAR 13.106-3(b)(3)" : "FAR 15.406-3(a)(7) through (a)(11)"),
+      citation: "RFO FAR 12.204(a) and (b)(1) simplified, FAR 15.406-3(a)(7) through (a)(11) part 15",
+      citationFor: (v) => (simplifiedValues(v) ? `${simplifiedPriceCite(v["__method"])}; ${simplifiedDocCite(v["__method"])}` : "FAR 15.406-3(a)(7) through (a)(11)"),
       tier: "binding",
       fields: [
         {
@@ -942,17 +943,17 @@ const pnm: TemplateDef = {
     {
       id: "determination",
       title: "Determination of price reasonableness",
-      citation: "RFO FAR 12.204(a); FAR 13.106-3",
+      citation: "RFO FAR 12.204(a)",
       citationFor: (v) =>
         simplifiedValues(v)
-          ? "RFO FAR 12.204(a); FAR 13.106-3"
+          ? simplifiedPriceCite(v["__method"])
           : "FAR 15.406-3; FAR 15.408-2; NFS CG 1815.48; NFS CG 1815.49",
       tier: "binding",
       standingText:
-        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written.",
+        "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the file documentation required by RFO FAR 12.204(b)(1). No separate price reasonableness determination is written.",
       standingTextFor: (v) =>
         simplifiedValues(v)
-          ? "The contracting officer records the price reasonableness finding here under RFO FAR 12.204(a), supported by the price reasonableness documentation required by FAR 13.106-3(b)(3). No separate price reasonableness determination is written."
+          ? `The contracting officer records the price reasonableness finding here under ${simplifiedPriceCite(v["__method"])}, supported by the file documentation required by ${simplifiedDocCite(v["__method"])}. No separate price reasonableness determination is written.`
           : "The contracting officer records the negotiated price and the price reasonableness finding here, in the documentation of negotiation required by FAR 15.406-3, following the format at FAR 15.408-2 and the process in NFS CG 1815.48 and NFS CG 1815.49.",
       fields: [
         {
@@ -2361,9 +2362,9 @@ const samNotice: TemplateDef = {
   name: "SAM.gov notice",
   tab: "N/A",
   badge: {
-    citation: "RFO FAR 5.101; RFO FAR 5.201; RFO FAR 12.202(b); RFO FAR 6.104",
+    citation: "RFO FAR 5.101; RFO FAR 5.101(c)(4)(vii); RFO FAR 5.201; RFO FAR 12.202(b)",
     citationFor: (v) =>
-      isSole(v) ? "RFO FAR 5.101; RFO FAR 6.104" : "RFO FAR 5.201; RFO FAR 12.202(b)",
+      isSole(v) ? "RFO FAR 5.101(c)(4)(vii)" : "RFO FAR 5.201; RFO FAR 12.202(b)",
     tier: "binding",
     revision: "HQ Governmentwide Point of Entry templates 05/2026; posted in SAM.gov",
     note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",
@@ -2428,7 +2429,7 @@ const samNotice: TemplateDef = {
     {
       id: "requirement",
       title: "Description of the requirement",
-      citation: "FAR 5.207",
+      citation: "RFO FAR 5.101(c)(4)(i)",
       tier: "binding",
       fields: [
         {
@@ -2461,7 +2462,7 @@ const samNotice: TemplateDef = {
     {
       id: "intent",
       title: "Intent to sole source",
-      citation: "RFO FAR 5.101(c)(4)(vii); RFO FAR 6.104",
+      citation: "RFO FAR 5.101(c)(4)(vii)",
       tier: "binding",
       showIf: isSole,
       standingText:
@@ -2495,7 +2496,7 @@ const samNotice: TemplateDef = {
     {
       id: "presolicitation",
       title: "Presolicitation notice",
-      citation: "FAR 5.101(c); FAR 5.207",
+      citation: "RFO FAR 5.101(c)",
       tier: "binding",
       showIf: isPresol,
       standingText:
@@ -2632,7 +2633,7 @@ const samNotice: TemplateDef = {
     {
       id: "poc",
       title: "Point of contact",
-      citation: "FAR 5.207(c)(16)",
+      citation: "RFO FAR 5.101(c)(1)",
       tier: "binding",
       fields: [
         { key: "co_name", label: "Point of contact", kind: "text", bind: "co_name", required: true },

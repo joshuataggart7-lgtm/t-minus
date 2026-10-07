@@ -177,8 +177,8 @@ const RED_FLAG_RULES: Record<string, string> = {
 
 function redFlagRule(flag: RedFlag): string {
   if (flag.id === "igce") {
-    if (flag.citation === "FAR 13.106-3")
-      return "Before award, the contracting officer must determine that the price is fair and reasonable. If only one quote comes in, the file needs a written statement of price reasonableness, and comparison to an independent government estimate is one accepted basis.";
+    if (flag.citation === "RFO FAR 12.204(a)" || flag.citation === "RFO FAR 13.203(a)")
+      return "Before award, the contracting officer must determine that the price is fair and reasonable, basing it on competitive quotations whenever possible. The IGCE gives the contracting officer a baseline for that finding.";
     if (flag.citation === "FAR 15.404-1")
       return "The contracting officer must make sure the final price is fair and reasonable. Comparing proposed prices with an independent government cost estimate is one of the listed price analysis techniques.";
     return flag.detail;

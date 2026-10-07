@@ -4,6 +4,7 @@
  */
 
 import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecast";
+import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type EmailDraft = {
   key: string;
@@ -43,7 +44,7 @@ export function emailCiteForMethod(acq: Facts | null): {
         unsuccessful: /\b12\b|commercial|13\.5/i.test(`${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`)
           ? "RFO FAR 12.301(b)"
           : "RFO FAR 13.301",
-        priceReasonableness: "FAR 13.106-3",
+        priceReasonableness: simplifiedPriceCite(str(acq, "acquisition_method")),
         methodLabel: "simplified commercial procedures",
       }
       : {
