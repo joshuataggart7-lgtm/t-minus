@@ -5,6 +5,7 @@ import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/comp
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { buildActorAliases, displayActor, type ProfileAliasRow } from "@/lib/actor-alias";
 
 export const Route = createFileRoute("/audit-log")({
   head: () => ({
@@ -65,10 +66,33 @@ function AuditLogPage() {
     },
   });
 
-  const rows = q.data ?? [];
+  const profilesQ = useQuery({
+    queryKey: ["audit-log-actor-aliases"],
+    enabled: authState === "signed-in",
+    queryFn: async (): Promise<ProfileAliasRow[]> => {
+      try {
+        const { data, error } = await supabase.from("profiles").select("id,email,display_name");
+        if (error) return [];
+        return (data ?? []) as ProfileAliasRow[];
+      } catch {
+        return [];
+      }
+    },
+  });
+  const aliases = useMemo(() => buildActorAliases(profilesQ.data ?? []), [profilesQ.data]);
+
+  const rows = useMemo(() => q.data ?? [], [q.data]);
   const actors = useMemo(
-    () => Array.from(new Set(rows.map((r) => r.actor).filter((a): a is string => !!a))).sort(),
-    [rows],
+    () =>
+      Array.from(
+        new Set(
+          rows
+            .map((r) => r.actor)
+            .filter((a): a is string => !!a)
+            .map((a) => displayActor(a, aliases).name),
+        ),
+      ).sort(),
+    [rows, aliases],
   );
   const phases = useMemo(
     () => Array.from(new Set(rows.map((r) => r.phase).filter((p): p is string => !!p))).sort(),
@@ -76,7 +100,9 @@ function AuditLogPage() {
   );
 
   const filtered = rows.filter(
-    (r) => (!actor || r.actor === actor) && (!phase || r.phase === phase),
+    (r) =>
+      (!actor || (!!r.actor && displayActor(r.actor, aliases).name === actor)) &&
+      (!phase || r.phase === phase),
   );
 
   // One timeline per acquisition, newest activity first.
@@ -193,7 +219,21 @@ function AuditLogPage() {
                   <td className="px-3 py-2" data-numeric>
                     {new Date(r.logged_at).toLocaleString()}
                   </td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.actor ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">
+                    {r.actor
+                      ? (() => {
+                          const shown = displayActor(r.actor, aliases);
+                          return (
+                            <>
+                              {shown.name}
+                              {shown.loginId ? (
+                                <div className="text-[12px] text-muted-foreground">Login: {shown.loginId}</div>
+                              ) : null}
+                            </>
+                          );
+                        })()
+                      : "—"}
+                  </td>
                   <td className="min-w-0 break-words px-3 py-2">{r.action ?? "—"}</td>
                   <td className="min-w-0 break-words px-3 py-2">{r.phase ?? "—"}</td>
                   <td className="min-w-0 break-words px-3 py-2">{r.field ?? "—"}</td>
