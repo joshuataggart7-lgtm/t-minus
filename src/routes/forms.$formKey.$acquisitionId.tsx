@@ -15,6 +15,9 @@ import { blankXfaPaths } from "@/lib/xfa-blank-paths";
 import { withNf1707Answers } from "@/lib/nf1707-form";
 import { applicableBlocks, SIGNOFF_STATUS_LABEL, type SignoffAnswers, type SignoffStatus } from "@/lib/nf1707-signoffs";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
+import { NF1707_SECTION_TITLES, nf1707CellText, nf1707SectionOf } from "@/lib/nf1707-cells";
+import { answersFromStored, normalizeNf1707Stored } from "@/components/nf1707-intake";
+import { Nf1707AnswersEditor } from "@/components/nf1707-answers-editor";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import {
@@ -316,14 +319,15 @@ function FormPage() {
         supabase.from("nf1707_fields").select("*"),
       ]);
       const labels = new Map<string, string>();
-      for (const row of (rows.data ?? []) as Nf1707Field[]) labels.set(answerKey(row), fieldLabel(row));
+      for (const row of (rows.data ?? []) as Nf1707Field[]) labels.set(answerKey(row), nf1707CellText(answerKey(row)) ?? fieldLabel(row));
       return { paths, labels };
     },
   });
 
   const form = useMemo(() => {
     if (!baseForm || formKey !== "nf-1707" || !nf1707Blank.data) return baseForm;
-    const answers = (q.data?.acq?.["nf1707_answers"] ?? {}) as Record<string, unknown>;
+    const acq = q.data?.acq ?? {};
+    const answers = normalizeNf1707Stored((acq["nf1707_answers"] ?? {}) as Record<string, unknown>, acq);
     return withNf1707Answers(baseForm, answers, nf1707Blank.data.labels, nf1707Blank.data.paths);
   }, [baseForm, formKey, nf1707Blank.data, q.data]);
 
@@ -342,7 +346,8 @@ function FormPage() {
   });
   const nf1707SignoffRows = useMemo(() => {
     if (formKey !== "nf-1707" || !q.data?.acq) return [];
-    const answers = (q.data.acq["nf1707_answers"] ?? {}) as SignoffAnswers;
+    const stored = (q.data.acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
+    const answers = { ...normalizeNf1707Stored(stored, q.data.acq), ...answersFromStored(stored) } as SignoffAnswers;
     const center = (q.data.acq["center_code"] as string | null) ?? null;
     return applicableBlocks(answers, center).map((block) => {
       const row = (nf1707Approvals.data ?? []).find((r) => r.form_field_name === block.sigField);
@@ -575,7 +580,11 @@ function FormPage() {
       for (const field of section.fields) {
         // An empty block reads as prose, never as a filled dash.
         const value =
-          typeof field.value === "boolean" ? (field.value ? "Yes" : "No") : field.value || "Not recorded";
+          typeof field.value === "boolean"
+            ? field.value ? "Yes" : "No"
+            : form.key === "nf-1707" && field.value === "1"
+              ? "Checked"
+              : field.value || "Not recorded";
         blocks.push({ text: `${field.label}: ${value}`, size: 11, indent: 12, gap: 2 });
       }
       blocks.push({ text: "", gap: 8 });
@@ -1054,6 +1063,18 @@ function FormPage() {
             </section>
           ) : null}
 
+          {formKey === "nf-1707" && q.data?.acq ? (
+            <Nf1707AnswersEditor
+              acquisitionId={acquisitionId}
+              acq={q.data.acq}
+              canWrite={canWrite}
+              actor={user.name}
+              onSaved={async () => {
+                await queryClient.invalidateQueries({ queryKey: ["generated-form", formKey, acquisitionId] });
+              }}
+            />
+          ) : null}
+
           <h2
             id="export-preview"
             tabIndex={-1}
@@ -1087,7 +1108,7 @@ function FormPage() {
                 <p className="mb-3 text-[13px] text-muted-foreground">{section.citation}</p>
               ) : null}
               <dl>
-                {section.fields.map((field) => (
+                {(formKey === "nf-1707" && section.title === "Sections 1 through 12" ? [] : section.fields).map((field) => (
                   <div key={field.path} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
                     <dt className="text-muted-foreground">{field.label}</dt>
                     <dd
@@ -1122,26 +1143,40 @@ function FormPage() {
                 ))}
               </dl>
               {formKey === "nf-1707" && section.title === "Sections 1 through 12" ? (() => {
-                const answered = new Set<number>();
+                const bySection = new Map<number, string[]>();
                 for (const f of section.fields) {
-                  const m = /Section(\d+)/.exec(f.path) ?? /Section(\d+)/.exec(f.label);
-                  if (m) answered.add(Number(m[1]));
+                  const n = nf1707SectionOf(f.path.replace(/^.*?(Section\d+)/, "$1"));
+                  if (!n) continue;
+                  const value = typeof f.value === "boolean" ? (f.value ? "1" : "") : String(f.value ?? "");
+                  if (!value || value === "0" || value === "2") continue;
+                  const line = value === "1" ? f.label : `${f.label}: ${value}`;
+                  bySection.set(n, [...(bySection.get(n) ?? []), line]);
                 }
-                const empty = Array.from({ length: 12 }, (_, i) => i + 1).filter((n) => !answered.has(n));
                 return (
                   <>
-                    {empty.length ? (
-                      <dl>
-                        {empty.map((n) => (
-                          <div key={n} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
-                            <dt className="text-muted-foreground">Section {n}</dt>
-                            <dd className="text-muted-foreground">Not yet answered</dd>
+                    <dl>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => {
+                        const lines = bySection.get(n) ?? [];
+                        return (
+                          <div key={n} className="mb-3 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
+                            <dt className="text-muted-foreground">{NF1707_SECTION_TITLES[n]}</dt>
+                            {lines.length ? (
+                              <dd>
+                                <ul className="space-y-1">
+                                  {lines.map((line) => (
+                                    <li key={line}>{line}</li>
+                                  ))}
+                                </ul>
+                              </dd>
+                            ) : (
+                              <dd className="text-muted-foreground">Not yet answered</dd>
+                            )}
                           </div>
-                        ))}
-                      </dl>
-                    ) : null}
+                        );
+                      })}
+                    </dl>
                     <p className="mt-2 text-[13px] text-muted-foreground">
-                      Answers are recorded on Intake. Empty sections print blank on the export.
+                      Each line is a statement checked on the form or a value entered on it. Edit the answers in Edit NF 1707 answers above.
                     </p>
                   </>
                 );

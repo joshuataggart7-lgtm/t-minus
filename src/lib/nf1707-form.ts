@@ -122,10 +122,10 @@ export function withNf1707Answers(
 
   const answered = form.sections[1];
   const citation = fields.length
-    ? `Answered on Intake. Values read as the form carries them: 1 yes, 0 no, 2 not applicable.${
+    ? `Statements checked and values entered for this file, as they print on the blank.${
         unmapped ? ` ${unmapped} answer${unmapped === 1 ? "" : "s"} ${unmapped === 1 ? "stays" : "stay"} on Intake; this blank has no field for them.` : ""
       }`
-    : "Answered on Intake. No answers on this file map to a field on the blank yet.";
+    : "No answers on this file map to a field on the blank yet.";
 
   return {
     ...form,

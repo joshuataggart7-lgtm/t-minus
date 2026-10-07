@@ -36,7 +36,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
-import { Nf1707Intake, answersFromStored, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
+import { Nf1707Intake, answersFromStored, canonicalAnswers, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
@@ -534,12 +534,11 @@ function IntakePage() {
         clock_state: "running",
         status: "On Track",
         current_phase: "Intake",
-        nf1707_answers: mappedNf1707(
-          fields,
-          { ...canonicalFromFacts(facts), ...answers },
-          {},
-          facts,
-        ),
+        nf1707_answers: {
+          ...mappedNf1707(fields, { ...canonicalFromFacts(facts), ...answers }, {}, facts),
+          // The Intake answer keys travel with the cells so the answers reload for editing.
+          ...canonicalAnswers({ ...canonicalFromFacts(facts), ...answers }),
+        },
         intake_estimate: stored,
         vehicle:
           scenario.vehicle === "idiq_award" || scenario.vehicle === "bpa"

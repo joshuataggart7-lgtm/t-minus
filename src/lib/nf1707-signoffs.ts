@@ -1,4 +1,4 @@
-// NF 1707 (03/23) signature and concurrence blocks, in the order the form
+// NF 1707 (03/25) signature and concurrence blocks, in the order the form
 // prints them, with the block name exactly as printed.
 //
 // Visibility follows the form's own visibility scripts. Every block is hidden
@@ -49,11 +49,15 @@ const QUALITY_EXCLUSIONS = [
   "s6_exempt_it_infra",
   "s6_exempt_it_services",
   "s6_exempt_software",
+  "s6_exempt_support",
   "s6_exempt_facilities",
   "s6_exempt_agreement",
+  "s6_exempt_other",
+  "Section6s1.Section6s1.S6In1",
   "Section6s1.Section6s1.S6In2",
   "Section6s1.Section6s1.S6In3",
   "Section6s1.Section6s1.S6In4",
+  "Section6s1.Section6s1.S6In5",
   "Section6s1.Section6s1.S6In6",
   "Section6s1.Section6s1.S6In9",
 ];
@@ -75,8 +79,8 @@ export const SIGNOFF_BLOCKS: SignoffBlock[] = [
   {
     blockName: "Approver Approval",
     formSection: "Header",
-    sigField: "HeaderWrapper.ApproverApproval.ApproverApprovalConcurrenceSig",
-    textField: "HeaderWrapper.ApproverApproval.ApproverApprovalConcurrence",
+    sigField: "HeaderWrapper.ApproverApproval.ApproverConcurrenceSig",
+    textField: "HeaderWrapper.ApproverApproval.ApproverConcurrence",
     sectionKey: "record",
     sectionTitle: "Requirement record",
     defaultTitle: "Requisition approver",
@@ -142,7 +146,7 @@ export const SIGNOFF_BLOCKS: SignoffBlock[] = [
     defaultTitle: "Center GIDEP coordinator",
     citation: "NPR 8735.1; NF 1707 Section 6-IV",
     hiddenReason: "Printed only when the procurement is for safety critical items.",
-    applies: (a) => on(a, "s6_gidep", "Section6s6.Section6s6.S6VIn1"),
+    applies: (a) => a["s6_gidep"] === "yes" || on(a, "Section6s6.Section6s6.S6VIn2"),
   },
   {
     blockName: "Health & Safety Signature",
