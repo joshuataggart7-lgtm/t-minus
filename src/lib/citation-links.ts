@@ -73,9 +73,12 @@ export function citationParts(citation: string): CitationPart[] {
     if (m[4] && /RFO $/.test(citation.slice(0, start))) continue;
     push(citation.slice(last, start), null);
     let href: string | null = null;
-    if (m[1]) href = rfoHref(m[2] ?? m[3]);
+    if (m[1]) href = rfoHref(m[2] ?? m[3] ?? "");
     else if (m[4]) href = m[5] ? `https://www.acquisition.gov/far/part-${m[5]}` : `https://www.acquisition.gov/far/${m[6]}`;
-    else if (m[7]) href = NFS_SLUGS[m[8]] ? `https://www.acquisition.gov/nfs/${NFS_SLUGS[m[8]]}` : null;
+    else if (m[7]) {
+      const slug = NFS_SLUGS[m[8] ?? ""];
+      href = slug ? `https://www.acquisition.gov/nfs/${slug}` : null;
+    }
     push(m[0], href);
     last = start + m[0].length;
   }
