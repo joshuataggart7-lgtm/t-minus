@@ -1,4 +1,4 @@
-import { simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
+import { methodDisplayLabel, simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
 // Plain-language determination helpers (Parts 10 / 12 / 13 / 15).
 //
 // Every citation below is one already carried by a live template badge or the
@@ -46,7 +46,7 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
       title: "Commerciality",
       plain: commercial
         ? `The record states the commercial determination as: ${commercial}.${
-            method ? ` Acquisition method on the record: ${method}.` : ""
+            method ? ` Acquisition method on the record: ${methodDisplayLabel(method)}.` : ""
           }`
         : "No commercial determination is recorded on this file. The determination itself is written by the contracting officer; T-Minus does not draft it.",
       citation: "RFO FAR 2.101; RFO FAR 10.001(e); RFO FAR Part 12",
@@ -59,7 +59,7 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
       plain: soleSource
         ? `The record reads as other than full and open competition${competition ? ` (${competition})` : ""}. Statutory authority recorded on the file: ${jofoc || "Not recorded"}.`
         : competition || method
-          ? `The record reads as competed${competition ? ` (${competition})` : ""}${method ? `, method ${method}` : ""}.`
+          ? `The record reads as competed${competition ? ` (${competition})` : ""}${method ? `, method ${methodDisplayLabel(method)}` : ""}.`
           : "No competition or acquisition method is recorded on this file.",
       citation: soleSource
         ? `RFO FAR 6.104 justification${jofoc ? `; authority on the record: ${jofoc}` : ""}`

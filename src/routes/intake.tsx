@@ -895,9 +895,12 @@ function IntakePage() {
               onChange={(e) => set("successor_of", e.target.value)}
             >
               <option value="">Not a follow-on</option>
-              {(data.data?.priorFiles ?? []).map((f) => (
+              {/* Scrubbed files are left out unless one is already the recorded predecessor. */}
+              {(data.data?.priorFiles ?? [])
+                .filter((f) => f.clock_state !== "scrubbed" || f.acquisition_id === facts.successor_of)
+                .map((f) => (
                 <option key={f.acquisition_id} value={f.acquisition_id}>
-                  {f.acquisition_id} — {f.title ?? "Untitled"}
+                  {f.acquisition_id} · {f.clock_state === "hold" ? "On hold" : f.clock_state === "launched" ? "Launched" : f.clock_state === "scrubbed" ? "Scrubbed" : "Open"} · {f.title ?? "Untitled"}
                   {f.period_of_performance_end ? ` (ends ${f.period_of_performance_end})` : ""}
                 </option>
               ))}

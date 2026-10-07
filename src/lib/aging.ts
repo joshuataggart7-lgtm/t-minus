@@ -39,6 +39,8 @@ export type AgingItem = {
   thresholdDays: number;
   aging: boolean;
   phase: string | null;
+  /** a typed recorded hold that differs from the cause shown, as "Also recorded: ..." */
+  alsoRecorded?: string | null;
 };
 
 /** Whole days between an ISO timestamp and now, never negative. */
@@ -98,6 +100,7 @@ export function agingItems(
       thresholdDays,
       aging: ageDays >= thresholdDays,
       phase: acq.current_phase ? String(phaseAlias(String(acq.current_phase))) : null,
+      alsoRecorded: (acq["__also_recorded"] as string | null | undefined) ?? null,
     });
   }
 

@@ -63,6 +63,28 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
   return out;
 }
 
+/**
+ * One entry per file, in first-seen order, with the rule kinds and details
+ * that file hit. deriveExceptions() still returns one item per rule hit.
+ */
+export function groupExceptionsByFile(items: Exception[]): { id: string; kinds: string[]; details: string[] }[] {
+  const byId = new Map<string, { id: string; kinds: string[]; details: string[] }>();
+  for (const item of items) {
+    const group = byId.get(item.id) ?? { id: item.id, kinds: [], details: [] };
+    group.kinds.push(item.kind);
+    group.details.push(item.detail);
+    byId.set(item.id, group);
+  }
+  return [...byId.values()];
+}
+
+const KIND_CHIP: Record<string, string> = {
+  "Missing mandatory evidence": "Missing evidence",
+  "Unresolved blocker": "Blocker",
+};
+const chipLabel = (kind: string) => KIND_CHIP[kind] ?? kind;
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
 function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
   const view = overviewCountdownView(metric);
   const clock = view.pastTarget
@@ -110,12 +132,33 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
     }];
   });
 
+  // Leadership view: one strip per file. HOLD before WATCH, then the files
+  // with the most signals, then the nearest target award.
+  const fileGroups = groupExceptionsByFile(rows.map((row) => row.exception))
+    .map((group) => ({ group, row: rows.find((row) => row.exception.id === group.id)! }))
+    .sort((a, b) => {
+      const state = (a.row.readiness.state === "HOLD" ? 0 : 1) - (b.row.readiness.state === "HOLD" ? 0 : 1);
+      if (state) return state;
+      const signals = b.group.kinds.length - a.group.kinds.length;
+      if (signals) return signals;
+      const ta = a.row.readiness.targetAward ?? "9999-12-31";
+      const tb = b.row.readiness.targetAward ?? "9999-12-31";
+      return ta.localeCompare(tb);
+    });
+  const fileOrder = new Map(fileGroups.map((entry, index) => [entry.group.id, index]));
+  // Analyst view: every signal, grouped by file in the same order, then by kind.
+  const analystRows = [...rows].sort(
+    (a, b) =>
+      (fileOrder.get(a.exception.id) ?? 0) - (fileOrder.get(b.exception.id) ?? 0) ||
+      a.exception.kind.localeCompare(b.exception.kind),
+  );
+
   return (
     <section className="mc-exec-exceptions" aria-labelledby="exec-exceptions-heading">
       <div className="mc-exception-heading">
         <div>
           <p className="mc-label">Leadership attention</p>
-          <h3 id="exec-exceptions-heading" className="mc-heading">Executive exceptions <span data-numeric>{rows.length}</span></h3>
+          <h3 id="exec-exceptions-heading" className="mc-heading">Executive exceptions <span data-numeric>{plural(fileGroups.length, "file")} · {plural(rows.length, "signal")}</span></h3>
         </div>
         <div className="mc-exception-mode" aria-label="Exception view">
           <Button type="button" variant="ghost" size="sm" aria-pressed={mode === "leadership"} onClick={() => setMode("leadership")}>Leadership</Button>
@@ -126,12 +169,17 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
         <p className="mc-exception-empty">No active exceptions</p>
       ) : mode === "leadership" ? (
         <LeadershipExceptionList>
-          {rows.map((row, index) => (
-            <LeadershipExceptionStrip state={row.readiness.state as "WATCH" | "HOLD"} key={`${row.exception.id}-${row.exception.kind}-${index}`}>
+          {fileGroups.map(({ group, row }) => (
+            <LeadershipExceptionStrip state={row.readiness.state as "WATCH" | "HOLD"} key={group.id}>
               <div className="mc-exception-severity">
                 <ProvenanceChip kind="RULE" light />
                 <strong>{row.readiness.state}</strong>
-                <span>{row.exception.kind}</span>
+                <span className="flex min-w-0 flex-wrap gap-1">
+                  {group.kinds.slice(0, 3).map((kind, index) => (
+                    <span key={`${kind}-${index}`} className="rounded-full border border-current px-2 text-[12px] leading-5">{chipLabel(kind)}</span>
+                  ))}
+                  {group.kinds.length > 3 ? <span className="px-1 text-[12px] leading-5" data-numeric>+{group.kinds.length - 3}</span> : null}
+                </span>
               </div>
               <div className="mc-exception-identity">
                 <Link to="/files/$acquisitionId" params={{ acquisitionId: row.exception.id }} data-numeric>{row.exception.id}</Link>
@@ -155,8 +203,11 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row, index) => (
-                <tr key={`${row.exception.id}-${row.exception.kind}-analyst-${index}`}>
+              {analystRows.map((row, index) => (
+                <tr
+                  key={`${row.exception.id}-${row.exception.kind}-analyst-${index}`}
+                  style={index > 0 && analystRows[index - 1]!.exception.id !== row.exception.id ? { borderTop: "2px solid var(--border)" } : undefined}
+                >
                   <td><span className={cn("mc-exception-table-severity", `is-${row.readiness.state.toLowerCase()}`)}>{row.readiness.state}</span></td>
                   <td><Link to="/files/$acquisitionId" params={{ acquisitionId: row.exception.id }} data-numeric>{row.exception.id}</Link></td>
                   <td>{row.title}</td>

@@ -120,8 +120,11 @@ export function RequesterLoe({
       <h3 className="text-[15px] font-medium">What this buy costs in contracting work</h3>
       <p className="mt-2 max-w-[70ch] text-[15px] leading-[22px]">
         About {est.hours.total.toLocaleString("en-US")} hours of contracting work to award, across{" "}
-        {inWords(byPhase.length)} phases and about {inWords(est.monthsToAward)} month
-        {est.monthsToAward === 1 ? "" : "s"}. Of those hours, about{" "}
+        {inWords(byPhase.length)} phases and{" "}
+        {hasPlan
+          ? `${totalPlannedDays} planned calendar days`
+          : `about ${inWords(est.monthsToAward)} month${est.monthsToAward === 1 ? "" : "s"}`}
+        . Of those hours, about{" "}
         {est.hours.co.toLocaleString("en-US")} fall to the contracting officer and{" "}
         {est.hours.cs.toLocaleString("en-US")} to the contracting specialist.
       </p>

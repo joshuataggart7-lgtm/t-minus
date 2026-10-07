@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
@@ -125,6 +125,7 @@ function FilesPage() {
     })),
   }), [q.data]);
 
+  const [showScrubbed, setShowScrubbed] = useState(false);
   const rows = useMemo(() => {
     if (!q.data) return [];
     return q.data.acqs.map((acq) => {
@@ -152,9 +153,18 @@ function FilesPage() {
     });
   }, [q.data, ref]);
 
+  // Scrubbed files stay in the record but sit behind a toggle.
+  const isScrubbed = (row: (typeof rows)[number]) =>
+    row.acq.clock_state === "scrubbed" || row.operational.clock_state === "scrubbed";
+  const scrubbedCount = rows.filter(isScrubbed).length;
+  const visibleRows = showScrubbed ? rows : rows.filter((row) => !isScrubbed(row));
+
   return (
     <AppShell>
-      <PageHeader title="Files" lead="Every acquisition file, its phase, and its days to award." />
+      <PageHeader
+        title="Files"
+        lead={`Every acquisition file, its phase, and its days to award.${rows.length ? ` ${visibleRows.length} ${visibleRows.length === 1 ? "file" : "files"} shown.` : ""}`}
+      />
       {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {hasAnyRole(["specialist", "requester", "hq"]) && !readOnly ? (
         <Link to="/intake" className="mb-6 inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
@@ -163,6 +173,17 @@ function FilesPage() {
       ) : null}
       {q.isLoading ? <LoadingNote what="the files" /> : null}
       {q.isError ? <ErrorNote message="The file list did not load. Refresh the page; if it fails again, open Seed status to confirm the records loaded." /> : null}
+
+      {scrubbedCount ? (
+        <button
+          type="button"
+          onClick={() => setShowScrubbed((v) => !v)}
+          aria-pressed={showScrubbed}
+          className="mb-4 text-[13px] text-primary hover:text-primary-hover"
+        >
+          {showScrubbed ? `Hide scrubbed (${scrubbedCount})` : `Show scrubbed (${scrubbedCount})`}
+        </button>
+      ) : null}
 
       {rows.length ? (
         <TableScrollRegion baseClassName="mc-work-table-wrap" label="Acquisition files">
@@ -177,13 +198,17 @@ function FilesPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ acq, operational, metric, mission, readiness }) => (
+              {visibleRows.map(({ acq, operational, metric, mission, readiness }) => {
+                const scrubbed = acq.clock_state === "scrubbed" || operational.clock_state === "scrubbed";
+                const copyOf = String(acq['source_tag'] ?? "").startsWith("Copy of") ? String(acq['source_tag']) : null;
+                return (
                 <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness.state, "is")} border-b border-border align-top last:border-0`}>
                   <td className="p-2 break-words">
                     <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="text-primary hover:text-primary-hover">
                       <span className="block text-[12px] text-muted-foreground" data-numeric>{acq.acquisition_id}</span>
                       <span className="block font-medium">{String(acq.title ?? acq.acquisition_id)}</span>
                     </Link>
+                    {copyOf ? <span className="mt-1 block text-[12px] text-muted-foreground">{copyOf}</span> : null}
                     {acq['source_tag'] === "backfilled" ? (
                       <span className="mt-1 block text-[12px] text-muted-foreground">
                         Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}
@@ -196,12 +221,20 @@ function FilesPage() {
                       {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null, acq as Record<string, unknown>, q.data?.plan ?? [])}
                     </span>
                   </td>
-                  <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
-                  <td className="p-2 whitespace-nowrap" data-numeric><LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} /></td>
+                  {scrubbed ? (
+                    <td className="p-2">
+                      <span className="inline-block rounded-full border border-border px-2 text-[12px] leading-5">Scrubbed</span>
+                      <span className="mt-1 block text-[12px] text-muted-foreground">{String(acq.hold_reason ?? "").trim() || "Reason not recorded"}</span>
+                    </td>
+                  ) : (
+                    <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
+                  )}
+                  <td className="p-2 whitespace-nowrap" data-numeric>{scrubbed ? <span className="text-muted-foreground">No countdown</span> : <LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} />}</td>
                   <td className="p-2 break-words">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
-                  <td className="p-2 break-words">{readiness.nextAction}</td>
+                  <td className="p-2 break-words">{scrubbed ? <span className="text-muted-foreground">None</span> : readiness.nextAction}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </TableScrollRegion>

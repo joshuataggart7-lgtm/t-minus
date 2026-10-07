@@ -1094,6 +1094,17 @@ export type PhaseView = {
   needsPoll: boolean;
 };
 
+/**
+ * Days the phase has run past its planned days, or null when it has not (or
+ * its start is not recorded). The rail, the file page action line and the
+ * launch sequence "(N over)" all read this one number.
+ */
+export function phaseOverrunDays(p: Pick<PhaseView, "actual_days" | "planned_days">): number | null {
+  if (p.actual_days === null) return null;
+  const over = p.actual_days - p.planned_days;
+  return over > 0 ? over : null;
+}
+
 export function buildSequence(
   acq: AcqRow,
   plan: PhasePlanRow[],

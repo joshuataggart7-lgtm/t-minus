@@ -14,7 +14,7 @@ import {
   type UserRow,
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
-import { holdFromRecord, attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { withResolvedHolds } from "@/lib/hold";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/escalations")({
@@ -63,21 +63,13 @@ function EscalationsPage() {
       ]);
       // The hold shown here is recomputed from the record and the stored files,
       // so this page, the work queue and the file header read the same cause.
-      const rows = ((acqs.data ?? []) as unknown as AcqRow[]).map((acq) => {
-        if (acq.clock_state === "launched" || acq.status === "scrubbed") return acq;
-        const cause = holdFromRecord(
-          acq,
-          (plan.data ?? []) as never,
-          keysFrom(attachments.data ?? [], acq.acquisition_id),
-          savedDocKeys(documents.data ?? [], templateRows.data ?? [], acq.acquisition_id),
-        );
-        return {
-          ...acq,
-          hold_reason: cause?.reason ?? null,
-          hold_owner: cause?.owner ?? null,
-          clock_state: cause ? "hold" : acq.clock_state,
-        } as AcqRow;
-      });
+      const rows = withResolvedHolds(
+        (acqs.data ?? []) as unknown as AcqRow[],
+        (plan.data ?? []) as never,
+        attachments.data ?? [],
+        documents.data ?? [],
+        templateRows.data ?? [],
+      );
       return {
         acqs: rows,
         polls: (polls.data ?? []) as unknown as PollRow[],
@@ -166,7 +158,10 @@ function EscalationsPage() {
                       </Link>
                     </td>
                     <td className="p-2">{item.centerCode}</td>
-                    <td className="p-2">{item.subject}</td>
+                    <td className="p-2">
+                      {item.subject}
+                      {item.alsoRecorded ? <span className="mt-1 block text-[12px] text-muted-foreground">{item.alsoRecorded}</span> : null}
+                    </td>
                     <td className="p-2">{item.owner}</td>
                     <td className="p-2" data-numeric>
                       {item.ageDays} days
@@ -210,6 +205,7 @@ function EscalationsPage() {
                     <li key={`${item.acquisitionId}-${i}`}>
                       {item.acquisitionId}: {item.subject} — {item.ageDays} days with {item.owner}
                       {item.phase ? ` at ${item.phase}` : ""}
+                      {item.alsoRecorded ? <span className="block text-muted-foreground">{item.alsoRecorded}</span> : null}
                     </li>
                   ))}
                 </ul>

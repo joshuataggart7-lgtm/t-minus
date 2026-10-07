@@ -54,6 +54,10 @@ function recordedAwardDate(acquisitionId: string, log: LaunchEvent[]) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
 }
 
+/** Shown once under the status of a file stored as launched with no recorded award. */
+export const STORED_LAUNCH_NOTE =
+  "Marked awarded in the record, but no award date is recorded in T-Minus, so it is tracked as open.";
+
 /**
  * The Executive Overview's single operational state source. A recorded launch
  * event is the only fact that advances a file into post-award state.
@@ -74,6 +78,8 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
       current_phase: isAwarded
         ? (isPostAwardPhase ? recordedPhase : "Administration")
         : (isPostAwardPhase ? "Award" : (phaseAlias(acq.current_phase) ?? null)),
+      // Derived only: the record says launched but no award event is recorded.
+      __stored_launched: !isAwarded && recordedClock === "launched",
       // Derived only, never written back: the recorded day each phase began.
       __phase_entered_at: phaseEntryDates(acq.acquisition_id, log),
     },

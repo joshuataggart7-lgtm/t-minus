@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { STORED_LAUNCH_NOTE } from "@/components/mission-control/operational-state";
 import { useMemo } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -138,7 +139,9 @@ function RequesterPortal() {
             const owed = owedRows(c);
             const missing = owed.filter((o) => !o.present).length;
             const openDays = daysSince((acq['created_at'] as string | null) ?? null);
-            const holdDays = daysSince((acq['hold_started_at'] as string | null) ?? null);
+            // Same fallback the Today page "Days held" uses.
+            const holdDays = daysSince(((acq['hold_started_at'] as string | null) ?? c.m.blockerSince) ?? null);
+            const postAward = ["Award", "Administration", "Closeout"].includes(String(c.m.currentPhase ?? ""));
             const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
             const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
             const waitingOnMe =
@@ -173,6 +176,9 @@ function RequesterPortal() {
                       <dt className="text-muted-foreground">Clock</dt>
                       <dd>
                         <MissionReadinessChip state={readiness} />
+                        {(c.m.acq as Record<string, unknown>)['__stored_launched'] ? (
+                          <span className="mt-1 block text-[13px] leading-[18px] text-muted-foreground">{STORED_LAUNCH_NOTE}</span>
+                        ) : null}
                       </dd>
                       <dt className="text-muted-foreground">Mission</dt>
                       <dd>{c.mission}</dd>
@@ -183,7 +189,7 @@ function RequesterPortal() {
                   </div>
 
                   <div>
-                    <h3 className="text-[15px] font-medium">What you owe</h3>
+                    <h3 className="text-[15px] font-medium">{postAward ? "Intake items not on record" : "What you owe"}</h3>
                     <ul className="mt-2 divide-y divide-border border-y border-border">
                       {owed.map((o) => (
                         <li key={o.label} className="flex items-baseline justify-between gap-4 py-2 text-[15px]">
@@ -198,7 +204,11 @@ function RequesterPortal() {
                       ))}
                     </ul>
                     <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-                      {missing} of {owed.length} items still missing.
+                      {postAward
+                        ? missing
+                          ? `${missing} intake ${missing === 1 ? "item is" : "items are"} not on the record.`
+                          : "All intake items are on the record."
+                        : `${missing} of ${owed.length} items still missing.`}
                     </p>
                     <Link
                       to="/forms/$formKey/$acquisitionId"
@@ -215,7 +225,7 @@ function RequesterPortal() {
                       <dt className="text-muted-foreground">Days since the file opened</dt>
                       <dd data-numeric>{openDays ?? "—"}</dd>
                       <dt className="text-muted-foreground">Days on hold</dt>
-                      <dd data-numeric>{c.m.clockState === "hold" ? (holdDays ?? "—") : "Not on hold"}</dd>
+                      <dd data-numeric>{c.m.clockState === "hold" || readiness === "HOLD" ? (holdDays ?? "Start not recorded") : "Not on hold"}</dd>
                       <dt className="text-muted-foreground">
                         {c.m.clockState === "launched" ? "Days since award" : "Days until target award date"}
                       </dt>
@@ -245,12 +255,16 @@ function RequesterPortal() {
                       </p>
                     ) : null}
                     <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
-                      Next decision: {c.m.nextDecision}
-                      {c.m.nextDecisionDate ? ` by ${c.m.nextDecisionDate}` : ""}
-                      {c.m.nextDecisionDate && c.m.daysToNextDecision != null && c.m.daysToNextDecision < 0 ? (
-                        <span style={{ color: "var(--mc-readiness-watch)" }}>, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} past due</span>
+                      Next step: {c.m.nextDecision}.
+                      {c.m.nextDecisionDate ? ` Planned by ${c.m.nextDecisionDate} in the phase plan` : ""}
+                      {c.m.nextDecisionDate && c.m.daysToNextDecision != null ? (
+                        c.m.daysToNextDecision < 0 ? (
+                          <span style={{ color: "var(--mc-readiness-watch)" }}>, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} ago</span>
+                        ) : (
+                          <>, {c.m.daysToNextDecision === 0 ? "today" : `${c.m.daysToNextDecision} ${dayWord(c.m.daysToNextDecision)} from now`}</>
+                        )
                       ) : null}
-                      .
+                      {c.m.nextDecisionDate ? "." : ""}
                     </p>
                   </div>
                 </div>

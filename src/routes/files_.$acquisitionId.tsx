@@ -44,6 +44,7 @@ import {
   docSatisfied,
   generatorKey,
   NCMS_CHECKLIST,
+  phaseOverrunDays,
   pollBoard,
   reviewerNameForRole,
   REVIEW_PHASES,
@@ -138,7 +139,7 @@ import {
   uploadAttachment,
   type AttachmentRow,
 } from "@/lib/attachments";
-import { resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { alsoRecordedHold, resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
 import { StandaloneDraft } from "@/components/standalone-draft";
 import { NewOrderPanel } from "@/components/new-order-panel";
@@ -183,7 +184,8 @@ import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
 import { LaunchCountdown, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
-import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
+import { deriveOverviewAcquisitionState, overviewCountdownView, STORED_LAUNCH_NOTE } from "@/components/mission-control/operational-state";
+import { fileStatusLine } from "@/components/mission-control/file-status";
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
@@ -276,7 +278,8 @@ function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "p
     return `Took ${actual} ${dayWord(actual)}, ${planned} planned (${note})`;
   }
   if (p.status === "current") {
-    const note = actual > planned ? `${diff} over` : actual < planned ? `${diff} left` : "on plan";
+    const over = phaseOverrunDays(p);
+    const note = over !== null ? `${over} over` : actual < planned ? `${diff} left` : "on plan";
     return `${actual} ${dayWord(actual)} in ${p.phase}, ${planned} planned (${note})`;
   }
   return `${planned} planned ${dayWord(planned)}`;
@@ -839,9 +842,10 @@ function FilePage() {
 
   const hold = lifecycle?.hold ?? null;
   const effectiveState = lifecycle?.clockState ?? null;
-  const readiness = lifecycle
-    ? explainWorkReadiness(lifecycle, { acq: lifecycle.acq, attachedKeys: keysFrom(attachments), savedKeys }).state
+  const readinessExplanation = lifecycle
+    ? explainWorkReadiness(lifecycle, { acq: lifecycle.acq, attachedKeys: keysFrom(attachments), savedKeys })
     : null;
+  const readiness = readinessExplanation?.state ?? null;
 
   // The one action for the current blocker, shown in the hero. It does the same
   // thing as the matching row in the launch sequence.
@@ -1251,11 +1255,12 @@ function FilePage() {
               badge: hasTargetAward ? (days < 0 ? "OVERDUE" : null) : "FORECAST",
               caption: days < 0
                 ? hasTargetAward ? `target ${formatDate(effectiveTargetAward)}` : "days past the forecast award date"
-                : hasTargetAward ? "days to the target award date" : "days to the forecast award date; no target recorded",
+                : hasTargetAward ? "days to the target award date" : "days to forecast award. No target date on file.",
               holdReason: null,
               tone: hasTargetAward && days < 0 ? "red" : "cyan",
               pastTarget: days < 0,
             };
+  const statusLine = readinessExplanation ? fileStatusLine(readinessExplanation, fileCountdownView, currentPhase) : null;
 
   const currentIndex = Math.max(
     0,
@@ -2437,6 +2442,9 @@ function FilePage() {
                     : ` · ${holdAge} days; aging after ${holdThreshold} days`
                   : ""}
               </p>
+              {acq && alsoRecordedHold(acq as AcqRow, hold) ? (
+                <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{alsoRecordedHold(acq as AcqRow, hold)}</p>
+              ) : null}
             </div>
             <div className="flex min-w-0 flex-wrap items-center gap-3">
               {primaryAction("Fix")}
@@ -2479,6 +2487,11 @@ function FilePage() {
               <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
               {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
             </div>
+            {statusLine?.reason ? (
+              <p className="mt-1 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground [overflow-wrap:anywhere]">
+                {statusLine.state} · {statusLine.reason}
+              </p>
+            ) : null}
             <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
             <p className="mt-2 text-[15px] text-muted-foreground">
               {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
@@ -2500,11 +2513,6 @@ function FilePage() {
               view={fileCountdownView}
               acquisitionId={acquisitionId}
             />
-            {effectiveState !== "launched" && effectiveState !== "scrubbed" && days !== null && !hasTargetAward ? (
-              <p className="mt-1 text-[13px] text-muted-foreground">
-                The forecast stands in because no target award date is recorded on this file.
-              </p>
-            ) : null}
             {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
               <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
                 {confidence.sentence}
@@ -2519,6 +2527,9 @@ function FilePage() {
                     ? "Launched"
                     : (effectiveState ?? "—")}
             </p>
+            {acq && String((acq as AcqRow).clock_state ?? "").toLowerCase() === "launched" && effectiveState !== "launched" ? (
+              <p className="mt-1 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">{STORED_LAUNCH_NOTE}</p>
+            ) : null}
             </div>
             <div className="min-w-0 [overflow-wrap:anywhere]">
             <p className="text-[13px] text-muted-foreground">Current phase</p>
@@ -2530,7 +2541,17 @@ function FilePage() {
                 ? lifecycle.blocker
                 : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
                     effectiveState !== "launched" && effectiveState !== "scrubbed"
-                  ? `Ready to exit ${currentPhase.phase}`
+                  ? // On WATCH or HOLD the line carries the overrun (same figure as the
+                    // rail) or the reason, so it never reads as an all-clear.
+                    `Ready to exit ${currentPhase.phase}${
+                      statusLine && statusLine.state !== "GO" && statusLine.state !== "LAUNCHED"
+                        ? statusLine.overrunDays !== null
+                          ? `. ${statusLine.overrunDays} ${statusLine.overrunDays === 1 ? "day" : "days"} over plan.`
+                          : statusLine.reason
+                            ? `. ${statusLine.reason}.`
+                            : ""
+                        : ""
+                    }`
                   : (lifecycle?.nextAction ?? "Loading")}
             </p>
             <p className="mt-1 text-[13px] text-muted-foreground [overflow-wrap:anywhere]">
