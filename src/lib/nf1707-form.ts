@@ -27,7 +27,7 @@ export function buildNf1707Form(ctx: FormCtx): GeneratedForm {
   return {
     key: "nf-1707",
     name: "NF 1707, Special Approvals and Affirmations of Requisitions",
-    citation: "NF 1707; NFS 1804.73",
+    citation: "NF 1707; NFS CG 1807.711(a)",
     pdf: "/forms/NF1707.pdf",
     sections: [
       {

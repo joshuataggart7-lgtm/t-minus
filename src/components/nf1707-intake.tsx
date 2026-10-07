@@ -46,7 +46,7 @@ export const NF1707_SECTIONS: Section[] = [
     q("s3_nepa", "National Environmental Policy Act (NEPA) review by the Center NEPA Manager", "radio", { options:[{value:"nerf",label:"Fits a Categorical Exclusion (CatEx) with no extraordinary circumstances"},{value:"catex_consult",label:"Fits a CatEx but needs further consultation, permitting, or studies"},{value:"excluded",label:"Fits the list of excluded activities that need no checklist"}], required:true, help:"Complete the NASA Environmental Review Form or the Center form with the Center NEPA Manager." }),
     q("s3_catex", "CatEx number", "text", {short:"CatEx number",  when:a=>a["s3_nepa"]==="nerf" }),
   ]},
-  { key: "4", title: "Service contracting", citation: "FAR 37.104; NFS 1837.104; FAR 7.503; OMB Circular A-76", gates:["services"], questions:[
+  { key: "4", title: "Service contracting", citation: "RFO FAR 37.201-1; RFO FAR 37.202-1; NFS 1837.201-1; RFO FAR 7.503; OMB Circular A-76", gates:["services"], questions:[
     q("s4_not_personal", "Will not be used for the performance of personal services. (FAR 37.104 and NFS 1837.104)", "check", {required:true, short:"Not personal services"}),
     q("s4_not_governmental", "Will not be used for the performance of inherently governmental functions. (FAR 7.503)", "check", {required:true, short:"Not inherently governmental"}),
     q("s4_not_employees", "Are not presently being performed, nor recently performed, by government employees. (OMB Circular A-76)", "check", {required:true, short:"Not performed by government employees"}),

@@ -165,7 +165,7 @@ export function explainReview(entry: BoardEntry, acq: AcqRow): Explanation {
 }
 
 const RED_FLAG_RULES: Record<string, string> = {
-  sow: "Agencies state their needs in requirements documents and should prefer performance-oriented documents, such as a PWS, over detailed design documents (FAR 11.101). A description of services must not hand inherently governmental functions to a contractor (FAR 11.106).",
+  sow: "T-Minus/Center rule: the SOW or PWS is attached before the clock starts. The FAR does not set that timing. The FAR rules behind the document: requirements are stated in terms of functions to be performed, performance required, or essential physical characteristics (RFO FAR 11.102(a)(2)(i)). Requirements for services are developed so contracted functions do not expand into inherently governmental functions (RFO FAR 37.301-1(c)), and contracts must not be used to perform inherently governmental functions (RFO FAR 7.503).",
   "far135-ceiling": "Simplified procedures for commercial products and services may be used only up to the dollar ceiling in RFO FAR 12.201-1(a). RFO FAR 12.001(c) raises that ceiling for a few special cases. Above it, use other procedures.",
   jofoc: "A justification for other than full and open competition must identify the statutory authority that permits it (RFO FAR 6.104-1) and be approved in writing at the level its dollar value requires (RFO FAR 6.104-2).",
   funding: "Money limited to a fiscal year is available only for expenses properly incurred in that period or for contracts properly made within it (31 U.S.C. 1502). A contract funded by annual appropriations may not cross fiscal years unless a statute allows it or the end product cannot feasibly be split by fiscal year (FAR 32.703-3).",
@@ -179,8 +179,10 @@ function redFlagRule(flag: RedFlag): string {
   if (flag.id === "igce") {
     if (flag.citation === "RFO FAR 12.204(a)" || flag.citation === "RFO FAR 13.203(a)")
       return "Before award, the contracting officer must determine that the price is fair and reasonable, basing it on competitive quotations whenever possible. The IGCE gives the contracting officer a baseline for that finding.";
-    if (flag.citation === "FAR 15.404-1")
-      return "The contracting officer must make sure the final price is fair and reasonable. Comparing proposed prices with an independent government cost estimate is one of the listed price analysis techniques.";
+    if (flag.citation === "RFO FAR 15.404-1(b)(5)")
+      return "The contracting officer must make sure the final price is fair and reasonable. Comparing proposed prices with an independent government cost estimate is one of the listed price analysis techniques (RFO FAR 15.404-1(b)(5)).";
+    if (flag.citation === "NFS CG 1807.14(b)(3); RFO FAR 15.404-1(b)(5)")
+      return "Where a written acquisition plan applies, its cost/price element must provide the independent government cost estimate (NFS CG 1807.14(b)(3)). The contracting officer then compares proposed prices with that estimate as a price analysis technique (RFO FAR 15.404-1(b)(5)).";
     return flag.detail;
   }
   return RED_FLAG_RULES[flag.id] ?? flag.detail;

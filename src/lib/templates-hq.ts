@@ -769,7 +769,7 @@ const RDT_CHECKLIST = [
   "Drafting the Quality Assurance Surveillance Plan (FAR Part 37.6, NFS Part 1837.6)",
   "Support the Procurement Office in selection of contract type, including any applicable Determination & Findings (FAR Part 16, NFS Part 1816)",
   "Budget Estimate and Funding by Government fiscal year (FAR 7.105(b)(6), NFS 1807.105(b)(6)(B))",
-  "Completion of the NF 1707 Special Approvals and Affirmations of Requisitions (NFS 1804.73)",
+  "Completion of the NF 1707 Special Approvals and Affirmations of Requisitions (NFS CG 1807.711(a))",
   "Incorporate Supply Chain Visibility Reporting DRD as applicable (NPR 7120.5)",
   "Completion of the NF 1739 NASA Projects Capitalization Determination Form (NPR 9250.1)",
   "Assessing and establishing citation of required technical reference documents, including ITAR, EAR and proprietary information prior to release",
