@@ -208,13 +208,15 @@ function RequesterPortal() {
                       <dd data-numeric>{openDays ?? "—"}</dd>
                       <dt className="text-muted-foreground">Days on hold</dt>
                       <dd data-numeric>{c.m.clockState === "hold" ? (holdDays ?? "—") : "Not on hold"}</dd>
-                      <dt className="text-muted-foreground">Days to award</dt>
+                      <dt className="text-muted-foreground">
+                        {c.m.clockState === "launched" ? "Days since award" : "Days until target award date"}
+                      </dt>
                       <dd data-numeric>
                         {c.m.clockState === "launched"
                           ? `Launched ${c.m.daysSinceAward ?? 0} days ago`
                           : Number.isFinite(c.m.daysToAward)
                             ? c.m.daysToAward !== null && c.m.daysToAward < 0
-                              ? `${Math.abs(c.m.daysToAward)} ${dayWord(Math.abs(c.m.daysToAward))} past target`
+                              ? `${Math.abs(c.m.daysToAward)} ${dayWord(Math.abs(c.m.daysToAward))} past target award date`
                               : `${c.m.daysToAward} calendar days`
                             : "No target award date recorded"}
                       </dd>
@@ -222,7 +224,7 @@ function RequesterPortal() {
                     <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
                       {waitingOnMe
                         ? "This file is waiting on the requesting organization."
-                        : "Counted from the dates on the record, not from an estimate."}
+                        : "Counted from today to the target award date on the record, not from an estimate."}
                     </p>
                   </div>
 
@@ -245,7 +247,7 @@ function RequesterPortal() {
                   <RequesterLoe
                     acq={acq}
                     plan={desk?.plan ?? []}
-                    awardRange={conf?.sentence ?? null}
+                    confidence={conf}
                     missingCount={missing}
                   />
                 </div>

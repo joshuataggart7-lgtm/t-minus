@@ -38,6 +38,7 @@ export type AwardConfidence = {
   median: number | null;
   /** one plain sentence for the clock line */
   sentence: string;
+  rangeNote: string;
 };
 
 export type HistoryFile = {
@@ -96,6 +97,7 @@ export function awardConfidence(
       high: null,
       median: null,
       sentence: `${plannedPart}; confidence range not yet enough history.`,
+      rangeNote: "Confidence range: not yet enough history.",
     };
   }
 
@@ -116,6 +118,9 @@ export function awardConfidence(
     median: mid,
     sentence:
       `${plannedPart}; files like this ${where} have taken ${low} to ${high} days ` +
+      `(${days.length} prior file${days.length === 1 ? "" : "s"}, median ${mid}).`,
+    rangeNote:
+      `Files like this ${where} have taken ${low} to ${high} days ` +
       `(${days.length} prior file${days.length === 1 ? "" : "s"}, median ${mid}).`,
   };
 }
