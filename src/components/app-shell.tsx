@@ -49,6 +49,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const restoreFocusRef = useRef(false);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
@@ -123,6 +124,20 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
     restoreFocusRef.current = false;
     window.requestAnimationFrame(() => menuButtonRef.current?.focus());
   }, [drawerOpen]);
+
+  // Desktop rail is sticky under the header; the header wraps below xl, so its
+  // live height feeds the CSS variable the rail's top/height use.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const setHeaderH = () => {
+      document.documentElement.style.setProperty("--app-header-h", `${header.offsetHeight}px`);
+    };
+    setHeaderH();
+    const observer = new ResizeObserver(setHeaderH);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1023.98px)");
@@ -208,7 +223,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
       >
         Skip to main content
       </a>
-      <header {...inertProps} className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
+      <header ref={headerRef} {...inertProps} className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             ref={menuButtonRef}
@@ -339,7 +354,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           aria-label="Main"
           aria-hidden={isDrawerViewport && !drawerOpen ? true : undefined}
           className={cn(
-            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto",
+            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto lg:sticky lg:top-[var(--app-header-h,56px)] lg:self-start lg:h-[calc(100vh-var(--app-header-h,56px))] lg:min-h-0 lg:overflow-y-auto",
             !drawerOpen && "max-lg:hidden",
             collapsed ? "lg:w-14" : overviewMode ? "lg:w-48" : "lg:w-60",
           )}
