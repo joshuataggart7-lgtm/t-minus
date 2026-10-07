@@ -46,7 +46,7 @@ export const SEEDED_USERS: SeededUser[] = [
     name: "P. Osei (fictional counsel)",
     title: "Reviewer",
     email: "reviewer@t-minus.demo",
-    center_code: "GSFC",
+    center_code: "ARC",
     landing: "/reviewer-inbox",
   },
   {
