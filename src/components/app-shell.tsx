@@ -354,7 +354,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           aria-label="Main"
           aria-hidden={isDrawerViewport && !drawerOpen ? true : undefined}
           className={cn(
-            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto",
+            "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto lg:sticky lg:top-[var(--app-header-h,56px)] lg:self-start lg:h-[calc(100vh-var(--app-header-h,56px))] lg:min-h-0 lg:overflow-y-auto",
             !drawerOpen && "max-lg:hidden",
             collapsed ? "lg:w-14" : overviewMode ? "lg:w-48" : "lg:w-60",
           )}
