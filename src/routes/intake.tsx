@@ -1553,7 +1553,7 @@ function IntakePage() {
                   style={{ borderColor: f.blocking ? "var(--atrisk)" : "var(--attention)" }}
                 >
                   <p className="text-[15px] font-medium">
-                    {f.blocking ? "At Risk" : "Needs attention"}: {f.title}
+                    {f.blocking ? "Blocking" : "Needs attention"}: {f.title}
                   </p>
                   <p className="text-[15px] text-muted-foreground">{f.detail}</p>
                   {f.citation ? (
