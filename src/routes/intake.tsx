@@ -141,6 +141,14 @@ function Field({
 const inputClass =
   "w-full border border-border bg-background px-3 py-2 text-[15px] text-foreground [border-radius:var(--mc-radius-control)]";
 
+// The estimator timeline counts months and the phase plan counts days. Show the
+// phase plan figure in months as well, rounded to the nearest half month, so the
+// two lines can be read side by side.
+function phasePlanMonths(days: number) {
+  const value = Math.round(days / 30.44 / 0.5) * 0.5;
+  return { value, text: Number.isInteger(value) ? String(value) : value.toFixed(1) };
+}
+
 function IntakePage() {
   const { user, hasAnyRole, authState, profile, readOnly, role, canSwitchPersona } = useRole();
   const navigate = useNavigate();
@@ -1501,8 +1509,18 @@ function IntakePage() {
             <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
             <ul className="mt-2 text-[13px] text-muted-foreground">
               <li>
-                Months to award: {intakeEstimate?.monthsToAward}. Planned days to award:{" "}
-                {intakeEstimate?.plannedDaysToAward}.
+                Estimator timeline: about {intakeEstimate?.monthsToAward}{" "}
+                {intakeEstimate?.monthsToAward === 1 ? "month" : "months"} to award (planning{" "}
+                {intakeEstimate?.months.planning}, solicitation {intakeEstimate?.months.solicitation},
+                evaluation {intakeEstimate?.months.evaluation}, award {intakeEstimate?.months.award}).
+              </li>
+              <li>
+                Phase plan: {intakeEstimate?.plannedDaysToAward} planned days to award, about{" "}
+                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).text}{" "}
+                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).value === 1
+                  ? "month"
+                  : "months"}
+                . The need-date check uses the phase plan.
               </li>
               <li>
                 Contracting hours: {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
@@ -1511,6 +1529,9 @@ function IntakePage() {
               </li>
               <li>Phases: {intakeEstimate?.phases.join(" · ")}</li>
             </ul>
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              The two figures come from different models, so they can differ.
+            </p>
             <p className="mt-2 text-[13px] text-muted-foreground">
               This estimate is stored on the record as the estimate at intake when the clock starts.
             </p>
@@ -1532,7 +1553,7 @@ function IntakePage() {
                   style={{ borderColor: f.blocking ? "var(--atrisk)" : "var(--attention)" }}
                 >
                   <p className="text-[15px] font-medium">
-                    {f.blocking ? "At Risk" : "Needs attention"}: {f.title}
+                    {f.blocking ? "Blocking" : "Needs attention"}: {f.title}
                   </p>
                   <p className="text-[15px] text-muted-foreground">{f.detail}</p>
                   {f.citation ? (
