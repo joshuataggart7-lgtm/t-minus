@@ -49,6 +49,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const restoreFocusRef = useRef(false);
   const [groups, setGroups] = useState<Record<string, boolean>>({ Work: true, Documents: false, Oversight: false, Setup: false });
   useEffect(() => {
@@ -123,6 +124,20 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
     restoreFocusRef.current = false;
     window.requestAnimationFrame(() => menuButtonRef.current?.focus());
   }, [drawerOpen]);
+
+  // Desktop rail is sticky under the header; the header wraps below xl, so its
+  // live height feeds the CSS variable the rail's top/height use.
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const setHeaderH = () => {
+      document.documentElement.style.setProperty("--app-header-h", `${header.offsetHeight}px`);
+    };
+    setHeaderH();
+    const observer = new ResizeObserver(setHeaderH);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const query = window.matchMedia("(max-width: 1023.98px)");
