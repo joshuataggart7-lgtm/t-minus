@@ -13,6 +13,7 @@ import { buildForm, FORM_NAMES, xfaDatasets, type FormCtx, type FormKey, type Fo
 import { blankPagePaths, withPagePaths } from "@/lib/form-page-map";
 import { blankXfaPaths } from "@/lib/xfa-blank-paths";
 import { withNf1707Answers } from "@/lib/nf1707-form";
+import { applicableBlocks, SIGNOFF_STATUS_LABEL, type SignoffAnswers, type SignoffStatus } from "@/lib/nf1707-signoffs";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
 import type { FindingMap } from "@/lib/research-findings";
 import { exportXdp, exportXfaIncremental, renderPdf, type PdfBlock } from "@/lib/pdf-out";
@@ -325,6 +326,30 @@ function FormPage() {
     const answers = (q.data?.acq?.["nf1707_answers"] ?? {}) as Record<string, unknown>;
     return withNf1707Answers(baseForm, answers, nf1707Blank.data.labels, nf1707Blank.data.paths);
   }, [baseForm, formKey, nf1707Blank.data, q.data]);
+
+  // Preview only: sign-off status rows for the NF 1707 signature section.
+  const nf1707Approvals = useQuery({
+    queryKey: ["nf1707-approvals-preview", acquisitionId],
+    enabled: authState === "signed-in" && formKey === "nf-1707",
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("nf1707_approvals")
+        .select("form_field_name, status")
+        .eq("acquisition_id", acquisitionId);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const nf1707SignoffRows = useMemo(() => {
+    if (formKey !== "nf-1707" || !q.data?.acq) return [];
+    const answers = (q.data.acq["nf1707_answers"] ?? {}) as SignoffAnswers;
+    const center = (q.data.acq["center_code"] as string | null) ?? null;
+    return applicableBlocks(answers, center).map((block) => {
+      const row = (nf1707Approvals.data ?? []).find((r) => r.form_field_name === block.sigField);
+      const label = row ? SIGNOFF_STATUS_LABEL[row.status as SignoffStatus] ?? null : null;
+      return { name: block.blockName, label };
+    });
+  }, [formKey, q.data, nf1707Approvals.data]);
 
   /** Where each filled preview value came from. Preview only; exports unchanged. */
   const lineage = useMemo(
@@ -1096,6 +1121,46 @@ function FormPage() {
                   </div>
                 ))}
               </dl>
+              {formKey === "nf-1707" && section.title === "Sections 1 through 12" ? (() => {
+                const answered = new Set<number>();
+                for (const f of section.fields) {
+                  const m = /Section(\d+)/.exec(f.path) ?? /Section(\d+)/.exec(f.label);
+                  if (m) answered.add(Number(m[1]));
+                }
+                const empty = Array.from({ length: 12 }, (_, i) => i + 1).filter((n) => !answered.has(n));
+                return (
+                  <>
+                    {empty.length ? (
+                      <dl>
+                        {empty.map((n) => (
+                          <div key={n} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
+                            <dt className="text-muted-foreground">Section {n}</dt>
+                            <dd className="text-muted-foreground">Not yet answered</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    ) : null}
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      Answers are recorded on Intake. Empty sections print blank on the export.
+                    </p>
+                  </>
+                );
+              })() : null}
+              {formKey === "nf-1707" && section.title === "Signatures, concurrence and approvals" ? (
+                <>
+                  <dl>
+                    {nf1707SignoffRows.map((r) => (
+                      <div key={r.name} className="mb-2 grid grid-cols-[1fr_1.4fr] max-lg:grid-cols-1 gap-3 text-[15px]">
+                        <dt className="text-muted-foreground">{r.name}</dt>
+                        <dd className={r.label ? undefined : "text-muted-foreground"}>{r.label ?? "Not yet signed"}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <p className="mt-2 text-[13px] text-muted-foreground">
+                    Signatures are completed in the Approvals step and stay blank on the export.
+                  </p>
+                </>
+              ) : null}
             </section>
           ))}
         </>
