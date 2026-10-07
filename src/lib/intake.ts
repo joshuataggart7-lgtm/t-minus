@@ -1,5 +1,5 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
-import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { igceCite } from "@/lib/rfo-simplified-cites";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -304,8 +304,9 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       title: "No independent government cost estimate attached",
       detail: "Attach the IGCE before the clock starts. Price reasonableness rests on it.",
       // Simplified acquisitions rest on RFO FAR 12.204(a) (commercial) or RFO FAR
-      // 13.203(a) (noncommercial); Part 15 buys on 15.404-1.
-      citation: /13/.test(String(f.acquisition_method ?? "")) ? simplifiedPriceCite(String(f.acquisition_method ?? "")) : "FAR 15.404-1",
+      // 13.203(a) (noncommercial); other buys on RFO FAR 15.404-1(b)(5), plus
+      // NFS CG 1807.14(b)(3) where a written acquisition plan applies.
+      citation: igceCite(String(f.acquisition_method ?? ""), value),
       blocking: true,
     });
 
@@ -313,8 +314,8 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
     flags.push({
       id: "sow",
       title: "No statement of work or performance work statement attached",
-      detail: "Attach the SOW or PWS so the requirement can be solicited as written.",
-      citation: "FAR 11.101; FAR 11.106",
+      detail: "Attach the SOW or PWS so the requirement can be solicited as written. Requiring it before the clock starts is a T-Minus/Center rule, not a FAR requirement.",
+      citation: "RFO FAR 11.102(a)(2)(i); RFO FAR 37.301-1(c); RFO FAR 7.503",
       blocking: true,
     });
 

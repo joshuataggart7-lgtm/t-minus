@@ -15,7 +15,7 @@ import { blankXfaPaths } from "@/lib/xfa-blank-paths";
 import { withNf1707Answers } from "@/lib/nf1707-form";
 import { applicableBlocks, SIGNOFF_STATUS_LABEL, type SignoffAnswers, type SignoffStatus } from "@/lib/nf1707-signoffs";
 import { answerKey, fieldLabel, type Nf1707Field } from "@/lib/nf1707";
-import { NF1707_SECTION_TITLES, nf1707CellText, nf1707SectionOf } from "@/lib/nf1707-cells";
+import { NF1707_SECTION_NOTES, NF1707_SECTION_TITLES, nf1707CellText, nf1707SectionOf } from "@/lib/nf1707-cells";
 import { answersFromStored, normalizeNf1707Stored } from "@/components/nf1707-intake";
 import { Nf1707AnswersEditor } from "@/components/nf1707-answers-editor";
 import type { FindingMap } from "@/lib/research-findings";
@@ -602,6 +602,7 @@ function FormPage() {
           const lines = bySection.get(n) ?? [];
           if (!lines.length) blocks.push({ text: "Not yet answered", size: 11, indent: 24, gap: 2 });
           for (const line of lines) blocks.push({ text: line, size: 11, indent: 24, gap: 2 });
+          if (lines.length && NF1707_SECTION_NOTES[n]) blocks.push({ text: NF1707_SECTION_NOTES[n]!, size: 9, indent: 24, gap: 2 });
         }
         blocks.push({ text: "", gap: 8 });
         continue;
@@ -1220,6 +1221,9 @@ function FormPage() {
                                     <li key={line}>{line}</li>
                                   ))}
                                 </ul>
+                                {NF1707_SECTION_NOTES[n] ? (
+                                  <p className="mt-1 text-[13px] text-muted-foreground">{NF1707_SECTION_NOTES[n]}</p>
+                                ) : null}
                               </dd>
                             ) : (
                               <dd className="text-muted-foreground">Not yet answered</dd>

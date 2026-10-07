@@ -22,7 +22,7 @@ import {
   isOrderProfile,
   vehicleOf,
 } from "@/lib/vehicles";
-import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { igceCite, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -358,17 +358,17 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "NF 1707 intake, Acquisition Forecast affirmed",
-          citation: "NFS CG 1807.711(a)",
+          citation: "NFS CG 1807.711(a); NFS CG 1807.703(a) (forecast, above the SAT)",
           field: "acquisition_forecast_verified",
         },
         {
           label: "Independent government cost estimate (IGCE)",
-          citation: /13/.test(String(acq?.acquisition_method ?? "")) ? simplifiedPriceCite(String(acq?.acquisition_method ?? "")) : "FAR 15.404-1",
+          citation: igceCite(String(acq?.acquisition_method ?? ""), Number(acq?.estimated_value ?? 0)),
           field: "igce_attached",
         },
         {
           label: "Statement of work or performance work statement",
-          citation: "FAR 11.101",
+          citation: "RFO FAR 11.102(a)(2)(i); RFO FAR 37.101-1(a) and 37.102-1(a) (services, PWS)",
           field: "sow_attached",
         },
       ];

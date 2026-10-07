@@ -10,12 +10,20 @@ export const NF1707_SECTION_TITLES: Record<number, string> = {
   4: "Section 4. Service contracting",
   5: "Section 5. Technical approval",
   6: "Section 6. Quality assurance",
-  7: "Section 7. Safety and health",
+  7: "Section 7. Safety and health (I. Safety and health requirements)",
   8: "Section 8. Property management",
   9: "Section 9. Required special approvals, Center-specific supplements",
   10: "Section 10. Foreign travel briefings for NASA contractors",
   11: "Section 11. Extraneous promotional and personal use items",
   12: "Section 12. Other current NASA directives",
+};
+
+/**
+ * Short notes shown under a section in the read view and the flattened print.
+ * The form's own statement text is left as printed on the 03/25 blank.
+ */
+export const NF1707_SECTION_NOTES: Record<number, string> = {
+  4: "Note: Item 1 quotes the form's references (FAR 37.104, NFS 1837.104), which predate the RFO. Personal services are now at RFO FAR 37.201 and 37.202-1, and the interim NFS covers them at NFS 1837.201-1.",
 };
 
 export const NF1707_CELL_TEXT: Record<string, string> = {
@@ -116,21 +124,21 @@ export const NF1707_CELL_TEXT: Record<string, string> = {
   "Section6s6.S6VIn1": "IV. Not for safety critical items (NPR 8735.1).",
   "Section6s6.S6VIn2": "IV. For safety critical items and GIDEP screened (NPR 8735.1).",
 
-  "Section7.S7In1": "I. The contractor will work partly or completely on a NASA Center.",
-  "Section7.S7In2": "I. Involves hazardous or potentially hazardous substances or articles (NPR 1800.1, NPR 8715.1).",
-  "Section7.S7In2s1": "I. Hazard: Ionizing radiation sources and devices.",
-  "Section7.S7In2s2": "I. Hazard: Lasers and hazardous non-laser optical radiation.",
-  "Section7.S7In2s3": "I. Hazard: High intensity, ultraviolet, and infrared lights.",
-  "Section7.S7In2s4": "I. Hazard: Radio frequency (RF) and microwave emitters.",
-  "Section7.S7In2s5": "I. Hazard: Devices that produce hazardous noise (80 dBA or more at 1 meter or less).",
-  "Section7.S7In2s6": "I. Hazard: Pyrotechnic devices and explosives.",
-  "Section7.S7In2s7": "I. Hazard: Pressurized vessels.",
-  "Section7.S7In2s8": "I. Hazard: Toxic or hazardous substances, materials, or chemicals.",
-  "Section7.S7In2s9": "I. Hazard: Nano and ultrafine particles.",
-  "Section7.S7In2s10": "I. Hazard: Infectious or biological agents.",
-  "Section7.S7In2s11": "I. Hazard: Other articles or substances listed in Appendix D.",
-  "Section7.S7In3": "I. Equipment or services that need Center SMA review and approval.",
-  "Section7.S7In4": "I. Reviewed under NPR 1800.1 chapter 4 and NPR 8715.1 for risks, controls, alternatives, and safety requirements.",
+  "Section7.S7In1": "The contractor will work partly or completely on a NASA Center.",
+  "Section7.S7In2": "Involves hazardous or potentially hazardous substances or articles (NPR 1800.1, NPR 8715.1).",
+  "Section7.S7In2s1": "Hazard: Ionizing radiation sources and devices.",
+  "Section7.S7In2s2": "Hazard: Lasers and hazardous non-laser optical radiation.",
+  "Section7.S7In2s3": "Hazard: High intensity, ultraviolet, and infrared lights.",
+  "Section7.S7In2s4": "Hazard: Radio frequency (RF) and microwave emitters.",
+  "Section7.S7In2s5": "Hazard: Devices that produce hazardous noise (80 dBA or more at 1 meter or less).",
+  "Section7.S7In2s6": "Hazard: Pyrotechnic devices and explosives.",
+  "Section7.S7In2s7": "Hazard: Pressurized vessels.",
+  "Section7.S7In2s8": "Hazard: Toxic or hazardous substances, materials, or chemicals.",
+  "Section7.S7In2s9": "Hazard: Nano and ultrafine particles.",
+  "Section7.S7In2s10": "Hazard: Infectious or biological agents.",
+  "Section7.S7In2s11": "Hazard: Other articles or substances listed in Appendix D.",
+  "Section7.S7In3": "Equipment or services that need Center SMA review and approval.",
+  "Section7.S7In4": "Reviewed under NPR 1800.1 chapter 4 and NPR 8715.1 for risks, controls, alternatives, and safety requirements.",
 
   "Section8.S8IIn1": "No purchase or fabrication of property with a unit value of $1,000,000 or more to which the government takes title.",
   "Section8.S8IIn2": "Involves property of $1,000,000 or more per item to which the government takes title. NF 1739 is attached.",

@@ -44,3 +44,24 @@ export function methodDisplayLabel(method: string | null | undefined): string {
   const m = String(method ?? "");
   return m.replace(/\bFAR 13\.5\b/g, "RFO FAR 12.201-1");
 }
+
+/**
+ * Dollar value above which NFS CG 1807.11(e) expects a written acquisition
+ * plan (at or below $10 million, Center procedures apply unless FAR 7.102(d)
+ * conditions do).
+ */
+export const WRITTEN_ACQUISITION_PLAN_THRESHOLD = 10_000_000;
+
+/**
+ * IGCE citation for a file. Simplified buys keep the simplified price cite.
+ * Other buys rest on RFO FAR 15.404-1(b)(5) (comparison of proposed prices with
+ * independent Government cost estimates); where a written acquisition plan
+ * applies, NFS CG 1807.14(b)(3) also requires the plan's cost/price element to
+ * provide the IGCE.
+ */
+export function igceCite(method: string | null | undefined, value: number): string {
+  if (/13/.test(String(method ?? ""))) return simplifiedPriceCite(method);
+  return value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
+    ? "NFS CG 1807.14(b)(3); RFO FAR 15.404-1(b)(5)"
+    : "RFO FAR 15.404-1(b)(5)";
+}
