@@ -1121,13 +1121,13 @@ M.1,,M,M.1,"Aug 7, 2026 3:25 PM",'-,other,not in PCD 26-03B matrix (verify),,,,,
 52.225-1,,I,25.601(a)(1)(i),"Aug 21, 2026 4:12 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.225-1,JAN 2026 (PCD 26-03)
 52.233-1,,I,33.205-9(a),"Aug 21, 2026 4:27 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.233-1,JAN 2026 (PCD 26-03)
 52.233-3,,I,33.107(b),"Aug 21, 2026 4:28 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.233-3,JAN 2026 (PCD 26-03)
-52.240-90,,K,40.205(a),"Aug 21, 2026 4:36 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-91,,I,40.205(b),"Aug 21, 2026 4:36 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-91,,I,40.205(c),"Aug 21, 2026 4:37 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
+52.240-90,,K,40.205(a),"Aug 21, 2026 4:36 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-90,"MAR 2026 (PCD 26-03, FAC 2026-01)"
+52.240-91,,I,40.205(b),"Aug 21, 2026 4:36 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-91,JAN 2026 (PCD 26-03)
+52.240-91,,I,40.205(c),"Aug 21, 2026 4:37 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-91 Alt. I,JAN 2026 (PCD 26-03)
 52.240-92,,I,40.302-3(a),"Aug 21, 2026 4:37 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
 52.240-92,,I,40.302-3(b),"Aug 21, 2026 4:37 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
 52.240-92,,I,40.302-3(c),"Aug 21, 2026 4:37 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-93,,I,40.303-2,"Aug 21, 2026 4:38 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
+52.240-93,,I,40.303-2,"Aug 21, 2026 4:38 PM",'-,FAR,moved (PCD 26-03B),,,,Moved,52.240-93,JAN 2026 (PCD 26-03)
 52.243-1,,I,43.305(a)(1),"Aug 21, 2026 4:38 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.243-1,JAN 2026 (PCD 26-03)
 52.253-1,,I,53.111,"Aug 21, 2026 4:45 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.253-1,JAN 2026 (PCD 26-03)
 52.222-50,,I,22.1703-2(a)(1),"Aug 21, 2026 4:04 PM",'-,FAR,updated (PCD 26-03B),,,,Updated,52.222-50,JAN 2026 (PCD 26-03)
@@ -1350,11 +1350,11 @@ C-301.6,,C,C-301.6,"Jul 30, 2026 1:28 PM",'-,other,not in PCD 26-03B matrix (ver
 52.216-12,,I,16.305(f)(2),"Aug 24, 2026 1:40 PM",'-,FAR,no change (PCD 26-03B),,,,No Change,52.216-12,1984-04-01 00:00:00
 52.204-90,,K,4.208(c)(1),"Sep 3, 2026 1:01 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
 52.204-91,,I,4.208(c)(2),"Sep 3, 2026 1:07 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-90,,K,40.205(a),"Sep 3, 2026 1:52 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-91,,I,40.205(b),"Sep 3, 2026 2:43 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-91,,I,40.205(c),"Sep 3, 2026 2:51 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
+52.240-90,,K,40.205(a),"Sep 3, 2026 1:52 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-90,"MAR 2026 (PCD 26-03, FAC 2026-01)"
+52.240-91,,I,40.205(b),"Sep 3, 2026 2:43 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-91,JAN 2026 (PCD 26-03)
+52.240-91,,I,40.205(c),"Sep 3, 2026 2:51 PM",'-,FAR,new (PCD 26-03B),,,,New,52.240-91 Alt. I,JAN 2026 (PCD 26-03)
 52.240-92,,I,40.302-3,"Sep 3, 2026 2:58 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
 52.240-92,,I,40.302-3(b),"Sep 3, 2026 3:01 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
 52.240-92,,I,40.302-3(c),"Sep 3, 2026 3:03 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
-52.240-93,,I,40.303-2,"Sep 3, 2026 3:06 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
+52.240-93,,I,40.303-2,"Sep 3, 2026 3:06 PM",'-,FAR,moved (PCD 26-03B),,,,Moved,52.240-93,JAN 2026 (PCD 26-03)
 52.232-90,,I,32.1204,"Sep 3, 2026 3:09 PM",'-,FAR,not in PCD 26-03B matrix (verify),,,,,,
