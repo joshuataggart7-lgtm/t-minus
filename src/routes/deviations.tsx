@@ -22,7 +22,7 @@ export const Route = createFileRoute("/deviations")({
       { title: "Deviations and waivers — T-Minus" },
       {
         name: "description",
-        content: "FAR and NFS deviation requests, each with its legal, policy and HCA poll and its own clock.",
+        content: "FAR and NFS deviation requests, each with its legal, policy and HCA review board and its own clock.",
       },
       { property: "og:title", content: "Deviations and waivers — T-Minus" },
       {
@@ -40,7 +40,7 @@ const inputClass = "mt-1 w-full border border-border bg-background px-3 py-2 tex
 
 function statusColor(row: DeviationRow) {
   if (row.decision === "approved") return "var(--mc-readiness-go)";
-  if (row.decision === "denied") return "var(--mc-readiness-hold)";
+  if (row.decision === "denied" || row.decision === "disapproved") return "var(--mc-readiness-hold)";
   return row.clock_state === "running" ? "var(--mc-readiness-watch)" : "var(--muted-foreground)";
 }
 
@@ -121,7 +121,7 @@ function DeviationsPage() {
     <AppShell>
       <PageHeader
         title="Deviations and waivers"
-        lead="FAR and NFS deviation requests, each with its own poll and its own clock to the decision."
+        lead="FAR and NFS deviation requests, each with its own review board (Approve or Disapprove) and its own clock to the decision."
       />
       {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 

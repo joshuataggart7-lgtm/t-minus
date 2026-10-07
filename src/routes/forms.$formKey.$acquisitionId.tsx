@@ -1,4 +1,5 @@
 import { writeAudit } from "@/lib/audit";
+import { retiredNote } from "@/lib/file-index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { mappingsFor } from "@/lib/form-field-mappings";
@@ -885,7 +886,7 @@ function FormPage() {
         detail={[
           form?.citation ? String(form.citation) : null,
           latest
-            ? `Saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}`
+            ? `Saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}${retiredNote(latest.field_values) ? `. ${retiredNote(latest.field_values)}` : ""}`
             : "No version saved yet",
         ].filter(Boolean).join(" · ")}
       />

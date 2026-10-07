@@ -162,6 +162,10 @@ function RequesterPortal() {
                     {String(acq['title'] ?? id)}
                   </Link>
                 </h2>
+                {/* Same copy tag as Files: a copied sample names the file it came from. */}
+                {String(acq['source_tag'] ?? "").startsWith("Copy of") ? (
+                  <p className="mt-1 text-[12px] text-muted-foreground">{String(acq['source_tag'])}</p>
+                ) : null}
 
                 <div className="mt-4 grid gap-8 lg:grid-cols-2">
                   <div>

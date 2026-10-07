@@ -129,7 +129,7 @@ import {
 import { downloadDocxBytes } from "@/lib/rfp-cover-docx";
 import { applyMemoDraft, draftMemoBody, draftedKeys, jofocAuthorityDefault, jofocNoticeStatus, mfrPurposeLabel, samNoticeAuthority, repairSavedSamResponseRule, type PacketClauseLine, type ResearchLogLine } from "@/lib/memo-draft";
 import { selectPacketClauses, type ClauseRow } from "@/lib/clause-packet";
-import { tabRank } from "@/lib/file-index";
+import { isSupersededAttachmentKey, retiredNote, tabRank } from "@/lib/file-index";
 import { ShowTheText, useCitationTextState } from "@/components/show-the-text";
 import { Nova } from "@/components/nova";
 import type { FindingMap } from "@/lib/research-findings";
@@ -1133,10 +1133,10 @@ function DocumentPage() {
     );
     const items: { tab: string; label: string }[] = [
       ...(q.data?.attachments ?? [])
-        .filter((a) => !officialExportKeys.has(a.doc_key))
+        .filter((a) => !officialExportKeys.has(a.doc_key) && !isSupersededAttachmentKey(a.doc_key))
         .map((a) => ({ tab: String(a.nf_1098_tab ?? ""), label: a.doc_label })),
       ...(q.data?.fileDocRows ?? [])
-        .filter((d) => d.templates?.name)
+        .filter((d) => d.templates?.name && !retiredNote(d.field_values))
         .map((d) => ({ tab: String(d.templates?.nf_1098_tab ?? ""), label: d.templates!.name })),
     ].filter((i) => i.label);
     const seen = new Set<string>();

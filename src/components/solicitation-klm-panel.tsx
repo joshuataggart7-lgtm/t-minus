@@ -258,7 +258,7 @@ export function SolicitationKlmPanel({
         <h4 className="text-[15px] font-medium">Sections K, L and M</h4>
         <span className="text-[13px] text-muted-foreground">
           {shell.methodLabel} · {shell.path === "sf1449" ? "SF 1449" : "Uniform Contract Format"} ·{" "}
-          {part15 ? "RFO FAR Part 15" : "FAR Parts 12 and 13"}
+          {shell.partLabel}
         </span>
       </div>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{shell.formatSource}</p>
@@ -411,7 +411,7 @@ export function SolicitationKlmPanel({
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
           {part15
             ? "Part 15 voice: proposal volumes, page limits and submission instructions ride in Section L."
-            : "Part 12 and 13 voice: quotations are submitted to the contracting officer under the commercial instructions on this file."}{" "}
+            : `${shell.partLabel.replace("RFO FAR ", "")} voice: quotations are submitted to the contracting officer under the ${shell.partLabel === "RFO FAR Part 12" ? "commercial " : ""}instructions on this file.`}{" "}
           Blank fields print “Not recorded”.
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -498,7 +498,7 @@ export function SolicitationKlmPanel({
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
               {part15
                 ? "Part 15 voice: factors and their relative importance are stated to offerors under RFO FAR 15.104, and the evaluation record follows RFO FAR 15.202."
-                : "Part 12 and 13 voice: factors are stated in the solicitation and the evaluation of quotations records the result."}
+                : `${shell.partLabel.replace("RFO FAR ", "")} voice: factors are stated in the solicitation and the evaluation of quotations records the result.`}
             </p>
             {basisQ.data && !mQ.data ? (
               <p className="mt-2 text-[13px] text-muted-foreground">

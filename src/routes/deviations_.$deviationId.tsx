@@ -10,10 +10,13 @@ import {
   DEVIATION_REVIEWERS,
   DEVIATION_TEMPLATE,
   DEVIATION_TYPES,
+  DEVIATION_VOTE_LABEL,
   addDays,
   boardSummary,
   deviationBoard,
+  deviationAuthority,
   deviationClock,
+  isDisapproved,
   loadDeviation,
   logDeviation,
 } from "@/lib/deviations";
@@ -22,9 +25,9 @@ export const Route = createFileRoute("/deviations_/$deviationId")({
   head: () => ({
     meta: [
       { title: "Deviation request — T-Minus" },
-      { name: "description", content: "A FAR or NFS deviation request with its poll, its clock and its decision." },
+      { name: "description", content: "A FAR or NFS deviation request with its review board, its clock and its decision." },
       { property: "og:title", content: "Deviation request — T-Minus" },
-      { property: "og:description", content: "Legal, policy and HCA votes on one deviation request." },
+      { property: "og:description", content: "Legal, policy and HCA Approve or Disapprove on one deviation request." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -87,7 +90,7 @@ function DeviationDetail() {
         field: "clock_state",
         oldValue: "not started",
         newValue: `running; decision due ${target}`,
-        reason: `${DEVIATION_TEMPLATE.name}; legal, policy and HCA poll opened`,
+        reason: `${DEVIATION_TEMPLATE.name}; legal, policy and HCA review requested`,
       });
     },
     onSuccess: () => void refresh(),
@@ -95,13 +98,13 @@ function DeviationDetail() {
   });
 
   const vote = useMutation({
-    mutationFn: async (v: { voteId: string | null; reviewerRole: string; choice: "Go" | "No-go" }) => {
+    mutationFn: async (v: { voteId: string | null; reviewerRole: string; choice: "approve" | "disapprove" }) => {
       if (!request) return;
       const reason = reasons[v.reviewerRole]?.trim() ?? "";
-      if (v.choice === "No-go" && reason.length < 3) throw new Error("A No-go needs a reason.");
+      if (v.choice === "disapprove" && reason.length < 3) throw new Error("Disapprove needs a written rationale.");
       const patch = {
         vote: v.choice,
-        reason: v.choice === "No-go" ? reason : reason || null,
+        reason: v.choice === "disapprove" ? reason : reason || null,
         reviewer_name: user.name,
         voted_at: new Date().toISOString(),
       };
@@ -114,23 +117,23 @@ function DeviationDetail() {
       await logDeviation({
         acquisitionId: request.acquisition_id,
         actor: user.name,
-        action: `Deviation ${v.choice}`,
+        action: `Deviation review: ${DEVIATION_VOTE_LABEL[v.choice]}`,
         field: `poll.${v.reviewerRole.toLowerCase()}`,
         newValue: v.choice,
-        reason: reason || `${v.reviewerRole} vote on ${request.citation}`,
+        reason: `${DEVIATION_VOTE_LABEL[v.choice]}. ${user.name}, ${v.reviewerRole}, ${new Date().toISOString().slice(0, 10)}.${reason ? ` Rationale: ${reason}` : ""}`,
       });
     },
     onSuccess: () => {
       setMessage(null);
       void refresh();
     },
-    onError: (e) => setMessage(e instanceof Error ? e.message : "The vote was not recorded."),
+    onError: (e) => setMessage(e instanceof Error ? e.message : "The review decision was not recorded."),
   });
 
   const decide = useMutation({
-    mutationFn: async (decision: "approved" | "denied") => {
+    mutationFn: async (decision: "approved" | "disapproved") => {
       if (!request) return;
-      if (decision === "denied" && decisionReason.trim().length < 3) throw new Error("A denial needs a reason.");
+      if (decision === "disapproved" && decisionReason.trim().length < 3) throw new Error("Disapprove needs a written rationale.");
       const { error } = await supabase
         .from("deviation_requests")
         .update({
@@ -149,7 +152,7 @@ function DeviationDetail() {
         action: `Deviation ${decision}`,
         field: "decision",
         newValue: decision,
-        reason: decisionReason.trim() || `HCA decision on ${request.citation} (RFO FAR 1.304)`,
+        reason: `${decision === "approved" ? "Approved" : "Disapproved"} by ${user.name} on ${request.citation} (${deviationAuthority(request.deviation_type).citation})${decisionReason.trim() ? `. Rationale: ${decisionReason.trim()}` : ""}`,
       });
     },
     onSuccess: () => void refresh(),
@@ -261,7 +264,7 @@ function DeviationDetail() {
       </section>
 
       <section className="mb-10">
-        <h2 className="mb-3 text-[18px] leading-6 font-medium">Go / No-go poll</h2>
+        <h2 className="mb-3 text-[18px] leading-6 font-medium">Review board: Approve or Disapprove</h2>
         <p className="mb-3 text-[15px]">{boardSummary(board)}</p>
         <div className="mc-work-table-wrap border border-border bg-background">
         <table className="w-full text-[13px] leading-[18px]">
@@ -269,10 +272,10 @@ function DeviationDetail() {
             <tr className="border-b border-border text-left">
               <th scope="col" className="px-3 py-2 font-medium">Reviewer</th>
               <th scope="col" className="px-3 py-2 font-medium">Due</th>
-              <th scope="col" className="px-3 py-2 font-medium">Vote</th>
-              <th scope="col" className="px-3 py-2 font-medium">Reason</th>
+              <th scope="col" className="px-3 py-2 font-medium">Decision</th>
+              <th scope="col" className="px-3 py-2 font-medium">Rationale</th>
               {canVote && !clock.decided ? (
-                <th scope="col" className="px-3 py-2 font-medium">Record a vote</th>
+                <th scope="col" className="px-3 py-2 font-medium">Record a decision</th>
               ) : null}
             </tr>
           </thead>
@@ -289,17 +292,17 @@ function DeviationDetail() {
                 </td>
                 <td className="px-3 py-2">
                   <StatusMark
-                     color={b.vote === "Go" ? "var(--mc-readiness-go)" : b.vote === "No-go" ? "var(--mc-readiness-hold)" : "var(--muted-foreground)"}
+                     color={b.vote === "approve" ? "var(--mc-readiness-go)" : b.vote === "disapprove" ? "var(--mc-readiness-hold)" : "var(--muted-foreground)"}
                   >
-                    {b.vote === "pending" ? "Not voted" : b.vote}
+                    {DEVIATION_VOTE_LABEL[b.vote]}
                   </StatusMark>
                   {b.reviewer_name ? <span className="block text-muted-foreground">{b.reviewer_name}</span> : null}
                 </td>
-                <td className="px-3 py-2">{b.reason ?? "—"}</td>
+                <td className="px-3 py-2">{b.reason ?? "None recorded"}</td>
                 {canVote && !clock.decided ? (
                   <td className="px-3 py-2">
                     <label htmlFor={`reason-${b.reviewer_role}`} className="block text-muted-foreground">
-                      Reason (required for No-go)
+                      Rationale (required for Disapprove)
                     </label>
                     <input
                       id={`reason-${b.reviewer_role}`}
@@ -311,17 +314,17 @@ function DeviationDetail() {
                       <button
                         type="button"
                         className="border border-border px-3 py-1 text-primary [border-radius:var(--mc-radius-control)]"
-                        onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "Go" })}
+                        onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "approve" })}
                       >
-                        Go
+                        Approve
                       </button>
                       <button
                         type="button"
                         className="border px-3 py-1 [border-radius:var(--mc-radius-control)]"
                         style={{ borderColor: "var(--mc-readiness-hold)", color: "var(--mc-readiness-hold)" }}
-                        onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "No-go" })}
+                        onClick={() => vote.mutate({ voteId: b.vote_id, reviewerRole: b.reviewer_role, choice: "disapprove" })}
                       >
-                        No-go
+                        Disapprove
                       </button>
                     </span>
                   </td>
@@ -335,17 +338,21 @@ function DeviationDetail() {
 
       {canWrite ? (
         <section className="mb-10 max-w-[70ch]">
-          <h2 className="mb-3 text-[18px] leading-6 font-medium">Decision</h2>
+          <h2 className="mb-3 text-[18px] leading-6 font-medium">Decision by the approving official</h2>
+          <p className="mb-3 text-[13px] text-muted-foreground">
+            A deviation is approved by {deviationAuthority(request.deviation_type).official}. Authority:{" "}
+            {deviationAuthority(request.deviation_type).citation}.
+          </p>
           {clock.decided ? (
             <p className="text-[15px]">
-              {request.decision === "approved" ? "Approved" : "Denied"} by {request.decided_by} on{" "}
+              {isDisapproved(request.decision) ? "Disapproved" : "Approved"} by {request.decided_by} on{" "}
               {request.decided_at?.slice(0, 10)}
-              {request.decision_reason ? ` — ${request.decision_reason}` : ""}.
+              {request.decision_reason ? `: ${request.decision_reason}` : ""}.
             </p>
           ) : (
             <>
               <label htmlFor="decision-reason" className="block text-[13px] text-muted-foreground">
-                Reason (required to deny)
+                Rationale (required to disapprove)
               </label>
               <input
                 id="decision-reason"
@@ -365,9 +372,9 @@ function DeviationDetail() {
                   type="button"
                   className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
                   style={{ borderColor: "var(--mc-readiness-hold)", color: "var(--mc-readiness-hold)" }}
-                  onClick={() => decide.mutate("denied")}
+                  onClick={() => decide.mutate("disapproved")}
                 >
-                  Deny the deviation
+                  Disapprove the deviation
                 </button>
               </span>
             </>
