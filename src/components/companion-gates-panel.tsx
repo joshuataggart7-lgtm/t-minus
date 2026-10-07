@@ -14,7 +14,7 @@ export function CompanionGatesPanel({ gates }: { gates: CompanionGate[] }) {
   const applicable = gates.filter((g) => g.applies);
 
   return (
-    <section className="mt-6 max-w-[80ch] border border-border p-4">
+    <section className="mt-6 w-full [&_p]:max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Companion gates</h3>
         <span className="text-[13px] text-muted-foreground" data-numeric>

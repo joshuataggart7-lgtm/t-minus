@@ -12,7 +12,7 @@ const NON_BINDING = "Non-binding practice — not FAR / not NFS.";
 
 export function PracticeLinksPanel() {
   return (
-    <section aria-label="Buying guides and practice guidance" className="mt-6 max-w-[80ch] border border-border p-4">
+    <section aria-label="Buying guides and practice guidance" className="mt-6 w-full [&_p]:max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Buying guides &amp; practice guidance</h3>
         <AdvisoryTag />

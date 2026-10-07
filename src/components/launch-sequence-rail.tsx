@@ -11,6 +11,7 @@ import { phaseOverrunDays } from "@/lib/launch-sequence";
 // the metrics, show a compact T− N. Never fabricated, never red on a
 // healthy current phase.
 
+import { useState } from "react";
 import type { PhaseView } from "@/lib/launch-sequence";
 import { cn } from "@/lib/utils";
 
@@ -18,12 +19,21 @@ export function LaunchSequenceRail({
   phases,
   daysToPhaseExit,
   className,
+  compact = false,
 }: {
   phases: PhaseView[];
   daysToPhaseExit: number | null;
   className?: string;
+  /** Rail view: completed phases as one line, the current phase, the next two. */
+  compact?: boolean;
 }) {
+  const [showAll, setShowAll] = useState(false);
   if (!phases.length) return null;
+  const indexed = phases.map((p, i) => ({ p, i }));
+  const currentIndex = phases.findIndex((p) => p.status === "current");
+  const trimmed = compact && !showAll && currentIndex >= 0;
+  const visible = trimmed ? indexed.filter(({ i }) => i >= currentIndex && i <= currentIndex + 2) : indexed;
+  const completeBefore = trimmed ? phases.slice(0, currentIndex).filter((p) => p.status === "complete").length : 0;
 
   return (
     <nav
@@ -37,13 +47,18 @@ export function LaunchSequenceRail({
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
         Launch Sequence
       </p>
+      {completeBefore > 0 ? (
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          {completeBefore} phase{completeBefore === 1 ? "" : "s"} complete
+        </p>
+      ) : null}
       <ol className="relative min-w-0">
         {/* the vertical connecting line */}
         <span
           aria-hidden
           className="absolute left-[7px] top-2 bottom-2 w-px bg-border"
         />
-        {phases.map((p, i) => {
+        {visible.map(({ p, i }) => {
           const isCurrent = p.status === "current";
           const isComplete = p.status === "complete";
           // The overrun is the same phaseOverrunDays() figure the file page uses.
@@ -109,6 +124,16 @@ export function LaunchSequenceRail({
           );
         })}
       </ol>
+      {compact && currentIndex >= 0 && (showAll || visible.length < phases.length) ? (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          aria-expanded={showAll}
+          className="mt-3 text-[13px] text-primary underline-offset-2 hover:underline"
+        >
+          {showAll ? "Show fewer" : `Show all ${phases.length}`}
+        </button>
+      ) : null}
     </nav>
   );
 }

@@ -78,7 +78,7 @@ export function WhatIfPanel({
   }, [acq, sandboxAcq, plan, thresholds, clauseRows]);
 
   return (
-    <details aria-label="What-if sandbox" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+    <details aria-label="What-if sandbox" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
         What-if sandbox <span className="ml-2 text-[13px] font-normal text-muted-foreground">Sandbox — not saved</span>
       </summary>

@@ -139,7 +139,15 @@ function TemplatesPage() {
                 {sectionHeading}
               </h2>
               <TableScrollRegion baseClassName="mc-work-table-wrap" label={`${sectionHeading} templates`}>
-              <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-sm:block">
+              <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px] max-sm:block">
+                {/* One shared column grid so every tab's table lines up. */}
+                <colgroup className="max-sm:hidden">
+                  <col className="w-[38%]" />
+                  <col className="w-[16%]" />
+                  <col className="w-[30%]" />
+                  <col className="w-[6%]" />
+                  <col className="w-[10%]" />
+                </colgroup>
                 <thead className="max-sm:hidden">
                   <tr className="border-b border-border text-left">
                     <th scope="col" className="px-3 py-2 font-medium">Template</th>

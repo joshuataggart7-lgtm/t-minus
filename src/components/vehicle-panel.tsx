@@ -56,7 +56,7 @@ export function VehiclePanel({
         : `Exception recorded on this file: ${fair.replace(/_/g, " ")}, RFO FAR 16.507-6(b).`;
     const method = String(acq["acquisition_method"] ?? "").trim();
     return (
-      <section aria-label="Parent vehicle" className="mb-10 max-w-[80ch] border-t border-border pt-4">
+      <section aria-label="Parent vehicle" className="mb-10 w-full [&_p]:max-w-[80ch] border-t border-border pt-4">
         <h2 className="text-[18px] leading-6 font-medium">Parent vehicle</h2>
         <p className="mt-2 text-[15px] leading-[22px]">
           {parent

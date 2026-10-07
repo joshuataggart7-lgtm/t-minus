@@ -82,20 +82,20 @@ export function Table12FillinsPanel({
         <p className="mt-2 text-[13px] text-muted-foreground">{TABLE12_EMPTY}</p>
       ) : (
         <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Commercial fill-in slots table, ${regionContext}` : "Commercial fill-in slots table"} className="mt-2">
-<table className="w-full min-w-[720px] text-[13px] leading-[18px]">
+<table className="w-full min-w-[640px] text-[13px] leading-[18px]">
             <caption className="sr-only">Commercial fill-in slots read from this record</caption>
             <thead>
               <tr className="border-y border-border text-left">
                 <th scope="col" className="p-2">Clause</th>
                 <th scope="col" className="p-2">Table</th>
                 <th scope="col" className="p-2">Fill-in fields</th>
-                <th scope="col" className="p-2">Decision</th>
+                <th scope="col" className="whitespace-nowrap p-2">Decision</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.clause_number} className="border-b border-border align-top">
-                  <td className="p-2">
+                  <td className="whitespace-normal p-2">
                     {r.clause_number}
                     <div className="text-muted-foreground">{r.title}</div>
                   </td>
@@ -112,7 +112,7 @@ export function Table12FillinsPanel({
                       ))}
                     </ul>
                   </td>
-                  <td className="p-2">
+                  <td className="whitespace-nowrap p-2">
                     {confirmed.includes(r.clause_number) ? (
                       "Confirmed"
                     ) : canWrite ? (

@@ -887,36 +887,23 @@ function FormPage() {
         nav={<MissionNavigator items={formNavItems} label="In this form" ariaLabel="In this form" />}
       >
       <div className="mc-shell-form-content">
-      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
-        <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
-        <p className="text-[13px] text-muted-foreground">
-          <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
-        </p>
-      </div>
-      <p className="mc-work-summary mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-        {headerLine}
-        {form?.citation ? ` · ${form.citation}` : ""}
-        {pinnedRevision ? ` · blank revision ${pinnedRevision}` : ""}
-        {formTemplateId === "sf1449"
-          ? " · official PDF export: Live"
-          : formTemplateId
-            ? ` · official PDF export: ${officialExportStatus}`
-            : ""}
-
-        {latest ? ` · saved version ${latest.version}${latest.saved_at ? `, ${String(latest.saved_at).slice(0, 10)}` : ""}${latest.saved_by ? `, by ${latest.saved_by}` : ""}` : " · no version saved yet"}
+      <p className="mb-4 text-[13px] text-muted-foreground">
+        <DocReadCount acquisitionId={acquisitionId} docKind="form" docKey={formKey} />
       </p>
       {/* Every filled export says what it is and what it is not. */}
-      <p className="mc-work-form-section mb-6 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-        Prototype. Not an official NASA system.
+      <p className="mc-work-form-section mb-6 w-full text-[13px] leading-[18px] text-muted-foreground">
+        <span className="block max-w-[80ch]">Prototype. Not an official NASA system.
         {/^A-2027-010[12]$/.test(acquisitionId) ? " Sample file." : ""} Filled from the T-Minus record for review and
         signature. It is not the NCMS document of record (NFS CG 1804.11(b)). Signature blocks are left empty. Fields the record
-        does not carry read “Not recorded on this file.”
+        does not carry read “Not recorded on this file.”</span>
       </p>
-      <p className="mb-6 text-[15px]">
-        <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
-          Back to the file
-        </Link>
-      </p>
+      {!form ? (
+        <p className="mb-6 text-[15px]">
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="text-primary">
+            Back to the file
+          </Link>
+        </p>
+      ) : null}
 
       {q.isLoading ? <LoadingNote what="the form" /> : null}
       {q.error ? <ErrorNote message={(q.error as Error).message} /> : null}
@@ -1013,6 +1000,12 @@ function FormPage() {
               Export RFP cover (Word)
             </Button>
             </>)}
+            <Button asChild variant="outline">
+              <Link to="/files/$acquisitionId" params={{ acquisitionId }}>
+                Back to the file
+              </Link>
+            </Button>
+            <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
           </div>
           {readOnly ? (
             <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>

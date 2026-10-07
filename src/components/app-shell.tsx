@@ -16,9 +16,16 @@ import {
   BarChart3, BookOpenCheck, Building2, Calculator, CalendarClock, ChevronDown,
   CircleCheckBig, ClipboardCheck, Database, FilePlus2, FolderOpen, Gauge, History,
   Inbox, Layers, LayoutTemplate, Megaphone, Newspaper, PanelLeft, Radar, Rocket,
-  ScrollText, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert, X,
+  ScrollText, Search, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert, X,
   type LucideIcon,
 } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
+/** Initials for the mobile account button: "J. Rivera (fictional CO)" reads "JR". */
+function initialsOf(name: string): string {
+  const words = name.replace(/\(.*?\)/g, " ").split(/[\s.]+/).filter(Boolean);
+  return (words.slice(0, 2).map((w) => w.charAt(0)).join("") || "?").toUpperCase();
+}
 
 
 // Icons are chosen so the meaning reads at a glance beside the label.
@@ -46,6 +53,10 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Below 640px the header keeps one row: search opens on demand and the
+  // account controls live in a sheet.
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
@@ -214,6 +225,35 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
   );
 
 
+  const personaSelect = (id: string, inSheet = false) => (
+    <>
+      <label htmlFor={id} className="sr-only">Signed in as</label>
+      <select
+        id={id}
+        value={role ?? ""}
+        title={SEEDED_USERS.find((u) => u.role === role)?.title}
+        onChange={(e) => {
+          const r = e.target.value as PersonaRole;
+          setRole(r);
+          setAccountOpen(false);
+          const landing = SEEDED_USERS.find((u) => u.role === r)?.landing;
+          if (landing) void navigate({ to: landing });
+        }}
+        className={
+          inSheet
+            ? "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+            : "min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
+        }
+      >
+        {SEEDED_USERS.map((u) => (
+          <option key={u.role} value={u.role} title={`${u.title}, ${u.name}`}>
+            {ROLE_LABELS[u.role]}
+          </option>
+        ))}
+      </select>
+    </>
+  );
+
   return (
     <div className={cn("min-h-screen bg-canvas text-foreground", overviewMode && "mc-overview-shell")}>
       <a
@@ -258,17 +298,34 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
           </a>
         </div>
-        <div className="app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1"><GlobalSearch /></div>
-        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:flex-nowrap xl:justify-end min-[1440px]:gap-x-3">
+        <div className={cn("app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1", mobileSearchOpen ? "" : "max-sm:hidden")}><GlobalSearch /></div>
+        <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 max-sm:col-span-1 max-sm:col-start-2 max-sm:row-start-1 max-sm:flex-nowrap max-sm:justify-end xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:flex-nowrap xl:justify-end min-[1440px]:gap-x-3">
+          <button
+            type="button"
+            onClick={() => setMobileSearchOpen((v) => !v)}
+            aria-label={mobileSearchOpen ? "Close search" : "Search"}
+            aria-expanded={mobileSearchOpen}
+            className="grid size-9 place-items-center rounded-lg text-chrome-muted hover:text-chrome-foreground sm:hidden"
+          >
+            <Search className="size-[18px]" aria-hidden="true" />
+          </button>
           {presenter ? null : <AnnouncementBanner />}
-          <Nova acquisitionId={openAcquisitionId} />
+          <div className="contents max-sm:hidden"><Nova acquisitionId={openAcquisitionId} /></div>
+          <button
+            type="button"
+            onClick={() => setAccountOpen(true)}
+            aria-label={`Account: ${user.name}`}
+            className="grid size-9 shrink-0 place-items-center rounded-full border border-chrome-structure text-[13px] font-medium text-chrome-foreground sm:hidden"
+          >
+            {initialsOf(user.name)}
+          </button>
           {isAdministrator ? (
             <button
               type="button"
               onClick={() => setPresenter(!presenter)}
               aria-pressed={presenter}
               className={cn(
-                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 text-[13px] min-[1440px]:px-3",
+                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 text-[13px] max-sm:hidden min-[1440px]:px-3",
                 presenter ? "text-chrome-foreground" : "text-chrome-muted",
               )}
             >
@@ -276,43 +333,24 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             </button>
           ) : null}
           {isAnonymous ? (
-            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 text-[13px] text-chrome-muted min-[1440px]:px-2">
+            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 text-[13px] text-chrome-muted max-sm:hidden min-[1440px]:px-2">
               Demo
             </span>
           ) : null}
           {canSwitchPersona ? (
-            <>
-              <label htmlFor="role-toggle" className="sr-only">Signed in as</label>
-              <select
-                id="role-toggle"
-                value={role ?? ""}
-                title={SEEDED_USERS.find((u) => u.role === role)?.title}
-                 onChange={(e) => {
-                  const r = e.target.value as PersonaRole;
-                  setRole(r);
-                  const landing = SEEDED_USERS.find((u) => u.role === r)?.landing;
-                  if (landing) void navigate({ to: landing });
-                }}
-                className="min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
-              >
-                {SEEDED_USERS.map((u) => (
-                  <option key={u.role} value={u.role}>
-                    {u.title} — {u.name}
-                  </option>
-                ))}
-              </select>
-            </>
+            <span className="contents max-sm:hidden">{personaSelect("role-toggle")}</span>
           ) : null}
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2 max-sm:hidden">
             <Link
               to="/center-config"
               hash="my-record"
-              className="min-w-0 max-w-20 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
+              className="min-w-0 max-w-32 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
               title={user.name}
             >
               {user.name}
             </Link>
-            <span
+            {/* The persona select already names the role; the chip shows only without it. */}
+            {canSwitchPersona ? null : <span
               className="flex min-w-0 items-center gap-1 overflow-hidden"
               title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
             >
@@ -326,17 +364,51 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                   +{roles.length - 1}
                 </span>
               ) : null}
-            </span>
+            </span>}
           </div>
           <button
             type="button"
             onClick={() => void signOut()}
-            className="shrink-0 text-[13px] text-chrome-foreground hover:text-chrome-foreground"
+            className="shrink-0 text-[13px] text-chrome-foreground hover:text-chrome-foreground max-sm:hidden"
           >
             Sign out
           </button>
         </div>
       </header>
+
+      <Sheet open={accountOpen} onOpenChange={setAccountOpen}>
+        <SheetContent side="right" className="w-[min(320px,90vw)]">
+          <SheetHeader>
+            <SheetTitle>Account</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 grid gap-4 text-[15px]">
+            <Link to="/center-config" hash="my-record" onClick={() => setAccountOpen(false)} className="text-primary">
+              {user.name}
+            </Link>
+            {canSwitchPersona ? (
+              <div className="grid gap-1">
+                <span className="text-[13px] text-muted-foreground">Signed in as</span>
+                {personaSelect("role-toggle-mobile", true)}
+              </div>
+            ) : (
+              <p className="text-[13px] text-muted-foreground">{roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}</p>
+            )}
+            {isAnonymous || presenter ? (
+              <p className="text-[13px] text-muted-foreground">
+                {[isAnonymous ? "Demo session" : null, presenter ? "Presenter mode on" : null].filter(Boolean).join(" · ")}
+              </p>
+            ) : null}
+            {isAdministrator ? (
+              <button type="button" onClick={() => setPresenter(!presenter)} aria-pressed={presenter} className="justify-self-start rounded-lg border border-border px-3 py-1.5 text-[13px]">
+                Presenter
+              </button>
+            ) : null}
+            <button type="button" onClick={() => { setAccountOpen(false); void signOut(); }} className="justify-self-start text-primary">
+              Sign out
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
        <div id="urgent-announcement-slot" {...inertProps} />
 
@@ -347,7 +419,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           aria-hidden="true"
           className={cn(
             "chrome-rail pointer-events-none absolute inset-y-0 left-0 hidden border-r border-chrome-structure lg:block",
-            collapsed ? "w-14" : overviewMode ? "w-48" : "w-60",
+            collapsed ? "w-14" : "w-60",
           )}
         />
         {drawerOpen ? (
@@ -365,7 +437,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           className={cn(
             "chrome-rail min-h-[calc(100vh-56px)] shrink-0 border-r border-chrome-structure text-chrome-foreground transition-[width] duration-150 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:w-72 max-lg:max-w-[85vw] max-lg:overflow-y-auto lg:sticky lg:top-[var(--app-header-h,56px)] lg:self-start lg:h-[calc(100vh-var(--app-header-h,56px))] lg:min-h-0 lg:overflow-y-auto",
             !drawerOpen && "max-lg:hidden",
-            collapsed ? "lg:w-14" : overviewMode ? "lg:w-48" : "lg:w-60",
+            collapsed ? "lg:w-14" : "lg:w-60",
           )}
         >
           <div className="py-3">
