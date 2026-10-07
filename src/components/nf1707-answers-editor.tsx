@@ -15,6 +15,7 @@ import {
   mappedNf1707,
   type NfAnswers,
 } from "@/components/nf1707-intake";
+import { DemoFieldset, LockHint, useDemoLocked } from "@/components/demo-lock";
 
 /**
  * Edit and save the NF 1707 answers on an existing file. The record keeps the
@@ -65,6 +66,7 @@ export function Nf1707AnswersEditor({
     setAnswers(next);
   };
 
+  const demoLocked = useDemoLocked();
   const save = async () => {
     if (await isDemoSession()) {
       setMessage(DEMO_READ_ONLY_NOTE);
@@ -109,18 +111,26 @@ export function Nf1707AnswersEditor({
 
   return (
     <details className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
-      <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-6">Edit NF 1707 answers</summary>
+      <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-6">
+        {demoLocked ? "NF 1707 answers" : "Edit NF 1707 answers"}
+      </summary>
       <div className="border-t border-border px-5 pb-5">
-        {canWrite ? null : (
+        {demoLocked ? (
+          <LockHint className="mt-3" />
+        ) : canWrite ? null : (
           <p className="mt-3 text-[13px] text-muted-foreground">View only. Sign in as a contracting specialist to save changes.</p>
         )}
-        <Nf1707Intake answers={answers} setAnswers={setTracked} fields={fieldsQ.data ?? []} facts={facts} evmThreshold={0} />
-        <div className="flex flex-wrap items-center gap-4">
-          <Button type="button" onClick={() => void save()} disabled={!canWrite || !dirty || saving}>
-            {saving ? "Saving" : "Save NF 1707 answers"}
-          </Button>
-          {message ? <p role="status" className="text-[15px]">{message}</p> : null}
-        </div>
+        <DemoFieldset>
+          <Nf1707Intake answers={answers} setAnswers={setTracked} fields={fieldsQ.data ?? []} facts={facts} evmThreshold={0} />
+        </DemoFieldset>
+        {demoLocked ? null : (
+          <div className="flex flex-wrap items-center gap-4">
+            <Button type="button" onClick={() => void save()} disabled={!canWrite || !dirty || saving}>
+              {saving ? "Saving" : "Save NF 1707 answers"}
+            </Button>
+            {message ? <p role="status" className="text-[15px]">{message}</p> : null}
+          </div>
+        )}
       </div>
     </details>
   );

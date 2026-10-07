@@ -168,7 +168,7 @@ function FilesPage() {
       {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {hasAnyRole(["specialist", "requester", "hq"]) && !readOnly ? (
         <Link to="/intake" className="mb-6 inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
-          Start an intake
+          {readOnly ? "See the intake form" : "Start an intake"}
         </Link>
       ) : null}
       {q.isLoading ? <LoadingNote what="the files" layout="table" /> : null}
@@ -240,7 +240,7 @@ function FilesPage() {
         </TableScrollRegion>
       ) : q.isLoading || q.isError ? null : (
         <EmptyState sentence="No files are on the clock yet." action={
-          <Link to="/intake" className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">Start an intake</Link>
+          <Link to="/intake" className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">{readOnly ? "See the intake form" : "Start an intake"}</Link>
         } />
       )}
     </AppShell>

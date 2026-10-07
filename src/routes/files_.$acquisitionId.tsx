@@ -68,6 +68,7 @@ import { ClausePicker } from "@/components/clause-picker";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { certifiedDataBasis, CERTIFIED_DATA_LABEL } from "@/lib/certified-data";
 import { AdvisoryTag } from "@/components/advisory-tag";
+import { LockHint } from "@/components/demo-lock";
 import { CLAUSE_FILLIN_NOTE, clauseFillinText } from "@/lib/clause-fillins";
 import { isSimplifiedCommercial } from "@/lib/memo-draft";
 import { SebCockpitPanel } from "@/components/seb-cockpit-panel";
@@ -2603,6 +2604,9 @@ function FilePage() {
             </p>
             <div className="mt-5 flex min-w-0 flex-wrap items-center gap-2">
               {heroAction && canWrite ? primaryAction() : null}
+              {heroAction && !canWrite && readOnly ? (
+                <Button disabled className="max-w-full whitespace-normal text-left">{heroAction.label}</Button>
+              ) : null}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="text-muted-foreground">More</Button>
@@ -2668,6 +2672,7 @@ function FilePage() {
                 />
               ) : null}
             </div>
+            {heroAction && !canWrite && readOnly ? <LockHint className="mt-2" /> : null}
             </div>
           </div>
         </div>
@@ -4594,9 +4599,11 @@ function FilePage() {
       <section className="mb-12 max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
         <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
+        {readOnly ? <LockHint className="mb-3" /> : null}
         <label className="mb-3 flex items-center gap-2 text-[15px]">
           <input
             type="checkbox"
+            disabled={!canWrite}
             checked={!!acq?.hardware_deliverable}
             onChange={(e) =>
               setDirective.mutate({
@@ -4614,6 +4621,7 @@ function FilePage() {
             <label className="mb-3 flex items-center gap-2 text-[15px]">
               <input
                 type="checkbox"
+                disabled={!canWrite}
                 checked={!!acq?.["right_to_repair_statement"]}
                 onChange={(e) =>
                   setDirective.mutate({
@@ -4631,6 +4639,7 @@ function FilePage() {
             </label>
             <select
               id="clause-review"
+              disabled={!canWrite}
               className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
               value={reviewStatus(acq?.["restrictive_clause_review"])}
               onChange={(e) =>
