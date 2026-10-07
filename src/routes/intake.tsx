@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
+import { DemoFieldset, LockHint } from "@/components/demo-lock";
 import { supabase } from "@/integrations/supabase/client";
 import { FAIR_OPPORTUNITY_EXCEPTIONS, VEHICLE_DEFAULTS, type VehicleProfile } from "@/lib/vehicles";
 import { lookupPlaceOfPerformance, type PlaceLookup } from "@/lib/place-of-performance.functions";
@@ -693,7 +694,8 @@ function IntakePage() {
         title="Intake: NF 1707"
         lead="Enter the acquisition once. Every document, check, and record reads from this file."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+      {readOnly ? <p className="mb-2 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+      {readOnly ? <LockHint className="mb-6" /> : null}
 
       <div className="mc-work-toolbar mb-8 flex flex-wrap items-center">
         <button
@@ -715,6 +717,7 @@ function IntakePage() {
         </span>
       </div>
 
+      <DemoFieldset>
       <RequesterPackageDraft
         missions={data.data?.missions ?? []}
         applyFact={(key, nextValue) => set(key, nextValue)}
@@ -1566,6 +1569,7 @@ function IntakePage() {
         facts={facts}
         evmThreshold={Number(data.data?.ref.thresholds.find((threshold) => threshold.name === "Earned value management system applicability")?.value ?? 50_000_000)}
       />
+      </DemoFieldset>
 
 
       {/* Red-flag scan and submit */}

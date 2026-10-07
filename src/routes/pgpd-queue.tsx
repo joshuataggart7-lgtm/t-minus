@@ -11,6 +11,7 @@ import {
   type DefectRow,
   type DefectStatus,
 } from "@/lib/template-defects";
+import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 
 export const Route = createFileRoute("/pgpd-queue")({
   head: () => ({
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/pgpd-queue")({
 });
 
 function PgpdQueuePage() {
-  const { authState, hasRole, user } = useRole();
+  const { authState, hasRole, user, readOnly } = useRole();
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<"all" | DefectStatus>("all");
   const [message, setMessage] = useState<string | null>(null);
@@ -80,6 +81,7 @@ function PgpdQueuePage() {
         title="PGPD queue"
         lead="Defects reported from the templates, with the citation, the revision reported against, and who reported it."
       />
+      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <p className="mb-6 max-w-[80ch] text-[15px] leading-[22px]">
         {(q.data ?? []).length} reported {(q.data ?? []).length === 1 ? "defect" : "defects"}. {open} still open.
@@ -124,7 +126,7 @@ function PgpdQueuePage() {
               <th scope="col" className="px-3 py-2 font-medium">Reported by</th>
               <th scope="col" className="px-3 py-2 font-medium">Reported</th>
               <th scope="col" className="px-3 py-2 font-medium">Status</th>
-              <th scope="col" className="px-3 py-2 font-medium">Remove</th>
+              {readOnly ? null : <th scope="col" className="px-3 py-2 font-medium">Remove</th>}
             </tr>
           </thead>
           <tbody>
@@ -161,6 +163,7 @@ function PgpdQueuePage() {
                     id={`status-${r.defect_id}`}
                     value={DEFECT_STATUSES.includes(r.status as DefectStatus) ? r.status : "open"}
                     onChange={(e) => change.mutate({ row: r, next: e.target.value as DefectStatus })}
+                    disabled={readOnly}
                     className="rounded-lg border border-border bg-background px-2 py-1 text-[13px]"
                   >
                     {DEFECT_STATUSES.map((s) => (
@@ -170,6 +173,7 @@ function PgpdQueuePage() {
                     ))}
                   </select>
                 </td>
+                {readOnly ? null : (
                 <td className="px-3 py-2">
                   <button
                     type="button"
@@ -179,6 +183,7 @@ function PgpdQueuePage() {
                     Remove
                   </button>
                 </td>
+                )}
               </tr>
             ))}
           </tbody>

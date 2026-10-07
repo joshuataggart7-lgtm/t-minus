@@ -159,6 +159,25 @@
     border-color: var(--color-border);
   }
 
+  /* A disabled control reads as unavailable (dimmed, not-allowed cursor). */
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  button:disabled,
+  [aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  input[type="checkbox"]:disabled,
+  input[type="radio"]:disabled {
+    accent-color: var(--muted-foreground);
+  }
+  /* A locked fieldset wrapper dims its controls, not itself. */
+  fieldset.contents[aria-disabled="true"] {
+    opacity: 1;
+    cursor: auto;
+  }
+
   html {
     font-family: var(--font-sans);
   }

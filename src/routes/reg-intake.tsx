@@ -1,5 +1,6 @@
 import { writeAudit } from "@/lib/audit";
 import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
+import { LockHint } from "@/components/demo-lock";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -320,7 +321,8 @@ function RegIntakePage() {
         title="Regulatory data intake"
         lead="HQ loads a new PCD list, clause matrix, template list, or thresholds file. T-Minus shows what changes against what is loaded before anything is written."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+      {readOnly ? <p className="mb-2 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
+      {readOnly ? <LockHint className="mb-6" /> : null}
 
       {!isHq ? (
         <p className="max-w-[80ch] text-muted-foreground">

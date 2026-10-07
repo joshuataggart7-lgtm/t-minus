@@ -16,6 +16,7 @@ import {
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
 import { withResolvedHolds } from "@/lib/hold";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { LockHint } from "@/components/demo-lock";
 
 export const Route = createFileRoute("/escalations")({
   head: () => ({
@@ -42,6 +43,8 @@ function EscalationsPage() {
   const qc = useQueryClient();
   const [banner, setBanner] = useState<string | null>(null);
   const canConfigure = hasRole("hq") && !readOnly;
+  // Demo HQ sees the dimmed input (HQ can change it); other roles read text.
+  const showInput = hasRole("hq");
 
   const q = useQuery({
     queryKey: ["aging-escalations"],
@@ -232,6 +235,7 @@ function EscalationsPage() {
                     {c.center_code} — {c.center_name}
                   </td>
                   <td className="p-2">
+                    {showInput ? (<>
                     <label className="sr-only" htmlFor={`aging-${c.center_code}`}>
                       Aging threshold in days for {c.center_code}
                     </label>
@@ -247,17 +251,18 @@ function EscalationsPage() {
                         setThreshold.mutate({ centerCode: c.center_code, days: Number(e.target.value || 0) })
                       }
                     />
+                    </>) : (
+                      <span className="tabular-nums" data-numeric>
+                        {c.aging_threshold_days ?? DEFAULT_AGING_DAYS} days
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           </TableScrollRegion>
-          {!canConfigure ? (
-            <p className="mt-2 max-w-[70ch] text-[13px] text-muted-foreground">
-              Changing these numbers requires HQ or Administrator.
-            </p>
-          ) : null}
+          {showInput && readOnly ? <LockHint className="mt-2" /> : null}
         </>
       ) : null}
     </AppShell>

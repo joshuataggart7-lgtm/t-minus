@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { runSamEntityCheck, type SamCheckView } from "@/lib/sam-check.functions";
+import { LockHint, useDemoLocked } from "@/components/demo-lock";
 
 export const Route = createFileRoute("/checks")({
   head: () => ({
@@ -53,6 +54,7 @@ function ChecksPage() {
     onSuccess: setResult,
   });
   const allowed = hasAnyRole(["specialist", "reviewer", "hq"]);
+  const demoLocked = useDemoLocked();
 
   return (
     <AppShell>
@@ -98,7 +100,7 @@ function ChecksPage() {
         )}
         <Button
           className="mt-4"
-          disabled={!allowed || check.isPending || (mode === "live" && uei.trim().length < 3)}
+          disabled={demoLocked || !allowed || check.isPending || (mode === "live" && uei.trim().length < 3)}
           onClick={() => {
             setResult(null);
             check.mutate();
@@ -106,7 +108,9 @@ function ChecksPage() {
         >
           {check.isPending ? "Checking" : mode === "record" ? "Run record check" : "Run live check"}
         </Button>
-        {!allowed ? (
+        {demoLocked ? (
+          <LockHint className="mt-3" />
+        ) : !allowed ? (
           <p className="mt-3 text-[13px] text-muted-foreground">Switch to contracting, reviewer, or HQ to run a check.</p>
         ) : null}
         {check.isError ? (
