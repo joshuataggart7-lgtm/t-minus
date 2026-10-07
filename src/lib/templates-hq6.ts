@@ -442,7 +442,7 @@ const postawardConference: TemplateDef = {
     },
     conferenceSection("general", "Contract administration — general", "FAR 1.602", [
       ["a1", "Function and authority of Government personnel", "FAR 1.602"],
-      ["a2", "Personal vs. nonpersonal services", "FAR 37.104"],
+      ["a2", "Personal vs. nonpersonal services", "RFO FAR 37.201-2; RFO FAR 37.202-1"],
       ["a3", "Technical direction and contracting officer's representative delegations", "NFS 1801.602-2; NF 1634"],
       ["a4", "Contract administration delegations", "NFS 1842.102; NFS Subpart 1842.2; NF 1430; NF 1433"],
       ["a5", "On-site performance, access and personal identity verification", "FAR 52.204-9"],

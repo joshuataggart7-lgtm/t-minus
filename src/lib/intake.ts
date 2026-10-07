@@ -294,7 +294,10 @@ export function addDays(iso: string, days: number) {
   return addCalendarDays(iso, days);
 }
 
-export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
+/** Files staged on the intake screen, which the facts themselves do not carry. */
+export type IntakeDocs = { pr?: boolean; nf1707?: boolean };
+
+export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): RedFlag[] {
   const flags: RedFlag[] = [];
   const value = parseMoney(f.estimated_value) ?? 0;
 
@@ -317,6 +320,28 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData): RedFlag[] {
       detail: "Attach the SOW or PWS so the requirement can be solicited as written. Requiring it before the clock starts is a T-Minus/Center rule, not a FAR requirement.",
       citation: "RFO FAR 11.102(a)(2)(i); RFO FAR 37.301-1(c); RFO FAR 7.503",
       blocking: true,
+    });
+
+  // NFS CG 1807.711: the PR is developed in Core Financial, solicitations wait
+  // for the funds certification, and an NF 1707 not already given to the
+  // procurement office must accompany the PR. These are CG procedures; T-Minus
+  // shows them as attention flags and does not hold the clock for them.
+  if (docs && !docs.pr && !String(f.pr_number ?? "").trim())
+    flags.push({
+      id: "pr",
+      title: "No purchase request number or copy on the file",
+      detail: "Record the PR number from Core Financial or attach the PR. A solicitation waits for the PR's funds certification. T-Minus does not hold the clock for this.",
+      citation: "NFS CG 1807.711(b) and (c)",
+      blocking: false,
+    });
+
+  if (docs && !docs.nf1707)
+    flags.push({
+      id: "nf1707",
+      title: "Signed NF 1707 from the requester not attached",
+      detail: "Attach the approved, dated NF 1707. If it was not given to the procurement office earlier, it must accompany the purchase request. It is not needed for a within-scope action whose approvals were already obtained. T-Minus does not hold the clock for this.",
+      citation: "NFS CG 1807.711(a) and (b)",
+      blocking: false,
     });
 
   const ceiling = threshold(ref, "Commercial simplified procedures ceiling");

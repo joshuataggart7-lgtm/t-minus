@@ -23,7 +23,7 @@ export const NF1707_SECTION_TITLES: Record<number, string> = {
  * The form's own statement text is left as printed on the 03/25 blank.
  */
 export const NF1707_SECTION_NOTES: Record<number, string> = {
-  4: "Note: Item 1 quotes the form's references (FAR 37.104, NFS 1837.104), which predate the RFO. Personal services are now at RFO FAR 37.201 and 37.202-1, and the interim NFS covers them at NFS 1837.201-1.",
+  4: "Note: Items 1 and 4 quote the form's references, which predate the RFO. Personal services (item 1, FAR 37.104, NFS 1837.104) are now at RFO FAR 37.201 and 37.202-1, and the interim NFS covers them at NFS 1837.201-1. Advisory and assistance services (item 4, FAR 2.1, FAR 37.204, NFS 1837.204) are defined at RFO FAR 2.101 and covered by RFO FAR subpart 37.4; the interim NFS has no 1837.204.",
 };
 
 export const NF1707_CELL_TEXT: Record<string, string> = {

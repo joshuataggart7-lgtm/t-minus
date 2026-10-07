@@ -251,7 +251,7 @@ export function modRows(
   if ((mod.mod_type === "change_order" || mod.mod_type === "supplemental") && value > sat) {
     rows.push({
       label: "Price negotiation memorandum for the modification",
-      citation: simplified ? simplifiedPriceCite(opts.method) : "FAR 15.406-3",
+      citation: simplified ? simplifiedPriceCite(opts.method) : "RFO FAR 15.408-2(a)",
       state: "required",
       templateKey: "pnm",
     });

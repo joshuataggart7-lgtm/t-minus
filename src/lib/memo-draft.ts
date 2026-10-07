@@ -174,7 +174,7 @@ export function isSimplifiedCommercial(acq: Record<string, unknown>): boolean {
 
 /** The price-analysis citation this record calls for. */
 export function priceAnalysisCitation(acq: Record<string, unknown>): string {
-  return isSimplifiedCommercial(acq) ? simplifiedPriceCite(str(acq["acquisition_method"])) : "FAR 15.404-1";
+  return isSimplifiedCommercial(acq) ? simplifiedPriceCite(str(acq["acquisition_method"])) : "RFO FAR 15.404-1(b)";
 }
 
 /**
@@ -1214,9 +1214,9 @@ function priceNegotiation(ctx: MemoDraftCtx): Values {
           record: `This memorandum is the determination of record under ${simplifiedPriceCite(str(a["acquisition_method"]))}.`,
         }
       : {
-          analysis: "FAR 15.404-1",
+          analysis: "RFO FAR 15.404-1(b)(2) and (b)(5)",
           record:
-            "This memorandum is the documentation of negotiation required by FAR 15.406-3, in the format at FAR 15.408-2 and the process in NFS CG 1815.48.",
+            "This memorandum is the documentation of negotiation required by RFO FAR 15.408-2(a), prepared under NFS CG 1815.49.",
         };
     out["negotiation_summary"] = `Price reasonableness was established under ${priceProseCite.analysis}, comparing the proposed price of ${
       dollars(a["proposed_price"]) || "the amount on the record"

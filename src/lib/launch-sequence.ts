@@ -162,16 +162,16 @@ export function acquisitionTypeWords(acq: AcqRow) {
   const methodWords = /13\.5/.test(method)
     ? "RFO FAR 12.201-1"
     : /13/.test(method)
-      ? "FAR 13"
+      ? "RFO FAR Part 13"
       : /15/.test(method)
-        ? "FAR 15"
+        ? "RFO FAR Part 15"
         : /8\.4/.test(method)
-          ? "FAR 8.4"
+          ? "RFO FAR subpart 8.4"
           : /12/.test(method)
-            ? "FAR 12"
+            ? "RFO FAR Part 12"
             : commercial
               ? "RFO FAR 12.201-1"
-              : "FAR 15";
+              : "RFO FAR Part 15";
   const competition = String(acq.competition ?? "");
   const compWords = /sole/i.test(competition)
     ? "sole source"
@@ -194,7 +194,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); RFO FAR 13.203(a) on a noncommercial simplified file",
   "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
   "Go/No-go Poll": "Center policy for the review chain",
-  Award: "FAR 13.302-3; NFS CG 1804.11(b) (award written in NCMS)",
+  Award: "RFO FAR 12.204 (award); RFO FAR 13.203 on a noncommercial simplified file; NFS CG 1804.11(b) (award written in NCMS)",
   "FPDS-NG Report": "RFO FAR 4.301 (contract action reporting)",
   Administration: "FAR Part 42; RFO FAR 4.101 (contract file)",
   Closeout: "RFO FAR 4.308 (contract closeout)",
@@ -215,10 +215,10 @@ const COMMERCIAL_PHASE_CITATIONS: Record<string, string> = {
 /** Negotiated Part 15 citations, used where the simplified ones do not apply. */
 const PART_15_PHASE_CITATIONS: Record<string, string> = {
   Synopsis: "RFO FAR 5.101 (presolicitation notice)",
-  "Solicitation/Quote": "FAR 15.203; NFS CG 1804.11(b) (NCMS is the system of record)",
-  "Technical Evaluation": "FAR 15.305 (proposal evaluation)",
-  "Price Reasonableness": "FAR 15.406-3 (price negotiation memorandum); FAR 15.404-1",
-  Award: "FAR 15.504; NFS CG 1804.11(b) (award written in NCMS)",
+  "Solicitation/Quote": "RFO FAR 15.102 (structuring a request for proposals); NFS CG 1804.11(b) (NCMS is the system of record)",
+  "Technical Evaluation": "RFO FAR 15.202 (evaluating competitive proposals)",
+  "Price Reasonableness": "RFO FAR 15.404-1(b) (price analysis techniques); RFO FAR 15.408-2(a) (price negotiation memorandum)",
+  Award: "RFO FAR 15.207-1 (award to successful offeror); NFS CG 1804.11(b) (award written in NCMS)",
 };
 
 /** The citation a phase carries on this record's path. */

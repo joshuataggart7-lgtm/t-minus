@@ -398,7 +398,7 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => c.s.deliverable === "services",
     docs: [
       { doc_key: "qasp", label: "Quality assurance surveillance plan", citation: "FAR 37.601(b)(3); FAR 46.401", phase: "Solicitation/Quote", state: "offered", templateKey: "qasp", tab: "NA" },
-      { doc_key: "drd-template", label: "Data requirements description", citation: "NFS Appendix C; NFS 1804.7103", phase: "Solicitation/Quote", state: "offered", templateKey: "drd-template", tab: "DRD" },
+      { doc_key: "drd-template", label: "Data requirements description", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "drd-template", tab: "DRD" },
     ],
   },
 
@@ -480,7 +480,7 @@ export const TRIGGERS: TriggerDef[] = [
       { doc_key: "drfp-cover-letter", label: "Draft RFP cover letter", citation: "RFO FAR 15.101(b); NFS CG 1815.11(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "drfp-cover-letter", tab: "037" },
       { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "FAR 15.203; NFS CG 1815.12(b)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "040" },
       { doc_key: "blackout-notice", label: "Blackout notice", citation: "RFO FAR 15.201(c)(1); NFS CG 1815.11(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "039" },
-      { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS 1804.7103", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "38" },
+      { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS CG 1804.93", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "38" },
       { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1801.6", phase: "Solicitation/Quote", state: "offered", tab: "020" },
       { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "FAR 52.222-46; FAR 22.1103", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
       { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "010" },
@@ -492,7 +492,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "FAR Part 15, sole source",
     when: (c) => far15(c) && c.sole,
     docs: [
-      { doc_key: "rfp-noncompetitive", label: "RFP for a non-competitive new award", citation: "FAR 15.203(e)", phase: "Solicitation/Quote", state: "required", templateKey: "rfp-noncompetitive", tab: "040" },
+      { doc_key: "rfp-noncompetitive", label: "RFP for a non-competitive new award", citation: "RFO FAR 15.102(b)(1)(i); NFS CG 1815.01", phase: "Solicitation/Quote", state: "required", templateKey: "rfp-noncompetitive", tab: "040" },
     ],
   },
   {
@@ -500,7 +500,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "An existing contract and a modification needing a proposal",
     when: (c) => c.s.mod_needs_proposal,
     docs: [
-      { doc_key: "rfp-existing-contract", label: "RFP for an existing contract", citation: "FAR 15.203(e); FAR 43.102(b)", phase: "Administration", state: "required", templateKey: "rfp-existing-contract", tab: "040" },
+      { doc_key: "rfp-existing-contract", label: "RFP for an existing contract", citation: "RFO FAR 15.102(b)(1)(i); RFO FAR 43.202(b)", phase: "Administration", state: "required", templateKey: "rfp-existing-contract", tab: "040" },
     ],
   },
   {
