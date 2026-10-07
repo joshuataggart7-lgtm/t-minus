@@ -12,9 +12,25 @@
 const DEFLATE_STREAM = /stream\r?\n/g;
 
 async function inflate(bytes: Uint8Array): Promise<string | null> {
+  // Each slice runs from "stream" to "endstream", so it ends with the line
+  // break before "endstream". Chrome's DecompressionStream rejects any bytes
+  // after the end of the deflate data, so read chunk by chunk and keep what
+  // was inflated before that error.
   try {
-    const stream = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate"));
-    return await new Response(stream).text();
+    const reader = new Blob([bytes as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate")).getReader();
+    const decoder = new TextDecoder();
+    let out = "";
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        out += decoder.decode(value, { stream: true });
+      }
+    } catch {
+      // Trailing bytes after the deflate data. Keep the inflated text.
+    }
+    out += decoder.decode();
+    return out || null;
   } catch {
     return null;
   }
