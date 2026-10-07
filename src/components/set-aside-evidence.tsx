@@ -53,7 +53,7 @@ export function SetAsideEvidencePanel({
       <p className="mt-1 text-[13px] text-muted-foreground">
         Searches SAM.gov for registered entities under this record's NAICS code and place of performance, with their
         small business flag, and recent subaward history for the same code. The Rule of Two evidence is assembled from
-        those results; the contracting officer confirms the decision (FAR 19.502-2).
+        those results; the contracting officer confirms the decision (RFO FAR 19.104-1).
       </p>
 
       <button

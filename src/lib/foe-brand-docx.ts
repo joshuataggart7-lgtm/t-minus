@@ -4,13 +4,13 @@
  * the HQ letterhead, styles, footer version identifier and the signature
  * underscores. Its instruction pages and Document History Log are removed.
  *
- * The justification is written on a FAR Part 16 multiple-award ordering path,
+ * The justification is written on a RFO FAR Part 16 multiple-award ordering path,
  * so commercial and simplified sample files are refused rather than dressed in
  * this face. Empty fields never print a stand-in; signature ink stays blank.
  *
- * Every citation on the face comes from the HQ source: FAR 16.507-6(d)(2)(ii)
- * through (vi), FAR 16.507-7(a) for the brand-name authority, and the HQ
- * signature ladder text. The generic FAR 16.507-6(b)(1) through (6) exception
+ * Every citation on the face comes from the HQ source: RFO FAR 16.507-6(d)(2)(ii)
+ * through (vi), RFO FAR 16.507-7(a) for the brand-name authority, and the HQ
+ * signature ladder text. The generic RFO FAR 16.507-6(b)(1) through (6) exception
  * block is removed on the brand-name path, as the HQ face directs.
  *
  * Exactly one signature-authority band prints. The bands are the HQ ladder:
@@ -163,7 +163,7 @@ export function foeBrandMarkers(ctx: FoeBrandContext): MarkerMap {
   const popText = pop ? `The estimated period of performance is ${pop}.` : "";
 
   const brandAuthority = [
-    "This is a brand-name justification under the authority of FAR 16.507-7(a).",
+    "This is a brand-name justification under the authority of RFO FAR 16.507-7(a).",
     item ? `The brand-name requirement applies to ${item}.` : "",
   ]
     .filter(Boolean)
@@ -171,14 +171,14 @@ export function foeBrandMarkers(ctx: FoeBrandContext): MarkerMap {
 
   const coCert = [
     "I hereby certify that this justification is accurate and complete to the best of my knowledge and belief.",
-    "Based on the information in this justification, I have determined that the brand-name exception at FAR 16.507-7(a) applies to this order.",
+    "Based on the information in this justification, I have determined that the brand-name exception at RFO FAR 16.507-7(a) applies to this order.",
   ].join(" ");
 
   const techCert =
     "I hereby certify that the supporting data in this justification is accurate and complete to the best of my knowledge and belief.";
 
   const approval =
-    "Based on the information provided in this justification, and as the approving official, I have determined that FAR 16.507-7(a) applies to the order.";
+    "Based on the information provided in this justification, and as the approving official, I have determined that RFO FAR 16.507-7(a) applies to the order.";
 
   const amount = amountOf(estimate || values["estimated_value"] || acq["estimated_value"]);
   const activeBand = selectFoeSigBand(amount);

@@ -67,7 +67,7 @@ const voucherReview: TemplateDef = {
   name: "NASA Voucher Review Checklist (Cost-Type Contract)",
   tab: "083",
   badge: {
-    citation: "FAR 32.905; NFS 1832.905; FAR 52.232-25(a)(3); NFS 1852.232-80(e)",
+    citation: "RFO FAR 32.905; NFS CG 1832.91; RFO FAR 52.232-25(a)(3); NFS 1852.232-80(e)",
     tier: "binding",
     revision: "HQ base issuance 06/2020, revision 02/2025",
     effective: "2025-02-01",
@@ -96,7 +96,7 @@ const voucherReview: TemplateDef = {
     {
       id: "steps_1_3",
       title: "Voucher accuracy",
-      citation: "FAR 52.232-25, Prompt Payment, paragraph (a)(3)",
+      citation: "RFO FAR 52.232-25, Prompt Payment, paragraph (a)(3)",
       tier: "binding",
       fields: [
         ...voucherStep(1, "Does the date of services on the voucher falls within the contract period of performance?"),
@@ -110,7 +110,7 @@ const voucherReview: TemplateDef = {
     {
       id: "hours_costs",
       title: "Review of Hours and Costs",
-      citation: "FAR 32.905; NF 533M",
+      citation: "RFO FAR 32.905; NF 533M",
       tier: "binding",
       fields: [
         ...voucherStep(4, "Are the billed direct labor hours reasonable?"),
@@ -385,7 +385,7 @@ const ratification: TemplateDef = {
   name: "Ratification of Unauthorized Commitments",
   tab: "005",
   badge: {
-    citation: "FAR 1.602-3; NFS 1801.602-3",
+    citation: "RFO FAR 1.405; NFS CG 1801.43",
     tier: "binding",
     revision: "HQ base issuance 02/2021, revision 04/2025",
     effective: "2025-04-01",
@@ -397,7 +397,7 @@ const ratification: TemplateDef = {
     {
       id: "which",
       title: "Which memorandum",
-      citation: "FAR 1.602-3",
+      citation: "RFO FAR 1.405",
       tier: "binding",
       fields: [
         S(
@@ -429,18 +429,18 @@ const ratification: TemplateDef = {
     {
       id: "notice_body",
       title: "Notice to the responsible employee",
-      citation: "FAR 1.602-3(c); NFS 1801.602-3(c)(7)",
+      citation: "RFO FAR 1.405(c); NFS CG 1801.43(b)",
       tier: "binding",
       showIf: isNotice,
       standingText:
-        "I have been informed that an unauthorized commitment, defined in the Federal Acquisition Regulations (FAR) 1.602-3 as \u201can agreement that is not binding solely because the Government representative who made it lacked the authority to enter into that agreement on behalf of the Government\u201d has occurred. Only a warranted Contracting Officer (CO) has the authority to obligate Government funds and enter into contracts or otherwise bind the Government to a contractual commitment. Serious legal, disciplinary, and personal liability actions can result from an unauthorized commitment.\n\nPayment for goods or services received from an unauthorized commitment may be made only through the ratification process. Ratification is defined as the \u201cact of approving an unauthorized commitment by an official who has the authority to do so\u201d. Absent ratification, the individual making the unauthorized commitment may be held personally liable for payment to the vendor.\n\nThe Head of the Contracting Activity (HCA) is the approval authority for ratifications. In accordance with FAR 1.602-3(c) and NASA FAR Supplement (NFS) 1801.602-3(c)(7), it is requested that you provide the following documentation regarding the unauthorized commitment for ratification consideration:\n\n\u2022 A Procurement Request that provides appropriate funding.\n\u2022 A signed statement addressing in detail: a description of the unauthorized work performed and/or supplies received; how the unauthorized commitment occurred, including dates, events, circumstances, and dollar amount; why this unauthorized commitment is considered valid and was necessary to meet NASA requirements, and the benefit(s) received by the Government; why normal acquisition procedures were not followed; why the vendor was selected, listing all other sources considered; the estimated or agreed to price; and any other information pertinent to the unauthorized commitment.\n\u2022 All supporting documentation (invoice(s), contractor correspondence, etc.).\n\u2022 Certification that funds were available at the time the unauthorized commitment was made.\n\u2022 A copy of a route sheet forwarding the signed statement through your supervisor and cognizant director or comparable official.\n\nIt is imperative that ratification actions be processed and completed in a timely manner since the Government cannot make payment to the vendor before the action has been ratified. If any required information/documentation is missing, the ratification request package will be returned and not processed until the missing information/documentation is furnished to the undersigned.\n\nUpon receipt of a complete ratification package, the facts, records, and documents furnished will be reviewed and a statement of findings prepared, including a recommendation that will be routed through the Office of General Counsel for review and to the HCA for approval.",
+        "I have been informed that an unauthorized commitment, defined in RFO FAR 1.405(a) as \u201can agreement that is not binding solely because the Government representative who made it lacked the authority to enter into that agreement on behalf of the Government\u201d has occurred. Only a warranted Contracting Officer (CO) has the authority to obligate Government funds and enter into contracts or otherwise bind the Government to a contractual commitment. Serious legal, disciplinary, and personal liability actions can result from an unauthorized commitment.\n\nPayment for goods or services received from an unauthorized commitment may be made only through the ratification process. Ratification is defined as the \u201cact of approving an unauthorized commitment by an official who has the authority to do so\u201d. Absent ratification, the individual making the unauthorized commitment may be held personally liable for payment to the vendor.\n\nThe Head of the Contracting Activity (HCA) is the approval authority for ratifications. In accordance with RFO FAR 1.405(c) and NASA FAR Supplement (NFS) 1801.602-3(c)(7), it is requested that you provide the following documentation regarding the unauthorized commitment for ratification consideration:\n\n\u2022 A Procurement Request that provides appropriate funding.\n\u2022 A signed statement addressing in detail: a description of the unauthorized work performed and/or supplies received; how the unauthorized commitment occurred, including dates, events, circumstances, and dollar amount; why this unauthorized commitment is considered valid and was necessary to meet NASA requirements, and the benefit(s) received by the Government; why normal acquisition procedures were not followed; why the vendor was selected, listing all other sources considered; the estimated or agreed to price; and any other information pertinent to the unauthorized commitment.\n\u2022 All supporting documentation (invoice(s), contractor correspondence, etc.).\n\u2022 Certification that funds were available at the time the unauthorized commitment was made.\n\u2022 A copy of a route sheet forwarding the signed statement through your supervisor and cognizant director or comparable official.\n\nIt is imperative that ratification actions be processed and completed in a timely manner since the Government cannot make payment to the vendor before the action has been ratified. If any required information/documentation is missing, the ratification request package will be returned and not processed until the missing information/documentation is furnished to the undersigned.\n\nUpon receipt of a complete ratification package, the facts, records, and documents furnished will be reviewed and a statement of findings prepared, including a recommendation that will be routed through the Office of General Counsel for review and to the HCA for approval.",
       fields: [
         X("director_title", "Director or comparable official title"),
         X("directorate_name", "Directorate or comparable official's office name"),
         D("documentation_due", "Date all documentation is to be provided", undefined),
         T(
           "prevention_statement_request",
-          "Statement required of the director under NFS 1801.602-3(c)(7)(C)",
+          "Statement required of the director under NFS CG 1801.43(b)(3)",
           "The director provides a separate statement describing the measures taken to prevent recurrence and whether disciplinary action should be taken.",
         ),
         X("notice_signer", "Signature name"),
@@ -450,11 +450,11 @@ const ratification: TemplateDef = {
     {
       id: "background",
       title: "Background and Chronology of Events",
-      citation: "FAR 1.602-3; NFS 1801.602-3",
+      citation: "RFO FAR 1.405; NFS CG 1801.43",
       tier: "binding",
       showIf: isRequest,
       standingText:
-        "As required by the Federal Acquisition Regulation (FAR) 1.602-3 and NASA FAR Supplement (NFS) 1801.602-3, this memorandum requests ratification of charges resulting from an unauthorized commitment.",
+        "As required by RFO FAR 1.405 and NFS CG 1801.43, this memorandum requests ratification of charges resulting from an unauthorized commitment.",
       fields: [
         X("company_city_state", "City and state of the company"),
         X("short_title", "Short title or description of the unauthorized commitment"),
@@ -464,11 +464,11 @@ const ratification: TemplateDef = {
     {
       id: "findings",
       title: "Findings",
-      citation: "FAR 1.602-3(c)(1-7); NFS 1801.602-3(c)(7)",
+      citation: "RFO FAR 1.405(c); NFS CG 1801.43(b)",
       tier: "binding",
       showIf: isRequest,
       standingText:
-        "In accordance with the limitations set forth in FAR 1.602-3(c)(1-7) and NFS 1801.602-3(c)(7), the authority to ratify an unauthorized commitment may be exercised only when \u2013\n\n1. Supplies or services have been provided to and accepted by the Government, or the Government otherwise has obtained or will obtain a benefit resulting from performance of the unauthorized commitment.\n\n2. The ratifying official has the authority to enter into a contractual commitment. Under the authority provided in FAR 1.602-3(b)(2) the Head of the Contracting Activity (HCA) may ratify unauthorized commitments and has the authority to enter into a contractual commitment.\n\n3. The resulting contract would otherwise have been proper if made by an appropriate contracting officer (CO). A valid and legitimate requirement existed at the time the unauthorized commitment was made, and the unauthorized commitment was not made to evade any statutes/regulations. Standard acquisition procedures could have been used for obtaining these supplies or services and would have been proper if made by a warranted CO.\n\n4. The CO reviewing the unauthorized commitment determines the price to be fair and reasonable.\n\n5. The CO recommends payment and legal counsel concurs in the recommendation, unless agency procedures expressly do not require such concurrence. The CO and legal counsel concur in the recommendations set forth in this memorandum as evidenced by the signatures below.\n\n6. Funds were available at the time the unauthorized commitment was made and are currently available.\n\n7. The ratification is in accordance with any other limitations prescribed under agency policy. In accordance with 1801.602-3(c)(7), the authority in FAR 1.602-3 may be exercised only when \u2013",
+        "In accordance with the limitations set forth in RFO FAR 1.405(c) and NFS CG 1801.43(b), the authority to ratify an unauthorized commitment may be exercised only when \u2013\n\n1. Supplies or services have been provided to and accepted by the Government, or the Government otherwise has obtained or will obtain a benefit resulting from performance of the unauthorized commitment.\n\n2. The ratifying official has the authority to enter into a contractual commitment. Under the authority provided in RFO FAR 1.405(b)(2) the Head of the Contracting Activity (HCA) may ratify unauthorized commitments and has the authority to enter into a contractual commitment.\n\n3. The resulting contract would otherwise have been proper if made by an appropriate contracting officer (CO). A valid and legitimate requirement existed at the time the unauthorized commitment was made, and the unauthorized commitment was not made to evade any statutes/regulations. Standard acquisition procedures could have been used for obtaining these supplies or services and would have been proper if made by a warranted CO.\n\n4. The CO reviewing the unauthorized commitment determines the price to be fair and reasonable.\n\n5. The CO recommends payment and legal counsel concurs in the recommendation, unless agency procedures expressly do not require such concurrence. The CO and legal counsel concur in the recommendations set forth in this memorandum as evidenced by the signatures below.\n\n6. Funds were available at the time the unauthorized commitment was made and are currently available.\n\n7. The ratification is in accordance with any other limitations prescribed under agency policy. In accordance with 1801.602-3(c)(7), the authority in RFO FAR 1.405 may be exercised only when \u2013",
       fields: [
         T("finding_1_benefit", "1. Benefit obtained by the Government"),
         T("finding_3_requirement", "3. The requirement that existed when the commitment was made"),
@@ -498,7 +498,7 @@ const ratification: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "FAR 1.602-3(b)(2)",
+      citation: "RFO FAR 1.405(b)(2)",
       tier: "binding",
       showIf: isRequest,
       standingText:
@@ -515,7 +515,7 @@ const ratification: TemplateDef = {
     {
       id: "signature_page",
       title: "Signature page",
-      citation: "NFS 1802.101, head of the contracting activity",
+      citation: "NFS CG 1802.2, head of the contracting activity",
       tier: "binding",
       showIf: isRequest,
       standingText:
@@ -534,7 +534,7 @@ const ratification: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer, counsel and head of the contracting activity",
-    citation: "FAR 1.602-3(b)(2)",
+    citation: "RFO FAR 1.405(b)(2)",
     blocks: ["Contracting Officer", "Date", "CONCURRENCE: Office of the General Counsel", "Date", "APPROVAL: Head of the Contracting Activity", "Date"],
   }),
 };
@@ -606,8 +606,8 @@ const bpaAnnualReview: TemplateDef = {
   name: "Blanket Purchase Agreement (BPA) Annual Review",
   tab: "099",
   badge: {
-    citation: "FAR 13.303-6(a); FAR 8.405-3(e)",
-    citationFor: (v) => (isFss(v) ? "FAR 8.405-3(e); PIC 14-01" : "FAR 13.303-6(a); NFS 1813.303-6"),
+    citation: "RFO FAR 12.201-1(e)(3)(v); RFO FAR 8.401(b); GSAR subpart 538.71",
+    citationFor: (v) => (isFss(v) ? "RFO FAR 8.401(b); GSAR subpart 538.71; PIC 14-01" : "RFO FAR 12.201-1(e)(3)(v); NFS CG 1812.22"),
     tier: "binding",
     revision: "HQ base issuance 04/2020",
     effective: "2020-04-20",
@@ -618,8 +618,8 @@ const bpaAnnualReview: TemplateDef = {
     {
       id: "header",
       title: "Agreement under review",
-      citation: "FAR 13.303-6(a)",
-      citationFor: (v) => (isFss(v) ? "FAR 8.405-3(e)" : "FAR 13.303-6(a)"),
+      citation: "RFO FAR 12.201-1(e)(3)(v)",
+      citationFor: (v) => (isFss(v) ? "RFO FAR 8.401(b); GSAR subpart 538.71" : "RFO FAR 12.201-1(e)(3)(v)"),
       tier: "binding",
       fields: [
         S(
@@ -641,54 +641,54 @@ const bpaAnnualReview: TemplateDef = {
     {
       id: "review_13303",
       title: "Review",
-      citation: "FAR 13.303-3; FAR 13.303-4; FAR 13.303-5; FAR 13.303-6",
+      citation: "RFO FAR 12.201-1(e)(3)(iv); RFO FAR 12.201-1(e)(3); RFO FAR 12.201-1(e)(3)(v)",
       tier: "binding",
       showIf: (v) => !isFss(v),
       fields: [
-        bpaRow("q1", "1. Was a previous BPA review conducted? if so, when? Reference FAR 13.303-6(b)(1)"),
+        bpaRow("q1", "1. Was a previous BPA review conducted? if so, when? Reference RFO FAR 12.201-1(e)(3)(v)"),
         bpaRow(
           "q2",
-          "2. Are there any changes in market conditions, sources of supply, or other pertinent factors that may warrant making new arrangements with different suppliers or modifying existing arrangements? Reference FAR 13.303-6(b)(2)",
+          "2. Are there any changes in market conditions, sources of supply, or other pertinent factors that may warrant making new arrangements with different suppliers or modifying existing arrangements? Reference RFO FAR 12.201-1(e)(3)(v)",
         ),
         bpaRow(
           "q3",
-          "3. The Contracting Officer is to provide the BPA supplier a list of individuals authorized to purchase under the BPA, identified by position title or by individual name, organizational code, and the dollar limitation per purchase for each position title or individual. Is the list current? Were orders issued within the limitations provided in the listing? If not, explain. Reference FAR 13.303-3(a)(4)",
+          "3. The Contracting Officer is to provide the BPA supplier a list of individuals authorized to purchase under the BPA, identified by position title or by individual name, organizational code, and the dollar limitation per purchase for each position title or individual. Is the list current? Were orders issued within the limitations provided in the listing? If not, explain. Reference RFO FAR 12.201-1(e)(3)(iv)",
         ),
         bpaRow(
           "q4",
-          "4. Do all of the delivery tickets contain the following minimum information: 1) name of supplier; 2) BPA number; 3) date of purchase; 4) purchase number; 5) itemized list of supplies or services furnished; 6) quantity, unit price, and 7) extension of each item and date of delivery or shipment? Reference FAR 13.303-3(a)(5)",
+          "4. Do all of the delivery tickets contain the following minimum information: 1) name of supplier; 2) BPA number; 3) date of purchase; 4) purchase number; 5) itemized list of supplies or services furnished; 6) quantity, unit price, and 7) extension of each item and date of delivery or shipment? Reference RFO FAR 12.201-1(e)(3)(iv)",
         ),
-        bpaRow("q5", "5. Has the contractor been compliant with the invoicing terms and conditions? Reference FAR 13.303-3(6)"),
-        bpaRow("q6", "6. Are the clauses included within the BPA current? Reference FAR 13.303-4(a)"),
+        bpaRow("q5", "5. Has the contractor been compliant with the invoicing terms and conditions? Reference RFO FAR 12.201-1(e)(3)(iv)"),
+        bpaRow("q6", "6. Are the clauses included within the BPA current? Reference RFO FAR 12.201-1(e)(3)"),
         bpaRow(
           "q7",
-          "7. Are purchases made within the limitations set in the BPA? If not, explain why not and how the issue or incident was reconciled. (Orders should not exceed the simplified acquisition threshold unless otherwise provided by agency regulations). Reference FAR 13.303-5(b)",
+          "7. Are purchases made within the limitations set in the BPA? If not, explain why not and how the issue or incident was reconciled. (Orders should not exceed the simplified acquisition threshold unless otherwise provided by agency regulations). Reference RFO FAR 12.201-1(e)(3)",
         ),
         bpaRow(
           "q8",
-          "8. Do the orders reviewed comply with the requirements of 13.003(b) and Subpart 19.5 regarding the use of small business set-asides? Explain. Reference FAR 13.303-5(c)",
+          "8. Do the orders reviewed comply with the requirements of 13.003(b) and Subpart 19.5 regarding the use of small business set-asides? Explain. Reference RFO FAR 12.201-1(e)(3)",
         ),
         bpaRow(
           "q9",
-          "9. For purchases greater than the micro-purchase threshold were there sufficient numbers of BPAs to ensure maximum practicable competition? If not, were quotations solicited from other sources or were additional BPAs established to facilitate future purchases? Reference FAR 13.303-5(d) (1) and (2)",
+          "9. For purchases greater than the micro-purchase threshold were there sufficient numbers of BPAs to ensure maximum practicable competition? If not, were quotations solicited from other sources or were additional BPAs established to facilitate future purchases? Reference RFO FAR 12.201-1(e)(3) (1) and (2)",
         ),
         bpaRow(
           "q10",
-          "10. Has documentation of purchases been limited to essential information? (e.g. document supplier and the purchaser agreement concerning the transaction; record of essential elements (i.e., date, supplier, supplies or services, price, delivery date); pertinent purchase requisition and the accounting and appropriation data.) Reference FAR 13.303-5(e)",
+          "10. Has documentation of purchases been limited to essential information? (e.g. document supplier and the purchaser agreement concerning the transaction; record of essential elements (i.e., date, supplier, supplies or services, price, delivery date); pertinent purchase requisition and the accounting and appropriation data.) Reference RFO FAR 12.201-1(e)(3)",
         ),
       ],
     },
     {
       id: "review_8405",
       title: "Review",
-      citation: "FAR 8.405-3(e); PIC 14-01",
+      citation: "RFO FAR 8.401(b); GSAR subpart 538.71; PIC 14-01",
       tier: "binding",
       showIf: isFss,
       fields: [
-        bpaRow("fss_q1", "1. Was a previous BPA review conducted? Reference FAR 8.405-3(e)"),
+        bpaRow("fss_q1", "1. Was a previous BPA review conducted? Reference RFO FAR 8.401(b); GSAR subpart 538.71"),
         bpaRow(
           "fss_q2",
-          "2. The General Services Administration's (GSA) has determined the prices of supplies and fixed-price services and rates for services offered at hourly rates to be fair and reasonable for the purpose of establishing the Federal Supply Schedule contract. However, GSA's determination does not relieve the ordering activity contracting officer from the responsibility of making a determination of fair and reasonable pricing for individual orders, BPAs, and orders under BPAs. Does the BPA still represent the best value for the Government? Explain any market research conducted. If the BPA does not represent the best value for the Government explain why. Reference FAR 8.405-3(e)(ii) and Procurement Information Circular (PIC) 14-01",
+          "2. The General Services Administration's (GSA) has determined the prices of supplies and fixed-price services and rates for services offered at hourly rates to be fair and reasonable for the purpose of establishing the Federal Supply Schedule contract. However, GSA's determination does not relieve the ordering activity contracting officer from the responsibility of making a determination of fair and reasonable pricing for individual orders, BPAs, and orders under BPAs. Does the BPA still represent the best value for the Government? Explain any market research conducted. If the BPA does not represent the best value for the Government explain why. Reference RFO FAR 8.401(b); GSAR subpart 538.71 and Procurement Information Circular (PIC) 14-01",
         ),
         bpaRow(
           "fss_q3",
@@ -699,8 +699,8 @@ const bpaAnnualReview: TemplateDef = {
     {
       id: "certification",
       title: "Certification",
-      citation: "FAR 13.303-6(a)",
-      citationFor: (v) => (isFss(v) ? "FAR 8.405-3(e)" : "FAR 13.303-6(a)"),
+      citation: "RFO FAR 12.201-1(e)(3)(v)",
+      citationFor: (v) => (isFss(v) ? "RFO FAR 8.401(b); GSAR subpart 538.71" : "RFO FAR 12.201-1(e)(3)(v)"),
       tier: "binding",
       fields: [
         S("certifier_role", "Signed by", ["contracting officer", "contracting officer's designated representative"], "contracting officer"),
@@ -711,7 +711,7 @@ const bpaAnnualReview: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer or designated representative",
-    citation: "FAR 13.303-6(a); FAR 8.405-3(e)",
+    citation: "RFO FAR 12.201-1(e)(3)(v); RFO FAR 8.401(b); GSAR subpart 538.71",
     blocks: ["Contracting Officer", "Date"],
   }),
 };
@@ -766,7 +766,7 @@ const warrantNominationOther: TemplateDef = {
   name: "Contracting Officer Warrant Nomination Other Than 1102-1105",
   tab: "NA",
   badge: {
-    citation: "FAR 1.403; NFS 1801.603(d); NFS CG 1801.45",
+    citation: "RFO FAR 1.403; NFS CG 1801.45",
     tier: "binding",
     revision: "HQ base issuance 10/2021, revisions 05/2022, 07/2024 and 05/2026",
     effective: "2026-05-01",
@@ -808,7 +808,7 @@ const warrantNominationOther: TemplateDef = {
     {
       id: "warrant_request",
       title: "Warrant Request",
-      citation: "FAR 1.403",
+      citation: "RFO FAR 1.403",
       tier: "binding",
       standingText:
         "There is a clear and convincing need to appoint a CO with the ability to perform the following duties:",
@@ -823,10 +823,10 @@ const warrantNominationOther: TemplateDef = {
     {
       id: "authority",
       title: "Warrant Authority Requested",
-      citation: "FAR 2.101",
+      citation: "RFO FAR 2.101",
       tier: "binding",
       standingText:
-        "Federal Acquisition Regulation (FAR), the NASA FAR Supplement Companion Guide, other Statutory requirements, Executive Orders, NASA Procurement Enterprise requirements, and other applicable regulations, the following additional warrant limitations are imposed. The warrant limit applies to award of contracts as defined by FAR 2.101 and includes modifications, delivery orders, and task orders issued under existing contracts. The warrant must be equal to or greater than the value of the instant contract action. To maintain warrant appointments, COs in occupational series other than GS-1102 or GS-1105, must obtain 40 acquisition related continuous learning points every two-years to avoid having the warrant modified or revoked.",
+        "Federal Acquisition Regulation (FAR), the NASA FAR Supplement Companion Guide, other Statutory requirements, Executive Orders, NASA Procurement Enterprise requirements, and other applicable regulations, the following additional warrant limitations are imposed. The warrant limit applies to award of contracts as defined by RFO FAR 2.101 and includes modifications, delivery orders, and task orders issued under existing contracts. The warrant must be equal to or greater than the value of the instant contract action. To maintain warrant appointments, COs in occupational series other than GS-1102 or GS-1105, must obtain 40 acquisition related continuous learning points every two-years to avoid having the warrant modified or revoked.",
       fields: [
         S(
           "warrant_authority",
@@ -847,7 +847,7 @@ const warrantNominationOther: TemplateDef = {
     {
       id: "limitation",
       title: "Limitation of Authority",
-      citation: "FAR 1.603",
+      citation: "RFO FAR 1.403",
       tier: "binding",
       standingText:
         "In addition to the FAR and NASA FAR Supplement and other statutory requirements, the following additional warrant limitations are imposed:",
@@ -886,7 +886,7 @@ const enterpriseWarrantNomination: TemplateDef = {
   name: "Enterprise Contracting Officer Warrant Nomination-",
   tab: "NA",
   badge: {
-    citation: "FAR 1.403; NFS CG 1801.45(c)",
+    citation: "RFO FAR 1.403; NFS CG 1801.45(c)",
     tier: "binding",
     revision: "HQ base issuance 10/2021, current revision 02/2026",
     effective: "2026-02-01",
@@ -950,7 +950,7 @@ const enterpriseWarrantNomination: TemplateDef = {
     {
       id: "organization_need",
       title: "Warrant Request - Organization Need",
-      citation: "FAR 1.403",
+      citation: "RFO FAR 1.403",
       tier: "binding",
       standingText:
         "There is a clear and convincing need to appoint a CO with the ability to perform the following duties:",
@@ -965,10 +965,10 @@ const enterpriseWarrantNomination: TemplateDef = {
     {
       id: "authority",
       title: "Warrant Authority Requested",
-      citation: "FAR 2.101; NASA Procurement Career Development and Training Program Policy Handbook, Appendix D",
+      citation: "RFO FAR 2.101; NASA Procurement Career Development and Training Program Policy Handbook, Appendix D",
       tier: "binding",
       standingText:
-        "In addition to the Federal Acquisition Regulation (FAR), the NASA FAR Supplement, other Statutory requirements, Executive Orders, NASA Procurement Enterprise requirements, and other applicable regulations, the following additional warrant limitations are imposed. The warrant limit applies to award of contracts as defined by FAR 2.101 and includes modifications, delivery orders, and task orders issued under existing contracts. The warrant must be equal to or greater than the value of the instant contract action. Effective May 1, 2024, to maintain warrant appointments COs must complete 100 Continuous Learning Points (CLPs) in acquisition or leadership developmental courses or activities within the common two-year CL period.",
+        "In addition to the Federal Acquisition Regulation (FAR), the NASA FAR Supplement, other Statutory requirements, Executive Orders, NASA Procurement Enterprise requirements, and other applicable regulations, the following additional warrant limitations are imposed. The warrant limit applies to award of contracts as defined by RFO FAR 2.101 and includes modifications, delivery orders, and task orders issued under existing contracts. The warrant must be equal to or greater than the value of the instant contract action. Effective May 1, 2024, to maintain warrant appointments COs must complete 100 Continuous Learning Points (CLPs) in acquisition or leadership developmental courses or activities within the common two-year CL period.",
       fields: [
         S(
           "warrant_class",
@@ -1012,7 +1012,7 @@ const enterpriseWarrantNomination: TemplateDef = {
       citation: "NFS CG 1801.45(c)",
       tier: "binding",
       standingText:
-        "I certify that the information contained herein has been verified against this candidate's personnel file and that this candidate is qualified to be considered for appointment.\n\nIn accordance with the CD&T Handbook, Appendix D - OP Enterprise Warrant Program, the enclosed warrant nomination addresses the standards outlined in FAR 1.403, NFS CG 1801.45(c) and is requested/issued as follows:",
+        "I certify that the information contained herein has been verified against this candidate's personnel file and that this candidate is qualified to be considered for appointment.\n\nIn accordance with the CD&T Handbook, Appendix D - OP Enterprise Warrant Program, the enclosed warrant nomination addresses the standards outlined in RFO FAR 1.403, NFS CG 1801.45(c) and is requested/issued as follows:",
       fields: [
         X("certifying_official", "Certifying official"),
         S(
@@ -1060,7 +1060,7 @@ const coAppointmentLetter: TemplateDef = {
   name: "NASA Enterprise Contracting Officer Appointment Letter",
   tab: "NA",
   badge: {
-    citation: "FAR Subpart 1.6; NFS 1801.603",
+    citation: "RFO FAR subpart 1.4; NFS CG 1801.45",
     tier: "binding",
     revision: "HQ base issuance 11/2021, revision 04/2025",
     effective: "2025-04-01",
@@ -1083,10 +1083,10 @@ const coAppointmentLetter: TemplateDef = {
     {
       id: "body",
       title: "Appointment",
-      citation: "FAR 1.602-1; FAR 1.603-1; FAR 1.603-2; FAR 1.603-3; NFS 1801.603",
+      citation: "RFO FAR 1.402-1; RFO FAR 1.403-1; RFO FAR 1.403-2; NFS CG 1801.45",
       tier: "binding",
       standingText:
-        "By the authority vested in me and in conformance with Federal Acquisition Regulation (FAR) Subpart 1.6 and NASA FAR Supplement 1801.603, you are hereby appointed as a contracting officer (CO) for the United States of America. As a CO, you are to exercise sound business judgement in fulfilling the responsibility for ensuring performance of all necessary actions for effective contracting, compliance with the terms of the contract, and safeguarding the interests of the United States in its contractual relationships. You must also ensure that contractors receive impartial, fair, and equitable treatment; request and consider the advice of specialists in auditing, law, information security, engineering, and other fields as appropriate; and designate and authorize a contracting officer's representative on contracts in accordance with federal and Agency procedures.\n\nYou may bind the Government only to the extent of the authority delegated to you. The limitations of your authority are stated in the enclosed Standard Form (SF) 1402, Certificate of Appointment, which you must promptly display in your work area.\n\nNo contract shall be entered into unless the CO ensures that all requirements of law, executive orders, regulations, and all other applicable procedures, including clearances and approvals, have been met.\n\nCongratulations on achieving this career milestone!",
+        "By the authority vested in me and in conformance with RFO FAR subpart 1.4 and NFS CG 1801.45, you are hereby appointed as a contracting officer (CO) for the United States of America. As a CO, you are to exercise sound business judgement in fulfilling the responsibility for ensuring performance of all necessary actions for effective contracting, compliance with the terms of the contract, and safeguarding the interests of the United States in its contractual relationships. You must also ensure that contractors receive impartial, fair, and equitable treatment; request and consider the advice of specialists in auditing, law, information security, engineering, and other fields as appropriate; and designate and authorize a contracting officer's representative on contracts in accordance with federal and Agency procedures.\n\nYou may bind the Government only to the extent of the authority delegated to you. The limitations of your authority are stated in the enclosed Standard Form (SF) 1402, Certificate of Appointment, which you must promptly display in your work area.\n\nNo contract shall be entered into unless the CO ensures that all requirements of law, executive orders, regulations, and all other applicable procedures, including clearances and approvals, have been met.\n\nCongratulations on achieving this career milestone!",
       fields: [
         X("procurement_officer_name", "Name of the buying location's Procurement Officer"),
         X("enclosures", "Enclosures"),
@@ -1096,7 +1096,7 @@ const coAppointmentLetter: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Procurement officer",
-    citation: "NFS 1801.603",
+    citation: "NFS CG 1801.45",
     blocks: ["Procurement Officer", "Date"],
   }),
 };
@@ -1106,7 +1106,7 @@ const coTerminationLetter: TemplateDef = {
   name: "Contracting Officer Appointment Termination Letter",
   tab: "NA",
   badge: {
-    citation: "FAR 1.603-4; NFS 1801.603",
+    citation: "RFO FAR 1.403-3; NFS CG 1801.45",
     tier: "binding",
     revision: "HQ base issuance 11/2021, revision 05/2025",
     effective: "2025-05-01",
@@ -1129,10 +1129,10 @@ const coTerminationLetter: TemplateDef = {
     {
       id: "body",
       title: "Termination",
-      citation: "FAR 1.603-4",
+      citation: "RFO FAR 1.403-3",
       tier: "binding",
       standingText:
-        "Effective immediately and pursuant to Federal Acquisition Regulation (FAR) 1.603-4, the subject contracting officer appointment is hereby rescinded due to the reason stated below.\n\nFor the aforementioned reason(s), authority to award any contractual instruments within the NASA Contracting Writing System has also been revoked. Thank you for your service in support of the NASA mission.",
+        "Effective immediately and pursuant to RFO FAR 1.403-3, the subject contracting officer appointment is hereby rescinded due to the reason stated below.\n\nFor the aforementioned reason(s), authority to award any contractual instruments within the NASA Contracting Writing System has also been revoked. Thank you for your service in support of the NASA mission.",
       fields: [
         S(
           "termination_reason",
@@ -1160,7 +1160,7 @@ const coTerminationLetter: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Procurement officer",
-    citation: "FAR 1.603-4",
+    citation: "RFO FAR 1.403-3",
     blocks: ["Procurement Officer", "Date"],
   }),
 };
@@ -1172,7 +1172,7 @@ const supplySourcesAuthorization: TemplateDef = {
   name: "Authorization to Use Government Supply Sources",
   tab: "NA",
   badge: {
-    citation: "FAR Subpart 51.1; FAR 51.102(e); NFS Subpart 1851.1",
+    citation: "RFO FAR 8.105; NFS CG 1808.18",
     tier: "binding",
     revision: "HQ base issuance 09/2020, revision 12/2024",
     effective: "2024-12-12",
@@ -1183,7 +1183,7 @@ const supplySourcesAuthorization: TemplateDef = {
     {
       id: "heading",
       title: "Authorization heading",
-      citation: "FAR 51.102",
+      citation: "RFO FAR 8.105-2(a)",
       tier: "binding",
       fields: [
         D("letter_date", "Date the authorization is signed and sent"),
@@ -1198,22 +1198,22 @@ const supplySourcesAuthorization: TemplateDef = {
     {
       id: "scope",
       title: "1. Authorized use",
-      citation: "FAR 51.101; FAR 51.102(c)",
+      citation: "RFO FAR 8.105-2(a); NFS CG 1808.18(a)",
       tier: "binding",
       standingText:
         "The contractor named above is hereby authorized to use the Government supply sources named above in performance of the contract number above for NASA as follows:\n\n\u2022 The acquisition of supplies and/or services available for purchase by Government agencies either directly from GSA stock or under Federal Supply Schedules subject to the limitations set forth in this authorization.\n\u2022 The leasing or rental of equipment available for lease or rental by Government agencies under Federal Supply Schedules subject to the limitations set forth in this authorization.\n\u2022 Access to NASA, GSA, or other agencies' training programs available for Government employees at Government rates, subject to the approval of the agency providing the training.\n\u2022 The issuance of tax exemption certificates in lieu of the payment of State or other taxes for which the Government is not liable on supplies or services purchases under this authorization.\n\u2022 The acquisition of supplies, services, equipment, or training programs authorized under NASA Center or other Government agency contracts to include NASA's Solutions for Enterprise-Wide Procurement (SEWP) contract.\n\u2022 The acquisition and administration of printing and or related services, as appropriate and needed for the performance of, and in accordance with the provisions of, the contract, from the NASA Shared Services Center (NSSC), NASA End User Services Program Office (EUSO), or the Government Publishing Office (GPO).",
       fields: [
         X("authorization_period", "This authorization is limited to the following period"),
-        T("scope_limitations", "Limitations or conditions imposed under FAR 51.102(e)(4)"),
+        T("scope_limitations", "Limitations or conditions imposed"),
       ],
     },
     {
       id: "ordering",
       title: "2. Ordering",
-      citation: "FAR 51.102(e)(1) through (5); FAR 53.302-347",
+      citation: "NFS CG 1808.18(b)",
       tier: "binding",
       standingText:
-        "When requisitioning from GSA or DOD, the contractor shall use FEDSTRIP or MILSTRIP, as appropriate, and include the activity address code assigned by GSA or DOD. When requisitioning from the VA, the contractor should use FEDSTRIP or MILSTRIP, as appropriate, Optional Form 347, Order for Supplies or Services (see 53.302-347).\n\nOrders under GSA schedule contracts shall be placed in accordance with the terms and conditions of the GSA schedule contract and this authorization. A copy of this authorization shall be attached to each order (unless a copy was previously furnished to the GSA contractor). All orders shall contain the following statement: \u201cThis order is placed under written authorization from the National Aeronautics and Space Administration dated as shown below. In the event of any inconsistency between the terms and conditions of this order and those of the Federal Supply Schedule contract, the latter will govern. This order contains only items required in performance of the NASA contract named above.\u201d\n\nOrders for items in the GSA Supply Catalog shall be placed in accordance with the Catalog and this authorization and shall include the address to which billings are to be sent. GSA does not issue bills until after shipment has been made and should therefore be paid promptly upon receipt of billings. Any necessary adjustments will be made by GSA subsequent to payment. All orders shall contain the following statement: \u201cThis order is placed on behalf of the National Aeronautics and Space Administration under the contract named above pursuant to the written authorization effective as shown below.\u201d\n\nOrders under NASA Center or other agency contracts shall be placed in accordance with the contract and shall include the address to which billings are to be sent.\n\nUse of Government supply sources by the contractor's subcontractor(s) must be requested on a case-by-case basis and is not valid without a written authorization issued by the cognizant contracting officer. Any orders placed in accordance with the above shall be subject to the subcontract consent provisions of the contract.\n\nTitle to all property acquired by the contractor under this authorization shall vest in the parties as provided in the contract, unless specifically provided for otherwise. Contractor shall comply with the applicable policies and procedures prescribed in FAR Subpart 51.1 and NASA FAR Subpart 1851.1.",
+        "When requisitioning from GSA or DOD, the contractor shall use FEDSTRIP or MILSTRIP, as appropriate, and include the activity address code assigned by GSA or DOD. When requisitioning from the VA, the contractor should use FEDSTRIP or MILSTRIP, as appropriate, Optional Form 347, Order for Supplies or Services.\n\nOrders under GSA schedule contracts shall be placed in accordance with the terms and conditions of the GSA schedule contract and this authorization. A copy of this authorization shall be attached to each order (unless a copy was previously furnished to the GSA contractor). All orders shall contain the following statement: \u201cThis order is placed under written authorization from the National Aeronautics and Space Administration dated as shown below. In the event of any inconsistency between the terms and conditions of this order and those of the Federal Supply Schedule contract, the latter will govern. This order contains only items required in performance of the NASA contract named above.\u201d\n\nOrders for items in the GSA Supply Catalog shall be placed in accordance with the Catalog and this authorization and shall include the address to which billings are to be sent. GSA does not issue bills until after shipment has been made and should therefore be paid promptly upon receipt of billings. Any necessary adjustments will be made by GSA subsequent to payment. All orders shall contain the following statement: \u201cThis order is placed on behalf of the National Aeronautics and Space Administration under the contract named above pursuant to the written authorization effective as shown below.\u201d\n\nOrders under NASA Center or other agency contracts shall be placed in accordance with the contract and shall include the address to which billings are to be sent.\n\nUse of Government supply sources by the contractor's subcontractor(s) must be requested on a case-by-case basis and is not valid without a written authorization issued by the cognizant contracting officer. Any orders placed in accordance with the above shall be subject to the subcontract consent provisions of the contract.\n\nTitle to all property acquired by the contractor under this authorization shall vest in the parties as provided in the contract, unless specifically provided for otherwise. Contractor shall comply with the applicable policies and procedures prescribed in RFO FAR 8.105-2 and NFS CG 1808.18.",
       fields: [
         D("order_authorization_date", "Date of the written authorization cited in orders"),
         X("copy_statement", "Whether the authorization is attached or already on file", undefined, "For example, a copy of which is attached, or a copy of which you have on file."),
@@ -1224,7 +1224,7 @@ const supplySourcesAuthorization: TemplateDef = {
     {
       id: "duration",
       title: "3. Duration",
-      citation: "FAR 51.104; FAR 52.251-1",
+      citation: "RFO FAR 52.208-90",
       tier: "binding",
       standingText:
         "The authority hereby granted is not transferable or assignable and is in effect until withdrawn or upon completion or termination of the NASA contract named above or upon written notice from the contracting officer.",
@@ -1233,7 +1233,7 @@ const supplySourcesAuthorization: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 51.102(e)",
+    citation: "NFS CG 1808.18",
     blocks: ["Contracting Officer", "Date"],
   }),
 };

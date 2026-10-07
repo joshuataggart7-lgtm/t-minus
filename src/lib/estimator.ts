@@ -28,6 +28,8 @@ export type EstimatorInputs = {
   reqType: ReqType;
   /** Simplified or commercial simplified procedures shorten every task. */
   procedures: "SAP" | "COMM_SIMP" | "NEGOTIATED";
+  /** The vehicle answered at intake (scenario.vehicle), when there is one. */
+  vehicle?: string;
 };
 
 export type EstimateTask = {
@@ -51,8 +53,19 @@ export type Estimate = {
   sentence: string;
 };
 
+/** Vehicle answers that make the file an order under an existing vehicle. */
+const ORDER_VEHICLES = new Set(["idiq_order", "gsa_fss"]);
+
+/** The phase plan a vehicle answer runs on (the same map as acquisitionProfile). */
+const PLAN_BY_VEHICLE: Record<string, string> = {
+  idiq_award: "idiq_parent",
+  idiq_order: "order_under_idiq",
+  bpa: "bpa",
+  gsa_fss: "fss_order",
+};
+
 /** Reads the five estimator answers out of the intake form. */
-export function inputsFromFacts(f: IntakeFacts): EstimatorInputs {
+export function inputsFromFacts(f: IntakeFacts, vehicle?: string): EstimatorInputs {
   const value = parseMoney(f.estimated_value) ?? 0;
   const soleSource = /sole/i.test(f.competition);
 
@@ -64,13 +77,17 @@ export function inputsFromFacts(f: IntakeFacts): EstimatorInputs {
       : "FFP";
 
   const method = f.acquisition_method.toLowerCase();
-  const instrument: Instrument = /indefinite-delivery|idiq/.test(type)
-    ? "IDIQ"
-    : /existing idiq|gwac|gsa schedule/.test(method)
-      ? "TO"
-      : "STANDALONE";
+  const instrument: Instrument = ORDER_VEHICLES.has(vehicle ?? "")
+    ? "TO"
+    : /indefinite-delivery|idiq/.test(type)
+      ? "IDIQ"
+      : /existing idiq|gwac|gsa schedule/.test(method)
+        ? "TO"
+        : "STANDALONE";
 
-  const procedures: EstimatorInputs["procedures"] = /13\.5|commercial simplified/.test(method)
+  // Commercial simplified procedures: stored as "FAR 13.5 ..." on older
+  // records, RFO FAR 12.201-1 (RFO FAR Part 12 simplified) on newer ones.
+  const procedures: EstimatorInputs["procedures"] = /13\.5|commercial simplified|12\.201-1|part 12[^.]*simplified/.test(method)
     ? "COMM_SIMP"
     : /simplified acquisition/.test(method) || value <= TH.SAT
       ? "SAP"
@@ -86,7 +103,7 @@ export function inputsFromFacts(f: IntakeFacts): EstimatorInputs {
         ? "SERVICES"
         : "SUPPLIES";
 
-  return { value, soleSource, pricing, instrument, reqType, procedures };
+  return { value, soleSource, pricing, instrument, reqType, procedures, ...(vehicle ? { vehicle } : {}) };
 }
 
 /** The same five answers, read off a stored acquisition record. */
@@ -98,8 +115,19 @@ export function inputsFromAcq(acq: {
   title?: unknown;
   description_of_requirement?: unknown;
   psc_code?: unknown;
+  contract_format?: unknown;
+  scenario?: unknown;
 }): EstimatorInputs {
   const text = (v: unknown) => String(v ?? "");
+  const scenario = (acq.scenario ?? {}) as Record<string, unknown>;
+  // The vehicle answer decides the file's phase plan; a record saved before
+  // that answer existed still says "Order under IDIQ" in its contract format.
+  const vehicle =
+    typeof scenario["vehicle"] === "string" && scenario["vehicle"]
+      ? (scenario["vehicle"] as string)
+      : /order under/i.test(text(acq.contract_format))
+        ? "idiq_order"
+        : undefined;
   return inputsFromFacts({
     ...({} as IntakeFacts),
     estimated_value: text(acq.estimated_value),
@@ -109,12 +137,16 @@ export function inputsFromAcq(acq: {
     title: text(acq.title),
     description_of_requirement: text(acq.description_of_requirement),
     psc_code: text(acq.psc_code),
-  });
+  }, vehicle);
 }
 
-/** Phase names from intake through award, from the seeded phase plan. */
-export function phasesToAward(ref: RefData, soleSource: boolean) {
-  const type = soleSource ? "commercial_ffp_13_5_sole_source" : "commercial_ffp_13_5_competed";
+/** Phase names from intake through award, from the seeded phase plan for the
+ *  file's vehicle (the commercial plan when no vehicle plan is seeded). */
+export function phasesToAward(ref: RefData, soleSource: boolean, vehicle?: string) {
+  const commercial = soleSource ? "commercial_ffp_13_5_sole_source" : "commercial_ffp_13_5_competed";
+  const vehiclePlan = vehicle ? PLAN_BY_VEHICLE[vehicle] : undefined;
+  const type =
+    vehiclePlan && ref.phasePlan.some((p) => p.acquisition_type === vehiclePlan) ? vehiclePlan : commercial;
   const rows = ref.phasePlan.filter((p) => p.acquisition_type === type);
   const names: string[] = [];
   let days = 0;
@@ -149,6 +181,9 @@ export function inWords(n: number) {
 export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   const { value: V, soleSource, pricing, instrument, reqType, procedures } = inputs;
   const isSAP = procedures === "SAP";
+  // Simplified procedures for the calendar: SAP and commercial simplified
+  // (RFO FAR 12.201-1) both run on the short timeline.
+  const isSimplified = isSAP || procedures === "COMM_SIMP";
   const isTO = instrument === "TO";
   const isCost = pricing === "COST";
   const scale = isSAP ? 0.4 : isTO ? 0.55 : procedures === "COMM_SIMP" ? 0.75 : 1;
@@ -274,14 +309,21 @@ export function estimate(inputs: EstimatorInputs, ref: RefData): Estimate {
   if (V > 10e6) planning = 4;
   if (V > 50e6) planning = 6;
   if (soleSource) planning = Math.max(planning - 1, 1);
-  if (isSAP || isTO) planning = 1;
+  if (isSimplified || isTO) planning = 1;
   let solicitation = soleSource ? 1 : 2;
-  if (isSAP) solicitation = 1;
-  const evaluation = !soleSource && V > 10e6 ? 2 : 1;
-  const award = 1;
+  if (isSimplified) solicitation = 1;
+  let evaluation = !soleSource && V > 10e6 ? 2 : 1;
+  let award = 1;
+  // A simplified order under an existing vehicle runs the request for quotes,
+  // evaluation and award as one fair-opportunity cycle (about five weeks in the
+  // seeded order phase plan), so that cycle counts as one month, not three.
+  if (isSimplified && isTO) {
+    evaluation = 0;
+    award = 0;
+  }
   const monthsToAward = planning + solicitation + evaluation + award;
 
-  const { names: phases, days: plannedDaysToAward } = phasesToAward(ref, soleSource);
+  const { names: phases, days: plannedDaysToAward } = phasesToAward(ref, soleSource, inputs.vehicle);
 
   const sentence =
     `This request is expected to take about ${inWords(monthsToAward)} month${monthsToAward === 1 ? "" : "s"} ` +

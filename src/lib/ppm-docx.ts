@@ -122,7 +122,7 @@ export function ppmMarkers(ctx: PpmDocxContext): MarkerMap {
       ? `A justification for other than full and open competition was required. The exception is ${jofocStatus}${jofocApproved ? `, approved on ${jofocApproved}` : ""}.`
       : "The justification for other than full and open competition is not recorded on this file.",
     "[[PRESOLICITATION_PROSE]]": synopsisDate
-      ? "A presolicitation notice was posted to the Government Point of Entry as recorded below (FAR 5.101)."
+      ? "A presolicitation notice was posted to the Government Point of Entry as recorded below (RFO FAR 5.101)."
       : "The presolicitation notice for this action is not recorded on this file.",
     "[[SYNOPSIS_DATE]]": synopsisDate || "Not recorded",
     "[[SYSTEMS_STATUS]]":

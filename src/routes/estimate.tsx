@@ -40,7 +40,7 @@ function EstimatePage() {
         supabase
           .from("acquisition_facts")
           .select(
-            "acquisition_id,title,estimated_value,competition,contract_type,acquisition_method,description_of_requirement,psc_code,intake_estimate",
+            "acquisition_id,title,estimated_value,competition,contract_type,acquisition_method,contract_format,scenario,description_of_requirement,psc_code,intake_estimate",
           )
           .order("acquisition_id"),
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),

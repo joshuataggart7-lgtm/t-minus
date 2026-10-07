@@ -8,7 +8,7 @@
  * nothing, and no finding is drafted from it.
  *
  * Sources: SAM.gov Entity Management, SAM.gov Opportunities, USAspending
- * awards, the seeded SBA size standard table, GSA CALC and eLibrary for FAR 8.4
+ * awards, the seeded SBA size standard table, GSA CALC and eLibrary for RFO FAR subpart 8.4
  * buys, and T-Minus's own prior acquisitions under the same NAICS.
  */
 
@@ -645,7 +645,7 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
         ? `${soleSourceSentence}${dedupeSentence}`
         : `${entities.length} source${entities.length === 1 ? "" : "s"} were identified under NAICS ${result.naics}, of which ${result.smallBusinessCount} are registered as small business under that code.${dedupeSentence} The expectation of offers from two or more responsible small business concerns at fair market prices is ${
             result.ruleOfTwoMet ? "met" : "not met"
-          } (FAR 19.502-2).`,
+          } (RFO FAR 19.104-1).`,
       "SAM.gov Entity Management API",
     );
   }
@@ -663,7 +663,7 @@ export function draftFindings(result: EngineResult, acq: Record<string, unknown>
     ? `${soleSource ? "Market research: " : "Set-aside evidence: "}${entities.length} registrants under NAICS ${result.naics}${
         result.stateCode ? ` (${result.stateEntities.length} in ${result.stateCode})` : ""
       }, ${result.smallBusinessCount} small business. ${
-        soleSource ? soleSourceSentence : `Rule of Two ${result.ruleOfTwoMet ? "met" : "not met"} (FAR 19.502-2).`
+        soleSource ? soleSourceSentence : `Rule of Two ${result.ruleOfTwoMet ? "met" : "not met"} (RFO FAR 19.104-1).`
       }${
         result.awards.length ? ` ${result.awards.length} comparable federal awards in the last five years.` : ""
       }${result.notices.length ? ` ${result.notices.length} notices posted under this code in the last three years.` : ""}`

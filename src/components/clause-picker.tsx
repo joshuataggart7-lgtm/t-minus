@@ -19,7 +19,7 @@ import {
  * The clause picker. Recommended clauses come from the record through
  * selectPacketClauses; the officer chooses which of them go on the file. A
  * clause the matrices show as removed is never offered and never applied, and
- * FAR 52.212-5 is Reserved under the RFO, so it is never on this list.
+ * RFO FAR 52.212-5 is Reserved under the RFO, so it is never on this list.
  * Applying writes the clause numbers onto the record and logs the change.
  * NCMS stays the system of record; this is the local handoff packet.
  */
@@ -80,7 +80,7 @@ export function ClausePicker({
         old_value: (applied ?? []).join(", "),
         new_value: clean.join(", "),
         reason:
-          "Clauses selected from the record and read from the PCD 26-03B and NFS 1852 matrices; removed clauses and FAR 52.212-5 excluded",
+          "Clauses selected from the record and read from the PCD 26-03B and NFS 1852 matrices; removed clauses and RFO FAR 52.212-5 excluded",
         phase,
       });
       return clean;
@@ -130,7 +130,7 @@ export function ClausePicker({
       {open ? (
         <>
           <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
-            Each clause below is recommended by this record. FAR 52.212-5 is Reserved under the RFO, so clauses
+            Each clause below is recommended by this record. RFO FAR 52.212-5 is Reserved under the RFO, so clauses
             that once sat inside it are prescribed on their own and shown here separately. Clauses the matrices
             show as removed are not offered and cannot be applied.
           </p>
@@ -206,7 +206,7 @@ export function ClausePicker({
 
           <details className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">
             <summary className="cursor-pointer text-primary underline-offset-2 hover:underline">
-              Why FAR 52.212-3 and 52.212-5 are not on the packet
+              Why RFO FAR 52.212-3 and 52.212-5 are not on the packet
             </summary>
             <p className="mt-2">{RFO_RESERVED_212_NOTE}</p>
           </details>

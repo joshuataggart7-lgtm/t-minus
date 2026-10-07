@@ -188,15 +188,15 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
   JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
   Synopsis: "RFO FAR 5.201; RFO FAR 12.202(b) (combined synopsis/solicitation)",
-  "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
+  "Fair Opportunity": "RFO FAR 16.507-2(a); RFO FAR 8.401(b); GSAR subpart 538.71 for a schedule order",
   "Solicitation/Quote": "RFO FAR 12.202(b); NFS CG 1804.11(b) (NCMS is the system of record)",
   "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
   "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); RFO FAR 13.203(a) on a noncommercial simplified file",
-  "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
+  "Responsibility Check": "RFO FAR 9.104-1; RFO FAR 9.105-2; RFO FAR 52.204-7 (SAM)",
   "Go/No-go Poll": "Center policy for the review chain",
   Award: "RFO FAR 12.204 (award); RFO FAR 13.203 on a noncommercial simplified file; NFS CG 1804.11(b) (award written in NCMS)",
   "FPDS-NG Report": "RFO FAR 4.301 (contract action reporting)",
-  Administration: "FAR Part 42; RFO FAR 4.101 (contract file)",
+  Administration: "RFO FAR Part 42; RFO FAR 4.101 (contract file)",
   Closeout: "RFO FAR 4.308 (contract closeout)",
 };
 
@@ -272,7 +272,7 @@ const SIMPLIFIED_ACQUISITION_THRESHOLD = 350_000;
 /**
  * The NASA technical evaluation report is mandatory only for a sole-source
  * proposal above the simplified acquisition threshold. On a competed
- * simplified acquisition the FAR 13.106-2 evaluation of quotations is the
+ * simplified acquisition the RFO FAR 13.202 evaluation of quotations is the
  * requirement and the report is offered. The launch sequence, the contract
  * file index, and the template banner all read this one rule.
  */
@@ -471,7 +471,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
     }
     case "Technical Evaluation": {
       // The TER is mandatory only for a sole-source proposal above the SAT.
-      // On a competed FAR 13.5 buy the FAR 13.106-2 evaluation of quotations
+      // On a competed FAR 13.5 buy the RFO FAR 13.202 evaluation of quotations
       // is the requirement and the TER is offered.
       const terRequired = isTerRequired(acq);
       return [
@@ -512,7 +512,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           label: schedule
             ? "Record of the schedule ordering procedures followed"
             : "Fair opportunity record: every awardee considered",
-          citation: schedule ? fssOrderCitation(value) : "FAR 16.505(b)(1)",
+          citation: schedule ? fssOrderCitation(value) : "RFO FAR 16.507-2(a)",
           docKey: "fair-opportunity-record",
           tab: "010",
           attachOnly: true,
@@ -542,7 +542,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       if (schedule && /sole|limited|brand/i.test(String(acq?.competition ?? ""))) {
         rows.push({
           label: "Limited sources justification",
-          citation: "FAR 8.405-6",
+          citation: "RFO FAR 8.401(b); GSAR subpart 538.71",
           docKey: "limited-sources-justification",
           tab: "010",
           attachOnly: true,
@@ -569,11 +569,11 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "Price negotiation memorandum (PNM)",
-          citation: order ? "FAR 16.505(b)(3)" : "RFO FAR 12.204(a)",
+          citation: order ? "RFO FAR 16.506(f)" : "RFO FAR 12.204(a)",
           link: "templates",
           templateKey: "pnm",
           note: order
-            ? "The contracting officer determines the order price fair and reasonable under FAR 16.505(b)(3). The PNM is the determination of record."
+            ? "The contracting officer determines the order price fair and reasonable under RFO FAR 16.506(f). The PNM is the determination of record."
             : "The PNM is the price reasonableness determination of record. No separate determination is generated.",
         },
       ];
@@ -582,17 +582,17 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "SAM.gov entity registration and exclusion results",
-          citation: "FAR 9.104-1; FAR 52.204-7",
+          citation: "RFO FAR 9.104-1; RFO FAR 52.204-7",
           link: "checks",
         },
         {
           label: "Integrity records count (FAPIIS)",
-          citation: "FAR 9.104-6",
+          citation: "RFO FAR 9.104-6",
           link: "checks",
         },
         {
           label: "SF 1449 signature",
-          citation: "FAR 9.105-2",
+          citation: "RFO FAR 9.105-2",
           link: "packet",
           note: "The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility.",
         },
@@ -611,18 +611,18 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           },
           {
             label: "Order document signed (written in NCMS)",
-            citation: profile === "fss_order" ? "FAR 8.405-3" : "FAR 16.505(a)",
+            citation: profile === "fss_order" ? "RFO FAR 8.401(b); GSAR subpart 538.71" : "RFO FAR 16.506",
             link: "packet",
           },
         ];
       if (profile === "bpa")
         return [
           { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
-          { label: "Blanket purchase agreement signed (written in NCMS)", citation: "FAR 13.303-3", link: "packet" },
+          { label: "Blanket purchase agreement signed (written in NCMS)", citation: "RFO FAR 12.201-1(e)(3)(iv)", link: "packet" },
         ];
       return [
         { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
-        { label: "SF 1449 award document (written in NCMS)", citation: "FAR 12.204", link: "packet" },
+        { label: "SF 1449 award document (written in NCMS)", citation: "RFO FAR 12.204(c)(1)", link: "packet" },
       ];
     }
     case "FPDS-NG Report":
@@ -643,7 +643,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         },
         {
           label: "Option exercise: preliminary notice to the contractor",
-          citation: "FAR 17.207(a)",
+          citation: "RFO FAR 17.204-1(b)(1)",
           link: "templates",
           templateKey: "option-exercise-notification",
           optional: true,
@@ -651,7 +651,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         },
         {
           label: "Option exercise: determination to exercise",
-          citation: "FAR 17.207(c)",
+          citation: "RFO FAR 17.204-1(b)",
           link: "templates",
           templateKey: "option-exercise-determination",
           optional: true,
@@ -661,7 +661,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           ? [
               {
                 label: "Annual review of the blanket purchase agreement",
-                citation: "FAR 13.303-6(b)",
+                citation: "RFO FAR 12.201-1(e)(3)(v)",
                 docKey: "bpa-annual-review",
                 tab: "110",
                 attachOnly: true,
@@ -671,7 +671,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : []),
         {
           label: "SF 30 modification handoff packet",
-          citation: "FAR 43.301; NFS CG 1804.11(b)",
+          citation: "RFO FAR 43.401; NFS CG 1804.11(b)",
           link: "packet",
           note: "The modification of record is written in NCMS. T-Minus hands over the facts and the clause delta.",
         },
@@ -824,7 +824,7 @@ export function shortRole(role: string): string {
 export const JOFOC_APPROVER_ROLE = "JOFOC approving official";
 
 /**
- * The approval level FAR 6.104-2 Table 6-1 sets for this file's value, and the
+ * The approval level RFO FAR 6.104-2 Table 6-1 sets for this file's value, and the
  * office that holds it. The dollar tiers come from the thresholds table.
  */
 export function jofocApprovalTier(
@@ -867,7 +867,7 @@ export function reviewRulesForPhase(
     if (!hasJofoc(acq)) return applicable;
     // A sole-source file carries the JOFOC approving official as a reviewer.
     // The office comes from the Center routing table entry for the JOFOC,
-    // which points at the FAR 6.104-2 Table 6-1 level for the value.
+    // which points at the RFO FAR 6.104-2 Table 6-1 level for the value.
     const tier = jofocApprovalTier(acq, ref);
     return [
       ...applicable,
@@ -875,7 +875,7 @@ export function reviewRulesForPhase(
         rule_id: "jofoc-approving-official",
         reviewer_role: JOFOC_APPROVER_ROLE,
         trigger: "Sole source with a justification on the file",
-        citation: "FAR 6.104-2 Table 6-1",
+        citation: "RFO FAR 6.104-2 Table 6-1",
         planned_days: null,
         note: `${tier.tierLabel}: ${tier.title}.`,
       },
@@ -1219,27 +1219,23 @@ export function computeHold(
 // ------------------------------------------------------------- NCMS packet
 
 /** Commercial simplified-procedures clause set. Numbers only; the status,
- *  date, and disposition are read from the clauses table. FAR 52.212-5 is
- *  Reserved and is never included. */
+ *  date, and disposition are read from the clauses table. RFO FAR 52.212-5 is
+ *  Reserved and is never included, and so are the other numbers Reserved in
+ *  RFO FAR Part 52. */
 export const PACKET_CLAUSE_NUMBERS = [
   "52.204-7",
   "52.204-13",
-  "52.204-24",
   "52.209-6",
   "52.212-1",
   "52.212-4",
   "52.219-6",
   "52.222-3",
-  "52.222-21",
-  "52.222-26",
-  "52.223-18",
-  "52.225-13",
   "52.232-33",
   "52.233-3",
   "52.233-4",
   "52.247-34",
   "1852.203-70",
-  "1852.204-76",
+  "1852.240-76",
   "1852.245-70",
 ];
 
@@ -1260,7 +1256,7 @@ export function buildPacket(
   return {
     generated: new Date().toISOString(),
     note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS CG 1804.11(b)). This packet is not the solicitation or the contract.",
-    clause_policy_note: "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B; commercial clause content is prescribed via FAR Tables 12-2 and 12-3 and each clause's own prescription. Offeror reps/certs are made in SAM (with FAR 52.204-7), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able.",
+    clause_policy_note: "RFO FAR 52.212-5 is Reserved under the RFO / PCD 26-03B; commercial clause content is prescribed via FAR Tables 12-2 and 12-3 and each clause's own prescription. Offeror reps/certs are made in SAM (with RFO FAR 52.204-7), not by packing RFO FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able.",
     acquisition: acq,
     clauses,
     checklist: NCMS_CHECKLIST,

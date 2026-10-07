@@ -52,8 +52,8 @@ export function VehiclePanel({
     const fairLine = !fair
       ? "Not recorded. Enter the fair opportunity decision or the exception relied on before the order is placed."
       : fair === "competed"
-        ? "Fair opportunity given to every awardee under the vehicle, FAR 16.505(b)(1)."
-        : `Exception recorded on this file: ${fair.replace(/_/g, " ")}, FAR 16.505(b)(2).`;
+        ? "Fair opportunity given to every awardee under the vehicle, RFO FAR 16.507-2(a)."
+        : `Exception recorded on this file: ${fair.replace(/_/g, " ")}, RFO FAR 16.507-6(b).`;
     const method = String(acq["acquisition_method"] ?? "").trim();
     return (
       <section aria-label="Parent vehicle" className="mb-10 max-w-[80ch] border-t border-border pt-4">
@@ -126,7 +126,7 @@ export function VehiclePanel({
           <dt className="text-[13px] text-muted-foreground">Fair opportunity</dt>
           <dd>
             {v.fair_opportunity === "competed"
-              ? "Fair opportunity to every awardee, FAR 16.505(b)(1)"
+              ? "Fair opportunity to every awardee, RFO FAR 16.507-2(a)"
               : `Exception relied on: ${String(v.fair_opportunity).replace(/_/g, " ")}`}
           </dd>
         </div>

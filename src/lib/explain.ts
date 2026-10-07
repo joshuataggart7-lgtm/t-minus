@@ -170,7 +170,7 @@ const RED_FLAG_RULES: Record<string, string> = {
   nf1707: "The technical representative completes the NF 1707, obtains coordination, and makes sure it is approved and dated; the contracting officer files a copy in NEAR (NFS CG 1807.711(a)). If it was not given to the procurement office earlier, it must accompany the purchase request (NFS CG 1807.711(b)). It is not required for within-scope actions whose approvals were already obtained. T-Minus check: this flag does not hold the clock.",
   "far135-ceiling": "Simplified procedures for commercial products and services may be used only up to the dollar ceiling in RFO FAR 12.201-1(a). RFO FAR 12.001(c) raises that ceiling for a few special cases. Above it, use other procedures.",
   jofoc: "A justification for other than full and open competition must identify the statutory authority that permits it (RFO FAR 6.104-1) and be approved in writing at the level its dollar value requires (RFO FAR 6.104-2).",
-  funding: "Money limited to a fiscal year is available only for expenses properly incurred in that period or for contracts properly made within it (31 U.S.C. 1502). A contract funded by annual appropriations may not cross fiscal years unless a statute allows it or the end product cannot feasibly be split by fiscal year (FAR 32.703-3).",
+  funding: "Money limited to a fiscal year is available only for expenses properly incurred in that period or for contracts properly made within it (31 U.S.C. 1502). A contract funded by annual appropriations may not cross fiscal years unless a statute allows it or the end product cannot feasibly be split by fiscal year (RFO FAR 32.703-3).",
   cio: "Under FITARA, the agency CIO, or the CIO's delegate, must review and approve contracts for information technology.",
   schedule: "T-Minus check: the planned phase days to award plus the days from award to delivery must land on or before the need date.",
   psl: "T-Minus check: above the simplified acquisition threshold, a requirement that matches an agency enterprise procurement strategy needs a recorded contracting officer determination. Follow the strategy, record that no mandatory strategy applies, or attach an approved deviation.",
@@ -314,7 +314,7 @@ export function explainHold(
         `Read at: ${String(review?.["flagged_at"] ?? acq['hold_started_at'] ?? "time not recorded")}.`,
       ],
       rule: "An exclusion record is matched by exact UEI only, and it raises a review for the contracting officer. It never moves the clock on its own.",
-      citation: "FAR 9.405 (exclusions); RFO FAR 4.101 (contract file)",
+      citation: "RFO FAR 9.405 (exclusions); RFO FAR 4.101 (contract file)",
       clears: [
         "Run the live SAM.gov check on this record. A clean result showing no active exclusion clears the review automatically and is recorded.",
       ],
@@ -382,7 +382,7 @@ export function explainWarrant(args: {
       `The estimated value is ${money(args.value)} and the warrant recorded for ${args.coName} is ${money(args.limit)}.`,
     ],
     rule: "An acquisition may not be awarded above the warrant of the contracting officer who signs it.",
-    citation: "FAR 1.602-1 (contracting officer authority); NFS 1801.603",
+    citation: "RFO FAR 1.402-1 (contracting officer authority); NFS CG 1801.45",
     clears: [
       `Assign a contracting officer whose warrant is at or above ${money(args.value)}, or reduce the estimated value.`,
     ],

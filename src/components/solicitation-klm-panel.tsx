@@ -258,7 +258,7 @@ export function SolicitationKlmPanel({
         <h4 className="text-[15px] font-medium">Sections K, L and M</h4>
         <span className="text-[13px] text-muted-foreground">
           {shell.methodLabel} · {shell.path === "sf1449" ? "SF 1449" : "Uniform Contract Format"} ·{" "}
-          {part15 ? "FAR Part 15" : "FAR Parts 12 and 13"}
+          {part15 ? "RFO FAR Part 15" : "FAR Parts 12 and 13"}
         </span>
       </div>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{shell.formatSource}</p>
@@ -497,7 +497,7 @@ export function SolicitationKlmPanel({
           <>
             <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
               {part15
-                ? "Part 15 voice: factors and their relative importance are stated to offerors under FAR 15.304, and the evaluation record follows FAR 15.305."
+                ? "Part 15 voice: factors and their relative importance are stated to offerors under RFO FAR 15.104, and the evaluation record follows RFO FAR 15.202."
                 : "Part 12 and 13 voice: factors are stated in the solicitation and the evaluation of quotations records the result."}
             </p>
             {basisQ.data && !mQ.data ? (

@@ -6,11 +6,11 @@
  *
  * The master is built on the letter-contract branch of the HQ face: the
  * UCA-only purpose paragraphs, the UCA scope statement, the UCA government
- * estimate, the contract-type not-to-exceed language, the FAR 52.243-6 change
+ * estimate, the contract-type not-to-exceed language, the RFO FAR 52.243-6 change
  * order accounting block and the UCA signature page are removed there, as the
  * HQ face directs when a letter contract is the action.
  *
- * Every citation on the face comes from the HQ source: FAR 16.603 and NFS CG
+ * Every citation on the face comes from the HQ source: RFO FAR 16.603 and NFS CG
  * 1816.65 and 1816.66 for the purpose and the determination. Nothing else is
  * added. Empty fields never print a stand-in; signature ink stays blank.
  */
@@ -107,7 +107,7 @@ export function ucaJustMarkers(ctx: UcaJustContext): MarkerMap {
   const authorization = value("authorization");
 
   const purpose =
-    "In accordance with Federal Acquisition Regulation (FAR) 16.603 and National Aeronautics and Space Administration (NASA) FAR Supplement (NFS) Companion Guide (CG) 1816.65 and 1816.66, this document provides justification and request for approval to issue a letter contract.";
+    "In accordance with RFO FAR 16.603 and National Aeronautics and Space Administration (NASA) FAR Supplement (NFS) Companion Guide (CG) 1816.65 and 1816.66, this document provides justification and request for approval to issue a letter contract.";
 
   const bestInterest =
     "This letter contract is in the Government\u2019s best interest because negotiating a definitive contract is not possible in sufficient time to meet the requirement and will provide the contractor with a binding commitment so that work can start immediately.";
@@ -133,7 +133,7 @@ export function ucaJustMarkers(ctx: UcaJustContext): MarkerMap {
     : "";
 
   const determination =
-    "Based on the above, it is the determination of the undersigned, pursuant to FAR 16.603 and NFS CG 1816.65 and 1816.66, that it is in the Government\u2019s best interest for the contractor to start work immediately, and that negotiating a definitive contract action is not possible in sufficient time to meet the requirements.";
+    "Based on the above, it is the determination of the undersigned, pursuant to RFO FAR 16.603 and NFS CG 1816.65 and 1816.66, that it is in the Government\u2019s best interest for the contractor to start work immediately, and that negotiating a definitive contract action is not possible in sufficient time to meet the requirements.";
 
   const authorizationText = [
     "Upon approval of this letter contract, NASA will authorize the contractor to begin incurring costs for urgent work performed in advance of definitization.",

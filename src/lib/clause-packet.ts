@@ -5,18 +5,18 @@
 // against the seeded thresholds, place of performance, and the hardware /
 // services / IT flags. Status, effective date, and disposition still come from
 // the PCD 26-03B and NFS 1852 matrices in the clauses table; a clause the
-// matrices show as removed is never carried into a new document, and FAR
+// matrices show as removed is never carried into a new document, and RFO FAR
 // 52.212-5 is Reserved and never included.
 //
-// Under the RFO / PCD 26-03B, neither FAR 52.212-3 nor FAR 52.212-5 is
+// Under the RFO / PCD 26-03B, neither RFO FAR 52.212-3 nor RFO FAR 52.212-5 is
 // recommended, offered, or apply-able on the commercial SF 1449 packet:
 //   - 52.212-5 is Reserved; its old checkbox paragraph no longer carries
 //     commercial clause content.
-//   - Commercial clause content is prescribed via FAR Tables 12-2 and 12-3
+//   - Commercial clause content is prescribed via RFO FAR Tables 12-2 and 12-3 (RFO FAR 12.205)
 //     (and each clause's own prescription), so formerly bundled clauses are
 //     listed on their own, not through a 52.212-5 block.
 //   - Offeror representations and certifications for commercial buys are made
-//     in SAM (with FAR 52.204-7 on the packet), not by packing 52.212-3.
+//     in SAM (with RFO FAR 52.204-7 on the packet), not by packing 52.212-3.
 // The single reason note surfaced to the officer lives in RFO_RESERVED_212_NOTE.
 
 export type ClauseRow = {
@@ -60,7 +60,7 @@ export type PacketClause = {
   effective_date: string | null;
   fill_ins: unknown;
   /**
-   * True where the clause used to ride along inside FAR 52.212-5. That
+   * True where the clause used to ride along inside RFO FAR 52.212-5. That
    * paragraph is Reserved under the RFO, so the clause carries its own
    * prescription and is listed on its own.
    */
@@ -115,49 +115,48 @@ const RULES: Rule[] = [
   {
     number: "52.204-7",
     title: "System for Award Management",
-    applies: () => "Required in every solicitation and award (FAR 4.1105(a)(1)).",
+    applies: () => "Required in every solicitation and award (RFO FAR 4.208(b)(1)).",
   },
   {
     number: "52.204-13",
     title: "System for Award Management Maintenance",
-    applies: () => "Required in every award; the vendor keeps its SAM registration current (FAR 4.1105(b)).",
+    applies: () => "Required in every award; the vendor keeps its SAM registration current (RFO FAR 4.208(b)(2)).",
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.204-24",
     title: "Representation Regarding Certain Telecommunications and Video Surveillance Services or Equipment",
-    applies: () => "Required in every solicitation (FAR 4.2105(a)).",
+    applies: () => null,
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.204-21",
     title: "Basic Safeguarding of Covered Contractor Information Systems",
-    applies: (c) =>
-      c.value > c.micro
-        ? `Award above the micro-purchase threshold (${c.money(c.micro)}); contractor information systems are covered (FAR 4.1903).`
-        : null,
+    applies: () => null,
   },
   {
     number: "52.209-6",
     formerlyBundled: true,
     title: "Protecting the Government's Interest When Subcontracting with Contractors Debarred, Suspended, or Proposed for Debarment",
     applies: (c) =>
-      c.value > c.micro ? `Value ${c.money(c.value)} exceeds the micro-purchase threshold (FAR 9.409).` : null,
+      c.value > c.micro ? `Value ${c.money(c.value)} exceeds the micro-purchase threshold (RFO FAR 9.409).` : null,
   },
   {
     number: "52.212-1",
     title: "Instructions to Offerors—Commercial Products and Commercial Services",
-    applies: (c) => (c.commercial ? "Commercial determination on the record; FAR 12 solicitation (FAR 12.301(b)(1))." : null),
+    applies: (c) => (c.commercial ? "Commercial determination on the record; RFO FAR Part 12 solicitation (RFO FAR 12.205(a)(1))." : null),
   },
   {
     number: "52.212-2",
     title: "Evaluation—Commercial Products and Commercial Services",
     applies: (c) =>
       c.commercial && !c.soleSource
-        ? `Commercial buy with ${c.competition || "competition"}; evaluation factors are stated to offerors (FAR 12.301(c)).`
+        ? `Commercial buy with ${c.competition || "competition"}; evaluation factors are stated to offerors (RFO FAR 12.205(a)(2)).`
         : null,
   },
   {
     // Not packed under the RFO. Representations and certifications are made in
-    // SAM under FAR 52.204-7, and 52.212-3 is not carried forward into the
+    // SAM under RFO FAR 52.204-7, and 52.212-3 is not carried forward into the
     // recommended commercial SF 1449 packet on the strength of the reserved
     // 52.212-5 paragraph list.
     number: "52.212-3",
@@ -170,8 +169,8 @@ const RULES: Rule[] = [
     applies: (c) =>
       c.commercial
         ? /alternate i|alt\.? i\b/i.test(c.clauseSet)
-          ? `Commercial determination on the record (FAR 12.301(b)(3)); the vehicle records the clause set as "${c.clauseSet}", so confirm Alternate I in NCMS.`
-          : "Commercial determination on the record (FAR 12.301(b)(3))."
+          ? `Commercial determination on the record (RFO FAR 12.205(b)(1)); the vehicle records the clause set as "${c.clauseSet}", so confirm Alternate I in NCMS.`
+          : "Commercial determination on the record (RFO FAR 12.205(b)(1))."
         : null,
   },
   {
@@ -179,7 +178,7 @@ const RULES: Rule[] = [
     title: "Terms and Conditions—Simplified Acquisitions (Other Than Commercial Products and Commercial Services)",
     applies: (c) =>
       !c.commercial && /far 13/i.test(c.method)
-        ? "Simplified acquisition procedures on a non-commercial buy (FAR 13.302-5(d))."
+        ? "Simplified acquisition procedures on a non-commercial buy (RFO FAR 13.204(b))."
         : null,
   },
   {
@@ -187,7 +186,7 @@ const RULES: Rule[] = [
     title: "Small Business Program Representations",
     applies: (c) =>
       c.value > c.micro && !c.soleSource
-        ? "Competed award above the micro-purchase threshold; size status is represented (FAR 19.309(a))."
+        ? "Competed award above the micro-purchase threshold; size status is represented (RFO FAR 19.101(a)(2)(ii)(A))."
         : null,
   },
   {
@@ -196,7 +195,7 @@ const RULES: Rule[] = [
     title: "Notice of Total Small Business Set-Aside",
     applies: (c) =>
       /total small business/i.test(c.setAside)
-        ? `Set-aside on the record: ${c.setAside} (FAR 19.507(a)).`
+        ? `Set-aside on the record: ${c.setAside} (RFO FAR 19.104-3(a)).`
         : null,
   },
   {
@@ -205,7 +204,7 @@ const RULES: Rule[] = [
     title: "Small Business Subcontracting Plan",
     applies: (c) =>
       c.value >= c.subPlan && !/small business/i.test(c.setAside)
-        ? `Value ${c.money(c.value)} is at or above the subcontracting plan threshold (${c.money(c.subPlan)}) and the buy is not set aside (FAR 19.708(b)).`
+        ? `Value ${c.money(c.value)} is at or above the subcontracting plan threshold (${c.money(c.subPlan)}) and the buy is not set aside (RFO FAR 19.109(e)(2)(i)).`
         : null,
   },
   {
@@ -213,25 +212,27 @@ const RULES: Rule[] = [
     formerlyBundled: true,
     title: "Post-Award Small Business Program Rerepresentation",
     applies: (c) =>
-      c.value > c.micro ? "Award above the micro-purchase threshold (FAR 19.309(c))." : null,
+      c.value > c.micro ? "Award above the micro-purchase threshold (RFO FAR 19.101(a)(2)(iii)(A))." : null,
   },
   {
     number: "52.222-3",
     formerlyBundled: true,
     title: "Convict Labor",
-    applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.202)." : null),
+    applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (RFO FAR 22.201-2)." : null),
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.222-21",
     formerlyBundled: true,
     title: "Prohibition of Segregated Facilities",
-    applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
+    applies: () => null,
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.222-26",
     formerlyBundled: true,
     title: "Equal Opportunity",
-    applies: (c) => (c.value > c.micro ? "Award above the micro-purchase threshold (FAR 22.810(e))." : null),
+    applies: () => null,
   },
   {
     number: "52.222-41",
@@ -239,108 +240,110 @@ const RULES: Rule[] = [
     title: "Service Contract Labor Standards",
     applies: (c) =>
       c.services && c.value > 2500
-        ? `Services over $2,500 performed in the United States (${c.place || "place of performance on the record"}) (FAR 22.1006(a)).`
+        ? `Services over $2,500 performed in the United States (${c.place || "place of performance on the record"}) (RFO FAR 22.1002-2(b)(1)).`
         : null,
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.223-18",
     formerlyBundled: true,
     title: "Encouraging Contractor Policies to Ban Text Messaging While Driving",
-    applies: () => "Required in every solicitation and contract (FAR 23.1105).",
+    applies: () => null,
   },
   {
+    // Reserved in RFO FAR Part 52; never recommended on a new packet.
     number: "52.225-13",
     formerlyBundled: true,
     title: "Restrictions on Certain Foreign Purchases",
-    applies: () => "Required in every solicitation and contract (FAR 25.1103(a)).",
+    applies: () => null,
   },
   {
     number: "52.232-33",
     formerlyBundled: true,
     title: "Payment by Electronic Funds Transfer—System for Award Management",
-    applies: () => "Payment runs through the vendor's SAM registration (FAR 32.1110(a)(1)(i)).",
+    applies: () => "Payment runs through the vendor's SAM registration (RFO FAR 32.1110(a)(1)(i)).",
   },
   {
     number: "52.232-40",
     formerlyBundled: true,
     title: "Providing Accelerated Payments to Small Business Subcontractors",
-    applies: () => "Required in every solicitation and contract (FAR 32.009-2).",
+    applies: () => "Required in every solicitation and contract (RFO FAR 32.009-2).",
   },
   {
     number: "52.233-3",
     formerlyBundled: true,
     title: "Protest After Award",
-    applies: () => "Required in every solicitation and contract (FAR 33.106(a)).",
+    applies: () => "Required in every solicitation and contract (RFO FAR 33.107(a)).",
   },
   {
     number: "52.233-4",
     title: "Applicable Law for Breach of Contract Claim",
-    applies: () => "Required in every solicitation and contract (FAR 33.215(b)).",
+    applies: () => "Required in every solicitation and contract (RFO FAR 33.205-9(b)).",
   },
   {
     number: "52.216-7",
     title: "Allowable Cost and Payment",
     applies: (c) =>
-      c.costReimbursement ? `Contract type on the record: ${c.f["contract_type"]} (FAR 16.307(a)).` : null,
+      c.costReimbursement ? `Contract type on the record: ${c.f["contract_type"]} (RFO FAR 16.305(a)(1)).` : null,
   },
   {
     number: "52.216-18",
     title: "Ordering",
-    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(a)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (RFO FAR 16.505(a)).` : null),
   },
   {
     number: "52.216-19",
     title: "Order Limitations",
-    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(b)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (RFO FAR 16.505(b)).` : null),
   },
   {
     number: "52.216-22",
     title: "Indefinite Quantity",
-    applies: (c) => (c.idiq ? `${c.idiqSource} (FAR 16.506(e)).` : null),
+    applies: (c) => (c.idiq ? `${c.idiqSource} (RFO FAR 16.505(e)).` : null),
   },
   {
     number: "52.217-8",
     title: "Option to Extend Services",
     applies: (c) =>
-      c.options && c.services ? "Option periods are on the contract schedule for services (FAR 17.208(f))." : null,
+      c.options && c.services ? "Option periods are on the contract schedule for services (RFO FAR 17.203(f))." : null,
   },
   {
     number: "52.217-9",
     title: "Option to Extend the Term of the Contract",
-    applies: (c) => (c.options ? "Option periods are on the contract schedule (FAR 17.208(g))." : null),
+    applies: (c) => (c.options ? "Option periods are on the contract schedule (RFO FAR 17.203(g))." : null),
   },
   {
     number: "52.237-2",
     title: "Protection of Government Buildings, Equipment, and Vegetation",
     applies: (c) =>
       c.services && c.onInstallation
-        ? `Services performed on a Government installation (${c.place}) (FAR 37.110(a)).`
+        ? `Services performed on a Government installation (${c.place}) (RFO FAR 37.802-5(a)).`
         : null,
   },
   {
     number: "52.244-6",
     formerlyBundled: true,
     title: "Subcontracts for Commercial Products and Commercial Services",
-    applies: (c) => (c.commercial ? "Commercial determination on the record (FAR 44.403)." : null),
+    applies: (c) => (c.commercial ? "Commercial determination on the record (RFO FAR 44.403)." : null),
   },
   {
     number: "52.245-1",
     title: "Government Property",
     applies: (c) =>
-      c.hardware ? "Hardware deliverable on the record; Government property is anticipated (FAR 45.107(a))." : null,
+      c.hardware ? "Hardware deliverable on the record; Government property is anticipated (RFO FAR 45.107(a))." : null,
   },
   {
     number: "52.246-4",
     title: "Inspection of Services—Fixed-Price",
     applies: (c) =>
       c.services && /ffp|firm[- ]fixed|fixed[- ]price/i.test(c.type)
-        ? `Fixed-price services (${c.f["contract_type"]}) (FAR 46.304).`
+        ? `Fixed-price services (${c.f["contract_type"]}) (RFO FAR 46.304).`
         : null,
   },
   {
     number: "52.247-34",
     title: "F.o.b. Destination",
-    applies: (c) => (c.hardware ? "Hardware deliverable on the record (FAR 47.305-4(b))." : null),
+    applies: (c) => (c.hardware ? "Hardware deliverable on the record (RFO FAR 47.305-4(b))." : null),
   },
   {
     number: "1852.203-70",
@@ -349,16 +352,16 @@ const RULES: Rule[] = [
       c.value > c.sat ? `Value ${c.money(c.value)} exceeds the simplified acquisition threshold (NFS 1803.7001).` : null,
   },
   {
-    number: "1852.204-76",
+    number: "1852.240-76",
     title: "Security Requirements for Unclassified Information Technology Resources",
-    applies: (c) => (c.it ? "The record says the action includes information technology (NFS 1804.470-4(a))." : null),
+    applies: (c) => (c.it ? "The record says the action includes information technology (NFS 1840.303-2(a))." : null),
   },
   {
-    number: "1852.223-70",
-    title: "Safety and Health",
+    number: "1852.226-71",
+    title: "Safety and Health Measures and Mishap Reporting",
     applies: (c) =>
       c.services && c.onInstallation
-        ? `Services performed on a NASA installation (${c.place}) (NFS 1823.7001(a)).`
+        ? `Services performed on a NASA installation (${c.place}) (NFS 1826.7001(a)).`
         : null,
   },
   {
@@ -366,7 +369,7 @@ const RULES: Rule[] = [
     title: "Emergency Evacuation Procedures",
     applies: (c) =>
       c.services && c.onInstallation
-        ? `On-site services at a NASA installation (${c.place}) (NFS 1837.110-70).`
+        ? `On-site services at a NASA installation (${c.place}) (NFS 1837.802-71(a)).`
         : null,
   },
   {
@@ -522,8 +525,8 @@ export function removedClauseNumbers(clauseRows: ClauseRow[]): string[] {
 
 /**
  * The only clause numbers that may be written onto a record: a clause the
- * record recommends, never a removed clause, never FAR 52.212-5 (Reserved
- * under the RFO), and never FAR 52.212-3 (offeror reps/certs are made in SAM,
+ * record recommends, never a removed clause, never RFO FAR 52.212-5 (Reserved
+ * under the RFO), and never RFO FAR 52.212-3 (offeror reps/certs are made in SAM,
  * not packed on the commercial SF 1449).
  */
 export function sanitizeClauseSelection(
@@ -548,7 +551,7 @@ export function sanitizeClauseSelection(
 
 /**
  * The single reason note surfaced to the contracting officer near the
- * RFO-removed line, explaining why neither FAR 52.212-3 nor FAR 52.212-5 is
+ * RFO-removed line, explaining why neither RFO FAR 52.212-3 nor RFO FAR 52.212-5 is
  * recommended, offered, or apply-able on the commercial SF 1449 packet.
  * Surfaced once (progressive disclosure) from the clause picker / handoff
  * block; keep the wording calm and citation-backed.
@@ -563,4 +566,4 @@ export const IDIQ_CLAUSE_DELTA_WITHHELD_NOTE =
   "Clause reconciliation for this IDIQ vehicle is not complete, so the clause delta is withheld on this file. It is not shown on screen and is not part of the walkthrough. The vehicle clause set is reconciled against the matrices before any modification is written in NCMS.";
 
 export const RFO_RESERVED_212_NOTE =
-  "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause content is prescribed through FAR Tables 12-2 and 12-3 and each clause's own prescription rather than the old 52.212-5 checkbox paragraph. Offeror representations and certifications for commercial buys are made in SAM (with FAR 52.204-7 on the packet), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able here.";
+  "RFO FAR 52.212-5 is Reserved under the RFO / PCD 26-03B, so commercial clause content is prescribed through FAR Tables 12-2 and 12-3 and each clause's own prescription rather than the old 52.212-5 checkbox paragraph. Offeror representations and certifications for commercial buys are made in SAM (with RFO FAR 52.204-7 on the packet), not by packing RFO FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able here.";

@@ -7,14 +7,14 @@
  *   RFO FAR 12.201-1, with price reasonableness at RFO FAR 12.204(a), file
  *   documentation at RFO FAR 12.204(b)(1) and the basis for award at RFO FAR
  *   12.203(b).
- * - Noncommercial simplified procedures (stored as "FAR 13 ..." without 13.5):
+ * - Noncommercial simplified procedures (stored as "RFO FAR Part 13 ..." without 13.5):
  *   RFO FAR Part 13, with price reasonableness at RFO FAR 13.203(a), file
  *   documentation at RFO FAR 13.203(b) and evaluation at RFO FAR 13.202.
  *
  * The RFO has no FAR 13.106 or FAR 13.5; these replace those classic cites.
  */
 
-/** True when the stored method names classic FAR Part 13 but not FAR 13.5. */
+/** True when the stored method names classic RFO FAR Part 13 but not FAR 13.5. */
 export function isNoncommercialSimplifiedMethod(method: string | null | undefined): boolean {
   const m = String(method ?? "");
   return /\b13\b(?!\.5)/.test(m) && !/13\.5/.test(m);
@@ -38,7 +38,7 @@ export function simplifiedFactorsCite(method: string | null | undefined): string
 /**
  * Display label for a stored method value. A stored "FAR 13.5" method reads as
  * the current RFO provision for commercial simplified procedures; the stored
- * value itself is left as it is. A bare "FAR 13" or "FAR 15" reads as the RFO
+ * value itself is left as it is. A bare "RFO FAR Part 13" or "RFO FAR Part 15" reads as the RFO
  * part of the same number (Part 13, simplified procedures for noncommercial
  * acquisitions; Part 15, contracting by negotiation).
  */
@@ -51,7 +51,7 @@ export function methodDisplayLabel(method: string | null | undefined): string {
 
 /**
  * Dollar value above which NFS CG 1807.11(e) expects a written acquisition
- * plan (at or below $10 million, Center procedures apply unless FAR 7.102(d)
+ * plan (at or below $10 million, Center procedures apply unless RFO FAR 7.102(d)
  * conditions do).
  */
 export const WRITTEN_ACQUISITION_PLAN_THRESHOLD = 10_000_000;

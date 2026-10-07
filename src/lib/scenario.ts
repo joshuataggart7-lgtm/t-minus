@@ -211,7 +211,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Contract type CPIF, CPAF, FPAF or FPI",
     when: (c) => ["CPIF", "CPAF", "FPAF", "FPI"].includes(c.type),
     docs: [
-      { doc_key: "contract-type-dandf", label: "Determination and findings for the contract type", citation: "FAR 16.301-3; FAR 16.401", phase: "Market Research", state: "required", templateKeyFor: (c) => contractTypeTemplateKey(c.type), tab: "010" },
+      { doc_key: "contract-type-dandf", label: "Determination and findings for the contract type", citation: "RFO FAR 16.301-3; RFO FAR 16.401", phase: "Market Research", state: "required", templateKeyFor: (c) => contractTypeTemplateKey(c.type), tab: "010" },
     ],
   },
   {
@@ -222,7 +222,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "tm-lh-dandf",
         label: "Time-and-materials or labor-hour determination and findings",
-        citation: "FAR 12.207(b); FAR 16.601(d)",
+        citation: "RFO FAR 12.104(b); RFO FAR 16.601-3",
         phase: "Market Research",
         state: "required",
         templateKeyFor: (c) =>
@@ -240,8 +240,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Period of performance or ordering period longer than five years",
     when: (c) => overFiveYears(c.acq),
     docs: [
-      { doc_key: "pop-over-five-years", label: "Period or ordering period over five years determination and findings", citation: "NFS CG 1817.204", phase: "Market Research", state: "required", templateKey: "dandf-pop-over-five-years", tab: "010" },
-      { doc_key: "pop-deviation", label: "FAR period of performance deviation", citation: "FAR 1.404", phase: "Market Research", state: "offered", templateKey: "pop-deviation-request", tab: "010" },
+      { doc_key: "pop-over-five-years", label: "Period or ordering period over five years determination and findings", citation: "NFS CG 1817.22", phase: "Market Research", state: "required", templateKey: "dandf-pop-over-five-years", tab: "010" },
+      { doc_key: "pop-deviation", label: "FAR period of performance deviation", citation: "RFO FAR 1.304", phase: "Market Research", state: "offered", templateKey: "pop-deviation-request", tab: "010" },
     ],
   },
   {
@@ -249,7 +249,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Single-award IDIQ above $150,000,000",
     when: (c) => c.s.vehicle === "idiq_award" && c.s.idiq_single_award && c.value > 150_000_000,
     docs: [
-      { doc_key: "single-award-idiq-dandf", label: "Single-award IDIQ determination and findings", citation: "FAR 16.504(c)(1)(ii)(D)", phase: "Market Research", state: "required", templateKey: "dandf-single-award-idiq", tab: "010" },
+      { doc_key: "single-award-idiq-dandf", label: "Single-award IDIQ determination and findings", citation: "RFO FAR 16.504-3(a)(4)(i)", phase: "Market Research", state: "required", templateKey: "dandf-single-award-idiq", tab: "010" },
     ],
   },
   {
@@ -260,14 +260,14 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "consolidation-dandf",
         label: "Consolidation determination and findings",
-        citation: "FAR 7.107-2",
+        citation: "RFO FAR 7.107-2",
         phase: "Market Research",
         state: "required",
         templateKey: "consolidation-determination",
         tab: "010",
       },
-      { doc_key: "small-business-consolidation-letter", label: "Letter to small businesses of intent to consolidate or bundle", citation: "FAR 7.107", phase: "Market Research", state: "offered", tab: "010" },
-      { doc_key: "sba-followon-notification", label: "Notification to SBA of a follow-on consolidated or bundled requirement", citation: "FAR 7.107", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "small-business-consolidation-letter", label: "Letter to small businesses of intent to consolidate or bundle", citation: "RFO FAR 7.107", phase: "Market Research", state: "offered", tab: "010" },
+      { doc_key: "sba-followon-notification", label: "Notification to SBA of a follow-on consolidated or bundled requirement", citation: "RFO FAR 7.107", phase: "Market Research", state: "offered", tab: "010" },
     ],
   },
   {
@@ -278,7 +278,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "bundling-dandf",
         label: "Bundled requirements determination and findings",
-        citation: "FAR 7.107-3",
+        citation: "RFO FAR 7.107-2",
         phase: "Market Research",
         state: "required",
         templateKey: "bundling-determination",
@@ -294,7 +294,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "economy-act-dandf",
         label: "Economy Act determination and findings",
-        citation: "FAR 17.502-2(c)",
+        citation: "RFO FAR 17.502-2(b)",
         phase: "Market Research",
         state: "required",
         templateKey: "economy-act-determination",
@@ -303,14 +303,14 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "interagency-agreement-handoff",
         label: "Interagency agreement handoff: FS 7600A and 7600B",
-        citation: "FAR 17.502-2(c)",
+        citation: "RFO FAR 17.502-2(b)",
         phase: "Market Research",
         state: "required",
         handoff: true,
         tab: "010",
         note: "The agreement is written and signed in G-Invoicing, outside T-Minus. Attach the signed copy here.",
       },
-      { doc_key: "provisional-cost-increase", label: "Request for a provisional increase in the estimated cost", citation: "NFS 1832.704-71", phase: "Administration", state: "offered", templateKey: "provisional-cost-increase", tab: "NA" },
+      { doc_key: "provisional-cost-increase", label: "Request for a provisional increase in the estimated cost", citation: "NFS CG 1832.74", phase: "Administration", state: "offered", templateKey: "provisional-cost-increase", tab: "NA" },
     ],
   },
   {
@@ -319,7 +319,7 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => outsideUS(c),
     docs: [
       { doc_key: "foreign-contract-request", label: "Request to award a foreign contract", citation: "NFS 1825", phase: "Market Research", state: "required", templateKey: "foreign-contract-request", tab: "010" },
-      { doc_key: "duty-free-certificate", label: "Duty free certificate", citation: "FAR 25.903", phase: "Market Research", state: "offered", templateKey: "duty-free-certificate", tab: "010" },
+      { doc_key: "duty-free-certificate", label: "Duty free certificate", citation: "RFO FAR 25.903", phase: "Market Research", state: "offered", templateKey: "duty-free-certificate", tab: "010" },
     ],
   },
   {
@@ -327,7 +327,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Supplies with an end product that is not domestic",
     when: (c) => notDomestic(c),
     docs: [
-      { doc_key: "buy-american-nonavailability", label: "Buy American Act nonavailability determination", citation: "FAR 25.103", phase: "Market Research", state: "required", templateKey: "buy-american-nonavailability", tab: "010" },
+      { doc_key: "buy-american-nonavailability", label: "Buy American Act nonavailability determination", citation: "RFO FAR 25.103", phase: "Market Research", state: "required", templateKey: "buy-american-nonavailability", tab: "010" },
     ],
   },
   {
@@ -345,7 +345,7 @@ export const TRIGGERS: TriggerDef[] = [
       ABILITYONE_CODES.includes(String(c.acq["psc_code"] ?? "").trim()) ||
       ABILITYONE_CODES.includes(String(c.acq["naics_code"] ?? "").trim()),
     docs: [
-      { doc_key: "abilityone-coordination", label: "AbilityOne coordination", citation: "FAR 8.7", phase: "Market Research", state: "required", templateKey: "abilityone-coordination", tab: "010" },
+      { doc_key: "abilityone-coordination", label: "AbilityOne coordination", citation: "RFO FAR subpart 8.2", phase: "Market Research", state: "required", templateKey: "abilityone-coordination", tab: "010" },
     ],
   },
   {
@@ -369,7 +369,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A subcontracting plan applies and no subcontracting possibilities exist",
     when: (c) => c.s.subcontracting_plan_applies && !c.s.subcontracting_possibilities,
     docs: [
-      { doc_key: "subcontracting-plan-waiver", label: "Determination to waive the subcontracting plan", citation: "FAR 19.705-2", phase: "Market Research", state: "required", templateKey: "subcontracting-plan-waiver", tab: "010" },
+      { doc_key: "subcontracting-plan-waiver", label: "Determination to waive the subcontracting plan", citation: "RFO FAR 19.109(c)", phase: "Market Research", state: "required", templateKey: "subcontracting-plan-waiver", tab: "010" },
     ],
   },
   {
@@ -377,19 +377,19 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Any organizational conflict of interest answer is yes",
     when: (c) => c.oci,
     docs: [
-      { doc_key: "oci-determination", label: "OCI determination memorandum and checklist", citation: "FAR 9.5", phase: "Market Research", state: "required", templateKey: "oci-determination", tab: "010" },
-      { doc_key: "limitation-future-contracting", label: "Limitation of future contracting memorandum", citation: "FAR 9.507-2", phase: "Market Research", state: "offered", templateKey: "limitation-future-contracting", tab: "010" },
-      { doc_key: "section-l-oci-notice", label: "Section L notice of potential OCI", citation: "FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
-      { doc_key: "oci-plan-drd", label: "OCI plan data requirement", citation: "FAR 9.504; NFS Appendix C-202.1", phase: "Solicitation/Quote", state: "offered", templateKey: "oci-plan-drd", tab: "DRD" },
+      { doc_key: "oci-determination", label: "OCI determination memorandum and checklist", citation: "RFO FAR subpart 9.5", phase: "Market Research", state: "required", templateKey: "oci-determination", tab: "010" },
+      { doc_key: "limitation-future-contracting", label: "Limitation of future contracting memorandum", citation: "RFO FAR 9.507-2", phase: "Market Research", state: "offered", templateKey: "limitation-future-contracting", tab: "010" },
+      { doc_key: "section-l-oci-notice", label: "Section L notice of potential OCI", citation: "RFO FAR 9.504", phase: "Solicitation/Quote", state: "offered", tab: "020" },
+      { doc_key: "oci-plan-drd", label: "OCI plan data requirement", citation: "RFO FAR 9.504; NFS CG 1809.53", phase: "Solicitation/Quote", state: "offered", templateKey: "oci-plan-drd", tab: "DRD" },
     ],
   },
   {
     key: "construction",
-    condition: "A construction contract under FAR Part 36",
+    condition: "A construction contract under RFO FAR Part 36",
     when: (c) => c.s.deliverable === "construction",
     docs: [
-      { doc_key: "construction-bond-checklist", label: "Construction bond checklist", citation: "FAR Part 28", phase: "Award", state: "required", templateKey: "construction-bond-checklist", tab: "088" },
-      { doc_key: "preconstruction-orientation-checklist", label: "Preconstruction orientation checklist", citation: "FAR 36.212; NFS CG 1836.22", phase: "Administration", state: "required", templateKey: "preconstruction-orientation-checklist", tab: "077" },
+      { doc_key: "construction-bond-checklist", label: "Construction bond checklist", citation: "RFO FAR Part 28", phase: "Award", state: "required", templateKey: "construction-bond-checklist", tab: "088" },
+      { doc_key: "preconstruction-orientation-checklist", label: "Preconstruction orientation checklist", citation: "NFS CG 1836.22", phase: "Administration", state: "required", templateKey: "preconstruction-orientation-checklist", tab: "077" },
     ],
   },
   {
@@ -397,8 +397,8 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A service requirement bought on performance standards",
     when: (c) => c.s.deliverable === "services",
     docs: [
-      { doc_key: "qasp", label: "Quality assurance surveillance plan", citation: "FAR 37.601(b)(3); FAR 46.401", phase: "Solicitation/Quote", state: "offered", templateKey: "qasp", tab: "NA" },
-      { doc_key: "drd-template", label: "Data requirements description", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "drd-template", tab: "DRD" },
+      { doc_key: "qasp", label: "Quality assurance surveillance plan", citation: "RFO FAR 46.401", phase: "Solicitation/Quote", state: "offered", templateKey: "qasp", tab: "NA" },
+      { doc_key: "drd-template", label: "Data requirements description", citation: "NFS CG 1811.25", phase: "Solicitation/Quote", state: "offered", templateKey: "drd-template", tab: "DRD" },
     ],
   },
 
@@ -410,14 +410,14 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "jofoc-urgency",
         label: "Justification for other than full and open competition, unusual and compelling urgency",
-        citation: "FAR 6.302-2; RFO FAR 6.104-2",
+        citation: "RFO FAR 6.103-2; RFO FAR 6.104-2",
         phase: "JOFOC",
         state: "required",
         templateKey: "jofoc-urgency",
         replacesJofoc: true,
         tab: "015",
       },
-      { doc_key: "uca-letter-contract", label: "Undefinitized contract action or letter contract justification", citation: "FAR 16.603-3", phase: "Solicitation/Quote", state: "offered", templateKey: "uca-letter-contract", tab: "020" },
+      { doc_key: "uca-letter-contract", label: "Undefinitized contract action or letter contract justification", citation: "RFO FAR 16.603-3", phase: "Solicitation/Quote", state: "offered", templateKey: "uca-letter-contract", tab: "020" },
     ],
   },
   {
@@ -428,7 +428,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "jofoc-8a",
         label: "Justification for other than full and open competition, 8(a) sole source",
-        citation: "FAR 19.808-1; RFO FAR 6.104-2",
+        citation: "RFO FAR 19.108-7; RFO FAR 6.104-2",
         phase: "JOFOC",
         state: "required",
         templateKey: "jofoc-8a-over-30m",
@@ -442,7 +442,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Precontract costs requested",
     when: (c) => c.s.precontract_costs,
     docs: [
-      { doc_key: "precontract-costs-approval", label: "Precontract costs approval memorandum and authorization letter", citation: "FAR 31.205-32", phase: "Solicitation/Quote", state: "required", templateKey: "precontract-costs-approval", tab: "020" },
+      { doc_key: "precontract-costs-approval", label: "Precontract costs approval memorandum and authorization letter", citation: "RFO FAR 31.205-32", phase: "Solicitation/Quote", state: "required", templateKey: "precontract-costs-approval", tab: "020" },
     ],
   },
   {
@@ -450,7 +450,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "The contracting officer chooses to exclude a source",
     when: (c) => c.s.exclude_source,
     docs: [
-      { doc_key: "exclude-source-dandf", label: "Authority to exclude a source determination and findings", citation: "FAR 6.202", phase: "Market Research", state: "required", templateKey: "exclude-source-dandf", tab: "010" },
+      { doc_key: "exclude-source-dandf", label: "Authority to exclude a source determination and findings", citation: "RFO FAR 6.102-1", phase: "Market Research", state: "required", templateKey: "exclude-source-dandf", tab: "010" },
     ],
   },
   {
@@ -458,7 +458,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "GSA Federal Supply Schedule order, sole source",
     when: (c) => c.s.vehicle === "gsa_fss" && c.sole,
     docs: [
-      { doc_key: "limited-sources-justification", label: "Limited sources justification", citation: "FAR 8.405-6", phase: "JOFOC", state: "required", templateKey: "limited-sources-justification", tab: "015" },
+      { doc_key: "limited-sources-justification", label: "Limited sources justification", citation: "RFO FAR 8.401(b); GSAR subpart 538.71", phase: "JOFOC", state: "required", templateKey: "limited-sources-justification", tab: "015" },
     ],
   },
   {
@@ -466,30 +466,30 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Government-furnished property is provided",
     when: (c) => c.s.gfp,
     docs: [
-      { doc_key: "gfp-determination", label: "Contracting officer determination to provide government property", citation: "FAR 45.102", phase: "Solicitation/Quote", state: "required", templateKey: "gfp-determination", tab: "020" },
+      { doc_key: "gfp-determination", label: "Contracting officer determination to provide government property", citation: "RFO FAR 45.102", phase: "Solicitation/Quote", state: "required", templateKey: "gfp-determination", tab: "020" },
     ],
   },
   {
     key: "far15-competed",
-    condition: "FAR Part 15, competed",
+    condition: "RFO FAR Part 15, competed",
     when: (c) => far15(c) && c.competed,
     docs: [
-      { doc_key: "seb-appointment", label: "Source Evaluation Board membership appointment memorandum", citation: "NFS 1815.303(b)(i)(B); NFS 1815.370", phase: "Solicitation/Quote", state: "offered", templateKey: "seb-appointment", tab: "036" },
-      { doc_key: "set-appointment", label: "Source Evaluation Team (non-SEB) membership appointment memorandum", citation: "NFS 1815.300-70(a)(1)(ii); NFS 1815.303(b)(i)(B)", phase: "Solicitation/Quote", state: "offered", templateKey: "set-appointment", tab: "036" },
-      { doc_key: "ssa-appointment", label: "Source Selection Authority appointment letter", citation: "NFS 1801.603-1; NFS 1815.303(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "ssa-appointment", tab: "036" },
+      { doc_key: "seb-appointment", label: "Source Evaluation Board membership appointment memorandum", citation: "NFS CG 1815.27", phase: "Solicitation/Quote", state: "offered", templateKey: "seb-appointment", tab: "036" },
+      { doc_key: "set-appointment", label: "Source Evaluation Team (non-SEB) membership appointment memorandum", citation: "NFS CG 1815.21(a)(2); NFS CG 1815.27", phase: "Solicitation/Quote", state: "offered", templateKey: "set-appointment", tab: "036" },
+      { doc_key: "ssa-appointment", label: "Source Selection Authority appointment letter", citation: "NFS CG 1815.22(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "ssa-appointment", tab: "036" },
       { doc_key: "drfp-cover-letter", label: "Draft RFP cover letter", citation: "RFO FAR 15.101(b); NFS CG 1815.11(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "drfp-cover-letter", tab: "037" },
-      { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "FAR 15.203; NFS CG 1815.12(b)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "040" },
+      { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "RFO FAR 15.102; NFS CG 1815.12(b)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "040" },
       { doc_key: "blackout-notice", label: "Blackout notice", citation: "RFO FAR 15.201(c)(1); NFS CG 1815.11(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "039" },
       { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS CG 1804.93", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "38" },
-      { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1801.6", phase: "Solicitation/Quote", state: "offered", tab: "020" },
-      { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "FAR 52.222-46; FAR 22.1103", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
-      { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS Appendix C", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "010" },
-      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "FAR 15.406; NFS 1815.406", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "063" },
+      { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1807.13(b)", phase: "Solicitation/Quote", state: "offered", tab: "020" },
+      { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "29 CFR 541.300", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
+      { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS CG 1811.26", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "010" },
+      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "RFO FAR 15.408-1; NFS CG 1815.48", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "063" },
     ],
   },
   {
     key: "far15-sole-source",
-    condition: "FAR Part 15, sole source",
+    condition: "RFO FAR Part 15, sole source",
     when: (c) => far15(c) && c.sole,
     docs: [
       { doc_key: "rfp-noncompetitive", label: "RFP for a non-competitive new award", citation: "RFO FAR 15.102(b)(1)(i); NFS CG 1815.01", phase: "Solicitation/Quote", state: "required", templateKey: "rfp-noncompetitive", tab: "040" },
@@ -508,7 +508,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A collective bargaining agreement covers the incumbent workforce",
     when: (c) => c.s.cba === "yes",
     docs: [
-      { doc_key: "cba-notification", label: "Notification to interested parties under collective bargaining agreements", citation: "FAR 22.1010(a)", phase: "Solicitation/Quote", state: "required", templateKey: "cba-notification", tab: "030" },
+      { doc_key: "cba-notification", label: "Notification to interested parties under collective bargaining agreements", citation: "RFO FAR 22.1004-6(a)", phase: "Solicitation/Quote", state: "required", templateKey: "cba-notification", tab: "030" },
     ],
   },
   {
@@ -519,7 +519,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "postaward-letter-successful",
         label: "Postaward notification letter to the successful offeror",
-        citation: "FAR 15.207-1(a)",
+        citation: "RFO FAR 15.207-1(a)",
         phase: "Award",
         state: "required",
         templateKey: "postaward-letter-successful",
@@ -528,7 +528,7 @@ export const TRIGGERS: TriggerDef[] = [
       {
         doc_key: "postaward-letter-unsuccessful",
         label: "Postaward notification letters to the unsuccessful offerors",
-        citation: "FAR 15.207-2(b)",
+        citation: "RFO FAR 15.207-2(b)",
         phase: "Award",
         state: "required",
         templateKey: "postaward-letter-unsuccessful",
@@ -556,7 +556,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value over the simplified acquisition threshold",
     when: (c) => c.value > 350_000,
     docs: [
-      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "FAR 42.503-3", phase: "Administration", state: "offered", templateKey: "postaward-conference-report", tab: "077" },
+      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "RFO FAR 42.302(a)(3)", phase: "Administration", state: "offered", templateKey: "postaward-conference-report", tab: "077" },
     ],
   },
   {
@@ -564,9 +564,9 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A contract type with award term or award fee",
     when: (c) => c.s.award_term_or_award_fee || ["CPAF", "FPAF"].includes(c.type),
     docs: [
-      { doc_key: "award-term-determination", label: "Award term determination", citation: "NFS 1816.405-277", phase: "Administration", state: "required", templateKey: "award-term-determination", tab: "076" },
+      { doc_key: "award-term-determination", label: "Award term determination", citation: "NFS 1816.402-477", phase: "Administration", state: "required", templateKey: "award-term-determination", tab: "076" },
       { doc_key: "peb-appointment", label: "Performance evaluation board appointment", citation: "NASA Award Fee Contracting Guide, Part 3", phase: "Administration", state: "required", templateKey: "peb-appointment", tab: "076" },
-      { doc_key: "fdo-appointment", label: "Fee determining official appointment", citation: "NFS 1816.401", phase: "Administration", state: "required", templateKey: "fdo-appointment", tab: "076" },
+      { doc_key: "fdo-appointment", label: "Fee determining official appointment", citation: "NFS CG 1816.01(b)", phase: "Administration", state: "required", templateKey: "fdo-appointment", tab: "076" },
     ],
   },
   {
@@ -575,19 +575,19 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => isCost(c),
     docs: [
       { doc_key: "nf-533-analysis", label: "NF 533 monthly analysis", citation: "NFS 1842.7201", phase: "Administration", state: "offered", templateKey: "nf-533-analysis", tab: "080" },
-      { doc_key: "voucher-review-checklist", label: "Voucher review checklist", citation: "FAR 32.905; NFS 1832.905", phase: "Administration", state: "offered", templateKey: "voucher-review-checklist", tab: "083" },
+      { doc_key: "voucher-review-checklist", label: "Voucher review checklist", citation: "RFO FAR 32.905; NFS CG 1832.91", phase: "Administration", state: "offered", templateKey: "voucher-review-checklist", tab: "083" },
     ],
   },
   {
     key: "subcontract-consent",
-    condition: "FAR 52.244-2 in the clause packet",
+    condition: "RFO FAR 52.244-2 in the clause packet",
     when: (c) => {
       const clauses = c.acq["contract_clauses"];
       const list = Array.isArray(clauses) ? clauses.map((x) => String(x)) : [];
       return list.some((x) => x.includes("52.244-2")) || isCost(c);
     },
     docs: [
-      { doc_key: "subcontract-consent-review", label: "Subcontract consent review", citation: "FAR 44.201-1(b); FAR 44.202-2", phase: "Administration", state: "offered", templateKey: "subcontract-consent-review", tab: "079" },
+      { doc_key: "subcontract-consent-review", label: "Subcontract consent review", citation: "RFO FAR 44.201-1(b); RFO FAR 44.201-3", phase: "Administration", state: "offered", templateKey: "subcontract-consent-review", tab: "079" },
     ],
   },
   {
@@ -595,7 +595,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A blanket purchase agreement",
     when: (c) => c.s.vehicle === "bpa",
     docs: [
-      { doc_key: "bpa-annual-review", label: "Blanket purchase agreement annual review", citation: "FAR 13.303-6(a); FAR 8.405-3(e)", phase: "Administration", state: "required", templateKey: "bpa-annual-review", tab: "099" },
+      { doc_key: "bpa-annual-review", label: "Blanket purchase agreement annual review", citation: "RFO FAR 12.201-1(e)(3)(v); RFO FAR 8.401(b); GSAR subpart 538.71", phase: "Administration", state: "required", templateKey: "bpa-annual-review", tab: "099" },
     ],
   },
   {
@@ -603,7 +603,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "The contractor is authorized to use Government supply sources",
     when: (c) => c.s.gfp,
     docs: [
-      { doc_key: "supply-sources-authorization", label: "Authorization to use Government supply sources", citation: "FAR 51.102(e)", phase: "Administration", state: "offered", templateKey: "supply-sources-authorization", tab: "NA" },
+      { doc_key: "supply-sources-authorization", label: "Authorization to use Government supply sources", citation: "NFS CG 1808.18", phase: "Administration", state: "offered", templateKey: "supply-sources-authorization", tab: "NA" },
     ],
   },
   {
@@ -619,7 +619,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "A ratification is requested",
     when: (c) => c.s.ratification_requested,
     docs: [
-      { doc_key: "ratification", label: "Ratification of an unauthorized commitment", citation: "FAR 1.602-3; NFS 1801.602-3", phase: "Intake", state: "required", templateKey: "ratification-unauthorized-commitment", tab: "005" },
+      { doc_key: "ratification", label: "Ratification of an unauthorized commitment", citation: "RFO FAR 1.405; NFS CG 1801.43", phase: "Intake", state: "required", templateKey: "ratification-unauthorized-commitment", tab: "005" },
     ],
   },
 ];

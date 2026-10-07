@@ -216,7 +216,7 @@ export function ModificationsPanel({
             </p>
             <p className="mt-1 text-muted-foreground">
               Block 13 names the authority already in the instrument, or the administrative form
-              cite at FAR 43.103(b). Form use RFO 43.401; modification types RFO 43.203. A
+              cite at RFO FAR 43.203(b). Form use RFO 43.401; modification types RFO 43.203. A
               negotiation memorandum or a justification is a document this change may trigger, never
               the block 13 authority.
             </p>

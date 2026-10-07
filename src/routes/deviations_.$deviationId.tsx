@@ -149,7 +149,7 @@ function DeviationDetail() {
         action: `Deviation ${decision}`,
         field: "decision",
         newValue: decision,
-        reason: decisionReason.trim() || `HCA decision on ${request.citation} (FAR 1.404)`,
+        reason: decisionReason.trim() || `HCA decision on ${request.citation} (RFO FAR 1.304)`,
       });
     },
     onSuccess: () => void refresh(),

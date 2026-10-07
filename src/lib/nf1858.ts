@@ -161,7 +161,7 @@ const fileAddressed = (templateKey: string) => FILE_ADDRESSED.has(templateKey);
 /**
  * A citation written as "A simplified, B part 15" carries both readings. The
  * Ref line prints the one the record's acquisition method calls for: the
- * simplified citation on FAR 13 and FAR 13.5 files, the Part 15 citation
+ * simplified citation on RFO FAR Part 13 and FAR 13.5 files, the Part 15 citation
  * otherwise.
  */
 function oneCitation(ref: string, method: string): string {

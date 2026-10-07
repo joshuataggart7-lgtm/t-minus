@@ -44,7 +44,7 @@ export const thresholdRow = (rows: ThresholdRow[], name: string) =>
 
 // ------------------------------------------------------------ option periods
 
-/** Preliminary notice lead, FAR 52.217-9: the standard NASA fill-in is 60 days. */
+/** Preliminary notice lead, RFO FAR 52.217-9: the standard NASA fill-in is 60 days. */
 export const OPTION_NOTICE_LEAD_DAYS = 60;
 
 export type OptionPeriod = {
@@ -95,7 +95,7 @@ export type CparsView = {
 /**
  * CPARS is required where the value exceeds the threshold row. The first
  * evaluation covers the twelve months after award and is due within 120 days
- * of the end of that period (FAR 42.1502(a); FAR 42.1503(f)).
+ * of the end of that period (RFO FAR 42.1102(a)).
  */
 export function cparsView(
   acq: AcqRow | null | undefined,

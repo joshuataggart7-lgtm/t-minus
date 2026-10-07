@@ -450,7 +450,7 @@ function FilePage() {
     return { coName, value, limit, exceeds: value > limit, unknown: false };
   }, [acq, q.data?.people]);
 
-  // Acquisition Forecast entry, NFS 1807.72: a byproduct of the record for
+  // Acquisition Forecast entry, NFS CG 1807.70: a byproduct of the record for
   // every intake above the simplified acquisition threshold.
   const thresholdRows = useMemo(
     () =>
@@ -1494,9 +1494,9 @@ function FilePage() {
         new_value: next,
         reason:
           next === "responsible"
-            ? "Affirmative determination made by the contracting officer's signature on the SF 1449 (FAR 9.105-2(a)(1))"
+            ? "Affirmative determination made by the contracting officer's signature on the SF 1449 (RFO FAR 9.105-2(a)(1))"
             : next === "nonresponsibility"
-              ? "Nonresponsibility memorandum required (FAR 9.105-2(a)(1))"
+              ? "Nonresponsibility memorandum required (RFO FAR 9.105-2(a)(1))"
               : "Finding cleared",
         phase: "Responsibility Check",
       });
@@ -3150,7 +3150,7 @@ function FilePage() {
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
         <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
           <p className="text-[15px] leading-[22px]">
-            <span className="font-medium">FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
+            <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
             {RFO_RESERVED_212_NOTE}
           </p>
         </section>
@@ -3640,7 +3640,7 @@ function FilePage() {
                   {finding === "responsible" ? (
                     <p className="mt-3 text-[13px] text-muted-foreground">
                       The contracting officer's signature on the SF 1449 is the affirmative responsibility
-                      determination (FAR 9.105-2(a)(1)). No memorandum is generated.
+                      determination (RFO FAR 9.105-2(a)(1)). No memorandum is generated.
                     </p>
                   ) : finding === "nonresponsibility" ? (
                     <p className="mt-3 text-[13px]">
@@ -3651,11 +3651,11 @@ function FilePage() {
                       >
                         Open the determination of nonresponsibility memorandum
                       </Link>
-                      <span className="ml-2 text-muted-foreground">FAR 9.105-2(a)(1)</span>
+                      <span className="ml-2 text-muted-foreground">RFO FAR 9.105-2(a)(1)</span>
                     </p>
                   ) : (
                     <p className="mt-3 text-[13px] text-muted-foreground">
-                      Record the finding once the SAM.gov check and the FAR 9.104-1 factors have been reviewed.
+                      Record the finding once the SAM.gov check and the RFO FAR 9.104-1 factors have been reviewed.
                     </p>
                   )}
                 </div>
@@ -3685,7 +3685,7 @@ function FilePage() {
                   </p>
                   {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
                     <p className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px]">
-                      <span className="font-medium">FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
+                      <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
                       {RFO_RESERVED_212_NOTE}
                     </p>
                   ) : null}
@@ -3907,10 +3907,10 @@ function FilePage() {
                       const exercisedOn = pa.option_exercised_date ?? null;
                       const next = options.periods[0] ?? null;
                       const stateFor = (citation: string) => {
-                        if (citation.startsWith("FAR 17.207(a)")) {
+                        if (citation.startsWith("RFO FAR 17.204-1(b)(1)")) {
                           return noticeOn ? `Recorded ${noticeOn}` : "Open, not recorded";
                         }
-                        if (citation.startsWith("FAR 17.207(c)")) {
+                        if (citation.startsWith("RFO FAR 17.204-1(b)")) {
                           return exercisedOn ? `Recorded ${exercisedOn}` : "Open, not recorded";
                         }
                         return exercisedOn ? "Due with the modification" : "Open, not recorded";
@@ -3978,7 +3978,7 @@ function FilePage() {
                             patch: { option_notice_date: e.target.value },
                             action: "Option preliminary notice recorded",
                             field: "option_notice_date",
-                            reason: "FAR 17.207(a) preliminary notification to the contractor",
+                            reason: "RFO FAR 17.204-1(b)(1) preliminary notification to the contractor",
                             phase: "Administration",
                           })
                         }
@@ -3998,7 +3998,7 @@ function FilePage() {
                             patch: { option_exercised_date: e.target.value },
                             action: "Option exercised",
                             field: "option_exercised_date",
-                            reason: "FAR 17.207(c) determination signed and the option exercised",
+                            reason: "RFO FAR 17.204-1(b) determination signed and the option exercised",
                             phase: "Administration",
                           })
                         }
@@ -4234,7 +4234,7 @@ function FilePage() {
                     </ul>
                     <button
                       type="button"
-                      onClick={() => downloadModPacket("administrative", "FAR 43.103(b); FAR 43.301", null)}
+                      onClick={() => downloadModPacket("administrative", "RFO FAR 43.203(b); RFO FAR 43.401", null)}
                       className="mt-3 text-[15px] text-primary"
                     >
                       Download the SF 30 handoff packet

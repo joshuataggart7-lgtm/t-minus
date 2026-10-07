@@ -106,7 +106,7 @@ export function evaluateCompanionGates(
     name: "NF 1787 small business coordination",
     applies: sbApplies,
     trigger:
-      "Over $2,000,000 and not set aside under FAR Part 19, an out-of-scope modification, or contemplated bundling or consolidation, unless an NFS CG 1819.11(a)(2) exception applies.",
+      "Over $2,000,000 and not set aside under RFO FAR Part 19, an out-of-scope modification, or contemplated bundling or consolidation, unless an NFS CG 1819.11(a)(2) exception applies.",
     citation: `${NF1787_CITATION}, guidance`,
     status: !sbApplies ? "Not applicable" : sbSat || sbVote.status === "Satisfied" ? "Satisfied" : "Open",
     evidence: `${!sbApplies ? sb.reason : sbSat ? "An NF 1787 coordination form is on the file." : sbVote.evidence}${sb.advisory ? ` ${sb.advisory}` : ""}`,

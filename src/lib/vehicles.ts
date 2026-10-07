@@ -18,7 +18,7 @@ export type VehicleProfile = {
   ordering_end: string | null;
   /** order types the vehicle allows */
   order_types: string[];
-  /** fair opportunity under FAR 16.505(b), or the exception the CO relies on */
+  /** fair opportunity under RFO FAR 16.507-2, or the exception the CO relies on */
   fair_opportunity: "competed" | FairOpportunityException;
   clause_set: string;
   awardees: Awardee[];
@@ -75,12 +75,12 @@ export type FairOpportunityException =
   | "brand_name";
 
 export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label: string; citation: string }[] = [
-  { key: "urgency", label: "Urgent need", citation: "FAR 16.505(b)(2)(i)(A)" },
-  { key: "only_one_capable", label: "Only one awardee is capable", citation: "FAR 16.505(b)(2)(i)(B)" },
-  { key: "logical_follow_on", label: "Logical follow-on", citation: "FAR 16.505(b)(2)(i)(C)" },
-  { key: "minimum_guarantee", label: "Minimum guarantee", citation: "FAR 16.505(b)(2)(i)(D)" },
-  { key: "statutory", label: "Statutory authority", citation: "FAR 16.505(b)(2)(ii)" },
-  { key: "brand_name", label: "Brand name", citation: "FAR 16.505(a)(4)" },
+  { key: "urgency", label: "Urgent need", citation: "RFO FAR 16.507-6(b)(1)" },
+  { key: "only_one_capable", label: "Only one awardee is capable", citation: "RFO FAR 16.507-6(b)(2)" },
+  { key: "logical_follow_on", label: "Logical follow-on", citation: "RFO FAR 16.507-6(b)(3)" },
+  { key: "minimum_guarantee", label: "Minimum guarantee", citation: "RFO FAR 16.507-6(b)(4)" },
+  { key: "statutory", label: "Statutory authority", citation: "RFO FAR 16.507-6(b)(5)" },
+  { key: "brand_name", label: "Brand name", citation: "RFO FAR 16.507-7" },
 ];
 
 export function exceptionLabel(
@@ -91,7 +91,7 @@ export function exceptionLabel(
 
 /** The fair opportunity rule for a GSA schedule order, by value. */
 export function fssOrderCitation(value: number, sat = 350_000): string {
-  return value <= sat ? "FAR 8.405-1" : "FAR 8.405-2";
+  return value <= sat ? "RFO FAR 8.401(b); GSAR subpart 538.71" : "RFO FAR 8.401(b); GSAR subpart 538.71";
 }
 
 // --------------------------------------------------------- modifications
@@ -130,7 +130,7 @@ export type ModificationRow = {
  * the change may trigger, not the authority for the change.
  *
  * Form use RFO 43.401; modification types RFO 43.203. Administrative changes
- * take the form cite at FAR 43.103(b). NASA Interim NFS 1843 is not general
+ * take the form cite at RFO FAR 43.203(b). NASA Interim NFS 1843 is not general
  * block 13 text and the NFS Companion Guide is process only, so neither is
  * printed in the block 13 blank.
  */
@@ -141,7 +141,7 @@ export const MOD_TYPES: {
   /** Plain description of where the authority comes from. */
   authority: string;
 }[] = [
-  { key: "administrative", label: "Administrative change", block: "13B", authority: "FAR 43.103(b) administrative change" },
+  { key: "administrative", label: "Administrative change", block: "13B", authority: "RFO FAR 43.203(b) administrative change" },
   { key: "funding", label: "Funding modification", block: "13D", authority: "The clause of the contract that authorizes the change" },
   { key: "option_exercise", label: "Option exercise", block: "13D", authority: "The option clause of the contract" },
   { key: "change_order", label: "Change order", block: "13A", authority: "The Changes clause of the contract" },
@@ -156,7 +156,7 @@ export function modTypeInfo(type: string) {
 /** Printed when the instrument clause cannot be read from the record. */
 export const AUTHORITY_PENDING = "authority from record / RFO-pending";
 
-/** A commercial file carries FAR 52.212-4 Changes, not the 52.243 series. */
+/** A commercial file carries RFO FAR 52.212-4 Changes, not the 52.243 series. */
 export function isCommercialInstrument(acq: Record<string, unknown> | null | undefined): boolean {
   const method = String(acq?.["acquisition_method"] ?? "");
   const format = String(acq?.["contract_format"] ?? "");
@@ -182,9 +182,9 @@ export function modAuthorityText(
   switch (type) {
     case "administrative":
       // The only block 13 entry that is a form cite rather than a clause.
-      return "FAR 43.103(b), administrative change signed by the contracting officer alone";
+      return "RFO FAR 43.203(b), administrative change signed by the contracting officer alone";
     case "change_order":
-      if (commercial) return "FAR 52.212-4(c) Changes, the Changes clause of this contract";
+      if (commercial) return "RFO FAR 52.212-4(d) Changes, the Changes clause of this contract";
       if (has("52.243")) return `${clauses.find((c) => c.startsWith("52.243"))} Changes, as awarded in this contract`;
       return `The Changes clause of the contract as awarded (${AUTHORITY_PENDING})`;
     case "option_exercise": {
@@ -193,7 +193,7 @@ export function modAuthorityText(
       return `The option clause of the contract as awarded (${AUTHORITY_PENDING})`;
     }
     case "termination":
-      if (commercial) return "FAR 52.212-4(l) or (m), the termination clause of this contract, as applicable";
+      if (commercial) return "RFO FAR 52.212-4(l) or (m), the termination clause of this contract, as applicable";
       return `The termination clause of the contract as awarded (${AUTHORITY_PENDING})`;
     case "funding":
       if (ordered) return `The clause of the parent vehicle or order that authorizes the change, within scope (${AUTHORITY_PENDING})`;
@@ -244,8 +244,8 @@ export function modRows(
   const rows: ModRow[] = [];
   if (mod.mod_type === "option_exercise") {
     rows.push(
-      { label: "Preliminary notice of intent to exercise the option", citation: "FAR 17.207(a)", state: "required", templateKey: "option-exercise-notification" },
-      { label: "Determination to exercise the option", citation: "FAR 17.207(c) and (d)", state: "required", templateKey: "option-exercise-determination" },
+      { label: "Preliminary notice of intent to exercise the option", citation: "RFO FAR 17.204-1(b)(1)", state: "required", templateKey: "option-exercise-notification" },
+      { label: "Determination to exercise the option", citation: "RFO FAR 17.204-1(b)", state: "required", templateKey: "option-exercise-determination" },
     );
   }
   if ((mod.mod_type === "change_order" || mod.mod_type === "supplemental") && value > sat) {
@@ -264,13 +264,13 @@ export function modRows(
     });
     rows.push({
       label: "Justification for other than full and open competition, out-of-scope modification",
-      citation: "FAR 6.104",
+      citation: "RFO FAR 6.104",
       state: "required",
       templateKey: "jofoc",
     });
   }
   rows.push({ label: "FPDS-NG modification report", citation: "RFO FAR 4.301", state: "required" });
-  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "FAR 43.301; NFS CG 1804.11(b)", state: "required" });
+  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "RFO FAR 43.401; NFS CG 1804.11(b)", state: "required" });
   return rows;
 }
 
@@ -336,7 +336,7 @@ export function closeoutChecklist(
     },
     {
       label: "Final CPARS evaluation entered",
-      citation: "FAR 42.1502(a)",
+      citation: "RFO FAR 42.1102(a)",
       done: opts.cparsRecorded,
     },
     {

@@ -49,7 +49,7 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
             method ? ` Acquisition method on the record: ${method}.` : ""
           }`
         : "No commercial determination is recorded on this file. The determination itself is written by the contracting officer; T-Minus does not draft it.",
-      citation: "FAR 2.101; FAR 10.002(e); FAR 12.102",
+      citation: "RFO FAR 2.101; RFO FAR 10.001(e); RFO FAR Part 12",
       templateKey: "commerciality",
       templateLabel: "Commerciality Determination and Findings",
     },
@@ -62,10 +62,10 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
           ? `The record reads as competed${competition ? ` (${competition})` : ""}${method ? `, method ${method}` : ""}.`
           : "No competition or acquisition method is recorded on this file.",
       citation: soleSource
-        ? `FAR 6.303 justification${jofoc ? `; authority on the record: ${jofoc}` : ""}`
+        ? `RFO FAR 6.104 justification${jofoc ? `; authority on the record: ${jofoc}` : ""}`
         : simplified
           ? "RFO FAR 12.203 (evaluation of quotations)"
-          : "FAR 15.305 (proposal evaluation)",
+          : "RFO FAR 15.202 (proposal evaluation)",
       templateKey: soleSource ? "jofoc" : null,
       templateLabel: soleSource ? "Justification for other than full and open competition" : null,
     },

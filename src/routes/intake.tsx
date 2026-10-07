@@ -492,7 +492,7 @@ function IntakePage() {
       const today = todayISO();
       const lead = Number(facts.lead_to_delivery_days) || 0;
       const target = addDays(facts.need_date, -lead);
-      const est = estimate(inputsFromFacts(facts), data.data!.ref);
+      const est = estimate(inputsFromFacts(facts, scenario.vehicle), data.data!.ref);
       const stored = toStored(est);
 
       const payload = {
@@ -683,7 +683,7 @@ function IntakePage() {
 
   const value = parseMoney(facts.estimated_value);
   // The level-of-effort estimate the requester sees before the clock starts.
-  const intakeEstimate = scan && data.data ? estimate(inputsFromFacts(facts), data.data.ref) : null;
+  const intakeEstimate = scan && data.data ? estimate(inputsFromFacts(facts, scenario.vehicle), data.data.ref) : null;
   const blocking = scan?.filter((f) => f.blocking) ?? [];
 
   return (
@@ -1257,7 +1257,7 @@ function IntakePage() {
                       setVeh("fair_opportunity", e.target.value as VehicleProfile["fair_opportunity"])
                     }
                   >
-                    <option value="competed">Fair opportunity to every awardee, FAR 16.505(b)</option>
+                    <option value="competed">Fair opportunity to every awardee, RFO FAR 16.507-2</option>
                     {FAIR_OPPORTUNITY_EXCEPTIONS.map((x) => (
                       <option key={x.key} value={x.key}>
                         Exception: {x.label}, {x.citation}

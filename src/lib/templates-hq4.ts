@@ -88,7 +88,7 @@ const PO_BLOCK = { label: "Procurement Officer" };
 const HQ_OGC_BLOCK = { label: "Office of the General Counsel at Headquarters" };
 const HCA_BLOCK = {
   label: "Head of Contracting Activity",
-  note: "Refer to the NFS 1802.101 definition of head of contracting activity.",
+  note: "Refer to the NFS CG 1802.2 definition of head of contracting activity.",
 };
 const SPE_BLOCK = { label: "Senior Procurement Executive" };
 const TECH_REP_BLOCK = { label: "Technical Representative" };
@@ -105,7 +105,7 @@ const foreignContractRequest: TemplateDef = {
   tab: "032",
   layout: "memo",
   badge: {
-    citation: "NFS 1825.7002(a); NFS 1825.7002(b)(1); NFS 1825.7003; FAR Part 25",
+    citation: "NFS CG 1825.713(a); NFS CG 1825.713(c); RFO FAR Part 25",
     tier: "binding",
     revision: "HQ 04/2025 revision",
     effective: "2026-04-09",
@@ -116,13 +116,13 @@ const foreignContractRequest: TemplateDef = {
     {
       id: "memo_header",
       title: "Memorandum",
-      citation: "NFS 1825.7002(b)(1)",
+      citation: "NFS CG 1825.713(c)",
       tier: "binding",
       standingText:
         "TO: NASA Headquarters, Attn: Office of International and Interagency Relations\n" +
         "THRU: NASA Headquarters, Office of Procurement, Procurement Strategic Operations Division\n" +
         "SUBJECT: Clearance Request to Award a Contract to a Foreign Entity\n\n" +
-        "NASA Federal Acquisition Regulation (FAR) Supplement (NFS) 1825.7002(a) requires coordination with NASA Headquarters before initiating any foreign contract acquisition if the acquisition is valued above $100,000 or involves export control issues. In accordance with NFS 1825.7002(b)(1), the required information is provided below and clearance to award a contract to a foreign entity is hereby requested.",
+        "NASA FAR Supplement Companion Guide (NFS CG) 1825.713(a) requires coordination with NASA Headquarters before initiating any foreign contract acquisition if the acquisition is valued above $100,000 or involves export control issues. In accordance with NFS CG 1825.713(c), the required information is provided below and clearance to award a contract to a foreign entity is hereby requested.",
       fields: [
         { key: "memo_date", label: "Date", kind: "date" },
         X("org_code", "Reply to Attn of: organizational code", "requester_org_code"),
@@ -132,7 +132,7 @@ const foreignContractRequest: TemplateDef = {
     {
       id: "item_1",
       title: "1. The name of the foreign entity, the country or countries involved, and the purpose of the contract:",
-      citation: "NFS 1825.7002(b)(1)",
+      citation: "NFS CG 1825.713(c)",
       tier: "binding",
       fields: [
         X("foreign_entity", "Name of foreign entity", "vendor_legal_name"),
@@ -145,7 +145,7 @@ const foreignContractRequest: TemplateDef = {
     {
       id: "item_2",
       title: "2. The Space Act agreement(s) involved:",
-      citation: "NFS 1825.7002(b)(1)",
+      citation: "NFS CG 1825.713(c)",
       tier: "binding",
       fields: [
         S(
@@ -171,7 +171,7 @@ const foreignContractRequest: TemplateDef = {
       id: "item_3",
       title:
         "3. A description of the goods or technical data requiring prior written approval or the issuance of the license for their import or export from the Departments of Commerce, State, and Treasury:",
-      citation: "NFS 1825.7003",
+      citation: "NFS CG 1825.713(a)",
       tier: "binding",
       fields: [
         S(
@@ -189,14 +189,14 @@ const foreignContractRequest: TemplateDef = {
     {
       id: "item_4",
       title: "4. The reason why the acquisition is being placed with a foreign entity:",
-      citation: "NFS 1825.7002(b)(1)",
+      citation: "NFS CG 1825.713(c)",
       tier: "binding",
       fields: [T("reason", "Reason the acquisition is placed with a foreign entity")],
     },
     {
       id: "closing",
       title: "Closing",
-      citation: "NFS 1825.7002",
+      citation: "NFS CG 1825.713",
       tier: "binding",
       standingText:
         "If there are any questions related to this request, please contact the undersigned or the Contracting Officer.",
@@ -208,7 +208,7 @@ const foreignContractRequest: TemplateDef = {
     signaturePage(
       "REQUEST TO AWARD A FOREIGN CONTRACT",
       [{ label: "Technical Officer" }, { label: "Concurrence: Contracting Officer" }],
-      "NFS 1825.7002(b)(1)",
+      "NFS CG 1825.713(c)",
       "Concurrence:",
     ),
   ],
@@ -221,7 +221,7 @@ const dutyFreeCertificate: TemplateDef = {
   tab: "095",
   layout: "memo",
   badge: {
-    citation: "FAR Subpart 25.9; FAR 25.901; NFS 1825.903; 14 C.F.R. 1217.103",
+    citation: "RFO FAR subpart 25.9; RFO FAR 25.901; NFS CG 1825.91; 14 C.F.R. 1217.103",
     tier: "guidance",
     revision: "HQ 01/2026 revision",
     effective: "2026-04-07",
@@ -232,7 +232,7 @@ const dutyFreeCertificate: TemplateDef = {
     {
       id: "heading",
       title: "Heading",
-      citation: "FAR 25.901",
+      citation: "RFO FAR 25.901",
       tier: "binding",
       standingText:
         "U.S. Customs duty-Free Entry Certificate\nArticles for National Aeronautics and Space Administration (NASA)\nItem 9808.00.80 Harmonized Tariff of the United States\n\n" +
@@ -256,7 +256,7 @@ const dutyFreeCertificate: TemplateDef = {
     {
       id: "parties",
       title: "Contract and supplier",
-      citation: "FAR Subpart 25.9",
+      citation: "RFO FAR subpart 25.9",
       tier: "binding",
       fields: [
         X("prime_contractor", "NASA prime contractor: full name and address", "vendor_legal_name"),
@@ -297,7 +297,7 @@ const dutyFreeCertificate: TemplateDef = {
         { label: "Concurrence: Office of the General Counsel, installation" },
         { label: "Approval: Procurement Officer, installation" },
       ],
-      "NFS 1825.903",
+      "NFS CG 1825.91",
       "Prepared by / Concurrence / Approval:",
     ),
   ],
@@ -310,7 +310,7 @@ const buyAmericanNonavailability: TemplateDef = {
   tab: "025",
   layout: "dandf",
   badge: {
-    citation: "FAR 25.103(b)(2)(i); NFS 1825.103; Procurement Class Deviation 25-54",
+    citation: "RFO FAR 25.103(b)(2)(i); NFS 1825.103; Procurement Class Deviation 25-54",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-04-20",
@@ -318,22 +318,22 @@ const buyAmericanNonavailability: TemplateDef = {
   },
   lead: "Determination that the foreign end product may be acquired under the nonavailability exception.",
   sections: [
-    centreHeading(["Buy American Act Nonavailability Determination – Supplies"], "FAR 25.103", [
+    centreHeading(["Buy American Act Nonavailability Determination – Supplies"], "RFO FAR 25.103", [
       X("pr_number", "Purchase Request (PR)/solicitation/contract no.", "pr_number"),
     ]),
     {
       id: "authority",
       title: "Authority",
-      citation: "FAR 25.103(b)(2)(i)",
+      citation: "RFO FAR 25.103(b)(2)(i)",
       tier: "binding",
       standingText:
-        "In accordance with Federal Acquisition Regulation (FAR) 25.103, the contracting officer (CO) may acquire the foreign end product identified herein without regard to the restrictions of the Buy American Act, under the authority of the nonavailability exception (b)(2)(i). This authorization is based upon the determination that the articles, materials, or supplies to be procured are not mined, produced, or manufactured in the United States in sufficient and reasonably available commercial quantities of a satisfactory quality.",
+        "In accordance with RFO FAR 25.103, the contracting officer (CO) may acquire the foreign end product identified herein without regard to the restrictions of the Buy American Act, under the authority of the nonavailability exception (b)(2)(i). This authorization is based upon the determination that the articles, materials, or supplies to be procured are not mined, produced, or manufactured in the United States in sufficient and reasonably available commercial quantities of a satisfactory quality.",
       fields: [],
     },
     {
       id: "finding_a",
       title: "(a) A requirement exists to procure the following item(s):",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       fields: [
         T("items", "Item, quantity, description, NAICS, PSC, unit price and total for each item"),
@@ -343,7 +343,7 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "finding_b",
       title: "(b) The proposed contractor is:",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       fields: [
         X("contractor", "Name of the proposed contractor", "vendor_legal_name"),
@@ -359,7 +359,7 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "finding_c",
       title: "(c) The country of origin is:",
-      citation: "FAR 25.7",
+      citation: "RFO FAR Part 25",
       tier: "binding",
       fields: [
         X("country_of_origin", "Name of country"),
@@ -369,7 +369,7 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "finding_d",
       title: "(d) Description of the item(s) to be acquired",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       fields: [
         {
@@ -383,31 +383,31 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "finding_e",
       title: "(e) Market research was conducted",
-      citation: "FAR Part 10",
+      citation: "RFO FAR Part 10",
       tier: "binding",
       fields: [T("market_research", "Activities, methods, timing and conclusions")],
     },
     {
       id: "finding_f",
       title: "(f) Use of competition",
-      citation: "FAR Part 6",
+      citation: "RFO FAR Part 6",
       tier: "binding",
       fields: [T("competition", "Use of competition for this acquisition")],
     },
     {
       id: "finding_g",
       title: "(g) Presolicitation notice",
-      citation: "FAR 5.101",
+      citation: "RFO FAR 5.101",
       tier: "binding",
       fields: [
         S(
           "presolicitation",
           "Select one",
           [
-            "This acquisition was exempt from a presolicitation notice in accordance with FAR 5.101(a)(1), as its value did not exceed the $20,000 threshold for posting a presolicitation notice.",
-            "This acquisition was exempt from a presolicitation notice in accordance with FAR 5.101(b)(1)(i), as 1) its value did not exceed the simplified acquisition threshold (i.e., $350,000); and 2) the solicitation will be posted to the Governmentwide point of entry (GPE) and permit the public to respond to the solicitation electronically.",
-            "This acquisition was exempt from a presolicitation notice in accordance with another exception at FAR 5.101(b)(1).",
-            "A presolicitation notice was posted to the GPE as required by FAR 5.101(a).",
+            "This acquisition was exempt from a presolicitation notice in accordance with RFO FAR 5.101(a), as its value did not exceed the $20,000 threshold for posting a presolicitation notice.",
+            "This acquisition was exempt from a presolicitation notice in accordance with RFO FAR 5.101(b)(1)(i), as 1) its value did not exceed the simplified acquisition threshold (i.e., $350,000); and 2) the solicitation will be posted to the Governmentwide point of entry (GPE) and permit the public to respond to the solicitation electronically.",
+            "This acquisition was exempt from a presolicitation notice in accordance with another exception at RFO FAR 5.101(b)(1).",
+            "A presolicitation notice was posted to the GPE as required by RFO FAR 5.101(a).",
           ],
         ),
         T("presolicitation_detail", "Exception language, posting date, responses received, evaluation results and the rationale for selecting the foreign end product"),
@@ -416,21 +416,21 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "finding_h",
       title: "(h) Expectation of price preference",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       fields: [T("price_preference", "Whether the solicitation included the provision announcing the price preference")],
     },
     {
       id: "finding_i",
       title: "(i) Exclusion of a source offering a U.S. made product",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       fields: [T("exclusion", "Preaward narrative")],
     },
     {
       id: "finding_j",
       title: "(j) The Government's minimum needs",
-      citation: "FAR 25.103",
+      citation: "RFO FAR 25.103",
       tier: "binding",
       standingText:
         "The Government's minimum needs can only be satisfied by the unique items available from the country of origin cited in paragraph (c) above, as there are no known domestically available item(s) for the proposed acquisition.",
@@ -443,21 +443,21 @@ const buyAmericanNonavailability: TemplateDef = {
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 25.103(b)(2)(i)",
+      citation: "RFO FAR 25.103(b)(2)(i)",
       tier: "binding",
       standingText:
         "On the basis of the foregoing, it is hereby determined the items described in paragraph (a) above are not mined, produced, or manufactured (or the articles, materials, or supplies from which the items are manufactured are not mined, produced, or manufactured) in the United States in sufficient and reasonably available commercial quantities of a satisfactory quality. Therefore, the Buy American Act requirement that acquisition be made from domestic sources and that the items be of domestic origin, are not applicable to this acquisition.\n\n" +
-        "This acquisition is within the Buy American Act's nonavailability exception at FAR 25.103(b)(2)(i). Authority is hereby granted to acquire the above-described item(s) of foreign origin at an estimated total cost including duty and transportation costs to destination.",
+        "This acquisition is within the Buy American Act's nonavailability exception at RFO FAR 25.103(b)(2)(i). Authority is hereby granted to acquire the above-described item(s) of foreign origin at an estimated total cost including duty and transportation costs to destination.",
       fields: [
         M("determination_value", "Estimated total cost including duty and transportation", "estimated_value"),
         S("determination_variant", "Additional paragraph", [
           "None",
-          "Unusual and compelling urgency, FAR 6.103-2",
-          "At or below the simplified acquisition threshold, FAR 13.106-1(b)",
+          "Unusual and compelling urgency, RFO FAR 6.103-2",
+          "At or below the simplified acquisition threshold, RFO FAR 13.101(b)",
         ], "None"),
         { key: "justification_approved_on", label: "Date the justification for other than full and open competition was approved", kind: "date" },
         X("justification_approver", "Name and title of the approving official"),
-        X("sat_reason", "Reason the item is reasonably available from one source, where FAR 13.104(b) applies"),
+        X("sat_reason", "Reason the item is reasonably available from one source, where RFO FAR 13.101 applies"),
         { key: "determined_on", label: "Date", kind: "date" },
       ],
     },
@@ -474,8 +474,8 @@ const buyAmericanNonavailability: TemplateDef = {
         { label: "Senior Accountability Official", note: "The Office of International and Interagency Relations is designated NASA's Senior Accountability Official." },
         { label: "Approval: Head of Contracting Activity" },
       ],
-      "FAR 25.103(b)(2)(i)",
-      "In accordance with FAR 25.103(b)(2)(i) non-availability determinations must be approved by the head of the contracting activity.\n" +
+      "RFO FAR 25.103(b)(2)(i)",
+      "In accordance with RFO FAR 25.103(b)(2)(i) non-availability determinations must be approved by the head of the contracting activity.\n" +
         LEGAL_CONCURRENCE,
     ),
   ],
@@ -488,7 +488,7 @@ const noncommercialRequest: TemplateDef = {
   tab: "004",
   layout: "memo",
   badge: {
-    citation: "Executive Order 14271; FAR Part 10 and 41 U.S.C. 3307(d); FAR Part 12 and 10 U.S.C. 3453(c)",
+    citation: "Executive Order 14271; RFO FAR Part 10 and 41 U.S.C. 3307(d); RFO FAR Part 12 and 10 U.S.C. 3453(c)",
     tier: "binding",
     revision: "HQ 07/2025 issuance",
     effective: "2026-05-19",
@@ -521,7 +521,7 @@ const noncommercialRequest: TemplateDef = {
     {
       id: "item_7",
       title: "7. Procurement Description:",
-      citation: "FAR Part 12",
+      citation: "RFO FAR Part 12",
       tier: "binding",
       fields: [
         {
@@ -535,21 +535,21 @@ const noncommercialRequest: TemplateDef = {
     {
       id: "item_8",
       title: "8. Reasons a non-commercial product or service is required:",
-      citation: "FAR Part 12 and 10 U.S.C. 3453(c)",
+      citation: "RFO FAR Part 12 and 10 U.S.C. 3453(c)",
       tier: "binding",
       fields: [T("reasons", "At least three reasons")],
     },
     {
       id: "item_9",
       title: "9. Summary of Market Research:",
-      citation: "FAR Part 10 and 41 U.S.C. 3307(d)",
+      citation: "RFO FAR Part 10 and 41 U.S.C. 3307(d)",
       tier: "binding",
       fields: [T("market_research", "When conducted, mechanism used and responses received")],
     },
     {
       id: "item_10",
       title: "10. Summary of Price Analysis:",
-      citation: "FAR Part 15.4; NFS Subpart 1815.4",
+      citation: "RFO FAR subpart 15.4; NFS Subpart 1815.4",
       tier: "binding",
       fields: [T("price_analysis", "Type, contents, method and results, and the basis of the independent government cost estimate")],
     },
@@ -578,7 +578,7 @@ const abilityOneCoordination: TemplateDef = {
   tab: "004",
   layout: "memo",
   badge: {
-    citation: "NFS 1808.705-1(c) and (d); FAR Part 8",
+    citation: "NFS CG 1808.21(b); RFO FAR Part 8",
     tier: "guidance",
     revision: "HQ 04/2025 revision",
     effective: "2026-05-20",
@@ -589,7 +589,7 @@ const abilityOneCoordination: TemplateDef = {
     {
       id: "heading",
       title: "ABILITYONE COORDINATION",
-      citation: "NFS 1808.705-1(c)",
+      citation: "NFS CG 1808.21(b)",
       tier: "binding",
       standingText:
         "NATIONAL AERONAUTICS AND SPACE ADMINISTRATION\nABILITYONE COORDINATION\n\nThe following information is required for AbilityOne to begin an initial assessment of the requirement(s). Please, answer all the following questions:",
@@ -601,7 +601,7 @@ const abilityOneCoordination: TemplateDef = {
     {
       id: "questions",
       title: "Questions",
-      citation: "NFS 1808.705-1(d)",
+      citation: "NFS CG 1808.21(b)",
       tier: "binding",
       fields: [
         X("q1", "1. Where is the place of performance (address)?", "place_of_performance"),
@@ -629,7 +629,7 @@ const npaNotification: TemplateDef = {
   tab: "70",
   layout: "memo",
   badge: {
-    citation: "FAR 5.3; FAR 5.302; NFS CG 1805.3; NFS CG 1805.302",
+    citation: "RFO FAR subpart 5.3; RFO FAR 5.301; NFS CG 1805.3; NFS CG 1805.32",
     tier: "guidance",
     revision: "HQ 03/2026 revision",
     effective: "2026-08-14",
@@ -670,7 +670,7 @@ const npaNotification: TemplateDef = {
     {
       id: "description",
       title: "2. Description",
-      citation: "FAR 5.302",
+      citation: "RFO FAR 5.301",
       tier: "binding",
       fields: [
         { key: "detailed_description", label: "2a. Detailed Description of Action:", kind: "textarea", bind: "description_of_requirement" },
@@ -685,7 +685,7 @@ const npaNotification: TemplateDef = {
     {
       id: "action_detail",
       title: "3–12. Action detail",
-      citation: "NFS CG 1805.302",
+      citation: "NFS CG 1805.32",
       tier: "guidance",
       fields: [
         T("awardee", "3. Name and Full Address of Awardee (if applicable):"),
@@ -711,7 +711,7 @@ const subcontractingPlanWaiver: TemplateDef = {
   tab: "067",
   layout: "dandf",
   badge: {
-    citation: "FAR 19.705-2(b); FAR 19.705-2(c); NFS 1819.705-2",
+    citation: "RFO FAR 19.109(c)(1); RFO FAR 19.109(c)(2); NFS CG 1819.23",
     tier: "binding",
     revision: "HQ 08/2024 revision",
     effective: "2026-05-01",
@@ -721,12 +721,12 @@ const subcontractingPlanWaiver: TemplateDef = {
   sections: [
     centreHeading(
       ["DETERMINATION", "Waiver of the Requirement for a Subcontracting Plan When it is Determined that No Subcontracting Possibilities Exist"],
-      "FAR 19.705-2(b)",
+      "RFO FAR 19.109(c)(1)",
     ),
     {
       id: "action",
       title: "A description of the action:",
-      citation: "FAR 19.705-2",
+      citation: "RFO FAR 19.109(c)",
       tier: "binding",
       fields: [
         X("contractor", "Name of the contractor", "vendor_legal_name"),
@@ -736,22 +736,22 @@ const subcontractingPlanWaiver: TemplateDef = {
     },
     {
       id: "citation",
-      title: "Citation of the appropriate statue and/or regulation upon which the determination is based: FAR 19.705-2(b)",
-      citation: "FAR 19.705-2(b)",
+      title: "Citation of the appropriate statue and/or regulation upon which the determination is based: RFO FAR 19.109(c)(1)",
+      citation: "RFO FAR 19.109(c)(1)",
       tier: "binding",
       fields: [],
     },
     {
       id: "circumstances",
       title: "Circumstances, facts or reasonings essential to support the determination:",
-      citation: "FAR 19.705-2(b)",
+      citation: "RFO FAR 19.109(c)(1)",
       tier: "binding",
       fields: [T("circumstances", "Detailed rationale specific to this procurement as to why no subcontracting possibilities exist")],
     },
     {
       id: "factors",
-      title: "In accordance with FAR 19.705-2 (b), the contracting officer shall also consider the following factors:",
-      citation: "FAR 19.705-2(b)",
+      title: "In accordance with RFO FAR 19.109(c) (b), the contracting officer shall also consider the following factors:",
+      citation: "RFO FAR 19.109(c)(1)",
       tier: "binding",
       fields: [
         T(
@@ -761,24 +761,24 @@ const subcontractingPlanWaiver: TemplateDef = {
         T("factor_2", "2. Are there likely to be product prequalification requirements? Explain."),
         T(
           "factor_3",
-          "3. Can the firm acquire any portion of the work with minimal or no disruption to performance (without consideration given to the time remaining until contract completion), and at fair market value, when a determination is made in accordance with FAR 19.705-2(a)(2)?",
-          "Address this factor where the action is a modification that could increase the contract value above the FAR 19.702(a) threshold.",
+          "3. Can the firm acquire any portion of the work with minimal or no disruption to performance (without consideration given to the time remaining until contract completion), and at fair market value, when a plan is required under RFO FAR 19.302-1?",
+          "Address this factor where the action is a modification that could increase the contract value above the RFO FAR 19.109(a)(1) threshold.",
         ),
       ],
     },
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 19.705-2(c)",
+      citation: "RFO FAR 19.109(c)(2)",
       tier: "binding",
       standingText:
-        "Based on the rationale described above, it is determined pursuant to FAR 19.705-2(c), the pending contract named below should be awarded without a subcontracting plan because it has been determined that no subcontracting possibilities exist.",
+        "Based on the rationale described above, it is determined pursuant to RFO FAR 19.109(c)(2), the pending contract named below should be awarded without a subcontracting plan because it has been determined that no subcontracting possibilities exist.",
       fields: [{ key: "determined_on", label: "Date", kind: "date" }],
     },
     signaturePage(
       "DETERMINATION FOR AUTHORITY TO WAIVE REQUIREMENT FOR A SUBCONTRACTING PLAN WHEN IT IS DETERMINED THAT NO SUBCONTRACTING POSSIBILITIES EXIST",
       [CO_BLOCK, { label: "Small Business Specialist (SBS)" }, { label: "Approval: Head of Contracting Activity" }],
-      "FAR 19.705-2(c)",
+      "RFO FAR 19.109(c)(2)",
       "APPROVAL:",
     ),
   ],
@@ -786,7 +786,7 @@ const subcontractingPlanWaiver: TemplateDef = {
 
 // ------------------------------------------------ 8. OCI determination memorandum and checklist
 const OCI_PLAN_ITEMS = [
-  "Plan demonstrates a basic understanding of OCI principles, the types of OCI and the harm they cause, references FAR 9.5 and addresses the three primary types.",
+  "Plan demonstrates a basic understanding of OCI principles, the types of OCI and the harm they cause, references RFO FAR subpart 9.5 and addresses the three primary types.",
   "Plan defines company roles and responsibilities for monitoring OCIs during performance.",
   "Plan describes how employees are notified of the Plan's requirements.",
   "Plan explains how the contractor documents employee notification, entrance, refresher and exit training, and includes a training certification template.",
@@ -817,7 +817,7 @@ const ociDetermination: TemplateDef = {
   tab: "018",
   layout: "memo",
   badge: {
-    citation: "FAR Subpart 9.5; NFS Subpart 1809.5; NFS 1852.237-72",
+    citation: "RFO FAR subpart 9.5; NFS Subpart 1809.5; NFS 1852.237-72",
     tier: "binding",
     revision: "HQ 05/2021 issuance",
     effective: "2026-05-01",
@@ -828,7 +828,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "heading",
       title: "OCI Determination Memorandum and Checklist",
-      citation: "FAR 9.504",
+      citation: "RFO FAR 9.504",
       tier: "binding",
       standingText:
         "This Memorandum documents my assessment of Organizational Conflicts of Interest (OCI) arising from award of the contract named below to the contractor named below.",
@@ -841,7 +841,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "section_1",
       title: "SECTION 1: BACKGROUND",
-      citation: "FAR 9.504",
+      citation: "RFO FAR 9.504",
       tier: "binding",
       fields: [
         X("solicitation_number", "Solicitation Number:", "acquisition_id"),
@@ -861,7 +861,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "section_2",
       title: "SECTION 2: ANALYSIS OF POTENTIAL OCI ARISING FROM PERFORMANCE OF THIS CONTRACT",
-      citation: "FAR 9.505",
+      citation: "RFO FAR 9.505",
       tier: "binding",
       fields: [
         S("q1_biased", "1. [Biased Ground Rules OCI] Does the anticipated contract require the drafting or generation of specifications or requirements?", ["No", "Yes"], "No"),
@@ -882,7 +882,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "section_2_statements",
       title: "SECTION 2: Determination statement",
-      citation: "FAR 9.505",
+      citation: "RFO FAR 9.505",
       tier: "binding",
       standingText:
         "I have thoroughly and independently reviewed the SOW (or equivalent) and determined that the nature of work to be performed under the anticipated contract does not give rise to a potential or actual OCI in the form of conflicting roles (i.e. biased ground rules or impaired objectivity) or an unfair competitive advantage. In particular, I have concluded that the anticipated contract does not require the drafting or generation of specifications or requirements. I have further concluded that this contract does not require the evaluation, review, or assessment of services, supplies, or other deliverables provided on a separate Government contract. Last, I have concluded that the contract does not involve access to non-public information, whether Government-generated or is proprietary information to a third party.",
@@ -893,7 +893,7 @@ const ociDetermination: TemplateDef = {
       id: "section_3",
       title:
         "SECTION 3: ANALYSIS OF WHETHER THE CONTRACTOR GAINED A COMPETITIVE ADVANTAGE IN THIS ACQUISITION THROUGH ITS PERFORMANCE OF OTHER CONTRACTS",
-      citation: "FAR 9.505-2(a)(3)",
+      citation: "RFO FAR 9.505-2(a)(3)",
       tier: "binding",
       fields: [
         S("advantage", "Lead statement", [
@@ -910,7 +910,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "section_3_statement",
       title: "SECTION 3: No advantage statement",
-      citation: "FAR 9.505-2(a)(3)",
+      citation: "RFO FAR 9.505-2(a)(3)",
       tier: "binding",
       standingText:
         "Specifically, I have found the Contractor did not draft a requirement or specification to be performed under this contract. In addition, the evaluation was performed using civil service personnel only and the Contractor did not evaluate its own proposal. Last, in performing other contracts, the contractor did not have access to source selection information or proprietary data that could have provided it an unfair advantage in this competition.",
@@ -944,7 +944,7 @@ const ociDetermination: TemplateDef = {
     {
       id: "section_5",
       title: "SECTION 5: CONCLUSION",
-      citation: "FAR Subpart 9.5",
+      citation: "RFO FAR subpart 9.5",
       tier: "binding",
       standingText: "I have determined that the contractor named below is eligible or not eligible for award of the contract named below.",
       fields: [
@@ -962,7 +962,7 @@ const limitationFutureContracting: TemplateDef = {
   tab: "18",
   layout: "memo",
   badge: {
-    citation: "FAR 9.504; FAR 9.506(b); NFS 1852.209-71; NFS 1852.237-72",
+    citation: "RFO FAR 9.504; RFO FAR 9.506(b); NFS 1852.209-71; NFS 1852.237-72",
     tier: "guidance",
     revision: "HQ 07/2022 revision",
     effective: "2026-05-01",
@@ -973,11 +973,11 @@ const limitationFutureContracting: TemplateDef = {
     {
       id: "memo_header",
       title: "Memorandum",
-      citation: "FAR 9.506(b)",
+      citation: "RFO FAR 9.506(b)",
       tier: "binding",
       standingText:
         "SUBJECT: Analysis of Potential Organizational Conflicts of Interest and Request for Approval to Include NASA Federal Acquisition Regulation (FAR) Supplement (NFS) Clause 1852.209-71, Limitation of Future Contracting, in the Solicitation\n\n" +
-        "FAR 9.504 requires that Contracting Officers (COs) analyze as early in the procurement process as possible, all planned acquisitions to identify and evaluate potential organizational conflicts of interest (OCIs) and develop necessary solicitation provisions and contract clauses to avoid, neutralize, or mitigate any significant OCIs. Based on the CO's analysis, this acquisition involves significant potential OCIs. In accordance with FAR 9.506(b), this memorandum documents the analysis and provides a recommended course of action for avoiding, neutralizing, or mitigating the OCIs by using NFS clause 1852.209-71, Limitation of Future Contracting, as well as NFS clause 1852.237-72, Access to Sensitive Information. The bases of the analysis contained herein includes the advice of counsel and collective assistance from technical and requirements personnel assigned to this acquisition.",
+        "RFO FAR 9.504 requires that Contracting Officers (COs) analyze as early in the procurement process as possible, all planned acquisitions to identify and evaluate potential organizational conflicts of interest (OCIs) and develop necessary solicitation provisions and contract clauses to avoid, neutralize, or mitigate any significant OCIs. Based on the CO's analysis, this acquisition involves significant potential OCIs. In accordance with RFO FAR 9.506(b), this memorandum documents the analysis and provides a recommended course of action for avoiding, neutralizing, or mitigating the OCIs by using NFS clause 1852.209-71, Limitation of Future Contracting, as well as NFS clause 1852.237-72, Access to Sensitive Information. The bases of the analysis contained herein includes the advice of counsel and collective assistance from technical and requirements personnel assigned to this acquisition.",
       fields: [
         { key: "memo_date", label: "Date signed", kind: "date" },
         X("org_identifier", "Organizational identifier", "requester_org_code"),
@@ -990,7 +990,7 @@ const limitationFutureContracting: TemplateDef = {
     {
       id: "background",
       title: "Background",
-      citation: "FAR 9.504",
+      citation: "RFO FAR 9.504",
       tier: "binding",
       fields: [
         X("technical_office", "Name and acronym of the technical requiring office", "requester_org_code"),
@@ -1002,7 +1002,7 @@ const limitationFutureContracting: TemplateDef = {
     {
       id: "oci_paragraphs",
       title: "Potential organizational conflicts of interest",
-      citation: "FAR 9.505",
+      citation: "RFO FAR 9.505",
       tier: "binding",
       fields: [
         T("biased_ground_rules", "1. Biased Ground Rules."),
@@ -1028,7 +1028,7 @@ const limitationFutureContracting: TemplateDef = {
       citation: "NFS 1852.209-71",
       tier: "binding",
       standingText:
-        "(a) The Contracting Officer has determined that this acquisition may give rise to potential organizational conflicts of interest. Accordingly, the attention of prospective offerors is invited to FAR Subpart 9.5--Organizational Conflicts of Interest.\n" +
+        "(a) The Contracting Officer has determined that this acquisition may give rise to potential organizational conflicts of interest. Accordingly, the attention of prospective offerors is invited to RFO FAR subpart 9.5--Organizational Conflicts of Interest.\n" +
         "(b) The nature of these conflicts are that in performing this contract, there are situations where the services performed may give rise to the significant potential organizational conflicts of interest listed below.\n" +
         "(c) The restrictions upon future contracting are as follows:\n" +
         "(End of clause)",
@@ -1040,7 +1040,7 @@ const limitationFutureContracting: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "FAR 9.506(b)",
+      citation: "RFO FAR 9.506(b)",
       tier: "binding",
       standingText:
         "Based on the scope of this acquisition, it is in NASA's best interest to include the aforementioned clauses and provisions in the solicitation and require the submission of an OCI Avoidance Plan. Accordingly, approval to include NFS clause 1852.209-71, Limitation of Future Contracting, in the solicitation is hereby recommended. The Contracting Officer has determined that the steps described above represent adequate controls to avoid, neutralize, or mitigate the occurrence of OCIs in the conduct of the subject acquisition.",
@@ -1054,7 +1054,7 @@ const limitationFutureContracting: TemplateDef = {
         { label: "Office of the General Counsel at Headquarters", note: "Include only where Headquarters retains source selection authority." },
         { label: "Approval: Senior Procurement Executive", note: "Include only where Headquarters retains source selection authority." },
       ],
-      "FAR 9.506(b)",
+      "RFO FAR 9.506(b)",
       "CONCURRENCE / APPROVAL:",
     ),
   ],
@@ -1062,12 +1062,12 @@ const limitationFutureContracting: TemplateDef = {
 
 // ------------------------------------------------ 10. D&F authority to exclude a source
 const EXCLUSION_CITATIONS = [
-  "FAR 6.102-1(a)(1)",
-  "FAR 6.102-1(a)(2)",
-  "FAR 6.102-1(a)(3)",
-  "FAR 6.102-1(a)(4)",
-  "FAR 6.102-1(a)(5)",
-  "FAR 6.102-1(a)(6)",
+  "RFO FAR 6.102-1(a)(1)",
+  "RFO FAR 6.102-1(a)(2)",
+  "RFO FAR 6.102-1(a)(3)",
+  "RFO FAR 6.102-1(a)(4)",
+  "RFO FAR 6.102-1(a)(5)",
+  "RFO FAR 6.102-1(a)(6)",
 ];
 
 
@@ -1077,7 +1077,7 @@ const excludeSourceDandf: TemplateDef = {
   tab: "021",
   layout: "dandf",
   badge: {
-    citation: "FAR 6.102; FAR 6.102-1(a); NFS CG 1806.11; 10 U.S.C. 3203(a)(1)",
+    citation: "RFO FAR 6.102; RFO FAR 6.102-1(a); NFS CG 1806.11; 10 U.S.C. 3203(a)(1)",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2026-04-27",
@@ -1086,7 +1086,7 @@ const excludeSourceDandf: TemplateDef = {
   },
   lead: "Determination and findings that a source may be excluded from full and open competition.",
   sections: [
-    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "FAR 6.102", [
+    centreHeading(["DETERMINATION AND FINDINGS", "Authority to Exclude a Source"], "RFO FAR 6.102", [
       X("excluded_source", "Name of source to be excluded"),
     ]),
     {
@@ -1101,12 +1101,12 @@ const excludeSourceDandf: TemplateDef = {
     {
       id: "findings",
       title: "Findings",
-      citation: "FAR 6.102-1(a)",
+      citation: "RFO FAR 6.102-1(a)",
       tier: "binding",
       standingText:
-        "Pursuant to the requirements of FAR 6.102(a), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
+        "Pursuant to the requirements of RFO FAR 6.102(a), it is proposed that this requirement be acquired using full and open competition after exclusion of the source based on the citation selected below and the following:",
       fields: [
-        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "FAR 6.102-1(a)(1)"),
+        S("exclusion_citation", "Citation", EXCLUSION_CITATIONS, "RFO FAR 6.102-1(a)(1)"),
         T("citation_statement", "The statement that matches the citation selected"),
         T("finding_1", "1. A brief description of the requirement, including the acquisition history of the supplies or services, sources, quantities, prices, and dates of award"),
         T("finding_2", "2. The circumstances for excluding the source"),
@@ -1115,14 +1115,14 @@ const excludeSourceDandf: TemplateDef = {
         T(
           "finding_5",
           "5. The benefit to the Government",
-          "Where FAR 6.102-1(a)(1) is cited, give the estimated reduction in overall costs and how it was derived. Where FAR 6.102-1(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source. Where FAR 6.102-1(a)(3) through (6) is cited, give details on how excluding the source serves the purpose cited.",
+          "Where RFO FAR 6.102-1(a)(1) is cited, give the estimated reduction in overall costs and how it was derived. Where RFO FAR 6.102-1(a)(2) is cited, address current annual and mobilization requirements, production capacity, and the hazards of relying on the present source. Where RFO FAR 6.102-1(a)(3) through (6) is cited, give details on how excluding the source serves the purpose cited.",
         ),
       ],
     },
     {
       id: "determination",
       title: "Determination",
-      citation: "FAR 6.102-1(a)",
+      citation: "RFO FAR 6.102-1(a)",
       tier: "binding",
       standingText:
         "Based on the findings identified and explained above in accordance with the citation selected above, the determination has been made to exclude the company named below.",
@@ -1148,7 +1148,7 @@ const excludeSourceDandf: TemplateDef = {
 
 // ------------------------------------------------ 11. Limited sources justification
 const PCD_14_01 =
-  "Supplies offered on the schedule are listed at fixed prices. Services offered on the schedule are priced either at hourly rates, or at a fixed price for performance of a specific task (e.g., installation, maintenance, and repair). GSA has determined the prices of supplies and fixed-price services and rates for services offered at hourly rates to be fair and reasonable for the purpose of establishing the schedule contract. GSA's determination does not relieve the ordering activity contracting officer from the responsibility of making a determination of fair and reasonable pricing for individual orders, BPAs, and orders under BPAs, using the proposal analysis techniques at FAR 15.404-1. The complexity and circumstances of each acquisition should determine the level of detail of the analysis required.";
+  "Supplies offered on the schedule are listed at fixed prices. Services offered on the schedule are priced either at hourly rates, or at a fixed price for performance of a specific task (e.g., installation, maintenance, and repair). GSA has determined the prices of supplies and fixed-price services and rates for services offered at hourly rates to be fair and reasonable for the purpose of establishing the schedule contract. GSA's determination does not relieve the ordering activity contracting officer from the responsibility of making a determination of fair and reasonable pricing for individual orders, BPAs, and orders under BPAs, using the proposal analysis techniques at RFO FAR 15.404. The complexity and circumstances of each acquisition should determine the level of detail of the analysis required.";
 
 const limitedSourcesJustification: TemplateDef = {
   key: "limited-sources-justification",
@@ -1156,7 +1156,7 @@ const limitedSourcesJustification: TemplateDef = {
   tab: "016",
   layout: "memo",
   badge: {
-    citation: "FAR 8.401(b); GSAM 538.7104-3; GSAM 538.7104-4; FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
+    citation: "RFO FAR 8.401(b); GSAM 538.7104-3; GSAM 538.7104-4",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-16",
@@ -1164,13 +1164,13 @@ const limitedSourcesJustification: TemplateDef = {
   },
   lead: "Justification for limiting sources on a GSA Federal Supply Schedule order or blanket purchase agreement above the simplified acquisition threshold.",
   sections: [
-    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "FAR 8.401(b)", [
+    centreHeading(["LIMITED-SOURCES JUSTIFICATION"], "RFO FAR 8.401(b)", [
       X("buying_location", "Buying location", "center_code"),
     ]),
     {
       id: "introduction",
       title: "Introduction",
-      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
+      citation: "RFO FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
       standingText:
         "This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA). This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)).",
@@ -1185,7 +1185,7 @@ const limitedSourcesJustification: TemplateDef = {
     {
       id: "authority",
       title: "Authority Cited and Rationale:",
-      citation: "FAR 8.401(b); GSAM 538.7104-3(b)",
+      citation: "RFO FAR 8.401(b); GSAM 538.7104-3(b)",
       tier: "binding",
       standingText:
         "The statutory exception supporting the placement of this order or BPA that exceeds the simplified acquisition threshold on a sole source basis is:",
@@ -1206,10 +1206,9 @@ const limitedSourcesJustification: TemplateDef = {
     {
       id: "best_value",
       title: "Price reasonableness",
-      citation: "FAR 8.404(d) (DEVIATION) (NASA PCD 14-01)",
       tier: "binding",
       standingText: PCD_14_01,
-      fields: [T("fair_reasonable", "How a fair and reasonable price will be determined, per FAR 15.404-1(b)(2)")],
+      fields: [T("fair_reasonable", "How a fair and reasonable price will be determined, per RFO FAR 15.404-1(b)")],
     },
     {
       id: "certifications",
@@ -1241,7 +1240,7 @@ const limitedSourcesJustification: TemplateDef = {
         { label: "NASA Competition Advocate", note: "Include for $150M or greater." },
         { label: "Approval: Senior Procurement Executive", note: "Include for $150M or greater." },
       ],
-      "FAR 8.401(b); GSAM 538.7104-3(b)",
+      "RFO FAR 8.401(b); GSAM 538.7104-3(b)",
       "CONCURRENCES / APPROVAL:",
     ),
   ],
@@ -1254,7 +1253,7 @@ const gfpDetermination: TemplateDef = {
   tab: "30",
   layout: "memo",
   badge: {
-    citation: "FAR 45.102(b); NFS CG 1845.12(b); NFS CG 1845.11; FAR 45.201(a)",
+    citation: "RFO FAR 45.102(b); NFS CG 1845.12(b); NFS CG 1845.11; RFO FAR 45.201(a)",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2026-04-23",
@@ -1265,7 +1264,7 @@ const gfpDetermination: TemplateDef = {
     {
       id: "heading",
       title: "MEMORANDUM TO THE FILE",
-      citation: "FAR 45.102(b)",
+      citation: "RFO FAR 45.102(b)",
       tier: "binding",
       standingText: "FROM: Contracting Officer",
       fields: [
@@ -1287,7 +1286,7 @@ const gfpDetermination: TemplateDef = {
       citation: "NFS CG 1845.12(b)",
       tier: "binding",
       standingText:
-        "Attached to this memorandum is a detailed listing of all IAGP or GFP that will be provided to the Contractor for performance. These listings include all of the information required by FAR 45.201(a). This IAGP or GFP listing will be included in the resultant instrument pursuant to the applicable property clauses.",
+        "Attached to this memorandum is a detailed listing of all IAGP or GFP that will be provided to the Contractor for performance. These listings include all of the information required by RFO FAR 45.201(a). This IAGP or GFP listing will be included in the resultant instrument pursuant to the applicable property clauses.",
       fields: [
         {
           key: "technical_scope",
@@ -1299,8 +1298,8 @@ const gfpDetermination: TemplateDef = {
     },
     {
       id: "factors",
-      title: "Factors at FAR 45.102(b)",
-      citation: "FAR 45.102(b)",
+      title: "Factors at RFO FAR 45.102(b)",
+      citation: "RFO FAR 45.102(b)",
       tier: "binding",
       fields: [
         T("factor_1", "(1) To be in the Government's best interest;"),
@@ -1321,10 +1320,10 @@ const gfpDetermination: TemplateDef = {
     {
       id: "determination",
       title: "Determination:",
-      citation: "FAR 45.102(b); NFS CG 1845.11",
+      citation: "RFO FAR 45.102(b); NFS CG 1845.11",
       tier: "binding",
       standingText:
-        "After considering the factors detailed at FAR 45.102(b) and NFS CG 1845.11 as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
+        "After considering the factors detailed at RFO FAR 45.102(b) and NFS CG 1845.11 as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
       fields: [
         X("sig_co", "Contracting Officer", "co_name"),
         S("attachments", "Attachments:", [
@@ -1344,7 +1343,7 @@ const ucaLetterContract: TemplateDef = {
   tab: "028/72",
   layout: "memo",
   badge: {
-    citation: "NFS CG 1843.6; FAR 16.603; NFS CG 1816.65; NFS CG 1816.66",
+    citation: "NFS CG 1843.6; RFO FAR 16.603; NFS CG 1816.65; NFS CG 1816.66",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2026-05-14",
@@ -1366,7 +1365,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "purpose",
       title: "1. Purpose:",
-      citation: "NFS CG 1843.6; FAR 16.603",
+      citation: "NFS CG 1843.6; RFO FAR 16.603",
       tier: "binding",
       standingText:
         "This document provides justification and request for approval to issue the action identified above. This action is in the Government's best interest because negotiating a definitive modification, contract or order is not possible in sufficient time to meet the requirement, and will provide the contractor a binding commitment so that work can start immediately.",
@@ -1424,7 +1423,7 @@ const ucaLetterContract: TemplateDef = {
         ),
         S("change_order_accounting", "Change order accounting, where the UCA estimate exceeds $1M", [
           "The contract or modification will incorporate FAR clause 52.243-6 Change Order Accounting, which requires the contractor to account costs separately for the changed requirements to the degree necessary to provide the CO visibility into actual costs incurred pending definitization.",
-          "This modification will direct the contractor to segregate costs in accordance with the Change Order Accounting clause (FAR 52.243-6).",
+          "This modification will direct the contractor to segregate costs in accordance with the Change Order Accounting clause (RFO FAR 52.243-6).",
           "The CO has waived the requirement for the contractor that this change be separately accounted for by the contractor as such accounting procedures would not be cost effective.",
         ]),
         T("waiver_rationale", "Rationale where separate accounting is waived"),
@@ -1433,7 +1432,7 @@ const ucaLetterContract: TemplateDef = {
     {
       id: "determination",
       title: "6. Determination",
-      citation: "NFS CG 1843.6; FAR 16.603",
+      citation: "NFS CG 1843.6; RFO FAR 16.603",
       tier: "binding",
       standingText:
         "Based on the above, it is the determination of the undersigned that it is in the Government's best interest for the contractor to start work immediately, and that negotiating a definitive contract action is not possible in sufficient time to meet the requirements. Upon approval, NASA will authorize the contractor to begin incurring costs for urgent work performed in advance of definitization at the not-to-exceed estimate amount stated above.",
@@ -1455,7 +1454,7 @@ const ucaLetterContract: TemplateDef = {
         { label: "Concurrence: Procurement Officer, Center", note: "Include this concurrence only for NOJMO, ESDMD and SOMD actions." },
         { label: "Approval: Head of Contracting Activity" },
       ],
-      "NFS CG 1843.64; NFS CG 1816.66",
+      "NFS CG 1843.53; NFS CG 1816.66",
       "Concurrence / Approval:",
     ),
   ],
@@ -1475,7 +1474,7 @@ const jofocCommonSignature = (pageTitle: string) =>
       { ...AGENCY_COMP_ADVOCATE_BLOCK, note: `${AGENCY_COMP_ADVOCATE_BLOCK.note} Include for actions exceeding $150M.` },
       { ...SPE_BLOCK, label: "Approval: Senior Procurement Executive", note: "Include for actions exceeding $150M." },
     ],
-    "FAR 6.104-2(a); NFS 1806.303-1(c)",
+    "RFO FAR 6.104-2(a); NFS CG 1806.16",
     "CONCURRENCES / APPROVAL:",
   );
 
@@ -1488,7 +1487,7 @@ const jofoc8aOver30m: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "FAR 6.104-1; FAR 19.108-7; FAR 19.208-2(a); 15 U.S.C. 637(a)",
+    citation: "RFO FAR 6.104-1; RFO FAR 19.108-7; RFO FAR 19.208-2(a); 15 U.S.C. 637(a)",
     tier: "binding",
     revision: "HQ 05/2026 revision",
     effective: "2026-05-18",
@@ -1498,13 +1497,13 @@ const jofoc8aOver30m: TemplateDef = {
   sections: [
     centreHeading(
       ["8(a) >$30 MILLION", "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION (JOFOC)"],
-      "FAR 6.104-1",
+      "RFO FAR 6.104-1",
     ),
     {
       id: "item_1",
       title:
-        "1. FAR 6.104-1(a)(3) – A description of the supplies or services required to meet the agency's needs (including the estimated value):",
-      citation: "FAR 6.104-1(a)(3)",
+        "1. RFO FAR 6.104-1(a)(3) – A description of the supplies or services required to meet the agency's needs (including the estimated value):",
+      citation: "RFO FAR 6.104-1(a)(3)",
       tier: "binding",
       fields: [
         X("contract_number", "Contract number for a modification or extension"),
@@ -1515,23 +1514,23 @@ const jofoc8aOver30m: TemplateDef = {
     },
     {
       id: "item_2",
-      title: "2. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
-      citation: "15 U.S.C. 637(a); FAR 19.108-7; FAR 19.208-2(a)",
+      title: "2. RFO FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
+      citation: "15 U.S.C. 637(a); RFO FAR 19.108-7; RFO FAR 19.208-2(a)",
       tier: "binding",
-      fields: [T("authority_rationale", "The reason the use of 15 U.S.C. 637(a) is appropriate, with the narrative required by FAR 19.108-7 and FAR 19.208-2(a)")],
+      fields: [T("authority_rationale", "The reason the use of 15 U.S.C. 637(a) is appropriate, with the narrative required by RFO FAR 19.108-7 and RFO FAR 19.208-2(a)")],
     },
     {
       id: "item_3",
-      title: "3. FAR 6.104-1(a)(7) – A determination that the anticipated cost to the Governement will be fair and reasonable:",
-      citation: "FAR 6.104-1(a)(7); FAR 15.4",
+      title: "3. RFO FAR 6.104-1(a)(7) – A determination that the anticipated cost to the Governement will be fair and reasonable:",
+      citation: "RFO FAR 6.104-1(a)(7); RFO FAR subpart 15.4",
       tier: "binding",
       standingText: FAIR_AND_REASONABLE,
-      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable per FAR 15.4")],
+      fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable per RFO FAR subpart 15.4")],
     },
     {
       id: "item_4",
-      title: "4. FAR 6.104-1(b) – A determination that the use of a sole-source contract is in the best interest of the agency concerned:",
-      citation: "FAR 6.104-1(b)",
+      title: "4. RFO FAR 6.104-1(b) – A determination that the use of a sole-source contract is in the best interest of the agency concerned:",
+      citation: "RFO FAR 6.104-1(b)",
       tier: "binding",
       standingText: "Use of a sole-source contract is in the best interest of the agency for the product or service described below.",
       fields: [T("best_interest", "The product or service procured and the supporting detail")],
@@ -1547,7 +1546,7 @@ const jofocUrgency: TemplateDef = {
   tab: "015",
   layout: "memo",
   badge: {
-    citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2; FAR 6.104-1",
+    citation: "10 U.S.C. 3204(a)(2); RFO FAR 6.103-2; RFO FAR 6.104-1",
     tier: "binding",
     revision: "HQ 09/2026 revision",
     effective: "2026-09-03",
@@ -1557,13 +1556,13 @@ const jofocUrgency: TemplateDef = {
   sections: [
     centreHeading(
       ["UNUSUAL AND COMPELLING URGENCY", "JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION (JOFOC)"],
-      "FAR 6.103-2",
+      "RFO FAR 6.103-2",
     ),
     {
       id: "item_1",
       title:
-        "1. FAR 6.104-1(a)(1) – Identification of the agency and the contracting activity, and specific identification of the document as a \u201cJustification for other than full and open competition.\u201d",
-      citation: "FAR 6.104-1(a)(1)",
+        "1. RFO FAR 6.104-1(a)(1) – Identification of the agency and the contracting activity, and specific identification of the document as a \u201cJustification for other than full and open competition.\u201d",
+      citation: "RFO FAR 6.104-1(a)(1)",
       tier: "binding",
       standingText:
         "This document is a justification for other than full and open competition prepared by the National Aeronautics and Space Administration (NASA).",
@@ -1571,8 +1570,8 @@ const jofocUrgency: TemplateDef = {
     },
     {
       id: "item_2",
-      title: "2. FAR 6.104-1(a)(2) – The nature and/or description of the action being approved:",
-      citation: "FAR 6.104-1(a)(2)",
+      title: "2. RFO FAR 6.104-1(a)(2) – The nature and/or description of the action being approved:",
+      citation: "RFO FAR 6.104-1(a)(2)",
       tier: "binding",
       fields: [
         X("contractor_name", "Contractor name", "vendor_legal_name"),
@@ -1584,8 +1583,8 @@ const jofocUrgency: TemplateDef = {
     {
       id: "item_3",
       title:
-        "3. FAR 6.104-1(a)(3) – A description of the supplies or services required, to meet the agency's needs (including the estimated value):",
-      citation: "FAR 6.104-1(a)(3)",
+        "3. RFO FAR 6.104-1(a)(3) – A description of the supplies or services required, to meet the agency's needs (including the estimated value):",
+      citation: "RFO FAR 6.104-1(a)(3)",
       tier: "binding",
       fields: [
         { key: "description", label: "The supplies or services required", kind: "textarea", bind: "description_of_requirement" },
@@ -1594,18 +1593,18 @@ const jofocUrgency: TemplateDef = {
     },
     {
       id: "item_4",
-      title: "4. FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
-      citation: "10 U.S.C. 3204(a)(2); FAR 6.103-2",
+      title: "4. RFO FAR 6.104-1(a)(4) – An identification of the statutory authority permitting other than full and open competition:",
+      citation: "10 U.S.C. 3204(a)(2); RFO FAR 6.103-2",
       tier: "binding",
       standingText:
-        "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by FAR 6.103-2, Unusual and compelling urgency.",
+        "The statutory authority permitting other than full and open competition is 10 U.S.C. 3204(a)(2), as implemented by RFO FAR 6.103-2, Unusual and compelling urgency.",
       fields: [],
     },
     {
       id: "item_5",
       title:
-        "5. FAR 6.104-1(a)(5) – A demonstration that the proposed contractor's unique qualifications or the nature of the acquisition requires use of the authority cited:",
-      citation: "FAR 6.104-1(a)(5)",
+        "5. RFO FAR 6.104-1(a)(5) – A demonstration that the proposed contractor's unique qualifications or the nature of the acquisition requires use of the authority cited:",
+      citation: "RFO FAR 6.104-1(a)(5)",
       tier: "binding",
       standingText:
         "The agency's need is of such unusual and compelling urgency that the Government would be seriously injured if it is not permitted to limit the number of sources from which it solicits proposals.",
@@ -1617,18 +1616,18 @@ const jofocUrgency: TemplateDef = {
     {
       id: "item_6",
       title:
-        "6. FAR 6.104-1(a)(6) – A description of the efforts made to ensure that offers are solicited from as many potential sources as practicable, including whether a notice was or will be publicized as required by Subpart 5.1 and, if not, which exception under 5.101 applies:",
-      citation: "FAR 6.104-1(a)(6); FAR 5.101(b)(1)",
+        "6. RFO FAR 6.104-1(a)(6) – A description of the efforts made to ensure that offers are solicited from as many potential sources as practicable, including whether a notice was or will be publicized as required by Subpart 5.1 and, if not, which exception under 5.101 applies:",
+      citation: "RFO FAR 6.104-1(a)(6); RFO FAR 5.101(b)(2)",
       tier: "binding",
       standingText:
-        "The contracting officer has determined in accordance with FAR 5.101(b)(1) that this action is exempt from the notice required in FAR 5.101, because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the publicizing and response time periods specified in FAR 5.101(d).",
+        "The contracting officer has determined in accordance with RFO FAR 5.101(b)(2) that this action is exempt from the presolicitation notice required by RFO FAR 5.101(a), because unusual and compelling urgency precludes competition to the maximum extent practicable and the Government would be seriously injured if the agency complies with the posting timeframes in RFO FAR 5.101(d).",
       fields: [T("sources_solicited", "The efforts made to solicit offers from as many sources as practicable")],
     },
     {
       id: "item_7",
       title:
-        "7. FAR 6.104-1(a)(7) – A determination by the contracting officer that the anticipated cost to the Government will be fair and reasonable:",
-      citation: "FAR 6.104-1(a)(7)",
+        "7. RFO FAR 6.104-1(a)(7) – A determination by the contracting officer that the anticipated cost to the Government will be fair and reasonable:",
+      citation: "RFO FAR 6.104-1(a)(7)",
       tier: "binding",
       standingText: FAIR_AND_REASONABLE,
       fields: [T("pricing", "How proposed cost, fee or pricing will be determined fair and reasonable")],
@@ -1636,30 +1635,30 @@ const jofocUrgency: TemplateDef = {
     {
       id: "item_8",
       title:
-        "8. FAR 6.104-1(a)(8) – Description of the market research conducted, and the results, or a statement of the reasons market research was not conducted:",
-      citation: "FAR 6.104-1(a)(8); FAR 6.103-2(b)",
+        "8. RFO FAR 6.104-1(a)(8) – Description of the market research conducted, and the results, or a statement of the reasons market research was not conducted:",
+      citation: "RFO FAR 6.104-1(a)(8); RFO FAR 6.103-2(b)",
       tier: "binding",
       fields: [T("market_research", "The market research conducted and its results, or the reasons it was not conducted")],
     },
     {
       id: "item_9",
-      title: "9. FAR 6.104-1(a)(9) – Any other facts supporting the use of other than full and open competition:",
-      citation: "FAR 6.104-1(a)(9)",
+      title: "9. RFO FAR 6.104-1(a)(9) – Any other facts supporting the use of other than full and open competition:",
+      citation: "RFO FAR 6.104-1(a)(9)",
       tier: "binding",
       fields: [T("other_facts", "Other facts supporting the use of other than full and open competition")],
     },
     {
       id: "item_10",
-      title: "10. FAR 6.104-1(a)(10) – A listing of the sources, if any, that expressed an interest in writing in the acquisition:",
-      citation: "FAR 6.104-1(a)(10)",
+      title: "10. RFO FAR 6.104-1(a)(10) – A listing of the sources, if any, that expressed an interest in writing in the acquisition:",
+      citation: "RFO FAR 6.104-1(a)(10)",
       tier: "binding",
       fields: [T("interested_sources", "Sources that expressed an interest in writing, or a statement that there were none")],
     },
     {
       id: "item_11",
       title:
-        "11. FAR 6.104-1(a)(11) – A statement of actions, if any, the agency may take to remove or overcome any barriers to competition before any subsequent acquisition for the supplies or services required:",
-      citation: "FAR 6.104-1(a)(11)",
+        "11. RFO FAR 6.104-1(a)(11) – A statement of actions, if any, the agency may take to remove or overcome any barriers to competition before any subsequent acquisition for the supplies or services required:",
+      citation: "RFO FAR 6.104-1(a)(11)",
       tier: "binding",
       fields: [
         {
@@ -1674,10 +1673,10 @@ const jofocUrgency: TemplateDef = {
     {
       id: "posting",
       title: "Posting after award",
-      citation: "FAR 6.301(b)(1)",
+      citation: "RFO FAR 6.301(b)(1)",
       tier: "binding",
       standingText:
-        "After contract award, the contracting officer posts a redacted copy of this justification to the Government Point of Entry. The justification is made publicly available within 30 calendar days after contract award in accordance with FAR 6.301(b)(1). Before posting, the contracting officer completes the electronic document posting checklist described in NFS Companion Guide 1804.102, and prepares this justification using the process in NFS Companion Guide 1806.15(a); the Companion Guide is process guidance, and Interim NFS Part 1806 is reserved.",
+        "After contract award, the contracting officer posts a redacted copy of this justification to the Government Point of Entry. The justification is made publicly available within 30 calendar days after contract award in accordance with RFO FAR 6.301(b)(1). Before posting, the contracting officer completes the electronic document posting checklist described in NFS Companion Guide 1804.102, and prepares this justification using the process in NFS Companion Guide 1806.15(a); the Companion Guide is process guidance, and Interim NFS Part 1806 is reserved.",
       fields: [],
     },
     jofocCommonSignature("JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION, UNUSUAL AND COMPELLING URGENCY"),
@@ -1692,7 +1691,7 @@ const precontractCostsApproval: TemplateDef = {
   tab: "066",
   layout: "memo",
   badge: {
-    citation: "NFS CG 1831.12; FAR 31.205-32; NFS 1852.231-70",
+    citation: "NFS CG 1831.12; RFO FAR 31.205-32; NFS 1852.231-70",
     tier: "binding",
     revision: "HQ 04/2026 revision",
     effective: "2026-04-24",
@@ -1745,7 +1744,7 @@ const precontractCostsApproval: TemplateDef = {
       citation: "NFS CG 1831.12",
       tier: "binding",
       standingText:
-        "Based on the analysis above, and the authority granted in NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12, the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS CG 1831.12.",
+        "Based on the analysis above, and the authority granted in NASA FAR Supplement (NFS) Companion Guide (CG) 1831.12, the undersigned recommends approval of the request for authorization of precontract costs. If approved, and subject to contract award, the Government will consider the precontract costs, as defined in RFO FAR 31.205-32, in the amount stated above as allowable to the same extent that those costs would have been allowable had they been incurred after contract award. Upon approval, authorization to incur precontract costs will be provided to the contractor in writing and address all required elements in NFS CG 1831.12.",
       fields: [
         S("recommendation_basis", "Amount recommended", [
           "The current request, in the amount not to exceed the amount stated above",
@@ -1758,11 +1757,11 @@ const precontractCostsApproval: TemplateDef = {
     {
       id: "letter",
       title: "Authorization letter to the contractor",
-      citation: "NFS 1852.231-70; FAR 31.205-32",
+      citation: "NFS 1852.231-70; RFO FAR 31.205-32",
       tier: "binding",
       standingText:
         "REFERENCES: (1) NFS 1852.231-70, Precontract Costs\n\n" +
-        "Acceptance of this letter constitutes an advance agreement between NASA and the contractor on precontract costs. The term \"precontract costs\" is defined in Federal Acquisition Regulation (FAR) 31.205-32. If a contract is awarded, costs incurred before the effective date of the contract will be allowable to the extent that they would have been allowable if incurred after the effective date of the contract subject to the following conditions:",
+        "Acceptance of this letter constitutes an advance agreement between NASA and the contractor on precontract costs. The term \"precontract costs\" is defined in RFO FAR 31.205-32. If a contract is awarded, costs incurred before the effective date of the contract will be allowable to the extent that they would have been allowable if incurred after the effective date of the contract subject to the following conditions:",
       fields: [
         X("contractor_poc", "Contractor point of contact, name and mailing address"),
         X("contractor_request", "Reference to the contractor's request for precontract cost authorization, including the date requested"),

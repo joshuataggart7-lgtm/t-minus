@@ -10,7 +10,7 @@ import type { Json } from "@/integrations/supabase/types";
  * On Market Research, for the record's NAICS and place of performance, this
  * pulls SAM.gov registered entities with their small business flag for that
  * NAICS, plus recent subaward history for the same NAICS, and assembles the
- * Rule of Two evidence (FAR 19.502-2). It suggests a set-aside decision; the
+ * Rule of Two evidence (RFO FAR 19.104-1). It suggests a set-aside decision; the
  * contracting officer confirms it. Nothing is decided automatically. When
  * SAM.gov cannot be reached, clearly labeled sample data is shown so the
  * demonstration never depends on the network.
@@ -328,12 +328,12 @@ export const runSetAsideEvidence = createServerFn({ method: "POST" })
       suggestionReason,
       citations: [
         {
-          citation: "FAR 19.502-2",
+          citation: "RFO FAR 19.104-1",
           tier: "Binding",
           note: "Set aside when there is a reasonable expectation of offers from two or more responsible small businesses at a fair market price.",
         },
         {
-          citation: "FAR 10.001",
+          citation: "RFO FAR 10.001",
           tier: "Binding",
           note: "Market research supports the set-aside decision and is documented in the file.",
         },

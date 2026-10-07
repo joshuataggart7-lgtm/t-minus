@@ -2,7 +2,7 @@
 //
 // The method on the record decides the shell. A commercial Part 12/13 file
 // runs the SAM path: the representations live in the offeror's SAM record and
-// FAR 52.212-3 is not packed onto the file; FAR 52.212-5 stays Reserved and is
+// RFO FAR 52.212-3 is not packed onto the file; RFO FAR 52.212-5 stays Reserved and is
 // never offered as a checkbox block. A Part 15 file carries the Uniform
 // Contract Format Section K shell. Nothing here invents authority text: labels
 // and record-backed blanks only, and blanks read "Not recorded".
@@ -49,7 +49,7 @@ export const K_EMPTY_NOTE =
   "Section K is not recorded on this file yet.";
 
 export const K_SAM_PATH_NOTE =
-  "Commercial path: the annual representations sit in the offeror's SAM record. FAR 52.212-3 is not packed onto this file, and FAR 52.212-5 stays Reserved — there is no checkbox block here.";
+  "Commercial path: the annual representations sit in the offeror's SAM record. RFO FAR 52.212-3 is not packed onto this file, and RFO FAR 52.212-5 stays Reserved; there is no checkbox block here.";
 
 export const K_UCF_PATH_NOTE =
   "Part 15 path: Section K of the Uniform Contract Format carries the representations and certifications for this solicitation. Blanks read “Not recorded”.";

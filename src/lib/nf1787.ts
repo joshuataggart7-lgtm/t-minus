@@ -236,7 +236,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
 
   const determination =
     row === "total-sb"
-      ? `Two or more responsible small business concerns are expected to submit offers at fair market prices. The requirement is set aside for small business under FAR 19.502-2.`
+      ? `Two or more responsible small business concerns are expected to submit offers at fair market prices. The requirement is set aside for small business under RFO FAR 19.104-1.`
       : row === "full-open"
         ? `Market research does not support a set-aside at this value; the requirement is solicited on a full and open basis.`
         : row === "sole-source" || sole
@@ -332,7 +332,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Sections II and III. Mandatory sources and strategic sourcing",
-        citation: "FAR 8.002; Enterprise Procurement Strategies",
+        citation: "RFO FAR subpart 8.1; Enterprise Procurement Strategies",
         fields: [
           {
             path: "form1.Page1.Section3.StrategicSourcing",
@@ -348,7 +348,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Section IV. Research conducted",
-        citation: "FAR 10.002",
+        citation: "RFO FAR 10.001",
         fields: [
           {
             path: "form1.Page1.Section4.FieldHeader1.ckHistory",
@@ -410,7 +410,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Section V. Commercial products and services",
-        citation: "FAR 12.101; FAR 10.001(a)(3)",
+        citation: "RFO FAR 12.101; RFO FAR 10.001",
         fields: [
           {
             path: "form1.Page1.Section5.CommercialItem.MetByCommercialItems",
@@ -433,7 +433,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Section VI. Respondents",
-        citation: "FAR 19.502-2(b)",
+        citation: "RFO FAR 19.104-1(a)",
         fields: (researchedRespondents.length ? researchedRespondents : ctx.respondents).length
           ? (researchedRespondents.length ? researchedRespondents : ctx.respondents).flatMap((r, i) => [
               { path: `form1.Page1.Section6.MarketResearch[${i}].UEI`, label: `Respondent ${i + 1} UEI`, value: r.uei },
@@ -463,7 +463,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Section VIII. Determination",
-        citation: "FAR 19.502-2",
+        citation: "RFO FAR 19.104-1",
         fields: [{ path: "form1.Page1.Section8.Determination", label: "Determination", value: determination }],
       },
       {
@@ -481,7 +481,7 @@ export function buildNf1787A(ctx: FormCtx): GeneratedForm {
 /**
  * The authority printed on the sole source row. A FAR 13.5 commercial file
  * carries the commercial simplified authority; every other file carries the
- * FAR 6.103 authority the justification selected. Nothing else prints here.
+ * RFO FAR 6.103 authority the justification selected. Nothing else prints here.
  */
 function soleSourceAuthority(a: Record<string, unknown>): string {
   const method = str(a["acquisition_method"]).toLowerCase();
@@ -490,7 +490,7 @@ function soleSourceAuthority(a: Record<string, unknown>): string {
   const cited = str(a["jofoc_authority_citation"])
     .replace(/\[[^\]]*\]/g, "")
     .trim();
-  return cited || TO_COMPLETE("select the FAR 6.103 authority on the justification");
+  return cited || TO_COMPLETE("select the RFO FAR 6.103 authority on the justification");
 }
 
 /** The Remarks paragraph: an opening line of prose, then the findings. */
@@ -637,7 +637,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
       },
       {
         title: "Recommended acquisition approach",
-        citation: "FAR 19.502; NFS 1819",
+        citation: "RFO FAR 19.104; NFS 1819",
         fields: [
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub1.a", "a. Full and open", row === "full-open"),
           rowField("form1.Page2.LowerSection.LeftSide.InnerSub2.c", "c. Sole source", row === "sole-source"),
@@ -645,7 +645,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
             path: "form1.Page2.LowerSection.LeftSide.InnerSub2.SelectSS",
             label: "Sole source authority",
             // The authority itself, never a note about it: the commercial
-            // simplified authority on a FAR 13.5 file, otherwise the FAR 6.103
+            // simplified authority on a FAR 13.5 file, otherwise the RFO FAR 6.103
             // authority the justification selected.
             value: sole ? soleSourceAuthority(a) : "",
           },

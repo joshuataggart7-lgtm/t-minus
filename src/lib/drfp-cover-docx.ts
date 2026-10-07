@@ -58,7 +58,7 @@ function methodText(ctx: DrfpCoverContext): string {
     .join(" ");
 }
 
-/** True only for a competed FAR Part 15 negotiated acquisition. */
+/** True only for a competed RFO FAR Part 15 negotiated acquisition. */
 export function isDrfpCoverPath(ctx: DrfpCoverContext): boolean {
   // Protected Soft Walk Samples 1 and 2 are commercial streamlined files.
   // Refuse them even if a stale live row has lost its method fields.
@@ -161,7 +161,7 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
 /** Fill the genuine HQ DRFP master and return named-download-ready bytes. */
 export async function generateDrfpCoverDocx(ctx: DrfpCoverContext): Promise<Uint8Array> {
   if (!isDrfpCoverPath(ctx)) {
-    throw new Error("This record is not on a competed FAR Part 15 negotiated path.");
+    throw new Error("This record is not on a competed RFO FAR Part 15 negotiated path.");
   }
   const response = await fetch(DRFP_COVER_MASTER_URL);
   if (!response.ok) throw new Error("The DRFP cover master could not be read from this app.");

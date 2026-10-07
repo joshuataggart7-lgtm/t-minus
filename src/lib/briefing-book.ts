@@ -391,7 +391,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
     <h2>Clause position</h2>
     <p class="sub">${esc(input.recommendedClauseCount)} clauses recommended from this record${
       input.appliedClauseCount === null ? "" : `; ${esc(input.appliedClauseCount)} applied to the file`
-    }. Clauses removed under the RFO are never offered, and FAR 52.212-5 is Reserved.</p>
+    }. Clauses removed under the RFO are never offered, and RFO FAR 52.212-5 is Reserved.</p>
     <table class="clauses" style="margin-top:20px"><thead><tr><th>Clause</th><th>Title</th><th>Section</th><th>Why it applies</th></tr></thead><tbody>${clauseRows}</tbody></table>
     <p class="sub" style="margin-top:24px">NCMS remains the system of record. The handoff packet is a local file; T-Minus does not write to NCMS.</p>
   </div>

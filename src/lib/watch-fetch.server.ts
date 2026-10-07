@@ -85,7 +85,7 @@ function gaoSample(): Row[] {
       agency: "Government Accountability Office",
       url: "https://www.gao.gov/legal/bid-protests/recent",
       summary: "Sample data, GAO not reachable from this environment. Evaluation of quotations under RFO FAR 12.203.",
-      tags: ["Bid protest", "Sample", "FAR 13"],
+      tags: ["Bid protest", "Sample", "RFO FAR Part 13"],
     },
     {
       source: "GAO",
@@ -95,8 +95,8 @@ function gaoSample(): Row[] {
       outcome_or_type: "Sustained in part",
       agency: "Government Accountability Office",
       url: "https://www.gao.gov/legal/bid-protests/recent",
-      summary: "Sample data, GAO not reachable from this environment. Justification under FAR 6.303.",
-      tags: ["Bid protest", "Sample", "FAR 6"],
+      summary: "Sample data, GAO not reachable from this environment. Justification under RFO FAR 6.104.",
+      tags: ["Bid protest", "Sample", "RFO FAR Part 6"],
     },
     {
       source: "GAO",
@@ -106,8 +106,8 @@ function gaoSample(): Row[] {
       outcome_or_type: "Dismissed",
       agency: "Government Accountability Office",
       url: "https://www.gao.gov/legal/bid-protests/recent",
-      summary: "Sample data, GAO not reachable from this environment. Set-aside decision under FAR 19.502.",
-      tags: ["Bid protest", "Sample", "FAR 19"],
+      summary: "Sample data, GAO not reachable from this environment. Set-aside decision under RFO FAR 19.104.",
+      tags: ["Bid protest", "Sample", "RFO FAR Part 19"],
     },
   ];
 }

@@ -19,7 +19,7 @@ export const RFO_ADOPTION_NOT_RECORDED =
 
 /**
  * PCD 26-03B is the locked source for the clause matrix and the Reserved
- * FAR 52.212-3 / 52.212-5 handling already used in T-Minus. This is not a
+ * RFO FAR 52.212-3 / 52.212-5 handling already used in T-Minus. This is not a
  * claim that every Interim NFS part is adopted.
  */
 /** There is no per-file RFO Part adoption overlay in T-Minus. Say so plainly. */

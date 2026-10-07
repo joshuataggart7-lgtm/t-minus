@@ -102,7 +102,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 9. Solicitation and issuing office",
-      citation: "FAR 12.204(a); FAR 53.212",
+      citation: "RFO FAR 12.204(c)(1); RFO FAR 53.101(b)",
       fields: [
         field("topmostSubform.reqnumber", "Requisition number (block 1)", str(a["pr_number"]) || str(a["acquisition_id"])),
         field(
@@ -133,7 +133,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 10 to 12. Set-aside, NAICS and delivery",
-      citation: "FAR 19.502-2; FAR 12.204(a)",
+      citation: "RFO FAR 19.104-1; RFO FAR 12.204(c)(1)",
       fields: [
         field("topmostSubform.UNRESTRICTIONTED", "Unrestricted (block 10)", !setAside),
         field("topmostSubform.SETASIDE", "Set aside (block 10)", Boolean(setAside)),
@@ -166,7 +166,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 15 to 18. Delivery, administration and contractor",
-      citation: "FAR 12.204(a)",
+      citation: "RFO FAR 12.204(c)(1)",
       fields: [
         field(
           "topmostSubform.DeliverTo",
@@ -193,7 +193,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 19 to 23. Schedule",
-      citation: "FAR 12.204(a)",
+      citation: "RFO FAR 12.204(c)(1)",
       fields: [
         field("topmostSubform.ITEMNUM1", "Item number (block 19)", "0001"),
         field(
@@ -239,7 +239,7 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
   return {
     key: "sf-1449",
     name: FORM_NAMES_SF["sf-1449"],
-    citation: "FAR 12.204(a); FAR 53.212",
+    citation: "RFO FAR 12.204(c)(1); RFO FAR 53.101(b)",
     pdf: "/forms/SF1449.pdf",
     sections,
   };
@@ -285,7 +285,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 8. Identification",
-      citation: "FAR 43.301; FAR 53.243",
+      citation: "RFO FAR 43.401; RFO FAR 53.101(b)",
       fields: [
         // P0-2: block 2 carries the recorded modification number only. When no
         // modification is recorded the block stays empty; the contract number
@@ -324,7 +324,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 9 to 12. Solicitation or contract being changed",
-      citation: "FAR 43.301",
+      citation: "RFO FAR 43.401",
       fields: [
         field("topmostSubform.CheckBox9", "This amends solicitation number (block 9A)", isAmendment),
         field("topmostSubform.AmendmentNo[1]", "Solicitation number (block 9A)", str(a["solicitation_number"])),
@@ -339,7 +339,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 13 to 16. Authority, description and signatures",
-      citation: "FAR 43.103; FAR 43.301",
+      citation: "RFO FAR 43.203; RFO FAR 43.401",
       fields: [
         field(
           "topmostSubform.CheckBox13A",
@@ -385,7 +385,7 @@ export function buildSf30(ctx: FormCtx): GeneratedForm {
   return {
     key: "sf-30",
     name: FORM_NAMES_SF["sf-30"],
-    citation: "FAR 43.301; FAR 53.243",
+    citation: "RFO FAR 43.401; RFO FAR 53.101(b)",
     pdf: "/forms/SF30.pdf",
     sections,
   };
@@ -447,7 +447,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 8. Solicitation identity and issuing office",
-      citation: `FAR 53.214(c). ${CONFIRM_RFO}`,
+      citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
       fields: [
         field("topmostSubform.RATING", "DPAS rating (block 1)", str(a["dpas_rating"])),
         field("topmostSubform.PG1", "Page (page block)", "1"),
@@ -494,7 +494,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 9 and 10. Receipt of offers and point of contact",
-      citation: "FAR 14.201-1; FAR 15.204-1",
+      citation: "RFO FAR 14.202; RFO FAR 15.109",
       fields: [
         field("topmostSubform.SEALEDOFFERS", "Number of copies (block 9)", ""),
         field("topmostSubform.LOCATEDIN", "Depository located in (block 9)", ""),
@@ -522,7 +522,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
       // T-Minus cannot see on this record is left unchecked with a gap note,
       // rather than checked on assumption.
       title: "Block 11. Table of contents",
-      citation: "FAR 14.201-1; FAR 15.204-1 (confirm against RFO Part 53 if adopted)",
+      citation: "RFO FAR 14.202; RFO FAR 15.109 (confirm against RFO Part 53 if adopted)",
       fields: (["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"] as const).map((s) => {
         const present = s === "B" ? rows.length > 0 : false;
         return field(
@@ -537,7 +537,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 12 to 18. Offer",
-      citation: "FAR 14.201-1; FAR 15.204-1",
+      citation: "RFO FAR 14.202; RFO FAR 15.109",
       fields: [
         field(
           "topmostSubform.OFFERORADDY",
@@ -549,7 +549,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 19 to 28. Award",
-      citation: "FAR 14.408-1; FAR 15.504",
+      citation: "RFO FAR 14.307; RFO FAR 15.207-1",
       fields: [
         field(
           "topmostSubform.ACCITEM",
@@ -588,7 +588,7 @@ export function buildSf33(ctx: FormCtx): GeneratedForm {
   return {
     key: "sf-33",
     name: FORM_NAMES_SF["sf-33"],
-    citation: `FAR 53.214(c). ${CONFIRM_RFO}`,
+    citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
     pdf: "/forms/SF33.pdf",
     sections,
   };
@@ -640,7 +640,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 6. Contract identity and offices",
-      citation: `FAR 53.214(a). ${CONFIRM_RFO}`,
+      citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
       fields: [
         field("topmostSubform.RATING", "DPAS rating (block 1)", str(a["dpas_rating"])),
         field("topmostSubform.PAGE1", "Page", "1"),
@@ -670,7 +670,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 7 to 12. Contractor, delivery and payment",
-      citation: "FAR 14.408-1; FAR 15.504",
+      citation: "RFO FAR 14.307; RFO FAR 15.207-1",
       fields: [
         field(
           "topmostSubform.NAMEADDY7",
@@ -701,7 +701,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 13 and 14. Authority and accounting",
-      citation: "FAR 6.302; FAR 14.408-1",
+      citation: "RFO FAR 6.103; RFO FAR 14.307",
       fields: [
         field("topmostSubform.AUTHORITY10", "Authority 10 U.S.C. 3204(a) (block 13)", false),
         field("topmostSubform.AUTHORITY41", "Authority 41 U.S.C. 3304(a) (block 13)", false, "Checked only when the record cites that authority; the paragraph is never invented."),
@@ -710,7 +710,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Block 15. Schedule, rows 1 to 5",
-      citation: "FAR 14.408-1",
+      citation: "RFO FAR 14.307",
       fields: [
         ...clinFields,
         field(
@@ -743,7 +743,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 17 to 20. Award type and signatures",
-      citation: "FAR 14.408-1; FAR 15.504",
+      citation: "RFO FAR 14.307; RFO FAR 15.207-1",
       fields: [
         field("topmostSubform.CONT17", "Contractor's negotiated agreement (block 17)", !sealed),
         field("topmostSubform.AWARD18", "Sealed-bid award (block 18)", sealed),
@@ -761,7 +761,7 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
   return {
     key: "sf-26",
     name: FORM_NAMES_SF["sf-26"],
-    citation: `FAR 53.214(a). ${CONFIRM_RFO}`,
+    citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
     pdf: "/forms/SF26.pdf",
     sections,
   };
@@ -830,7 +830,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
   const sections: FormSection[] = [
     {
       title: "Blocks 1 to 5. Order identity",
-      citation: `FAR 53.213(f). ${CONFIRM_RFO}`,
+      citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
       fields: [
         field("F.P1.PAGE", "Page", "1"),
         field("F.P1.OFPAGE", "Of pages", "1"),
@@ -858,7 +858,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 6 to 8. Ship to, contractor and type of order",
-      citation: "FAR 13.307",
+      citation: "RFO FAR 12.204(c)(1); RFO FAR 13.203(c)",
       fields: [
         field("F.P1.CONSIGNEENAME", "Name of consignee (block 6a)", shipTo, shipTo ? undefined : "No ship-to on the record; the place of performance is not printed as a consignee."),
         field("F.P1.SHIPVIA", "Ship via (block 6f)", ""),
@@ -886,7 +886,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 9 to 16. Accounting, delivery and terms",
-      citation: "FAR 13.307",
+      citation: "RFO FAR 12.204(c)(1); RFO FAR 13.203(c)",
       fields: [
         field("F.P1.ACCOUNT", "Accounting and appropriation data (block 9)", str(a["funding_source"])),
         field("F.P1.FOB", "FOB point (block 12)", ""),
@@ -904,7 +904,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Block 11. Business classification",
-      citation: "FAR 19.102",
+      citation: "RFO FAR 19.103",
       fields: [
         field("F.P1.SMALL", "Small (block 11a)", /small/.test(setAside)),
         field("F.P1.OTHERTHAN", "Other than small (block 11b)", false),
@@ -921,7 +921,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Block 17. Schedule",
-      citation: "FAR 13.307",
+      citation: "RFO FAR 12.204(c)(1); RFO FAR 13.203(c)",
       fields: [
         ...clinFields,
         field(
@@ -954,7 +954,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
     },
     {
       title: "Blocks 21 to 23. Invoices and signature",
-      citation: "FAR 13.307",
+      citation: "RFO FAR 12.204(c)(1); RFO FAR 13.203(c)",
       fields: [
         field("F.P1.NAME21A", "Mail invoice to, name (block 21a)", str(a["payment_office"])),
         field(
@@ -970,7 +970,7 @@ export function buildOf347(ctx: FormCtx): GeneratedForm {
   return {
     key: "of-347",
     name: FORM_NAMES_SF["of-347"],
-    citation: `FAR 53.213(f). ${CONFIRM_RFO}`,
+    citation: `RFO FAR 53.101(b). ${CONFIRM_RFO}`,
     pdf: "/forms/OF347.pdf",
     sections,
   };
@@ -1004,7 +1004,7 @@ export function recommendedOfficialForm(
   if (isStreamlined(facts) || isSoftWalkCommercialSample(facts)) {
     return {
       key: "sf-1449",
-      why: "Commercial, streamlined format on the record (FAR 12.204(a)).",
+      why: "Commercial, streamlined format on the record (RFO FAR 12.204(c)(1)).",
     };
   }
   if (order || /simplified|part 13|13\.5/.test(method)) {
