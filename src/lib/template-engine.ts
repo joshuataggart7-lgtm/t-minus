@@ -815,7 +815,7 @@ const nonresponsibility: TemplateDef = {
     tierLabel: "Contracting officer",
     citation: "FAR 9.105-2(a)(1)",
     blocks: ["Contracting officer", "Date"],
-    note: "Signed by the contracting officer and placed in the contract file (FAR 9.105-2(b); FAR 4.801).",
+    note: "Signed by the contracting officer and placed in the contract file (FAR 9.105-2(b); RFO FAR 4.101).",
   }),
 };
 
@@ -969,9 +969,9 @@ const pnm: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer",
-    citation: "FAR 4.801",
+    citation: "RFO FAR 4.101",
     blocks: ["Contracting officer", "Date"],
-    note: "Signed by the contracting officer and placed in the contract file (FAR 4.801).",
+    note: "Signed by the contracting officer and placed in the contract file (RFO FAR 4.101).",
   }),
 };
 
@@ -980,7 +980,7 @@ const coSignature = (citation: string, note?: string) => (): SignatureBlock => (
   tierLabel: "Contracting officer",
   citation,
   blocks: ["Contracting officer", "Date"],
-  note: note ?? "Signed and placed in the contract file (FAR 4.801).",
+  note: note ?? "Signed and placed in the contract file (RFO FAR 4.101).",
 });
 
 const acquisitionHeader = (): SectionDef => ({
@@ -1416,7 +1416,7 @@ const optionNotification: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 17.207(a)", "Signed by the contracting officer and placed in the contract file (FAR 4.801)."),
+  signature: coSignature("FAR 17.207(a)", "Signed by the contracting officer and placed in the contract file (RFO FAR 4.101)."),
 };
 
 // 4a/4b. Consolidation and bundling determinations (tab 002)
@@ -1731,7 +1731,7 @@ const commercialTmLh: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 12.207(b)(1)(ii)(C)", "Executed by the contracting officer before the contract or order is awarded, and placed in the contract file (FAR 4.801)."),
+  signature: coSignature("FAR 12.207(b)(1)(ii)(C)", "Executed by the contracting officer before the contract or order is awarded, and placed in the contract file (RFO FAR 4.101)."),
 };
 
 // -------------------------------------------------- Post-award forms (E3)
@@ -1741,7 +1741,7 @@ const corAppointment: TemplateDef = {
   name: "Recommendation for Appointment of COR or Alternate COR",
   tab: "074",
   badge: {
-    citation: "FAR 1.602-2(d); NFS 1801.670; NFS CG 1842.2",
+    citation: "RFO FAR 1.404(a); NFS 1801.670; NFS CG 1842.2",
     tier: "binding",
     revision: "HQ 05/2026 revision, effective 5/22/2026",
     effective: "2026-05-22",
@@ -1753,7 +1753,7 @@ const corAppointment: TemplateDef = {
     {
       id: "appointee",
       title: "Person recommended",
-      citation: "FAR 1.602-2(d)(1)",
+      citation: "RFO FAR 1.404(a)(1)",
       tier: "binding",
       fields: [
         { key: "cor_name", label: "Name", kind: "text", bind: "cor_name", required: true },
@@ -1774,7 +1774,7 @@ const corAppointment: TemplateDef = {
     {
       id: "qualifications",
       title: "Qualifications",
-      citation: "FAR 1.602-2(d)(2); NFS CG 1842.2",
+      citation: "RFO FAR 1.404(c); NFS CG 1842.2",
       tier: "binding",
       fields: [
         { key: "training", label: "FAC-COR certification level and training completed", kind: "textarea", required: true },
@@ -1798,7 +1798,7 @@ const corAppointment: TemplateDef = {
     {
       id: "authority",
       title: "Scope of the delegation",
-      citation: "FAR 1.602-2(d)(3) and (d)(5)",
+      citation: "RFO FAR 1.404(a)(2) through (a)(4) and (d)",
       tier: "binding",
       standingText:
         "The representative may not make any commitment or change that affects price, quality, quantity, delivery, or other terms. Only the contracting officer may change the contract.",
@@ -1809,7 +1809,7 @@ const corAppointment: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 1.602-2(d)", "Signed by the contracting officer; a copy goes to the representative and the contractor."),
+  signature: coSignature("RFO FAR 1.404(a)", "Signed by the contracting officer; a copy goes to the representative and the contractor."),
 };
 
 const corCancellation: TemplateDef = {
@@ -1817,11 +1817,11 @@ const corCancellation: TemplateDef = {
   name: "Contracting Officers Representative (COR)-Alternate COR Cancellation Memorandum",
   tab: "074",
   badge: {
-    citation: "FAR 1.602-2(d); NFS CG 1842.2",
+    citation: "RFO FAR 1.404(a); NFS CG 1842.2",
     tier: "binding",
     revision: "HQ 05/2026 revision, effective 5/22/2026",
     effective: "2026-05-22",
-    note: "Cancels an appointment made under FAR 1.602-2(d). The contractor is notified.",
+    note: "Cancels an appointment made under RFO FAR 1.404(a). The contractor is notified.",
   },
   lead: "Cancellation of a contracting officer's representative appointment.",
   sections: [
@@ -1829,7 +1829,7 @@ const corCancellation: TemplateDef = {
     {
       id: "cancel",
       title: "Appointment being cancelled",
-      citation: "FAR 1.602-2(d)",
+      citation: "RFO FAR 1.404(a)",
       tier: "binding",
       fields: [
         { key: "cor_name", label: "Name of the representative", kind: "text", bind: "cor_name", required: true },
@@ -1856,7 +1856,7 @@ const corCancellation: TemplateDef = {
     {
       id: "transition",
       title: "Transition",
-      citation: "FAR 4.801; NFS CG 1842.2",
+      citation: "RFO FAR 4.101; NFS CG 1842.2",
       tier: "binding",
       fields: [
         { key: "successor", label: "Successor representative, or none appointed", kind: "text", required: true },
@@ -1865,7 +1865,7 @@ const corCancellation: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 1.602-2(d)"),
+  signature: coSignature("RFO FAR 1.404(a)"),
 };
 
 const cparsInput: TemplateDef = {
@@ -1973,7 +1973,7 @@ const closeoutChecklist: TemplateDef = {
   name: "Closeout Transfer Checklist",
   tab: "NA",
   badge: {
-    citation: "FAR 4.804-5; FAR 4.805",
+    citation: "RFO FAR 4.308-1; RFO FAR 4.309",
     tier: "binding",
     revision: "HQ 06/2026 revision, effective 6/10/2026",
     effective: "2026-06-10",
@@ -1985,7 +1985,7 @@ const closeoutChecklist: TemplateDef = {
     {
       id: "contract",
       title: "Contract",
-      citation: "FAR 4.804-1",
+      citation: "RFO FAR 4.308-2(b)",
       tier: "binding",
       fields: [
         { key: "contract_number", label: "Contract or order number", kind: "text", required: true },
@@ -1999,7 +1999,7 @@ const closeoutChecklist: TemplateDef = {
     {
       id: "steps",
       title: "Closeout steps",
-      citation: "FAR 4.804-5(a)",
+      citation: "RFO FAR 4.308-1(a)",
       tier: "binding",
       standingText: CLOSEOUT_CHECKLIST.join(" "),
       fields: CLOSEOUT_CHECKLIST.map((step, i) => ({
@@ -2013,7 +2013,7 @@ const closeoutChecklist: TemplateDef = {
     {
       id: "retention",
       title: "Transfer and retention",
-      citation: "FAR 4.805; NFS CG 1804.8",
+      citation: "RFO FAR 4.309; NFS CG 1804.8",
       tier: "binding",
       fields: [
         { key: "retention_date", label: "Records retention date", kind: "date", required: true },
@@ -2023,7 +2023,7 @@ const closeoutChecklist: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 4.804-5(b)", "Signed by the contracting officer closing the file."),
+  signature: coSignature("RFO FAR 4.308-1(b)", "Signed by the contracting officer closing the file."),
 };
 
 // ------------------------------------------------- memoranda issued on NF 1858
@@ -2155,7 +2155,7 @@ const coordinationMemo: TemplateDef = {
   name: "Coordination Memorandum",
   tab: "N/A",
   badge: {
-    citation: "FAR 4.801; NFS CG 1804.8",
+    citation: "RFO FAR 4.101; NFS CG 1804.8",
     tier: "guidance",
     revision: "T-Minus form; issued on NF 1858",
     note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
@@ -2166,7 +2166,7 @@ const coordinationMemo: TemplateDef = {
     {
       id: "matter",
       title: "Matter coordinated",
-      citation: "FAR 4.801(b)",
+      citation: "RFO FAR 4.101(b)",
       tier: "binding",
       fields: [
         { key: "matter", label: "What was coordinated, and with whom", kind: "textarea", required: true },
@@ -2176,14 +2176,14 @@ const coordinationMemo: TemplateDef = {
     {
       id: "positions",
       title: "Positions",
-      citation: "FAR 4.801(b)",
+      citation: "RFO FAR 4.101(b)",
       tier: "binding",
       fields: [{ key: "positions", label: "Positions taken by each organization", kind: "textarea", required: true }],
     },
     {
       id: "agreement",
       title: "Agreement and next step",
-      citation: "FAR 4.801(b)",
+      citation: "RFO FAR 4.101(b)",
       tier: "binding",
       fields: [
         { key: "agreement", label: "What was agreed", kind: "textarea", required: true },
@@ -2191,7 +2191,7 @@ const coordinationMemo: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 4.801(b)"),
+  signature: coSignature("RFO FAR 4.101(b)"),
 };
 
 const packetTransmittal: TemplateDef = {
@@ -2199,7 +2199,7 @@ const packetTransmittal: TemplateDef = {
   name: "Pre-award Package Transmittal Memorandum",
   tab: "N/A",
   badge: {
-    citation: "NF 1098 Checklist for Contract Award File Content; FAR 4.801",
+    citation: "NF 1098 Checklist for Contract Award File Content; RFO FAR 4.101",
     tier: "binding",
     revision: "T-Minus form; issued on NF 1858",
     note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
@@ -2210,7 +2210,7 @@ const packetTransmittal: TemplateDef = {
     {
       id: "action",
       title: "Action",
-      citation: "FAR 4.801",
+      citation: "RFO FAR 4.101",
       tier: "binding",
       fields: [
         { key: "action", label: "The award the package supports, its vendor and its amount", kind: "textarea", required: true },
@@ -2237,12 +2237,12 @@ const packetTransmittal: TemplateDef = {
     {
       id: "request",
       title: "Request",
-      citation: "FAR 4.801",
+      citation: "RFO FAR 4.101",
       tier: "binding",
       fields: [{ key: "request", label: "What is asked of the addressee, and by when", kind: "textarea", required: true }],
     },
   ],
-  signature: coSignature("FAR 4.801"),
+  signature: coSignature("RFO FAR 4.101"),
 };
 
 // ------------------------------------------------ Memorandum for Record
@@ -2266,7 +2266,7 @@ const memorandumForRecord: TemplateDef = {
   name: "Memorandum for Record",
   tab: "N/A",
   badge: {
-    citation: "FAR 4.801; FAR 4.803",
+    citation: "RFO FAR 4.101",
     tier: "guidance",
     revision: "T-Minus form; issued on NF 1858",
     note: "Contents of contract files. Issued on NASA Form 1858 electronic letterhead and filed under the tab the contracting officer picks.",
@@ -2277,7 +2277,7 @@ const memorandumForRecord: TemplateDef = {
     {
       id: "purpose",
       title: "Purpose",
-      citation: "FAR 4.803",
+      citation: "RFO FAR 4.101",
       tier: "guidance",
       fields: [
         {
@@ -2299,7 +2299,7 @@ const memorandumForRecord: TemplateDef = {
     {
       id: "body",
       title: "Memorandum",
-      citation: "FAR 4.801",
+      citation: "RFO FAR 4.101",
       tier: "binding",
       fields: [
         { key: "opening", label: "Opening", kind: "textarea", required: true },
@@ -2333,7 +2333,7 @@ const memorandumForRecord: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("FAR 4.801"),
+  signature: coSignature("RFO FAR 4.101"),
 };
 
 // --------------------------------------------------------- SAM.gov notice
@@ -2361,9 +2361,9 @@ const samNotice: TemplateDef = {
   name: "SAM.gov notice",
   tab: "N/A",
   badge: {
-    citation: "RFO FAR 5.203; FAR 12.603; RFO FAR 6.104",
+    citation: "RFO FAR 5.101; RFO FAR 5.201; RFO FAR 12.202(b); RFO FAR 6.104",
     citationFor: (v) =>
-      isSole(v) ? "RFO FAR 5.203; RFO FAR 6.104" : "RFO FAR 5.203; FAR 12.603",
+      isSole(v) ? "RFO FAR 5.101; RFO FAR 6.104" : "RFO FAR 5.201; RFO FAR 12.202(b)",
     tier: "binding",
     revision: "HQ Governmentwide Point of Entry templates 05/2026; posted in SAM.gov",
     note: "T-Minus drafts the notice; SAM.gov remains the system of record for posting.",
@@ -2373,7 +2373,7 @@ const samNotice: TemplateDef = {
     {
       id: "notice",
       title: "Notice",
-      citation: "RFO FAR 5.203",
+      citation: "RFO FAR 5.101; RFO FAR 5.201",
       tier: "binding",
       fields: [
         {
@@ -2415,7 +2415,7 @@ const samNotice: TemplateDef = {
           label: "Response period",
           kind: "readonly",
           showIf: isSole,
-          help: "RFO FAR 5.203 / 6.104: allow at least 15 days for responses to the notice of intent unless an exception applies.",
+          help: "T-Minus allows at least 15 days for responses to the notice of intent. Notice timing by value and type: RFO FAR 5.101(d), Table 5-2; exemptions: RFO FAR 5.101(b).",
         },
         {
           key: "response_rule",
@@ -2448,11 +2448,11 @@ const samNotice: TemplateDef = {
     {
       id: "combined",
       title: "Solicitation terms",
-      citation: "FAR 12.603",
+      citation: "RFO FAR 12.202(b)",
       tier: "binding",
       showIf: isCombined,
       standingText:
-        "This is a combined synopsis/solicitation under FAR 12.603. This notice is the only solicitation issued; quotations are being requested and a written solicitation will not be issued.",
+        "This is a combined synopsis/solicitation for commercial products or commercial services prepared in accordance with part 12. This announcement constitutes the only solicitation. Offers are being requested and a separate written solicitation will not be issued.",
       fields: [
         { key: "evaluation_basis", label: "Basis for award", kind: "textarea", required: true },
         { key: "clause_note", label: "Provisions and clauses that apply", kind: "textarea" },
@@ -2461,7 +2461,7 @@ const samNotice: TemplateDef = {
     {
       id: "intent",
       title: "Intent to sole source",
-      citation: "RFO FAR 5.203; RFO FAR 6.104",
+      citation: "RFO FAR 5.101(c)(4)(vii); RFO FAR 6.104",
       tier: "binding",
       showIf: isSole,
       standingText:
@@ -2641,7 +2641,7 @@ const samNotice: TemplateDef = {
       ],
     },
   ],
-  signature: coSignature("RFO FAR 5.203", "Posted in SAM.gov; the posting confirmation is filed under FAR 4.801."),
+  signature: coSignature("RFO FAR 5.101; RFO FAR 5.201", "Posted in SAM.gov; the posting confirmation is filed under RFO FAR 4.101."),
 };
 
 /** Notice mode the record calls for, before the contracting officer changes it. */
@@ -2652,7 +2652,7 @@ export function samNoticeMode(acq: { competition?: string | null } | null | unde
 }
 
 // ------------------------------------------- Evaluation of quotations record
-// FAR 13.106-2. Required on a competed simplified acquisition: the quotations
+// RFO FAR 12.203. Required on a competed simplified acquisition: the quotations
 // are judged against the criteria stated in the notice and the basis for the
 // recommendation is recorded.
 const quoterRow = (n: number): FieldDef[] => [
@@ -2673,7 +2673,7 @@ const evaluationOfQuotations: TemplateDef = {
   name: "Evaluation of Quotations Record",
   tab: "054",
   badge: {
-    citation: "FAR 13.106-2",
+    citation: "RFO FAR 12.203",
     tier: "binding",
     revision: "T-Minus 09/2026",
     effective: "2026-09-01",
@@ -2684,7 +2684,7 @@ const evaluationOfQuotations: TemplateDef = {
     {
       id: "header",
       title: "Acquisition",
-      citation: "FAR 13.106-2",
+      citation: "RFO FAR 12.203",
       tier: "binding",
       fields: [
         { key: "acquisition_id", label: "Acquisition", kind: "readonly", bind: "acquisition_id" },
@@ -2702,7 +2702,7 @@ const evaluationOfQuotations: TemplateDef = {
     {
       id: "basis",
       title: "Basis for award and evaluation criteria",
-      citation: "FAR 13.106-2(b)",
+      citation: "RFO FAR 12.203(a) and (b)",
       tier: "binding",
       fields: [
         {
@@ -2723,7 +2723,7 @@ const evaluationOfQuotations: TemplateDef = {
     {
       id: "quotations",
       title: "Quotations received",
-      citation: "FAR 13.106-2(a)",
+      citation: "RFO FAR 12.204(b)(1)",
       tier: "binding",
       standingText:
         "Record every quotation received: the quoter, its UEI, the price quoted, the technical rating and the reason for that rating. Leave unused rows blank.",
@@ -2732,7 +2732,7 @@ const evaluationOfQuotations: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "FAR 13.106-2(b)(3)",
+      citation: "RFO FAR 12.203(c)(2)",
       tier: "binding",
       fields: [
         { key: "recommended_quoter", label: "Recommended quoter", kind: "text", required: true },
@@ -2749,7 +2749,7 @@ const evaluationOfQuotations: TemplateDef = {
     {
       id: "signoff",
       title: "Sign-off",
-      citation: "FAR 4.801",
+      citation: "RFO FAR 4.101",
       tier: "binding",
       fields: [
         { key: "evaluator_name", label: "Technical evaluator", kind: "text" },
@@ -2759,9 +2759,9 @@ const evaluationOfQuotations: TemplateDef = {
   ],
   signature: (): SignatureBlock => ({
     tierLabel: "Technical evaluator and contracting officer",
-    citation: "FAR 13.106-2",
+    citation: "RFO FAR 12.203",
     blocks: ["Technical evaluator", "Date", "Contracting officer", "Date"],
-    note: "Signed and placed in the contract file (FAR 4.801).",
+    note: "Signed and placed in the contract file (RFO FAR 4.101).",
   }),
 };
 
@@ -2888,7 +2888,7 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
     out["response_period_basis"] =
-      "At least 15 days from posting, unless an exception in RFO FAR 5.203 applies.";
+      "At least 15 days from posting (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2; exemptions: RFO FAR 5.101(b).";
   }
   return out;
 }

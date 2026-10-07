@@ -4,7 +4,7 @@
  * Every value is read from the record: the requester, the appointed COR, and
  * the dates already held in post_award. Blanks read "Not recorded"; nothing is
  * invented. The memo is a copyable local aid. NCMS remains the system of
- * record (NFS 1804.171); nothing here is written back to it, and nothing here
+ * record (NFS CG 1804.11(b)); nothing here is written back to it, and nothing here
  * holds a phase exit.
  */
 
@@ -22,7 +22,7 @@ export type CorToRequest = {
 };
 
 export const COR_TO_NOTE =
-  "Local memo and handoff aid. Advisory only — it never places a hold or changes the phase. NCMS is the system of record (NFS 1804.171).";
+  "Local memo and handoff aid. Advisory only — it never places a hold or changes the phase. NCMS is the system of record (NFS CG 1804.11(b)).";
 
 export const NOT_RECORDED = "Not recorded";
 

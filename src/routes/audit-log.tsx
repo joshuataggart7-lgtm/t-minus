@@ -121,7 +121,7 @@ function AuditLogPage() {
     <AppShell>
       <PageHeader
         title="Audit Log"
-        lead="Who did what, when, and why. Kept for the contract file under FAR 4.801. Reading only."
+        lead="Who did what, when, and why. Kept for the contract file under RFO FAR 4.101. Reading only."
       />
 
       <div className="mc-work-toolbar mb-8 flex min-w-0 flex-wrap gap-6" aria-label="Audit log filters">

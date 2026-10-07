@@ -479,7 +479,7 @@ export const TRIGGERS: TriggerDef[] = [
       { doc_key: "ssa-appointment", label: "Source Selection Authority appointment letter", citation: "NFS 1801.603-1; NFS 1815.303(a)", phase: "Solicitation/Quote", state: "offered", templateKey: "ssa-appointment", tab: "036" },
       { doc_key: "drfp-cover-letter", label: "Draft RFP cover letter", citation: "FAR 15.201; NFS 1815.201", phase: "Solicitation/Quote", state: "offered", templateKey: "drfp-cover-letter", tab: "037" },
       { doc_key: "final-rfp-cover-letter", label: "Final RFP cover letter", citation: "FAR 15.203; NFS 1815.201(c)(6)(D)", phase: "Solicitation/Quote", state: "required", templateKey: "final-rfp-cover-letter", tab: "040" },
-      { doc_key: "blackout-notice", label: "Blackout notice", citation: "FAR 15.201(f); NFS 1815.201(f)(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "039" },
+      { doc_key: "blackout-notice", label: "Blackout notice", citation: "RFO FAR 15.201(c)(1); NFS CG 1815.11(i)", phase: "Solicitation/Quote", state: "required", templateKey: "blackout-notice", tab: "039" },
       { doc_key: "electronic-posting-checklist", label: "Electronic document posting checklist", citation: "NFS 1804.7103", phase: "Solicitation/Quote", state: "required", templateKey: "electronic-posting-checklist", tab: "38" },
       { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1801.6", phase: "Solicitation/Quote", state: "offered", tab: "020" },
       { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "FAR 52.222-46; FAR 22.1103", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
@@ -539,10 +539,16 @@ export const TRIGGERS: TriggerDef[] = [
   },
   {
     key: "set-aside-preaward",
-    condition: "A set-aside acquisition",
-    when: (c) => Boolean((c.s.set_aside_type || "").trim()) && !/none|full and open/i.test(c.s.set_aside_type),
+    condition: "A Part 15 negotiated set-aside acquisition",
+    // The preaward notice runs on a Part 15 negotiated set-aside only, the same
+    // gate the notice page applies. Commercial and simplified files skip it.
+    when: (c) =>
+      Boolean((c.s.set_aside_type || "").trim()) &&
+      !/none|full and open/i.test(c.s.set_aside_type) &&
+      /\b15\b|15\.\d|negotiat/i.test(c.method) &&
+      !/commercial|simplified|13\.5|\bFAR\s*12\b|\bpart\s*12\b/i.test(c.method),
     docs: [
-      { doc_key: "preaward-apparent-successful", label: "Preaward notification to the apparent successful offeror", citation: "FAR 15.503(a)(2); FAR 19.302", phase: "Award", state: "required", templateKey: "setaside-preaward-notification", tab: "069" },
+      { doc_key: "preaward-apparent-successful", label: "Preaward notification to the apparent successful offeror", citation: "RFO FAR 15.206-1(b)(1); RFO FAR 19.201-2(d)", phase: "Award", state: "required", templateKey: "setaside-preaward-notification", tab: "069" },
     ],
   },
   {
@@ -701,15 +707,33 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
   const simplified = /\b13\b/.test(context.method);
   const commercialSimplified = /13\.5|\b12\b|commercial simplified/i.test(context.method);
   for (const d of out) {
-    if (d.doc_key === "postaward-notification-letters" && simplified)
-      d.citation = "FAR 13.106-3(d)";
+    // RFO FAR 13.301 on a simplified noncommercial file: the award notice
+    // posting, and a brief explanation only when a quoter asks.
+    if (simplified && !commercialSimplified) {
+      if (d.doc_key === "postaward-letter-successful") {
+        d.citation = "RFO FAR 13.301";
+        d.state = "offered";
+        d.note = "Offered: on a simplified acquisition the award notice posting is the requirement (RFO FAR 13.301).";
+      }
+      if (d.doc_key === "postaward-letter-unsuccessful") {
+        d.citation = "RFO FAR 13.301 (explanation to an unsuccessful quoter, on request)";
+        d.state = "offered";
+        d.note = "Offered: a brief explanation is owed only when a quoter asks (RFO FAR 13.301).";
+      }
+    }
     if (!commercialSimplified) continue;
-    if (d.doc_key === "postaward-letter-successful")
-      d.citation = "RFO FAR 12.201-1 (commercial simplified procedures); FAR 13.106-3(d)";
-    if (d.doc_key === "postaward-letter-unsuccessful")
-      d.citation = "FAR 13.106-3(d) (notification to unsuccessful quoters)";
-    if (d.doc_key === "preaward-apparent-successful")
-      d.citation = "FAR 19.302 (size status protest period)";
+    // RFO FAR 12.301 requires the award notice posting and, on request, a
+    // brief explanation to an unsuccessful quoter. Neither letter is required.
+    if (d.doc_key === "postaward-letter-successful") {
+      d.citation = "RFO FAR 12.301(a)";
+      d.state = "offered";
+      d.note = "Offered: on a commercial simplified acquisition the award notice posting is the requirement (RFO FAR 12.301(a)).";
+    }
+    if (d.doc_key === "postaward-letter-unsuccessful") {
+      d.citation = "RFO FAR 12.301(b) (explanation to an unsuccessful quoter, on request)";
+      d.state = "offered";
+      d.note = "Offered: a brief explanation is owed only when a quoter asks (RFO FAR 12.301(b)).";
+    }
   }
   // A consolidation determination and a bundling determination never both
   // stand: the value decides which one the record needs.

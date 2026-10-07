@@ -535,7 +535,7 @@ const finalRfpCoverLetter: TemplateDef = {
   tab: "040",
   layout: "memo",
   badge: {
-    citation: "FAR 15.201; FAR 15.203; NFS 1815.201(c)(6)(D); NFS 1815.201(f); NFS 1852.215-84",
+    citation: "FAR 15.201; FAR 15.203; NFS 1815.201(c)(6)(D); NFS CG 1815.11(i); NFS 1852.215-84",
     tier: "binding",
     revision: "HQ 02/2026 revision",
     effective: "2026-02-01",
@@ -616,10 +616,10 @@ const finalRfpCoverLetter: TemplateDef = {
     {
       id: "standing",
       title: "Standing instructions",
-      citation: "FAR 52.215-1; NFS 1804.7103; NFS 1815.201(f)",
+      citation: "FAR 52.215-1; NFS 1804.7103; NFS CG 1815.11(i)",
       tier: "binding",
       standingText:
-        "Offerors are required to have a Commercial and Government Entity (CAGE) code that matches the corporate address submitted with its proposal.\n\nIn order to control and protect sensitive data owned by the Government and its Contractors, NASA policy required all acquisition-related documents be released in Adobe Portable Document Format (PDF).\n\nThis RFP and any amendments are posted to the Governmentwide point of entry at SAM.gov.\n\nNASA FAR Supplement (NFS) clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition can be found in the NASA Procurement Ombudsman and Competition Advocate listing.\n\nIn accordance with NFS 1815.201(f), a \u201cBlackout Notice\u201d has been issued to NASA personnel. All inquiries and communications pertaining to this acquisition shall be directed only to the Contracting Officer listed below.",
+        "Offerors are required to have a Commercial and Government Entity (CAGE) code that matches the corporate address submitted with its proposal.\n\nIn order to control and protect sensitive data owned by the Government and its Contractors, NASA policy required all acquisition-related documents be released in Adobe Portable Document Format (PDF).\n\nThis RFP and any amendments are posted to the Governmentwide point of entry at SAM.gov.\n\nNASA FAR Supplement (NFS) clause 1852.215-84, Ombudsman, is applicable. The Center Ombudsman for this acquisition can be found in the NASA Procurement Ombudsman and Competition Advocate listing.\n\nIn accordance with NFS CG 1815.11(i), a \u201cBlackout Notice\u201d has been issued to NASA personnel. All inquiries and communications pertaining to this acquisition shall be directed only to the Contracting Officer listed below.",
       fields: [
         S("award_without_discussions", "Instructions to offerors provision", [
           "Offerors are encouraged to refer to Federal Acquisition Regulation (FAR) provision 52.215-1, INSTRUCTIONS TO OFFERORS\u2013COMPETITIVE ACQUISITION, in particular paragraph (f)(4) which discusses the Government's right to award a contract without discussions.",
@@ -1325,7 +1325,7 @@ const ppm: TemplateDef = {
     {
       id: "attachments",
       title: "VI. OTHER ATTACHMENTS",
-      citation: "FAR 4.801",
+      citation: "RFO FAR 4.101",
       tier: "binding",
       fields: [T("attachments", "Attachments: any additional information supporting the contracting officer's negotiation objectives")],
     },

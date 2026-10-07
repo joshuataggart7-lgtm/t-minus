@@ -287,7 +287,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   );
   const indexBodyTabs =
     `<h2>NF 1098 contract file index</h2>` +
-    `<p class="cite">FAR 4.801. Tabs present in this file and tabs this acquisition type requires.</p>` +
+    `<p class="cite">RFO FAR 4.101. Tabs present in this file and tabs this acquisition type requires.</p>` +
     rows(
       ["NF 1098 tab", "Document", "Phase", "State"],
       [

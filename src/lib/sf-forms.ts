@@ -8,7 +8,7 @@
  * own XFA template, so the populated export is the official form carrying the
  * record's values. Nothing is typed twice, and nothing is written outside
  * T-Minus: the solicitation and the contract of record are built in NCMS
- * (NFS 1804.171).
+ * (NFS CG 1804.11(b)).
  *
  * Signature blocks and award dates are deliberately left blank. They are
  * completed by the contracting officer.

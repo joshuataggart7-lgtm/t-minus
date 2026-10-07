@@ -400,7 +400,7 @@ function ClauseChangesPage() {
             </ul>
           )}
           <p className="mt-6 max-w-[80ch] break-words text-[13px] text-muted-foreground">
-            NCMS writes the modification of record (NFS 1804.171). The packet here is a handoff showing the clause delta.
+            NCMS writes the modification of record (NFS CG 1804.11(b)). The packet here is a handoff showing the clause delta.
           </p>
         </section>
       </MissionNavSection>

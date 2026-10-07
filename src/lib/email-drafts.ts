@@ -40,7 +40,9 @@ export function emailCiteForMethod(acq: Facts | null): {
 } {
   return simplified(acq)
     ? {
-        unsuccessful: "FAR 13.106-3(d)",
+        unsuccessful: /\b12\b|commercial|13\.5/i.test(`${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`)
+          ? "RFO FAR 12.301(b)"
+          : "RFO FAR 13.301",
         priceReasonableness: "FAR 13.106-3",
         methodLabel: "simplified commercial procedures",
       }
@@ -196,7 +198,7 @@ export function buildEmailDrafts(input: {
           outcome.successful
             ? ""
             : simplified(acq)
-              ? `You may request a brief explanation of the basis for the award decision within three days of this notice (${cites.unsuccessful}).`
+              ? `You may request a brief explanation of the award decision (${cites.unsuccessful}).`
               : `You may request a debriefing within three days of this notice (${cites.unsuccessful}).`,
           "",
           "This is a prototype record and not an official NASA notice.",

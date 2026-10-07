@@ -560,7 +560,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   return {
     key: "nf-1787",
     name: FORM_NAMES["nf-1787"],
-    citation: "NFS 1819.202-70",
+    citation: "NFS CG 1819.11(a) (Companion Guide)",
     pdf: "/forms/NF1787.pdf",
     sections: [
       {

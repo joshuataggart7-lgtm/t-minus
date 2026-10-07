@@ -204,7 +204,7 @@ export function sectionMLines(
   if (m?.lpta) {
     lines.push({
       text: "Award is on a lowest price technically acceptable basis: quotations found technically acceptable are ranked by price.",
-      citation: shell.partFamily === "15" ? "FAR 15.305" : "FAR 13.106-2(b)",
+      citation: shell.partFamily === "15" ? "FAR 15.305" : "RFO FAR 12.203(c)(2)",
     });
   }
 
@@ -219,7 +219,7 @@ export function sectionMLines(
     }
     lines.push({
       text: `${shell.partFamily === "15" ? "Proposals" : "Quotations"} are evaluated against the factors stated, and the evaluation record on this file carries the result.`,
-      citation: shell.partFamily === "15" ? "FAR 15.305" : "FAR 13.106-2(b)",
+      citation: shell.partFamily === "15" ? "FAR 15.305" : "RFO FAR 12.203",
     });
   } else if (!m?.lpta) {
     lines.push({
@@ -232,7 +232,7 @@ export function sectionMLines(
   if (shell.partFamily === "12_13" && !m?.lpta) {
     lines.push({
       text: "Award is made to the quotation that represents the best value to the Government on the stated factors.",
-      citation: "FAR 13.106-2(b)(3)",
+      citation: null,
     });
   }
   if (shell.partFamily === "15" && !m?.lpta) {

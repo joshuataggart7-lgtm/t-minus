@@ -140,7 +140,7 @@ export function CloseoutPanel({
       <p className="mt-3 text-[13px] text-muted-foreground">
         Final CPARS: {cparsRecorded ? "entered on this file" : "not entered yet"}. Retention date:{" "}
         {retention ?? "set the final payment date to compute it"}
-        {retention ? ", six years after final payment (FAR 4.805)" : ""}.
+        {retention ? ", six years after final payment (RFO FAR 4.309)" : ""}.
       </p>
 
       <h3 className="mt-5 text-[15px] leading-[22px] font-medium">Closeout checklist</h3>
@@ -150,7 +150,7 @@ export function CloseoutPanel({
       <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
         {items.map((i) => (
           <li key={i.label}>
-            {i.label} · {i.done ? "Complete" : "Open"} · {i.citation}
+            {i.label} · {i.done ? "Complete" : "Open"}{i.citation ? ` · ${i.citation}` : ""}
             {i.note ? ` · ${i.note}` : ""}
           </li>
         ))}

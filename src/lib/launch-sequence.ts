@@ -8,6 +8,7 @@ import { matchStrategy, type RefData } from "@/lib/intake";
 import { phaseAlias } from "@/lib/phase-alias";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
+import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
 import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
 import { HQ5_PHASES, HQ5_TEMPLATE_KEYS } from "@/lib/templates-hq5";
@@ -182,20 +183,20 @@ export function acquisitionTypeWords(acq: AcqRow) {
 }
 
 export const PHASE_CITATIONS: Record<string, string> = {
-  Intake: "NF 1707; NFS 1807.7201 (Acquisition Forecast affirmation)",
+  Intake: "NF 1707; NFS CG 1807.711(a)",
   "Market Research": "RFO FAR 10.001; NFS CG 1810.12",
   JOFOC: "RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16",
-  Synopsis: "RFO FAR 5.203; FAR 12.603 (combined synopsis/solicitation)",
+  Synopsis: "RFO FAR 5.201; RFO FAR 12.202(b) (combined synopsis/solicitation)",
   "Fair Opportunity": "FAR 16.505(b)(1); FAR 8.405 for a schedule order",
-  "Solicitation/Quote": "FAR 12.603; NFS 1804.171 (NCMS is the system of record)",
-  "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
+  "Solicitation/Quote": "RFO FAR 12.202(b); NFS CG 1804.11(b) (NCMS is the system of record)",
+  "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
   "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3 where simplified procedures apply",
   "Responsibility Check": "FAR 9.104-1; FAR 9.105-2; FAR 52.204-7 (SAM)",
-  "Go/No-go Poll": "NFS 1801.770 legal review; Center policy for the review chain",
-  Award: "FAR 13.302-3; NFS 1804.171 (award written in NCMS)",
-  "FPDS-NG Report": "FAR 4.604 (contract action reporting)",
-  Administration: "FAR Part 42; FAR 4.801 (contract file)",
-  Closeout: "FAR 4.804 (closeout of contract files)",
+  "Go/No-go Poll": "Center policy for the review chain",
+  Award: "FAR 13.302-3; NFS CG 1804.11(b) (award written in NCMS)",
+  "FPDS-NG Report": "RFO FAR 4.301 (contract action reporting)",
+  Administration: "FAR Part 42; RFO FAR 4.101 (contract file)",
+  Closeout: "RFO FAR 4.308 (contract closeout)",
 };
 
 /** Commercial Part 12 simplified citations. A FAR 13.5 or Part 12 commercial
@@ -203,20 +204,20 @@ export const PHASE_CITATIONS: Record<string, string> = {
  *  under Part 15 and not on the simplified acquisition threshold story. */
 const COMMERCIAL_PHASE_CITATIONS: Record<string, string> = {
   "Solicitation/Quote":
-    "FAR 12.603; RFO FAR 12.201-1 (commercial simplified procedures); NFS 1804.171 (NCMS is the system of record)",
-  "Technical Evaluation": "FAR 13.106-2 (evaluation of quotations)",
+    "RFO FAR 12.202(b); RFO FAR 12.201-1 (commercial simplified procedures); NFS CG 1804.11(b) (NCMS is the system of record)",
+  "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
   "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); FAR 13.106-3",
   Award:
-    "RFO FAR 12.201-1 (commercial simplified procedures, within the commercial simplified ceiling); NFS 1804.171 (award written in NCMS)",
+    "RFO FAR 12.201-1 (commercial simplified procedures, within the commercial simplified ceiling); NFS CG 1804.11(b) (award written in NCMS)",
 };
 
 /** Negotiated Part 15 citations, used where the simplified ones do not apply. */
 const PART_15_PHASE_CITATIONS: Record<string, string> = {
-  Synopsis: "RFO FAR 5.203 (presolicitation notice)",
-  "Solicitation/Quote": "FAR 15.203; NFS 1804.171 (NCMS is the system of record)",
+  Synopsis: "RFO FAR 5.101 (presolicitation notice)",
+  "Solicitation/Quote": "FAR 15.203; NFS CG 1804.11(b) (NCMS is the system of record)",
   "Technical Evaluation": "FAR 15.305 (proposal evaluation)",
   "Price Reasonableness": "FAR 15.406-3 (price negotiation memorandum); FAR 15.404-1",
-  Award: "FAR 15.504; NFS 1804.171 (award written in NCMS)",
+  Award: "FAR 15.504; NFS CG 1804.11(b) (award written in NCMS)",
 };
 
 /** The citation a phase carries on this record's path. */
@@ -226,11 +227,11 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   // A sole-source notice is a notice of intent, never a combined
   // synopsis/solicitation, so FAR 12.603 has no part in it.
   const soleSource = /sole|brand/i.test(String(((acq ?? {}) as Record<string, unknown>)["competition"] ?? ""));
-  if (soleSource && phase === "Synopsis") return "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source)";
+  if (soleSource && phase === "Synopsis") return "RFO FAR 5.101; RFO FAR 6.104 (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
   // commercial FAR 12.603 citation has no part in its Solicitation/Quote row.
   if (soleSource && phase === "Solicitation/Quote")
-    return "RFO FAR 5.203; RFO FAR 6.104 (notice of intent to sole source); NFS 1804.171 (NCMS is the system of record)";
+    return "RFO FAR 5.101; RFO FAR 6.104 (notice of intent to sole source); NFS CG 1804.11(b) (NCMS is the system of record)";
   if (negotiated && PART_15_PHASE_CITATIONS[phase]) return PART_15_PHASE_CITATIONS[phase]!;
   if (!negotiated && isCommercialBuy(acq) && COMMERCIAL_PHASE_CITATIONS[phase])
     return COMMERCIAL_PHASE_CITATIONS[phase]!;
@@ -260,7 +261,7 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   Closeout: "Close the file when everything is delivered, paid, and filed.",
 };
 
-/** Micro-purchase threshold, above which the NF 1787 is coordinated. */
+/** Micro-purchase threshold, used for the RFO FAR 19.104-1(b)(1) set-aside advisory. */
 const MICRO_PURCHASE = 10_000;
 /** Value at which the NF 1787A becomes the market research document of record. */
 const MRR_THRESHOLD = 2_000_000;
@@ -356,7 +357,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "NF 1707 intake, Acquisition Forecast affirmed",
-          citation: "NFS 1807.7201",
+          citation: "NFS CG 1807.711(a)",
           field: "acquisition_forecast_verified",
         },
         {
@@ -372,7 +373,11 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       ];
     case "Market Research": {
       const value = Number(acq?.estimated_value ?? 0);
-      const mrrRequired = value >= MRR_THRESHOLD;
+      // NFS CG 1810.12(c): the NF 1787A documents market research on a
+      // procurement exceeding $2,000,000 and goes with the NF 1787; below that
+      // it is optional.
+      const mrrRequired = value > MRR_THRESHOLD;
+      const sb = nf1787Trigger((acq ?? {}) as Record<string, unknown>, { micro: MICRO_PURCHASE });
       return [
         {
           label: "Market research memorandum",
@@ -381,29 +386,40 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           templateKey: "market-research-memo",
           ...(mrrRequired
             ? { optional: true, note: "At this value the NF 1787A is the market research document of record." }
-            : { note: "Below $2,000,000 this memorandum is the market research document of record." }),
+            : { note: "At $2,000,000 or less this memorandum is the market research document of record." }),
         },
         {
           label: mrrRequired ? "NF 1787A market research report" : "NF 1787A market research report (offered)",
-          citation: "NFS CG 1810.12(c)",
+          citation: mrrRequired ? "NFS CG 1810.12(c)(1)" : "NFS CG 1810.12(c)(2)",
           link: "form",
           formKey: "nf-1787a",
           optional: !mrrRequired,
           note: mrrRequired
-            ? "Required at an estimated value of $2,000,000 or more."
-            : "Offered below $2,000,000; the memorandum is the document of record.",
+            ? "Required over $2,000,000; it accompanies the NF 1787 when one is required (Companion Guide guidance)."
+            : "Optional at $2,000,000 or less; the memorandum is the document of record.",
         },
         {
-          label: "NF 1787 small business coordination",
-          citation: "NFS 1819.202-70",
+          label: sb.required
+            ? "NF 1787 small business coordination"
+            : "NF 1787 small business coordination (Offered, Center practice)",
+          citation: NF1787_CITATION,
           link: "form",
           formKey: "nf-1787",
-          optional: value <= MICRO_PURCHASE,
-          note:
-            value <= MICRO_PURCHASE
-              ? "Offered at or below the micro-purchase threshold."
-              : "Required above the micro-purchase threshold, with the exceptions in the threshold table.",
+          optional: !sb.required,
+          note: `${sb.reason} Companion Guide guidance, not regulation.${sb.advisory ? ` ${sb.advisory}` : ""}`,
         },
+        ...(sb.pcr
+          ? [
+              {
+                label: "SBA PCR review: proposed acquisition package 30 days before the solicitation",
+                citation: sb.pcr.citation,
+                docKey: "sba-pcr-package",
+                tab: "010",
+                attachOnly: true,
+                note: sb.pcr.text,
+              } as RequiredDoc,
+            ]
+          : []),
       ];
     }
     case "JOFOC":
@@ -422,14 +438,14 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         sole
           ? {
               label: "Notice of intent to sole source",
-              citation: "RFO FAR 5.203; RFO FAR 6.104",
+              citation: "RFO FAR 5.101; RFO FAR 6.104",
               link: "templates",
               templateKey: "sam-notice",
               note: "Allow at least 15 days for responses unless an exception applies.",
             }
           : {
               label: "Combined synopsis/solicitation notice",
-              citation: "RFO FAR 5.203; FAR 12.603",
+              citation: "RFO FAR 5.201; RFO FAR 12.202(b)",
               link: "templates",
               templateKey: "sam-notice",
             },
@@ -438,7 +454,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
     case "Solicitation/Quote": {
       const sole = /sole/i.test(String(acq?.competition ?? ""));
       return [
-        { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
+        { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
         { label: "Funds certified for the period", citation: "31 U.S.C. 1502", field: "funds_certified" },
         ...(sole
           ? [
@@ -462,7 +478,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           label: terRequired
             ? "NASA technical evaluation report"
             : "NASA technical evaluation report (offered)",
-          citation: terRequired ? "NFS CG 1815.45(b)" : "FAR 13.106-2",
+          citation: terRequired ? "NFS CG 1815.45(b)" : "RFO FAR 12.203",
           link: "templates",
           templateKey: "technical-evaluation-report",
           optional: !terRequired,
@@ -475,7 +491,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : [
               {
                 label: "Evaluation of quotations record",
-                citation: "FAR 13.106-2",
+                citation: "RFO FAR 12.203",
                 link: "templates",
                 templateKey: "evaluation-of-quotations",
                 note: "Judge each quote against the stated criteria and record who evaluated and why.",
@@ -531,21 +547,19 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           attachOnly: true,
         });
       }
-      // Small business coordination is not a vehicle question: it applies to an
-      // order above the micro-purchase threshold unless the parent vehicle was
-      // itself set aside.
-      const parentSetAside = Boolean(String(acq?.set_aside ?? "").trim());
+      // Small business coordination on an order follows NFS CG 1819.11(a):
+      // required over $2,000,000 when not set aside, unless the order is under
+      // a single-award vehicle or another listed exception applies.
+      const sb = nf1787Trigger((acq ?? {}) as Record<string, unknown>, { micro: MICRO_PURCHASE });
       rows.push({
-        label: "NF 1787 small business coordination",
-        citation: "NFS 1819.202-70",
+        label: sb.required
+          ? "NF 1787 small business coordination"
+          : "NF 1787 small business coordination (Offered, Center practice)",
+        citation: NF1787_CITATION,
         link: "form",
         formKey: "nf-1787",
-        optional: value <= MICRO_PURCHASE || parentSetAside,
-        note: parentSetAside
-          ? "Offered: the parent vehicle was set aside, so the order carries the set-aside."
-          : value <= MICRO_PURCHASE
-            ? "Offered at or below the micro-purchase threshold."
-            : "Required on an order above the micro-purchase threshold.",
+        optional: !sb.required,
+        note: `${sb.reason} Companion Guide guidance, not regulation.${sb.advisory ? ` ${sb.advisory}` : ""}`,
       });
       return rows;
     }
@@ -590,7 +604,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         return [
           {
             label: "NCMS handoff packet in order form",
-            citation: "NFS 1804.171",
+            citation: "NFS CG 1804.11(b)",
             link: "packet",
             note: "The order document of record is written in NCMS from this packet.",
           },
@@ -602,16 +616,16 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         ];
       if (profile === "bpa")
         return [
-          { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
+          { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
           { label: "Blanket purchase agreement signed (written in NCMS)", citation: "FAR 13.303-3", link: "packet" },
         ];
       return [
-        { label: "NCMS handoff packet", citation: "NFS 1804.171", link: "packet" },
+        { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
         { label: "SF 1449 award document (written in NCMS)", citation: "FAR 12.204", link: "packet" },
       ];
     }
     case "FPDS-NG Report":
-      return [{ label: "FPDS-NG contract action report", citation: "FAR 4.604" }];
+      return [{ label: "FPDS-NG contract action report", citation: "RFO FAR 4.301" }];
     case "Administration":
       return [
         {
@@ -622,7 +636,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         },
         {
           label: "COR appointment letter",
-          citation: "FAR 1.602-2(d)",
+          citation: "RFO FAR 1.404",
           link: "templates",
           templateKey: "cor-appointment",
         },
@@ -656,7 +670,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : []),
         {
           label: "SF 30 modification handoff packet",
-          citation: "FAR 43.301; NFS 1804.171",
+          citation: "FAR 43.301; NFS CG 1804.11(b)",
           link: "packet",
           note: "The modification of record is written in NCMS. T-Minus hands over the facts and the clause delta.",
         },
@@ -665,18 +679,18 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "Closeout Transfer Checklist",
-          citation: "FAR 4.804-5",
+          citation: "RFO FAR 4.308-1",
           link: "templates",
           templateKey: "closeout-checklist",
         },
         {
           label: "Closeout record: deobligation, final invoice, release of claims, property",
-          citation: "FAR 4.804-5(a)",
+          citation: "RFO FAR 4.308-1(a)",
           docKey: "closeout-record",
           tab: "120",
           note: "Entered on the closeout panel of this file; the checklist reads those values.",
         },
-        { label: "Contract file complete and retained", citation: "FAR 4.801; FAR 4.805" },
+        { label: "Contract file complete and retained", citation: "RFO FAR 4.101; RFO FAR 4.309" },
       ];
     default:
       return [];
@@ -1024,7 +1038,7 @@ export function pollBoard(
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,
       planned_days: r.planned_days,
-      citation: r.citation,
+      citation: reviewCitationForDisplay(r.reviewer_role, r.citation),
       trigger: r.trigger,
       note: r.note,
     };
@@ -1244,7 +1258,7 @@ export function buildPacket(
 ) {
   return {
     generated: new Date().toISOString(),
-    note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS 1804.171). This packet is not the solicitation or the contract.",
+    note: "T-Minus handoff packet. NCMS is the contract writing system of record (NFS CG 1804.11(b)). This packet is not the solicitation or the contract.",
     clause_policy_note: "FAR 52.212-5 is Reserved under the RFO / PCD 26-03B; commercial clause content is prescribed via FAR Tables 12-2 and 12-3 and each clause's own prescription. Offeror reps/certs are made in SAM (with FAR 52.204-7), not by packing FAR 52.212-3. Neither 52.212-3 nor 52.212-5 is recommended, offered, or apply-able.",
     acquisition: acq,
     clauses,
@@ -1261,4 +1275,21 @@ export function buildPacket(
     })),
     reviews: board,
   };
+}
+
+/**
+ * A seeded review row's citation as the board shows it. Retired NFS numbers
+ * (1819.202-70, struck by PCD 25-48A, and 1801.770, not in the interim NFS or
+ * the Companion Guide) are dropped, and a Center review-chain row is labeled
+ * as Center practice rather than a regulatory requirement.
+ */
+export function reviewCitationForDisplay(role: string, citation: string | null | undefined): string {
+  const raw = String(citation ?? "");
+  let c = raw
+    .replace(/NFS 1819\.202-70;?\s*/g, "")
+    .replace(/NFS 1801\.770 \(legal review\);?\s*/g, "")
+    .replace(/NFS CG 1819\.11(?!\()/g, "NFS CG 1819.11(a) (Companion Guide guidance)")
+    .trim();
+  if (/^small business/i.test(role)) c = `Center review chain, not a regulatory requirement${c ? `; ${c}` : ""}`;
+  return c || raw;
 }

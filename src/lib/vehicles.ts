@@ -257,14 +257,19 @@ export function modRows(
   }
   if (outOfScope) {
     rows.push({
+      label: "NF 1787 small business coordination for the out-of-scope work",
+      citation: "NFS CG 1819.11(a)(1)(ii) (Companion Guide)",
+      state: "required",
+    });
+    rows.push({
       label: "Justification for other than full and open competition, out-of-scope modification",
       citation: "FAR 6.104",
       state: "required",
       templateKey: "jofoc",
     });
   }
-  rows.push({ label: "FPDS-NG modification report", citation: "FAR 4.604", state: "required" });
-  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "FAR 43.301; NFS 1804.171", state: "required" });
+  rows.push({ label: "FPDS-NG modification report", citation: "RFO FAR 4.301", state: "required" });
+  rows.push({ label: "SF 30 handoff packet for NCMS", citation: "FAR 43.301; NFS CG 1804.11(b)", state: "required" });
   return rows;
 }
 
@@ -293,7 +298,7 @@ export function closeoutOf(acq: Record<string, unknown> | null | undefined): Clo
   return { ...CLOSEOUT_DEFAULTS, ...raw };
 }
 
-/** FAR 4.805: files are retained six years after final payment. */
+/** RFO FAR 4.309: files are retained six years after final payment. */
 export function retentionDate(finalPayment: string | null): string | null {
   if (!finalPayment) return null;
   const d = new Date(`${finalPayment}T00:00:00Z`);
@@ -318,13 +323,13 @@ export function closeoutChecklist(
   return [
     {
       label: "Final invoice received",
-      citation: "FAR 4.804-5(b)",
+      citation: "RFO FAR 4.308-1(a)(14)",
       done: Boolean(record.final_invoice_date),
       ...(record.final_invoice_date ? { note: `Received ${record.final_invoice_date}.` } : {}),
     },
     {
       label: "Final payment recorded",
-      citation: "FAR 4.804-5(b)",
+      citation: "RFO FAR 4.308-1(b)(8)",
       done: Boolean(record.final_payment_date),
       ...(record.final_payment_date ? { note: `Paid ${record.final_payment_date}.` } : {}),
     },
@@ -335,17 +340,17 @@ export function closeoutChecklist(
     },
     {
       label: "Government property cleared",
-      citation: "FAR 4.804-5(a)(12)",
+      citation: "RFO FAR 4.308-1(a)(6)",
       done: Boolean(record.property_cleared),
     },
     {
       label: "Release of claims received",
-      citation: "FAR 4.804-5(a)(14)",
+      citation: "",
       done: Boolean(record.release_of_claims),
     },
     {
       label: "Excess funds deobligated",
-      citation: "FAR 4.804-5(a)(15)",
+      citation: "RFO FAR 4.308-1(a)(15)",
       done: Boolean(record.deobligation_date),
       ...(record.deobligation_date ? { note: `Deobligated ${record.deobligation_date}.` } : {}),
     },
@@ -372,13 +377,13 @@ export function closeoutMemo(
       ? `Final payment is recorded as ${record.final_payment_date}.`
       : "Final payment is not recorded yet, so the retention clock has not started.",
     retention
-      ? `The contract file is retained until ${retention}, six years after final payment (FAR 4.805).`
-      : "The retention date computes once the final payment date is on the record (FAR 4.805).",
+      ? `The contract file is retained until ${retention}, six years after final payment (RFO FAR 4.309).`
+      : "The retention date computes once the final payment date is on the record (RFO FAR 4.309).",
     "",
     open.length === 0
       ? "Every closeout item reads complete on the record. The file is ready for transfer."
       : "The following closeout items are still open:",
-    ...open.map((i) => `- ${i.label} (${i.citation})`),
+    ...open.map((i) => `- ${i.label}${i.citation ? ` (${i.citation})` : ""}`),
     "",
     "This memorandum is generated from the T-Minus record. T-Minus does not write to any external system.",
   ];

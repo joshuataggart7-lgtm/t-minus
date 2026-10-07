@@ -310,7 +310,7 @@ export function explainHold(
         `Read at: ${String(review?.["flagged_at"] ?? acq['hold_started_at'] ?? "time not recorded")}.`,
       ],
       rule: "An exclusion record is matched by exact UEI only, and it raises a review for the contracting officer. It never moves the clock on its own.",
-      citation: "FAR 9.405 (exclusions); FAR 4.801 (contract file)",
+      citation: "FAR 9.405 (exclusions); RFO FAR 4.101 (contract file)",
       clears: [
         "Run the live SAM.gov check on this record. A clean result showing no active exclusion clears the review automatically and is recorded.",
       ],
@@ -326,7 +326,7 @@ export function explainHold(
         : "The hold start time is not recorded.",
     ],
     rule: "A file holds while a required document is missing, a reviewer has voted No-go, or a review left behind has not voted.",
-    citation: "FAR 4.801 (contract file); Center policy for the review chain",
+    citation: "RFO FAR 4.101 (contract file); Center policy for the review chain",
     clears: [
       "The hold lifts by itself once the cause is cleared: attach the missing document, resolve the No-go, or record the missing vote.",
     ],
