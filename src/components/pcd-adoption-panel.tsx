@@ -26,7 +26,7 @@ export function PcdAdoptionPanel({
   deviations: DeviationSummary[];
 }) {
   return (
-    <section aria-label="Regulatory baseline and deviations" className="mt-6 max-w-[80ch] border border-border p-4">
+    <section aria-label="Regulatory baseline and deviations" className="mt-6 w-full [&_p]:max-w-[80ch] border border-border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-[18px] font-medium leading-[24px]">Regulatory baseline &amp; deviations</h3>
         <AdvisoryTag />

@@ -73,7 +73,7 @@ export function CloseoutPanel({
   const ready = closeoutReady(items);
 
   return (
-    <section aria-label="Closeout record" className="mb-10 max-w-[70ch] rounded-xl border border-border bg-background p-5">
+    <section aria-label="Closeout record" className="mb-10 w-full [&_p]:max-w-[70ch] rounded-xl border border-border bg-background p-5">
       <h2 className="text-[18px] leading-6 font-medium">Closeout record</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="block text-[13px] text-muted-foreground">

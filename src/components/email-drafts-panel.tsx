@@ -23,7 +23,7 @@ export function EmailDraftsPanel({
     : "";
 
   return (
-    <details aria-label="Email drafts" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+    <details aria-label="Email drafts" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Draft an email</summary>
       <div className="border-t border-border px-5 py-4">
         <p className="mb-3 text-[13px] leading-[18px] text-muted-foreground">

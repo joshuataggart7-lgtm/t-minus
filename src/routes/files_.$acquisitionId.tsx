@@ -2504,9 +2504,10 @@ function FilePage() {
       {!q.isLoading ? (
       <div className="mb-2 grid min-w-0 gap-6 min-[1440px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:gap-8">
         <aside className="no-print hidden min-[1440px]:block">
-          <div className="max-h-[calc(100vh-88px)] overflow-y-auto min-[1440px]:sticky min-[1440px]:top-[72px]">
+          <div className="min-[1440px]:sticky min-[1440px]:top-[72px]">
             <MissionNavigator items={missionNavItems} />
             <LaunchSequenceRail
+              compact
               phases={phases}
               daysToPhaseExit={
                 lifecycle?.nextDecision?.startsWith("Exit")
@@ -2687,7 +2688,7 @@ function FilePage() {
       <MissionNavSection id="exports-peer-systems" label="Exports & peer systems" collapsible summary="NEAR export, NCMS packet and peer systems">
       {acq ? (
         <>
-        <section aria-label="Peer systems" className="mb-8 max-w-[80ch] border-t border-border pt-3">
+        <section aria-label="Peer systems" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-3">
           <p className="mb-1 text-[13px] text-muted-foreground">Peer systems</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] leading-[18px]">
             <button
@@ -2774,7 +2775,7 @@ function FilePage() {
       ) : null}
 
       {warrant ? (
-        <details aria-label="Warrant check" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+        <details aria-label="Warrant check" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
           <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Warrant check</summary>
           <div className="border-t border-border px-5 py-4">
           {warrant.exceeds ? (
@@ -2819,7 +2820,7 @@ function FilePage() {
 
       <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
       {!successor && effectiveState === "launched" ? (
-        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
           <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
           <p className="mt-1 text-[13px] text-muted-foreground">
             This file has no period of performance end recorded, so the date its successor must start
@@ -2840,7 +2841,7 @@ function FilePage() {
       ) : null}
 
       {successor ? (
-        <section aria-label="Successor clock" className="mb-10 max-w-[70ch] border-t border-border pt-4">
+        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
           <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
           <p className="mt-1 text-[13px] text-muted-foreground">
             Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
@@ -2884,7 +2885,7 @@ function FilePage() {
         </section>
       ) : null}
 
-      <details aria-label="Acquisition Forecast" className="mb-8 max-w-[80ch] rounded-xl border border-border bg-background">
+      <details aria-label="Acquisition Forecast" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
         <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-3 text-[13px] text-muted-foreground">
@@ -2944,7 +2945,7 @@ function FilePage() {
       ) : null}
 
       {intakeEstimate ? (
-        <section aria-label="Estimate at intake" className="mb-10 max-w-[70ch]">
+        <section aria-label="Estimate at intake" className="mb-10 w-full [&_p]:max-w-[70ch]">
           <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
           <p className="text-[15px] leading-[22px]">{intakeEstimate.sentence}</p>
           <p className="mt-1 text-[13px] text-muted-foreground">
@@ -2956,7 +2957,7 @@ function FilePage() {
       ) : null}
 
       {lifecycle && lifecycle.upcomingReviews.length > 0 ? (
-        <section aria-labelledby="upcoming-reviews" className="mb-8 max-w-[80ch] border-t border-border pt-4">
+        <section aria-labelledby="upcoming-reviews" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-4">
           <h2 id="upcoming-reviews" className="text-[18px] leading-6 font-medium">Upcoming reviews</h2>
           <ul className="mt-2 space-y-1 text-[13px] text-muted-foreground">
             {lifecycle.upcomingReviews.map((review) => (
@@ -3226,7 +3227,7 @@ function FilePage() {
       <DocumentVersionsPanel acquisitionId={acquisitionId} />
 
       {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
-        <section aria-label="Reserved clause note" className="mb-12 max-w-[80ch] border border-border p-4">
+        <section aria-label="Reserved clause note" className="mb-12 w-full [&_p]:max-w-[80ch] border border-border p-4">
           <p className="text-[15px] leading-[22px]">
             <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
             {RFO_RESERVED_212_NOTE}
@@ -3697,7 +3698,7 @@ function FilePage() {
               ) : null}
 
               {p.phase === "Responsibility Check" ? (
-                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                <div className="mt-3 w-full [&_p]:max-w-[80ch] border border-border p-4">
                   <p className="text-[15px] font-medium">Finding</p>
                   <div className="mt-2 flex flex-wrap items-center gap-3">
                     <label className="text-[13px]" htmlFor="responsibility-finding">
@@ -3747,7 +3748,7 @@ function FilePage() {
                 </div>
               ) : null}
               {p.phase === packetPhase ? (
-                <div id="clause-packet" className="mt-3 max-w-[80ch] scroll-mt-[96px] border border-border p-4">
+                <div id="clause-packet" className="mt-3 w-full [&_p]:max-w-[80ch] scroll-mt-[96px] border border-border p-4">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.
                   </p>
@@ -3949,7 +3950,7 @@ function FilePage() {
               ) : null}
 
               {p.phase === "Administration" ? (
-                <div className="mt-3 max-w-[80ch] space-y-4">
+                <div className="mt-3 w-full [&_p]:max-w-[80ch] space-y-4">
                   <div className="border border-border p-4">
                     <h4 className="text-[15px] font-medium">Option exercise</h4>
                     <p className="mt-1 text-[13px] text-muted-foreground">
@@ -4334,7 +4335,7 @@ function FilePage() {
               ) : null}
 
               {p.phase === "Closeout" ? (
-                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                <div className="mt-3 w-full [&_p]:max-w-[80ch] border border-border p-4">
                   <h4 className="text-[15px] font-medium">Closeout</h4>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <label className="text-[13px]" htmlFor="closeout-pr">
@@ -4411,7 +4412,7 @@ function FilePage() {
 
 
               {p.phase === "Award" && protestDeadlines.length ? (
-                <div className="mt-3 max-w-[80ch] border border-border p-4">
+                <div className="mt-3 w-full [&_p]:max-w-[80ch] border border-border p-4">
                   <h4 className="text-[15px] font-medium">Protest window</h4>
                   <p className="mt-1 text-[13px] text-muted-foreground">
                     Counted from the award date{" "}
@@ -4505,7 +4506,7 @@ function FilePage() {
 
 
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
-                <div id={`poll-${p.phase}`} className="mt-3 max-w-[80ch] border border-border">
+                <div id={`poll-${p.phase}`} className="mt-3 w-full [&_p]:max-w-[80ch] border border-border">
                   <TableScrollRegion baseClassName="overflow-x-auto" label="Go/No-go poll table">
 <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
@@ -4596,7 +4597,7 @@ function FilePage() {
       </details>
 
       <MissionNavSection id="directive-compliance" label="Directive compliance" collapsible summary="Directive checklist for this file">
-      <section className="mb-12 max-w-[80ch]">
+      <section className="mb-12 w-full [&_p]:max-w-[80ch]">
         <h2 className="mb-2 text-[18px] leading-6 font-medium">Directive compliance</h2>
         <p className="mb-4 text-[13px] text-muted-foreground">{DIRECTIVE_CITATION}</p>
         {readOnly ? <LockHint className="mb-3" /> : null}

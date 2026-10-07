@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
-import { Bell, X } from "lucide-react";
+import { Bell, ChevronDown, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
 import { usePresenter } from "@/lib/presenter";
 import {
@@ -45,6 +45,7 @@ export function AnnouncementBanner() {
   const { role, roles, user, authState } = useRole();
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const [urgentExpanded, setUrgentExpanded] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   // The urgent line sits in the page flow under the header so it never covers
@@ -166,12 +167,22 @@ export function AnnouncementBanner() {
         ? createPortal(
             <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
               <div className="flex min-w-0 items-baseline gap-2">
-                <p className="min-w-0 truncate max-xl:whitespace-normal max-xl:[overflow-wrap:anywhere] max-xl:py-1" title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+                <p className={`min-w-0 truncate max-xl:py-1 ${urgentExpanded ? "max-xl:whitespace-normal max-xl:[overflow-wrap:anywhere]" : "sm:max-xl:whitespace-normal sm:max-xl:[overflow-wrap:anywhere]"}`} title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
                 {blocking.length > 1 ? (
                   <span className="shrink-0 text-muted-foreground" data-numeric>{blocking.indexOf(urgent) + 1} of {blocking.length}</span>
                 ) : null}
               </div>
               <div className="flex shrink-0 items-center gap-2">
+                {/* Below 640px the line stays one row until opened. */}
+                <button
+                  type="button"
+                  onClick={() => setUrgentExpanded((v) => !v)}
+                  aria-expanded={urgentExpanded}
+                  aria-label={urgentExpanded ? "Show less" : "Show the full announcement"}
+                  className="grid size-7 place-items-center text-muted-foreground hover:text-foreground sm:hidden"
+                >
+                  <ChevronDown className={`size-4 transition-transform ${urgentExpanded ? "rotate-180" : ""}`} aria-hidden="true" />
+                </button>
                 {blocking.length > 1 ? (
                   <button type="button" onClick={() => dismiss(blocking.map((a) => a.announcement_id))} className="text-[13px] text-primary">
                     Dismiss all

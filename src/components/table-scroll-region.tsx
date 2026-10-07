@@ -39,7 +39,7 @@ export function TableScrollRegion({
         {children}
       </div>
       {overflows ? (
-        <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground xl:hidden">
+        <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
           Scroll sideways to see every column.
         </p>
       ) : null}

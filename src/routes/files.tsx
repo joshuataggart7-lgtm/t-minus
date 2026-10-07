@@ -187,27 +187,31 @@ function FilesPage() {
 
       {rows.length ? (
         <TableScrollRegion baseClassName="mc-work-table-wrap" label="Acquisition files">
-          <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
-            <thead>
+          <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-sm:block max-sm:border-0">
+            <thead className="max-sm:hidden">
               <tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">Acquisition</th>
+                <th scope="col" className="min-w-[28ch] p-2">Acquisition</th>
                 <th scope="col" className="p-2">Status</th>
                 <th scope="col" className="p-2">T±</th>
                 <th scope="col" className="p-2">Owner</th>
                 <th scope="col" className="p-2">Next action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="max-sm:block">
               {visibleRows.map(({ acq, operational, metric, mission, readiness }) => {
                 const scrubbed = acq.clock_state === "scrubbed" || operational.clock_state === "scrubbed";
                 const copyOf = String(acq['source_tag'] ?? "").startsWith("Copy of") ? String(acq['source_tag']) : null;
                 return (
-                <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness.state, "is")} border-b border-border align-top last:border-0`}>
-                  <td className="p-2 break-words">
+                <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness.state, "is")} border-b border-border align-top last:border-0 max-sm:relative max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0 max-sm:last:border`}>
+                  <td className="p-2 break-words max-sm:block max-sm:p-0 max-sm:pr-28">
                     <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="text-primary hover:text-primary-hover">
                       <span className="block text-[12px] text-muted-foreground" data-numeric>{acq.acquisition_id}</span>
                       <span className="block font-medium">{String(acq.title ?? acq.acquisition_id)}</span>
                     </Link>
+                    {/* Below 640px the status pill sits on the ID line. */}
+                    <span className="absolute right-3 top-3 sm:hidden">
+                      {scrubbed ? <span className="inline-block rounded-full border border-border px-2 text-[12px] leading-5">Scrubbed</span> : <MissionReadinessChip state={readiness.state} />}
+                    </span>
                     {copyOf ? <span className="mt-1 block text-[12px] text-muted-foreground">{copyOf}</span> : null}
                     {acq['source_tag'] === "backfilled" ? (
                       <span className="mt-1 block text-[12px] text-muted-foreground">
@@ -222,16 +226,16 @@ function FilesPage() {
                     </span>
                   </td>
                   {scrubbed ? (
-                    <td className="p-2">
-                      <span className="inline-block rounded-full border border-border px-2 text-[12px] leading-5">Scrubbed</span>
+                    <td data-label="Status" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
+                      <span className="inline-block rounded-full max-sm:hidden border border-border px-2 text-[12px] leading-5">Scrubbed</span>
                       <span className="mt-1 block text-[12px] text-muted-foreground">{String(acq.hold_reason ?? "").trim() || "Reason not recorded"}</span>
                     </td>
                   ) : (
-                    <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
+                    <td data-label="Phase" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]"><span className="max-sm:hidden"><MissionReadinessChip state={readiness.state} /></span><span className="mt-1 block text-[12px] text-muted-foreground max-sm:mt-0 max-sm:text-[13px] max-sm:text-foreground"><span className="max-sm:hidden">Phase: </span>{String(operational.current_phase ?? "Not recorded")}</span></td>
                   )}
-                  <td className="p-2 whitespace-nowrap" data-numeric>{scrubbed ? <span className="text-muted-foreground">No countdown</span> : <LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} />}</td>
-                  <td className="p-2 break-words">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
-                  <td className="p-2 break-words">{scrubbed ? <span className="text-muted-foreground">None</span> : readiness.nextAction}</td>
+                  <td data-label="T±" className="p-2 whitespace-nowrap max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>{scrubbed ? <span className="text-muted-foreground">No countdown</span> : <LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} />}</td>
+                  <td data-label="Owner" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
+                  <td data-label="Next action" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{scrubbed ? <span className="text-muted-foreground">None</span> : readiness.nextAction}</td>
                 </tr>
                 );
               })}

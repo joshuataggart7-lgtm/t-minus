@@ -77,7 +77,7 @@ export function CorToRequestPanel({
   const empty = !form.what_asking?.trim() && !form.narrative?.trim();
 
   return (
-    <section aria-label="COR or task order request" className="mb-8 max-w-[80ch] border border-border p-4">
+    <section aria-label="COR or task order request" className="mb-8 w-full [&_p]:max-w-[80ch] border border-border p-4">
       <h3 className="text-[18px] font-medium leading-[24px]">COR or task order request</h3>
       <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{COR_TO_NOTE}</p>
 

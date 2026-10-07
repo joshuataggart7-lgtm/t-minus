@@ -48,7 +48,7 @@ export function ExclusionsSweepPanel() {
   const stamp = last.data?.logged_at ? new Date(last.data.logged_at).toLocaleString() : null;
 
   return (
-    <section className="mt-10 max-w-[80ch]" aria-labelledby="exclusions-sweep-heading">
+    <section className="mt-10 w-full [&_p]:max-w-[80ch]" aria-labelledby="exclusions-sweep-heading">
       <h3 id="exclusions-sweep-heading" className="text-[18px] leading-6 font-medium">
         Vendor exclusions sweep
       </h3>

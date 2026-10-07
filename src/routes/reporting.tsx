@@ -83,7 +83,13 @@ function ReportingPage() {
   }
 
   const cols = preview.data?.[0] ? Object.keys(preview.data[0]) : [];
-  function displayCell(row: Record<string, unknown>, column: string) {
+  /** Display only: "branch_name" reads "Branch name". The CSV keeps the raw column keys. */
+function headerLabel(key: string): string {
+  const words = key.replace(/_/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function displayCell(row: Record<string, unknown>, column: string) {
     if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
       return row[column] === null || row[column] === undefined ? "—" : String(row[column]);
     }
@@ -174,8 +180,8 @@ function ReportingPage() {
               <thead>
                 <tr className="border-b border-border text-left text-muted-foreground">
                   {cols.map((c) => (
-                    <th key={c} scope="col" className="whitespace-nowrap py-2 pr-4 font-medium">
-                      {c.replace(/_/g, " ")}
+                    <th key={c} scope="col" className="min-w-[8ch] whitespace-normal py-2 pr-4 align-bottom font-medium">
+                      {headerLabel(c)}
                     </th>
                   ))}
                 </tr>
@@ -184,7 +190,7 @@ function ReportingPage() {
                 {preview.data.map((r, i) => (
                   <tr key={i} className="border-b border-border">
                     {cols.map((c) => (
-                      <td key={c} className="whitespace-nowrap py-2 pr-4 tabular-nums">
+                      <td key={c} className="max-w-[32ch] truncate whitespace-nowrap py-2 pr-4 tabular-nums" title={String(displayCell(r, c) ?? "")}>
                         {displayCell(r, c)}
                       </td>
                     ))}
