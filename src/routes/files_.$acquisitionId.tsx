@@ -1,5 +1,7 @@
 import { writeAudit } from "@/lib/audit";
-import { phaseAlias } from "@/lib/phase-alias";
+import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
+import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
+import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { TableScrollRegion } from "@/components/table-scroll-region";
@@ -230,12 +232,12 @@ export const Route = createFileRoute("/files_/$acquisitionId")({
       { title: "Acquisition file — T-Minus" },
       {
         name: "description",
-        content: "The clock line, the launch sequence, the poll board, and the thresholds for one acquisition.",
+        content: "The clock line, the launch sequence, the reviews and approvals, and the thresholds for one acquisition.",
       },
       { property: "og:title", content: "Acquisition file — T-Minus" },
       {
         property: "og:description",
-        content: "Clock line, launch sequence, poll board, and thresholds for one acquisition.",
+        content: "Clock line, launch sequence, reviews and approvals, and thresholds for one acquisition.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -366,7 +368,7 @@ function FilePage() {
   const [voteRow, setVoteRow] = useState<string | null>(null);
   const [voteReceived, setVoteReceived] = useState<string>(todayISO());
   const [voteNote, setVoteNote] = useState("");
-  const [voteChoice, setVoteChoice] = useState<"go" | "no-go">("go");
+  const [voteChoice, setVoteChoice] = useState<ReviewDecision | null>(null);
   const [actionDialog, setActionDialog] = useState<FileActionDialog | null>(null);
   const [actionReason, setActionReason] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
@@ -918,7 +920,7 @@ function FilePage() {
             : `Attach the ${d.label}`;
         return { label, doc: d };
     }
-    if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Open the poll" };
+    if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Send the review requests" };
     return { label: `Exit ${current}` };
   }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys, q.data?.researchRuns]);
 
@@ -1102,7 +1104,7 @@ function FilePage() {
   const pendingCurrentReviews = useMemo(
     () =>
       currentPhase
-        ? (boards[currentPhase.phase] ?? []).filter((entry) => entry.poll_id && entry.vote === "pending")
+        ? (boards[currentPhase.phase] ?? []).filter((entry) => entry.poll_id && entry.vote !== "favorable")
         : [],
     [boards, currentPhase],
   );
@@ -1115,7 +1117,7 @@ function FilePage() {
       setVoteRow(dialog.entry.poll_id);
       setVoteReceived(todayISO());
       setVoteNote("");
-      setVoteChoice("go");
+      setVoteChoice(null);
     }
   };
 
@@ -1161,7 +1163,7 @@ function FilePage() {
       const rules = reviewRulesForPhase(phase, acq, q.data?.rules ?? [], ref);
       const existing = new Set(
         (q.data?.polls ?? [])
-          .filter((p) => (p.phase ?? "") === phase)
+          .filter((p) => phaseAlias(p.phase ?? "") === phase)
           .map((p) => (p.reviewer_role ?? "").toLowerCase()),
       );
       const rows = rules
@@ -1180,7 +1182,7 @@ function FilePage() {
       await writeAudit({
         acquisition_id: acq.acquisition_id,
         actor: actorName,
-        action: "Poll opened",
+        action: "Review requests sent",
         field: "polls",
         new_value: `${rows.length} reviewer${rows.length === 1 ? "" : "s"}`,
         reason: `${phase} requires review`,
@@ -1189,32 +1191,35 @@ function FilePage() {
     },
     onSuccess: () => {
       setActionDialog(null);
-      setBanner("The poll is open. Reviewers can vote on the documents for that phase.");
+      setBanner("The review requests are open. Each reviewer records a decision on the documents for that phase.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(`The poll did not open: ${e.message}. Try again.`),
+    onError: (e: Error) => setBanner(`The review requests did not open: ${e.message}. Try again.`),
   });
 
-  // A reviewer who answered by email: the contracting officer records the vote
-  // on their behalf, and the audit entry says so.
+  // A reviewer who answered by email: the contracting officer records the
+  // decision on their behalf, and the audit entry says so. A nonconcurrence
+  // resolved on elevation is recorded the same way, naming the deciding official.
   const recordVote = useMutation({
     mutationFn: async (input: {
       entry: BoardEntry;
-      choice: "go" | "no-go";
+      choice: ReviewDecision | null;
       received: string;
       note: string;
     }) => {
       if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
       if (!acq) return;
-      if (!input.entry.poll_id) throw new Error("Open the poll for this phase first");
-      if (input.choice === "no-go" && !input.note.trim()) throw new Error("A No-go needs a reason");
+      if (!input.entry.poll_id) throw new Error("Send the review requests for this phase first");
+      if (!input.choice) throw new Error("Choose a decision");
+      if (rationaleMissing(input.choice, input.note)) throw new Error(`${DECISION_LABEL[input.choice]} needs a written rationale`);
+      const choice = input.choice;
       const who = await signedInName(actorName);
       const note = input.note.trim() || null;
       const { data, error } = await supabase
         .from("polls")
         .update({
-          vote: input.choice,
+          vote: choice,
           reason: note,
           voted_at: new Date(`${input.received}T12:00:00Z`).toISOString(),
         })
@@ -1222,14 +1227,24 @@ function FilePage() {
         .select("poll_id");
       if (error) throw new Error(error.message);
       if ((data ?? []).length === 0) throw new Error("no review was updated");
+      const entryAudit = decisionAudit({
+        decision: choice,
+        reviewerName: choice === "nonconcur_resolved" ? who : input.entry.reviewer_name,
+        reviewerRole: input.entry.reviewer_role,
+        date: input.received,
+        rationale: note,
+        previousRaw: input.entry.decision,
+        previousReason: input.entry.reason,
+        recordedBy: choice === "nonconcur_resolved" ? null : who,
+      });
       await writeAudit({
         acquisition_id: acq.acquisition_id,
         actor: who,
-        action: input.choice === "go" ? "Go recorded" : "No-go recorded",
+        action: entryAudit.action,
         field: input.entry.reviewer_role,
-        old_value: input.entry.vote,
-        new_value: input.choice,
-        reason: `recorded by ${who} on behalf of ${input.entry.reviewer_name}${note ? `: ${note}` : ""}; received ${input.received}`,
+        old_value: entryAudit.old_value,
+        new_value: entryAudit.new_value,
+        reason: entryAudit.reason,
         phase: input.entry.phase,
       });
     },
@@ -1237,11 +1252,11 @@ function FilePage() {
       setVoteRow(null);
       setVoteNote("");
       setActionDialog(null);
-      setBanner("The vote is recorded with the date it was received.");
+      setBanner("The decision is recorded with the date it was received.");
       void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(failureText("The vote did not save", e)),
+    onError: (e: Error) => setBanner(failureText("The decision did not save", e)),
   });
 
   // Age of the current hold, against the Center's own aging window.
@@ -1628,7 +1643,7 @@ function FilePage() {
           updated_at: new Date().toISOString(),
         })
         .eq("acquisition_id", acq.acquisition_id)
-        .eq("current_phase", phase)
+        .in("current_phase", storedPhaseNames(phase))
         .select("acquisition_id");
       if (error) throw new Error(error.message);
       if (!data?.length) throw new Error("The phase changed before this action finished. Refresh and try again");
@@ -1672,7 +1687,7 @@ function FilePage() {
       if ((q.data?.nfApprovals ?? []).some((a) => a.status === "non_concurred")) {
         throw new Error("A NF 1707 non-concurrence is open. Clear it before launch");
       }
-      if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote === "pending")) {
+      if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote !== "favorable")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
       }
       const { data: fresh, error: freshError } = await supabase
@@ -2360,7 +2375,7 @@ function FilePage() {
     if (heroAction.label.startsWith("Exit ") && currentPhase) {
       return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "exit", phase: currentPhase.phase })}>{label}</Button>;
     }
-    if (heroAction.label === "Open the poll" && currentPhase) {
+    if (heroAction.label === "Send the review requests" && currentPhase) {
       return <Button className="max-w-full whitespace-normal text-left" onClick={() => showActionDialog({ kind: "open-poll", phase: currentPhase.phase })}>{label}</Button>;
     }
     return <Button className="max-w-full whitespace-normal text-left" onClick={openLaunchSequence}>{label}</Button>;
@@ -4507,16 +4522,16 @@ function FilePage() {
 
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div id={`poll-${p.phase}`} className="mt-3 w-full [&_p]:max-w-[80ch] border border-border">
-                  <TableScrollRegion baseClassName="overflow-x-auto" label="Go/No-go poll table">
+                  <TableScrollRegion baseClassName="overflow-x-auto" label="Reviews and approvals table">
 <table className="w-full text-[13px] leading-[18px]">
                     <caption className="p-2 text-left text-muted-foreground">
-                      Go/No-go poll for {p.phase}. Reviewers vote; approval stays with the contracting officer.
+                      Required reviews, concurrences and approvals for {p.phase}. Each reviewer records a formal decision by name.
                     </caption>
                     <thead>
                       <tr className="border-y border-border text-left">
                         <th scope="col" className="p-2">Reviewer</th>
                         <th scope="col" className="p-2">Name</th>
-                        <th scope="col" className="p-2">Vote</th>
+                        <th scope="col" className="p-2">Decision</th>
                         <th scope="col" className="p-2">Due</th>
                         <th scope="col" className="p-2">Citation</th>
                       </tr>
@@ -4525,21 +4540,24 @@ function FilePage() {
                       {(boards[p.phase] ?? []).length ? (
                         (boards[p.phase] ?? []).map((b) => (
                           <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border align-top">
-                            <td className="p-2">{b.reviewer_role}</td>
+                            <td className="p-2">
+                              {b.reviewer_role}
+                              <span className="block text-[12px] text-muted-foreground">{REVIEW_KIND_LABEL[b.kind]}</span>
+                            </td>
                             <td className="p-2">{b.reviewer_name}</td>
                             <td className="p-2">
                               <StatusMark
                                 color={
-                                  b.vote === "go"
+                                  b.vote === "favorable"
                                     ? "var(--ontrack)"
-                                    : b.vote === "no-go"
+                                    : b.vote === "unfavorable"
                                       ? "var(--atrisk)"
                                       : "var(--attention)"
                                 }
                               >
-                                {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                                {b.reason ? ` — ${b.reason}` : ""}
-                                {b.poll_id ? "" : " (poll not opened)"}
+                                {b.decision ? DECISION_LABEL[b.decision] : "Pending"}
+                                {b.reason ? `: ${b.reason}` : ""}
+                                {b.poll_id ? "" : " (review not requested yet)"}
                               </StatusMark>
                             </td>
 
@@ -4559,7 +4577,7 @@ function FilePage() {
                                   onClick={() => showActionDialog({ kind: "vote", entry: b })}
                                   className="mt-1 h-auto p-0"
                                 >
-                                  Record vote
+                                  Record decision
                                 </Button>
                               ) : null}
                             </td>
@@ -4584,7 +4602,7 @@ function FilePage() {
                         onClick={() => showActionDialog({ kind: "open-poll", phase: p.phase })}
                         className="h-auto p-0"
                       >
-                        Open the poll for {p.phase}
+                        Send the review requests for {p.phase}
                       </Button>
                     </div>
                   ) : null}
@@ -4766,9 +4784,9 @@ function FilePage() {
                   : actionDialog?.kind === "remove"
                     ? `Remove ${actionDialog.doc.label}`
                     : actionDialog?.kind === "vote"
-                      ? `Record ${actionDialog.entry.reviewer_role} vote`
+                      ? `Record the ${actionDialog.entry.reviewer_role} decision`
                       : actionDialog?.kind === "open-poll"
-                        ? `Open the ${actionDialog.phase} poll`
+                        ? `Send the ${actionDialog.phase} review requests`
                         : "Confirm action"}
             </DialogTitle>
             <DialogDescription>
@@ -4779,8 +4797,8 @@ function FilePage() {
                   : actionDialog?.kind === "remove"
                     ? "This removes the file copy and marks the requirement as needing attention again."
                     : actionDialog?.kind === "vote"
-                      ? `This records the vote received from ${actionDialog.entry.reviewer_name} in the file audit history.`
-                      : "This creates one pending seat for every required reviewer using the current Center reviewer table."}
+                      ? `This records the decision received from ${actionDialog.entry.reviewer_name}, with the date, the rationale and your name, in the file audit history.`
+                      : "This creates one pending review for every required reviewer using the current Center reviewer table."}
             </DialogDescription>
           </DialogHeader>
 
@@ -4832,7 +4850,9 @@ function FilePage() {
                   <li key={entry.reviewer_role}>
                     Needs{" "}
                     <a href={`#poll-${actionDialog.phase}`} onClick={() => setActionDialog(null)} className="text-primary underline">
-                      the {entry.reviewer_role} vote
+                      {entry.vote === "unfavorable" && entry.decision
+                        ? `the ${entry.reviewer_role} ${DECISION_LABEL[entry.decision]} resolved`
+                        : `the ${entry.reviewer_role} decision`}
                     </a>
                   </li>
                 ))}
@@ -4849,31 +4869,18 @@ function FilePage() {
 
           {actionDialog?.kind === "vote" ? (
             <div className="space-y-4">
-              <fieldset>
-                <legend className="mb-2 text-[13px] font-medium">Vote</legend>
-                <div className="flex gap-4">
-                  {(["go", "no-go"] as const).map((choice) => (
-                    <label key={choice} className="flex items-center gap-2 text-[15px]">
-                      <input type="radio" name="vote-choice" checked={voteChoice === choice} onChange={() => setVoteChoice(choice)} />
-                      {choice === "go" ? "Go" : "No-go"}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <ReviewDecisionFields
+                idPrefix="vote"
+                options={decisionOptions(actionDialog.entry.kind, actionDialog.entry.decision, true)}
+                decision={voteChoice}
+                onDecision={setVoteChoice}
+                rationale={voteNote}
+                onRationale={setVoteNote}
+                kindLabel={REVIEW_KIND_LABEL[actionDialog.entry.kind]}
+              />
               <label className="block text-[13px]" htmlFor="vote-received">
                 Date received
                 <input id="vote-received" type="date" value={voteReceived} onChange={(e) => setVoteReceived(e.target.value)} className="mt-1 block h-9 w-full rounded-lg border border-input bg-background px-3" />
-              </label>
-              <label className="block text-[13px]" htmlFor="vote-note">
-                {voteChoice === "no-go" ? "Reason (required)" : "Note (optional)"}
-                <textarea
-                  id="vote-note"
-                  value={voteNote}
-                  onChange={(e) => setVoteNote(e.target.value)}
-                  required={voteChoice === "no-go"}
-                  aria-required={voteChoice === "no-go"}
-                  className="mt-1 min-h-20 w-full rounded-lg border border-input bg-background px-3 py-2"
-                />
               </label>
             </div>
           ) : actionDialog?.kind === "exit" || actionDialog?.kind === "scrub" || actionDialog?.kind === "remove" ? (
@@ -4898,7 +4905,7 @@ function FilePage() {
               variant={
                 actionDialog?.kind === "scrub" ||
                 actionDialog?.kind === "remove" ||
-                (actionDialog?.kind === "vote" && voteChoice === "no-go")
+                (actionDialog?.kind === "vote" && decisionOutcome(voteChoice) === "unfavorable")
                   ? "destructive"
                   : "default"
               }
@@ -4906,7 +4913,7 @@ function FilePage() {
                 !actionDialog ||
                 ((actionDialog.kind === "exit" || actionDialog.kind === "scrub" || actionDialog.kind === "remove") && !actionReason.trim()) ||
                 (actionDialog.kind === "exit" && Boolean(missingCurrentRequirements.length || pendingCurrentReviews.length)) ||
-                (actionDialog.kind === "vote" && voteChoice === "no-go" && !voteNote.trim()) ||
+                (actionDialog.kind === "vote" && (!voteChoice || rationaleMissing(voteChoice, voteNote))) ||
                 exitPhase.isPending || scrub.isPending || detachDoc.isPending || openPoll.isPending || recordVote.isPending
               }
               onClick={async () => {
@@ -4931,11 +4938,11 @@ function FilePage() {
                   : actionDialog?.kind === "remove"
                     ? "Remove the file"
                     : actionDialog?.kind === "vote"
-                      ? voteChoice === "no-go"
-                        ? "Record No-go"
-                        : "Record Go"
+                      ? voteChoice
+                        ? `Record ${DECISION_LABEL[voteChoice]}`
+                        : "Record decision"
                       : actionDialog?.kind === "open-poll"
-                        ? "Open the poll"
+                        ? "Send the review requests"
                         : "Confirm"}
             </Button>
 

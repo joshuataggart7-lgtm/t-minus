@@ -274,7 +274,7 @@ that preserves the demo path.
 
 - `audit_log` gained a `phase` column; every comment, vote, poll opening, save,
   and review writes an entry with its phase.
-- Polls are created per review phase (JOFOC, Go/No-go Poll) from `review_rules`,
+- Polls are created per review phase (JOFOC, Reviews and approvals; formerly Go/No-go Poll) from `review_rules`,
   with due dates from each rule's planned days. The prototype has one seeded
   reviewer account, so every review seat is assigned to it.
 - A No-go holds the file immediately with `No-go: <role> — <reason>` and the
@@ -313,8 +313,8 @@ that preserves the demo path.
 
 ## B8. Work Queue (execution)
 
-- `src/routes/work-queue.tsx` is a five-column board (Ready, In progress, Blocked, Awaiting Go/No-go, Launched) plus a list toggle over the same computed data.
-- Column is derived, never dragged: launched -> Launched, hold -> Blocked, any pending poll -> Awaiting Go/No-go, started -> In progress, otherwise Ready. Scrubbed files are not shown.
+- `src/routes/work-queue.tsx` is a five-column board (Ready, In progress, Blocked, Awaiting decisions, Launched) plus a list toggle over the same computed data.
+- Column is derived, never dragged: launched -> Launched, hold -> Blocked, any pending review -> Awaiting decisions, started -> In progress, otherwise Ready. Scrubbed files are not shown.
 - Card fields: title, mission, owner (co_name), current phase, next task, dependency (hold reason/owner or pending reviewer), days in phase, days to award, status word.
 - Filters: mine, my branch, my Center, by mission. Seeded users carry a Center but no branch, so "My branch" reads the branch of the files the signed-in person owns; recorded here as the simplest choice that keeps the demo path working.
 - Verified as the specialist: A-2027-0101 sits in Blocked with the missing IGCE as the dependency; putting A-2027-0102 on hold moved it to Blocked with the hold reason and owner, and the record was restored afterwards.
@@ -3174,3 +3174,19 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 ## Fix R5b
 - Countdown days use the America/Chicago calendar date (src/lib/calendar-date.ts, integer day numbers); SAM notice no longer uses the draft date as a posting date (saved generated rule repaired on display only); Table 12 scroll wrap focusable; Thresholds/warrant copy says IGCE; renderPdf keep-with-previous so a signature never opens a page alone.
 - P0 same-tip: Launched derived only from audit_log Launched rows (loadLaunchEvents, unpaged-limit) on Overview/Reporting/Files/Work Queue/desks/Digest/small business/confidence; launch mutation reverts facts if audit insert fails; HOLD caption 'countdown paused' -> 'on hold'.
+
+## Round I (2026-10-07): formal review decisions
+
+- "Go/No-go Poll" is renamed "Reviews and approvals". `phaseAlias` reads the old
+  name as the new one; `storedPhaseNames` queries both. Audit history keeps the old name.
+- `src/lib/review-decisions.ts` sets the decision per review type: legal (Legally
+  sufficient, with comments, Not legally sufficient), NF 1787 small business
+  (Concur, Nonconcur), approvals (Approve, Disapprove), other concurrences (Concur,
+  Concur with comments, Nonconcur). Legacy go/no-go values map to the type's
+  favorable/unfavorable decision. Rationale is required for unfavorable and
+  "with comments" decisions; the CO can record a nonconcurrence resolved on elevation.
+- Phase exit: every required review must be favorable; an unfavorable or open review holds the file.
+- Aging: open (pending) reviews age from `opened_at`; a recorded decision stops aging.
+- Requester, Reviewer and HQ menus show their primary pages first; the rest sit in a
+  collapsed "More" group and stay in the command menu.
+- The deviation board still uses Go/No-go (follow-up).

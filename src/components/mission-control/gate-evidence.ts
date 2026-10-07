@@ -1,5 +1,6 @@
 import type { AcqMetrics } from "@/lib/metrics";
 import type { PhaseView, RequiredDoc } from "@/lib/launch-sequence";
+import { DECISION_LABEL } from "@/lib/review-decisions";
 
 /** Per-phase evidence read from the record. Nothing is inferred beyond the recorded rows. */
 export type PhaseEvidence = {
@@ -86,13 +87,13 @@ export function summarizeGate(
 
   const blocking: string[] = [];
   if (isCurrentStage && metric.hold) blocking.push(`Hold: ${metric.hold.reason}`);
-  for (const b of reviews.filter((r) => r.vote === "no-go")) blocking.push(`No-go: ${label(b)}${b.reason ? `: ${b.reason}` : ""}`);
+  for (const b of reviews.filter((r) => r.vote === "unfavorable")) blocking.push(`${b.decision ? DECISION_LABEL[b.decision] : "Nonconcur"}: ${label(b)}${b.reason ? `: ${b.reason}` : ""}`);
   if (status === "current") for (const m of missing) blocking.push(`${m} is missing`);
 
   const advisory: string[] = phases.flatMap((p) => p.advisoryDocs.map((d) => `Offered, not done: ${d}`));
   if (status !== "current") for (const m of missing) advisory.push(`${m} not yet complete`);
   const pending = reviews.filter((r) => r.vote === "pending");
-  if (status === "current") for (const b of pending) advisory.push(`Vote outstanding: ${label(b)}`);
+  if (status === "current") for (const b of pending) advisory.push(`Decision outstanding: ${label(b)}`);
 
   const readiness: GateReadiness = blocking.length
     ? "BLOCKED"
@@ -117,7 +118,7 @@ export function summarizeGate(
       : missing[0]
         ? `Complete ${missing[0]}`
         : firstPending
-          ? `${firstPending.reviewer_role} vote`
+          ? `${firstPending.reviewer_role} decision`
           : "Not recorded";
 
   return {
@@ -127,7 +128,7 @@ export function summarizeGate(
     completed,
     missing,
     approvalsRequired: reviews.map(label),
-    approvalsObtained: reviews.filter((r) => r.vote === "go").map(label),
+    approvalsObtained: reviews.filter((r) => r.vote === "favorable").map(label),
     blocking,
     advisory,
     enteredAt: phases.map((p) => p.enteredAt).filter(Boolean).sort()[0] ?? null,

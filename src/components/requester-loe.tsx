@@ -27,6 +27,7 @@ const STAGE_BY_PHASE = new Map<string, string>([
   ["price reasonableness", "Evaluation and award"],
   ["responsibility check", "Evaluation and award"],
   ["go/no-go poll", "Evaluation and award"],
+  ["reviews and approvals", "Evaluation and award"],
   ["award", "Evaluation and award"],
   ["fpds-ng report", "Evaluation and award"],
 ]);

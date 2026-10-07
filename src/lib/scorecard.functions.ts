@@ -57,8 +57,9 @@ function reasonBucket(raw: string | null): string {
   const r = (raw ?? "").toLowerCase();
   if (!r) return "Reason not recorded";
   if (r.includes("excluded")) return "Vendor exclusion under review";
-  if (r.includes("no-go") || r.includes("nogo")) return "A reviewer recorded a No-go";
-  if (r.includes("vote") || r.includes("poll")) return "A required review vote is outstanding";
+  if (r.includes("no-go") || r.includes("nogo") || r.startsWith("nonconcur") || r.startsWith("disapprove") || r.startsWith("not legally sufficient"))
+    return "A reviewer recorded Disapprove, Nonconcur or Not legally sufficient";
+  if (r.includes("vote") || r.includes("poll") || r.includes("recorded a decision")) return "A required review decision is outstanding";
   if (r.includes("igce") || r.includes("sow") || r.includes("document") || r.includes("attach"))
     return "A required document is missing";
   if (r.includes("fund")) return "Funding is not certified";

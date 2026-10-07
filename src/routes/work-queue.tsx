@@ -52,13 +52,13 @@ export const Route = createFileRoute("/work-queue")({
   component: WorkQueuePage,
 });
 
-const COLUMNS = ["Ready", "In progress", "Blocked", "Awaiting Go/No-go", "Launched"] as const;
+const COLUMNS = ["Ready", "In progress", "Blocked", "Awaiting decisions", "Launched"] as const;
 type Column = (typeof COLUMNS)[number];
 const COLUMN_LABEL: Record<Column, string> = {
   Ready: "Not started",
   "In progress": "In progress",
   Blocked: "Blocked",
-  "Awaiting Go/No-go": "Awaiting Go/No-go",
+  "Awaiting decisions": "Awaiting review decisions",
   Launched: "Launched",
 };
 
@@ -86,7 +86,7 @@ type Card = {
 function columnFor(m: AcqMetrics, readiness = explainWorkReadiness(m)): Column {
   if (readiness.state === "LAUNCHED") return "Launched";
   if (readiness.state === "HOLD") return "Blocked";
-  if (m.board.some((b) => b.vote === "pending")) return "Awaiting Go/No-go";
+  if (m.board.some((b) => b.vote === "pending")) return "Awaiting decisions";
   const started = m.phases.some((p) => p.status === "complete") || m.clockState === "running";
   return started ? "In progress" : "Ready";
 }

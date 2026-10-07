@@ -11,7 +11,7 @@ export const REPORT_VIEWS = [
     note: "Days to award, days to need, planned days, schedule impact, and status word.",
   },
   { view: "v_report_holds", label: "Recorded holds (clock stopped)", note: "Files whose clock was stopped by a person, with reason, owner, age and aging flag." },
-  { view: "v_report_polls", label: "Polls", note: "Go/No-go votes, due dates, and open age." },
+  { view: "v_report_polls", label: "Polls", note: "Review decisions, due dates, and open age." },
   { view: "v_report_audit_counts", label: "Audit counts", note: "Entries and actors per acquisition." },
 ] as const;
 

@@ -6,7 +6,7 @@ commercial_ffp_13_5_competed,4,Solicitation/Quote,20,derived from LOE Estimator 
 commercial_ffp_13_5_competed,5,Technical Evaluation,15,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_competed,6,Price Reasonableness,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_competed,7,Responsibility Check,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
-commercial_ffp_13_5_competed,8,Go/No-go Poll,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_competed,8,Reviews and approvals,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_competed,9,Award,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_competed,10,FPDS-NG Report,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_competed,11,Administration,365,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
@@ -19,7 +19,7 @@ commercial_ffp_13_5_sole_source,5,Solicitation/Quote,15,derived from LOE Estimat
 commercial_ffp_13_5_sole_source,6,Technical Evaluation,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,7,Price Reasonableness,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,8,Responsibility Check,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
-commercial_ffp_13_5_sole_source,9,Go/No-go Poll,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
+commercial_ffp_13_5_sole_source,9,Reviews and approvals,7,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,10,Award,10,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,11,FPDS-NG Report,3,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
 commercial_ffp_13_5_sole_source,12,Administration,365,derived from LOE Estimator SAP timeline (about 4 months to award); confirm
@@ -30,7 +30,7 @@ idiq_parent,3,Solicitation/Quote,30,
 idiq_parent,4,Technical Evaluation,20,
 idiq_parent,5,Price Reasonableness,15,
 idiq_parent,6,Responsibility Check,3,
-idiq_parent,7,Go/No-go Poll,7,
+idiq_parent,7,Reviews and approvals,7,
 idiq_parent,8,Award,10,
 idiq_parent,9,FPDS-NG Report,3,
 idiq_parent,10,Administration,1825,Ordering period
@@ -71,7 +71,7 @@ noncommercial_far15_competed,4,Solicitation/Quote,30,"Regulatory minimum: RFO FA
 noncommercial_far15_competed,5,Technical Evaluation,45,"T-Minus planning assumption (no regulatory source). Initial evaluation (SEB per NFS CG 1815.27 when complex), competitive range with a working goal of no more than three proposals (NFS 1815.204-1(b)), discussions, model contract and FPR (NFS CG 1815.25). NFS CG limit: NFS CG 1815.12(a), contract award within 120 days of proposal receipt (this plan: 87 days, 98 with ANOSCA)."
 noncommercial_far15_competed,6,Price Reasonableness,20,"T-Minus planning assumption (no regulatory source). Cost or price and cost realism analysis, EPO support, rates and audit. The pricing review rule carries 5 days, also an assumption."
 noncommercial_far15_competed,7,Responsibility Check,5,"T-Minus planning assumption (no regulatory source). SAM and FAPIIS, responsibility determination. On small business set-asides, the preaward notice (RFO FAR 15.206-1) and the five-business-day size protest window (noted in NFS CG 1805.32(b)(6))."
-noncommercial_far15_competed,8,Go/No-go Poll,7,"T-Minus planning assumption (no regulatory source). T-Minus internal poll, same as the other plans."
+noncommercial_far15_competed,8,Reviews and approvals,7,"T-Minus planning assumption (no regulatory source). Reviews and approvals, same as the other plans."
 noncommercial_far15_competed,9,Award,10,"T-Minus planning assumption (no regulatory source). At $30 million or more, plan 21 days: NFS CG limit: NFS CG 1805.32(b)(5), budget 10 days to 3 weeks for ANOSCA review and approval. After award: notice within 3 days (RFO FAR 15.207-2(b)); debriefing request within 3 days and debriefing within 5 days (RFO FAR 15.301-1(a)); stay window 10 days after award or 5 days after a debriefing (RFO FAR 33.105-3(b)(1))."
 noncommercial_far15_competed,10,FPDS-NG Report,3,"Regulatory limit: RFO FAR 4.302(f)(2)(ii) (complete the CAR in FPDS within three business days after contract award). A deadline, not a minimum."
 noncommercial_far15_competed,11,Administration,365,T-Minus planning assumption (no regulatory source). Placeholder; the real value is the period of performance on the record.

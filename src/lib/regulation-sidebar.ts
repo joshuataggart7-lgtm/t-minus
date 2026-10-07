@@ -110,6 +110,7 @@ const PHASE_THRESHOLDS: Record<string, RegExp> = {
   "Technical Evaluation": /simplified acquisition/i,
   "Price Reasonableness": /certified cost or pricing/i,
   "Responsibility Check": /integrity|responsib|exclusion/i,
+  "Reviews and approvals": /anosca|notification of procurement action|npa|announcement/i,
   "Go/No-go Poll": /anosca|notification of procurement action|npa|announcement/i,
   Award: /justification posting|cica|protest|anosca|notification of procurement action/i,
   "FPDS-NG Report": /reporting|simplified acquisition/i,

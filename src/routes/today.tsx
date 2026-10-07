@@ -335,9 +335,9 @@ function TodayPage() {
             )}
           </Section>
 
-          <Section title="Reviews due" lead="Open Go/No-go polls on your files.">
+          <Section title="Reviews due" lead="Open reviews and approvals on your files.">
             {reviewsDue.length === 0 ? (
-              <EmptyState sentence="No poll is open on your files." />
+              <EmptyState sentence="No review is open on your files." />
             ) : (
               <ul className="divide-y divide-border border-y border-border">
                 {reviewsDue.map((p) => {

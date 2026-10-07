@@ -22,7 +22,7 @@ const LIFECYCLE = [
   { label: "Solicitation", phases: ["Synopsis", "Solicitation/Quote"] },
   { label: "Evaluation", phases: ["Technical Evaluation"] },
   { label: "Negotiation", phases: ["Price Reasonableness", "Responsibility Check"] },
-  { label: "Go / No-go", phases: ["Go/No-go Poll"] },
+  { label: "Reviews", phases: ["Reviews and approvals", "Go/No-go Poll"] },
   { label: "Award", phases: ["Award", "FPDS-NG Report"] },
   { label: "Administration", phases: ["Administration"] },
   { label: "Closeout", phases: ["Closeout"] },

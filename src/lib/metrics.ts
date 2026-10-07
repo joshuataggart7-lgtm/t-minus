@@ -237,7 +237,7 @@ export function computeMetrics(
   const candidates = [plannedExit, pendingDue].filter(Boolean) as string[];
   let nextDecisionDate = candidates.length ? candidates.sort()[0] : null;
   let nextDecision = pendingDue && pendingDue === nextDecisionDate
-    ? `${board.find((b) => b.due_date === pendingDue && b.vote === "pending")?.reviewer_role ?? "Reviewer"} vote`
+    ? `${board.find((b) => b.due_date === pendingDue && b.vote === "pending")?.reviewer_role ?? "Reviewer"} decision`
     : current
       ? `Exit ${current.phase}`
       : "None open";
@@ -320,7 +320,7 @@ export function computeMetrics(
         ) === false,
     );
     if (pending) {
-      blocker = `${pending.reviewer_role} has not voted`;
+      blocker = `${pending.reviewer_role} has not recorded a decision`;
       blockerOwner = pending.reviewer_name;
     } else if (missingDoc) {
       blocker = `${missingDoc.label} is missing`;

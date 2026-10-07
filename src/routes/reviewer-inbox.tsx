@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
 import { useDeskData, daysUntil, heroDocForReviewer, pollMatchesReviewer, type DeskCard } from "@/lib/desk-data";
 import { phaseCitation, type PollRow } from "@/lib/launch-sequence";
+import { phaseAlias } from "@/lib/phase-alias";
+import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, reviewKindFor, type ReviewDecision } from "@/lib/review-decisions";
+import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import {
   loadReceiptsForAcquisitions,
   receiptStamp,
@@ -25,12 +28,12 @@ export const Route = createFileRoute("/reviewer-inbox")({
       { title: "Reviewer inbox — T-Minus" },
       {
         name: "description",
-        content: "Reviews waiting on you, the one document to read, and your Go or No-go.",
+        content: "Reviews waiting on you, the one document to read, and your formal decision.",
       },
       { property: "og:title", content: "Reviewer inbox — T-Minus" },
       {
         property: "og:description",
-        content: "Reviews waiting on you, the one document to read, and your Go or No-go.",
+        content: "Reviews waiting on you, the one document to read, and your formal decision.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -47,6 +50,7 @@ function ReviewerInbox() {
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
   const [openPoll, setOpenPoll] = useState<string | null>(null);
   const [note, setNote] = useState("");
+  const [decision, setDecision] = useState<ReviewDecision | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
 
   const { rows, matchMode } = useMemo(() => {
@@ -108,12 +112,12 @@ function ReviewerInbox() {
     });
   };
 
-  // The reviewer casts their own vote into the same polls row the file page
-  // writes, with the same audit entry.
+  // The reviewer records their own decision into the same polls row the file
+  // page writes, with the same audit entry.
   const vote = useMutation({
-    mutationFn: async (input: { row: Row; choice: "go" | "no-go"; reason: string }) => {
+    mutationFn: async (input: { row: Row; choice: ReviewDecision; reason: string }) => {
       if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
-      if (input.choice === "no-go" && !input.reason.trim()) throw new Error("A No-go needs a reason");
+      if (rationaleMissing(input.choice, input.reason)) throw new Error(`${DECISION_LABEL[input.choice]} needs a written rationale`);
       const who = await signedInName(user.name);
       const reason = input.reason.trim() || null;
       const { data, error } = await supabase
@@ -123,32 +127,42 @@ function ReviewerInbox() {
         .select("poll_id");
       if (error) throw new Error(error.message);
       if ((data ?? []).length === 0) throw new Error("no review was updated");
+      const entryAudit = decisionAudit({
+        decision: input.choice,
+        reviewerName: who,
+        reviewerRole: input.row.poll.reviewer_role ?? "Reviewer",
+        date: new Date().toISOString().slice(0, 10),
+        rationale: reason,
+        previousRaw: input.row.poll.vote,
+        previousReason: input.row.poll.reason,
+      });
       await writeAudit({
         acquisition_id: input.row.card.m.acq.acquisition_id,
         actor: who,
-        action: input.choice === "go" ? "Go recorded" : "No-go recorded",
+        action: entryAudit.action,
         field: input.row.poll.reviewer_role,
-        old_value: "pending",
-        new_value: input.choice,
-        reason: `cast by ${who} in the reviewer inbox${reason ? `: ${reason}` : ""}`,
+        old_value: entryAudit.old_value,
+        new_value: entryAudit.new_value,
+        reason: `${entryAudit.reason} (recorded in the reviewer inbox)`,
         phase: input.row.poll.phase,
       });
     },
     onSuccess: () => {
       setOpenPoll(null);
       setNote("");
-      setBanner("Your vote is recorded on the file and in the audit log.");
+      setDecision(null);
+      setBanner("Your decision is recorded on the file and in the audit log.");
       void qc.invalidateQueries({ queryKey: ["desk-data"] });
       void qc.invalidateQueries({ queryKey: ["work-queue"] });
     },
-    onError: (e: Error) => setBanner(failureText("The vote did not save", e)),
+    onError: (e: Error) => setBanner(failureText("The decision did not save", e)),
   });
 
   return (
     <AppShell>
       <PageHeader
         title="Reviewer inbox"
-        lead={isAnonymous ? `Reviews waiting on ${user.name}. Read the one document for the phase.` : `Reviews waiting on ${user.name}. Read the one document for the phase, then vote Go or No-go.`}
+        lead={isAnonymous ? `Reviews waiting on ${user.name}. Read the one document for the phase.` : `Reviews waiting on ${user.name}. Read the one document for the phase, then record your decision.`}
       />
 
       {isAnonymous ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
@@ -165,7 +179,7 @@ function ReviewerInbox() {
         <ErrorNote message="Your reviews did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : rows.length === 0 ? (
         <EmptyState
-          sentence="No review is waiting on a vote."
+          sentence="No review is waiting on your decision."
           action={
             <Link to="/files" className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
               Open Files
@@ -207,7 +221,8 @@ function ReviewerInbox() {
                   </p>
                   <ul className="mt-3 divide-y divide-border">
                     {polls.map((poll) => {
-                      const phase = poll.phase ?? "";
+                      const phase = String(phaseAlias(poll.phase ?? ""));
+                      const kind = reviewKindFor(poll.reviewer_role);
                       const hero = heroDocForReviewer(card.m, poll.reviewer_role ?? "", phase);
                       const due = daysUntil(poll.due_date);
                       const isOpen = openPoll === poll.poll_id;
@@ -280,33 +295,25 @@ function ReviewerInbox() {
 
                         {isAnonymous ? null : isOpen ? (
                           <div className="mt-3 max-w-[70ch] border border-border bg-background p-4 [border-radius:var(--mc-radius-control)]">
-                            <label htmlFor={`note-${poll.poll_id}`} className="block text-[13px] text-muted-foreground">
-                              Note. A No-go needs a reason.
-                            </label>
-                            <textarea
-                              id={`note-${poll.poll_id}`}
-                              value={note}
-                              onChange={(e) => setNote(e.target.value)}
-                              rows={3}
-                              className="mt-1 w-full border border-border bg-background p-2 text-[15px] [border-radius:var(--mc-radius-control)]"
+                            <ReviewDecisionFields
+                              idPrefix={`note-${poll.poll_id}`}
+                              options={decisionOptions(kind, null)}
+                              decision={decision}
+                              onDecision={setDecision}
+                              rationale={note}
+                              onRationale={setNote}
+                              kindLabel={REVIEW_KIND_LABEL[kind]}
+                              disabled={vote.isPending}
                             />
                             <div className="mt-3 flex flex-wrap gap-3">
                               <button
                                 type="button"
-                                disabled={vote.isPending}
-                                onClick={() => vote.mutate({ row: { poll, card }, choice: "go", reason: note })}
-                                className="bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
-                              >
-                                Go
-                              </button>
-                              <button
-                                type="button"
-                                disabled={vote.isPending}
-                                onClick={() => vote.mutate({ row: { poll, card }, choice: "no-go", reason: note })}
+                                disabled={vote.isPending || !decision || rationaleMissing(decision, note)}
+                                onClick={() => decision && vote.mutate({ row: { poll, card }, choice: decision, reason: note })}
                                 className="border px-4 py-2 text-[15px] [border-radius:var(--mc-radius-control)]"
-                                style={{ borderColor: "var(--mc-readiness-hold)" }}
+                                style={{ borderColor: decisionOutcome(decision) === "unfavorable" ? "var(--mc-readiness-hold)" : "var(--primary)" }}
                               >
-                                No-go
+                                {decision ? `Record ${DECISION_LABEL[decision]}` : "Record decision"}
                               </button>
                               <button
                                 type="button"
@@ -326,11 +333,12 @@ function ReviewerInbox() {
                             onClick={() => {
                               setOpenPoll(poll.poll_id);
                               setNote("");
+                              setDecision(null);
                               setBanner(null);
                             }}
                             className="mt-3 bg-primary px-4 py-2 text-[15px] text-primary-foreground [border-radius:var(--mc-radius-control)]"
                           >
-                            Vote on this review
+                            Record a decision
                           </button>
                         )}
                         </li>

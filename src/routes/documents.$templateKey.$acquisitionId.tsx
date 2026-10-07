@@ -1,5 +1,7 @@
 import { writeAudit } from "@/lib/audit";
-import { phaseAlias } from "@/lib/phase-alias";
+import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
+import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
+import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -281,6 +283,7 @@ function DocumentPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [voteReason, setVoteReason] = useState("");
+  const [voteDecision, setVoteDecision] = useState<ReviewDecision | null>(null);
   const [comparables, setComparables] = useState<ComparablesView | null>(null);
   const [checkout, setCheckout] = useState<Checkout | null>(null);
   const [myCheckoutId, setMyCheckoutId] = useState<string | null>(null);
@@ -395,7 +398,7 @@ function DocumentPage() {
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),
         supabase.from("thresholds").select("name,value,citation,tier,effective_date,note"),
         supabase.from("templates").select("template_id,name,hq_revision_date,status").eq("name", def!.name).maybeSingle(),
-        supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).eq("phase", phase),
+        supabase.from("polls").select("*").eq("acquisition_id", acquisitionId).in("phase", storedPhaseNames(phase)),
         supabase.from("review_rules").select("*"),
         supabase.from("users").select("name,title,center_code,email,telephone"),
         loadWatchRows(),
@@ -670,9 +673,10 @@ function DocumentPage() {
   const mySeat = board.find((b) => b.reviewer_name === user.name) ?? null;
 
   const vote = useMutation({
-    mutationFn: async ({ choice, reason }: { choice: "go" | "no-go"; reason: string | null }) => {
+    mutationFn: async ({ choice, reason }: { choice: ReviewDecision; reason: string | null }) => {
       if (await isDemoSession()) throw new Error(DEMO_READ_ONLY_NOTE);
-      if (!mySeat?.poll_id) throw new Error("The poll for this phase is not open yet.");
+      if (!mySeat?.poll_id) throw new Error("The review request for this phase is not open yet.");
+      if (rationaleMissing(choice, reason ?? "")) throw new Error(`${DECISION_LABEL[choice]} needs a written rationale`);
       const { data, error } = await supabase
         .from("polls")
         .update({ vote: choice, reason, voted_at: new Date().toISOString() })
@@ -680,24 +684,39 @@ function DocumentPage() {
         .select("poll_id");
       if (error) throw new Error(error.message);
       if ((data ?? []).length === 0) throw new Error("no review was updated");
+      const entryAudit = decisionAudit({
+        decision: choice,
+        reviewerName: user.name,
+        reviewerRole: mySeat.reviewer_role,
+        date: new Date().toISOString().slice(0, 10),
+        rationale: reason ?? `${def?.name ?? "document"} reviewed`,
+        previousRaw: mySeat.decision,
+        previousReason: mySeat.reason,
+      });
       const { error: logError } = await writeAudit({
         acquisition_id: acquisitionId,
         actor: user.name,
-        action: choice === "go" ? "Go recorded" : "No-go recorded",
+        action: entryAudit.action,
         field: mySeat.reviewer_role,
-        old_value: mySeat.vote,
-        new_value: choice,
-        reason: reason ?? `${def?.name ?? "document"} reviewed`,
+        old_value: entryAudit.old_value,
+        new_value: entryAudit.new_value,
+        reason: entryAudit.reason,
         phase,
       });
       if (logError) throw new Error(logError.message);
     },
     onSuccess: async (_d, v) => {
-      setMessage(v.choice === "go" ? "Go recorded. The file resumes if nothing else blocks it." : "No-go recorded. The file is on hold.");
+      setMessage(
+        decisionOutcome(v.choice) === "favorable"
+          ? `${DECISION_LABEL[v.choice]} recorded. The file resumes if nothing else blocks it.`
+          : `${DECISION_LABEL[v.choice]} recorded. The file is on hold until it is resolved.`,
+      );
+      setVoteDecision(null);
+      setVoteReason("");
       await queryClient.invalidateQueries({ queryKey: ["document-context", templateKey, acquisitionId] });
       await queryClient.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] });
     },
-    onError: (e: Error) => setMessage(failureText("The vote did not save", e)),
+    onError: (e: Error) => setMessage(failureText("The decision did not save", e)),
   });
 
   const addComment = useMutation({
@@ -1764,7 +1783,7 @@ function DocumentPage() {
           ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
           { id: "doc-provenance", label: "Provenance" },
           { id: "doc-official-copy", label: "Official file copy" },
-          { id: "doc-poll", label: "Go/No-go" },
+          { id: "doc-poll", label: "Reviews and approvals" },
           { id: "doc-comments", label: "Comments" },
           { id: "doc-versions", label: "Versions" },
           { id: "doc-regulations", label: "Regulations" },
@@ -3104,36 +3123,39 @@ function DocumentPage() {
         )}
       </section>
 
-      <section id="doc-poll" aria-label="Go/No-go" className="mb-10 max-w-[80ch]">
-        <h2 className="mb-3 text-[18px] leading-6 font-medium">Go/No-go for {phase}</h2>
+      <section id="doc-poll" aria-label="Reviews and approvals" className="mb-10 max-w-[80ch]">
+        <h2 className="mb-3 text-[18px] leading-6 font-medium">Reviews and approvals for {phase}</h2>
         {board.length ? (
-          <TableScrollRegion baseClassName="overflow-x-auto" label={`Go/No-go for ${acquisitionId}`}>
+          <TableScrollRegion baseClassName="overflow-x-auto" label={`Reviews and approvals for ${acquisitionId}`}>
           <table className="w-full border border-border bg-background text-[13px] leading-[18px]">
             <thead>
               <tr className="border-b border-border text-left">
                 <th scope="col" className="px-3 py-2 font-medium">Reviewer</th>
                 <th scope="col" className="px-3 py-2 font-medium">Name</th>
-                <th scope="col" className="px-3 py-2 font-medium">Vote</th>
+                <th scope="col" className="px-3 py-2 font-medium">Decision</th>
                 <th scope="col" className="px-3 py-2 font-medium">Due</th>
               </tr>
             </thead>
             <tbody>
               {board.map((b) => (
                 <tr key={`${b.phase}-${b.reviewer_role}`} className="border-b border-border last:border-0 align-top">
-                  <td className="px-3 py-2">{b.reviewer_role}</td>
+                  <td className="px-3 py-2">
+                    {b.reviewer_role}
+                    <span className="block text-[12px] text-muted-foreground">{REVIEW_KIND_LABEL[b.kind]}</span>
+                  </td>
                   <td className="px-3 py-2">{b.reviewer_name}</td>
                   <td className="px-3 py-2">
                     <StatusMark
                       color={
-                        b.vote === "go"
+                        b.vote === "favorable"
                           ? "var(--ontrack)"
-                          : b.vote === "no-go"
+                          : b.vote === "unfavorable"
                             ? "var(--atrisk)"
                             : "var(--attention)"
                       }
                     >
-                      {b.vote === "go" ? "Go" : b.vote === "no-go" ? "No-go" : "Pending"}
-                      {b.reason ? ` — ${b.reason}` : ""}
+                      {b.decision ? DECISION_LABEL[b.decision] : "Pending"}
+                      {b.reason ? `: ${b.reason}` : ""}
                     </StatusMark>
                   </td>
 
@@ -3151,48 +3173,37 @@ function DocumentPage() {
 
         {hasRole("reviewer") && !readOnly ? (
           mySeat?.poll_id ? (
-            <div className="mt-4">
-              <label htmlFor="vote-reason" className="block text-[13px] text-muted-foreground">
-                Reason (required for No-go)
-              </label>
-              <textarea
-                id="vote-reason"
-                rows={3}
-                className="mt-1 w-full rounded-lg border border-border bg-background p-2 text-[15px]"
-                value={voteReason}
-                onChange={(e) => setVoteReason(e.target.value)}
+            <div className="mt-4 space-y-3">
+              <ReviewDecisionFields
+                idPrefix="doc-vote"
+                options={decisionOptions(mySeat.kind, mySeat.decision)}
+                decision={voteDecision}
+                onDecision={setVoteDecision}
+                rationale={voteReason}
+                onRationale={setVoteReason}
+                kindLabel={REVIEW_KIND_LABEL[mySeat.kind]}
+                disabled={vote.isPending}
               />
-              <div className="mt-3 flex gap-3">
-                <button
-                  type="button"
-                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
-                  style={{ borderColor: "var(--ontrack)" }}
-                  disabled={vote.isPending}
-                  onClick={() => vote.mutate({ choice: "go", reason: voteReason.trim() || null })}
-                >
-                  Go
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
-                  style={{ borderColor: "var(--atrisk)" }}
-
-                  disabled={vote.isPending}
-                  onClick={() => {
-                    if (!voteReason.trim()) {
-                      setMessage("A No-go needs a reason. Write one, then vote again.");
-                      return;
-                    }
-                    vote.mutate({ choice: "no-go", reason: voteReason.trim() });
-                  }}
-                >
-                  No-go
-                </button>
-              </div>
+              <button
+                type="button"
+                className="rounded-lg border-2 bg-background px-3 py-2 text-[15px] text-foreground"
+                style={{ borderColor: decisionOutcome(voteDecision) === "unfavorable" ? "var(--atrisk)" : "var(--ontrack)" }}
+                disabled={vote.isPending || !voteDecision}
+                onClick={() => {
+                  if (!voteDecision) return;
+                  if (rationaleMissing(voteDecision, voteReason)) {
+                    setMessage(`${DECISION_LABEL[voteDecision]} needs a written rationale. Write one, then record the decision.`);
+                    return;
+                  }
+                  vote.mutate({ choice: voteDecision, reason: voteReason.trim() || null });
+                }}
+              >
+                {voteDecision ? `Record ${DECISION_LABEL[voteDecision]}` : "Record decision"}
+              </button>
             </div>
           ) : (
             <p className="mt-3 text-[13px] text-muted-foreground">
-              The poll for this phase is not open yet. A contracting specialist opens it on the acquisition file.
+              The review request for this phase is not open yet. A contracting specialist sends it from the acquisition file.
             </p>
           )
         ) : null}

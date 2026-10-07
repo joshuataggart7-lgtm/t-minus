@@ -18,6 +18,7 @@ import {
   type PhaseView,
   type RequiredDoc,
 } from "@/lib/launch-sequence";
+import { UNFAVORABLE_HOLD_PREFIX } from "@/lib/review-decisions";
 
 export type Hold = { reason: string; owner: string; doc?: { phase: string; label: string } } | null;
 
@@ -66,7 +67,7 @@ export function keyForDoc(doc: RequiredDoc) {
 export function isDerivedHoldReason(reason: string | null | undefined): boolean {
   const text = String(reason ?? "").trim();
   if (!text) return false;
-  return /is missing$/i.test(text) || /^No-go:/i.test(text) || /has not voted$/i.test(text);
+  return /is missing$/i.test(text) || UNFAVORABLE_HOLD_PREFIX.test(text) || /has not (?:voted|recorded a decision)$/i.test(text);
 }
 
 /**
