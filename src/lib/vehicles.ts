@@ -5,7 +5,7 @@
 // and hands over a packet.
 
 import { scenarioOf } from "@/lib/scenario";
-import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
 export type Awardee = { name: string; uei: string };
 
@@ -239,7 +239,7 @@ export function modRows(
 ): ModRow[] {
   const outOfScope = opts.outOfScope ?? modOutOfScope(mod);
   const sat = opts.sat ?? 350_000;
-  const simplified = /13/.test(opts.method);
+  const simplified = /13/.test(opts.method) || isCommercialSimplifiedMethod(opts.method);
   const value = Math.abs(Number(mod.value_change ?? 0));
   const rows: ModRow[] = [];
   if (mod.mod_type === "option_exercise") {

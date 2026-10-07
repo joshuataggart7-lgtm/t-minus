@@ -1007,7 +1007,7 @@ export function recommendedOfficialForm(
       why: "Commercial, streamlined format on the record (RFO FAR 12.204(c)(1)).",
     };
   }
-  if (order || /simplified|part 13|13\.5/.test(method)) {
+  if (order || /simplified|part 13|13\.5|12\.201-1/.test(method)) {
     return {
       key: "of-347",
       why: order

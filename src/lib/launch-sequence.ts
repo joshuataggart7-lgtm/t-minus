@@ -22,7 +22,7 @@ import {
   isOrderProfile,
   vehicleOf,
 } from "@/lib/vehicles";
-import { igceCite, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { igceCite, isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 import { dateCT } from "@/lib/calendar-date";
 
 export type AcqRow = Record<string, unknown> & {
@@ -140,7 +140,7 @@ export function acquisitionType(acq: AcqRow) {
 export function isCommercialBuy(acq?: AcqRow | null): boolean {
   const row = (acq ?? {}) as Record<string, unknown>;
   const method = String(row["acquisition_method"] ?? "");
-  if (/13\.5|\b12\b/.test(method)) return true;
+  if (/13\.5|12\.201-1|\b12\b/.test(method)) return true;
   if (/\b15\b|\b13\b(?!\.5)/.test(method)) return false;
   const scenario = row["scenario"];
   const commercialFlag =
@@ -160,7 +160,7 @@ export function acquisitionTypeWords(acq: AcqRow) {
     ? `Commercial ${typeWords}`.trim()
     : typeWords || "Non-commercial";
   const method = String((acq as Record<string, unknown>)["acquisition_method"] ?? "");
-  const methodWords = /13\.5/.test(method)
+  const methodWords = isCommercialSimplifiedMethod(method)
     ? "RFO FAR 12.201-1"
     : /13/.test(method)
       ? "RFO FAR Part 13"

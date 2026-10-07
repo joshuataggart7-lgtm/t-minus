@@ -29,7 +29,7 @@ export function draftRfpAlert(acq: Record<string, unknown> | null | undefined): 
   const blob = `${method} ${competition} ${format}`;
 
   const soleSource = /sole[- ]?source|non-?competitive|8\(a\) direct/.test(blob);
-  const simplifiedCommercial = /simplified|commercial|1449|part 12|13\.5/.test(blob);
+  const simplifiedCommercial = /simplified|commercial|1449|part 12|13\.5|12\.201-1/.test(blob);
   const competedNegotiated = /negotiat|part 15|full and open|competitive/.test(blob) && !soleSource;
 
   if (soleSource || simplifiedCommercial || !competedNegotiated) {

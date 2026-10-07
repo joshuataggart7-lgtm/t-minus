@@ -592,7 +592,10 @@ const nearFileLocation: TemplateDef = {
 
 // ------------------------------------------------------- BPA annual review
 
-const isFss = (v: Values) => (v["bpa_variant"] ?? "") === "FAR 8.405 schedule BPA";
+const BPA_SIMPLIFIED = "RFO FAR 12.201-1(e)(3) simplified acquisition BPA";
+const BPA_SCHEDULE = "RFO FAR subpart 8.4 schedule BPA (GSAR subpart 538.71)";
+// Saved reviews may carry the legacy "FAR 8.405 schedule BPA" value.
+const isFss = (v: Values) => /8\.405|subpart 8\.4|538\.71/i.test(v["bpa_variant"] ?? "");
 
 const bpaRow = (key: string, question: string, showIf?: (v: Values) => boolean): FieldDef => ({
   key,
@@ -625,8 +628,8 @@ const bpaAnnualReview: TemplateDef = {
         S(
           "bpa_variant",
           "The BPA was established under",
-          ["FAR 13.303 simplified acquisition BPA", "FAR 8.405 schedule BPA"],
-          "FAR 13.303 simplified acquisition BPA",
+          [BPA_SIMPLIFIED, BPA_SCHEDULE],
+          BPA_SIMPLIFIED,
         ),
         X("bpa_number", "BPA number", "contract_number"),
         D("review_date", "Date of the review"),

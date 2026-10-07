@@ -26,7 +26,7 @@ function isSimplifiedOrCommercial(acq: Record<string, unknown>): boolean {
   const method = str(acq["acquisition_method"]).toLowerCase();
   const format = str(acq["contract_format"]).toLowerCase();
   return (
-    /simplified|commercial|13\.5|part 13|part 12/.test(method) ||
+    /simplified|commercial|13\.5|12\.201-1|part 13|part 12/.test(method) ||
     /1449|commercial/.test(format)
   );
 }

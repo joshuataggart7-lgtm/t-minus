@@ -26,8 +26,8 @@ function str(f: Facts | null, key: string) {
 /** Is this record on the simplified / commercial path? Same rule the memos use. */
 function simplified(acq: Facts | null): boolean {
   const method = `${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`;
-  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
-  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|12\.201-1|13\b|simplified/i.test(method)) return false;
+  return /13\.5|12\.201-1|\b13\b|\b12\b|simplified|commercial/i.test(method);
 }
 
 /**
@@ -41,7 +41,7 @@ export function emailCiteForMethod(acq: Facts | null): {
 } {
   return simplified(acq)
     ? {
-        unsuccessful: /\b12\b|commercial|13\.5/i.test(`${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`)
+        unsuccessful: /\b12\b|commercial|13\.5|12\.201-1/i.test(`${str(acq, "acquisition_method")} ${str(acq, "contract_format")}`)
           ? "RFO FAR 12.301(b)"
           : "RFO FAR 13.301",
         priceReasonableness: simplifiedPriceCite(str(acq, "acquisition_method")),

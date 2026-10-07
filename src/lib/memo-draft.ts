@@ -168,8 +168,8 @@ const dollars = (v: unknown) => {
 /** True on a RFO FAR Part 13, FAR 13.5 or RFO FAR Part 12 commercial file. */
 export function isSimplifiedCommercial(acq: Record<string, unknown>): boolean {
   const method = `${str(acq["acquisition_method"])} ${str(acq["contract_format"])}`;
-  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|13\b|simplified/i.test(method)) return false;
-  return /13\.5|\b13\b|\b12\b|simplified|commercial/i.test(method);
+  if (/part\s*15|15\.\d/i.test(method) && !/13\.5|12\.201-1|13\b|simplified/i.test(method)) return false;
+  return /13\.5|12\.201-1|\b13\b|\b12\b|simplified|commercial/i.test(method);
 }
 
 /** The price-analysis citation this record calls for. */
@@ -395,7 +395,7 @@ function commerciality(ctx: MemoDraftCtx): Values {
     ? "Commercial service (RFO FAR 2.101 'commercial service')"
     : "";
   const procedures = simplified
-    ? "FAR Part 12 with FAR 13.5 simplified procedures"
+    ? "RFO FAR Part 12 with RFO FAR 12.201-1 simplified procedures"
     : "RFO FAR Part 12 with RFO FAR Part 15 procedures";
   return {
     requirement_description: str(a["description_of_requirement"]) || gap("add the description of the requirement to the record"),
