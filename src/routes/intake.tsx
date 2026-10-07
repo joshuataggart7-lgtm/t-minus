@@ -240,6 +240,15 @@ function IntakePage() {
     (row) => row.acquisition_method === facts.acquisition_method && row.competition_type === facts.competition,
   );
   const strategies = data.data?.ref.strategies ?? [];
+  const pslOptionValues = new Set<string>([
+    ...strategies.map((strategy) => strategyValue(strategy)),
+    "No mandatory strategy applies",
+    "Deviation approved (attach)",
+  ]);
+  const recordedDetermination =
+    facts.enterprise_psl_check.trim() !== "" && !pslOptionValues.has(facts.enterprise_psl_check)
+      ? facts.enterprise_psl_check
+      : null;
   const strategyMatch = useMemo(
     () =>
       data.data
@@ -316,6 +325,7 @@ function IntakePage() {
       lead_to_delivery_days: String(row.lead_to_delivery_days ?? 30),
       funding_fiscal_year: row.funding_fiscal_year ?? "",
       funds_certified: !!row.funds_certified,
+      enterprise_psl_check: row.enterprise_psl_check ?? "",
       // The sample arrives with the IGCE still missing: that is the demo flag.
       igce_attached: acquisitionId === "A-2027-0101" ? false : !!row.igce_attached,
       sow_attached: !!row.sow_attached,
@@ -1071,7 +1081,10 @@ function IntakePage() {
               value={facts.enterprise_psl_check}
               onChange={(e) => set("enterprise_psl_check", e.target.value)}
             >
-              <option value="">Choose a determination</option>
+              <option value="">CO determination needed</option>
+              {recordedDetermination ? (
+                <option value={recordedDetermination}>Recorded determination (see below)</option>
+              ) : null}
               {strategies.map((strategy) => (
                 <option key={strategy.psl} value={strategyValue(strategy)}>
                   {strategyValue(strategy)}
@@ -1080,6 +1093,11 @@ function IntakePage() {
               <option value="No mandatory strategy applies">No mandatory strategy applies</option>
               <option value="Deviation approved (attach)">Deviation approved (attach)</option>
             </select>
+            {recordedDetermination ? (
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                Recorded determination: {recordedDetermination}
+              </p>
+            ) : null}
             {strategyMatch ? (
               <p className="mt-1 text-[13px] text-muted-foreground">
                 Matched {strategyValue(strategyMatch)}. Mandatory vehicles:{" "}
