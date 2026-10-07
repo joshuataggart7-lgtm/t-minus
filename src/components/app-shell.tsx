@@ -223,7 +223,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
       >
         Skip to main content
       </a>
-      <header {...inertProps} className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
+      <header ref={headerRef} {...inertProps} className="chrome-surface sticky top-0 z-30 grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 border-b border-chrome-structure px-4 py-2 text-chrome-foreground xl:h-14 xl:grid-cols-[minmax(0,1fr)_minmax(200px,420px)_minmax(0,auto)] xl:py-0 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
             ref={menuButtonRef}
