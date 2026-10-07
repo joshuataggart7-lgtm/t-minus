@@ -1143,13 +1143,12 @@ function IntakePage() {
                 Recorded determination: {recordedDetermination}
               </p>
             ) : null}
-            {strategyMatch ? (
+            {strategyLineText(strategyMatch, facts.enterprise_psl_check, recordedDetermination) ? (
               <p className="mt-1 text-[13px] text-muted-foreground">
-                Matched {strategyValue(strategyMatch)}. Mandatory vehicles:{" "}
-                {strategyMatch.mandatory_vehicles ?? "not stated"}. Required coordination:{" "}
-                {strategyMatch.required_coordination ?? "not stated"}.
+                {strategyLineText(strategyMatch, facts.enterprise_psl_check, recordedDetermination)}
               </p>
             ) : null}
+
           </Field>
         </div>
 
