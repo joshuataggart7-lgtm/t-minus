@@ -571,10 +571,19 @@ function FormPage() {
 
   const exportFlat = async () => {
     if (!form) return;
-    const pdfHeaderLine = headerLine.replace(/\u2212/g, "-");
+    // Short line for print: file, form, countdown.
+    const printCountdown = !countdown
+      ? "countdown not recorded"
+      : countdown.pastTarget
+        ? countdownText(countdown)
+        : countdown.days === null
+          ? countdown.caption
+          : `${countdown.prefix ?? ""}${countdown.days}${countdown.badge ? ` ${countdown.badge.toLowerCase()}` : ""}`;
+    const pdfHeaderLine = `${acquisitionId} | ${form.name.split(",")[0]} | ${printCountdown}`.replace(/\u2212/g, "-");
     const blocks: PdfBlock[] = [
       { text: form.name, bold: true, size: 14, gap: 4 },
-      { text: `${pdfHeaderLine} · ${form.citation}`, size: 10, gap: 12 },
+      { text: pdfHeaderLine, size: 10, gap: 2 },
+      { text: form.citation, size: 9, gap: 12 },
     ];
     for (const section of form.sections) {
       blocks.push({ text: section.title, bold: true, size: 12, gap: 2 });
@@ -619,7 +628,7 @@ function FormPage() {
     }
     await renderPdf(blocks, {
       fileName: `${form.key}-${acquisitionId}-flattened`,
-      footer: [`${pdfHeaderLine} · ${form.citation}`, "Prototype. Not an official NASA system."],
+      footer: [pdfHeaderLine, "Prototype. Not an official NASA system."],
     });
     setMessage("Flattened PDF exported.");
   };
