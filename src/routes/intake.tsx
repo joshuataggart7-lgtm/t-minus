@@ -69,6 +69,51 @@ function strategyValue(strategy: { psl: string; name: string | null }) {
   return `${strategy.psl} — ${strategy.name ?? ""}`.trim().replace(/—$/, "").trim();
 }
 
+type StrategyRow = {
+  psl: string;
+  name: string | null;
+  mandatory_vehicles: string | null;
+  required_coordination: string | null;
+};
+
+function dropTrailingPeriod(value: string) {
+  return value.replace(/[.\s]+$/, "").trim();
+}
+
+function strategyLabel(strategy: StrategyRow) {
+  const name = (strategy.name ?? "").trim();
+  return name ? `${strategy.psl}, ${name}` : strategy.psl;
+}
+
+/** The line under the determination select. With no determination recorded the
+ *  matched strategy is still the plan of record, so it reads as a match. Once a
+ *  determination exists it governs, and the match is only the closest thing
+ *  that was reviewed. */
+function strategyLineText(
+  match: StrategyRow | null,
+  determination: string,
+  recorded: string | null,
+): string | null {
+  if (!match) return null;
+  const matched = strategyValue(match);
+  const value = determination.trim();
+  if (!value || value === matched) {
+    return `Matched ${matched}. Mandatory vehicles: ${match.mandatory_vehicles ?? "not stated"}. Required coordination: ${match.required_coordination ?? "not stated"}.`;
+  }
+  const vehicles = dropTrailingPeriod(match.mandatory_vehicles ?? "not stated");
+  const coordination = match.required_coordination
+    ? dropTrailingPeriod(match.required_coordination)
+    : "";
+  const governs =
+    recorded !== null
+      ? "The recorded determination above governs."
+      : "The determination selected above governs.";
+  return `Closest match reviewed: ${strategyLabel(match)} (mandatory vehicles ${vehicles}${
+    coordination ? `; ${coordination}` : ""
+  }). ${governs}`;
+}
+
+
 
 function useRefData(enabled: boolean) {
   return useQuery({
