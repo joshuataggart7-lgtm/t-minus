@@ -47,8 +47,9 @@ export function isCommercialFile(facts: Record<string, unknown> | null | undefin
 // here; everything else falls through to "Table not confirmed".
 // Checked against RFO FAR 12.205(a) and (b) and Tables 12-2 and 12-3. Numbers
 // Reserved in RFO FAR Part 52 (for example 52.204-16, -18, -21, -22, -24, -25,
-// 52.223-18, 52.225-13) are not listed.
-const PROVISIONS = new Set(["52.212-1", "52.212-2", "52.204-7", "52.225-25"]);
+// 52.223-18, 52.225-13) are not listed; their RFO replacements 52.240-90
+// (Table 12-2) and 52.240-91 and 52.240-93 (Table 12-3) are.
+const PROVISIONS = new Set(["52.212-1", "52.212-2", "52.204-7", "52.225-25", "52.240-90"]);
 const CLAUSES = new Set([
   "52.212-4",
   "52.204-13",
@@ -57,6 +58,8 @@ const CLAUSES = new Set([
   "52.222-50",
   "52.233-3",
   "52.233-4",
+  "52.240-91",
+  "52.240-93",
   "52.244-6",
 ]);
 
