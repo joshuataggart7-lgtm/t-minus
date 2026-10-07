@@ -1,5 +1,5 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
-import { igceCite } from "@/lib/rfo-simplified-cites";
+import { igceCite, WRITTEN_ACQUISITION_PLAN_THRESHOLD } from "@/lib/rfo-simplified-cites";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -305,7 +305,10 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
     flags.push({
       id: "igce",
       title: "No independent government cost estimate attached",
-      detail: "Attach the IGCE before the clock starts. Price reasonableness rests on it.",
+      detail:
+        !/13/.test(String(f.acquisition_method ?? "")) && value > WRITTEN_ACQUISITION_PLAN_THRESHOLD
+          ? "Attach the IGCE before the clock starts. Where a written acquisition plan applies, its cost/price element must provide it."
+          : "Attach the IGCE before the clock starts. Requiring it at intake is a T-Minus/Center rule; it supports the price reasonableness determination.",
       // Simplified acquisitions rest on RFO FAR 12.204(a) (commercial) or RFO FAR
       // 13.203(a) (noncommercial); other buys on RFO FAR 15.404-1(b)(5), plus
       // NFS CG 1807.14(b)(3) where a written acquisition plan applies.

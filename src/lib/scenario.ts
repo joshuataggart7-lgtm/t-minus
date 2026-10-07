@@ -556,7 +556,7 @@ export const TRIGGERS: TriggerDef[] = [
     condition: "Estimated value over the simplified acquisition threshold",
     when: (c) => c.value > 350_000,
     docs: [
-      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "RFO FAR 42.302(a)(3)", phase: "Administration", state: "offered", templateKey: "postaward-conference-report", tab: "077" },
+      { doc_key: "postaward-conference-report", label: "Postaward conference report", citation: "NFS CG 1842.32; RFO FAR 42.302(a)(3)", phase: "Administration", state: "offered", templateKey: "postaward-conference-report", tab: "077" },
     ],
   },
   {
@@ -668,6 +668,19 @@ export function triggerConfigSeed(): (TriggerConfigRow & { condition_label: stri
   return rows;
 }
 
+/**
+ * A stored citation written in pre-RFO form ("FAR 42.503-3", with no RFO or
+ * NFS prefix) points at the old numbering, which the RFO replaced. Where the
+ * code carries a verified current citation for the same row, that one is shown;
+ * any other HQ edit is kept as written.
+ */
+function currentCitation(stored: string | null | undefined, current: string): string {
+  const s = String(stored ?? "").trim();
+  if (!s) return current;
+  if (/^FAR \d/.test(s) && current) return current;
+  return s;
+}
+
 function configured(triggerKey: string, doc: TriggerDoc): TriggerDoc | null {
   const row = configByKey.get(`${triggerKey}|${doc.doc_key}`);
   if (!row) return doc;
@@ -675,7 +688,7 @@ function configured(triggerKey: string, doc: TriggerDoc): TriggerDoc | null {
   return {
     ...doc,
     label: row.label || doc.label,
-    citation: row.citation || doc.citation,
+    citation: currentCitation(row.citation, doc.citation),
     phase: row.phase || doc.phase,
     state: row.state === "offered" ? "offered" : "required",
     ...(row.note ? { note: row.note } : {}),

@@ -23,6 +23,7 @@ import {
   vehicleOf,
 } from "@/lib/vehicles";
 import { igceCite, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { dateCT } from "@/lib/calendar-date";
 
 export type AcqRow = Record<string, unknown> & {
   acquisition_id: string;
@@ -352,6 +353,23 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   return merged;
 }
 
+/** Firm-fixed-price and nothing else on the record (no hybrid type). */
+export function isFirmFixedPriceOnly(acq?: AcqRow): boolean {
+  const type = String(acq?.contract_type ?? "").trim();
+  const hybrid = String((acq as Record<string, unknown> | undefined)?.["hybrid_contract_type"] ?? "").trim();
+  return /^(ffp|firm[- ]fixed[- ]price)$/i.test(type) && !hybrid;
+}
+
+/** The record carries at least one option period (post-award schedule). */
+export function hasOptionPeriods(acq?: AcqRow): boolean {
+  const post = (acq as Record<string, unknown> | undefined)?.["post_award"] as
+    | { option_periods?: unknown; options?: unknown }
+    | null
+    | undefined;
+  const list = post?.option_periods ?? post?.options;
+  return Array.isArray(list) && list.length > 0;
+}
+
 function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
@@ -635,28 +653,44 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           link: "templates",
           templateKey: "cpars-input",
         },
-        {
-          label: "COR appointment letter",
-          citation: "RFO FAR 1.404",
-          link: "templates",
-          templateKey: "cor-appointment",
-        },
-        {
-          label: "Option exercise: preliminary notice to the contractor",
-          citation: "RFO FAR 17.204-1(b)(1)",
-          link: "templates",
-          templateKey: "option-exercise-notification",
-          optional: true,
-          note: "Applies when the contract includes option line items.",
-        },
-        {
-          label: "Option exercise: determination to exercise",
-          citation: "RFO FAR 17.204-1(b)",
-          link: "templates",
-          templateKey: "option-exercise-determination",
-          optional: true,
-          note: "Applies when the contract includes option line items.",
-        },
+        // RFO FAR 1.404(b): a COR is assigned on every contract or order other
+        // than firm-fixed-price; on a firm-fixed-price one the CO may assign one.
+        isFirmFixedPriceOnly(acq)
+          ? {
+              label: "COR appointment letter",
+              citation: "RFO FAR 1.404(b); NFS CG 1801.42(b) (NF 1634)",
+              link: "templates" as const,
+              templateKey: "cor-appointment",
+              optional: true,
+              note: "Firm-fixed-price on the record: the contracting officer may assign a COR but is not required to (RFO FAR 1.404(b)).",
+            }
+          : {
+              label: "COR appointment letter",
+              citation: "RFO FAR 1.404(b); NFS CG 1801.42(b) (NF 1634)",
+              link: "templates" as const,
+              templateKey: "cor-appointment",
+            },
+        // Option rows appear only where the record carries option periods.
+        ...(hasOptionPeriods(acq)
+          ? [
+              {
+                label: "Option exercise: preliminary notice to the contractor",
+                citation: "RFO FAR 17.204-1(b)(1)",
+                link: "templates" as const,
+                templateKey: "option-exercise-notification",
+                optional: true,
+                note: "The record carries option periods.",
+              },
+              {
+                label: "Option exercise: determination to exercise",
+                citation: "RFO FAR 17.204-1(b)",
+                link: "templates" as const,
+                templateKey: "option-exercise-determination",
+                optional: true,
+                note: "The record carries option periods.",
+              },
+            ]
+          : []),
         ...(acquisitionProfile(acq as Record<string, unknown>) === "bpa"
           ? [
               {
@@ -1082,6 +1116,23 @@ export function buildSequence(
   );
   const baseline = acq.regulatory_baseline_date ?? null;
   const elapsed = baseline ? Math.max(0, daysBetween(baseline, todayISO)) : null;
+  // The recorded day each phase began (from the phase-exit audit rows, see
+  // phaseEntryDates). Where the file has any recorded phase change, phase days
+  // are measured from those real dates, and the first phase starts on the day
+  // the file was created. A file with no recorded change keeps the
+  // baseline-anchored estimate for its current phase, and no completed phase is
+  // ever given a made-up duration.
+  const enteredRaw = (acq as Record<string, unknown>)["__phase_entered_at"];
+  const entered: Record<string, string> =
+    enteredRaw && typeof enteredRaw === "object" ? (enteredRaw as Record<string, string>) : {};
+  const recordedPhases = Object.keys(entered).length > 0;
+  const createdRaw = (acq as Record<string, unknown>)["created_at"];
+  const createdDay = typeof createdRaw === "string" && createdRaw ? dateCT(createdRaw) : null;
+  const startOf = (i: number): string | null => {
+    const name = String(rows[i]?.phase ?? "").toLowerCase();
+    if (entered[name]) return entered[name]!;
+    return i === 0 && recordedPhases ? createdDay : null;
+  };
 
   const unfinished = (phase: string, docs: RequiredDoc[]) => {
     if (!known) return false;
@@ -1143,8 +1194,17 @@ export function buildSequence(
             ? "current"
             : "upcoming";
     let actual: number | null = null;
-    if (status === "complete") actual = planned;
-    if (status === "current" && elapsed !== null) actual = Math.max(0, elapsed - before);
+    if (status === "complete") {
+      // Only real recorded dates: the day this phase began to the day the next began.
+      const start = startOf(i);
+      const end = startOf(i + 1);
+      actual = start && end ? Math.max(0, daysBetween(start, end)) : null;
+    }
+    if (status === "current") {
+      const start = startOf(i);
+      if (start) actual = Math.max(0, daysBetween(start, todayISO));
+      else if (!recordedPhases && elapsed !== null) actual = Math.max(0, elapsed - before);
+    }
     const phase = phaseName;
     return {
       phase,

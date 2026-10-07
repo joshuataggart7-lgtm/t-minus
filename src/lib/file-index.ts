@@ -98,8 +98,20 @@ export function tabRank(tab: string | null | undefined): number {
 
 const normTab = (tab: string | null | undefined) => String(tab ?? "").trim();
 
-/** A document with no tab of its own is listed under an honest "N/A". */
-const displayTab = (tab: string) => (tab === "" || tab === "—" || tab === "NA" ? "N/A" : tab);
+/**
+ * One display form for every tab: NF 1098 tab numbers read as three digits
+ * ("4" and "004" are the same tab), and a document with no tab of its own is
+ * listed under an honest "N/A".
+ */
+const displayTab = (tab: string) => {
+  const t = tab.trim();
+  if (t === "" || t === "\u2014" || /^n\/?a$/i.test(t)) return "N/A";
+  return /^\d{1,3}$/.test(t) ? t.padStart(3, "0") : t;
+};
+
+/** An uploader the record could not name is said plainly, never as a role placeholder. */
+const uploaderName = (name: string | null) =>
+  !name || /^signed-in user$/i.test(name.trim()) ? "Name not recorded" : name;
 
 const blankTab = (tab: string) => tab === "" || tab === "—" || tab === "NA" || tab === "N/A";
 
@@ -153,7 +165,7 @@ export function requiredTabs(phases: string[], acq?: AcqRow): IndexTab[] {
     .map((t) => {
       const { tab, near } = nearFields(t.key, normTab(t.tab));
       return {
-        tab,
+        tab: displayTab(tab),
         templateName: t.name,
         phase: phaseForTemplate(t.key),
         origin: "generated" as const,
@@ -224,7 +236,7 @@ export function buildFileIndex(
     entry.documents.push({
       templateName: a.file_name,
       version: entry.documents.length + 1,
-      savedBy: a.uploaded_by_name,
+      savedBy: uploaderName(a.uploaded_by_name),
       savedAt: a.created_at,
       memo: false,
       memoTo: null,

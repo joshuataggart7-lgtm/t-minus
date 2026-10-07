@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, type RefData } from "@/lib/intake";
-import type { StoredEstimate } from "@/lib/estimator";
+import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
@@ -20,10 +20,32 @@ import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
-/** The same summary the requester saw when the clock started. */
-function estimateLine(est: StoredEstimate | null) {
-  if (!est) return "No estimate yet";
-  return `About ${est.months_to_award} months, ${est.phases.length} phases, ${est.hours_total.toLocaleString("en-US")} hours`;
+/**
+ * The summary the requester saw when the clock started, when it was stored.
+ * A file with no stored intake estimate shows the current estimate, worked the
+ * same way the requester portal and the estimator work it, and says so.
+ */
+function estimateLine(est: StoredEstimate | null, acq: Record<string, unknown>, plan: PhasePlanRow[]) {
+  const months = (n: number) => `${n} ${n === 1 ? "month" : "months"}`;
+  if (est) {
+    return `About ${months(est.months_to_award)}, ${est.phases.length} phases, ${est.hours_total.toLocaleString("en-US")} hours (at intake)`;
+  }
+  const live = liveEstimate(acq, plan);
+  if (!live) return "No estimate yet";
+  return `About ${months(live.monthsToAward)}, ${live.phases.length} phases, ${live.hours.total.toLocaleString("en-US")} hours (current estimate)`;
+}
+
+function liveEstimate(acq: Record<string, unknown>, plan: PhasePlanRow[]) {
+  try {
+    return estimate(inputsFromAcq(acq as never), {
+      thresholds: [],
+      overrides: [],
+      strategies: [],
+      phasePlan: plan.map((p) => ({ acquisition_type: p.acquisition_type, phase: p.phase, planned_days: p.planned_days })),
+    });
+  } catch {
+    return null;
+  }
 }
 
 export const Route = createFileRoute("/files")({
@@ -171,7 +193,7 @@ function FilesPage() {
                       {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
                     </span>
                     <span className="mt-1 block text-[12px] text-muted-foreground">
-                      {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null)}
+                      {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null, acq as Record<string, unknown>, q.data?.plan ?? [])}
                     </span>
                   </td>
                   <td className="p-2"><MissionReadinessChip state={readiness.state} /><span className="mt-1 block text-[12px] text-muted-foreground">Phase: {String(operational.current_phase ?? "Not recorded")}</span></td>
