@@ -468,7 +468,7 @@
     "estimated_value": 4800000,
     "acquisition_method": "FAR 13.5 commercial simplified procedures",
     "competition": "competitive",
-    "current_phase": "Go/No-go Poll",
+    "current_phase": "Reviews and approvals",
     "clock_state": "hold",
     "hold_reason": "No-go: CIO review (IT) not complete",
     "hold_owner": "CIO reviewer: S. Okafor (fictional)",

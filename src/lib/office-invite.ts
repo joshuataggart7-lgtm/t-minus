@@ -6,6 +6,7 @@
  * row is created here, and no staff name is invented.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { decisionLabelFor, isDecided } from "@/lib/review-decisions";
 
 export type InvitePoll = {
   poll_id: string;
@@ -52,22 +53,22 @@ export async function loadInviteData(acquisitionId: string): Promise<{
   return { polls, roles };
 }
 
-/** Open invites are the poll rows with no recorded Go/No-go vote yet.
+/** Open invites are the review rows with no recorded decision yet.
  *  A blank vote or a case-insensitive "pending" vote is still open. */
 export function openPolls(polls: InvitePoll[]): InvitePoll[] {
   return polls.filter((p) => {
     const v = (p.vote ?? "").trim().toLowerCase();
     if (!v) return true; // blank — still open
     if (v === "pending") return true; // seeded pending reviews stay open
-    return false; // any other recorded value (go/no-go/voted) is closed
+    return false; // any other recorded value (a decision, or legacy go/no-go) is closed
   });
 }
 
 export function voteLabel(p: InvitePoll): string {
   const v = (p.vote ?? "").trim();
-  if (!v) return "No vote recorded yet";
+  if (!v) return "No decision recorded yet";
   if (v.toLowerCase() === "pending") return "Pending";
-  return v;
+  return isDecided(v) ? decisionLabelFor(v, p.reviewer_role) : v;
 }
 
 export function inviteName(p: InvitePoll): string {
@@ -96,8 +97,8 @@ export function inviteText(input: {
     `The file: /files/${input.acquisitionId}`,
     `The reviewer inbox: /reviewer-inbox`,
     "",
-    "Please read the file and record your Go or No-go in the reviewer inbox.",
-    "A No-go needs a reason.",
+    "Please read the file and record your decision in the reviewer inbox.",
+    "Any decision other than the favorable one (Approve, Concur or Legally sufficient) needs a written rationale.",
     "",
     NO_SEND_NOTE,
   ].join("\n");

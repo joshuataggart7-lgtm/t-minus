@@ -5,6 +5,7 @@
  *  status rule, plus the values on the record that made it fire.
  */
 
+import { DECISION_LABEL, DECISIONS_FOR, UNFAVORABLE_HOLD_PREFIX } from "@/lib/review-decisions";
 import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } from "@/lib/launch-sequence";
 import type { RedFlag } from "@/lib/intake";
 import { acquisitionProfile } from "@/lib/vehicles";
@@ -141,17 +142,19 @@ function reviewEvidence(role: string, acq: AcqRow): string[] {
 }
 
 export function explainReview(entry: BoardEntry, acq: AcqRow): Explanation {
+  const favorable = DECISION_LABEL[DECISIONS_FOR[entry.kind][0]!];
+  const decided = entry.decision ? DECISION_LABEL[entry.decision] : null;
   const clears: string[] =
-    entry.vote === "no-go"
+    entry.vote === "unfavorable"
       ? [
-          `${entry.reviewer_name} recorded a No-go${entry.reason ? `: ${entry.reason}` : ""}. The file clears when that is resolved and the reviewer records a Go.`,
+          `${entry.reviewer_name} recorded ${decided ?? "an unfavorable decision"}${entry.reason ? `: ${entry.reason}` : ""}. The file clears when the reviewer records ${favorable}${entry.kind === "concurrence" || entry.kind === "small_business" ? ", or the contracting officer records that the nonconcurrence was resolved on elevation" : ""}.`,
         ]
-      : entry.vote === "go"
-        ? [`${entry.reviewer_name} recorded a Go, so this review no longer holds the file.`]
+      : entry.vote === "favorable"
+        ? [`${entry.reviewer_name} recorded ${decided ?? favorable}, so this review no longer holds the file.`]
         : [
             entry.poll_id
-              ? `${entry.reviewer_name} records a Go on the poll for ${entry.phase}. A No-go needs a reason.`
-              : `Open the poll for ${entry.phase}, then ${entry.reviewer_name} records a Go.`,
+              ? `${entry.reviewer_name} records a decision for ${entry.phase}: ${DECISIONS_FOR[entry.kind].map((d) => DECISION_LABEL[d]).join(", ")}. Any decision other than ${favorable} needs a written rationale.`
+              : `Send the review request for ${entry.phase}, then ${entry.reviewer_name} records ${favorable}.`,
           ];
   if (entry.planned_days != null)
     clears.push(`The review is planned to take ${entry.planned_days} days.`);
@@ -230,7 +233,7 @@ const ROW_PURPOSE: { match: RegExp; purpose: string }[] = [
   { match: /SAM\.gov|exclusion/i, purpose: "Award cannot go to an excluded party. The registration and exclusion check is the evidence that the intended awardee was clear at the time of award." },
   { match: /integrity records|FAPIIS/i, purpose: "The integrity records are part of the responsibility picture the contracting officer signs to." },
   { match: /SF 1449 signature/i, purpose: "The contracting officer's signature on the SF 1449 is the affirmative determination of responsibility and the act of award." },
-  { match: /recorded votes/i, purpose: "Each required reviewer votes by name, so the file shows who cleared the action and who did not." },
+  { match: /recorded (?:votes|decision)/i, purpose: "Each required reviewer records a formal decision by name, so the file shows who approved or concurred and who did not." },
   { match: /FPDS/i, purpose: "The contract action report puts the award into the federal record. The file is not complete until it is reported." },
   { match: /CPARS|past performance/i, purpose: "The performance evaluation is what future buyers read when they assess this contractor." },
   { match: /COR appointment/i, purpose: "The appointment letter (NF 1634) names who may act on the government's behalf during performance and what they may not do. A COR must be assigned on every contract or order other than firm-fixed-price; on a firm-fixed-price contract the contracting officer may assign one (RFO FAR 1.404(b))." },
@@ -295,14 +298,15 @@ export function explainHold(
   // "Intake: IGCE is missing" reads as a field code on screen, so the same fact
   // is stated as a calm sentence here.
   const missing = /^(.+?):\s*(.+?)\s+is missing$/i.exec(hold.reason);
-  const noGo = /^No-go:\s*(.+)$/i.exec(hold.reason);
-  const unvoted = /^(.+?)\s+has not voted$/i.exec(hold.reason);
+  const noGoMatch = UNFAVORABLE_HOLD_PREFIX.exec(hold.reason);
+  const noGo = noGoMatch ? [noGoMatch[0], hold.reason.slice(noGoMatch[0].length), noGoMatch[1] ?? "No-go"] as const : null;
+  const unvoted = /^(.+?)\s+has not (?:voted|recorded a decision)$/i.exec(hold.reason);
   const sentence = missing
     ? `The ${missing[2]} is not yet on the file for the ${missing[1]!.toLowerCase()} phase.`
     : noGo
-      ? `A reviewer recorded a No-go: ${noGo[1]}.`
+      ? `A reviewer recorded ${/^no-go$/i.test(noGo[2]) ? "an unfavorable decision" : noGo[2]}: ${noGo[1]}.`
       : unvoted
-        ? `${unvoted[1]} has not recorded a vote yet.`
+        ? `${unvoted[1]} has not recorded a decision yet.`
         : hold.reason;
   // An exclusion question names its cause, the exact UEI, the source and the
   // time it was read, so no one has to guess what raised it.
@@ -341,10 +345,10 @@ export function explainHold(
         ? `The hold started on ${String(acq['hold_started_at']).slice(0, 10)}.`
         : "The hold start time is not recorded.",
     ],
-    rule: "A file holds while a required document is missing, a reviewer has voted No-go, or a review left behind has not voted.",
+    rule: "A file holds while a required document is missing, a reviewer has recorded Disapprove, Not legally sufficient or Nonconcur, or a review left behind has no decision.",
     citation: "RFO FAR 4.101 (contract file); Center policy for the review chain",
     clears: [
-      "The hold lifts by itself once the cause is cleared: attach the missing document, resolve the No-go, or record the missing vote.",
+      "The hold lifts by itself once the cause is cleared: attach the missing document, resolve the unfavorable decision (or record a nonconcurrence resolved on elevation), or record the missing decision.",
     ],
   };
 }
@@ -366,19 +370,19 @@ export function explainStatus(args: {
       `The forecast award plus delivery lands ${Math.abs(args.scheduleImpactDays)} days after the mission date.`,
     );
   if (args.behindPhase) why.push(`${args.behindPhase} has run past its planned days.`);
-  if (args.pollDueSoon) why.push(`A vote from ${args.pollDueSoon} is due within three days.`);
+  if (args.pollDueSoon) why.push(`A review decision from ${args.pollDueSoon} is due within three days.`);
   if (!why.length)
-    why.push("Nothing is holding the file, no phase has run past its planned days, and no vote is due within three days.");
+    why.push("Nothing is holding the file, no phase has run past its planned days, and no review decision is due within three days.");
   return {
     heading: `Status: ${args.status}`,
     why,
-    rule: "Launched when the award is recorded. At Risk on a hold or when the forecast award lands after the mission date. Needs Attention when a phase has run past its planned days or a vote is due within three days. Otherwise On Track.",
+    rule: "Launched when the award is recorded. At Risk on a hold or when the forecast award lands after the mission date. Needs Attention when a phase has run past its planned days or a review decision is due within three days. Otherwise On Track.",
     citation: "phase_plan and review_rules (planned days); mission milestone date",
     clears:
       args.status === "At Risk"
         ? ["Lift the hold, or recover days in the remaining phases so the forecast award lands before the mission date."]
         : args.status === "Needs Attention"
-          ? ["Finish the phase that has run long, or record the vote that is coming due."]
+          ? ["Finish the phase that has run long, or record the review decision that is coming due."]
           : ["Nothing to clear."],
   };
 }

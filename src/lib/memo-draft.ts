@@ -18,6 +18,7 @@ import { ANTICIPATED_AWARD_TBD, ANTICIPATED_AWARD_TBD_NOTE } from "@/lib/forecas
 import { findingText, type FindingMap } from "@/lib/research-findings";
 import { humanMemoProse } from "@/lib/memo-prose";
 import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
+import { UNFAVORABLE_HOLD_PREFIX } from "@/lib/review-decisions";
 
 export type ResearchLogLine = {
   source: string;
@@ -962,16 +963,16 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       const rawReason = cleanClause(h.reason);
       const missing = /:\s*(.+?)\s+is missing\b/i.exec(str(h.reason))?.[1];
       const isMissingDoc = Boolean(missing) || /is missing\b/i.test(rawReason);
-      const noGoHold = /no-?go/i.test(rawReason);
+      const noGoHold = /no-?go/i.test(rawReason) || UNFAVORABLE_HOLD_PREFIX.test(rawReason);
       const cause = chronologyDocumentTitle(missing ?? h.field, missing ?? h.reason);
       const sameDay = clear ? onlyDate(clear.at) === onlyDate(h.at) : false;
       const resumed = clear ? (sameDay ? "the same day" : `on ${stamp(clear.at)}`) : "";
-      // The cause is stated as prose: a missing document, a recorded No-go, or
+      // The cause is stated as prose: a missing document, an unfavorable review decision, or
       // the reason a person typed. The stored field code is never printed.
       const because = isMissingDoc
         ? `because the ${cause} was not yet on the file`
         : noGoHold
-          ? "because a reviewer recorded a No-go"
+          ? `because a reviewer recorded ${(UNFAVORABLE_HOLD_PREFIX.exec(rawReason)?.[1] ?? "").replace(/^no-?go$/i, "") || "an unfavorable decision"}`
           : rawReason
             ? `because ${rawReason.charAt(0).toLowerCase()}${rawReason.slice(1)}`
             : "while the file was being completed";
@@ -991,8 +992,21 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
       if (handled.has(a)) continue;
       const on = day(a.at);
       const push = (text: string) => pushAt(text, a.at);
-      if (/poll opened/i.test(a.action)) {
-        push(`The go/no-go poll was opened on ${on}.`);
+      if (/poll opened|review requests sent/i.test(a.action)) {
+        push(`The review requests were sent on ${on}.`);
+      } else if (/review decision recorded:\s*(.+)$/i.test(a.action)) {
+        const label = /review decision recorded:\s*(.+)$/i.exec(a.action)![1]!.trim();
+        const by = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?:\.|;|$)/i.exec(str(a.reason));
+        const voter = by?.[2] ?? (str(a.actor) ? personPhrase(ctx, str(a.actor)) : "the reviewer");
+        const onBehalf = by ? `, recorded by ${personPhrase(ctx, by[1]!)}` : "";
+        const seat = seatName(a.field);
+        const seatPhrase = seat === "The review seat" ? "" : ` for the ${seat.toLowerCase()} seat`;
+        const rationale = /Rationale:\s*(.+)$/i.exec(str(a.reason))?.[1] ?? "";
+        push(
+          `${voter} recorded ${label}${seatPhrase} on ${stamp(a.at)}${onBehalf}${
+            rationale ? `, noting that ${cleanClause(rationale).charAt(0).toLowerCase()}${cleanClause(rationale).slice(1)}` : ""
+          }.`,
+        );
       } else if (/vote|go recorded|no-go/i.test(a.action)) {
         const noGo = /no-go/i.test(a.action) || /no-go/i.test(str(a.newValue));
         const recorded = /recorded by\s+(.+?)\s+on behalf of\s+(.+?)(?::|;|$)/i.exec(str(a.reason));
@@ -1004,7 +1018,7 @@ function chronologyParagraphs(ctx: MemoDraftCtx): string {
         const seatPhrase = seat === "The review seat" ? "" : ` for the ${seat.toLowerCase()} seat`;
         const noGoReason = noGo ? cleanClause(str(a.reason).replace(/^.*?on behalf of[^:;]+[:;]\s*/i, "")) : "";
         push(
-          `${voter} recorded ${noGo ? "a No-go" : "a Go"}${seatPhrase} on ${stamp(a.at)}${onBehalf}${
+          `${voter} recorded ${noGo ? "an unfavorable decision" : "a favorable decision"}${seatPhrase} on ${stamp(a.at)}${onBehalf}${
             noGo && noGoReason && !/recorded by/i.test(noGoReason) ? `, noting that ${noGoReason.charAt(0).toLowerCase()}${noGoReason.slice(1)}` : ""
           }.`,
         );

@@ -8,6 +8,7 @@ import { overviewCountdownView } from "./operational-state";
 import { countdownText } from "@/components/launch-countdown";
 import type { ReadinessExplanation } from "./readiness";
 import { AnalystTableShell, LeadershipExceptionList, LeadershipExceptionStrip, ProvenanceChip } from "./primitives";
+import { DECISION_LABEL } from "@/lib/review-decisions";
 
 export type PriorityTier = "Mission Critical" | "High Priority" | "Standard" | "Priority not recorded";
 
@@ -51,12 +52,12 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
         out.push({ kind: "Reviewer overdue", id, detail: `${who}, due ${b.due_date}` });
       }
     }
-    const nogo = m.board.find((b) => b.vote === "no-go");
+    const nogo = m.board.find((b) => b.vote === "unfavorable");
     if (m.hold || nogo) {
       out.push({
         kind: "Unresolved blocker",
         id,
-        detail: m.hold ? `${m.hold.reason} · owner: ${m.hold.owner || "Not recorded"}` : `No-go: ${nogo!.reviewer_role}`,
+        detail: m.hold ? `${m.hold.reason} · owner: ${m.hold.owner || "Not recorded"}` : `${nogo!.decision ? DECISION_LABEL[nogo!.decision] : "Nonconcur"}: ${nogo!.reviewer_role}`,
       });
     }
   }

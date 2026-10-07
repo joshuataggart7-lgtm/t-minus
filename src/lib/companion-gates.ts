@@ -15,6 +15,7 @@ import {
 } from "@/lib/launch-sequence";
 import type { RefData } from "@/lib/intake";
 import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
+import { DECISION_LABEL } from "@/lib/review-decisions";
 
 export type GateStatus = "Satisfied" | "Open" | "Not applicable";
 
@@ -50,14 +51,15 @@ function voteFor(board: BoardEntry[], match: RegExp): BoardEntry | null {
 function fromBoard(board: BoardEntry[], match: RegExp): { status: GateStatus; evidence: string } {
   const entry = voteFor(board, match);
   if (!entry) return { status: "Open", evidence: NOT_EVIDENCED };
-  if (entry.vote === "go")
-    return { status: "Satisfied", evidence: `Go recorded by ${entry.reviewer_name}.` };
-  if (entry.vote === "no-go")
+  const label = entry.decision ? DECISION_LABEL[entry.decision] : null;
+  if (entry.vote === "favorable")
+    return { status: "Satisfied", evidence: `${label ?? "Favorable decision"} recorded by ${entry.reviewer_name}.` };
+  if (entry.vote === "unfavorable")
     return {
       status: "Open",
-      evidence: `No-go recorded by ${entry.reviewer_name}${entry.reason ? `: ${entry.reason}` : ""}.`,
+      evidence: `${label ?? "Unfavorable decision"} recorded by ${entry.reviewer_name}${entry.reason ? `: ${entry.reason}` : ""}.`,
     };
-  return { status: "Open", evidence: `On the poll for ${entry.reviewer_name}; no vote recorded yet.` };
+  return { status: "Open", evidence: `Review requested from ${entry.reviewer_name}; no decision recorded yet.` };
 }
 
 /** Micro-purchase floor the NF 1787 gate reads, from the thresholds table. */

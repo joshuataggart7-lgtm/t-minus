@@ -5,7 +5,8 @@
 // beyond the phase citation labels.
 
 import { matchStrategy, type RefData } from "@/lib/intake";
-import { phaseAlias } from "@/lib/phase-alias";
+import { phaseAlias, REVIEW_PHASE } from "@/lib/phase-alias";
+import { DECISION_LABEL, decisionOutcome, normalizeDecision, reviewKindFor, isDecided, PHASE_EXIT_RULE, type ReviewDecision, type ReviewKind, type ReviewOutcome } from "@/lib/review-decisions";
 import { overrideValue } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
 import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
@@ -199,7 +200,7 @@ export const PHASE_CITATIONS: Record<string, string> = {
   "Technical Evaluation": "RFO FAR 12.203 (evaluation of quotations)",
   "Price Reasonableness": "RFO FAR 12.204(a) (price reasonableness); RFO FAR 13.203(a) on a noncommercial simplified file",
   "Responsibility Check": "RFO FAR 9.104-1; RFO FAR 9.105-2; RFO FAR 52.204-7 (SAM)",
-  "Go/No-go Poll": "Center policy for the review chain",
+  [REVIEW_PHASE]: "Center policy for the review chain",
   Award: "RFO FAR 12.204 (award); RFO FAR 13.203 on a noncommercial simplified file; NFS CG 1804.11(b) (award written in NCMS)",
   "FPDS-NG Report": "RFO FAR 4.301 (contract action reporting)",
   Administration: "RFO FAR Part 42; RFO FAR 4.101 (contract file)",
@@ -261,7 +262,7 @@ export const PHASE_GUIDANCE: Record<string, string> = {
     "Write the price negotiation memorandum. It is the determination of record; no separate price memo is made.",
   "Responsibility Check":
     "Check the vendor in SAM: registration, exclusions, and integrity records. Signing the SF 1449 is the determination.",
-  "Go/No-go Poll": "Each required reviewer votes Go or No-go by name. A No-go needs a reason.",
+  [REVIEW_PHASE]: `Each required reviewer records a formal decision by name: Approve or Disapprove for an approval, Concur or Nonconcur for a concurrence, Legally sufficient or Not legally sufficient for legal review. ${PHASE_EXIT_RULE}`,
   Award: "Award in NCMS from the handoff packet, then mark the file Launched.",
   "FPDS-NG Report": "Report the action so the public record matches the file.",
   Administration: "Run the contract: deliveries, invoices, and past performance.",
@@ -620,8 +621,8 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           note: "The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility.",
         },
       ];
-    case "Go/No-go Poll":
-      return [{ label: "Recorded votes from every required reviewer", citation: "Center policy" }];
+    case REVIEW_PHASE:
+      return [{ label: "A recorded decision from every required reviewer", citation: "Center policy" }];
     case "Award": {
       const profile = acquisitionProfile(acq as Record<string, unknown>);
       if (isOrderProfile(profile))
@@ -861,8 +862,8 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
   return false;
 }
 
-/** Phases that require a recorded Go/No-go from reviewers. */
-export const REVIEW_PHASES = ["JOFOC", "Go/No-go Poll"] as const;
+/** Phases that require a recorded decision from reviewers. */
+export const REVIEW_PHASES = ["JOFOC", REVIEW_PHASE] as const;
 
 /** Short plain word for a reviewer role, used in hold text: "legal", "pricing". */
 export function shortRole(role: string): string {
@@ -913,7 +914,7 @@ export function reviewRulesForPhase(
 ): ReviewRuleRow[] {
   const applicable = rules.filter((r) => reviewApplies(r, acq, ref));
   if (phase === "JOFOC") return applicable.filter((r) => /^legal review/i.test(r.reviewer_role));
-  if (phase === "Go/No-go Poll") {
+  if (phase === REVIEW_PHASE) {
     if (!hasJofoc(acq)) return applicable;
     // A sole-source file carries the JOFOC approving official as a reviewer.
     // The office comes from the Center routing table entry for the JOFOC,
@@ -983,7 +984,7 @@ export function phaseForTemplate(templateKey: string): string {
   if (templateKey === "closeout-checklist") return "Closeout";
   // A memorandum for record belongs to the file, not to a phase.
   if (templateKey === "memorandum-for-record") return "Intake";
-  return "Go/No-go Poll";
+  return REVIEW_PHASE;
 }
 
 export type BoardEntry = {
@@ -991,7 +992,12 @@ export type BoardEntry = {
   phase: string;
   reviewer_role: string;
   reviewer_name: string;
-  vote: "go" | "no-go" | "pending";
+  /** Outcome class of the recorded decision: favorable, unfavorable or pending. */
+  vote: ReviewOutcome;
+  /** The formal decision, read from the stored value (legacy go/no-go included). */
+  decision: ReviewDecision | null;
+  /** Review type: legal, small business, approval or concurrence. */
+  kind: ReviewKind;
   reason: string | null;
   due_date: string | null;
   planned_days: number | null;
@@ -1055,22 +1061,24 @@ export function pollBoard(
   polls: PollRow[],
   ref: RefData,
   dueDate: string | null,
-  phase = "Go/No-go Poll",
+  phase: string = REVIEW_PHASE,
   roster: ReviewerPerson[] = [],
 ): BoardEntry[] {
-  const forPhase = polls.filter((p) => (p.phase ?? "Go/No-go Poll") === phase);
+  const forPhase = polls.filter((p) => phaseAlias(p.phase ?? REVIEW_PHASE) === phase);
   const center = (acq['center_code'] ?? null) as string | null;
   return reviewRulesForPhase(phase, acq, rules, ref).map((r) => {
     const sameRole = (p: PollRow) =>
       (p.reviewer_role ?? "").toLowerCase() === r.reviewer_role.toLowerCase();
-    // A legal vote already recorded at the justification stands on the
-    // go/no-go board rather than being asked for twice.
+    // A legal decision already recorded at the justification stands on the
+    // reviews and approvals board rather than being asked for twice.
     const carried =
-      phase === "Go/No-go Poll" && /^legal review/i.test(r.reviewer_role)
-        ? polls.find((p) => sameRole(p) && (p.vote === "go" || p.vote === "no-go"))
+      phase === REVIEW_PHASE && /^legal review/i.test(r.reviewer_role)
+        ? polls.find((p) => sameRole(p) && isDecided(p.vote))
         : undefined;
     const row = forPhase.find(sameRole) ?? carried;
-    const vote = (row?.vote ?? "pending") as BoardEntry["vote"];
+    const kind = reviewKindFor(r.reviewer_role);
+    const decision = normalizeDecision(row?.vote, kind);
+    const vote = decisionOutcome(decision);
     // The role decides the person. A name stored on a cast vote stands, because
     // that person actually voted; an unvoted row always reads from the roster.
     const tier = r.reviewer_role === JOFOC_APPROVER_ROLE ? jofocApprovalTier(acq, ref) : null;
@@ -1079,13 +1087,15 @@ export function pollBoard(
         reviewerNameForTitle(tier.title, center, roster) ||
         tier.title
       : reviewerNameForRole(r.reviewer_role, center, roster);
-    const voted = vote === "go" || vote === "no-go";
+    const voted = vote !== "pending";
     return {
       poll_id: row?.poll_id ?? null,
       phase,
       reviewer_role: r.reviewer_role,
       reviewer_name: (voted ? row?.reviewer_name : null) ?? byRole,
-      vote: vote === "go" || vote === "no-go" ? vote : "pending",
+      vote,
+      decision,
+      kind,
       reason: row?.reason ?? null,
       due_date: row?.due_date ?? dueDate,
       planned_days: r.planned_days,
@@ -1136,6 +1146,7 @@ export function buildSequence(
   const type = acquisitionType(acq, plan);
   const rows = plan
     .filter((p) => p.acquisition_type === type && p.phase)
+    .map((p) => ({ ...p, phase: phaseAlias(p.phase) }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const currentIndex = rows.findIndex(
@@ -1242,7 +1253,7 @@ export function buildSequence(
       docs,
       citation: phaseCitation(phase, acq),
       guidance: PHASE_GUIDANCE[phase] ?? "",
-      needsPoll: phase === "Go/No-go Poll",
+      needsPoll: phase === REVIEW_PHASE,
     };
   });
 }
@@ -1281,15 +1292,16 @@ export function computeHold(
     }
   }
 
-  // A No-go holds the file at once, whichever review phase it came from.
-  const nogo = board.find((b) => b.vote === "no-go");
+  // Disapprove, Not legally sufficient or Nonconcur holds the file at once,
+  // whichever review phase it came from.
+  const nogo = board.find((b) => b.vote === "unfavorable");
   if (nogo)
     return {
-      reason: `No-go: ${shortRole(nogo.reviewer_role)}${nogo.reason ? ` — ${nogo.reason}` : ""}`,
+      reason: `${nogo.decision ? DECISION_LABEL[nogo.decision] : "Nonconcur"}: ${shortRole(nogo.reviewer_role)}${nogo.reason ? `: ${nogo.reason}` : ""}`,
       owner: `${nogo.reviewer_name} (${nogo.reviewer_role})`,
     };
 
-  // A vote still pending when its phase has been left holds the file too.
+  // A decision still open when its phase has been left holds the file too.
   const indexOf = (phase: string) => phases.findIndex((p) => p.phase === phase);
   const pending = board.find((b) => {
     const i = indexOf(b.phase);
@@ -1297,7 +1309,7 @@ export function computeHold(
   });
   if (pending)
     return {
-      reason: `${pending.phase}: ${pending.reviewer_role} has not voted`,
+      reason: `${pending.phase}: ${pending.reviewer_role} has not recorded a decision`,
       owner: `${pending.reviewer_name} (${pending.reviewer_role})`,
     };
   return null;

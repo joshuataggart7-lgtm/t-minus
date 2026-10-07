@@ -1,9 +1,10 @@
-// Aging holds and pending polls. Every hold and every open poll carries an age
+// Aging holds and open reviews. Every hold and every open review carries an age
 // in days. Past the Center's configured number of days (default 5) the item is
 // aging, and it goes to a digest for the owner's supervisor.
 
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
 import { phaseAlias } from "@/lib/phase-alias";
+import { isDecided } from "@/lib/review-decisions";
 
 export const DEFAULT_AGING_DAYS = 5;
 
@@ -71,7 +72,7 @@ function supervisorOf(owner: string, fallbackOwner: string | null, users: UserRo
   };
 }
 
-/** Every hold and every pending poll, with its age and whether it is aging. */
+/** Every hold and every open review, with its age and whether it is aging. */
 export function agingItems(
   acqs: AcqRow[],
   polls: PollRow[],
@@ -105,7 +106,9 @@ export function agingItems(
   }
 
   for (const poll of polls) {
-    if (poll.vote) continue;
+    // An open review (pending or blank) ages from the day its request was sent.
+    // A recorded decision, old go/no-go or formal, stops the clock.
+    if (isDecided(poll.vote)) continue;
     const acq = byId.get(String(poll.acquisition_id ?? ""));
     if (!acq) continue;
     if (String(acq.clock_state ?? "") === "launched") continue;
@@ -118,13 +121,13 @@ export function agingItems(
       acquisitionId: acq.acquisition_id,
       centerCode,
       title: String(acq.title ?? ""),
-      subject: `${poll.reviewer_role ?? "Reviewer"} has not voted`,
+      subject: `${poll.reviewer_role ?? "Reviewer"} has not recorded a decision`,
       owner,
       ...supervisorOf(owner, acq.co_name ? String(acq.co_name) : null, users),
       ageDays,
       thresholdDays,
       aging: ageDays >= thresholdDays,
-      phase: poll.phase ?? null,
+      phase: poll.phase ? String(phaseAlias(poll.phase)) : null,
     });
   }
 

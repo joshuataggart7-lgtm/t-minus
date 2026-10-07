@@ -48,6 +48,7 @@ import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
+import { isUnfavorableVote } from "@/lib/review-decisions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -345,7 +346,7 @@ function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
   );
 }
 
-/** Aging holds and pending polls, counted by Center. */
+/** Aging holds and open reviews, counted by Center. */
 function AgingPanel({
   acqs,
   polls,
@@ -365,9 +366,9 @@ function AgingPanel({
 
   return (
     <>
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Aging holds and pending polls</h3>
+      <h3 className="mt-10 text-[18px] leading-6 font-medium">Aging holds and pending reviews</h3>
       <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-        A hold or an unanswered Go/No-go poll is aging once it passes the number of days the Center
+        A hold or an unanswered review request is aging once it passes the number of days the Center
         sets. Each aging item raises an entry in the digest for the owner's supervisor.
       </p>
       <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
@@ -377,7 +378,7 @@ function AgingPanel({
       {rows.length === 0 ? (
         <p className="mt-2 text-muted-foreground">Nothing is past its Center window.</p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Aging holds and pending polls by Center">
+        <TableScrollRegion baseClassName="overflow-x-auto" label="Aging holds and pending reviews by Center">
         <table className="mt-3 w-full max-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
           <thead>
             <tr className="border-b border-border text-left">
@@ -388,7 +389,7 @@ function AgingPanel({
                 Aging holds
               </th>
               <th scope="col" className="p-2">
-                Aging polls
+                Aging reviews
               </th>
               <th scope="col" className="p-2">
                 Aging after
@@ -822,7 +823,7 @@ function EnterpriseTab({
         hold: metrics.filter((m) => m.clockState === "hold").length,
         launched: metrics.filter((m) => m.clockState === "launched").length,
         pending_votes: polls.filter((p) => (p.vote ?? "pending") === "pending").length,
-        nogo_votes: polls.filter((p) => p.vote === "no-go").length,
+        nogo_votes: polls.filter((p) => isUnfavorableVote(p.vote)).length,
         audit_entries: log.length,
       },
       projects: missionRows.map(({ mission, driver }) => ({

@@ -15,6 +15,8 @@ import { isOfficialFinal } from "@/lib/official-file";
 import { TEMPLATES, renderDocument, templateByKey, type Values } from "@/lib/template-engine";
 import { buildFileIndex } from "@/lib/file-index";
 import { buildSequence } from "@/lib/launch-sequence";
+import { decisionLabelFor, isDecided } from "@/lib/review-decisions";
+import { phaseAlias } from "@/lib/phase-alias";
 
 const esc = (s: unknown) =>
   String(s ?? "")
@@ -224,14 +226,14 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
   // ------------------------------------------------- comments and poll votes
   const polls = pollRes.data ?? [];
   const commentBody =
-    `<h2>Poll votes</h2>` +
+    `<h2>Review decisions</h2>` +
     rows(
-      ["Phase", "Reviewer role", "Reviewer", "Vote", "Reason", "Due", "Voted at"],
+      ["Phase", "Reviewer role", "Reviewer", "Decision", "Rationale", "Due", "Decided at"],
       polls.map((p) => [
-        p.phase,
+        phaseAlias(p.phase),
         p.reviewer_role,
         p.reviewer_name,
-        p.vote ?? "Not voted",
+        isDecided(p.vote) ? decisionLabelFor(p.vote, p.reviewer_role) : "No decision recorded",
         p.reason,
         p.due_date,
         p.voted_at,

@@ -24,12 +24,12 @@ export const Route = createFileRoute("/escalations")({
       { title: "Aging holds and escalation — T-Minus" },
       {
         name: "description",
-        content: "Holds and pending Go/No-go polls past the Center's aging threshold, gathered for each supervisor.",
+        content: "Holds and pending review requests past the Center's aging threshold, gathered for each supervisor.",
       },
       { property: "og:title", content: "Aging holds and escalation — T-Minus" },
       {
         property: "og:description",
-        content: "Every aging hold and pending poll, its age in days, its owner, and the supervisor it escalates to.",
+        content: "Every aging hold and pending review request, its age in days, its owner, and the supervisor it escalates to.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -117,7 +117,7 @@ function EscalationsPage() {
     <AppShell>
       <PageHeader
         title="Aging holds and escalation"
-        lead="Every hold and every pending Go/No-go poll carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
+        lead="Every hold and every pending review request carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
       />
       {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {banner ? (
@@ -126,14 +126,14 @@ function EscalationsPage() {
         </p>
       ) : null}
 
-      {q.isLoading ? <LoadingNote what="the aging holds and polls" /> : null}
+      {q.isLoading ? <LoadingNote what="the aging holds and reviews" /> : null}
       {q.isError ? <ErrorNote message="The aging items did not load. Refresh the page to try again." /> : null}
 
       {q.data ? (
         <>
           <h2 className="section-title text-[18px] leading-6 font-medium">Open holds and pending polls</h2>
           {items.length === 0 ? (
-            <EmptyState sentence="No file is on hold and no poll is waiting on a vote." />
+            <EmptyState sentence="No file is on hold and no review is waiting on a decision." />
           ) : (
             <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3 border border-border bg-background" label="Open holds and pending polls">
             <table className="w-full text-[13px] leading-[18px]">
