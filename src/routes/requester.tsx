@@ -193,8 +193,8 @@ function RequesterPortal() {
                       {missing} of {owed.length} items still missing.
                     </p>
                     <Link
-                      to="/intake/$acquisitionId"
-                      params={{ acquisitionId: id }}
+                      to="/forms/$formKey/$acquisitionId"
+                      params={{ formKey: "nf-1707", acquisitionId: id }}
                       className="mt-3 inline-block text-[15px] text-primary hover:text-primary-hover"
                     >
                       Open the NF 1707 intake
