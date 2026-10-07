@@ -248,7 +248,7 @@ const BUILD_STAMP = '2026-09-09';
 const STORAGE_KEY = 'procurement-loe-estimator-v2';
 
 /* ---------- thresholds (RFO FAR, Oct 1, 2025 inflation adjustment) ---------- */
-const TH = { MPT: 15000, SAT: 350000, COMM_SIMP: 9000000, COMM_SIMP_HI: 15000000, CCPD: 2500000, SUBK: 900000, JOFOC_T2: 900000, JOFOC_T3: 20000000, JOFOC_T4: 150000000, PUBLIC_ANNOUNCE: 5500000, HQ_ANNOUNCE: 7000000, ANOSCA: 30000000 };
+const TH = { MPT: 15000, SAT: 350000, COMM_SIMP: 9000000, COMM_SIMP_HI: 15000000, CCPD: 10000000, CCPD_FAR_TEXT: 2500000, SUBK: 900000, JOFOC_T2: 900000, JOFOC_T3: 20000000, JOFOC_T4: 150000000, PUBLIC_ANNOUNCE: 5500000, HQ_ANNOUNCE: 7000000, ANOSCA: 30000000 };
 
 /* ---------- 2026 GS hourly basic rates (OPM Salary Tables 2026, steps 1/5/10) ---------- */
 const GS_CAP_HOURLY = 94.49; // Executive Schedule Level IV cap as shown on the 2026 tables
@@ -413,7 +413,8 @@ function buildModel(s) {
   h = 0; if (!c.isSAP) { h = 6; if (V > 5e6) h = 10; if (V > 50e6) h = 16; }
   T('3.3', 'EVAL', 'Technical evaluation coordination and fact-finding', sc(h), .5, 'FAR 15.404-4; NFS CG 1815.45(b)', { cond: true });
   h = 8;
-  if (V > TH.CCPD) { h = 16; trig('info', 'FAR', `Certified cost or pricing data threshold (${money(TH.CCPD)}) exceeded; obtain data or document the exception (FAR 15.403).`); }
+  if (V > TH.CCPD) { h = 16; trig('info', 'FAR', `Certified cost or pricing data threshold ($10M, 10 U.S.C. 3702(a)(1)(A), contracts after June 30, 2026) exceeded; obtain data or document the exception (RFO FAR 15.403-2(b)). RFO FAR 15.403-3(a) still reads $2.5M.`); }
+  else if (V > TH.CCPD_FAR_TEXT) { trig('info', 'FAR', `Certified cost or pricing data is not required by statute below $10M for contracts after June 30, 2026 (10 U.S.C. 3702(a)(1)(A)); requiring it takes a written HCA determination (10 U.S.C. 3704; RFO FAR 15.403-3(e)). RFO FAR 15.403-3(a) still reads $2.5M; NASA has not issued a deviation as of Oct 7, 2026.`); }
   if (V > 10e6) h = 24; if (V > 50e6) h = 40; if (c.isCostType) h = Math.round(h * 1.5); if (s.commercial === 'YES' && V <= TH.CCPD) h = Math.max(6, Math.round(h * 0.5));
   T('3.4', 'EVAL', 'Cost or price analysis', sc(h), .6, c.isCostType ? 'FAR 15.404-2, 15.404-3' : 'FAR 15.404-1');
   h = 0; if (c.isNonComp && V > TH.SAT) { h = 12; if (V > 10e6) h = 20; if (V > 50e6) h = 32; trig('info', 'NFS', 'Prenegotiation position memorandum for noncompetitive actions (NFS CG 1815.48); award within 120 days of proposal receipt is the agency goal.'); }
@@ -521,7 +522,7 @@ function renderInputs() {
       <div class="row">${field('Org code', inp('orgCode'))}${field('Memo date', `<input type="date" data-key="memoDate">`)}</div>
     </div></details>
     <details class="group" open><summary>Acquisition profile <span class="pill">drivers</span></summary><div class="group-body">
-      ${field('Total estimated value, including options', inp('V', 'class="money" inputmode="numeric"'), 'Sets thresholds: SAT $350K, subcontracting plan $900K, certified cost or pricing data $2.5M, JOFOC tiers $900K / $20M / $150M, public announcement $5.5M.')}
+      ${field('Total estimated value, including options', inp('V', 'class="money" inputmode="numeric"'), 'Sets thresholds: SAT $350K, subcontracting plan $900K, certified cost or pricing data $10M (10 U.S.C. 3702(a)(1)(A), contracts after June 30, 2026; RFO FAR 15.403-3(a) still reads $2.5M), JOFOC tiers $900K / $20M / $150M, public announcement $5.5M.')}
       <div class="row">
         ${field('Instrument', sel('instrument', [['STANDALONE', 'Standalone contract'], ['IDIQ', 'IDIQ base contract'], ['TO', 'Order under an existing IDIQ'], ['BPA', 'BPA call']]))}
         ${field('Pricing arrangement', sel('pricing', [['FFP', 'Firm-fixed-price'], ['FPI', 'Fixed-price incentive'], ['CPFF', 'Cost-plus-fixed-fee'], ['CPAF', 'Cost-plus-award-fee'], ['CPIF', 'Cost-plus-incentive-fee'], ['TM', 'Time-and-materials / labor-hour'], ['LETTER', 'Letter contract (UCA)']]))}
@@ -764,7 +765,7 @@ function showAbout() {
     </ul>
     <h3>Carried from the April 2026 build (Companion Guide and internal references not publicly verifiable)</h3>
     <ul>
-      <li>NFS CG 1807.71, 1807.11, 1807.12, 1807.13(d), 1807.51, 1804.111, 1801.6, 1812, 1815.1, 1815.2, 1815.45(b), 1815.48, 1815.49, 1816.62, 1816.66, 1817.24, 1819, 1825.12, 1834; PCD 25-09, 25-16, 25-21, 25-23; PIC 26-01; PN 24-09; subcontracting plan threshold $900,000; certified cost or pricing data threshold $2.5M; HQ announcement $7M and ANOSCA $30M.</li>
+      <li>NFS CG 1807.71, 1807.11, 1807.12, 1807.13(d), 1807.51, 1804.111, 1801.6, 1812, 1815.1, 1815.2, 1815.45(b), 1815.48, 1815.49, 1816.62, 1816.66, 1817.24, 1819, 1825.12, 1834; PCD 25-09, 25-16, 25-21, 25-23; PIC 26-01; PN 24-09; subcontracting plan threshold $900,000; certified cost or pricing data threshold $10M for contracts after June 30, 2026 (10 U.S.C. 3702(a)(1)(A)), with RFO FAR 15.403-3(a) still reading $2.5M; HQ announcement $7M and ANOSCA $30M.</li>
       <li>FAR Parts whose RFO section numbering was not checked are cited by Part only (Parts 4, 7, 9, 10, 16, 17, 19, 27, 32, 39, 42, 43, 45).</li>
     </ul>
     <h3>What changed from the April 2026 estimator</h3>
