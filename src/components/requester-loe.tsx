@@ -12,6 +12,7 @@ import { useMemo } from "react";
 import type { RefData } from "@/lib/intake";
 import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/estimator";
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
+import { plannedDaysForType } from "@/lib/successor";
 
 export function RequesterLoe({
   acq,
@@ -67,11 +68,13 @@ export function RequesterLoe({
     return out;
   }, [planRows]);
 
+  // Pre-award planned days only: summed in phase order through the last
+  // pre-award phase, the same figure the file page and the days-to-award line use.
   const totalPlannedDays = useMemo(
-    () => planRows.reduce((sum, r) => sum + (r.planned_days ?? 0), 0),
-    [planRows],
+    () => plannedDaysForType(acquisitionType(acq as unknown as AcqRow), plan),
+    [acq, plan],
   );
-  const hasPlan = planRows.length > 0 && totalPlannedDays > 0;
+  const hasPlan = totalPlannedDays > 0;
 
   return (
     <div>
@@ -87,7 +90,9 @@ export function RequesterLoe({
       <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
         <dt className="text-muted-foreground">Planned calendar days</dt>
         <dd data-numeric>
-          {hasPlan ? `${totalPlannedDays} days across the phase plan` : "Phase-plan days are not loaded for this file"}
+          {hasPlan
+            ? `${totalPlannedDays} planned calendar days to award`
+            : "Phase-plan days are not loaded for this file"}
         </dd>
         {awardRange ? (
           <>
