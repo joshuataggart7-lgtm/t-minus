@@ -43,7 +43,7 @@ export function blackoutFacts(acq: Record<string, unknown> | null | undefined): 
 export function blackoutDraft(acq: Record<string, unknown> | null | undefined): string {
   const f = blackoutFacts(acq);
   return [
-    `Blackout notice — draft reminder`,
+    `Blackout notice · draft reminder`,
     ``,
     `Acquisition: ${f.acquisitionId}`,
     `Title: ${f.title}`,

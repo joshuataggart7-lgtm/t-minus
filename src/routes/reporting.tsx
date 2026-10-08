@@ -105,11 +105,32 @@ function headerLabel(key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+
+function competitionLabel(value: string): string {
+  const key = value.trim().toLowerCase();
+  const known: Record<string, string> = {
+    competitive: "Competitive",
+    "sole source": "Sole source",
+    "sole-source": "Sole source",
+    "full and open": "Full and open",
+    "full and open competition": "Full and open competition",
+    "full and open after exclusion of sources": "Full and open after exclusion of sources",
+  };
+  if (known[key]) return known[key];
+  if (value === key && value) return value.charAt(0).toUpperCase() + value.slice(1);
+  return value;
+}
+
 function displayCell(row: Record<string, unknown>, column: string) {
     if (column === "acquisition_type") {
       const raw = row[column];
       if (raw === null || raw === undefined || raw === "") return null;
       return acquisitionTypeLabel(String(raw));
+    }
+    if (column === "competition") {
+      const raw = row[column];
+      if (raw === null || raw === undefined || raw === "") return null;
+      return competitionLabel(String(raw));
     }
     if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
       return row[column] === null || row[column] === undefined ? null : String(row[column]);
@@ -216,9 +237,7 @@ function displayCell(row: Record<string, unknown>, column: string) {
           <h2 className="mc-kpanel-title">Nightly extract</h2>
           <p className="mt-2 max-w-[70ch] break-words text-[15px] leading-[22px] text-muted-foreground">
             A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
-            Power BI reads a view directly at{" "}
-            <code className="break-all rounded bg-muted px-1 font-mono text-[13px]">/api/public/hooks/reporting-extract?view=v_report_acquisitions</code>, with the
-            extract token supplied by HQ.
+            Power BI reads the acquisitions report from that extract. HQ supplies the extract token.
           </p>
         </section>
       </div>

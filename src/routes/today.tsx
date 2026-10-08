@@ -17,6 +17,8 @@ import { missionReadinessClass, type MissionReadiness } from "@/components/missi
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { dayWord } from "@/lib/pluralize";
 import { phaseAlias } from "@/lib/phase-alias";
+import { changesSince, loadChangesSince, useLastLook } from "@/lib/since-last-look";
+import { SinceLastLookPanel } from "@/components/since-last-look-panel";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -99,6 +101,7 @@ function Section({
 
 function TodayPage() {
   const { authState, user, roles } = useRole();
+  const lastLook = useLastLook(user.name, null);
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
   const rowsRef = useRowKeysContainer<HTMLUListElement>();
 
@@ -236,6 +239,19 @@ function TodayPage() {
   }, [mine, checkQ.data]);
   const disagreeCount = (id: string) => disagreements.find((row) => row.card.m.acq.acquisition_id === id)?.findings.length ?? 0;
 
+  const lookIds = useMemo(() => live.map((card) => card.m.acq.acquisition_id), [live]);
+  const lookQ = useQuery({
+    queryKey: ["since-last-look", user.name, lastLook.since, lookIds.join("|")],
+    enabled: lastLook.ready && Boolean(lastLook.since) && lookIds.length > 0,
+    queryFn: () => loadChangesSince(lookIds, lastLook.since ?? ""),
+  });
+  const sinceChanges = useMemo(
+    () => (lastLook.ready && lastLook.since ? changesSince(lookQ.data ?? [], lastLook.since) : []),
+    [lookQ.data, lastLook.ready, lastLook.since],
+  );
+  const movedCount = (id: string) => sinceChanges.filter((row) => row.acquisitionId === id).length;
+
+
   const pastTarget = live.filter((c) => countdownView(c.m).mode === "overdue").length;
   const stepsOverdue = waitingOnMe.filter((c) => dueView(c.m.nextDecisionDate)?.overdue).length;
   const reviewsThisWeek = reviewsDue.filter((p) => {
@@ -267,6 +283,7 @@ function TodayPage() {
       ) : (
         <>
           {scopeNote ? <p className="mc-today-scope">{scopeNote}</p> : null}
+          <SinceLastLookPanel since={lastLook.since} ready={lastLook.ready} changes={sinceChanges} />
           {disagreements.length > 0 ? (
             <section className="mc-kpanel mb-6" aria-label="Files that disagree with themselves">
               <h2 className="mc-kpanel-title">This file disagrees with itself</h2>
@@ -336,7 +353,7 @@ function TodayPage() {
                             className={`mc-work-strip mc-today-strip ${missionReadinessClass(readiness, "is")} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
                           >
                             <div className="mc-today-strip-file">
-                              <span className="mc-today-strip-title"><FileLink card={c} />{disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip className="ml-2" label="Disagrees" tone="attention" /> : null}</span>
+                              <span className="mc-today-strip-title"><FileLink card={c} />{disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip className="ml-2" label="Disagrees" tone="attention" /> : null}{movedCount(c.m.acq.acquisition_id) > 0 ? <StatusChip className="ml-2" label="Moved" tone="neutral" /> : null}</span>
                               <span className="mc-today-meta" data-numeric>
                                 {c.m.acq.acquisition_id} · {phasePositionText(pos)}
                                 {pos.name ? `, ${pos.name}` : ""}
@@ -413,7 +430,7 @@ function TodayPage() {
                         cell: (c) => (
                           <span className="grid">
                             <FileLink card={c} />
-                            {disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip label="Disagrees" tone="attention" /> : null}
+                            {disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip label="Disagrees" tone="attention" /> : null}{movedCount(c.m.acq.acquisition_id) > 0 ? <StatusChip label="Moved" tone="neutral" /> : null}
                             <span className="mc-today-meta" data-numeric>{c.m.acq.acquisition_id}</span>
                           </span>
                         ),

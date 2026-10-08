@@ -4,6 +4,9 @@ import { loadTechnicalRecord } from "@/lib/eqr-summary";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { auditActionLabel, auditFieldLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 import { checkDocsFrom, fileSelfCheck } from "@/lib/file-self-check";
+import { plainConflictNote } from "@/lib/threshold-conflicts";
+import { changesSince, useLastLook, type LookRow } from "@/lib/since-last-look";
+import { SinceLastLookPanel } from "@/components/since-last-look-panel";
 import { FileSelfCheckPanel } from "@/components/file-self-check-panel";
 import { DECISION_LABEL, PHASE_EXIT_RULE, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
@@ -340,7 +343,7 @@ function ClauseModTasks({ acquisitionId }: { acquisitionId: string }) {
       <ul className="max-w-[80ch] space-y-2 border-t border-border pt-3">
         {tasks.map((t) => (
           <li key={t.task_id} className="text-[13px] leading-[18px]">
-            <span className="font-medium">{t.clause_number}</span> — {t.change_kind} ({t.change_source ?? "source not recorded"})
+            <span className="font-medium">{t.clause_number}</span> · {t.change_kind} ({t.change_source ?? "source not recorded"})
             <span className="block text-muted-foreground">
               {t.status === "complete" ? "Complete" : "Open"} · {t.owner_name ?? "Owner not recorded"} · due{" "}
               {t.deadline_date ?? "no date"}
@@ -369,6 +372,7 @@ function FilePage() {
   const { acquisitionId } = Route.useParams();
   const coldPathSample = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
   const { authState, user, readOnly } = useRole();
+  const lastLook = useLastLook(user.name, acquisitionId);
   const qc = useQueryClient();
   // Every audit row carries the real account name, never "Signed-in user".
   const [actorName, setActorName] = useState(user.name);
@@ -649,6 +653,11 @@ function FilePage() {
     if (auditListQ.error) console.error("Audit trail read failed", auditListQ.error);
   }, [auditListQ.error]);
   const auditRows = useMemo(() => auditListQ.data?.pages.flat() ?? [], [auditListQ.data]);
+
+  const sinceChanges = useMemo(
+    () => (lastLook.ready && lastLook.since ? changesSince(auditRows as LookRow[], lastLook.since) : []),
+    [auditRows, lastLook.ready, lastLook.since],
+  );
 
   const historyQ = useQuery({
     queryKey: ["award-history"],
@@ -2572,6 +2581,14 @@ function FilePage() {
         label: "Launch sequence",
         badge: phaseOpenCount > 0 ? { tone: "watch" as const, text: `${phaseOpenCount} open` } : null,
       },
+      ...(sinceChanges.length > 0
+        ? [{
+            id: "since-last-look",
+            label: "Since you last looked",
+            group: FILE_TAB_LABEL.overview,
+            badge: { tone: "neutral" as const, text: String(sinceChanges.length) },
+          }]
+        : []),
       ...(selfCheck.length > 0
         ? [{
             id: "file-self-check",
@@ -2614,7 +2631,7 @@ function FilePage() {
         badge: auditCount > 0 ? { tone: "neutral" as const, text: String(auditCount) } : null,
       },
     ];
-  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, pendingReviewCount, q.data?.auditCount, selfCheck.length]);
+  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, pendingReviewCount, q.data?.auditCount, selfCheck.length, sinceChanges.length]);
 
   const fileTabBadges: Partial<Record<FileTabKey, string>> = {
     ...(selfCheck.length > 0 ? { overview: String(selfCheck.length) } : {}),
@@ -4481,6 +4498,7 @@ function FilePage() {
           hidden={fileTab !== "overview"}
           className="mc-tab-panel"
         >
+      <SinceLastLookPanel since={lastLook.since} ready={lastLook.ready} changes={sinceChanges} />
       <FileSelfCheckPanel acquisitionId={acquisitionId} findings={selfCheck} />
       <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
       {!successor && effectiveState === "launched" ? (
@@ -5240,7 +5258,7 @@ function FilePage() {
                     {t.citation}
                     {t.note && /conflict/i.test(t.note) ? (
                       <StatusMark color="var(--attention)" className="mt-1 block">
-                        Conflict: {t.note}
+                        {plainConflictNote(t.note)}
                       </StatusMark>
                     ) : t.note ? (
                       <span className="mt-1 block">{t.note}</span>
@@ -5266,7 +5284,7 @@ function FilePage() {
               <th scope="col" className="p-2">Threshold</th><th scope="col" className="p-2">Value</th><th scope="col" className="p-2">This acquisition</th><th scope="col" className="p-2">Tier</th><th scope="col" className="p-2">Effective</th><th scope="col" className="p-2">Citation and note</th>
             </tr>
           </thead>
-          <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "—" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "—"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{t.note}</span> : null}</td></tr>; })}</tbody>
+          <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "Not recorded" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "Not recorded" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "Not recorded"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{plainConflictNote(t.note)}</span> : null}</td></tr>; })}</tbody>
         </table>
 </TableScrollRegion>
       </section>

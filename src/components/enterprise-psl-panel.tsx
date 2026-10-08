@@ -41,7 +41,7 @@ export function EnterprisePslPanel({ acq }: { acq: Record<string, unknown> | nul
       {reference.length > 0 ? (
         <details className="mt-3 border-t border-border pt-2">
           <summary className="cursor-pointer text-[13px] leading-[18px] text-muted-foreground">
-            Enterprise strategies that apply above the simplified acquisition threshold ({reference.length}) — read-only reference
+            Enterprise strategies that apply above the simplified acquisition threshold ({reference.length}) · read-only reference
           </summary>
           <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
             Reference only. T-Minus does not claim this file sits inside any of these strategies unless the
@@ -53,7 +53,7 @@ export function EnterprisePslPanel({ acq }: { acq: Record<string, unknown> | nul
                 <span className="text-foreground" data-numeric>
                   {r.psl}
                 </span>{" "}
-                {r.name ?? "Not recorded"} — coordination: {r.required_coordination ?? "Not recorded"}
+                {r.name ?? "Not recorded"} · coordination: {r.required_coordination ?? "Not recorded"}
               </li>
             ))}
           </ul>
