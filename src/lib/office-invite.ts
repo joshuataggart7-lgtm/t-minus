@@ -86,11 +86,11 @@ export function inviteText(input: {
   const title = (input.title ?? "").trim() || "Title not recorded";
   const phase = (input.phase ?? "").trim() || "Phase not recorded";
   return [
-    `Subject: Review request — ${input.acquisitionId} (${input.role})`,
+    `Subject: Review request · ${input.acquisitionId} (${input.role})`,
     "",
     `We are asking ${input.role} to review this acquisition file.`,
     "",
-    `Acquisition: ${input.acquisitionId} — ${title}`,
+    `Acquisition: ${input.acquisitionId} · ${title}`,
     `Current phase: ${phase}`,
     `Office asked to review: ${input.role}`,
     "",

@@ -7,6 +7,7 @@ import {
   conflictRows,
   formatThresholdValue,
   loadThresholdRows,
+  plainConflictNote,
 } from "@/lib/threshold-conflicts";
 import { AdvisoryTag } from "@/components/advisory-tag";
 
@@ -40,7 +41,7 @@ export function ThresholdConflictsPanel() {
                 {r.tier ? ` · ${r.tier}` : ""}
               </p>
               {r.note ? (
-                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{r.note}</p>
+                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{plainConflictNote(r.note)}</p>
               ) : null}
             </li>
           ))}

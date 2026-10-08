@@ -84,7 +84,7 @@ export function OfficeInvitePanel({
               <span className="font-medium">{p.reviewer_role ?? "Office not recorded"}</span>
               <span className="text-muted-foreground">
                 {" "}
-                — {inviteName(p)} · {voteLabel(p)} · due {p.due_date ?? "Not recorded"}
+                · {inviteName(p)} · {voteLabel(p)} · due {p.due_date ?? "Not recorded"}
                 {p.phase ? ` · ${p.phase}` : ""}
               </span>
             </li>

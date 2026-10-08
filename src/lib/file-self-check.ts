@@ -37,6 +37,11 @@ export type SelfCheckFinding = {
   route: "document" | "form" | null;
 };
 
+
+function lowerItem(label: string): string {
+  return /^[A-Z][a-z]/.test(label) ? label.charAt(0).toLowerCase() + label.slice(1) : label;
+}
+
 const POSTING_FIELDS = ["publication_date", "posted_date", "original_posted_date"];
 const GUIDANCE = /Drafted from the record, confirm|Draft, confirm|Change (?:this|it) to a best value tradeoff/i;
 
@@ -115,7 +120,7 @@ export function fileSelfCheck(input: {
       add({
         id: `phase:${phase.phase}:${doc.label}`,
         kind: "phase",
-        sentence: `${name} is marked complete, and ${doc.label} is still required.`,
+        sentence: `${name} is marked complete, and ${lowerItem(doc.label)} is still required.`,
         templateKey: null,
         route: null,
       });

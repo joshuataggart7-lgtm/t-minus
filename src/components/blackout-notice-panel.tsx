@@ -43,7 +43,7 @@ export function BlackoutNoticePanel({
         <div className="flex flex-wrap gap-x-2 border-t border-border py-2">
           <dt className="font-medium">Acquisition</dt>
           <dd className="text-muted-foreground">
-            {facts.acquisitionId} — {facts.title}
+            {facts.acquisitionId} · {facts.title}
           </dd>
         </div>
         <div className="flex flex-wrap gap-x-2 border-t border-border py-2">
