@@ -12,13 +12,13 @@ import { money, simulate, type SimChange } from "@/lib/simulate";
 export const Route = createFileRoute("/simulate")({
   head: () => ({
     meta: [
-      { title: "Policy impact simulator — T-Minus" },
+      { title: "Policy impact simulator · T-Minus" },
       {
         name: "description",
         content:
           "Change a threshold or a review trigger and see how many days move across the active files, without changing anything.",
       },
-      { property: "og:title", content: "Policy impact simulator — T-Minus" },
+      { property: "og:title", content: "Policy impact simulator · T-Minus" },
       {
         property: "og:description",
         content: "See what a threshold or review trigger change would do to the files in flight.",

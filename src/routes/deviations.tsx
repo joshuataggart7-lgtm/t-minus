@@ -19,12 +19,12 @@ import {
 export const Route = createFileRoute("/deviations")({
   head: () => ({
     meta: [
-      { title: "Deviations and waivers — T-Minus" },
+      { title: "Deviations and waivers · T-Minus" },
       {
         name: "description",
         content: "FAR and NFS deviation requests, each with its legal, policy and HCA review board and its own clock.",
       },
-      { property: "og:title", content: "Deviations and waivers — T-Minus" },
+      { property: "og:title", content: "Deviations and waivers · T-Minus" },
       {
         property: "og:description",
         content: "Deviation requests with their reviewers, their decision clock, and the decision on record.",
@@ -289,7 +289,7 @@ function DeviationsPage() {
                 <div>
                   <p className="font-medium text-foreground">No deviation requests yet.</p>
                   <p className="mt-1 max-w-[70ch] text-muted-foreground">
-                    When a file needs to depart from a FAR or NFS requirement, start a request here. It records the regulation, the proposed text and the justification, then routes to legal, policy and the HCA.
+                    Deviation requests will appear here.
                   </p>
                   {canWrite && !open ? (
                     <button type="button" className="mc-req-button mt-3" onClick={() => setOpen(true)}>

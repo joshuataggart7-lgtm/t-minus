@@ -74,12 +74,12 @@ function citationText(value: string | null | undefined) {
 export const Route = createFileRoute("/templates")({
   head: () => ({
     meta: [
-      { title: "Templates — T-Minus" },
+      { title: "Templates · T-Minus" },
       {
         name: "description",
         content: "Versioned forms with their governing citation and whether it binds or guides.",
       },
-      { property: "og:title", content: "Templates — T-Minus" },
+      { property: "og:title", content: "Templates · T-Minus" },
       {
         property: "og:description",
         content: "Versioned forms with their governing citation and whether it binds or guides.",

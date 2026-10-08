@@ -23,9 +23,9 @@ import { LockHint, useDemoLocked } from "@/components/demo-lock";
 export const Route = createFileRoute("/checks")({
   head: () => ({
     meta: [
-      { title: "Checks — T-Minus" },
+      { title: "Checks · T-Minus" },
       { name: "description", content: "SAM.gov entity, exclusion, and responsibility checks for acquisitions." },
-      { property: "og:title", content: "Checks — T-Minus" },
+      { property: "og:title", content: "Checks · T-Minus" },
       { property: "og:description", content: "SAM.gov entity, exclusion, and responsibility checks for acquisitions." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -363,9 +363,9 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
 export const Route = createFileRoute("/announcements")({
   head: () => ({
     meta: [
-      { title: "Announcements — T-Minus" },
+      { title: "Announcements · T-Minus" },
       { name: "description", content: "Notices posted by HQ, with the action each one asks for." },
-      { property: "og:title", content: "Announcements — T-Minus" },
+      { property: "og:title", content: "Announcements · T-Minus" },
       {
         property: "og:description",
         content: "Notices posted by HQ, with the action each one asks for.",

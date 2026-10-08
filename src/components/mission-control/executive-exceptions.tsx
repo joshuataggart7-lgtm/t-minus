@@ -226,9 +226,9 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
           ))}
           {fileGroups.length > LEADERSHIP_TOP ? (
             <div className="mc-exception-more">
-              <Button type="button" variant="outline" size="sm" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
-                {showAll ? `Show the top ${LEADERSHIP_TOP}` : `Show all ${fileGroups.length} files`}
-              </Button>
+              <button type="button" className="mc-req-button is-secondary" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
+                {showAll ? "Show fewer" : `Show all ${fileGroups.length} files`}
+              </button>
             </div>
           ) : null}
         </LeadershipExceptionList>
@@ -325,9 +325,9 @@ export function LeadershipDecisions({ metrics }: { metrics: AcqMetrics[] }) {
       )}
       {items.length > LEADERSHIP_TOP ? (
         <div className="mc-exception-more">
-          <Button type="button" variant="outline" size="sm" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
-            {showAll ? `Show the top ${LEADERSHIP_TOP}` : `Show all ${items.length}`}
-          </Button>
+          <button type="button" className="mc-req-button is-secondary" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
+            {showAll ? "Show fewer" : `Show all ${items.length}`}
+          </button>
         </div>
       ) : null}
     </section>

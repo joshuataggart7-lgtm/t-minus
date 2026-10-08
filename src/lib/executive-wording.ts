@@ -46,3 +46,28 @@ export function executiveBlocker(text: string | null | undefined): string {
   }
   return raw;
 }
+
+
+/**
+ * Lead-time reading. A finished phase's days are the span between the recorded
+ * start and the next recorded start, so they can be set beside the plan.
+ * A phase still open has only days so far, which is not "ahead of the plan".
+ */
+export function recordedPaceLabel(row: {
+  completeN: number;
+  completePlanned: number;
+  completeActual: number;
+  openN: number;
+  openActual: number;
+}): string {
+  const parts: string[] = [];
+  if (row.completeN > 0) {
+    const delta = row.completePlanned - row.completeActual;
+    const span = `${row.completeActual} days between the recorded dates, against ${row.completePlanned} planned days`;
+    parts.push(delta === 0 ? `${span}, on the plan.` : `${span}, ${Math.abs(delta)} days ${delta > 0 ? "shorter" : "longer"} than the plan.`);
+  }
+  if (row.openN > 0) {
+    parts.push(`${row.openActual} days recorded so far. Not compared with the plan until the phase finishes.`);
+  }
+  return parts.join(" ") || "Not compared";
+}

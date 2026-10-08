@@ -162,12 +162,12 @@ export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   },
   head: () => ({
     meta: [
-      { title: "Document — T-Minus" },
+      { title: "Document · T-Minus" },
       {
         name: "description",
         content: "A versioned template filled from the acquisition record, with its citation and tier.",
       },
-      { property: "og:title", content: "Document — T-Minus" },
+      { property: "og:title", content: "Document · T-Minus" },
       {
         property: "og:description",
         content: "A versioned template filled from the acquisition record, with its citation and tier.",

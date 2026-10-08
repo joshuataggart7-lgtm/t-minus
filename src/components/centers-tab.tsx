@@ -3,6 +3,31 @@ import { agingByCenter, agingItems, type CenterRow, type UserRow } from "@/lib/a
 import type { PollRow } from "@/lib/launch-sequence";
 import type { AcqMetrics } from "@/lib/metrics";
 import { TableScrollRegion } from "@/components/table-scroll-region";
+import { recordedPaceLabel } from "@/lib/executive-wording";
+
+// Same names the masthead uses. A stored name that is only the code is not a name.
+const CENTER_NAMES: Record<string, string> = {
+  AFRC: "Armstrong Flight Research Center",
+  ARC: "Ames Research Center",
+  GRC: "Glenn Research Center",
+  GSFC: "Goddard Space Flight Center",
+  JPL: "Jet Propulsion Laboratory",
+  JSC: "Johnson Space Center",
+  KSC: "Kennedy Space Center",
+  LARC: "Langley Research Center",
+  MSFC: "Marshall Space Flight Center",
+  NSSC: "NASA Shared Services Center",
+  SSC: "Stennis Space Center",
+};
+
+function centerLabel(code: string, stored: string | undefined): string {
+  const raw = (stored ?? "").trim();
+  const known = CENTER_NAMES[code.toUpperCase()];
+  const name = !raw || raw.toUpperCase() === code.toUpperCase() ? known ?? "" : raw;
+  if (!name) return code;
+  const hasCode = new RegExp(`\\b${code}\\b`, "i").test(name);
+  return hasCode ? name : `${name} (${code})`;
+}
 
 export type CenterDocumentRow = {
   acquisition_id: string | null;
@@ -54,22 +79,29 @@ export function CentersTab({
 
   const nameOf = useMemo(() => {
     const map = new Map(centers.map((c) => [c.center_code, c.center_name]));
-    return (code: string) => map.get(code) ?? code;
+    return (code: string) => centerLabel(code, map.get(code) ?? undefined);
   }, [centers]);
 
   /** Lead time by phase by Center, from the phases that recorded actual days. */
   const leadRows = useMemo(() => {
-    const map = new Map<string, Map<string, { planned: number; actual: number; n: number }>>();
+    type Pace = { completeN: number; completePlanned: number; completeActual: number; openN: number; openActual: number; n: number };
+    const map = new Map<string, Map<string, Pace>>();
     for (const m of metrics) {
       const center = centerOf(m);
-      const byPhase = map.get(center) ?? new Map();
-      for (const p of m.phases) {
-        if (p.actual_days === null) continue;
-        const row = byPhase.get(p.phase) ?? { planned: 0, actual: 0, n: 0 };
-        row.planned += p.planned_days;
-        row.actual += p.actual_days;
+      const byPhase = map.get(center) ?? new Map<string, Pace>();
+      for (const phase of m.phases) {
+        if (phase.actual_days === null) continue;
+        const row = byPhase.get(phase.phase) ?? { completeN: 0, completePlanned: 0, completeActual: 0, openN: 0, openActual: 0, n: 0 };
         row.n += 1;
-        byPhase.set(p.phase, row);
+        if (phase.status === "complete") {
+          row.completeN += 1;
+          row.completePlanned += phase.planned_days;
+          row.completeActual += phase.actual_days;
+        } else {
+          row.openN += 1;
+          row.openActual += phase.actual_days;
+        }
+        byPhase.set(phase.phase, row);
       }
       map.set(center, byPhase);
     }
@@ -145,7 +177,7 @@ export function CentersTab({
             <th scope="col" className="p-2">Center</th>
             <th scope="col" className="p-2">Files</th>
             <th scope="col" className="p-2">Phases measured</th>
-            <th scope="col" className="p-2">Against plan</th>
+            <th scope="col" className="p-2">What the days measure</th>
             <th scope="col" className="p-2">Files on hold</th>
             <th scope="col" className="p-2">Documents on the current revision</th>
             <th scope="col" className="p-2">Aging items</th>
@@ -155,25 +187,30 @@ export function CentersTab({
           {centerCodes.map((code) => {
             const files = metrics.filter((m) => centerOf(m) === code);
             const phases = [...(leadRows.get(code)?.values() ?? [])];
-            const planned = phases.reduce((n, r) => n + r.planned, 0);
-            const actual = phases.reduce((n, r) => n + r.actual, 0);
-            const delta = planned - actual;
+            const pace = phases.reduce(
+              (n, r) => ({
+                completeN: n.completeN + r.completeN,
+                completePlanned: n.completePlanned + r.completePlanned,
+                completeActual: n.completeActual + r.completeActual,
+                openN: n.openN + r.openN,
+                openActual: n.openActual + r.openActual,
+              }),
+              { completeN: 0, completePlanned: 0, completeActual: 0, openN: 0, openActual: 0 },
+            );
             const holds = [...(holdRows.get(code)?.values() ?? [])].reduce((n, v) => n + v, 0);
             const cur = currencyRows.get(code);
             const age = aging.get(code);
             return (
               <tr key={code} className="border-b border-border last:border-0">
                 <th scope="row" className="p-2 text-left font-normal">
-                  {code} — {nameOf(code)}
+                  {nameOf(code)}
                 </th>
                 <td className="p-2" data-numeric>{files.length}</td>
                 <td className="p-2" data-numeric>{phases.reduce((n, r) => n + r.n, 0)}</td>
                 <td className="p-2" data-numeric>
                   {phases.length === 0
                     ? "No recorded time"
-                    : delta === 0
-                      ? "On plan"
-                      : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}
+                    : recordedPaceLabel(pace)}
                 </td>
                 <td className="p-2" data-numeric>{holds}</td>
                 <td className="p-2" data-numeric>
@@ -198,7 +235,7 @@ export function CentersTab({
           .map((code) => (
             <div key={code} className="mt-6">
               <h4 className="text-[15px] leading-[22px] font-medium">
-                {code} — {nameOf(code)}
+                {nameOf(code)}
               </h4>
               <TableScrollRegion baseClassName="overflow-x-auto" label={`Lead time by phase at ${nameOf(code)}`}>
               <table className="mt-2 w-full border border-border bg-background text-[13px] leading-[18px]">
@@ -207,26 +244,17 @@ export function CentersTab({
                   <tr className="border-b border-border text-left">
                     <th scope="col" className="p-2">Phase</th>
                     <th scope="col" className="p-2">Files measured</th>
-                    <th scope="col" className="p-2">Planned days</th>
-                    <th scope="col" className="p-2">Actual days</th>
-                    <th scope="col" className="p-2">Against plan</th>
+                    <th scope="col" className="p-2" colSpan={3}>What the days measure</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {[...(leadRows.get(code) ?? new Map()).entries()].map(([phase, r]) => {
-                    const d = r.planned - r.actual;
-                    return (
+                  {[...(leadRows.get(code) ?? new Map()).entries()].map(([phase, r]) => (
                       <tr key={phase} className="border-b border-border last:border-0">
                         <td className="p-2">{phase}</td>
                         <td className="p-2" data-numeric>{r.n}</td>
-                        <td className="p-2" data-numeric>{r.planned}</td>
-                        <td className="p-2" data-numeric>{r.actual}</td>
-                        <td className="p-2" data-numeric>
-                          {d === 0 ? "On plan" : `${Math.abs(d)} days ${d > 0 ? "ahead of" : "behind"} plan`}
-                        </td>
+                        <td className="p-2" colSpan={3}>{recordedPaceLabel(r)}</td>
                       </tr>
-                    );
-                  })}
+                  ))}
                 </tbody>
               </table>
               </TableScrollRegion>
@@ -241,7 +269,7 @@ export function CentersTab({
         [...holdRows.entries()].map(([code, byReason]) => (
           <div key={code} className="mt-6 max-w-[70ch]">
             <h4 className="text-[15px] leading-[22px] font-medium">
-              {code} — {nameOf(code)}
+              {nameOf(code)}
             </h4>
             <ul className="mt-2 space-y-1 border-t border-border pt-2">
               {[...byReason.entries()]
@@ -268,7 +296,7 @@ export function CentersTab({
           {[...currencyRows.entries()].map(([code, r]) => (
             <li key={code} className="text-[13px] leading-[18px]">
               <span className="font-medium">
-                {code} — {nameOf(code)}
+                {nameOf(code)}
               </span>
               <span data-numeric>
                 {" "}

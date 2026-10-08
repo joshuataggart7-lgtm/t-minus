@@ -68,13 +68,13 @@ const table = (name: string): LooseTable =>
 export const Route = createFileRoute("/reg-intake")({
   head: () => ({
     meta: [
-      { title: "Regulatory data intake — T-Minus" },
+      { title: "Regulatory data intake · T-Minus" },
       {
         name: "description",
         content:
           "HQ loads a new PCD list, clause matrix, template list, or thresholds file, reviews the difference, and applies it.",
       },
-      { property: "og:title", content: "Regulatory data intake — T-Minus" },
+      { property: "og:title", content: "Regulatory data intake · T-Minus" },
       {
         property: "og:description",
         content: "Upload regulatory data, see what changes, set the effective date, and apply it with a notice.",

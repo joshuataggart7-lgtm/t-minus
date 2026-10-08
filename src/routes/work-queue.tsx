@@ -37,12 +37,12 @@ import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 export const Route = createFileRoute("/work-queue")({
   head: () => ({
     meta: [
-      { title: "Work Queue — T-Minus" },
+      { title: "Work Queue · T-Minus" },
       {
         name: "description",
         content: "Files you own, what each one is waiting on, and when the next decision is due.",
       },
-      { property: "og:title", content: "Work Queue — T-Minus" },
+      { property: "og:title", content: "Work Queue · T-Minus" },
       {
         property: "og:description",
         content: "Files you own, what each one is waiting on, and when the next decision is due.",

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { DataTable, McPageHeader, StatusChip } from "@/components/ui-mc";
+import { executiveBlocker } from "@/lib/executive-wording";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -20,12 +21,12 @@ import { LockHint } from "@/components/demo-lock";
 export const Route = createFileRoute("/escalations")({
   head: () => ({
     meta: [
-      { title: "Aging holds and escalation — T-Minus" },
+      { title: "Aging holds and escalation · T-Minus" },
       {
         name: "description",
         content: "Holds and pending review requests past the Center's aging threshold, gathered for each supervisor.",
       },
-      { property: "og:title", content: "Aging holds and escalation — T-Minus" },
+      { property: "og:title", content: "Aging holds and escalation · T-Minus" },
       {
         property: "og:description",
         content: "Every aging hold and pending review request, its age in days, its owner, and the supervisor it escalates to.",
@@ -163,7 +164,7 @@ function EscalationsPage() {
                   rowKey={(item, i) => `${item.kind}-${item.acquisitionId}-${i}`} rows={sortedItems} columns={[
                     { key: "id", header: "Acquisition", rowHeader: true, nowrap: true, cell: (item) => <Link to="/files/$acquisitionId" params={{ acquisitionId: item.acquisitionId }}>{item.acquisitionId}</Link> },
                     { key: "center", header: "Center", cell: (item) => item.centerCode },
-                    { key: "subject", header: "Waiting on", cell: (item) => <>{item.subject}{item.alsoRecorded ? <span className="mt-1 block text-[13px] text-muted-foreground">{item.alsoRecorded}</span> : null}</> },
+                    { key: "subject", header: "Waiting on", cell: (item) => <>{executiveBlocker(item.subject)}{item.alsoRecorded ? <span className="mt-1 block text-[13px] text-muted-foreground">{item.alsoRecorded}</span> : null}</> },
                     { key: "owner", header: "Owner", cell: (item) => item.owner },
                     { key: "age", header: "Age", numeric: true, nowrap: true, cell: (item) => <span data-numeric>{item.ageDays} days</span> },
                     { key: "after", header: "Aging after", numeric: true, nowrap: true, cell: (item) => <span data-numeric>{item.thresholdDays} days</span> },
@@ -190,7 +191,7 @@ function EscalationsPage() {
                   <ul className="mt-2 space-y-1 text-[15px] leading-[22px]">
                     {group.items.map((item, i) => (
                       <li key={`${item.acquisitionId}-${i}`} data-numeric>
-                        {item.acquisitionId}: {item.subject}, {item.ageDays} days with {item.owner}
+                        {item.acquisitionId}: {executiveBlocker(item.subject)}, {item.ageDays} days with {item.owner}
                         {item.phase ? ` at ${item.phase}` : ""}
                         {item.alsoRecorded ? <span className="block text-muted-foreground">{item.alsoRecorded}</span> : null}
                       </li>

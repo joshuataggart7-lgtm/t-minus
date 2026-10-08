@@ -66,13 +66,13 @@ const COLUMNS: DataColumn<HardwareRow>[] = [
 export const Route = createFileRoute("/directives")({
   head: () => ({
     meta: [
-      { title: "Directive compliance — T-Minus" },
+      { title: "Directive compliance · T-Minus" },
       {
         name: "description",
         content:
           "Hardware buys, their Right to Repair requirements statement, and the restrictive-clause review status.",
       },
-      { property: "og:title", content: "Directive compliance — T-Minus" },
+      { property: "og:title", content: "Directive compliance · T-Minus" },
       {
         property: "og:description",
         content: "Every hardware file, its Right to Repair statement, and its restrictive-clause review status.",

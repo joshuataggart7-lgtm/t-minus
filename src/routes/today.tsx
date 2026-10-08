@@ -19,12 +19,12 @@ import { phaseAlias } from "@/lib/phase-alias";
 export const Route = createFileRoute("/today")({
   head: () => ({
     meta: [
-      { title: "Today — T-Minus" },
+      { title: "Today · T-Minus" },
       {
         name: "description",
         content: "What is waiting on you, what is waiting on someone else, reviews due, and the three things to do next.",
       },
-      { property: "og:title", content: "Today — T-Minus" },
+      { property: "og:title", content: "Today · T-Minus" },
       {
         property: "og:description",
         content: "What is waiting on you, reviews due, and the three things to do next.",

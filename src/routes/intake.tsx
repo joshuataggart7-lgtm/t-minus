@@ -51,13 +51,13 @@ import { isCommercialSimplifiedMethod, methodDisplayLabel, methodKey } from "@/l
 export const Route = createFileRoute("/intake")({
   head: () => ({
     meta: [
-      { title: "Intake: NF 1707 — T-Minus" },
+      { title: "Intake: NF 1707 · T-Minus" },
       {
         name: "description",
         content:
           "Enter an acquisition once on the NF 1707 intake, clear the red flags, and start the clock.",
       },
-      { property: "og:title", content: "Intake: NF 1707 — T-Minus" },
+      { property: "og:title", content: "Intake: NF 1707 · T-Minus" },
       {
         property: "og:description",
         content: "Enter an acquisition once, clear the red flags, and start the clock.",

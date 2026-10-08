@@ -74,9 +74,9 @@ async function countRows() {
 export const Route = createFileRoute("/seed-status")({
   head: () => ({
     meta: [
-      { title: "Seed status — T-Minus" },
+      { title: "Seed status · T-Minus" },
       { name: "description", content: "Row counts for every seeded table in the T-Minus prototype." },
-      { property: "og:title", content: "Seed status — T-Minus" },
+      { property: "og:title", content: "Seed status · T-Minus" },
       {
         property: "og:description",
         content: "Row counts for every seeded table in the T-Minus prototype.",
