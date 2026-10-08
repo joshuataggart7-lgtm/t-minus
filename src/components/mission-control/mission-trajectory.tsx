@@ -214,7 +214,9 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               onMouseLeave={() => setTipStage(null)}
             >
               <span className="mc-gate-rail" aria-hidden="true"><span className="mc-gate-node" /></span>
-              <span className="mc-gate-label">{stage.label}</span>
+              <span className="mc-gate-label">{stage.label.split("/").map((part, i, all) => (
+                <span key={`${part}-${i}`}>{part}{i < all.length - 1 ? <><span aria-hidden="true">/</span><wbr /></> : null}</span>
+              ))}</span>
               {gate.status !== "not on path" && !future ? (
                 <span className={cn("mc-gate-readiness", `is-${gate.readiness.toLowerCase()}`)}>{gate.readiness}</span>
               ) : (

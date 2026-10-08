@@ -2980,7 +2980,7 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-glance { min-width: 0; background: var(--card); padding: 1.125rem 1.5rem 1.25rem; }
 .mc-glance-clock { padding: 1rem; }
 .mc-glance-label { color: var(--muted-foreground); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-.mc-glance-value { margin-top: 0.375rem; font-size: 18px; line-height: 24px; font-weight: 600; overflow-wrap: break-word; hyphens: manual; }
+.mc-glance-value { margin-top: 0.375rem; font-size: 18px; line-height: 24px; font-weight: 600; overflow-wrap: normal; hyphens: manual; }
 .mc-glance-value.is-text { font-size: 15px; line-height: 22px; font-weight: 560; }
 .mc-glance-sub { margin-top: 0.375rem; color: var(--muted-foreground); font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
 .mc-glance-state { margin-top: 0.5rem; font-size: 14px; line-height: 18px; font-weight: 600; }
@@ -3384,7 +3384,7 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-featured-gate:last-child .mc-gate-rail::before { display: none; }
 .mc-featured-flight .mc-gate-node { background: var(--background); border-color: var(--mc-meta-ink); }
 .mc-featured-flight .mc-featured-gate.is-complete .mc-gate-node { background: var(--primary); border-color: var(--primary); }
-.mc-featured-flight .mc-featured-gate { gap: 0.2rem; overflow: hidden; }
+.mc-featured-flight .mc-featured-gate { gap: 0.2rem; overflow: visible; }
 .mc-featured-flight .mc-gate-label { width: 100%; max-width: 100%; margin-top: 0.3rem; color: inherit; font-size: 10px; line-height: 1.25; letter-spacing: 0; text-align: center; overflow-wrap: break-word; }
 .mc-featured-flight .mc-gate-readiness { width: 100%; margin-top: 0.2rem; text-align: center; }
 /* Outline buttons on the navy band inherited white text onto a white fill. */
