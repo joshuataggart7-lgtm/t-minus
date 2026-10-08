@@ -1003,6 +1003,20 @@ function IntakePage() {
               {CONTRACT_TYPES.filter((c) => c !== facts.contract_type).map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
+          {/^(T&M|TM|LH|LABOR)/i.test(facts.contract_type.trim()) || /labor[- ]hour|time[- ]and[- ]materials?/i.test(facts.contract_type) ? (
+            // RFO FAR 12.104(b)(1)(ii) (commercial) and RFO FAR 16.601-3(c): a
+            // T&M or labor-hour contract or order includes a ceiling price
+            // that the contractor exceeds at its own risk.
+            <Field label="Ceiling price (T&M or labor-hour)" htmlFor="tm-ceiling">
+              <input
+                id="tm-ceiling"
+                inputMode="decimal"
+                className={inputClass}
+                value={scenario.tm_ceiling_price ?? ""}
+                onChange={(e) => setScen("tm_ceiling_price", e.target.value)}
+              />
+            </Field>
+          ) : null}
           <Field label="Acquisition method" htmlFor="method" error={err("acquisition_method")}>
             <select
               id="method"

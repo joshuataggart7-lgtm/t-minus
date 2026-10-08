@@ -42,6 +42,28 @@ export function isFar13Method(method: unknown): boolean {
   return /\b13\b/.test(m);
 }
 
+/**
+ * A sole-source buy at or below the SAT that needs no Part 6 justification:
+ * Part 6 does not apply to simplified acquisition procedures (RFO FAR
+ * 6.001(a)); a noncommercial one rests on a determination and findings that
+ * only one source is reasonably available (RFO FAR 13.101(b)), and a
+ * commercial one on documenting that decision and its basis (RFO FAR
+ * 12.102(a)). Pass whether the buy is commercial.
+ */
+export function simplifiedSoleSourceKind(
+  row: Record<string, unknown> | null | undefined,
+  commercial: boolean,
+): "noncommercial" | "commercial" | null {
+  if (!row) return null;
+  if (!/sole/i.test(String(row["competition"] ?? ""))) return null;
+  if (isRatification(row) || isLetterContract(row)) return null;
+  const value = Number(row["estimated_value"] ?? NaN);
+  if (!Number.isFinite(value) || value <= 0 || value > SAT_DEFAULT) return null;
+  if (commercial) return "commercial";
+  if (isFar13Method(row["acquisition_method"])) return "noncommercial";
+  return null;
+}
+
 /** A cost-reimbursement contract type (CPFF, CPIF, CPAF, cost, cost-sharing). */
 export function isCostType(contractType: unknown): boolean {
   const t = String(contractType ?? "").trim();
