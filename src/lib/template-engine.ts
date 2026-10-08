@@ -2104,7 +2104,7 @@ const waiverDeviation: TemplateDef = {
   name: "Waiver or Deviation Request",
   tab: "N/A",
   badge: {
-    citation: "RFO FAR 1.402; NFS 1801.404",
+    citation: "RFO FAR 1.303; RFO FAR 1.304; NFS CG 1801.31",
     tier: "binding",
     revision: "T-Minus form; issued on NF 1858",
     note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
@@ -2115,7 +2115,7 @@ const waiverDeviation: TemplateDef = {
     {
       id: "request",
       title: "Request",
-      citation: "RFO FAR 1.402",
+      citation: "RFO FAR 1.303; RFO FAR 1.304",
       tier: "binding",
       fields: [
         {
@@ -2132,7 +2132,7 @@ const waiverDeviation: TemplateDef = {
     {
       id: "rationale",
       title: "Rationale",
-      citation: "NFS 1801.404",
+      citation: "RFO FAR 1.303",
       tier: "binding",
       fields: [
         { key: "rationale", label: "Why the relief is needed and the effect on the mission", kind: "textarea", required: true },
@@ -2143,12 +2143,12 @@ const waiverDeviation: TemplateDef = {
     {
       id: "approval",
       title: "Approval requested",
-      citation: "NFS 1801.404",
+      citation: "NFS CG 1801.31(b)",
       tier: "binding",
       fields: [{ key: "approval_level", label: "Official whose approval is requested", kind: "text", required: true }],
     },
   ],
-  signature: coSignature("RFO FAR 1.402"),
+  signature: coSignature("RFO FAR 1.303"),
 };
 
 const coordinationMemo: TemplateDef = {
