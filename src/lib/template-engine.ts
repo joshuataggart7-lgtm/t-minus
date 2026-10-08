@@ -16,6 +16,7 @@ import { HQ6_TEMPLATES } from "@/lib/templates-hq6";
 import { HQ6B_TEMPLATES } from "@/lib/templates-hq6b";
 import { HQ6C_TEMPLATES } from "@/lib/templates-hq6c";
 import { simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
+import { withArticle } from "@/lib/article";
 
 export type FieldKind = "text" | "textarea" | "date" | "money" | "select" | "readonly";
 
@@ -2423,7 +2424,7 @@ const samNotice: TemplateDef = {
           label: "T-Minus default response period",
           kind: "readonly",
           showIf: isCombined,
-          help: "The 15 days are the T-Minus default. The rule for a combined synopsis/solicitation is a reasonable opportunity to respond (RFO FAR 12.202(b)(2)).",
+          help: "The 15 days are a T-Minus planning default, not a regulatory minimum.",
         },
         {
           key: "posted_date",
@@ -2766,6 +2767,14 @@ const evaluationOfQuotations: TemplateDef = {
       tier: "binding",
       fields: [
         { key: "evaluator_name", label: "Technical evaluator", kind: "text" },
+        {
+          key: "evaluator_statements",
+          label: "Evaluator nondisclosure and conflict of interest statements",
+          kind: "select",
+          options: ["", "Signed before quotations were released to the evaluator", "Not yet signed"],
+          help: "Center practice: each evaluator signs before seeing quotations. Quotation information goes only to people the contracting officer authorizes (RFO FAR 3.104-4(a)).",
+        },
+        { key: "evaluator_statements_date", label: "Statements signed on", kind: "date" },
         { key: "co_name", label: "Contracting officer", kind: "text", bind: "co_name" },
       ],
     },
@@ -3041,7 +3050,7 @@ export function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
     { lines: ["JUSTIFICATION FOR OTHER THAN FULL AND OPEN COMPETITION"], center: true, bold: true },
     { lines: [`Center: ${value("center_code") || blankLine}`, `Solicitation/contract number: ${value("solicitation_name") || blankLine}`, `Program: ${value("program_name") || blankLine}`] },
     item(1, "Identification of the agency and the contracting activity", `The procuring agency is the National Aeronautics and Space Administration, and the contracting activity is ${value("buying_location") || blankLine}.`),
-    item(2, "Nature and description of the action being approved", `This action is a ${action} to ${contractor} for ${actionDescription}.`),
+    item(2, "Nature and description of the action being approved", `This action is ${withArticle(action)} to ${contractor} for ${actionDescription}.`),
     item(3, "Description of the supplies or services required, including estimated value", `${value("requirement_description") || actionDescription} The estimated value is ${value("estimated_value") ? money(Number(value("estimated_value").replace(/[$,]/g, ""))) : blankLine}.${value("pop_start") || value("pop_end") ? ` The period of performance is ${value("pop_start") || blankLine} to ${value("pop_end") || blankLine}.` : ""}`),
     item(4, "Statutory authority permitting other than full and open competition", `This action is authorized by ${value("authority") || blankLine}.`),
     item(5, "Demonstration that the authority cited applies", authorityRationale || blankLine),

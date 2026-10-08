@@ -2,7 +2,7 @@ import { navFor, type PersonaRole } from "@/lib/roles";
 
 /** Sidebar groups. Items not listed in a group are never rendered in the sidebar. */
 export const NAV_GROUPS = [
-  { label: "Work", items: ["Executive Overview", "Today", "Reviewer inbox", "Requester portal", "Work Queue", "Files", "Intake", "Estimate"] },
+  { label: "Work", items: ["Executive Overview", "Today", "Reviewer inbox", "Evaluation workspace", "Requester portal", "Work Queue", "Files", "Intake", "Estimate"] },
   { label: "Documents", items: ["Templates", "Checks", "Deviations"] },
   { label: "Oversight", items: ["Audit Log", "Watch", "Directive compliance", "Clause changes", "Escalations", "Leadership digest", "Reporting views", "Simulate", "Regulatory data intake", "PGPD queue"] },
   { label: "Setup", items: ["Center configuration", "Announcements", "Seed status"] },
@@ -27,6 +27,7 @@ export const PRIMARY_NAV: Partial<Record<PersonaRole, readonly string[]>> = {
   ],
   requester: ["Requester portal", "Intake", "Files", "Announcements"],
   reviewer: ["Reviewer inbox", "Files", "Audit Log", "Escalations", "Announcements"],
+  evaluator: ["Evaluation workspace", "Announcements"],
   hq: [
     "Executive Overview", "Files", "Escalations", "Leadership digest", "Reporting views",
     "Directive compliance", "Deviations", "Clause changes", "Watch", "Audit Log", "Simulate",

@@ -21,6 +21,7 @@ import { Route as DigestRouteImport } from './routes/digest'
 import { Route as DirectivesRouteImport } from './routes/directives'
 import { Route as EscalationsRouteImport } from './routes/escalations'
 import { Route as EstimateRouteImport } from './routes/estimate'
+import { Route as EvaluatorRouteImport } from './routes/evaluator'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as OverviewRouteImport } from './routes/overview'
@@ -106,6 +107,11 @@ const EscalationsRoute = EscalationsRouteImport.update({
 const EstimateRoute = EstimateRouteImport.update({
   id: '/estimate',
   path: '/estimate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluatorRoute = EvaluatorRouteImport.update({
+  id: '/evaluator',
+  path: '/evaluator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FilesRoute = FilesRouteImport.update({
@@ -258,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
+  '/evaluator': typeof EvaluatorRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/overview': typeof OverviewRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
+  '/evaluator': typeof EvaluatorRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/overview': typeof OverviewRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/directives': typeof DirectivesRoute
   '/escalations': typeof EscalationsRoute
   '/estimate': typeof EstimateRoute
+  '/evaluator': typeof EvaluatorRoute
   '/files': typeof FilesRoute
   '/intake': typeof IntakeRoute
   '/overview': typeof OverviewRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/directives'
     | '/escalations'
     | '/estimate'
+    | '/evaluator'
     | '/files'
     | '/intake'
     | '/overview'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/directives'
     | '/escalations'
     | '/estimate'
+    | '/evaluator'
     | '/files'
     | '/intake'
     | '/overview'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/directives'
     | '/escalations'
     | '/estimate'
+    | '/evaluator'
     | '/files'
     | '/intake'
     | '/overview'
@@ -502,6 +514,7 @@ export interface RootRouteChildren {
   DirectivesRoute: typeof DirectivesRoute
   EscalationsRoute: typeof EscalationsRoute
   EstimateRoute: typeof EstimateRoute
+  EvaluatorRoute: typeof EvaluatorRoute
   FilesRoute: typeof FilesRoute
   IntakeRoute: typeof IntakeRoute
   OverviewRoute: typeof OverviewRoute
@@ -614,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/estimate'
       fullPath: '/estimate'
       preLoaderRoute: typeof EstimateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluator': {
+      id: '/evaluator'
+      path: '/evaluator'
+      fullPath: '/evaluator'
+      preLoaderRoute: typeof EvaluatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/files': {
@@ -814,6 +834,7 @@ const rootRouteChildren: RootRouteChildren = {
   DirectivesRoute: DirectivesRoute,
   EscalationsRoute: EscalationsRoute,
   EstimateRoute: EstimateRoute,
+  EvaluatorRoute: EvaluatorRoute,
   FilesRoute: FilesRoute,
   IntakeRoute: IntakeRoute,
   OverviewRoute: OverviewRoute,

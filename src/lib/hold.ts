@@ -88,6 +88,39 @@ export function resolveHold(
 }
 
 /**
+ * The owner line as people read it. A reviewer owner is stored as
+ * "Name (Role (detail))"; it shows as "Name, Role: detail" so the brackets do
+ * not stack. A plain name, or a name with one note like "(fictional)", is left
+ * as it is. Display only; the stored owner is unchanged.
+ */
+export function holdOwnerDisplay(owner: string | null | undefined): string {
+  const text = String(owner ?? "").trim();
+  if (!text.endsWith(")")) return text;
+  // Find the opening bracket that matches the final closing one.
+  let depth = 0;
+  let open = -1;
+  for (let i = text.length - 1; i >= 0; i--) {
+    const ch = text[i];
+    if (ch === ")") depth++;
+    else if (ch === "(") {
+      depth--;
+      if (depth === 0) {
+        open = i;
+        break;
+      }
+    }
+  }
+  if (open <= 0) return text;
+  const name = text.slice(0, open).trim();
+  const role = text.slice(open + 1, -1).trim();
+  const nested = /\(/.test(role);
+  if (!nested && !name.endsWith(")")) return text;
+  const inner = /^(.*?)\s*\((.+)\)$/.exec(role);
+  const roleText = inner ? `${inner[1]}: ${inner[2]}` : role;
+  return `${name}, ${roleText}`;
+}
+
+/**
  * A typed hold a person recorded that differs from the cause shown. The shown
  * cause keeps precedence (resolveHold puts the derived cause first); this is
  * only the second line, "Also recorded: ...".
@@ -96,7 +129,7 @@ export function alsoRecordedHold(acq: AcqRow, shown: Hold): string | null {
   const reason = String(acq.hold_reason ?? "").trim();
   if (!reason || isDerivedHoldReason(reason) || !shown || shown.reason.trim() === reason) return null;
   const owner = String(acq.hold_owner ?? "").trim();
-  return `Also recorded: ${reason}${owner ? ` · ${owner}` : ""}`;
+  return `Also recorded: ${reason}${owner ? ` · ${holdOwnerDisplay(owner)}` : ""}`;
 }
 
 /**

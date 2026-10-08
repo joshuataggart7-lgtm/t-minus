@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { SEEDED_USERS } from "@/lib/roles";
+import { EVALUATOR_PATHS, isEvaluatorOnly, SEEDED_USERS } from "@/lib/roles";
 import { AccountMenu, DemoBadge } from "@/components/account-menu";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
@@ -92,6 +92,12 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
   const navGroups = sidebarNavGroups(roles, presenter, readOnly);
+  // An evaluator sees the evaluation workspace and announcements only; any
+  // other page shows a short notice instead of its content. No search, no
+  // assistant. Display boundary for the demo persona; permissions unchanged.
+  const evaluatorOnly = isEvaluatorOnly(roles);
+  const evaluatorBlocked =
+    evaluatorOnly && pathname !== "/about" && !(EVALUATOR_PATHS as readonly string[]).includes(pathname);
   const activeGroupLabel = navGroups.find((group) =>
     group.items.some((item) => pathname === item.to || (item.to === "/overview" && pathname === "/")),
   )?.label;
@@ -265,7 +271,7 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
             <span className="hidden truncate type-meta text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
           </a>
         </div>
-        <div className={cn("app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1", mobileSearchOpen ? "" : "max-sm:hidden")}><GlobalSearch /></div>
+        <div className={cn("app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1", mobileSearchOpen ? "" : "max-sm:hidden")}>{evaluatorOnly ? null : <GlobalSearch />}</div>
         <div className="col-span-2 col-start-1 row-start-3 flex min-w-0 flex-wrap items-center justify-start gap-x-2 gap-y-1 max-sm:col-span-1 max-sm:col-start-2 max-sm:row-start-1 max-sm:flex-nowrap max-sm:justify-end xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:flex-nowrap xl:justify-end min-[1440px]:gap-x-3">
           <button
             type="button"
@@ -277,7 +283,7 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
             <Search className="size-[18px]" aria-hidden="true" />
           </button>
           {presenter ? null : <AnnouncementBanner />}
-          <div className="contents max-sm:hidden"><Nova acquisitionId={openAcquisitionId} /></div>
+          {evaluatorOnly ? null : <div className="contents max-sm:hidden"><Nova acquisitionId={openAcquisitionId} /></div>}
           {isAnonymous ? <DemoBadge /> : null}
           <AccountMenu />
         </div>
@@ -419,7 +425,7 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
               </p>
             ) : null}
             <PresenterScreensBeat />
-            {children}
+            {evaluatorBlocked ? <EvaluatorBoundary /> : children}
           </main>
         </div>
 
@@ -589,5 +595,25 @@ export function Placeholder({ note }: { note: string }) {
     <div className="surface-raised rounded-lg border border-border p-6">
       <p className="text-muted-foreground">{note}</p>
     </div>
+  );
+}
+
+/** What an evaluator sees on any page outside the evaluation workspace. */
+function EvaluatorBoundary() {
+  return (
+    <section className="mc-eval-boundary" aria-labelledby="eval-boundary-title">
+      <h1 id="eval-boundary-title" className="mc-page-header-title">
+        This page is outside the evaluation workspace
+      </h1>
+      <p className="max-w-[72ch] text-[15px] leading-[22px]">
+        An evaluator sees the quotations assigned for evaluation, the evaluation factors, the worksheet and the status of
+        the evaluator statements. Prices, other files and source selection records stay with the contracting officer.
+      </p>
+      <p className="mt-4">
+        <Link to="/evaluator" className="text-primary underline underline-offset-4">
+          Go to the evaluation workspace
+        </Link>
+      </p>
+    </section>
   );
 }

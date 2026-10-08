@@ -74,7 +74,11 @@ const toInput = (d: Draft): ClinInput => ({
 });
 
 const field =
-  "w-full border border-border bg-background px-2 py-1 text-[13px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "w-full rounded-md border border-border bg-background px-2 py-1 text-[14px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+/** The amount a row shows, as a number, or null when nothing is recorded. Display only. */
+const shownAmount = (r: ClinRow): number | null =>
+  r.extended_price !== null ? r.extended_price : r.quantity !== null && r.unit_price !== null ? r.quantity * r.unit_price : null;
 
 export function ClinSchedulePanel({
   acquisitionId,
@@ -162,21 +166,23 @@ export function ClinSchedulePanel({
   });
 
   const canAdd = draft.clin_number.trim().length > 0 && draft.description.trim().length > 0;
+  const priced = rows.map(shownAmount).filter((v): v is number => v !== null);
+  const total = priced.reduce((sum, v) => sum + v, 0);
 
   return (
-    <div className="mt-3 border border-border p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <h4 className="text-[15px] font-medium">Schedule of line items</h4>
-        <span className="text-[13px] text-muted-foreground">
-          The format scaffold and the handoff packet read this table.
-        </span>
+    <div className="mc-kpanel mc-clin mt-3">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h4 className="mc-kpanel-title">Schedule of line items</h4>
+          <p className="mc-req-meta">The format scaffold and the handoff packet read this table.</p>
+        </div>
         {canWrite ? (
-          <div className="ml-auto flex flex-wrap gap-3">
+          <div className="mc-kpanel-actions">
             {rows.length === 0 ? (
               <button
                 type="button"
                 onClick={() => loadIgce.mutate()}
-                className="text-[13px] text-primary underline-offset-2 hover:underline"
+                className="text-[14px] font-medium text-primary underline-offset-2 hover:underline"
               >
                 Load from the estimate
               </button>
@@ -184,7 +190,7 @@ export function ClinSchedulePanel({
             <button
               type="button"
               onClick={() => setAdding((v) => !v)}
-              className="text-[13px] text-primary underline-offset-2 hover:underline"
+              className="text-[14px] font-medium text-primary underline-offset-2 hover:underline"
             >
               {adding ? "Cancel" : "Add a line item"}
             </button>
@@ -193,31 +199,31 @@ export function ClinSchedulePanel({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+        <p className="mc-req-fallback mt-3">
           No line items are on the schedule yet. Nothing is invented here; the contracting office adds
           each line, and the estimate on this file can fill the schedule when it is empty.
         </p>
       ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `CLIN schedule table, ${regionContext}` : "CLIN schedule table"}>
-<table className="mt-3 w-full text-[13px] leading-[18px]">
+        <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label={regionContext ? `CLIN schedule table, ${regionContext}` : "CLIN schedule table"}>
+<table className="mc-dt stack">
           <caption className="sr-only">Line items on the schedule for this file</caption>
           <thead>
-            <tr className="border-y border-border text-left">
-              <th scope="col" className="p-2">CLIN</th>
-              <th scope="col" className="p-2">Description</th>
-              <th scope="col" className="p-2">Quantity</th>
-              <th scope="col" className="p-2">Unit</th>
-              <th scope="col" className="p-2">Unit price</th>
-              <th scope="col" className="p-2">Amount</th>
-              <th scope="col" className="p-2">Source</th>
-              {canWrite ? <th scope="col" className="p-2">Actions</th> : null}
+            <tr>
+              <th scope="col" className="is-nowrap">CLIN</th>
+              <th scope="col">Description</th>
+              <th scope="col" className="is-numeric">Quantity</th>
+              <th scope="col">Unit</th>
+              <th scope="col" className="is-numeric">Unit price</th>
+              <th scope="col" className="is-numeric">Amount</th>
+              <th scope="col">Source</th>
+              {canWrite ? <th scope="col">Actions</th> : null}
             </tr>
           </thead>
           <tbody>
             {rows.map((r) =>
               editingId === r.clin_id ? (
-                <tr key={r.clin_id} className="border-b border-border align-top">
-                  <td className="p-2">
+                <tr key={r.clin_id}>
+                  <td data-label="CLIN">
                     <label className="sr-only" htmlFor={`clin-num-${r.clin_id}`}>Line item number</label>
                     <input
                       id={`clin-num-${r.clin_id}`}
@@ -226,7 +232,7 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, clin_number: e.target.value })}
                     />
                   </td>
-                  <td className="p-2">
+                  <td data-label="Description">
                     <label className="sr-only" htmlFor={`clin-desc-${r.clin_id}`}>Description</label>
                     <input
                       id={`clin-desc-${r.clin_id}`}
@@ -235,7 +241,7 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, description: e.target.value })}
                     />
                   </td>
-                  <td className="p-2">
+                  <td data-label="Quantity">
                     <label className="sr-only" htmlFor={`clin-qty-${r.clin_id}`}>Quantity</label>
                     <input
                       id={`clin-qty-${r.clin_id}`}
@@ -244,7 +250,7 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, quantity: e.target.value })}
                     />
                   </td>
-                  <td className="p-2">
+                  <td data-label="Unit">
                     <label className="sr-only" htmlFor={`clin-unit-${r.clin_id}`}>Unit of issue</label>
                     <input
                       id={`clin-unit-${r.clin_id}`}
@@ -253,7 +259,7 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, unit_of_issue: e.target.value })}
                     />
                   </td>
-                  <td className="p-2">
+                  <td data-label="Unit price">
                     <label className="sr-only" htmlFor={`clin-up-${r.clin_id}`}>Unit price</label>
                     <input
                       id={`clin-up-${r.clin_id}`}
@@ -262,7 +268,7 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, unit_price: e.target.value })}
                     />
                   </td>
-                  <td className="p-2">
+                  <td data-label="Amount">
                     <label className="sr-only" htmlFor={`clin-amt-${r.clin_id}`}>Amount</label>
                     <input
                       id={`clin-amt-${r.clin_id}`}
@@ -271,8 +277,8 @@ export function ClinSchedulePanel({
                       onChange={(e) => setEditDraft({ ...editDraft, extended_price: e.target.value })}
                     />
                   </td>
-                  <td className="p-2 text-muted-foreground">{sourceLabel(r.source)}</td>
-                  <td className="p-2">
+                  <td data-label="Source" className="text-muted-foreground">{sourceLabel(r.source)}</td>
+                  <td data-label="Actions">
                     <div className="flex gap-3">
                       <button
                         type="button"
@@ -292,30 +298,30 @@ export function ClinSchedulePanel({
                   </td>
                 </tr>
               ) : (
-                <tr key={r.clin_id} className="border-b border-border align-top">
-                  <td className="p-2" data-numeric>{r.clin_number}</td>
-                  <td className="p-2">
+                <tr key={r.clin_id}>
+                  <td data-label="CLIN" className="is-nowrap" data-numeric>{r.clin_number}</td>
+                  <td data-label="Description">
                     {r.description}
                     {r.source === "igce_estimate" ? (
                       <span className="block text-muted-foreground">Estimate-sourced (IGCE)</span>
                     ) : null}
                   </td>
-                  <td className="p-2" data-numeric>
+                  <td data-label="Quantity" className="is-numeric" data-numeric>
                     {r.quantity === null ? "Not recorded" : r.quantity.toLocaleString("en-US")}
                   </td>
-                  <td className="p-2">{r.unit_of_issue?.trim() || "Not recorded"}</td>
-                  <td className="p-2" data-numeric>{money(r.unit_price)}</td>
-                  <td className="p-2" data-numeric>
+                  <td data-label="Unit">{r.unit_of_issue?.trim() || "Not recorded"}</td>
+                  <td data-label="Unit price" className="is-numeric" data-numeric>{money(r.unit_price)}</td>
+                  <td data-label="Amount" className="is-numeric" data-numeric>
                     {displayAmount(r).text}
                     {displayAmount(r).derived ? (
-                      <span className="block text-muted-foreground">
+                      <span className="block text-[13px] text-muted-foreground">
                         Quantity times unit price
                       </span>
                     ) : null}
                   </td>
-                  <td className="p-2 text-muted-foreground">{sourceLabel(r.source)}</td>
+                  <td data-label="Source" className="text-muted-foreground">{sourceLabel(r.source)}</td>
                   {canWrite ? (
-                    <td className="p-2">
+                    <td data-label="Actions">
                       <div className="flex gap-3">
                         <button
                           type="button"
@@ -348,9 +354,20 @@ export function ClinSchedulePanel({
         </table>
 </TableScrollRegion>
       )}
+      {rows.length > 0 ? (
+        <p className="mc-kpanel-foot mc-clin-total">
+          <span>
+            Total of the amounts shown{" "}
+            <span data-numeric>
+              ({priced.length} of {rows.length} {rows.length === 1 ? "line" : "lines"} priced)
+            </span>
+          </span>
+          <strong data-numeric>{priced.length ? money(total) : "Not recorded"}</strong>
+        </p>
+      ) : null}
 
       {canWrite && adding ? (
-        <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
           <div>
             <label className="block text-[13px] text-muted-foreground" htmlFor="new-clin-number">
               Line item number
@@ -422,7 +439,7 @@ export function ClinSchedulePanel({
               type="button"
               disabled={!canAdd || add.isPending}
               onClick={() => add.mutate()}
-              className="border border-border px-3 py-1 text-[13px] disabled:opacity-50"
+              className="rounded-md border border-border px-3 py-1 text-[14px] font-medium disabled:opacity-50"
             >
               Add the line item
             </button>

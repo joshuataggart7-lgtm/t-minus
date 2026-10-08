@@ -11,6 +11,7 @@
  */
 import type { FormCtx } from "@/lib/nf1787";
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
+import { withArticle } from "@/lib/article";
 
 export const RFP_COVER_MASTER_URL = "/forms/RFP_COVER_MASTER.docx";
 
@@ -63,9 +64,9 @@ export function rfpCoverMarkers(ctx: FormCtx): MarkerMap {
     "[[SUBJECT_LINE]]": `SUBJECT:  \tRequest for Proposal (RFP), Solicitation No. ${solicitation}, for`,
     "[[SUBJECT_TITLE_LINE]]": `\t\t\t${required(title)}`,
     "[[INTRO]]": `You are invited to submit a proposal in response to the National Aeronautics and Space Administration (NASA) ${center} ${title} solicitation. The principal purpose of this requirement is to provide ${description || NOT_RECORDED}.`,
-    "[[COMPETITION_NAICS]]": `NASA will conduct this acquisition as a ${competition}. The North American Industry Classification System (NAICS) code for this acquisition is ${naics || NOT_RECORDED}${sizeStandard ? ` and the small business size standard is ${sizeStandard}` : ""}.`,
+    "[[COMPETITION_NAICS]]": `NASA will conduct this acquisition as ${withArticle(competition)}. The North American Industry Classification System (NAICS) code for this acquisition is ${naics || NOT_RECORDED}${sizeStandard ? ` and the small business size standard is ${sizeStandard}` : ""}.`,
     "[[CONTRACT_TYPE_POP]]": contractType
-      ? `This acquisition will result in a ${contractType}.`
+      ? `This acquisition will result in ${withArticle(contractType)}.`
       : "",
     "[[AWARD_PERFORMANCE]]": (() => {
       const award = humanDate(str(a["target_award_date"]));

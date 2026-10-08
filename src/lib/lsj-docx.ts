@@ -13,6 +13,7 @@
  */
 import { type ExportContext } from "@/lib/template-engine";
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
+import { withArticle } from "@/lib/article";
 
 export const LSJ_MASTER_URL = "/forms/LSJ_MASTER.docx";
 
@@ -220,7 +221,7 @@ export function lsjMarkers(ctx: LsjDocxContext): MarkerMap {
     "[[CENTER_NAME_ACRONYM]]": centerAcronym,
     "[[FOR_SOLICITATION_CONTRACT]]": `For ${solicitation}`,
     "[[BUYING_LOCATION_PROSE]]": `This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA) ${buying}.`,
-    "[[ACTION_MAS_PROSE]]": `This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)). This action is a ${action} (${contractType}) for ${actionDescription}.`,
+    "[[ACTION_MAS_PROSE]]": `This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)). This action is ${withArticle(action)} (${contractType}) for ${actionDescription}.`,
     "[[CONTRACTOR_FSS_PROSE]]": `It is anticipated that award(s) will be made to ${contractor} under General Services Administration (GSA) Federal Supply Schedule (FSS) ${fssBits || "________________"}.`,
     "[[VALUE_POP_PROSE]]": estimated
       ? `The total estimated price or ceiling amount of the proposed order or BPA is ${moneyProse(estimated)} and the estimated period of performance or lead-time for delivery is ${popRange}.`

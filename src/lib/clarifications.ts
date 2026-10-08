@@ -26,7 +26,7 @@ export type ClarificationInput = {
 
 export const CLARIFICATIONS_EMPTY = "No clarifications recorded on this file.";
 export const CLARIFICATIONS_CHIP =
-  "Fairness ledger — same clarification to all offerors when competed.";
+  "Fairness ledger: the same clarification goes to all offerors when competed.";
 
 export const clarificationText = (v: string | null | undefined): string =>
   (v ?? "").trim() || "Not recorded";

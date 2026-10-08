@@ -10,6 +10,7 @@ import { acquisitionTypeWords, type AcqRow, type BoardEntry, type RequiredDoc } 
 import type { RedFlag } from "@/lib/intake";
 import { acquisitionProfile } from "@/lib/vehicles";
 import { certifiedDataBasis, certifiedDataBasisLine } from "@/lib/certified-data";
+import { withArticle } from "@/lib/article";
 
 /** One calm sentence under the file header: what this file is and why it
  *  exists, assembled from the recorded facts (method, competition, mission,
@@ -63,7 +64,7 @@ export function fileStory(
         : phase
           ? `in ${phase}`
           : "at intake";
-  return `This is the contract file for a ${words} buy${mission}, now ${where}.`;
+  return `This is the contract file for ${withArticle(`${words} buy`)}${mission}, now ${where}.`;
 }
 
 /** Quiet provenance line for the file: the audit-trail promise, kept off the

@@ -12,7 +12,7 @@ export type LmConsistency = {
   findings: string[];
 };
 
-export const LM_LAMP_LABEL = "Advisory — does not hold the file.";
+export const LM_LAMP_LABEL = "Advisory. It does not hold the file.";
 export const LM_LAMP_OK = "L and M look consistent on the record.";
 
 const lTextOf = (l: SectionLRow | null | undefined): string =>

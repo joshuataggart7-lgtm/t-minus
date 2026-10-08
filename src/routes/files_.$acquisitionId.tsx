@@ -154,7 +154,7 @@ import {
   uploadAttachment,
   type AttachmentRow,
 } from "@/lib/attachments";
-import { alsoRecordedHold, resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
+import { alsoRecordedHold, holdOwnerDisplay, resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
 import { StandaloneDraft } from "@/components/standalone-draft";
 import { NewOrderPanel } from "@/components/new-order-panel";
@@ -1809,7 +1809,7 @@ function FilePage() {
         (fpdsIndex < 0 && administrationIndex >= 0 && currentIndex >= administrationIndex)
       );
       if ((q.data?.nfApprovals ?? []).some((a) => a.status === "non_concurred")) {
-        throw new Error("A NF 1707 non-concurrence is open. Clear it before launch");
+        throw new Error("An NF 1707 non-concurrence is open. Clear it before launch");
       }
       if (!preAwardComplete || lifecycle?.hold || lifecycle?.board.some((entry) => entry.vote !== "favorable")) {
         throw new Error("Complete the current pre-award phase and its required reviews before launch");
@@ -2637,7 +2637,7 @@ function FilePage() {
     const items: { key: string; tone: "hold" | "watch"; text: string; sub?: string; target: string }[] = [];
     const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
     if (effectiveState === "hold" && hold) {
-      items.push({ key: "hold", tone: "hold", text: `On hold: ${holdShort || hold.reason}`, sub: `Owner: ${hold.owner}`, target: "current-hold" });
+      items.push({ key: "hold", tone: "hold", text: `On hold: ${holdShort || hold.reason}`, sub: `Owner: ${holdOwnerDisplay(hold.owner)}`, target: "current-hold" });
     }
     if (nextDecisionDue?.overdue && lifecycle) {
       items.push({ key: "overdue", tone: "hold", text: `${lifecycle.nextDecision}: ${(nextDecisionOverdueText ?? nextDecisionDue.text).toLowerCase()}`, sub: `Planned for ${nextDecisionDue.dateText}`, target: "launch-sequence" });
@@ -2781,7 +2781,7 @@ function FilePage() {
                 </a>
               </p>
               <p className="mt-1 text-[13px] text-muted-foreground">
-                Owner: {hold.owner}
+                Owner: {holdOwnerDisplay(hold.owner)}
                 {holdAge !== null
                   ? holdAge >= holdThreshold
                     ? ` · ${holdAge} days, past the ${holdThreshold}-day Center window`
@@ -2981,7 +2981,7 @@ function FilePage() {
             </p>
             <p className="mc-glance-sub">
               {lifecycle?.blockerOwner
-                ? `Owner: ${lifecycle.blockerOwner}`
+                ? `Owner: ${holdOwnerDisplay(lifecycle.blockerOwner)}`
                 : lifecycle?.blocker && lifecycle.blocker !== "None"
                   ? "Owner not recorded"
                   : effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Nothing is blocking"}

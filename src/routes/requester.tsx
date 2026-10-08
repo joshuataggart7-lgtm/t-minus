@@ -16,6 +16,7 @@ import { formatDate } from "@/lib/metrics";
 import { isPostAward, owedRows } from "@/lib/requester-owed";
 import { dueView, phasePosition, phasePositionText, plannedDaysToAward } from "@/lib/file-timeline";
 import { McPageHeader, StatusChip, WithDetailsPanel, DetailsSection, DetailsList, CiteChip, type StatusTone } from "@/components/ui-mc";
+import { holdOwnerDisplay } from "@/lib/hold";
 
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
@@ -409,7 +410,7 @@ function RequesterPortal() {
                         <p className="mc-req-lead">{c.m.nextAction}</p>
                         {c.m.hold ? (
                           <p className="mc-req-callout is-atrisk">
-                            On hold: {c.m.hold.reason}. Owner {c.m.hold.owner}.
+                            On hold: {c.m.hold.reason}. Owner {holdOwnerDisplay(c.m.hold.owner)}.
                           </p>
                         ) : r.status.reason ? (
                           <p className="mc-req-callout is-attention">Why it is flagged: {r.status.reason}</p>
