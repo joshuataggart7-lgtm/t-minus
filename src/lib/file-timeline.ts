@@ -131,3 +131,27 @@ export function dueView(value: string | null | undefined): DueView | null {
   if (days === 0) return { iso, days, overdue: false, dateText, text: "Due today" };
   return { iso, days, overdue: false, dateText, text: `Due ${dateText}` };
 }
+
+const UNFAVORABLE_SHORT = /^(No-go|Nonconcur|Disapprove|Not legally sufficient):\s*([^:]+?)(?::\s|$)/i;
+
+/**
+ * A short name for a hold, for the places that point at the full reason
+ * (the hero tiles, the clock and the rail). The hold panel shows the reason
+ * in full. "Nonconcur: Small business: <reason>" reads "Small business
+ * nonconcur"; any other reason keeps its first sentence, cut at a word.
+ */
+export function holdShortLabel(reason: string | null | undefined, max = 60): string {
+  const text = String(reason ?? "").trim();
+  if (!text) return "";
+  const m = UNFAVORABLE_SHORT.exec(text);
+  if (m) {
+    const decision = m[1] ?? "";
+    const role = (m[2] ?? "").trim();
+    return decision.includes(" ") ? `${role}: ${decision.toLowerCase()}` : `${role} ${decision.toLowerCase()}`;
+  }
+  const first = (text.split(/(?<=[.;])\s/)[0] ?? text).replace(/[.;]$/, "");
+  if (first.length <= max) return first;
+  const cut = first.slice(0, max);
+  const at = cut.lastIndexOf(" ");
+  return `${(at > 20 ? cut.slice(0, at) : cut).replace(/[,:]$/, "")}…`;
+}

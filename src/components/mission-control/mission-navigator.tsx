@@ -4,12 +4,25 @@ import { Button } from "@/components/ui/button";
 
 /** Window event fired by Expand all / Collapse secondary; detail is { open: boolean }. */
 export const MISSION_NAV_SET_ALL = "mission-nav:set-all";
+/**
+ * Window event fired before a jump; detail is { id, target }. A page that keeps
+ * sections in tabs listens and shows the tab that holds the target, so the
+ * jump lands on a visible section.
+ */
+export const MISSION_NAV_REVEAL = "mission-nav:reveal";
 
 export type MissionNavItem = {
   id: string;
   label: string;
   badge?: { tone: "hold" | "watch" | "neutral"; text: string } | null;
+  /** Optional group heading (for example the tab that holds the section). */
+  group?: string;
 };
+
+/** A section in a hidden tab has no boxes; the spy skips it. */
+function isShown(el: HTMLElement) {
+  return el.getClientRects().length > 0;
+}
 
 function openContainingDetails(target: HTMLElement) {
   const details = target.matches("details") ? target : target.closest("details");
@@ -56,7 +69,7 @@ export function MissionNavigator({
   const recomputeCurrent = useCallback(() => {
     const targets = availableIds
       .map((id) => document.getElementById(id))
-      .filter((element): element is HTMLElement => Boolean(element));
+      .filter((element): element is HTMLElement => Boolean(element) && isShown(element as HTMLElement));
     if (!targets.length) return;
     if (lockRef.current && targets.some((t) => t.id === lockRef.current)) {
       const locked = lockRef.current;
@@ -129,6 +142,7 @@ export function MissionNavigator({
     event.preventDefault();
     const target = document.getElementById(id);
     if (!target) return;
+    window.dispatchEvent(new CustomEvent(MISSION_NAV_REVEAL, { detail: { id, target } }));
     openContainingDetails(target);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - stickyOffset());
@@ -161,8 +175,11 @@ export function MissionNavigator({
     <nav aria-label={ariaLabel} className="mc-nav">
       <p className="mc-nav-label">{label}</p>
       <ol className="mc-nav-list">
-        {visibleItems.map((item) => (
-          <li key={item.id}>
+        {visibleItems.map((item, index) => (
+          <li key={item.id} className={item.group && item.group !== visibleItems[index - 1]?.group ? "mc-nav-grouped" : undefined}>
+            {item.group && item.group !== visibleItems[index - 1]?.group ? (
+              <span className="mc-nav-group" aria-hidden="true">{item.group}</span>
+            ) : null}
             <a
               href={`#${item.id}`}
               aria-current={currentId === item.id ? "location" : undefined}

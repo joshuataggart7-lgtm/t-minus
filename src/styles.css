@@ -2952,10 +2952,10 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-glance { min-width: 0; background: var(--card); padding: 1.125rem 1.5rem 1.25rem; }
 .mc-glance-clock { padding: 1rem; }
 .mc-glance-label { color: var(--muted-foreground); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
-.mc-glance-value { margin-top: 0.375rem; font-size: 18px; line-height: 24px; font-weight: 600; overflow-wrap: break-word; hyphens: auto; }
+.mc-glance-value { margin-top: 0.375rem; font-size: 18px; line-height: 24px; font-weight: 600; overflow-wrap: break-word; hyphens: manual; }
 .mc-glance-value.is-text { font-size: 15px; line-height: 22px; font-weight: 560; }
 .mc-glance-sub { margin-top: 0.375rem; color: var(--muted-foreground); font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
-.mc-glance-state { margin-top: 0.75rem; font-size: 14px; line-height: 20px; font-weight: 600; }
+.mc-glance-state { margin-top: 0.5rem; font-size: 14px; line-height: 18px; font-weight: 600; }
 .mc-file-hero-story { border-top: 1px solid var(--border); background: color-mix(in oklab, var(--muted) 35%, var(--card)); padding: 1rem 1.75rem 1.125rem; }
 .mc-file-hero-story > p:first-child { max-width: 90ch; font-size: 15px; line-height: 22px; }
 .mc-file-hero-prov { margin-top: 0.375rem; max-width: 90ch; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
@@ -2976,7 +2976,7 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-step.is-current .mc-step-bar { background: var(--accent-cyan); }
 .mc-step.is-late .mc-step-bar { background: var(--mc-readiness-hold); }
 .mc-step-n { font-size: 11px; line-height: 14px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.mc-step-label { font-size: 12px; line-height: 16px; overflow-wrap: break-word; hyphens: auto; }
+.mc-step-label { font-size: 12px; line-height: 16px; overflow-wrap: break-word; hyphens: manual; }
 .mc-step.is-complete > button { color: var(--foreground); }
 .mc-step.is-current > button { background: color-mix(in oklab, var(--accent-cyan) 11%, transparent); color: var(--foreground); }
 .mc-step.is-current .mc-step-label { font-weight: 650; }
@@ -3058,3 +3058,57 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
   .mc-seq-list { margin-left: 0.5rem; padding-left: 1.25rem; }
   .mc-seq-dot { left: calc(-1.75rem - 1px); }
 }
+
+/* File page lower half: tabs, review cards, file index (Batch 4). */
+.mc-file-hold, .mc-glance, .mc-rail-item, .mc-review { hyphens: manual; }
+.mc-glance-state + .mc-glance-sub { margin-top: 0.25rem; }
+.mc-glance-state-note { display: block; margin-top: 0.125rem; color: var(--attention, var(--mc-readiness-watch)); font-size: 13px; line-height: 18px; font-weight: 560; }
+.mc-btn-locked:disabled, .mc-btn-locked[disabled] { opacity: 1; cursor: not-allowed; border-style: dashed; border-color: var(--border); background: var(--muted); color: var(--muted-foreground); box-shadow: none; }
+.mc-file-tabs { margin-top: 0.5rem; margin-bottom: 1.5rem; }
+.mc-tabs { position: relative; display: flex; gap: 0.25rem; overflow-x: auto; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); scrollbar-width: thin; }
+.mc-tab { display: inline-flex; flex: none; align-items: center; gap: 0.5rem; margin-bottom: -1px; border-bottom: 2px solid transparent; padding: 0.625rem 0.875rem; color: var(--muted-foreground); font-size: 14px; line-height: 20px; font-weight: 560; white-space: nowrap; transition: color 150ms, border-color 150ms; }
+.mc-tab:hover { color: var(--foreground); }
+.mc-tab[aria-selected="true"] { border-bottom-color: var(--primary); color: var(--foreground); font-weight: 650; }
+.mc-tab:focus-visible { outline: 2px solid var(--mc-focus, var(--ring)); outline-offset: -2px; border-radius: 6px 6px 0 0; }
+.mc-tab-badge { border-radius: 999px; background: var(--muted); padding: 0 0.4375rem; color: var(--muted-foreground); font-size: 12px; line-height: 18px; font-weight: 560; }
+.mc-tab-panel { display: grid; gap: 0; min-width: 0; }
+.mc-tab-panel[hidden] { display: none; }
+.mc-tab-section { margin-bottom: 2rem; border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: 1rem 1.25rem 1.25rem; }
+.mc-tab-section-title { font-size: 18px; line-height: 24px; font-weight: 600; }
+.mc-tab-section-lead { margin-top: 0.25rem; max-width: 80ch; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-review-group { margin-top: 1rem; }
+.mc-review-group-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin-bottom: 0.5rem; }
+.mc-review-group-head h3 { font-size: 15px; line-height: 22px; font-weight: 600; }
+.mc-review-board { margin-top: 0.75rem; min-width: 0; }
+.mc-review-board-cap { margin-bottom: 0.5rem; max-width: 80ch; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-review-board-empty { border: 1px dashed var(--border); border-radius: 10px; padding: 0.75rem 1rem; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-review-board-foot { margin-top: 0.5rem; }
+.mc-review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 0.75rem; }
+.mc-review { display: grid; align-content: start; gap: 0.5rem; min-width: 0; border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 10px; background: var(--card); padding: 0.75rem 0.875rem 0.875rem; font-size: 13px; line-height: 18px; }
+.mc-review.is-favorable { border-left-color: var(--ontrack, var(--mc-readiness-go)); }
+.mc-review.is-unfavorable { border-left-color: var(--mc-readiness-hold); background: color-mix(in oklab, var(--mc-readiness-hold) 4%, var(--card)); }
+.mc-review.is-pending { border-left-color: var(--mc-readiness-watch); }
+.mc-review-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 0.375rem 0.75rem; }
+.mc-review-kind { color: var(--muted-foreground); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.mc-review-role { font-size: 15px; line-height: 20px; font-weight: 600; overflow-wrap: anywhere; }
+.mc-review-name { color: var(--mc-meta-ink, var(--muted-foreground)); overflow-wrap: anywhere; }
+.mc-review-note { color: var(--muted-foreground); font-style: italic; }
+.mc-review-reason { border-radius: 8px; background: color-mix(in oklab, var(--muted) 55%, transparent); padding: 0.5rem 0.625rem; }
+.mc-review-label { display: block; margin-bottom: 0.125rem; color: var(--muted-foreground); font-size: 12px; line-height: 16px; font-weight: 600; }
+.mc-review-reason p { max-width: 80ch; white-space: pre-line; overflow-wrap: anywhere; }
+.mc-review-meta { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 0.75rem; }
+.mc-review-meta dt { color: var(--muted-foreground); }
+.mc-review-meta dd { min-width: 0; overflow-wrap: anywhere; }
+.mc-review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding-top: 0.25rem; }
+.mc-nav-grouped { margin-top: 0.375rem; }
+.mc-nav-group { display: block; padding: 0.25rem 0.5rem 0.125rem; color: var(--muted-foreground); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.mc-index { margin-bottom: 2rem; }
+.mc-index-lead { margin-bottom: 0.5rem; max-width: 80ch; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-index-print { margin-bottom: 1rem; color: var(--primary); font-size: 13px; }
+.mc-index-sub { display: block; color: var(--muted-foreground); overflow-wrap: anywhere; }
+@media print {
+  .mc-tabs { display: none !important; }
+  [data-file-tab-panel][hidden] { display: grid !important; }
+}
+.mc-review-meta > div { display: contents; }
+.mc-review-meta .mc-due { margin-left: 0.375rem; }

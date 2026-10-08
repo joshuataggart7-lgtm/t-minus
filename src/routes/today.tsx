@@ -248,7 +248,7 @@ function TodayPage() {
             </a>
             <div className={`mc-today-stat${pastTarget ? " is-late" : ""}`}>
               <span className="mc-today-stat-value" data-numeric>{pastTarget}</span>
-              <span className="mc-today-stat-label">Open files past target</span>
+              <span className="mc-today-stat-label">My open files past target</span>
             </div>
           </nav>
 
