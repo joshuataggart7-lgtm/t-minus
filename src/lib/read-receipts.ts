@@ -35,6 +35,18 @@ export type ReadReceiptInput = {
   source: ReceiptSource;
 };
 
+/** Where a receipt was recorded, in plain words. Stored values stay as they are. */
+const SOURCE_LABEL: Record<string, string> = {
+  "reviewer-inbox": "Reviewer inbox",
+  "document-route": "Document page",
+  "form-route": "Form page",
+};
+
+export function receiptSourceLabel(source: string | null | undefined): string {
+  if (!source) return "Not recorded";
+  return SOURCE_LABEL[source] ?? source;
+}
+
 export const READ_RECEIPTS_EMPTY = "No read receipts on this file yet.";
 export const READ_RECEIPTS_CHIP = "Soft tracking. It does not hold the file.";
 
@@ -139,7 +151,7 @@ export async function recordReadReceipt(input: ReadReceiptInput): Promise<void> 
     field: input.docKey,
     old_value: null,
     new_value: (input.docLabel ?? "").trim() || input.docKey,
-    reason: `Read receipt recorded from the ${input.source}.`,
+    reason: `Read receipt recorded from the ${receiptSourceLabel(input.source).toLowerCase()}.`,
   } as never);
 }
 

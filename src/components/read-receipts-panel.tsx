@@ -11,6 +11,7 @@ import {
   receiptStamp,
   READ_RECEIPTS_CHIP,
   READ_RECEIPTS_EMPTY,
+  receiptSourceLabel,
 } from "@/lib/read-receipts";
 
 const kindWord = (kind: string): string =>
@@ -59,7 +60,7 @@ export function ReadReceiptsPanel({ acquisitionId, regionContext }: { acquisitio
                   <span className="block text-muted-foreground">{kindWord(r.doc_kind)}</span>
                 </td>
                 <td className="p-2" data-numeric>{receiptStamp(r.opened_at)}</td>
-                <td className="p-2 text-muted-foreground">{r.source ?? "Not recorded"}</td>
+                <td className="p-2 text-muted-foreground">{receiptSourceLabel(r.source)}</td>
               </tr>
             ))}
           </tbody>

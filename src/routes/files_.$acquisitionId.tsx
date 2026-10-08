@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { FadeStrip } from "@/components/fade-strip";
+import { loadTechnicalRecord } from "@/lib/eqr-summary";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { auditActionLabel, auditFieldLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 import { DECISION_LABEL, PHASE_EXIT_RULE, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
@@ -1985,6 +1987,7 @@ function FilePage() {
             // Real count off the record, or no line at all.
             receiptCount: await loadReadReceiptCount(acquisitionId)
               .catch(() => null),
+            technicalRecord: await loadTechnicalRecord(acquisitionId).catch(() => null),
           }),
 
           gates: companionGates
@@ -4393,7 +4396,7 @@ function FilePage() {
       {/* Lower half in tabs. Every section stays mounted; a hidden tab only
           hides it. Jumps, rail links and hash links open the tab first. */}
       <div className="mc-file-tabs" id="file-tabs">
-        <div role="tablist" aria-label="Sections of this file" className="mc-tabs no-print" onKeyDown={onFileTabKey}>
+        <FadeStrip role="tablist" aria-label="Sections of this file" className="mc-tabs no-print" onKeyDown={onFileTabKey}>
           {FILE_TABS.map((t) => (
             <button
               key={t.key}
@@ -4414,7 +4417,7 @@ function FilePage() {
               {fileTabBadges[t.key] ? <span className="mc-tab-badge">{fileTabBadges[t.key]}</span> : null}
             </button>
           ))}
-        </div>
+        </FadeStrip>
         <div
           role="tabpanel"
           id="file-panel-overview"

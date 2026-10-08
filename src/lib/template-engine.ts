@@ -2424,7 +2424,6 @@ const samNotice: TemplateDef = {
           label: "T-Minus default response period",
           kind: "readonly",
           showIf: isCombined,
-          help: "The 15 days are a T-Minus planning default, not a regulatory minimum.",
         },
         {
           key: "posted_date",

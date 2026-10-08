@@ -89,7 +89,11 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
     setRole(match.role);
     void navigate({ to: match.landing, replace: true });
   }, [canSwitchPersona]); // eslint-disable-line react-hooks/exhaustive-deps
-  const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
+  // An evaluator-only session never gets the open-file entry: file pages are
+  // outside the evaluation workspace. Everyone else keeps it.
+  const openAcquisitionId = isEvaluatorOnly(roles)
+    ? null
+    : (/^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null);
   const presenter = usePresenter();
   const navGroups = sidebarNavGroups(roles, presenter, readOnly);
   // An evaluator sees the evaluation workspace and announcements only; any
@@ -107,6 +111,9 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, activeGroupLabel, rolesReady]);
   const railCollapsed = collapsed && !isDrawerViewport;
+  // A short menu (a narrow persona) shows every group open, so no group
+  // heading ever looks empty.
+  const shortNav = navGroups.reduce((n, group) => n + group.items.length, 0) <= 6;
   const backgroundInert = drawerOpen && isDrawerViewport;
   const inertProps = backgroundInert ? { inert: true } : {};
 
@@ -331,11 +338,15 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
             </button>
             {navGroups.map((group) => {
               const groupItems = group.items;
-              const expanded = Boolean(groups[group.label]) || autoOpen === group.label;
+              const expanded = shortNav || Boolean(groups[group.label]) || autoOpen === group.label;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 type-label text-chrome-muted", railCollapsed && "sr-only")}>
-                  <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
-                </button>
+                {shortNav ? (
+                  <p className={cn("px-4 py-2 type-label text-chrome-muted", railCollapsed && "sr-only")}>{group.label}</p>
+                ) : (
+                  <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 type-label text-chrome-muted", railCollapsed && "sr-only")}>
+                    <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
+                  </button>
+                )}
                 <ul className={cn(!expanded && "hidden", railCollapsed && "block")}>
                 {groupItems.map((item) => {
               const active = pathname === item.to || (item.to === "/overview" && pathname === "/");

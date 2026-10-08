@@ -11,6 +11,7 @@ import { useState } from "react";
 import { StatusChip } from "@/components/ui-mc";
 import { signedInName } from "@/lib/account-name";
 import { boardReadiness, boardReadinessItems } from "@/lib/board-readiness";
+import { loadTechnicalRecord } from "@/lib/eqr-summary";
 import {
   CLARIFICATIONS_CHIP,
   clarificationText,
@@ -82,6 +83,12 @@ export function SebCockpitPanel({
     enabled: Boolean(acquisitionId),
     queryFn: () => loadReadReceiptCount(acquisitionId),
   });
+  // The saved Evaluation of Quotations Record, for files evaluated without Section M factors.
+  const technicalQ = useQuery({
+    queryKey: ["eqr-technical-summary", acquisitionId],
+    enabled: Boolean(acquisitionId),
+    queryFn: () => loadTechnicalRecord(acquisitionId),
+  });
 
 
   const [draft, setDraft] = useState<ClarificationDraft>(emptyClarification);
@@ -101,6 +108,7 @@ export function SebCockpitPanel({
     factors,
     clarificationCount: clarifications.length,
     receiptCount: receiptCountQ.data ?? null,
+    technicalRecord: technicalQ.data ?? null,
   });
 
   const lamp = readiness.lamp;

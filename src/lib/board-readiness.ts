@@ -22,6 +22,8 @@ export type BoardReadiness = {
   methodVoice: string;
   /** Real receipts counted off the record. Null when the count was not read. */
   receiptCount: number | null;
+  /** Quotations and ratings on the saved Evaluation of Quotations Record, when one exists. */
+  technicalRecord: { quotes: number; rated: number } | null;
 };
 
 function boardMethodVoice(shell: MethodShell | null | undefined): {
@@ -58,6 +60,7 @@ export function boardReadiness({
   factors,
   clarificationCount,
   receiptCount = null,
+  technicalRecord = null,
 }: {
   shell: MethodShell | null | undefined;
   l: SectionLRow | null | undefined;
@@ -65,6 +68,7 @@ export function boardReadiness({
   factors: FactorRow[];
   clarificationCount: number;
   receiptCount?: number | null;
+  technicalRecord?: { quotes: number; rated: number } | null;
 }): BoardReadiness {
   const method = boardMethodVoice(shell);
   return {
@@ -76,6 +80,7 @@ export function boardReadiness({
     methodLabel: method.methodLabel,
     methodVoice: method.methodVoice,
     receiptCount,
+    technicalRecord,
   };
 }
 
@@ -101,7 +106,9 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
       value: !readiness.competitive
         ? "Not used on this sole-source path"
         : readiness.factorCount === 0
-          ? "None recorded"
+          ? readiness.technicalRecord
+            ? "Technical acceptability, as stated in the Evaluation of Quotations Record; no separate Section M factors"
+            : "None recorded"
           : `${readiness.factorCount} recorded`,
     },
     {
@@ -109,7 +116,9 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
       value: !readiness.competitive
         ? "Single-proposal evaluation; competitive evidence map not used"
         : readiness.factorCount === 0
-          ? "None recorded, no factors to map"
+          ? readiness.technicalRecord
+            ? `${readiness.technicalRecord.rated} of ${readiness.technicalRecord.quotes} quotations rated in the Evaluation of Quotations Record`
+            : "None recorded, no factors to map"
           : readiness.evidenceCount === 0
             ? "None recorded"
             : `${readiness.evidenceCount} of ${readiness.factorCount} factors noted`,

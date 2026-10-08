@@ -16,7 +16,7 @@ export const TABLE12_BANNER =
 export const TABLE12_EMPTY =
   "No commercial Table 12-2/12-3 fill-ins to show on this file.";
 
-export const TABLE12_UNCONFIRMED = "Table not confirmed — verify in RFO Part 12";
+export const TABLE12_UNCONFIRMED = "Table not confirmed; verify in RFO Part 12";
 
 export type TableTag = "Table 12-2 (provision)" | "Table 12-3 (clause)" | typeof TABLE12_UNCONFIRMED;
 
@@ -113,7 +113,7 @@ function slotsFor(clauseNumber: string, facts: Record<string, unknown>): FillinS
       { label: "Set-aside", value: val(facts, "set_aside") },
     ],
     "52.212-2": [
-      { label: "Evaluation factors", value: "Not recorded — enter from Section M on this file" },
+      { label: "Evaluation factors", value: "Not recorded; enter from Section M on this file" },
       { label: "Estimated value", value: money(facts, "estimated_value") },
     ],
     "52.212-4": [

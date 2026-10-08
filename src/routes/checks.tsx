@@ -113,7 +113,7 @@ const HISTORY_COLUMNS: DataColumn<HistoryRow>[] = [
       ),
   },
   { key: "registration", header: "Registration", cell: (r) => r.registration || <EmptyCell>Not part of this check</EmptyCell> },
-  { key: "integrity", header: "Integrity records (FAPIIS)", numeric: true, cell: (r) => (r.integrity ? <span data-numeric>{r.integrity}</span> : <EmptyCell>Not part of this check</EmptyCell>) },
+  { key: "integrity", header: "Integrity records (FAPIIS)", cell: (r) => (r.integrity ? <span data-numeric>{r.integrity}</span> : <EmptyCell>Not part of this check</EmptyCell>) },
   { key: "source", header: "Source", cell: (r) => r.sourceLabel || <EmptyCell /> },
   { key: "by", header: "By", cell: (r) => r.checkedBy || <EmptyCell /> },
 ];
@@ -122,6 +122,7 @@ function ChecksPage() {
   const { authState, hasAnyRole } = useRole();
   const [mode, setMode] = useState<"record" | "live">("record");
   const [acquisitionId, setAcquisitionId] = useState("A-2027-0102");
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const [uei, setUei] = useState("");
   const [result, setResult] = useState<SamCheckView | null>(null);
   const runCheck = useServerFn(runSamEntityCheck);
@@ -170,6 +171,8 @@ function ChecksPage() {
   const demoLocked = useDemoLocked();
 
   const rows = history.data ?? [];
+  const HISTORY_FIRST = 8;
+  const historyShown = showAllHistory ? rows : rows.slice(0, HISTORY_FIRST);
   const lastEntity = rows.find((r) => r.view)?.view ?? null;
   const lastSweep = rows.find((r) => r.kind === "Exclusions sweep") ?? null;
   const shown = result ?? (mode === "record" ? lastEntity : null);
@@ -254,6 +257,7 @@ function ChecksPage() {
                   value={acquisitionId}
                   onChange={(event) => {
                     setAcquisitionId(event.target.value);
+                    setShowAllHistory(false);
                     setResult(null);
                   }}
                   className="mt-2 block w-full border border-input bg-background px-3 py-2 [border-radius:var(--mc-radius-control)]"
@@ -318,11 +322,25 @@ function ChecksPage() {
                   label={`Check history for ${acquisitionId}`}
                   caption="Stored SAM.gov checks for this file"
                   columns={HISTORY_COLUMNS}
-                  rows={rows}
+                  rows={historyShown}
                   rowKey={(r) => r.id}
-                  maxHeight="32rem"
                   empty={history.isLoading ? "Loading the check history." : "No checks are stored on this file yet."}
                 />
+                {rows.length > HISTORY_FIRST ? (
+                  <div className="mc-kpanel-foot mc-checks-more">
+                    <span data-numeric>
+                      Showing {historyShown.length} of {rows.length} checks
+                    </span>
+                    <button
+                      type="button"
+                      className="mc-checks-more-btn"
+                      aria-expanded={showAllHistory}
+                      onClick={() => setShowAllHistory((v) => !v)}
+                    >
+                      {showAllHistory ? `Show the newest ${HISTORY_FIRST}` : `Show all ${rows.length} checks`}
+                    </button>
+                  </div>
+                ) : null}
               </div>
             )}
           </section>
