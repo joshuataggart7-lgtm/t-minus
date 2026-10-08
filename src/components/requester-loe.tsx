@@ -12,7 +12,7 @@ import { useMemo } from "react";
 import type { RefData } from "@/lib/intake";
 import { estimate, inputsFromAcq, inWords, type StoredEstimate } from "@/lib/estimator";
 import { acquisitionType, type AcqRow, type PhasePlanRow } from "@/lib/launch-sequence";
-import { plannedDaysForType } from "@/lib/successor";
+import { plannedDaysToAward } from "@/lib/file-timeline";
 import { workingDaysIn, type AwardConfidence } from "@/lib/confidence";
 import { phaseAlias } from "@/lib/phase-alias";
 
@@ -61,13 +61,12 @@ export function RequesterLoe({
   acq,
   plan,
   confidence,
-  missingCount,
 }: {
   acq: Record<string, unknown>;
   plan: PhasePlanRow[];
   /** The planned duration and history confidence for this file, when available. */
   confidence: AwardConfidence | null;
-  /** Items the requesting organization still owes on this file. */
+  /** Kept for callers; the requester card now shows what is owed itself. */
   missingCount?: number;
 }) {
   const ref: RefData = useMemo(
@@ -108,92 +107,92 @@ export function RequesterLoe({
     return entry ? [`${stage} covers ${joinPhases(entry.phases)}`] : [];
   });
 
-  // Pre-award planned days only: summed in phase order through the last
-  // pre-award phase, the same figure the file page and the days-to-award line use.
-  const totalPlannedDays = useMemo(
-    () => plannedDaysForType(acquisitionType(acq as unknown as AcqRow, plan), plan),
-    [acq, plan],
-  );
+  // Pre-award planned days only, from the one shared helper (lib/file-timeline.ts).
+  const totalPlannedDays = useMemo(() => plannedDaysToAward(acq, plan), [acq, plan]);
   const hasPlan = totalPlannedDays > 0;
 
   return (
-    <div>
-      <h3 className="text-[15px] font-medium">What this buy costs in contracting work</h3>
-      <p className="mt-2 max-w-[70ch] text-[15px] leading-[22px]">
-        About {est.hours.total.toLocaleString("en-US")} hours of contracting work to award, across{" "}
-        {inWords(byPhase.length)} phases and{" "}
-        {hasPlan
-          ? `${totalPlannedDays} planned calendar days`
-          : `about ${inWords(est.monthsToAward)} month${est.monthsToAward === 1 ? "" : "s"}`}
-        . Of those hours, about{" "}
+    <div className="mc-loe">
+      <p className="max-w-[72ch] type-body">
+        About {est.hours.total.toLocaleString("en-US")} hours of contracting work to award, in{" "}
+        {inWords(byPhase.length)} {byPhase.length === 1 ? "stage" : "stages"}
+        {hasPlan ? `, over ${totalPlannedDays} planned calendar days` : ""}. Of those hours, about{" "}
         {est.hours.co.toLocaleString("en-US")} fall to the contracting officer and{" "}
         {est.hours.cs.toLocaleString("en-US")} to the contracting specialist.
       </p>
 
-      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
-        <dt className="text-muted-foreground">Planned time to award</dt>
-        <dd data-numeric>
-          {hasPlan ? (
-            <>
-              {`${totalPlannedDays} calendar days, about ${workingDaysIn(totalPlannedDays)} working days`}
-              <span className="block text-[13px] leading-[18px] text-muted-foreground">
-                From the phase plan for this acquisition type.{confidence ? ` ${confidence.rangeNote}` : ""}
-              </span>
-            </>
-          ) : "Not planned for this acquisition type"}
-        </dd>
-        {missingCount != null ? (
-          <>
-            <dt className="text-muted-foreground">Items you still owe</dt>
-            <dd data-numeric>{missingCount}</dd>
-          </>
-        ) : null}
+      <dl className="mc-loe-facts">
+        <div>
+          <dt>Planned time to award</dt>
+          <dd data-numeric>
+            {hasPlan ? (
+              <>
+                {`${totalPlannedDays} calendar days, about ${workingDaysIn(totalPlannedDays)} working days`}
+                <span className="mc-loe-note">
+                  From the phase plan for this acquisition type.{confidence ? ` ${confidence.rangeNote}` : ""}
+                </span>
+              </>
+            ) : "No phase plan for this acquisition type"}
+          </dd>
+        </div>
       </dl>
 
-      <dl className="mt-3 grid max-w-[70ch] grid-cols-[minmax(0,16rem)_1fr_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px]">
-        {byPhase.map(([phase, hours]) => {
-          const planned = plannedByStage.get(phase);
-          return (
-            <div key={phase} className="contents">
-              <dt className="text-muted-foreground">{phase}</dt>
-              <dd data-numeric>{hours.toLocaleString("en-US")} hours</dd>
-              <dd className="text-muted-foreground" data-numeric>
-                {planned ? `${planned.days} planned days` : "Not planned"}
-              </dd>
-            </div>
-          );
-        })}
-      </dl>
+      <div className="mc-loe-grid">
+        <div>
+          <h4 className="mc-loe-h">Hours and planned days by stage</h4>
+          <table className="mc-loe-table">
+            <caption className="sr-only">Contracting hours and planned calendar days by stage</caption>
+            <thead>
+              <tr>
+                <th scope="col">Stage</th>
+                <th scope="col" className="is-numeric">Hours</th>
+                <th scope="col" className="is-numeric">Planned days</th>
+              </tr>
+            </thead>
+            <tbody>
+              {byPhase.map(([phase, hours]) => {
+                const planned = plannedByStage.get(phase);
+                return (
+                  <tr key={phase}>
+                    <th scope="row">{phase}</th>
+                    <td className="is-numeric" data-numeric>{hours.toLocaleString("en-US")}</td>
+                    <td className="is-numeric" data-numeric>{planned ? planned.days : "Not planned"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {stageCoverage.length > 0 ? (
+            <p className="mc-loe-note">
+              Stages group this file's phase plan: {stageCoverage.join("; ")}.
+            </p>
+          ) : null}
+        </div>
 
-      {stageCoverage.length > 0 ? (
-        <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
-          Planned days group this file's phase plan by stage: {stageCoverage.join("; ")}.
-        </p>
-      ) : null}
+        <div>
+          <h4 className="mc-loe-h">What drives it on this file</h4>
+          <ul className="mc-loe-drivers">
+            {drivers.map((t) => (
+              <li key={`${t.phase}-${t.name}`}>
+                <span className="font-medium"><span data-numeric>{t.hours} hours</span>, {t.name}</span>
+                <span className="mc-loe-note">{t.why}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
 
-      <h4 className="mt-4 text-[15px] font-medium">What drives it on this file</h4>
-      <ul className="mt-2 max-w-[70ch] space-y-2 text-[15px] leading-[22px]">
-        {drivers.map((t) => (
-          <li key={`${t.phase}-${t.name}`}>
-            <span data-numeric>{t.hours} hours</span> · {t.name}
-            <span className="block text-[13px] leading-[18px] text-muted-foreground">{t.why}</span>
-          </li>
-        ))}
-      </ul>
-
-
-      <p className="mt-4 max-w-[70ch] text-[15px] leading-[22px]">
-        Technical team — provide a work breakdown structure covering the procurement support work.
-        The hours above are the reason for the ask: evaluation coordination, fact-finding, answers to
-        questions and the technical write-ups all land on the requesting organization, and the award
-        date moves with them.
+      <p className="mt-4 max-w-[72ch] type-body">
+        What the contracting office may ask of your technical team: a work breakdown structure covering the
+        procurement support work. Evaluation coordination, fact-finding, answers to questions and the technical
+        write-ups all land on the requesting organization, and the award date moves with them.
       </p>
 
-      <p className="mt-2 max-w-[70ch] text-[13px] leading-[18px] text-muted-foreground">
+      <p className="mc-loe-note mt-2 max-w-[72ch]">
         {atIntake
           ? `An estimate was saved with the intake on ${atIntake.estimated_at.slice(0, 10)}. The figures above are the same model run against the record as it stands today.`
           : "No estimate was saved with the intake for this file. The figures above are the seeded level-of-effort model run against the record as it stands today."}{" "}
-        <Link to="/estimate" className="text-primary hover:text-primary-hover">
+        <Link to="/estimate" className="text-primary underline underline-offset-2 hover:text-primary-hover">
           Open the estimate
         </Link>
         .

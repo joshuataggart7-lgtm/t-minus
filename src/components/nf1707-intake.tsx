@@ -192,6 +192,11 @@ export function nf1707SectionProgress(stored:Record<string,unknown>|null|undefin
  const sections=NF1707_SECTIONS.filter(s=>sectionVisible(s,merged));
  return {answered:sections.filter(s=>sectionAnswered(s,merged)).length,total:sections.length};
 }
+/** The sections shown on the Intake page, in order, with whether each is answered. Same rule as the section list below. */
+export function nf1707SectionList(answers:NfAnswers, facts:IntakeFacts):{key:string;title:string;answered:boolean}[]{
+ const merged={...canonicalFromFacts(facts),...answers};
+ return NF1707_SECTIONS.filter(s=>sectionVisible(s,merged)).map(s=>({key:s.key,title:s.title,answered:sectionAnswered(s,merged)}));
+}
 function choiceText(question:Question,value:string){
  if(question.kind==="check")return value==="true"?(question.short??question.label):"";
  if(question.kind==="checklist")return value.split("|").map(v=>question.options?.find(o=>o.value===v)?.label).filter(Boolean).join(", ");
@@ -286,7 +291,7 @@ function QuestionRow({question,answers,setAnswers}:{question:Question;answers:Nf
  if(question.kind==="checklist") return <fieldset className="py-4"><legend className="text-[15px] leading-[22px]">{question.label}</legend><div className="mt-2 grid gap-2 sm:grid-cols-2">{question.options?.map(o=>{const values=value?value.split("|"):[];const checked=values.includes(o.value);return <label key={o.value} className="flex items-start gap-2 text-[14px]"><input type="checkbox" checked={checked} onChange={()=>set(checked?values.filter(v=>v!==o.value).join("|"):[...values,o.value].join("|"))}/><span>{o.label}</span></label>})}</div></fieldset>;
  if(question.kind==="check")return <div className="py-4"><label className="flex items-start gap-2 text-[15px]"><input id={id} type="checkbox" checked={value==="true"} onChange={e=>{const on=e.target.checked;setAnswers(a=>{const next={...a,[question.key]:String(on)};if(on)for(const k of question.exclusive??[])if(next[k]==="true")next[k]="false";return next})}}/><span>{question.label}{question.required?" (required)":""}</span></label>{question.help?<p className="ml-6 mt-1 text-[13px] text-muted-foreground">{question.help}</p>:null}</div>;
  if(question.kind==="radio"||question.kind==="yesno")return <fieldset className="py-4"><legend className="text-[15px] leading-[22px]">{question.label}{question.required?" (required)":""}</legend><div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">{(question.options??yn).map(o=><label key={o.value} className="flex items-start gap-2 text-[14px]"><input type="radio" name={id} value={o.value} checked={value===o.value} onChange={()=>set(o.value)}/><span>{o.label}{o.help?<small className="block text-muted-foreground">{o.help}</small>:null}</span></label>)}</div>{question.help?<p className="mt-1 text-[13px] text-muted-foreground">{question.help}</p>:null}</fieldset>;
- return <div className="py-4"><label htmlFor={id} className="block text-[13px] text-muted-foreground">{question.label}</label><input id={id} type={question.kind==="number"?"number":"text"} placeholder={question.placeholder} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]" value={value} onChange={e=>set(e.target.value)}/></div>
+ return <div className="py-4"><label htmlFor={id} className="mc-field-label">{question.label}</label><input id={id} type={question.kind==="number"?"number":"text"} placeholder={question.placeholder} className="mc-input mt-1" value={value} onChange={e=>set(e.target.value)}/></div>
 }
 
 export function Nf1707Intake({answers,setAnswers,fields,facts,evmThreshold}:{answers:NfAnswers;setAnswers:React.Dispatch<React.SetStateAction<NfAnswers>>;fields:Nf1707Field[];facts:IntakeFacts;evmThreshold:number}){

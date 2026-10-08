@@ -45,3 +45,33 @@ export function matchCite(cite: string, map: Record<string, VerifiedRegEntry>): 
     return { text, matches };
   });
 }
+
+/** The full official RFO text, the same copy the verified text was taken from. */
+export const RFO_PDF_URL = "https://www.acquisition.gov/sites/default/files/page_file_uploads/RFO.pdf";
+
+/**
+ * acquisition.gov keeps one FAR Overhaul page per part. Every part from 1 to 53
+ * answered at this address on Oct 8, 2026 except Parts 20 and 21 (reserved),
+ * which fall back to the full RFO PDF.
+ */
+const RFO_PART_PAGES_MISSING = new Set([20, 21]);
+
+export type OfficialSource = { url: string; label: string };
+
+/**
+ * Where a reader can check a citation at the official source. Only RFO FAR
+ * citations get a link (acquisition.gov). NFS Companion Guide, NF forms, older
+ * "FAR" citations and Center practice get none, rather than a guessed address.
+ */
+export function officialSourceFor(part: string): OfficialSource | null {
+  const m = part.match(/RFO FAR (?:[Pp]art |[Ss]ubpart )?(\d+)(?:\.|\b)/);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (!Number.isInteger(n) || n < 1 || n > 53 || RFO_PART_PAGES_MISSING.has(n)) {
+    return { url: RFO_PDF_URL, label: "Read the RFO at acquisition.gov" };
+  }
+  return {
+    url: `https://www.acquisition.gov/far-overhaul/far-part-deviation-guide/far-overhaul-part-${n}`,
+    label: `Read RFO Part ${n} at acquisition.gov`,
+  };
+}

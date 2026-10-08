@@ -1,16 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { STORED_LAUNCH_NOTE } from "@/components/mission-control/operational-state";
 import { useMemo } from "react";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, type DeskCard } from "@/lib/desk-data";
-import { phaseCitation } from "@/lib/launch-sequence";
+import { phaseCitation, phaseLabel, type PhaseView } from "@/lib/launch-sequence";
 import { awardConfidence } from "@/lib/confidence";
 import { RequesterLoe } from "@/components/requester-loe";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
-import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { fileStatusLine } from "@/components/mission-control/file-status";
+import { countdownView, type CountdownView } from "@/components/launch-countdown";
 import { dayWord } from "@/lib/pluralize";
+import { formatDate } from "@/lib/metrics";
 import { nf1707SectionProgress } from "@/components/nf1707-intake";
+import { phasePosition, phasePositionText, plannedDaysToAward } from "@/lib/file-timeline";
+import { McPageHeader, StatusChip, WithDetailsPanel, DetailsSection, DetailsList, CiteChip, type StatusTone } from "@/components/ui-mc";
 
 /** The two files walked in the demo, used only as a soft fallback view. */
 const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
@@ -79,6 +83,57 @@ function owedRows(card: DeskCard): Owed[] {
   ];
 }
 
+/** Plain words beside the readiness word, which stays the same word the file page shows. */
+const READINESS_WORDS: Record<string, string> = {
+  GO: "On track",
+  WATCH: "Being watched",
+  HOLD: "On hold",
+  LAUNCHED: "Awarded",
+};
+
+const BADGE_TONE: Record<string, StatusTone> = {
+  AWARDED: "launched",
+  OVERDUE: "atrisk",
+  HOLD: "atrisk",
+  FORECAST: "neutral",
+};
+
+/** One sentence under the countdown, naming the date it counts to. */
+function whenSentence(view: CountdownView, c: DeskCard): string {
+  const target = c.m.acq.target_award_date ? String(c.m.acq.target_award_date) : null;
+  switch (view.mode) {
+    case "launched":
+      return c.m.awardDate ? `Awarded ${formatDate(c.m.awardDate)}.` : "Awarded.";
+    case "running":
+      return `Target award date ${formatDate(target)}.`;
+    case "overdue":
+      return `The target award date was ${formatDate(target)}.`;
+    case "forecast":
+      return view.pastTarget
+        ? `The forecast award date was ${formatDate(c.m.forecastAwardDate)}. No target date is on file.`
+        : `Forecast award ${formatDate(c.m.forecastAwardDate)}. No target date is on file yet.`;
+    case "hold":
+      return target
+        ? `The clock is on hold. Target award date ${formatDate(target)}.`
+        : c.m.forecastAwardDate
+          ? `The clock is on hold. Forecast award ${formatDate(c.m.forecastAwardDate)}.`
+          : "The clock is on hold.";
+    default:
+      return view.caption.endsWith(".") ? view.caption : `${view.caption}.`;
+  }
+}
+
+function PhaseTrack({ phases, label }: { phases: PhaseView[]; label: string }) {
+  if (phases.length === 0) return null;
+  return (
+    <div className="mc-req-track" role="img" aria-label={label}>
+      {phases.map((p) => (
+        <span key={`${p.order}-${p.phase}`} className={`is-${p.status}`} title={`${phaseLabel(p)}: ${p.status}`} />
+      ))}
+    </div>
+  );
+}
+
 function RequesterPortal() {
   const { authState, user, roles } = useRole();
   const { desk, isLoading, isError } = useDeskData(authState === "signed-in");
@@ -101,11 +156,101 @@ function RequesterPortal() {
     return { mine: own, fallback: "none" as const };
   }, [desk, user.name, roles]);
 
+  // Everything the cards show, worked out once per file.
+  const rows = useMemo(
+    () =>
+      mine.map((c) => {
+        const acq = c.m.acq as Record<string, unknown>;
+        const id = c.m.acq.acquisition_id;
+        const owed = owedRows(c);
+        const missing = owed.filter((o) => !o.present).length;
+        const openDays = daysSince((acq['created_at'] as string | null) ?? null);
+        // Same fallback the Today page "Days held" uses.
+        const holdDays = daysSince(((acq['hold_started_at'] as string | null) ?? c.m.blockerSince) ?? null);
+        const postAward = ["Award", "Administration", "Closeout"].includes(String(c.m.currentPhase ?? ""));
+        const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
+        const explanation = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys });
+        const readiness = explanation.state;
+        // Same countdown the file page clock shows (lib/file-timeline.ts notes the sources).
+        const view = countdownView(c.m);
+        const position = phasePosition(c.m.phases);
+        const currentPhaseView = c.m.phases.find((p) => p.status === "current") ?? null;
+        const status = fileStatusLine(explanation, view, currentPhaseView);
+        const plannedDays = plannedDaysToAward(c.m.acq, desk?.plan ?? []);
+        const waitingOnMe =
+          c.m.clockState === "hold" &&
+          (c.m.blockerOwner ?? "").toLowerCase().includes(user.name.split(" ")[1]?.toLowerCase() ?? "@@");
+        return { c, acq, id, owed, missing, openDays, holdDays, postAward, conf, readiness, view, position, status, plannedDays, waitingOnMe };
+      }),
+    [mine, desk, user.name],
+  );
+
+  const toDo = rows.filter((r) => !r.postAward && (r.missing > 0 || r.waitingOnMe));
+  const awarded = rows.filter((r) => r.view.mode === "launched").length;
+  const nextAward = rows
+    .filter((r) => r.view.mode !== "launched")
+    .map((r) => ({ r, date: (r.c.m.acq.target_award_date ? String(r.c.m.acq.target_award_date) : null) ?? r.c.m.forecastAwardDate }))
+    .filter((x): x is { r: (typeof rows)[number]; date: string } => Boolean(x.date))
+    .sort((a, b) => a.date.localeCompare(b.date))[0];
+  const officers = Array.from(new Set(rows.map((r) => r.c.owner).filter(Boolean)));
+
+  const panel = (
+    <>
+      <DetailsSection title="At a glance">
+        <DetailsList
+          items={[
+            { term: "Requests", value: <span data-numeric>{rows.length}</span> },
+            { term: "Need something from you", value: <span data-numeric>{toDo.length}</span> },
+            { term: "Awarded", value: <span data-numeric>{awarded}</span> },
+            {
+              term: "Next award date",
+              value: nextAward ? (
+                <span>
+                  <span data-numeric>{formatDate(nextAward.date)}</span>
+                  <span className="mc-req-panel-note">{String(nextAward.r.acq['title'] ?? nextAward.r.id)}</span>
+                </span>
+              ) : (
+                "No open request has a date yet"
+              ),
+            },
+          ]}
+        />
+      </DetailsSection>
+      {officers.length > 0 ? (
+        <DetailsSection title={officers.length === 1 ? "Your contracting officer" : "Your contracting officers"}>
+          <ul className="mc-req-panel-list">
+            {officers.map((o) => (
+              <li key={o}>{o}</li>
+            ))}
+          </ul>
+        </DetailsSection>
+      ) : null}
+      <DetailsSection title="How dates are counted">
+        <p className="mc-req-panel-text">
+          The countdown and the phase count come from the same launch sequence the file page uses, so a request
+          reads the same here and on its file. Planned days are calendar days in the phase plan for the buy's type,
+          from intake to award.
+        </p>
+      </DetailsSection>
+      <DetailsSection title="Something new to buy?">
+        <p className="mc-req-panel-text">Start an intake. Nothing is stored until you start the clock.</p>
+        <Link to="/intake" className="mc-req-button mt-3">
+          Start an intake
+        </Link>
+      </DetailsSection>
+    </>
+  );
+
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
         title="Requester portal"
-        lead={`Requests recorded under ${user.name}. Each panel reads from the record on the file.`}
+        lead={`Your requests, ${user.name}: when each should be awarded, what the contracting office still needs from you, and what happens next.`}
+        actions={
+          <Link to="/intake" className="mc-req-button">
+            Start an intake
+          </Link>
+        }
       />
 
       {isLoading ? (
@@ -122,169 +267,212 @@ function RequesterPortal() {
           }
         />
       ) : (
-        <div className="space-y-10">
-          {fallback === "all" ? (
-            <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-              No file lists {user.name} as the requester, so all prototype files are shown. The requester of
-              record is shown on each file.
-            </p>
-          ) : fallback === "samples" ? (
-            <p className="max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-              Demo files — you are not the requester of record. The requester of record is shown on each file.
-            </p>
-          ) : null}
-          {mine.map((c) => {
-            const acq = c.m.acq as Record<string, unknown>;
-            const id = c.m.acq.acquisition_id;
-            const owed = owedRows(c);
-            const missing = owed.filter((o) => !o.present).length;
-            const openDays = daysSince((acq['created_at'] as string | null) ?? null);
-            // Same fallback the Today page "Days held" uses.
-            const holdDays = daysSince(((acq['hold_started_at'] as string | null) ?? c.m.blockerSince) ?? null);
-            const postAward = ["Award", "Administration", "Closeout"].includes(String(c.m.currentPhase ?? ""));
-            const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
-            const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
-            const waitingOnMe =
-              c.m.clockState === "hold" &&
-              (c.m.blockerOwner ?? "").toLowerCase().includes(user.name.split(" ")[1]?.toLowerCase() ?? "@@");
-            return (
-              <section
-                key={id}
-                aria-label={String(acq['title'] ?? id)}
-                className={`mc-work-card ${missionReadinessClass(readiness, "is")}`}
-              >
-                <h2 className="text-[18px] leading-6 font-medium">
-                  <Link
-                    to="/files/$acquisitionId"
-                    params={{ acquisitionId: id }}
-                    className="text-primary hover:text-primary-hover"
-                  >
-                    {String(acq['title'] ?? id)}
-                  </Link>
-                </h2>
-                {/* Same copy tag as Files: a copied sample names the file it came from. */}
-                {String(acq['source_tag'] ?? "").startsWith("Copy of") ? (
-                  <p className="mt-1 text-[12px] text-muted-foreground">{String(acq['source_tag'])}</p>
-                ) : null}
+        <WithDetailsPanel panel={panel} panelLabel="Your requests at a glance">
+          <div className="space-y-6">
+            {fallback === "all" ? (
+              <p className="mc-req-fallback">
+                No file lists {user.name} as the requester, so all prototype files are shown. The requester of
+                record is shown on each file.
+              </p>
+            ) : fallback === "samples" ? (
+              <p className="mc-req-fallback">
+                These are demo files; you are not the requester of record. The requester of record is shown on each file.
+              </p>
+            ) : null}
 
-                <div className="mt-4 grid gap-8 lg:grid-cols-2">
-                  <div>
-                    <h3 className="text-[15px] font-medium">Your file</h3>
-                    <dl className="mt-2 grid grid-cols-[minmax(0,10rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px] max-md:grid-cols-1">
-                      <dt className="text-muted-foreground">Acquisition</dt>
-                      <dd data-numeric>{id}</dd>
-                      <dt className="text-muted-foreground">Contracting officer</dt>
-                      <dd>{c.owner}</dd>
-                      <dt className="text-muted-foreground">Current phase</dt>
-                      <dd>{c.m.currentPhase ?? "Not started"}</dd>
-                      <dt className="text-muted-foreground">Clock</dt>
-                      <dd>
-                        <MissionReadinessChip state={readiness} />
-                        {(c.m.acq as Record<string, unknown>)['__stored_launched'] ? (
-                          <span className="mt-1 block text-[13px] leading-[18px] text-muted-foreground">{STORED_LAUNCH_NOTE}</span>
-                        ) : null}
-                      </dd>
-                      <dt className="text-muted-foreground">Mission</dt>
-                      <dd>{c.mission}</dd>
-                    </dl>
-                    <p className="mt-3 text-[13px] leading-[18px] text-muted-foreground">
-                      Phase authority: {phaseCitation(c.m.currentPhase ?? "", c.m.acq)}.
-                    </p>
-                  </div>
+            <section className="mc-req-todo" aria-labelledby="req-todo-title">
+              <h2 id="req-todo-title" className="mc-req-h">Your to-do</h2>
+              {toDo.length === 0 ? (
+                <p className="mc-req-todo-clear">Nothing is waiting on you right now.</p>
+              ) : (
+                <ul>
+                  {toDo.map((r) => (
+                    <li key={r.id}>
+                      <a href={`#req-${r.id}`} className="mc-req-todo-file">
+                        {String(r.acq['title'] ?? r.id)}
+                      </a>
+                      <span className="mc-req-todo-what">
+                        {[
+                          r.waitingOnMe ? "The file is on hold waiting on your organization" : null,
+                          ...r.owed.filter((o) => !o.present).map((o) => o.label),
+                        ]
+                          .filter(Boolean)
+                          .join("; ")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
 
-                  <div>
-                    <h3 className="text-[15px] font-medium">{postAward ? "Intake items not on record" : "What you owe"}</h3>
-                    <ul className="mt-2 divide-y divide-border border-y border-border">
-                      {owed.map((o) => (
-                        <li key={o.label} className="flex items-baseline justify-between gap-4 py-2 text-[15px]">
-                          <span>
-                            {o.label}
-                            <span className="block text-[13px] text-muted-foreground">{o.note}</span>
-                          </span>
-                          <StatusMark color={o.present ? "var(--mc-readiness-go)" : "var(--mc-readiness-watch)"}>
-                            {o.present ? "Present" : "Missing"}
-                          </StatusMark>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-2 text-[13px] text-muted-foreground" data-numeric>
-                      {postAward
-                        ? missing
-                          ? `${missing} intake ${missing === 1 ? "item is" : "items are"} not on the record.`
-                          : "All intake items are on the record."
-                        : `${missing} of ${owed.length} items still missing.`}
-                    </p>
-                    <Link
-                      to="/forms/$formKey/$acquisitionId"
-                      params={{ formKey: "nf-1707", acquisitionId: id }}
-                      className="mt-3 inline-block text-[15px] text-primary hover:text-primary-hover"
-                    >
-                      Open the NF 1707 intake
-                    </Link>
-                  </div>
-
-                  <div>
-                    <h3 className="text-[15px] font-medium">Days costing</h3>
-                    <dl className="mt-2 grid grid-cols-[minmax(0,14rem)_1fr] gap-x-4 gap-y-1 text-[15px] leading-[22px] max-md:grid-cols-1">
-                      <dt className="text-muted-foreground">Days since the file opened</dt>
-                      <dd data-numeric>{openDays ?? "—"}</dd>
-                      <dt className="text-muted-foreground">Days on hold</dt>
-                      <dd data-numeric>{c.m.clockState === "hold" || readiness === "HOLD" ? (holdDays ?? "Start not recorded") : "Not on hold"}</dd>
-                      <dt className="text-muted-foreground">
-                        {c.m.clockState === "launched" ? "Days since award" : "Days until target award date"}
-                      </dt>
-                      <dd data-numeric>
-                        {c.m.clockState === "launched"
-                          ? `Launched ${c.m.daysSinceAward ?? 0} days ago`
-                          : Number.isFinite(c.m.daysToAward)
-                            ? c.m.daysToAward !== null && c.m.daysToAward < 0
-                              ? `${Math.abs(c.m.daysToAward)} ${dayWord(Math.abs(c.m.daysToAward))} past target award date`
-                              : `${c.m.daysToAward} calendar days`
-                            : "No target award date recorded"}
-                      </dd>
-                    </dl>
-                    <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
-                      {waitingOnMe
-                        ? "This file is waiting on the requesting organization."
-                        : "Counted from today to the target award date on the record, not from an estimate."}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-[15px] font-medium">What happens next</h3>
-                    <p className="mt-2 max-w-[70ch] text-[15px] leading-[22px]">{c.m.nextAction}</p>
-                    {c.m.hold ? (
-                      <p className="mt-2 max-w-[70ch] border-l-2 pl-3 text-[15px]" style={{ borderColor: "var(--mc-readiness-hold)" }}>
-                        On hold: {c.m.hold.reason}. Owner {c.m.hold.owner}.
-                      </p>
-                    ) : null}
-                    <p className="mt-2 text-[13px] leading-[18px] text-muted-foreground">
-                      Next step: {c.m.nextDecision}.
-                      {c.m.nextDecisionDate ? ` Planned by ${c.m.nextDecisionDate} in the phase plan` : ""}
-                      {c.m.nextDecisionDate && c.m.daysToNextDecision != null ? (
-                        c.m.daysToNextDecision < 0 ? (
-                          <span style={{ color: "var(--mc-readiness-watch)" }}>, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} ago</span>
-                        ) : (
-                          <>, {c.m.daysToNextDecision === 0 ? "today" : `${c.m.daysToNextDecision} ${dayWord(c.m.daysToNextDecision)} from now`}</>
-                        )
+            {rows.map((r) => {
+              const { c, acq, id, owed, missing, view } = r;
+              const titleId = `req-${id}-title`;
+              const word = READINESS_WORDS[r.readiness] ?? r.readiness;
+              const positionText = phasePositionText(r.position);
+              const onHold = c.m.clockState === "hold" || r.readiness === "HOLD";
+              return (
+                <article key={id} id={`req-${id}`} aria-labelledby={titleId} className={`mc-req-card is-${r.readiness.toLowerCase()}`}>
+                  <header className="mc-req-card-head">
+                    <div className="min-w-0">
+                      <p className="mc-req-id" data-numeric>{id}</p>
+                      <h2 id={titleId} className="mc-req-title">
+                        <Link to="/files/$acquisitionId" params={{ acquisitionId: id }}>
+                          {String(acq['title'] ?? id)}
+                        </Link>
+                      </h2>
+                      {/* Same copy tag as Files: a copied sample names the file it came from. */}
+                      {String(acq['source_tag'] ?? "").startsWith("Copy of") ? (
+                        <p className="mc-req-meta">{String(acq['source_tag'])}</p>
                       ) : null}
-                      {c.m.nextDecisionDate ? "." : ""}
-                    </p>
-                  </div>
-                </div>
+                    </div>
+                    <div className="mc-req-state">
+                      <StatusChip label={r.readiness} className="is-lg" />
+                      <span className="mc-req-state-word">{word}</span>
+                    </div>
+                  </header>
+                  {(c.m.acq as Record<string, unknown>)['__stored_launched'] ? (
+                    <p className="mc-req-meta mt-2">{STORED_LAUNCH_NOTE}</p>
+                  ) : null}
 
-                <div className="mt-8 border-t border-border pt-6">
-                  <RequesterLoe
-                    acq={acq}
-                    plan={desk?.plan ?? []}
-                    confidence={conf}
-                    missingCount={missing}
-                  />
-                </div>
-              </section>
-            );
-          })}
-        </div>
+                  <div className="mc-req-body">
+                    <div className="mc-req-cols">
+                      <section className="mc-req-col" aria-label="When">
+                        <h3 className="mc-req-h">When</h3>
+                        <div className="mc-req-count" data-numeric>
+                          {view.days === null ? (
+                            <span className="mc-req-count-num is-muted">{view.mode === "stopped" ? "Stopped" : "Not started"}</span>
+                          ) : (
+                            <>
+                              <span className={`mc-req-count-num is-${view.tone}`}>
+                                {view.prefix ?? ""}
+                                {view.days}
+                              </span>
+                              <span className="mc-req-count-unit">
+                                {view.pastTarget ? `${dayWord(view.days)} past target` : dayWord(view.days)}
+                              </span>
+                            </>
+                          )}
+                          {view.badge ? <StatusChip label={view.badge} tone={BADGE_TONE[view.badge] ?? "neutral"} /> : null}
+                        </div>
+                        <p className="mc-req-text">{whenSentence(view, c)}</p>
+
+                        <p className="mc-req-text mt-4">
+                          <span className="font-medium" data-numeric>{positionText}</span>
+                          {r.position.name ? `: ${r.position.name}` : ""}
+                        </p>
+                        <PhaseTrack
+                          phases={c.m.phases}
+                          label={`${positionText}${r.position.name ? `, ${r.position.name}` : ""}. ${r.position.completed} of ${r.position.total} phases complete.`}
+                        />
+                        <dl className="mc-req-facts">
+                          <div>
+                            <dt>Planned time to award</dt>
+                            <dd data-numeric>{r.plannedDays > 0 ? `${r.plannedDays} calendar days` : "No phase plan for this type"}</dd>
+                          </div>
+                          <div>
+                            <dt>Open for</dt>
+                            <dd data-numeric>{r.openDays === null ? "Start not recorded" : `${r.openDays} ${dayWord(r.openDays)}`}</dd>
+                          </div>
+                          {onHold ? (
+                            <div>
+                              <dt>On hold for</dt>
+                              <dd data-numeric>{r.holdDays === null ? "Start not recorded" : `${r.holdDays} ${dayWord(r.holdDays)}`}</dd>
+                            </div>
+                          ) : null}
+                        </dl>
+                      </section>
+
+                      <section className="mc-req-col" aria-label={r.postAward ? "Intake items" : "What you owe"}>
+                        <h3 className="mc-req-h">{r.postAward ? "Intake items not on record" : "What you owe"}</h3>
+                        {r.waitingOnMe ? (
+                          <p className="mc-req-callout is-attention">This file is on hold waiting on your organization.</p>
+                        ) : null}
+                        <ul className="mc-req-owed">
+                          {owed.map((o) => (
+                            <li key={o.label}>
+                              <span className="min-w-0">
+                                <span className="mc-req-owed-label">{o.label}</span>
+                                <span className="mc-req-meta">{o.note}</span>
+                              </span>
+                              <StatusChip label={o.present ? "On file" : "Needed"} tone={o.present ? "ontrack" : "attention"} />
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mc-req-text mt-2" data-numeric>
+                          {r.postAward
+                            ? missing
+                              ? `${missing} intake ${missing === 1 ? "item is" : "items are"} not on the record.`
+                              : "All intake items are on the record."
+                            : missing
+                              ? `${missing} of ${owed.length} still needed from you.`
+                              : "Nothing outstanding from you."}
+                        </p>
+                        <Link
+                          to="/forms/$formKey/$acquisitionId"
+                          params={{ formKey: "nf-1707", acquisitionId: id }}
+                          className="mc-req-link"
+                        >
+                          Open the NF 1707 intake
+                        </Link>
+                      </section>
+
+                      <section className="mc-req-col mc-req-next" aria-label="What happens next">
+                        <h3 className="mc-req-h">What happens next</h3>
+                        <p className="mc-req-lead">{c.m.nextAction}</p>
+                        {c.m.hold ? (
+                          <p className="mc-req-callout is-atrisk">
+                            On hold: {c.m.hold.reason}. Owner {c.m.hold.owner}.
+                          </p>
+                        ) : r.status.reason ? (
+                          <p className="mc-req-callout is-attention">Why it is flagged: {r.status.reason}</p>
+                        ) : null}
+                        <p className="mc-req-text mt-2">
+                          Next step: {c.m.nextDecision}.
+                          {c.m.nextDecisionDate ? ` Planned by ${formatDate(c.m.nextDecisionDate)} in the phase plan` : ""}
+                          {c.m.nextDecisionDate && c.m.daysToNextDecision != null ? (
+                            c.m.daysToNextDecision < 0 ? (
+                              <span className="mc-req-late">, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} ago</span>
+                            ) : (
+                              <>, {c.m.daysToNextDecision === 0 ? "today" : `${c.m.daysToNextDecision} ${dayWord(c.m.daysToNextDecision)} from now`}</>
+                            )
+                          ) : null}
+                          {c.m.nextDecisionDate ? "." : ""}
+                        </p>
+                        <dl className="mc-req-facts">
+                          <div>
+                            <dt>Contracting officer</dt>
+                            <dd>{c.owner}</dd>
+                          </div>
+                          <div>
+                            <dt>Mission</dt>
+                            <dd>{c.mission}</dd>
+                          </div>
+                          <div>
+                            <dt>Rules for this phase</dt>
+                            <dd>
+                              <CiteChip cite={phaseCitation(c.m.currentPhase ?? "", c.m.acq)} label="Phase authority" />
+                            </dd>
+                          </div>
+                        </dl>
+                      </section>
+                    </div>
+
+                    <details className="mc-req-co">
+                      <summary>
+                        <span className="mc-req-co-title">How the contracting office plans this</span>
+                        <span className="mc-req-meta">Contracting officer workload: hours, stages and what drives them</span>
+                      </summary>
+                      <div className="mc-req-co-body">
+                        <RequesterLoe acq={acq} plan={desk?.plan ?? []} confidence={r.conf} missingCount={missing} />
+                      </div>
+                    </details>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </WithDetailsPanel>
       )}
     </AppShell>
   );

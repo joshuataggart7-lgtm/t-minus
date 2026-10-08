@@ -127,7 +127,7 @@ function DirectivesPage() {
   const notReviewed = all.filter((r) => r.review === "not reviewed").length;
 
   return (
-    <AppShell>
+    <AppShell kit>
       <McPageHeader
         eyebrow="Oversight"
         title="Directive compliance"
