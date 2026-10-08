@@ -15,6 +15,7 @@
 // Anything else is offered as Center practice.
 
 import { scenarioOf } from "@/lib/scenario";
+import { MICRO_PURCHASE_THRESHOLD } from "@/lib/micro-purchase";
 
 export const NF1787_CITATION = "NFS CG 1819.11(a) (Companion Guide)";
 export const NF1787_THRESHOLD = 2_000_000;
@@ -48,7 +49,7 @@ export function nf1787Trigger(
 ): Nf1787Trigger {
   const s = scenarioOf(acq);
   const value = Number(acq["estimated_value"] ?? 0) || 0;
-  const micro = opts.micro ?? 10_000;
+  const micro = opts.micro ?? MICRO_PURCHASE_THRESHOLD;
   const setAside = isSmallBusinessSetAside(acq);
   const text = `${str(acq["acquisition_method"])} ${str(acq["competition"])} ${str(acq["set_aside"])} ${str(acq["contract_format"])} ${str(acq["title"])}`;
   const bundling = Boolean(s.combines_requirements);

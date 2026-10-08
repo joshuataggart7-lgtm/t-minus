@@ -26,6 +26,7 @@ import {
 import { igceCite, isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 import { dateCT } from "@/lib/calendar-date";
 import { newContractPlanKey } from "@/lib/phase-plan-key";
+import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
 
 export type AcqRow = Record<string, unknown> & {
@@ -269,8 +270,8 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   Closeout: "Close the file when everything is delivered, paid, and filed.",
 };
 
-/** Micro-purchase threshold, used for the RFO FAR 19.104-1(b)(1) set-aside advisory. */
-const MICRO_PURCHASE = 10_000;
+/** Micro-purchase threshold (RFO FAR 2.101), used for the RFO FAR 19.104-1(b)(1) set-aside advisory. */
+const MICRO_PURCHASE = MICRO_PURCHASE_THRESHOLD;
 /** Value at which the NF 1787A becomes the market research document of record. */
 const MRR_THRESHOLD = 2_000_000;
 /** Simplified acquisition threshold, above which a sole-source proposal needs a TER. */
@@ -343,7 +344,11 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   const base = baseDocs(phase, acq);
   const extra = scenarioRows(phase, acq);
   const variant = acq ? jofocVariant(acq as Record<string, unknown>) : null;
-  const merged = extra.length ? [...base, ...extra] : base;
+  // A scenario trigger row and a base row can name the same document (the BPA
+  // annual review). One row per docKey: the trigger row, which carries the
+  // template, replaces the base row.
+  const extraKeys = new Set(extra.map((d) => d.docKey).filter(Boolean));
+  const merged = extra.length ? [...base.filter((d) => !d.docKey || !extraKeys.has(d.docKey)), ...extra] : base;
   if (variant && phase === "JOFOC") {
     return merged.map((d) =>
       d.templateKey === "jofoc"
@@ -824,7 +829,7 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
     null;
   const trigger = overrideValue(ref.overrides, center, "review_trigger", rule.reviewer_role);
   const sat = thr("Simplified acquisition threshold") ?? 350_000;
-  const micro = thr("Micro-purchase threshold") ?? 15_000;
+  const micro = thr(MICRO_PURCHASE_THRESHOLD_NAME) ?? MICRO_PURCHASE_THRESHOLD;
   // The award date picks the figure: the statute's $10,000,000 for contracts
   // entered into after June 30, 2026, else the RFO FAR 15.403-3(a) $2.5 million.
   const certifiedBasis = certifiedDataBasis(acq as Record<string, unknown>, ref.thresholds, {

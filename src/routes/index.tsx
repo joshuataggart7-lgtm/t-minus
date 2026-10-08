@@ -49,6 +49,7 @@ import { deriveOverviewAcquisitionState } from "@/components/mission-control/ope
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 import { isUnfavorableVote } from "@/lib/review-decisions";
+import { auditActionLabel } from "@/lib/audit-display";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -224,7 +225,7 @@ export function ExecutiveOverview() {
       const acquisitionId = String(row.acquisition_id ?? "");
       if (!acquisitionId || events[acquisitionId]) continue;
       events[acquisitionId] = {
-        action: String(row.action ?? "Activity recorded"),
+        action: auditActionLabel(row.action == null ? null : String(row.action)) ?? "Activity recorded",
         loggedAt: String(row.logged_at ?? ""),
       };
     }

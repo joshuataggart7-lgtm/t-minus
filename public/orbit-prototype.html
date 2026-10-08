@@ -1408,12 +1408,12 @@ go("dashboard");
         '<td style="white-space:nowrap;">'+pill(p.status)+'</td></tr>';
     }).join("");
     return '<div class="page-head"><div><h1>Executive Summary</h1>'+
-      '<p>Live from T-Minus acquisition records, the audit log, and the review polls.</p></div></div>'+
+      '<p>Live from T-Minus acquisition records, the audit log, and reviews and approvals.</p></div></div>'+
       '<div class="stat-cards">'+
       '<div class="scard"><div class="l">Acquisitions running</div><div class="v">'+s.running+'</div><div class="s s-grey" style="color:var(--muted)">clock is moving</div></div>'+
       '<div class="scard"><div class="l">On hold</div><div class="v" style="color:var(--red)">'+s.hold+'</div><div class="s">blocked, owner named</div></div>'+
       '<div class="scard"><div class="l">Launched</div><div class="v" style="color:var(--green)">'+s.launched+'</div><div class="s">awarded</div></div>'+
-      '<div class="scard"><div class="l">Reviews pending</div><div class="v" style="color:var(--amber)">'+s.pending_votes+'</div><div class="s">Go / No-go votes open</div></div>'+
+      '<div class="scard"><div class="l">Reviews pending</div><div class="v" style="color:var(--amber)">'+s.pending_votes+'</div><div class="s">decisions open</div></div>'+
       '</div>'+
       '<div class="panel"><div class="panel-head"><div><h2>Priority projects</h2><div class="sub">'+LIVE.projects.length+' missions on the clock</div></div></div>'+
       '<table class="resp"><thead><tr><th>Mission</th><th>Phase</th><th>Next decision</th><th>Days to award</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
@@ -1444,13 +1444,13 @@ go("dashboard");
         '<div class="item-sub">'+esc(r.acquisition_id)+' · '+esc(r.phase)+'</div></td>'+
         '<td>'+esc(r.reviewer_name)+'</td><td>'+esc(r.due_date||"—")+'</td>'+
         '<td>'+esc(r.citation||"")+'</td>'+
-        '<td style="white-space:nowrap;">'+pill(r.vote==="no-go"?"At Risk":r.vote==="go"?"On Track":"Needs Attention")+'</td></tr>';
+        '<td style="white-space:nowrap;">'+pill(/^(no-go|disapprove|nonconcur|not_legally_sufficient)$/.test(String(r.vote||""))?"At Risk":(!r.vote||r.vote==="pending")?"Needs Attention":"On Track")+'</td></tr>';
     }).join("");
-    return '<div class="page-head"><div><h1>Recurring Actions</h1><p>Open Go / No-go reviews created from the review rules, live from T-Minus.</p></div></div>'+
+    return '<div class="page-head"><div><h1>Recurring Actions</h1><p>Open reviews and approvals created from the review rules, live from T-Minus.</p></div></div>'+
       '<div class="stat-cards">'+
       '<div class="scard"><div class="l">Open reviews</div><div class="v">'+LIVE.recurring.length+'</div><div class="s s-grey" style="color:var(--muted)">across all files</div></div>'+
       '<div class="scard"><div class="l">Pending votes</div><div class="v" style="color:var(--amber)">'+LIVE.summary.pending_votes+'</div><div class="s">awaiting a reviewer</div></div>'+
-      '<div class="scard"><div class="l">No-go votes</div><div class="v" style="color:var(--red)">'+LIVE.summary.nogo_votes+'</div><div class="s">file held</div></div>'+
+      '<div class="scard"><div class="l">Unfavorable decisions</div><div class="v" style="color:var(--red)">'+LIVE.summary.nogo_votes+'</div><div class="s">file held</div></div>'+
       '<div class="scard"><div class="l">Actions logged</div><div class="v" style="color:var(--green)">'+LIVE.summary.audit_entries+'</div><div class="s">audit entries</div></div>'+
       '</div>'+
       '<div class="panel"><div class="panel-head"><div><h2>Reviews in flight</h2><div class="sub">from review_rules and polls</div></div></div>'+

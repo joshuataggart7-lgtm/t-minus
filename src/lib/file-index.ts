@@ -303,12 +303,25 @@ export function buildFileIndex(
     // index reads honestly; a real tab on the record is left alone.
     const resolved = nearFields(def?.key, picked !== "" && picked !== "—" ? picked : normTab(tpl.nf_1098_tab));
     const tab = displayTab(resolved.tab);
-    const key = `${tab}|${tpl.name}`;
+    // An official export saved under the SF 1449 template with a different
+    // doc_key (the RFP cover letter) is its own document, not an SF 1449
+    // version. Only doc_key "sf-1449-official" counts toward the SF 1449.
+    const values = d.field_values;
+    const strayExport =
+      values?.kind === "official-export" &&
+      isSf1449(tpl.name) &&
+      typeof values.doc_key === "string" &&
+      values.doc_key !== "" &&
+      values.doc_key !== "sf-1449-official" &&
+      typeof values.doc_label === "string" &&
+      values.doc_label.trim() !== "";
+    const rowName = strayExport ? String(values?.doc_label).trim() : tpl.name;
+    const key = `${tab}|${rowName}`;
     const entry =
       present.get(key) ??
       ({
         tab,
-        templateName: tpl.name,
+        templateName: rowName,
         phase: def ? phaseForTemplate(def.key) : "—",
         origin: "generated" as const,
         open: openFor(tpl.name, def?.key),
@@ -316,7 +329,7 @@ export function buildFileIndex(
         ...resolved.near,
       } satisfies IndexTab);
     entry.documents.push({
-      templateName: tpl.name,
+      templateName: rowName,
       version: d.version ?? 1,
       savedBy: d.saved_by,
       savedAt: d.saved_at,

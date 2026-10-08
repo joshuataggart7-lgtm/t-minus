@@ -1,5 +1,6 @@
 import { writeAudit } from "@/lib/audit";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
+import { auditActionLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
@@ -3073,7 +3074,8 @@ function FilePage() {
         <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
         <div className="border-t border-border px-5 py-4">
         <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          Every document on this file, drafted or uploaded: its NF 1098 tab, version, who saved or
+          Every document on this file, drafted or uploaded: its NEAR file element (NF 1098 tab for actions
+          before Oct 1, 2024), version, who saved or
           uploaded it and when. Each row opens the official version. Required tabs with no document
           are listed at the end. RFO FAR 4.101 contract file.
         </p>
@@ -5024,10 +5026,10 @@ function FilePage() {
                 <tr key={row.log_id} className="border-b border-border align-top">
                   <td className="p-2">{new Date(row.logged_at).toLocaleString()}</td>
                   <td className="p-2">{row.actor}</td>
-                  <td className="p-2">{row.action}</td>
+                  <td className="p-2" title={storedAs(row.action, auditActionLabel(row.action))}>{auditActionLabel(row.action)}</td>
                   <td className="p-2">{row.field}</td>
-                  <td className="p-2">{row.new_value}</td>
-                  <td className="p-2">{row.reason}</td>
+                  <td className="p-2" title={storedAs(row.new_value, auditValueLabel(row.action, row.new_value))}>{auditValueLabel(row.action, row.new_value)}</td>
+                  <td className="p-2" title={storedAs(row.reason, auditTextLabel(row.reason))}>{auditTextLabel(row.reason)}</td>
                 </tr>
               ))}
             </tbody>
