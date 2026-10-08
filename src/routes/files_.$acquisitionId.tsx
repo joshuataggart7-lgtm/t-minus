@@ -1687,6 +1687,10 @@ function FilePage() {
       const currentIndex = phases.findIndex((phase) => phase.phase === phaseAlias(acq.current_phase));
       const fpdsIndex = phases.findIndex((phase) => phase.phase === "FPDS-NG Report");
       const administrationIndex = phases.findIndex((phase) => phase.phase === "Administration");
+      // The phase after the FPDS report on this plan: Administration, or the
+      // definitization window on a letter contract, or Closeout on a
+      // ratification.
+      const launchPhase = (fpdsIndex >= 0 ? phases[fpdsIndex + 1]?.phase : undefined) ?? "Administration";
       const preAwardComplete = currentIndex >= 0 && (
         (fpdsIndex >= 0 && currentIndex >= fpdsIndex) ||
         (fpdsIndex < 0 && administrationIndex >= 0 && currentIndex >= administrationIndex)
@@ -1721,7 +1725,7 @@ function FilePage() {
           hold_owner: null,
           hold_started_at: null,
           status: "awarded",
-          current_phase: "Administration",
+          current_phase: launchPhase,
         })
         .eq("acquisition_id", acq.acquisition_id)
         .select("acquisition_id");
@@ -1744,7 +1748,7 @@ function FilePage() {
           .update(before)
           .eq("acquisition_id", acq.acquisition_id)
           .eq("clock_state", "launched")
-          .eq("current_phase", "Administration")
+          .eq("current_phase", launchPhase)
           .select("acquisition_id");
         if (!revertError && revertedRows && revertedRows.length > 0) {
           throw new Error(`Launch not recorded: the audit entry could not be saved (${auditError.message}). The file was put back to its previous state. Try again`);

@@ -8,7 +8,7 @@ import { matchStrategy, type RefData } from "@/lib/intake";
 import { phaseAlias, REVIEW_PHASE } from "@/lib/phase-alias";
 import { DECISION_LABEL, decisionOutcome, normalizeDecision, reviewKindFor, isDecided, PHASE_EXIT_RULE, type ReviewDecision, type ReviewKind, type ReviewOutcome } from "@/lib/review-decisions";
 import { overrideValue } from "@/lib/center-config";
-import { jofocVariant, scenarioContext, triggeredDocs } from "@/lib/scenario";
+import { jofocVariant, scenarioContext, scenarioOf, triggeredDocs } from "@/lib/scenario";
 import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
 import { HQ4_TEMPLATE_KEYS } from "@/lib/templates-hq4";
@@ -25,7 +25,15 @@ import {
 } from "@/lib/vehicles";
 import { igceCite, isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 import { dateCT } from "@/lib/calendar-date";
-import { newContractPlanKey } from "@/lib/phase-plan-key";
+import {
+  isCostType,
+  isFar13Method,
+  isLetterContract,
+  isRatification,
+  newContractPlanKey,
+  TM_ORDER_PLAN,
+  type NewContractFacts,
+} from "@/lib/phase-plan-key";
 import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
 
@@ -128,19 +136,80 @@ export type RequiredDoc = {
   attachOnly?: boolean;
   /** the document of record is produced outside T-Minus */
   handoff?: boolean;
+  /** due after award: never holds the file before award */
+  dueAfterAward?: boolean;
 };
+
+/** The facts a new contract's plan key reads (see phase-plan-key.ts). */
+export function newContractFacts(acq: AcqRow): NewContractFacts {
+  const row = acq as Record<string, unknown>;
+  return {
+    competition: acq.competition,
+    method: row["acquisition_method"],
+    commercial: isCommercialBuy(acq),
+    value: acq.estimated_value ?? null,
+    contractType: acq.contract_type,
+    ratification: isRatification(row),
+    letterContract: isLetterContract(row),
+  };
+}
+
+/** A time-and-materials or labor-hour contract type on the record. */
+export function isTmOrLaborHour(acq?: AcqRow | null): boolean {
+  const t = String(acq?.contract_type ?? "").trim();
+  return /^(T&M|TM|LH|LABOR)/i.test(t) || /labor[- ]hour|time[- ]and[- ]materials?/i.test(t);
+}
 
 export function acquisitionType(acq: AcqRow, plan?: { acquisition_type: string | null }[] | null) {
   // A vehicle answered at intake decides the phase plan: a parent IDIQ, an
   // order under one, a BPA, or a schedule order each run their own sequence.
   const profile = acquisitionProfile(acq as Record<string, unknown>);
+  // A T&M or labor-hour order runs the T&M order plan, which carries the
+  // Market Research phase its determination and findings sits in.
+  if (profile === "order_under_idiq" && isTmOrLaborHour(acq) && (!plan || plan.some((p) => p.acquisition_type === TM_ORDER_PLAN)))
+    return TM_ORDER_PLAN;
   if (profile !== "new_contract") return profile;
-  // Competed, noncommercial FAR Part 15 buys run the negotiated plan; every
-  // other new contract keeps the commercial plans (see phase-plan-key.ts).
-  return newContractPlanKey(
-    { competition: acq.competition, method: (acq as Record<string, unknown>)["acquisition_method"], commercial: isCommercialBuy(acq) },
-    plan,
-  );
+  // New contracts: ratification, letter contract, sole source, negotiated
+  // (cost or not), simplified, commercial (see phase-plan-key.ts).
+  return newContractPlanKey(newContractFacts(acq), plan);
+}
+
+/**
+ * The award path a file's rows follow. Orders, BPAs and letter contracts carry
+ * their own instruments; otherwise a commercial buy uses the SF 1449 (RFO FAR
+ * 12.204(c)(1)), a noncommercial FAR Part 13 buy the OF 347 (RFO FAR
+ * 13.203(c)), and a negotiated noncommercial buy the OF 307, SF 26 or SF 33
+ * (RFO FAR 15.207-1(b)(1)).
+ */
+export type AwardPath = "order" | "bpa" | "letter_contract" | "commercial" | "simplified" | "negotiated";
+
+export function awardPath(acq?: AcqRow | null): AwardPath {
+  const row = (acq ?? {}) as Record<string, unknown>;
+  const profile = acquisitionProfile(row);
+  if (isOrderProfile(profile)) return "order";
+  if (profile === "bpa") return "bpa";
+  if (isLetterContract(row)) return "letter_contract";
+  if (isCommercialBuy(acq)) return "commercial";
+  if (isFar13Method(row["acquisition_method"])) return "simplified";
+  return "negotiated";
+}
+
+/** The award instrument named on the signature and award rows. */
+function awardInstrument(path: AwardPath): string {
+  switch (path) {
+    case "order":
+      return "order";
+    case "bpa":
+      return "blanket purchase agreement";
+    case "letter_contract":
+      return "letter contract";
+    case "simplified":
+      return "OF 347";
+    case "negotiated":
+      return "award document (OF 307, SF 26 or SF 33)";
+    default:
+      return "SF 1449";
+  }
 }
 
 /** True when the record itself says the buy is commercial. */
@@ -167,8 +236,15 @@ export function acquisitionTypeWords(acq: AcqRow) {
     ? `Commercial ${typeWords}`.trim()
     : typeWords || "Non-commercial";
   const method = String((acq as Record<string, unknown>)["acquisition_method"] ?? "");
-  const methodWords = isCommercialSimplifiedMethod(method)
+  const row = acq as Record<string, unknown>;
+  const methodWords = isRatification(row) && /1\.405/.test(method)
+    ? "RFO FAR 1.405 (ratification)"
+    : isLetterContract(row)
+    ? "RFO FAR 16.603 (letter contract)"
+    : isCommercialSimplifiedMethod(method)
     ? "RFO FAR 12.201-1"
+    : /\b16\b/.test(method) && isOrderProfile(acquisitionProfile(row))
+    ? "RFO FAR subpart 16.5"
     : /13/.test(method)
       ? "RFO FAR Part 13"
       : /15/.test(method)
@@ -236,6 +312,11 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   // A sole-source notice is a notice of intent, never a combined
   // synopsis/solicitation, so FAR 12.603 has no part in it.
   const soleSource = /sole|brand/i.test(String(((acq ?? {}) as Record<string, unknown>)["competition"] ?? ""));
+  // A letter contract is awarded first and definitized after (RFO FAR 16.603-2(c)).
+  if (isLetterContract((acq ?? {}) as Record<string, unknown>)) {
+    if (phase === "Award") return "RFO FAR 16.603-2(c) (letter contract with a definitization schedule); NFS CG 1804.11(b) (award written in NCMS)";
+    if (phase === "Price Reasonableness") return "RFO FAR 16.603-2(c) (definitization); RFO FAR 15.408-2(a) (price negotiation memorandum)";
+  }
   if (soleSource && phase === "Synopsis") return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
   // commercial FAR 12.603 citation has no part in its Solicitation/Quote row.
@@ -262,7 +343,7 @@ export const PHASE_GUIDANCE: Record<string, string> = {
   "Price Reasonableness":
     "Write the price negotiation memorandum. It is the determination of record; no separate price memo is made.",
   "Responsibility Check":
-    "Check the vendor in SAM: registration, exclusions, and integrity records. Signing the SF 1449 is the determination.",
+    "Check the vendor in SAM: registration, exclusions, and integrity records. Signing the award is the determination.",
   [REVIEW_PHASE]: `Each required reviewer records a formal decision by name: Approve or Disapprove for an approval, Concur or Nonconcur for a concurrence, Legally sufficient or Not legally sufficient for legal review. ${PHASE_EXIT_RULE}`,
   Award: "Award in NCMS from the handoff packet, then mark the file Launched.",
   "FPDS-NG Report": "Report the action so the public record matches the file.",
@@ -307,11 +388,24 @@ const LIVE_TEMPLATE_KEYS = new Set([
   ...HQ6C_TEMPLATE_KEYS,
 ]);
 
+/**
+ * The phase a trigger row lands in on this plan. A Market Research or JOFOC
+ * row whose phase the plan does not have (an order plan, the letter contract
+ * or ratification plan) moves to Fair Opportunity when the plan has it, and to
+ * Intake otherwise, so a required row never drops out of the sequence.
+ */
+export function triggerPhaseOnPlan(phase: string, planPhases?: readonly string[] | null): string {
+  if (!planPhases || !planPhases.length || planPhases.includes(phase)) return phase;
+  if (phase === "Market Research" || phase === "JOFOC")
+    return planPhases.includes("Fair Opportunity") ? "Fair Opportunity" : "Intake";
+  return phase;
+}
+
 /** Rows the scenario answers switch on for this phase. */
-function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
+function scenarioRows(phase: string, acq?: AcqRow, planPhases?: readonly string[] | null): RequiredDoc[] {
   if (!acq) return [];
   return triggeredDocs(acq as Record<string, unknown>)
-    .filter((d) => d.phase === phase && !d.replacesJofoc)
+    .filter((d) => triggerPhaseOnPlan(d.phase, planPhases) === phase && !d.replacesJofoc)
     .map((d) => {
       const templateKey = d.templateKeyFor
         ? d.templateKeyFor(scenarioContext(acq as Record<string, unknown>))
@@ -325,6 +419,7 @@ function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
         ...(d.state === "offered" ? { optional: true } : {}),
         ...(d.note ? { note: d.note } : {}),
         ...(d.handoff ? { handoff: true } : {}),
+        ...(d.dueAfterAward ? { dueAfterAward: true } : {}),
       };
       if (d.doc_key === "contract-type-dandf" && !templateKey) {
         // CPFF carries no determination of its own; the row says so.
@@ -340,9 +435,13 @@ function scenarioRows(phase: string, acq?: AcqRow): RequiredDoc[] {
     });
 }
 
-export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
+/**
+ * The rows for one phase. Pass the plan's phase names so a trigger row whose
+ * phase the plan lacks lands where the plan can show it (triggerPhaseOnPlan).
+ */
+export function requiredDocs(phase: string, acq?: AcqRow, planPhases?: readonly string[] | null): RequiredDoc[] {
   const base = baseDocs(phase, acq);
-  const extra = scenarioRows(phase, acq);
+  const extra = scenarioRows(phase, acq, planPhases);
   const variant = acq ? jofocVariant(acq as Record<string, unknown>) : null;
   // A scenario trigger row and a base row can name the same document (the BPA
   // annual review). One row per docKey: the trigger row, which carries the
@@ -357,6 +456,16 @@ export function requiredDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             label: variant.label,
             citation: variant.citation,
             ...(variant.templateKey ? { templateKey: variant.templateKey } : {}),
+            // RFO FAR 6.103-2(d): under unusual and compelling urgency the
+            // justification and approval may be made after award when making
+            // it first would unreasonably delay the acquisition. It is posted
+            // within 30 days after award (RFO FAR 6.301(b)(1)).
+            ...(variant.doc_key === "jofoc-urgency"
+              ? {
+                  dueAfterAward: true,
+                  note: "May be made after award when making it first would unreasonably delay the acquisition (RFO FAR 6.103-2(d)). Post it within 30 days after award (RFO FAR 6.301(b)(1)).",
+                }
+              : {}),
           }
         : d,
     );
@@ -381,6 +490,67 @@ export function hasOptionPeriods(acq?: AcqRow): boolean {
   return Array.isArray(list) && list.length > 0;
 }
 
+/** The fair opportunity procedure the order value falls under (RFO FAR 16.507-1, -3, -4, -5). */
+function fairOpportunityTier(value: number): { citation: string; note: string } {
+  if (value <= MICRO_PURCHASE)
+    return { citation: "RFO FAR 16.507-1", note: "Order value at or below the micro-purchase threshold: RFO FAR 16.507-1." };
+  if (value <= SIMPLIFIED_ACQUISITION_THRESHOLD)
+    return { citation: "RFO FAR 16.507-3", note: "Order value above the micro-purchase threshold but not above the SAT: RFO FAR 16.507-3." };
+  if (value <= 7_500_000)
+    return { citation: "RFO FAR 16.507-4", note: "Order value above the SAT but not above $7.5 million: RFO FAR 16.507-4." };
+  return { citation: "RFO FAR 16.507-5", note: "Order value above $7.5 million: RFO FAR 16.507-5." };
+}
+
+function addDaysISO(iso: string, days: number): string | null {
+  const t = Date.parse(`${iso.slice(0, 10)}T00:00:00Z`);
+  if (!Number.isFinite(t)) return null;
+  return new Date(t + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** The definitization window on a letter contract (RFO FAR 16.603-2(c)). */
+function definitizationNote(acq?: AcqRow): string {
+  const base =
+    "Definitize within 180 days after the date of the letter contract or before 40 percent of the work is complete, whichever comes first (RFO FAR 16.603-2(c)).";
+  const award = String(acq?.target_award_date ?? "").slice(0, 10);
+  const due = /^\d{4}-\d{2}-\d{2}$/.test(award) ? addDaysISO(award, 180) : null;
+  return due ? `${base} From the target award date of ${award}, 180 days is ${due}.` : base;
+}
+
+/**
+ * Routing notes for a new buy at or below the SAT. The NSSC is NASA's sole
+ * purchasing activity at or below the SAT except for the listed cases (NFS CG
+ * 1812.41(a), (b)); under the micro-purchase threshold the purchase card is
+ * used to the maximum extent practicable (NFS CG 1812.42(a)). Offered notes,
+ * never holding.
+ */
+function simplifiedRoutingRows(acq?: AcqRow): RequiredDoc[] {
+  if (!acq) return [];
+  const row = acq as Record<string, unknown>;
+  const value = Number(acq.estimated_value ?? NaN);
+  if (!Number.isFinite(value) || value <= 0 || value > SIMPLIFIED_ACQUISITION_THRESHOLD) return [];
+  if (acquisitionProfile(row) !== "new_contract" || isRatification(row) || isLetterContract(row)) return [];
+  const s = scenarioOf(row);
+  // NFS CG 1812.41(a)(4) interagency agreements and (a)(5) construction stay at the center.
+  if (s.funding !== "nasa" || s.deliverable === "construction") return [];
+  if (value <= MICRO_PURCHASE)
+    return [
+      {
+        label: "Purchase card for a micro-purchase",
+        citation: "NFS CG 1812.42(a)",
+        optional: true,
+        note: "The NASA purchase card must be used for micro-purchase threshold transactions to the maximum extent practicable (NFS CG 1812.42(a)).",
+      },
+    ];
+  return [
+    {
+      label: "NSSC routing through the Simplified Acquisition Customer Portal",
+      citation: "NFS CG 1812.41(a), (b)",
+      optional: true,
+      note: "At or below the SAT the NSSC is NASA's sole purchasing activity unless an exception in NFS CG 1812.41(a)(1)-(7) applies; the requiring activity submits the request in the Simplified Acquisition Customer Portal (NFS CG 1812.41(b)).",
+    },
+  ];
+}
+
 function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
@@ -400,8 +570,13 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           citation: "RFO FAR 11.102(a)(2)(i); RFO FAR 37.101-1(a) and 37.102-1(a) (services, PWS)",
           field: "sow_attached",
         },
+        ...simplifiedRoutingRows(acq),
       ];
     case "Market Research": {
+      // An order plan with a Market Research phase (the T&M order plan) uses it
+      // for the T&M determination and findings only; the order's NF 1787 row
+      // sits on Fair Opportunity.
+      if (isOrderProfile(acquisitionProfile(acq as Record<string, unknown>))) return [];
       const value = Number(acq?.estimated_value ?? 0);
       // NFS CG 1810.12(c): the NF 1787A documents market research on a
       // procurement exceeding $2,000,000 and goes with the NF 1787; below that
@@ -473,12 +648,25 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               templateKey: "sam-notice",
               note: "Allow at least 15 days for responses unless an exception applies.",
             }
-          : {
-              label: "Combined synopsis/solicitation notice",
-              citation: "RFO FAR 5.201; RFO FAR 12.202(b)",
-              link: "templates",
-              templateKey: "sam-notice",
-            },
+          : awardPath(acq) === "simplified" || awardPath(acq) === "negotiated"
+            ? {
+                // A noncommercial buy has no combined notice: the
+                // presolicitation notice goes up first (RFO FAR 5.101).
+                label: "Presolicitation notice",
+                citation: "RFO FAR 5.101",
+                link: "templates",
+                templateKey: "sam-notice",
+                note:
+                  Number(acq?.estimated_value ?? 0) > SIMPLIFIED_ACQUISITION_THRESHOLD
+                    ? "Post at least 15 days before the solicitation is issued (RFO FAR 5.101(d), Table 5-2)."
+                    : "Post at least 15 days before the solicitation is issued (RFO FAR 5.101(d), Table 5-2), unless the solicitation is posted in the GPE and allows electronic offers (RFO FAR 5.101(b)(1)(i)).",
+              }
+            : {
+                label: "Combined synopsis/solicitation notice",
+                citation: "RFO FAR 5.201; RFO FAR 12.202(b)",
+                link: "templates",
+                templateKey: "sam-notice",
+              },
       ];
     }
     case "Solicitation/Quote": {
@@ -490,9 +678,22 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           ? [
               {
                 label: "Proposed price from the intended source",
-                citation: /\b15\b/.test(String(acq?.acquisition_method ?? "")) ? "RFO FAR 15.201(c)(3)" : simplifiedPriceCite(String(acq?.acquisition_method ?? "")),
+                citation:
+                  awardPath(acq) === "letter_contract"
+                    ? "RFO FAR 16.603-2(c)"
+                    : /\b15\b/.test(String(acq?.acquisition_method ?? "")) || awardPath(acq) === "negotiated"
+                      ? "RFO FAR 15.201(c)(3)"
+                      : simplifiedPriceCite(String(acq?.acquisition_method ?? "")),
                 field: "proposed_price",
                 note: "Record the price the single source proposed and the date it was received; the technical evaluation report and the price negotiation memorandum read it from here.",
+                // On a letter contract the price proposal follows the
+                // definitization schedule after award (RFO FAR 16.603-2(c)).
+                ...(isLetterContract(acq as Record<string, unknown>)
+                  ? {
+                      dueAfterAward: true,
+                      note: "On a letter contract the price proposal is due on the definitization schedule (RFO FAR 16.603-2(c)); record it here when it arrives.",
+                    }
+                  : {}),
               } as RequiredDoc,
             ]
           : []),
@@ -503,12 +704,27 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       // On a competed FAR 13.5 buy the RFO FAR 13.202 evaluation of quotations
       // is the requirement and the TER is offered.
       const terRequired = isTerRequired(acq);
+      const path = awardPath(acq);
+      // A competed negotiated buy evaluates proposals, not quotations (RFO
+      // FAR 15.202); NASA source evaluation boards and teams report under
+      // NFS CG 1815.27. The technical evaluation report carries that finding.
+      if (!terRequired && path === "negotiated")
+        return [
+          {
+            label: "Evaluation of proposals (SEB or SET report)",
+            citation: "RFO FAR 15.202; NFS CG 1815.27",
+            link: "templates",
+            templateKey: "technical-evaluation-report",
+            note: "Evaluate each proposal against the factors and subfactors in the solicitation and record the findings for the source selection authority.",
+          },
+        ];
+      const evalCite = path === "simplified" ? "RFO FAR 13.202" : "RFO FAR 12.203";
       return [
         {
           label: terRequired
             ? "NASA technical evaluation report"
             : "NASA technical evaluation report (offered)",
-          citation: terRequired ? "NFS CG 1815.45(b)" : "RFO FAR 12.203",
+          citation: terRequired ? "NFS CG 1815.45(b)" : evalCite,
           link: "templates",
           templateKey: "technical-evaluation-report",
           optional: !terRequired,
@@ -521,7 +737,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : [
               {
                 label: "Evaluation of quotations record",
-                citation: "RFO FAR 12.203",
+                citation: evalCite,
                 link: "templates",
                 templateKey: "evaluation-of-quotations",
                 note: "Judge each quote against the stated criteria and record who evaluated and why.",
@@ -536,18 +752,24 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       const exception =
         vehicle.fair_opportunity === "competed" ? null : exceptionLabel(String(vehicle.fair_opportunity));
       const schedule = profile === "fss_order";
+      const tier = fairOpportunityTier(value);
       const rows: RequiredDoc[] = [
         {
           label: schedule
             ? "Record of the schedule ordering procedures followed"
             : "Fair opportunity record: every awardee considered",
-          citation: schedule ? fssOrderCitation(value) : "RFO FAR 16.507-2(a)",
+          citation: schedule ? fssOrderCitation(value) : `RFO FAR 16.507-2(a); ${tier.citation}`,
           docKey: "fair-opportunity-record",
           tab: "010",
           attachOnly: true,
+          // With an exception recorded, the exception justification below is
+          // the record; no awardee-by-awardee consideration is required.
+          ...(exception && !schedule ? { optional: true } : {}),
           note: schedule
             ? "The ordering procedure follows the order value."
-            : "Record how each awardee under the vehicle was given a fair opportunity to be considered.",
+            : exception
+              ? `Not required: the contracting officer relies on the ${exception.label.toLowerCase()} exception (${exception.citation}), documented in the justification below. ${tier.note}`
+              : `Record how each awardee under the vehicle was given a fair opportunity to be considered. ${tier.note}`,
         },
       ];
       if (exception) {
@@ -594,14 +816,32 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return rows;
     }
     case "Price Reasonableness": {
-      const order = isOrderProfile(acquisitionProfile(acq as Record<string, unknown>));
+      const path = awardPath(acq);
+      if (path === "letter_contract")
+        return [
+          {
+            label: "Price negotiation memorandum (PNM) for the definitized contract",
+            citation: "RFO FAR 15.408-2(a); RFO FAR 16.603-2(c)",
+            link: "templates",
+            templateKey: "pnm",
+            note: definitizationNote(acq),
+          },
+        ];
+      const citation =
+        path === "order"
+          ? "RFO FAR 16.506(f)"
+          : path === "negotiated"
+            ? "RFO FAR 15.408-2(a)"
+            : path === "simplified"
+              ? "RFO FAR 13.203(a)"
+              : "RFO FAR 12.204(a)";
       return [
         {
           label: "Price negotiation memorandum (PNM)",
-          citation: order ? "RFO FAR 16.506(f)" : "RFO FAR 12.204(a)",
+          citation,
           link: "templates",
           templateKey: "pnm",
-          note: order
+          note: path === "order"
             ? "The contracting officer determines the order price fair and reasonable under RFO FAR 16.506(f). The PNM is the determination of record."
             : "The PNM is the price reasonableness determination of record. No separate determination is generated.",
         },
@@ -611,8 +851,9 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "SAM.gov entity registration and exclusion results",
-          citation: "RFO FAR 9.104-1; RFO FAR 52.204-7",
+          citation: "RFO FAR 9.104-1; RFO FAR 9.405(e); RFO FAR 52.204-7",
           link: "checks",
+          note: "Review the exclusion records in SAM after quotes or proposals are received, and again immediately before award (RFO FAR 9.405(e)(1), (4)).",
         },
         {
           label: "Integrity records count (FAPIIS)",
@@ -620,10 +861,10 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           link: "checks",
         },
         {
-          label: "SF 1449 signature",
-          citation: "RFO FAR 9.105-2",
+          label: `Contracting officer's signature on the ${awardInstrument(awardPath(acq))}`,
+          citation: "RFO FAR 9.105-2(a)(1)",
           link: "packet",
-          note: "The contracting officer's signature on the SF 1449 is the affirmative responsibility determination. A separate memorandum is generated only on a finding of nonresponsibility.",
+          note: `The contracting officer's signature on the ${awardInstrument(awardPath(acq))} is the affirmative responsibility determination (RFO FAR 9.105-2(a)(1)). A separate memorandum is generated only on a finding of nonresponsibility.`,
         },
       ];
     case REVIEW_PHASE:
@@ -649,10 +890,21 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
           { label: "Blanket purchase agreement signed (written in NCMS)", citation: "RFO FAR 12.201-1(e)(3)(iv)", link: "packet" },
         ];
-      return [
-        { label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" },
-        { label: "SF 1449 award document (written in NCMS)", citation: "RFO FAR 12.204(c)(1)", link: "packet" },
-      ];
+      const path = awardPath(acq);
+      const award: RequiredDoc =
+        path === "letter_contract"
+          ? {
+              label: "Letter contract with the definitization schedule (written in NCMS)",
+              citation: "RFO FAR 16.603-2(c)",
+              link: "packet",
+              note: "The schedule provides for definitization within 180 days after the date of the letter contract or before 40 percent of the work is complete, whichever comes first (RFO FAR 16.603-2(c)).",
+            }
+          : path === "negotiated"
+            ? { label: "Award document: OF 307, SF 26 or SF 33 (written in NCMS)", citation: "RFO FAR 15.207-1(b)(1)", link: "packet" }
+            : path === "simplified"
+              ? { label: "OF 347 purchase order (written in NCMS)", citation: "RFO FAR 13.203(c)", link: "packet" }
+              : { label: "SF 1449 award document (written in NCMS)", citation: "RFO FAR 12.204(c)(1)", link: "packet" };
+      return [{ label: "NCMS handoff packet", citation: "NFS CG 1804.11(b)", link: "packet" }, award];
     }
     case "FPDS-NG Report":
       return [{ label: "FPDS-NG contract action report", citation: "RFO FAR 4.301" }];
@@ -734,7 +986,9 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           citation: "RFO FAR 4.308-1(a)",
           docKey: "closeout-record",
           tab: "120",
-          note: "Entered on the closeout panel of this file; the checklist reads those values.",
+          note: isCostType(acq?.contract_type)
+            ? "Entered on the closeout panel of this file; the checklist reads those values. A contract requiring settlement of indirect cost rates is closed within 36 months of the month the contracting officer receives evidence of physical completion (RFO FAR 4.308-2(b), Table 4-2(3))."
+            : "Entered on the closeout panel of this file; the checklist reads those values.",
         },
         { label: "Contract file complete and retained", citation: "RFO FAR 4.101; RFO FAR 4.309" },
       ];
@@ -847,7 +1101,14 @@ export function reviewApplies(rule: ReviewRuleRow, acq: AcqRow, ref: RefData): b
         : certifiedBasis.rule === "statute"
           ? value > certified
           : value >= certified);
-  if (role.startsWith("small business")) return value > (trigger ?? micro);
+  // Small business coordination follows NFS CG 1819.11(a): over $2,000,000
+  // and not set aside, an out-of-scope modification, or bundling or
+  // consolidation, less the (a)(2) exceptions. A Center trigger, when one is
+  // configured, replaces it.
+  if (role.startsWith("small business"))
+    return trigger !== null && trigger !== undefined
+      ? value > trigger
+      : nf1787Trigger(acq as Record<string, unknown>, { micro }).required;
   if (role.startsWith("procurement strategy meeting")) return value > (trigger ?? 10_000_000);
   if (role.includes("notification of procurement action"))
     return value >= (trigger ?? 7_000_000) && value < 30_000_000;
@@ -1177,17 +1438,20 @@ export function buildSequence(
     return i === 0 && recordedPhases ? createdDay : null;
   };
 
+  const clockNow = String(acq.clock_state ?? "").toLowerCase();
   const unfinished = (phase: string, docs: RequiredDoc[]) => {
     if (!known) return false;
     return docs.some((d) => {
       if (d.optional) return false;
+      if (d.dueAfterAward && clockNow !== "launched") return false;
       if (generatorKey(d) && !d.field && !known.savedKeys) return false;
       const hasFile = known.attachedKeys ? known.attachedKeys.has(docRowKey(d)) : undefined;
       return docSatisfied(d, acq, hasFile, known.savedKeys) === false;
     });
   };
 
-  const docsFor = rows.map((r) => requiredDocs(r.phase as string, acq));
+  const planPhases = rows.map((r) => r.phase as string);
+  const docsFor = rows.map((r) => requiredDocs(r.phase as string, acq, planPhases));
 
   // A phase is exited only when every required row in it is saved or attached.
   // Where an earlier phase is still short a document, the file sits in that
@@ -1206,7 +1470,11 @@ export function buildSequence(
   if (postAward) {
     const adminIndex = indexOfPhase("Administration");
     const closeoutIndex = indexOfPhase("Closeout");
-    if (currentIndex >= 0 && (currentIndex === closeoutIndex || currentIndex >= adminIndex)) {
+    const awardIndex = indexOfPhase("Award");
+    // A phase the plan places after Award (the definitization window on a
+    // letter contract, RFO FAR 16.603-2(c)) is a post-award phase too.
+    const afterAward = awardIndex >= 0 && currentIndex > awardIndex;
+    if (currentIndex >= 0 && (afterAward || currentIndex === closeoutIndex || currentIndex >= adminIndex)) {
       effectiveIndex = currentIndex;
     } else {
       effectiveIndex = adminIndex >= 0 ? adminIndex : closeoutIndex >= 0 ? closeoutIndex : currentIndex;
@@ -1288,6 +1556,9 @@ export function computeHold(
   for (const p of throughCurrent) {
     for (const d of p.docs) {
       if (d.optional) continue;
+      // A row due after award (a justification posting, an urgency
+      // justification made after award) never holds the file before award.
+      if (d.dueAfterAward && String(acq.clock_state ?? "").toLowerCase() !== "launched") continue;
       // A row the app generates only holds the file where the record already
       // carried that answer; an unwritten optional draft never places a hold.
       if (generatorKey(d) && !d.field) continue;

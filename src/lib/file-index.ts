@@ -180,7 +180,7 @@ function openFor(templateName: string, templateKey: string | undefined): IndexOp
 export function sequenceRequirements(phases: string[], acq?: AcqRow) {
   const out = new Map<string, { phase: string; optional: boolean }>();
   for (const phase of phases) {
-    for (const doc of requiredDocs(phase, acq)) {
+    for (const doc of requiredDocs(phase, acq, phases)) {
       if (!doc.templateKey || !(CORE_KEYS as readonly string[]).includes(doc.templateKey)) continue;
       const seen = out.get(doc.templateKey);
       const optional = Boolean(doc.optional);
