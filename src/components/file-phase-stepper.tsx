@@ -2,6 +2,7 @@ import type { PhaseView } from "@/lib/launch-sequence";
 import { phaseLabel, phaseOverrunDays } from "@/lib/launch-sequence";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useScrollFade } from "@/lib/use-scroll-fade";
 
 /**
  * Every phase of the file in one horizontal row, read from the same phases the
@@ -18,6 +19,7 @@ export function FilePhaseStepper({
   onSelect: (index: number) => void;
 }) {
   const listRef = useRef<HTMLOListElement | null>(null);
+  useScrollFade(listRef, [phases.length]);
   const currentIndex = phases.findIndex((p) => p.status === "current");
   // On a narrow screen the row scrolls sideways; start it at the phase in work.
   useEffect(() => {
@@ -42,7 +44,8 @@ export function FilePhaseStepper({
       </div>
       <ol
         ref={listRef}
-        className="mc-stepper-list"
+        className="mc-stepper-list mc-scroll-fade"
+        data-scroll-region=""
         style={{ ["--n" as string]: String(phases.length), ["--half" as string]: String(Math.ceil(phases.length / 2)) }}
       >
         {phases.map((p, i) => {

@@ -40,7 +40,10 @@ const num = (v: unknown): number | null => {
 };
 
 export const money = (v: number | null): string =>
-  v === null ? "Not recorded" : `$${v.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  v === null
+    ? "Not recorded"
+    : // Whole dollars show no cents; any fraction shows two places ($6.10, never $6.1).
+      `$${v.toLocaleString("en-US", Number.isInteger(v) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /**
  * The amount as the schedule shows it. Display only: when the extended price is

@@ -32,7 +32,11 @@ export function auditTextLabel(text: string | null | undefined): string | null {
   if (text == null) return null;
   return text
     .replace(LEGACY_PHASE_TEXT, REVIEW_PHASE)
-    .replace(/\bpoll votes\b/gi, "review decisions");
+    .replace(/\bpoll votes\b/gi, "review decisions")
+    // Read receipts written before plain labels named the route.
+    .replace(/\bfrom the (reviewer-inbox|document-route|form-route)\b/g, (_m, src: string) =>
+      `from the ${src === "reviewer-inbox" ? "reviewer inbox" : src === "document-route" ? "document page" : "form page"}`,
+    );
 }
 
 /** A legacy vote value on a "Go recorded" or "No-go recorded" row. */

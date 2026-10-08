@@ -41,20 +41,23 @@ export type InboxMode = "reviews" | "approvals";
 type Row = { poll: PollRow; card: DeskCard };
 
 // Verified text only: each quotation is verbatim from the regulation or form
-// text on file.
-const RULES: { kinds: readonly ReviewKind[]; quote: string; cite: string }[] = [
+// text on file, and shows only beside a review it actually governs. The two
+// justification quotations fit a review of a justification (J&A or JOFOC),
+// not every approval or concurrence.
+const JUSTIFICATION = /justification|jofoc|j&a|other than full and open/i;
+const RULES: { fits: (p: PollRow) => boolean; quote: string; cite: string }[] = [
   {
-    kinds: ["approval"],
+    fits: (p) => JUSTIFICATION.test(`${p.reviewer_role ?? ""} ${p.phase ?? ""}`),
     quote: "The justification for other than full and open competition must be approved in writing.",
     cite: "RFO FAR 6.104-2(a)",
   },
   {
-    kinds: ["approval", "concurrence"],
+    fits: (p) => JUSTIFICATION.test(`${p.reviewer_role ?? ""} ${p.phase ?? ""}`),
     quote: "Contracting officers must obtain concurrences and approvals for justifications.",
     cite: "NFS CG 1806.16",
   },
   {
-    kinds: ["small_business"],
+    fits: (p) => reviewKindFor(p.reviewer_role) === "small_business",
     quote: "Nonconcurrence by either the SBA PCR or OSBP SBS must be resolved following FAR 19.102(f) and (g).",
     cite: "NF 1787 instructions",
   },
@@ -261,7 +264,8 @@ export function ReviewInbox({ mode }: { mode: InboxMode }) {
   const kindsShown = new Set<ReviewKind>(
     active ? [activeKind as ReviewKind] : mode === "approvals" ? ["approval"] : rows.map((r) => reviewKindFor(r.poll.reviewer_role)),
   );
-  const rules = RULES.filter((r) => r.kinds.some((k) => kindsShown.has(k)));
+  const rulePolls = active ? [active.poll] : rows.map((r) => r.poll);
+  const rules = RULES.filter((r) => rulePolls.some((p) => r.fits(p)));
 
   const docLink = (row: Row, hero: HeroDoc | null) => {
     const id = row.card.m.acq.acquisition_id;

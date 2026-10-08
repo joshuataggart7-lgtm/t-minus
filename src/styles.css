@@ -3220,3 +3220,14 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-rv-history-item { border-bottom: 1px solid var(--border); padding: 0.875rem 0; }
 .mc-rv-history-item:last-child { border-bottom: 0; padding-bottom: 0; }
 @media (max-width: 640px) { .mc-rv-review { margin-left: -0.5rem; margin-right: -0.5rem; padding: 0.5rem; } }
+
+/* Batch 7b: check history show-all control, sidebar strips, tab and step strips on phones. */
+.mc-checks-more { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+.mc-checks-more-btn { min-height: 2.5rem; border: 1px solid var(--border); border-radius: var(--mc-radius-control); background: var(--background); padding: 0.375rem 0.875rem; color: var(--primary); font-size: 14px; font-weight: 500; }
+.mc-checks-more-btn:hover { border-color: color-mix(in oklab, var(--primary) 40%, var(--border)); }
+.mc-checks-more-btn:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+/* A strip that still has more to scroll fades at that edge, so a phone user can tell. */
+.mc-scroll-fade[data-fade="right"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
+.mc-scroll-fade[data-fade="left"] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent); }
+.mc-scroll-fade[data-fade="both"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent); mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent); }
+@media (max-width: 767px) { .mc-tabs.mc-scroll-fade { scrollbar-width: none; } .mc-tabs.mc-scroll-fade::-webkit-scrollbar { display: none; } .mc-tabs.mc-scroll-fade .mc-tab { flex: none; white-space: nowrap; } }

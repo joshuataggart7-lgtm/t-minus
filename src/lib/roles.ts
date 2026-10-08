@@ -124,7 +124,7 @@ export const ROLE_LABELS: Record<RoleId, string> = {
   requester: "Requester",
   hq: "HQ",
   evaluator: "Evaluator",
-  approver: "Approver",
+  approver: "Approving official",
 };
 
 // The value stored on a profile for each role.

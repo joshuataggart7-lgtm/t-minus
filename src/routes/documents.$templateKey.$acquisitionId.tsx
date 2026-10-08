@@ -1145,7 +1145,7 @@ function DocumentPage() {
     return items
       .filter((i) => (seen.has(i.label) ? false : (seen.add(i.label), true)))
       .sort((a, b) => tabRank(a.tab) - tabRank(b.tab))
-      .map((i) => (i.tab && i.tab !== "—" && i.tab !== "N/A" ? `Tab ${i.tab} — ${i.label}` : i.label));
+      .map((i) => (i.tab && i.tab !== "—" && i.tab !== "N/A" ? `Tab ${i.tab}: ${i.label}` : i.label));
   }, [q.data]);
 
   // The file's own launch sequence, for the chronology memorandum.
@@ -1788,7 +1788,7 @@ function DocumentPage() {
           }),
           ...(signature ? [{ id: "doc-signatures", label: "Signatures" }] : []),
           { id: "doc-nf1858", label: "NF 1858 memorandum" },
-          ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparable prior awards" }] : []),
+          ...(def.key === "pnm" ? [{ id: "doc-comparables", label: "Comparables lookup" }] : []),
           { id: "doc-provenance", label: "Provenance" },
           { id: "doc-official-copy", label: "Official file copy" },
           { id: "doc-poll", label: "Reviews and approvals" },
@@ -1844,6 +1844,17 @@ function DocumentPage() {
   const recordValue = (bind: string) => {
     const v = (q.data?.acq as Record<string, unknown> | null | undefined)?.[bind];
     return v === null || v === undefined || v === "" ? "not recorded" : String(v);
+  };
+
+  /** A read-only field: its saved value, else the bound record value, else "Not recorded". */
+  const readonlyText = (f: { key: string; bind?: string }): string => {
+    const saved = String(values[f.key] ?? "").trim();
+    const bound = f.bind ? (q.data?.acq as Record<string, unknown> | null | undefined)?.[f.bind] : undefined;
+    const raw = saved || (bound === null || bound === undefined ? "" : String(bound).trim());
+    if (!raw) return "Not recorded";
+    return /(^|_)(value|amount|price)$/.test(f.bind ?? f.key) && /^\d+(\.\d+)?$/.test(raw)
+      ? `$${Number(raw).toLocaleString("en-US")}`
+      : raw;
   };
 
   /** Where a filled field came from: the intake field, the template item, or the citation. */
@@ -2603,7 +2614,7 @@ function DocumentPage() {
                       <StatusMark color={aiMeta[f.key]!.reviewed ? "var(--ontrack)" : "var(--attention)"}>
                         {aiMeta[f.key]!.reviewed ? "Reviewed" : "Draft"}
                       </StatusMark>
-                      <span className="text-muted-foreground">Drafted from the record — confirm.</span>
+                      <span className="text-muted-foreground">Drafted from the record; confirm it.</span>
                       <button type="button" className="text-primary underline-offset-2 hover:underline" onClick={() => openSource(s, f)}>
                         Details
                       </button>
@@ -2621,11 +2632,11 @@ function DocumentPage() {
                       ) : null}
                     </div>
                   ) : draftedFields.has(f.key) ? (
-                    <p className="mt-1 text-[13px] text-muted-foreground">Drafted from the record — confirm.</p>
+                    <p className="mt-1 text-[13px] text-muted-foreground">Drafted from the record; confirm it.</p>
                   ) : null}
                   {f.kind === "readonly" ? (
                     <p id={id} className="text-[15px]">
-                      {values[f.key] || "—"}
+                      {readonlyText(f)}
                     </p>
                   ) : f.kind === "textarea" ? (
                     <textarea
@@ -2738,7 +2749,7 @@ function DocumentPage() {
                     <div className="mt-6 border-t border-foreground pt-1 text-[13px] text-muted-foreground">
                       Signature
                     </div>
-                    <p className="text-[15px] leading-[22px]">{p2.name || "—"}</p>
+                    <p className="text-[15px] leading-[22px]">{p2.name || "Not recorded"}</p>
                     <p className="text-[13px] text-muted-foreground">{p2.role}</p>
                   </div>
                 ))}
@@ -2772,7 +2783,7 @@ function DocumentPage() {
               <p className="mb-3 text-[13px] text-muted-foreground">
                 {memoHeader.centerName}
                 {memoHeader.centerAddress ? ` · ${memoHeader.centerAddress}` : ""} · {memoHeader.date} · Reply to Attn
-                of: {memoHeader.replyTo || "—"}
+                of: {memoHeader.replyTo || "Not recorded"}
               </p>
               <div className="mb-3">
                 <label htmlFor="memo-to" className="text-[15px]">To</label>
@@ -2942,8 +2953,8 @@ function DocumentPage() {
       )}
 
       {def.key === "pnm" ? (
-        <section id="doc-comparables" aria-label="Comparable prior awards" className="mb-10 max-w-[80ch]">
-          <h2 className="mb-1 text-[18px] leading-6 font-medium">Comparable prior awards</h2>
+        <section id="doc-comparables" aria-label="Comparables lookup" className="mb-10 max-w-[80ch]">
+          <h2 className="mb-1 text-[18px] leading-6 font-medium">Comparables lookup</h2>
           <p className="mb-3 text-[13px] text-muted-foreground">
             SAM.gov contract awards for this NAICS and PSC, half to double the estimated value.
           </p>
@@ -3029,12 +3040,12 @@ function DocumentPage() {
                 <>
                   <p>Saved from the live acquisition record.</p>
                   <p className="mt-1">
-                    Model: {latest.ai_model ?? "—"} · Generated:{" "}
-                    {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "—"}
+                    Model: {latest.ai_model ?? "Not recorded"} · Generated:{" "}
+                    {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "Not recorded"}
                   </p>
                   <p className="mt-1">
-                    Reviewed by: {latest.reviewed_by ?? "—"} · Reviewed at:{" "}
-                    {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "—"}
+                    Reviewed by: {latest.reviewed_by ?? "Not recorded"} · Reviewed at:{" "}
+                    {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "Not recorded"}
                   </p>
                   {canWrite && !latest.reviewed_by ? (
                     <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => markReviewed.mutate()} disabled={markReviewed.isPending}>
@@ -3192,7 +3203,7 @@ function DocumentPage() {
                   </td>
 
                   <td className="px-3 py-2" data-numeric>
-                    {b.due_date ?? "—"}
+                    {b.due_date ?? "Not recorded"}
                   </td>
                 </tr>
               ))}
@@ -3248,7 +3259,7 @@ function DocumentPage() {
             {q.data.comments.map((c) => (
               <li key={c.comment_id} className="border-b border-border p-3 last:border-0">
                 <p className="text-[13px] text-muted-foreground">
-                  {c.author ?? "—"} · {new Date(c.created_at).toLocaleString()}
+                  {c.author ?? "Author not recorded"} · {new Date(c.created_at).toLocaleString()}
                 </p>
                 <p className="text-[15px] leading-[22px]">{c.body}</p>
               </li>
@@ -3312,8 +3323,8 @@ function DocumentPage() {
                   <td className="px-3 py-2" data-numeric>
                     {v.version}
                   </td>
-                  <td className="px-3 py-2">{v.saved_by ?? "—"}</td>
-                  <td className="px-3 py-2">{v.saved_at ? new Date(v.saved_at).toLocaleString() : "—"}</td>
+                  <td className="px-3 py-2">{v.saved_by ?? "Not recorded"}</td>
+                  <td className="px-3 py-2">{v.saved_at ? new Date(v.saved_at).toLocaleString() : "Not recorded"}</td>
                 </tr>
               ))}
             </tbody>
