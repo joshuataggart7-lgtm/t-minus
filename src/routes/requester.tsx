@@ -12,7 +12,7 @@ import { fileStatusLine } from "@/components/mission-control/file-status";
 import { countdownView, type CountdownView } from "@/components/launch-countdown";
 import { dayWord } from "@/lib/pluralize";
 import { formatDate } from "@/lib/metrics";
-import { nf1707SectionProgress } from "@/components/nf1707-intake";
+import { isPostAward, owedRows } from "@/lib/requester-owed";
 import { phasePosition, phasePositionText, plannedDaysToAward } from "@/lib/file-timeline";
 import { McPageHeader, StatusChip, WithDetailsPanel, DetailsSection, DetailsList, CiteChip, type StatusTone } from "@/components/ui-mc";
 
@@ -38,50 +38,6 @@ export const Route = createFileRoute("/requester")({
   }),
   component: RequesterPortal,
 });
-
-type Owed = { label: string; present: boolean; note: string };
-
-/** What the requester owes, read from the record only. Nothing is invented. */
-function owedRows(card: DeskCard): Owed[] {
-  const acq = card.m.acq as Record<string, unknown>;
-  const answers = acq['nf1707_answers'];
-  // Counted the way the Intake page counts: sections answered of sections shown.
-  const progress =
-    answers && typeof answers === "object"
-      ? nf1707SectionProgress(answers as Record<string, unknown>, acq)
-      : { answered: 0, total: 0 };
-  const answered = progress.answered;
-  const attached = card.attachedKeys;
-  return [
-    {
-      label: "Purchase request number",
-      present: Boolean(acq['pr_number']),
-      note: acq['pr_number'] ? String(acq['pr_number']) : "Not on the record yet.",
-    },
-    {
-      label: "NF 1707 intake answers",
-      present: answered > 0,
-      note:
-        answered > 0
-          ? `${answered} of ${progress.total} ${progress.total === 1 ? "section" : "sections"} answered.`
-          : "No answers recorded yet.",
-    },
-    {
-      label: "Statement of work",
-      present:
-        Boolean(acq['sow_attached']) || attached.has("sow_attached") || attached.has("sow"),
-      note: "Recorded on the file by the requesting organization.",
-    },
-    {
-      label: "Independent government cost estimate",
-      present:
-        Boolean(acq['igce_attached']) ||
-        attached.has("igce_attached") ||
-        attached.has("igce"),
-      note: "Recorded on the file by the requesting organization.",
-    },
-  ];
-}
 
 /** Plain words beside the readiness word, which stays the same word the file page shows. */
 const READINESS_WORDS: Record<string, string> = {
@@ -167,7 +123,8 @@ function RequesterPortal() {
         const openDays = daysSince((acq['created_at'] as string | null) ?? null);
         // Same fallback the Today page "Days held" uses.
         const holdDays = daysSince(((acq['hold_started_at'] as string | null) ?? c.m.blockerSince) ?? null);
-        const postAward = ["Award", "Administration", "Closeout"].includes(String(c.m.currentPhase ?? ""));
+        // An awarded file owes the requester nothing (lib/requester-owed.ts).
+        const postAward = isPostAward(c);
         const conf = desk ? awardConfidence(c.m.acq, desk.history, desk.plan) : null;
         const explanation = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys });
         const readiness = explanation.state;
@@ -202,19 +159,22 @@ function RequesterPortal() {
             { term: "Requests", value: <span data-numeric>{rows.length}</span> },
             { term: "Need something from you", value: <span data-numeric>{toDo.length}</span> },
             { term: "Awarded", value: <span data-numeric>{awarded}</span> },
-            {
-              term: "Next award date",
-              value: nextAward ? (
-                <span>
-                  <span data-numeric>{formatDate(nextAward.date)}</span>
-                  <span className="mc-req-panel-note">{String(nextAward.r.acq['title'] ?? nextAward.r.id)}</span>
-                </span>
-              ) : (
-                "No open request has a date yet"
-              ),
-            },
           ]}
         />
+      </DetailsSection>
+      <DetailsSection title="Next expected award">
+        {nextAward ? (
+          <div className="mc-req-next-award">
+            <p className="mc-req-next-award-date" data-numeric>{formatDate(nextAward.date)}</p>
+            <a href={`#req-${nextAward.r.id}`} className="mc-req-next-award-file">
+              <span className="mc-req-id" data-numeric>{nextAward.r.id}</span>
+              <span>{String(nextAward.r.acq['title'] ?? nextAward.r.id)}</span>
+            </a>
+            <p className="mc-req-meta">{nextAward.r.view.mode === "forecast" ? "Forecast; no target date on file yet." : "Target award date on the record."}</p>
+          </div>
+        ) : (
+          <p className="mc-req-panel-text">No open request has a date yet.</p>
+        )}
       </DetailsSection>
       {officers.length > 0 ? (
         <DetailsSection title={officers.length === 1 ? "Your contracting officer" : "Your contracting officers"}>
@@ -285,20 +245,22 @@ function RequesterPortal() {
               {toDo.length === 0 ? (
                 <p className="mc-req-todo-clear">Nothing is waiting on you right now.</p>
               ) : (
-                <ul>
+                <ul className="mc-req-todo-list">
                   {toDo.map((r) => (
                     <li key={r.id}>
-                      <a href={`#req-${r.id}`} className="mc-req-todo-file">
-                        {String(r.acq['title'] ?? r.id)}
-                      </a>
+                      <span className="mc-req-todo-id" data-numeric>{r.id}</span>
+                      <span className="mc-req-todo-title">{String(r.acq['title'] ?? r.id)}</span>
                       <span className="mc-req-todo-what">
                         {[
-                          r.waitingOnMe ? "The file is on hold waiting on your organization" : null,
+                          r.waitingOnMe ? "On hold waiting on your organization" : null,
                           ...r.owed.filter((o) => !o.present).map((o) => o.label),
                         ]
                           .filter(Boolean)
                           .join("; ")}
                       </span>
+                      <a href={`#req-${r.id}`} className="mc-req-todo-go" aria-label={`Go to ${r.id}`}>
+                        Go to request
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -383,31 +345,36 @@ function RequesterPortal() {
                         </dl>
                       </section>
 
-                      <section className="mc-req-col" aria-label={r.postAward ? "Intake items" : "What you owe"}>
-                        <h3 className="mc-req-h">{r.postAward ? "Intake items not on record" : "What you owe"}</h3>
-                        {r.waitingOnMe ? (
-                          <p className="mc-req-callout is-attention">This file is on hold waiting on your organization.</p>
-                        ) : null}
-                        <ul className="mc-req-owed">
-                          {owed.map((o) => (
-                            <li key={o.label}>
-                              <span className="min-w-0">
-                                <span className="mc-req-owed-label">{o.label}</span>
-                                <span className="mc-req-meta">{o.note}</span>
-                              </span>
-                              <StatusChip label={o.present ? "On file" : "Needed"} tone={o.present ? "ontrack" : "attention"} />
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mc-req-text mt-2" data-numeric>
-                          {r.postAward
-                            ? missing
-                              ? `${missing} intake ${missing === 1 ? "item is" : "items are"} not on the record.`
-                              : "All intake items are on the record."
-                            : missing
-                              ? `${missing} of ${owed.length} still needed from you.`
-                              : "Nothing outstanding from you."}
-                        </p>
+                      <section className="mc-req-col" aria-label="What you owe">
+                        <h3 className="mc-req-h">What you owe</h3>
+                        {r.postAward ? (
+                          <>
+                            <p className="mc-req-done">Nothing. This request is awarded.</p>
+                            <p className="mc-req-meta mt-2">
+                              The contracting office runs the contract from here. Questions go to {c.owner}.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            {r.waitingOnMe ? (
+                              <p className="mc-req-callout is-attention">This file is on hold waiting on your organization.</p>
+                            ) : null}
+                            <ul className="mc-req-owed">
+                              {owed.map((o) => (
+                                <li key={o.label}>
+                                  <span className="min-w-0">
+                                    <span className="mc-req-owed-label">{o.label}</span>
+                                    <span className="mc-req-meta">{o.note}</span>
+                                  </span>
+                                  <StatusChip label={o.present ? "On file" : "Needed"} tone={o.present ? "ontrack" : "attention"} />
+                                </li>
+                              ))}
+                            </ul>
+                            <p className="mc-req-text mt-2" data-numeric>
+                              {missing ? `${missing} of ${owed.length} still needed from you.` : "Nothing outstanding from you."}
+                            </p>
+                          </>
+                        )}
                         <Link
                           to="/forms/$formKey/$acquisitionId"
                           params={{ formKey: "nf-1707", acquisitionId: id }}

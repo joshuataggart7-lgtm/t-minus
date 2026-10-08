@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { isPracticeCite, matchCite, officialSourceFor, splitCite, type CitePart } from "@/lib/cite-match";
@@ -56,11 +57,15 @@ function CitePartChip({ part }: { part: string }) {
         </button>
       </PopoverTrigger>
       <PopoverContent
-        align="start"
+        align="center"
         side="bottom"
+        sideOffset={8}
         collisionPadding={{ top: 16, bottom: 16, left: 16, right: 28 }}
         className="mc-cite-pop"
       >
+        {/* The arrow keeps pointing at the chip when the popover shifts away from a screen edge. */}
+        <PopoverPrimitive.Arrow className="mc-cite-arrow" width={16} height={8} />
+        <div className="mc-cite-body">
         <h3>{part}</h3>
         {practice ? <p className="mc-cite-note">Center or T-Minus practice, not a regulation.</p> : null}
         {failed ? <p className="mc-cite-note">The regulation text did not load. Close this and try again.</p> : null}
@@ -104,6 +109,7 @@ function CitePartChip({ part }: { part: string }) {
             <p className="mc-cite-source">No official online copy is linked for this source.</p>
           ) : null
         ) : null}
+        </div>
       </PopoverContent>
     </Popover>
   );

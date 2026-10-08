@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPortal } from "react-dom";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, ChevronDown, X } from "lucide-react";
 import { useRole } from "@/components/role-context";
 import { usePresenter } from "@/lib/presenter";
@@ -52,6 +52,9 @@ export function AnnouncementBanner() {
   // the navigation headings.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   useEffect(() => setSlot(document.getElementById("urgent-announcement-slot")), []);
+  // Inside a document or form editor the urgent pill steps aside; the bell
+  // still carries it.
+  const inEditor = useRouterState({ select: (s) => /^\/(documents|forms)\//.test(s.location.pathname) });
   // Read prior dismissals on mount only; sessionStorage does not exist on the server.
   useEffect(() => setDismissed(readDismissed()), []);
 
@@ -163,32 +166,35 @@ export function AnnouncementBanner() {
         </div>
       ) : null}
 
-      {urgent && slot
+      {urgent && slot && !inEditor
         ? createPortal(
-            <div role="alert" className="grid min-h-8 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background px-4 text-[13px] sm:px-6">
-              <div className="flex min-w-0 items-baseline gap-2">
-                <p className={`min-w-0 truncate max-xl:py-1 ${urgentExpanded ? "max-xl:whitespace-normal max-xl:[overflow-wrap:anywhere]" : "sm:max-xl:whitespace-normal sm:max-xl:[overflow-wrap:anywhere]"}`} title={`${severityWord(urgent.severity)}: ${urgent.title}`}><span className="font-medium">{severityWord(urgent.severity)}:</span> {urgent.title}</p>
+            <div className="mc-urgent-row">
+              <div role="alert" className={`mc-urgent-pill${urgentExpanded ? " is-open" : ""}`}>
+                <span className="mc-urgent-dot" aria-hidden="true" />
+                <p className="mc-urgent-text" title={`${severityWord(urgent.severity)}: ${urgent.title}`}>
+                  <span className="font-semibold">{severityWord(urgent.severity)}:</span> {urgent.title}
+                </p>
                 {blocking.length > 1 ? (
-                  <span className="shrink-0 text-muted-foreground" data-numeric>{blocking.indexOf(urgent) + 1} of {blocking.length}</span>
+                  <span className="mc-urgent-count" data-numeric>
+                    {blocking.indexOf(urgent) + 1} of {blocking.length}
+                  </span>
                 ) : null}
-              </div>
-              <div className="flex shrink-0 items-center gap-2">
-                {/* Below 640px the line stays one row until opened. */}
+                {/* Below 640px the pill stays one row until opened. */}
                 <button
                   type="button"
                   onClick={() => setUrgentExpanded((v) => !v)}
                   aria-expanded={urgentExpanded}
                   aria-label={urgentExpanded ? "Show less" : "Show the full announcement"}
-                  className="grid size-7 place-items-center text-muted-foreground hover:text-foreground sm:hidden"
+                  className="mc-urgent-btn sm:hidden"
                 >
                   <ChevronDown className={`size-4 transition-transform ${urgentExpanded ? "rotate-180" : ""}`} aria-hidden="true" />
                 </button>
                 {blocking.length > 1 ? (
-                  <button type="button" onClick={() => dismiss(blocking.map((a) => a.announcement_id))} className="text-[13px] text-primary">
+                  <button type="button" onClick={() => dismiss(blocking.map((a) => a.announcement_id))} className="mc-urgent-all">
                     Dismiss all
                   </button>
                 ) : null}
-                <button type="button" onClick={() => dismiss([urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="grid size-7 place-items-center text-muted-foreground hover:text-foreground">
+                <button type="button" onClick={() => dismiss([urgent.announcement_id])} aria-label="Dismiss urgent announcement" className="mc-urgent-btn">
                   <X className="size-4" aria-hidden="true" />
                 </button>
               </div>

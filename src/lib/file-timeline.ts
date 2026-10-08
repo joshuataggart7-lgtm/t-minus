@@ -14,6 +14,7 @@
 
 import { acquisitionType, type AcqRow, type PhasePlanRow, type PhaseView } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
+import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
 
 export type PhasePosition = {
   /** 1-based number of the current phase, or null when no phase is current. */
@@ -50,4 +51,54 @@ export function phasePositionText(pos: PhasePosition): string {
 /** Planned calendar days from intake to award in the phase plan for this file's type. 0 when no plan. */
 export function plannedDaysToAward(acq: AcqRow | Record<string, unknown>, plan: PhasePlanRow[]): number {
   return plannedDaysForType(acquisitionType(acq as unknown as AcqRow, plan), plan);
+}
+
+// Same cutoff successor.plannedDaysForType uses: the plan runs through the last
+// pre-award phase (Award, or the FPDS-NG report that closes the award).
+const PRE_AWARD_LAST = new Set(["Award", "FPDS-NG Report"]);
+
+/** Phase names from intake to award in the phase plan for one acquisition type, in plan order. */
+export function phasesToAwardForType(type: string, plan: PhasePlanRow[]): string[] {
+  const rows = plan
+    .filter((p) => p.acquisition_type === type && p.phase)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const last = rows.reduce((index, row, i) => (PRE_AWARD_LAST.has(String(row.phase)) ? i : index), -1);
+  return rows.filter((_, i) => last < 0 || i <= last).map((p) => String(p.phase));
+}
+
+export type PlanToAward = { type: string; phases: string[]; plannedDays: number };
+
+/**
+ * The phase plan to award for a record, or for intake facts shaped like one
+ * (the Intake page passes the row it would save). The requester card, the
+ * Files list, Intake and the request confirmation all read this.
+ */
+export function planToAward(acq: AcqRow | Record<string, unknown>, plan: PhasePlanRow[]): PlanToAward {
+  const type = acquisitionType(acq as unknown as AcqRow, plan);
+  return { type, phases: phasesToAwardForType(type, plan), plannedDays: plannedDaysForType(type, plan) };
+}
+
+export type HoursEstimate = { total: number; co: number; cs: number; source: "intake" | "current" };
+
+/**
+ * Contracting hours for a file: the estimate saved with the intake when there
+ * is one, otherwise the current estimate worked the way the estimator works it.
+ * Hours only; days and phases come from planToAward above.
+ */
+export function contractingHours(acq: AcqRow | Record<string, unknown>, plan: PhasePlanRow[]): HoursEstimate | null {
+  const stored = (acq as Record<string, unknown>)["intake_estimate"] as StoredEstimate | null | undefined;
+  if (stored && typeof stored.hours_total === "number") {
+    return { total: stored.hours_total, co: stored.hours_co, cs: stored.hours_cs, source: "intake" };
+  }
+  try {
+    const live = estimate(inputsFromAcq(acq as never), {
+      thresholds: [],
+      overrides: [],
+      strategies: [],
+      phasePlan: plan.map((p) => ({ acquisition_type: p.acquisition_type, phase: p.phase, planned_days: p.planned_days })),
+    });
+    return { total: live.hours.total, co: live.hours.co, cs: live.hours.cs, source: "current" };
+  } catch {
+    return null;
+  }
 }

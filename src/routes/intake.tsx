@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark } from "@/components/app-shell";
 import { McPageHeader, StatusChip } from "@/components/ui-mc";
+import { planToAward } from "@/lib/file-timeline";
+import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { useRole } from "@/components/role-context";
 import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { DemoFieldset, LockHint } from "@/components/demo-lock";
@@ -29,6 +31,7 @@ import {
   formatMoney,
   parseMoney,
   matchStrategy,
+  phaseDaysToAward,
   scanRedFlags,
   todayISO,
   type IntakeFacts,
@@ -188,14 +191,6 @@ function Field({
 
 // Kit field style (styles.css .mc-input): one border, radius, size and focus ring for every intake field.
 const inputClass = "mc-input";
-
-// The estimator timeline counts months and the phase plan counts days. Show the
-// phase plan figure in months as well, rounded to the nearest half month, so the
-// two lines can be read side by side.
-function phasePlanMonths(days: number) {
-  const value = Math.round(days / 30.44 / 0.5) * 0.5;
-  return { value, text: Number.isInteger(value) ? String(value) : value.toFixed(1) };
-}
 
 function IntakePage() {
   const { user, hasAnyRole, authState, profile, readOnly, role, canSwitchPersona } = useRole();
@@ -698,17 +693,39 @@ function IntakePage() {
       : scan.length > 0
         ? { label: `${scan.length} to review`, tone: "attention" as const }
         : { label: "Clear", tone: "ontrack" as const };
+  // The phase plan to award for the row this intake would save, from the same
+  // helper the requester card, Files list and confirmation page use.
+  const intakePlan = scan && data.data
+    ? planToAward(
+        {
+          ...facts,
+          estimated_value: value,
+          scenario: { ...scenario, contract_type: facts.contract_type || scenario.contract_type },
+        },
+        data.data.ref.phasePlan as unknown as PhasePlanRow[],
+      )
+    : null;
+  // The need-date red flag counts to the award decision itself, without the FPDS-NG report after it.
+  const needDateDays = scan && data.data ? phaseDaysToAward(data.data.ref, facts.competition, facts.acquisition_method) : null;
+
+  // Moves to a step without scrolling any inner container: the window scrolls so
+  // the step's heading sits just under the sticky header.
   const goTo = (id: string) => {
     const target = document.getElementById(id);
     if (!target) return;
     if (target instanceof HTMLDetailsElement) target.open = true;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
-    const focusable = target.querySelector<HTMLElement>("summary, h2, button, input, select, textarea");
-    focusable?.focus({ preventScroll: true });
+    window.requestAnimationFrame(() => {
+      const headerH = document.querySelector<HTMLElement>("header")?.offsetHeight ?? 64;
+      const top = target.getBoundingClientRect().top + window.scrollY - headerH - 16;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" });
+      const focusable = target.matches("summary, h2, button") ? target : target.querySelector<HTMLElement>("summary, h2, button, input, select, textarea");
+      focusable?.focus({ preventScroll: true });
+    });
   };
   const scanAndShow = () => {
     runScan();
-    window.setTimeout(() => goTo("intake-scan"), 60);
+    window.setTimeout(() => goTo(errorCount > 0 ? "intake-scan" : "intake-scan-results"), 80);
   };
 
   return (
@@ -1609,6 +1626,12 @@ function IntakePage() {
 
       {/* Red-flag scan and submit */}
       <section id="intake-scan" className="mc-work-form-section scroll-mt-24">
+        <h2 className="mc-intake-scan-title">Red-flag scan and start</h2>
+        <p className="mc-intake-note mb-3">
+          The scan checks this intake against the rules before anything is saved. Run it from the bar at the
+          bottom of the screen{scan ? "; run it again after any change" : ""}.
+        </p>
+
         {touched && errorCount > 0 ? (
           <div className="mb-4" role="alert">
             <p className="text-[15px]" style={{ color: "var(--atrisk)" }}>
@@ -1623,45 +1646,36 @@ function IntakePage() {
           </div>
         ) : null}
 
-        <button
-          type="button"
-          onClick={runScan}
-          className="border border-border bg-background px-4 py-2 text-[15px] text-primary [border-radius:var(--mc-radius-control)]"
-        >
-          Run the red-flag scan
-        </button>
-
-        {scan && data.data ? (
+        <div id="intake-scan-results" className="scroll-mt-24" tabIndex={-1}>
+        {scan && data.data && intakePlan ? (
             <div className="mc-work-summary mt-6 max-w-[80ch]">
             <h2 className="text-[18px] leading-6 font-medium">Expected effort and time to award</h2>
-            <p className="mt-2 text-[15px] leading-[22px]">{intakeEstimate?.sentence}</p>
-            <ul className="mt-2 text-[13px] text-muted-foreground">
-              <li>
-                Estimator timeline: about {intakeEstimate?.monthsToAward}{" "}
-                {intakeEstimate?.monthsToAward === 1 ? "month" : "months"} to award (planning{" "}
-                {intakeEstimate?.months.planning}, solicitation {intakeEstimate?.months.solicitation},
-                evaluation {intakeEstimate?.months.evaluation}, award {intakeEstimate?.months.award}).
+            <p className="mt-2 text-[15px] leading-[22px]" data-numeric>
+              {intakePlan.plannedDays > 0
+                ? `The phase plan for this kind of buy runs ${intakePlan.plannedDays} calendar days from intake to award, through ${intakePlan.phases.length} phases, with about ${intakeEstimate?.hours.total.toLocaleString("en-US")} hours of contracting work.`
+                : `No phase plan is seeded for this kind of buy. The estimate is about ${intakeEstimate?.hours.total.toLocaleString("en-US")} hours of contracting work.`}{" "}
+              If you need it sooner, talk to your contracting officer now.
+            </p>
+            <ul className="mt-2 space-y-1 text-[14px] leading-[20px] text-[var(--mc-meta-ink)]">
+              <li data-numeric>
+                Phase plan: {intakePlan.plannedDays} calendar days to award. The file page counts the same days once
+                the clock starts.
               </li>
-              <li>
-                Phase plan: {intakeEstimate?.plannedDaysToAward} planned days to award, about{" "}
-                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).text}{" "}
-                {phasePlanMonths(intakeEstimate?.plannedDaysToAward ?? 0).value === 1
-                  ? "month"
-                  : "months"}
-                . The need-date check uses the phase plan.
-              </li>
-              <li>
-                Contracting hours: {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
+              {needDateDays !== null && needDateDays !== intakePlan.plannedDays ? (
+                <li data-numeric>
+                  The need-date check counts {needDateDays} days, to the award decision itself, without the reporting
+                  that follows award.
+                </li>
+              ) : null}
+              <li data-numeric>
+                Contracting hours (estimate): {intakeEstimate?.hours.total.toLocaleString("en-US")} (specialist{" "}
                 {intakeEstimate?.hours.cs.toLocaleString("en-US")}, officer{" "}
                 {intakeEstimate?.hours.co.toLocaleString("en-US")}).
               </li>
-              <li>Phases: {intakeEstimate?.phases.join(" · ")}</li>
+              <li>Phases to award: {intakePlan.phases.join(" · ")}</li>
             </ul>
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              The two figures come from different models, so they can differ.
-            </p>
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              This estimate is stored on the record as the estimate at intake when the clock starts.
+            <p className="mt-2 text-[13px] text-[var(--mc-meta-ink)]">
+              The hours estimate is stored on the record as the estimate at intake when the clock starts.
             </p>
           </div>
         ) : null}
@@ -1716,6 +1730,7 @@ function IntakePage() {
             ) : null}
           </div>
         ) : null}
+        </div>
       </section>
 
       {/* Save state: the intake lives only on this screen until the clock starts. */}
@@ -1766,7 +1781,7 @@ function IntakePage() {
             </ol>
           </li>
           <li>
-            <button type="button" onClick={() => goTo("intake-scan")}>
+            <button type="button" onClick={() => goTo("intake-scan")} aria-label={`Go to Red-flag scan and start: ${scanStatus.label}`}>
               <span>Red-flag scan and start</span>
               <StatusChip label={scanStatus.label} tone={scanStatus.tone} />
             </button>

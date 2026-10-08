@@ -150,8 +150,8 @@ export function FormatScaffoldPanel({ scaffold, regionContext }: { scaffold: For
                   </tr>
                 </thead>
                 <tbody>
-                  {scaffold.attachments.map((a) => (
-                    <tr key={`${a.nf_1098_tab}-${a.label}-${a.file_name}`} className="border-b border-border align-top">
+                  {scaffold.attachments.map((a, i) => (
+                    <tr key={`${a.nf_1098_tab}-${a.label}-${a.file_name}-${i}`} className="border-b border-border align-top">
                       <td className="p-2" data-numeric>{a.nf_1098_tab}</td>
                       <td className="p-2">{a.label}</td>
                       <td className="p-2 text-muted-foreground">{a.file_name}</td>
