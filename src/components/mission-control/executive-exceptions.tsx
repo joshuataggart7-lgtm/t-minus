@@ -97,6 +97,19 @@ function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
   return `${clock} · target ${target}`;
 }
 
+/**
+ * Schedule impact used to rank the leadership list. Past-target files come
+ * first (most days past target), then the nearest award. Display order only.
+ */
+function impactOf(metric: AcqMetrics): { rank: number; text: string } {
+  const view = overviewCountdownView(metric);
+  if (view.days === null) return { rank: 1e6, text: "No award date to measure against" };
+  if (view.pastTarget) return { rank: -view.days, text: `${view.days} ${view.days === 1 ? "day" : "days"} past ${view.mode === "forecast" ? "the forecast award" : "target award"}` };
+  return { rank: view.days, text: `${view.days} ${view.days === 1 ? "day" : "days"} to ${view.mode === "forecast" ? "the forecast award" : "target award"}` };
+}
+
+const LEADERSHIP_TOP = 5;
+
 function primaryBlocker(metric: AcqMetrics, exception: Exception, readiness: ReadinessExplanation) {
   if (metric.hold?.reason?.trim()) return metric.hold.reason;
   if (metric.blocker?.trim() && metric.blocker !== "None") return metric.blocker;
@@ -112,6 +125,7 @@ function blockerProvenance(metric: AcqMetrics, readiness: ReadinessExplanation):
 
 export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
   const [mode, setMode] = useState<"leadership" | "analyst">("leadership");
+  const [showAll, setShowAll] = useState(false);
   const items = deriveExceptions(metrics);
   const rows = items.flatMap((exception) => {
     const metric = (metrics as ExceptionMetric[]).find((item) => item.acq.acquisition_id === exception.id);
@@ -130,22 +144,24 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
       blocker: primaryBlocker(metric, exception, readiness),
       blockerProvenance: blockerProvenance(metric, readiness),
       next: readiness.nextAction?.trim() || NR,
+      impact: impactOf(metric),
     }];
   });
 
-  // Leadership view: one strip per file. HOLD before WATCH, then the files
-  // with the most signals, then the nearest target award.
+  // Leadership view: one strip per file. HOLD before WATCH, then schedule
+  // impact (furthest past target, then nearest award), then the most signals.
   const fileGroups = groupExceptionsByFile(rows.map((row) => row.exception))
     .map((group) => ({ group, row: rows.find((row) => row.exception.id === group.id)! }))
     .sort((a, b) => {
       const state = (a.row.readiness.state === "HOLD" ? 0 : 1) - (b.row.readiness.state === "HOLD" ? 0 : 1);
       if (state) return state;
+      const impact = a.row.impact.rank - b.row.impact.rank;
+      if (impact) return impact;
       const signals = b.group.kinds.length - a.group.kinds.length;
       if (signals) return signals;
-      const ta = a.row.readiness.targetAward ?? "9999-12-31";
-      const tb = b.row.readiness.targetAward ?? "9999-12-31";
-      return ta.localeCompare(tb);
+      return a.group.id.localeCompare(b.group.id);
     });
+  const shownGroups = showAll ? fileGroups : fileGroups.slice(0, LEADERSHIP_TOP);
   const fileOrder = new Map(fileGroups.map((entry, index) => [entry.group.id, index]));
   // Analyst view: every signal, grouped by file in the same order, then by kind.
   const analystRows = [...rows].sort(
@@ -159,7 +175,14 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
       <div className="mc-exception-heading">
         <div>
           <p className="mc-label">Leadership attention</p>
-          <h3 id="exec-exceptions-heading" className="mc-heading">Executive exceptions <span data-numeric>{plural(fileGroups.length, "file")} · {plural(rows.length, "signal")}</span></h3>
+          <h3 id="exec-exceptions-heading" className="mc-heading">Files that need attention <span data-numeric>{plural(fileGroups.length, "file")} · {plural(rows.length, "signal")}</span></h3>
+          {mode === "leadership" && fileGroups.length > LEADERSHIP_TOP ? (
+            <p className="mc-exception-sub" data-numeric>
+              {showAll
+                ? `All ${fileGroups.length} files, held files first, then by schedule impact.`
+                : `The ${LEADERSHIP_TOP} with the most schedule impact, held files first. ${fileGroups.length - LEADERSHIP_TOP} more are listed under Show all.`}
+            </p>
+          ) : null}
         </div>
         <div className="mc-exception-mode" aria-label="Exception view">
           <Button type="button" variant="ghost" size="sm" aria-pressed={mode === "leadership"} onClick={() => setMode("leadership")}>Leadership</Button>
@@ -170,16 +193,16 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
         <p className="mc-exception-empty">No active exceptions</p>
       ) : mode === "leadership" ? (
         <LeadershipExceptionList>
-          {fileGroups.map(({ group, row }) => (
+          {shownGroups.map(({ group, row }) => (
             <LeadershipExceptionStrip state={row.readiness.state as "WATCH" | "HOLD"} key={group.id}>
               <div className="mc-exception-severity">
-                <ProvenanceChip kind="RULE" light />
                 <strong>{row.readiness.state}</strong>
+                <span className="mc-exception-impact" data-numeric>{row.impact.text}</span>
                 <span className="flex min-w-0 flex-wrap gap-1">
                   {group.kinds.slice(0, 3).map((kind, index) => (
-                    <span key={`${kind}-${index}`} className="rounded-full border border-current px-2 text-[12px] leading-5">{chipLabel(kind)}</span>
+                    <span key={`${kind}-${index}`} className="mc-chip">{chipLabel(kind)}</span>
                   ))}
-                  {group.kinds.length > 3 ? <span className="px-1 text-[12px] leading-5" data-numeric>+{group.kinds.length - 3}</span> : null}
+                  {group.kinds.length > 3 ? <span className="mc-chip" data-numeric>{`+${group.kinds.length - 3} more`}</span> : null}
                 </span>
               </div>
               <div className="mc-exception-identity">
@@ -188,19 +211,26 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
               </div>
               <dl className="mc-exception-scan">
                 <div><dt>Owner / role</dt><dd>{row.owner}</dd></div>
-                <div><dt>Gate</dt><dd>{row.gate}</dd></div>
+                <div><dt>Phase</dt><dd>{row.gate}</dd></div>
                 <div><dt><ProvenanceChip kind={row.readiness.targetAward ? "FACT" : "RULE"} light /> Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
                 <div><dt><ProvenanceChip kind={row.blockerProvenance} light /> Blocker</dt><dd>{row.blocker}</dd></div>
                 <div><dt><ProvenanceChip kind="RULE" light /> Next action</dt><dd>{row.next}</dd></div>
               </dl>
             </LeadershipExceptionStrip>
           ))}
+          {fileGroups.length > LEADERSHIP_TOP ? (
+            <div className="mc-exception-more">
+              <Button type="button" variant="outline" size="sm" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
+                {showAll ? `Show the top ${LEADERSHIP_TOP}` : `Show all ${fileGroups.length} files`}
+              </Button>
+            </div>
+          ) : null}
         </LeadershipExceptionList>
       ) : (
         <AnalystTableShell>
             <thead>
               <tr>
-                <th scope="col">Sev</th><th scope="col">Acq #</th><th scope="col">Title</th><th scope="col">Owner</th><th scope="col">Gate</th><th scope="col">Schedule</th><th scope="col">Missing #</th><th scope="col">Missing / age</th><th scope="col">Blocker</th><th scope="col">Next</th><th scope="col">Rule kind</th>
+                <th scope="col">State</th><th scope="col">File</th><th scope="col">Title</th><th scope="col">Owner</th><th scope="col">Phase</th><th scope="col">Schedule</th><th scope="col">Missing</th><th scope="col">Missing items, days in phase</th><th scope="col">Blocker</th><th scope="col">Next</th><th scope="col">Signal</th>
               </tr>
             </thead>
             <tbody>
@@ -216,7 +246,7 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
                   <td>{row.gate}</td>
                   <td data-numeric>{row.schedule}</td>
                   <td data-numeric>{row.readiness.missingEvidence.length}</td>
-                  <td>{row.readiness.missingEvidence.length ? row.readiness.missingEvidence.join(", ") : "None recorded"}<span>{row.readiness.gateAgeDays === null ? NR : `${row.readiness.gateAgeDays} days in gate`}</span></td>
+                  <td>{row.readiness.missingEvidence.length ? row.readiness.missingEvidence.join(", ") : "None recorded"}<span>{row.readiness.gateAgeDays === null ? NR : `${row.readiness.gateAgeDays} days in phase`}</span></td>
                   <td>{row.blocker}</td>
                   <td>{row.next}</td>
                   <td>{row.exception.kind}</td>
@@ -225,6 +255,75 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
             </tbody>
         </AnalystTableShell>
       )}
+    </section>
+  );
+}
+
+// Roles whose pending decision sits at leadership level, not with the CO.
+const LEADERSHIP_ROLE = /approving official|head of (the )?contracting activity|\bhca\b|procurement officer|senior procurement executive|source selection authority/i;
+
+type LeadershipDecision = { id: string; title: string; what: string; detail: string; order: number; rank: number };
+
+/** Items where the next move is a leadership call. Read from the record; display only. */
+export function deriveLeadershipDecisions(metrics: AcqMetrics[]): LeadershipDecision[] {
+  const out: LeadershipDecision[] = [];
+  for (const m of metrics) {
+    if (m.awardDate || m.clockState === "scrubbed") continue;
+    const id = m.acq.acquisition_id;
+    const title = String(m.acq.title ?? "").trim() || "Untitled acquisition";
+    const rank = impactOf(m).rank;
+    for (const b of m.board) {
+      if (b.vote === "unfavorable") {
+        out.push({ id, title, what: "Unfavorable review to resolve", detail: `${b.decision ? DECISION_LABEL[b.decision] : "Nonconcur"} from the ${b.reviewer_role}`, order: 0, rank });
+      } else if (b.vote === "pending" && LEADERSHIP_ROLE.test(b.reviewer_role)) {
+        out.push({ id, title, what: "Approval waiting", detail: `${b.reviewer_role}${b.due_date ? `, due ${formatDate(b.due_date)}` : ""}`, order: 2, rank });
+      }
+    }
+    if (m.hold && /fund/i.test(m.hold.reason)) {
+      out.push({ id, title, what: "Funding hold", detail: m.hold.reason, order: 1, rank });
+    }
+  }
+  return out.sort((a, b) => a.order - b.order || a.rank - b.rank || a.id.localeCompare(b.id));
+}
+
+export function LeadershipDecisions({ metrics }: { metrics: AcqMetrics[] }) {
+  const [showAll, setShowAll] = useState(false);
+  const items = deriveLeadershipDecisions(metrics);
+  const shown = showAll ? items : items.slice(0, LEADERSHIP_TOP);
+  return (
+    <section className="mc-decisions" aria-labelledby="leadership-decisions-heading">
+      <div className="mc-exception-heading">
+        <div>
+          <p className="mc-label">For leadership</p>
+          <h3 id="leadership-decisions-heading" className="mc-heading">
+            Decisions that may need you <span data-numeric>{plural(items.length, "item")}</span>
+          </h3>
+          <p className="mc-exception-sub">Unfavorable reviews, funding holds and approvals waiting at the approving-official level. Read from the record; nothing here changes a file.</p>
+        </div>
+      </div>
+      {items.length === 0 ? (
+        <p className="mc-exception-empty">Nothing is waiting on a leadership decision right now.</p>
+      ) : (
+        <ol className="mc-decision-list">
+          {shown.map((item, index) => (
+            <li key={`${item.id}-${item.what}-${index}`}>
+              <span className="mc-decision-what">{item.what}</span>
+              <span className="mc-decision-file">
+                <Link to="/files/$acquisitionId" params={{ acquisitionId: item.id }} data-numeric>{item.id}</Link>
+                <span>{item.title}</span>
+              </span>
+              <span className="mc-decision-detail">{item.detail}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+      {items.length > LEADERSHIP_TOP ? (
+        <div className="mc-exception-more">
+          <Button type="button" variant="outline" size="sm" aria-expanded={showAll} onClick={() => setShowAll((value) => !value)}>
+            {showAll ? `Show the top ${LEADERSHIP_TOP}` : `Show all ${items.length}`}
+          </Button>
+        </div>
+      ) : null}
     </section>
   );
 }

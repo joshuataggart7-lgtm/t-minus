@@ -14,8 +14,8 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
 
   return (
     <McPanel aria-labelledby="attention-heading" className="mc-ops-panel mc-anomaly-panel">
-      <p className="mc-label">Anomaly rail</p>
-      <h2 id="attention-heading" className="mc-heading">Conditions requiring attention</h2>
+      <p className="mc-label">What needs attention</p>
+      <h2 id="attention-heading" className="mc-heading">Files on hold or watch</h2>
       {rows.length === 0 ? (
         <p className="mt-4 text-mc-muted">No acquisition needs leadership attention.</p>
       ) : (
@@ -29,14 +29,14 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
             return (
               <li key={metric.acq.acquisition_id}>
                 <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }} className="mc-anomaly-row">
-                  <span className={`mc-severity mc-severity-${state.toLowerCase()}`}>{view.mode === "overdue" ? "OVERDUE" : state}</span>
+                  <span className={`mc-severity mc-severity-${state.toLowerCase()}`}>{view.mode === "overdue" ? "Past target" : state}</span>
                   <span className="min-w-0">
                     <span className="block truncate text-[14px] font-medium text-mc-foreground" title={mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}>{mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}</span>
                     <span className="block truncate text-[12px] text-mc-muted" title={condition}>{condition}</span>
                   </span>
-                  <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Not recorded" : `${daysInCondition}d`}</strong></span>
+                  <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Start not recorded" : `${daysInCondition} days`}</strong></span>
                   <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhase ?? "Not started"}</strong></span>
-                  <span className="mc-anomaly-data"><small>Next gate</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}${dueView(metric.nextDecisionDate)?.overdue ? ` · ${dueView(metric.nextDecisionDate)?.text}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}{dueView(metric.nextDecisionDate)?.overdue ? <span className="mc-due-dark"> · {dueView(metric.nextDecisionDate)?.text}</span> : null}</strong></span>
+                  <span className="mc-anomaly-data"><small>Next step</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}${dueView(metric.nextDecisionDate)?.overdue ? ` · ${dueView(metric.nextDecisionDate)?.text}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}{dueView(metric.nextDecisionDate)?.overdue ? <span className="mc-due-dark"> · {dueView(metric.nextDecisionDate)?.text}</span> : null}</strong></span>
                 </Link>
               </li>
             );

@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 import { ProvenanceChip, type ProvenanceKind } from "./primitives";
 
 const PROVENANCE = [
-  { key: "Fact", detail: "A value read from the loaded acquisition record." },
-  { key: "Rule", detail: "A requirement read from the loaded regulatory references." },
-  { key: "Inference", detail: "A conclusion derived from record facts and loaded rules." },
-  { key: "Draft", detail: "Proposed language that requires human review and confirmation." },
+  { key: "Fact", detail: "Read straight from the acquisition record." },
+  { key: "Rule", detail: "Worked out by a T-Minus rule from the recorded facts and the loaded references." },
+  { key: "Inference", detail: "Inferred from recorded facts and the loaded rules." },
+  { key: "Draft", detail: "Proposed text that a person has to review." },
 ] as const;
 
 export function NovaProvenance() {
@@ -36,10 +36,10 @@ export function NovaProvenance() {
             </Button>
           ))}
         </div>
-        <p className="mc-nova-assurance">Actions require your confirmation — drafts are never auto-written.</p>
+        <p className="mc-nova-assurance">Actions require your confirmation. Drafts are never written on their own.</p>
         {selected ? (
           <div className="mc-provenance-panel" role="status">
-            <span>Preview</span>
+            <span>What this means</span>
             <strong>{selected.key}</strong>
             <p>{selected.detail}</p>
           </div>
