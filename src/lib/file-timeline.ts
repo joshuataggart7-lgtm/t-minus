@@ -140,6 +140,26 @@ const UNFAVORABLE_SHORT = /^(No-go|Nonconcur|Disapprove|Not legally sufficient):
  * in full. "Nonconcur: Small business: <reason>" reads "Small business
  * nonconcur"; any other reason keeps its first sentence, cut at a word.
  */
+/**
+ * The hold alert line. A stored hold reason reads "Decision: role: reason", and
+ * the reviewer's reason often opens with the same decision word ("Nonconcur:
+ * small business: Nonconcur with ..."). The alert names the role once and the
+ * decision once: "Small business: Nonconcur with ...". Display only; the stored
+ * reason and the review card's written reason are unchanged.
+ */
+export function holdAlertText(reason: string | null | undefined): string {
+  const text = String(reason ?? "").trim();
+  const m = /^(No-go|Nonconcur|Disapprove|Not legally sufficient):\s*([^:]+?):\s+([\s\S]+)$/i.exec(text);
+  if (!m) return text;
+  const decision = (m[1] ?? "").trim();
+  const roleRaw = (m[2] ?? "").trim();
+  const rest = (m[3] ?? "").trim();
+  if (!roleRaw || !rest) return text;
+  const role = roleRaw.charAt(0).toUpperCase() + roleRaw.slice(1);
+  const startsWithDecision = rest.toLowerCase().startsWith(decision.toLowerCase());
+  return startsWithDecision ? `${role}: ${rest}` : `${role}: ${decision}. ${rest}`;
+}
+
 export function holdShortLabel(reason: string | null | undefined, max = 60): string {
   const text = String(reason ?? "").trim();
   if (!text) return "";

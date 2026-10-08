@@ -16,6 +16,7 @@ export function ReviewCard({
   action,
   showPhase = false,
   showOverdue = true,
+  launched = false,
 }: {
   entry: BoardEntry;
   explain?: ReactNode;
@@ -23,9 +24,12 @@ export function ReviewCard({
   showPhase?: boolean;
   /** Off on a launched file, where a pending entry is history, not a late task. */
   showOverdue?: boolean;
+  /** A launched file: an entry with no decision reads as history, not as Pending. */
+  launched?: boolean;
 }) {
-  const outcome = entry.decision ? DECISION_LABEL[entry.decision] : "Pending";
-  const tone = entry.vote === "favorable" ? "ontrack" : entry.vote === "unfavorable" ? "atrisk" : "attention";
+  const noRecord = launched && !entry.decision && entry.vote === "pending";
+  const outcome = entry.decision ? DECISION_LABEL[entry.decision] : noRecord ? "No decision recorded in T-Minus" : "Pending";
+  const tone = entry.vote === "favorable" ? "ontrack" : entry.vote === "unfavorable" ? "atrisk" : noRecord ? "neutral" : "attention";
   const due = showOverdue && entry.vote === "pending" ? dueView(entry.due_date) : null;
   const reasonLabel = entry.decision && RATIONALE_REQUIRED.has(entry.decision) ? "Written reason" : "Comments";
   return (
@@ -41,7 +45,7 @@ export function ReviewCard({
         </div>
         <StatusChip label={outcome} tone={tone} />
       </div>
-      {entry.poll_id ? null : <p className="mc-review-note">Review not requested yet</p>}
+      {entry.poll_id || noRecord ? null : <p className="mc-review-note">Review not requested yet</p>}
       {entry.reason ? (
         <div className="mc-review-reason">
           <p className="mc-review-label">{reasonLabel}</p>
