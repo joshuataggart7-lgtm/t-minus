@@ -136,3 +136,25 @@ export function newContractPlanKey(
     return SIMPLIFIED_COMPETED_PLAN;
   return COMMERCIAL_COMPETED_PLAN;
 }
+
+/** Plain words for a stored plan key. Display only. The key itself is unchanged. */
+const PLAN_LABEL: Record<string, string> = {
+  [COMMERCIAL_COMPETED_PLAN]: "Commercial FFP, competed under RFO FAR 13.5",
+  [COMMERCIAL_SOLE_SOURCE_PLAN]: "Commercial FFP, sole source under RFO FAR 13.5",
+  [NONCOMMERCIAL_FAR15_COMPETED_PLAN]: "Noncommercial, competed under FAR Part 15",
+  [NONCOMMERCIAL_FAR15_COMPETED_COST_PLAN]: "Noncommercial cost, competed under FAR Part 15",
+  [NONCOMMERCIAL_SOLE_SOURCE_PLAN]: "Noncommercial sole source",
+  [NONCOMMERCIAL_SOLE_SOURCE_COST_PLAN]: "Noncommercial sole source, cost",
+  [SIMPLIFIED_COMPETED_PLAN]: "Simplified, competed",
+  [LETTER_CONTRACT_PLAN]: "Letter contract",
+  [RATIFICATION_PLAN]: "Ratification of an unauthorized commitment",
+  [TM_ORDER_PLAN]: "Time-and-materials order under an IDIQ",
+};
+
+export function acquisitionTypeLabel(key: string | null | undefined): string {
+  const raw = String(key ?? "").trim();
+  if (!raw) return "";
+  if (PLAN_LABEL[raw]) return PLAN_LABEL[raw];
+  const words = raw.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}

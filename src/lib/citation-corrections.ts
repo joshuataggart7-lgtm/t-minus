@@ -52,3 +52,32 @@ export function correctedCitation(citation: string | null | undefined): string {
   const raw = String(citation ?? "");
   return CORRECTED[raw] ?? raw;
 }
+
+/**
+ * Old citation strings still sitting in saved text, and the replacement this
+ * map already uses. Display only. A hit is the stored old string, not a cite
+ * invented here. "RFO " already in front of the old string is not a hit.
+ */
+export function staleCitationsIn(text: string): { found: string; now: string }[] {
+  const keys = Object.keys(CORRECTED).sort((a, b) => b.length - a.length);
+  const hits: { found: string; now: string; at: number }[] = [];
+  const covered: [number, number][] = [];
+  for (const key of keys) {
+    let from = 0;
+    while (from < text.length) {
+      const i = text.indexOf(key, from);
+      if (i < 0) break;
+      const end = i + key.length;
+      const overlapped = covered.some(([a, b]) => i < b && end > a);
+      const before = text.slice(Math.max(0, i - 4), i);
+      const alreadyRfo = /RFO\s?$/i.test(before);
+      if (!overlapped && !alreadyRfo) {
+        hits.push({ found: key, now: CORRECTED[key] ?? key, at: i });
+        covered.push([i, end]);
+      }
+      from = end;
+    }
+  }
+  hits.sort((a, b) => a.at - b.at);
+  return hits.map(({ found, now }) => ({ found, now }));
+}

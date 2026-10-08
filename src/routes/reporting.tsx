@@ -7,6 +7,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
+import { acquisitionTypeLabel } from "@/lib/phase-plan-key";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -105,6 +106,11 @@ function headerLabel(key: string): string {
 }
 
 function displayCell(row: Record<string, unknown>, column: string) {
+    if (column === "acquisition_type") {
+      const raw = row[column];
+      if (raw === null || raw === undefined || raw === "") return null;
+      return acquisitionTypeLabel(String(raw));
+    }
     if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
       return row[column] === null || row[column] === undefined ? null : String(row[column]);
     }

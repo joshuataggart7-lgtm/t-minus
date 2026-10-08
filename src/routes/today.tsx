@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
+import { checkDocsFrom, fileSelfCheck, loadSelfCheckSources } from "@/lib/file-self-check";
 import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { McPageHeader, DataTable, StatusChip, type StatusTone } from "@/components/ui-mc";
 import { dueView, phasePosition, phasePositionText } from "@/lib/file-timeline";
@@ -200,6 +202,40 @@ function TodayPage() {
     [live],
   );
 
+  const checkIds = useMemo(() => mine.map((card) => card.m.acq.acquisition_id), [mine]);
+  const checkQ = useQuery({
+    queryKey: ["file-self-check", checkIds.join("|")],
+    enabled: checkIds.length > 0,
+    queryFn: () => loadSelfCheckSources(checkIds),
+  });
+  const disagreements = useMemo(() => {
+    const sources = checkQ.data;
+    return mine.flatMap((card) => {
+      const id = card.m.acq.acquisition_id;
+      const documents = sources
+        ? checkDocsFrom(
+            sources.documents.filter((doc) => doc.acquisition_id === id),
+            sources.templates,
+          )
+        : undefined;
+      const hours = sources
+        ? sources.clins
+            .filter((line) => line.acquisition_id === id)
+            .map((line) => ({ quantity: line.quantity, unit: line.unit_of_issue, description: line.description }))
+        : undefined;
+      const findings = fileSelfCheck({
+        acq: card.m.acq,
+        phases: card.m.phases,
+        attachedKeys: card.attachedKeys,
+        savedKeys: card.savedKeys,
+        ...(documents ? { documents } : {}),
+        ...(hours ? { hours } : {}),
+      });
+      return findings.length ? [{ card, findings }] : [];
+    });
+  }, [mine, checkQ.data]);
+  const disagreeCount = (id: string) => disagreements.find((row) => row.card.m.acq.acquisition_id === id)?.findings.length ?? 0;
+
   const pastTarget = live.filter((c) => countdownView(c.m).mode === "overdue").length;
   const stepsOverdue = waitingOnMe.filter((c) => dueView(c.m.nextDecisionDate)?.overdue).length;
   const reviewsThisWeek = reviewsDue.filter((p) => {
@@ -231,6 +267,25 @@ function TodayPage() {
       ) : (
         <>
           {scopeNote ? <p className="mc-today-scope">{scopeNote}</p> : null}
+          {disagreements.length > 0 ? (
+            <section className="mc-kpanel mb-6" aria-label="Files that disagree with themselves">
+              <h2 className="mc-kpanel-title">This file disagrees with itself</h2>
+              <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
+                Contradictions the record can prove. Open the file to see each one. Nothing here changes a file.
+              </p>
+              <ul className="mt-4 space-y-3">
+                {disagreements.map(({ card, findings }) => (
+                  <li key={card.m.acq.acquisition_id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[15px] leading-[22px]">
+                    <Link to="/files/$acquisitionId" params={{ acquisitionId: card.m.acq.acquisition_id }} hash="file-self-check" className="font-medium text-primary underline" data-numeric>
+                      {card.m.acq.acquisition_id}
+                    </Link>
+                    <StatusChip label={`${findings.length} ${findings.length === 1 ? "disagreement" : "disagreements"}`} tone="attention" />
+                    <span>{findings[0]?.sentence}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <nav className="mc-today-stats" aria-label="Your day in numbers">
             <a href="#today-mine" className="mc-today-stat is-mine">
               <span className="mc-today-stat-value" data-numeric>{waitingOnMe.length}</span>
@@ -281,7 +336,7 @@ function TodayPage() {
                             className={`mc-work-strip mc-today-strip ${missionReadinessClass(readiness, "is")} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
                           >
                             <div className="mc-today-strip-file">
-                              <span className="mc-today-strip-title"><FileLink card={c} /></span>
+                              <span className="mc-today-strip-title"><FileLink card={c} />{disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip className="ml-2" label="Disagrees" tone="attention" /> : null}</span>
                               <span className="mc-today-meta" data-numeric>
                                 {c.m.acq.acquisition_id} · {phasePositionText(pos)}
                                 {pos.name ? `, ${pos.name}` : ""}
@@ -358,6 +413,7 @@ function TodayPage() {
                         cell: (c) => (
                           <span className="grid">
                             <FileLink card={c} />
+                            {disagreeCount(c.m.acq.acquisition_id) > 0 ? <StatusChip label="Disagrees" tone="attention" /> : null}
                             <span className="mc-today-meta" data-numeric>{c.m.acq.acquisition_id}</span>
                           </span>
                         ),

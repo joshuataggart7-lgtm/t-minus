@@ -82,12 +82,29 @@ const FIELD_RELABEL: Record<string, string> = {
   v_report_holds: "Holds report",
   v_report_missions: "Missions report",
   v_report_audit_counts: "Audit counts report",
+  current_phase: "Current phase",
+  clock_state: "Clock",
+  briefing_book: "Briefing book",
+  "vendor exclusions": "Vendor exclusions",
+  vendor_exclusions: "Vendor exclusions",
 };
 
-/** The field column: an internal table name reads in today's words. */
+/** Snake case and other internal names read as plain words. */
+function plainFieldName(field: string): string {
+  const words = field.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!words) return field;
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** The field column: an internal name reads in today's words. */
 export function auditFieldLabel(field: string | null | undefined): string | null {
   if (field == null) return null;
-  return FIELD_RELABEL[field.trim().toLowerCase()] ?? field;
+  const raw = field.trim();
+  if (!raw) return field;
+  const key = raw.toLowerCase();
+  if (FIELD_RELABEL[key]) return FIELD_RELABEL[key];
+  if (key.includes("_") || key.includes("-") || raw === key) return plainFieldName(key);
+  return raw;
 }
 
 /** The stored text, for a title attribute, only when the display differs. */
