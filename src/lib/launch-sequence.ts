@@ -31,6 +31,7 @@ import {
   isLetterContract,
   isRatification,
   newContractPlanKey,
+  simplifiedSoleSourceKind,
   TM_ORDER_PLAN,
   type NewContractFacts,
 } from "@/lib/phase-plan-key";
@@ -194,6 +195,18 @@ export function awardPath(acq?: AcqRow | null): AwardPath {
   return "negotiated";
 }
 
+/**
+ * A sole-source new contract at or below the SAT under simplified or commercial
+ * rules: its JOFOC phase holds the single-source D&F (RFO FAR 13.101(b)) or
+ * the only-one-source documentation (RFO FAR 12.102(a)), not a Part 6
+ * justification (RFO FAR 6.001(a)).
+ */
+export function simplifiedSoleSource(acq?: AcqRow | null): "noncommercial" | "commercial" | null {
+  const path = awardPath(acq);
+  if (path !== "simplified" && path !== "commercial") return null;
+  return simplifiedSoleSourceKind((acq ?? null) as Record<string, unknown> | null, path === "commercial");
+}
+
 /** The award instrument named on the signature and award rows. */
 function awardInstrument(path: AwardPath): string {
   switch (path) {
@@ -316,6 +329,12 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   if (isLetterContract((acq ?? {}) as Record<string, unknown>)) {
     if (phase === "Award") return "RFO FAR 16.603-2(c) (letter contract with a definitization schedule); NFS CG 1804.11(b) (award written in NCMS)";
     if (phase === "Price Reasonableness") return "RFO FAR 16.603-2(c) (definitization); RFO FAR 15.408-2(a) (price negotiation memorandum)";
+  }
+  if (phase === "JOFOC") {
+    const simplifiedSole = simplifiedSoleSource(acq);
+    if (simplifiedSole === "noncommercial")
+      return "RFO FAR 13.101(b) (single-source determination and findings); RFO FAR 6.001(a) (Part 6 does not apply)";
+    if (simplifiedSole === "commercial") return "RFO FAR 12.102(a) (document the only-one-source decision at or below the SAT)";
   }
   if (soleSource && phase === "Synopsis") return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
@@ -448,7 +467,7 @@ export function requiredDocs(phase: string, acq?: AcqRow, planPhases?: readonly 
   // template, replaces the base row.
   const extraKeys = new Set(extra.map((d) => d.docKey).filter(Boolean));
   const merged = extra.length ? [...base.filter((d) => !d.docKey || !extraKeys.has(d.docKey)), ...extra] : base;
-  if (variant && phase === "JOFOC") {
+  if (variant && phase === "JOFOC" && !simplifiedSoleSource(acq)) {
     return merged.map((d) =>
       d.templateKey === "jofoc"
         ? {
@@ -470,7 +489,52 @@ export function requiredDocs(phase: string, acq?: AcqRow, planPhases?: readonly 
         : d,
     );
   }
-  return merged;
+  return [...merged, ...ceilingRows(phase, acq)];
+}
+
+/** The time-and-materials or labor-hour ceiling price recorded on the file, in dollars. */
+export function tmCeilingPrice(acq?: AcqRow | null): number {
+  const raw = String(scenarioOf((acq ?? null) as Record<string, unknown> | null).tm_ceiling_price ?? "").replace(/[$,\s]/g, "");
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/**
+ * Ceiling price rows on a time-and-materials or labor-hour contract or order.
+ * The contract or order must include a ceiling price that the contractor
+ * exceeds at its own risk (RFO FAR 12.104(b)(1)(ii) commercial; RFO FAR
+ * 16.601-3(c) noncommercial). Any increase needs a best-interest
+ * determination (RFO FAR 12.104(b)(2); RFO FAR 16.601-5).
+ */
+function ceilingRows(phase: string, acq?: AcqRow): RequiredDoc[] {
+  if (!acq || !isTmOrLaborHour(acq)) return [];
+  const commercial = isCommercialBuy(acq);
+  if (phase === "Award") {
+    const ceiling = tmCeilingPrice(acq);
+    return [
+      {
+        label: "Ceiling price in the contract or order",
+        citation: commercial ? "RFO FAR 12.104(b)(1)(ii)" : "RFO FAR 16.601-3(c)",
+        docKey: "tm-ceiling-price",
+        attachOnly: true,
+        note: ceiling
+          ? `Ceiling price recorded on the file: $${ceiling.toLocaleString("en-US")}. The contractor exceeds it at its own risk.`
+          : "Record the ceiling price on the file, or attach the page of the contract or order that states it. The contractor exceeds it at its own risk.",
+      },
+    ];
+  }
+  if (phase === "Administration")
+    return [
+      {
+        label: "Ceiling price increase determination (best interest of the Government)",
+        citation: commercial ? "RFO FAR 12.104(b)(2); RFO FAR 16.601-5" : "RFO FAR 16.601-5",
+        docKey: "tm-ceiling-increase",
+        optional: true,
+        attachOnly: true,
+        note: "Only before an increase to the ceiling price: analyze pricing and other relevant factors, document the decision in the file, and follow part 6, part 8 or 16.507-6 when the change modifies the general scope (RFO FAR 16.601-5).",
+      },
+    ];
+  return [];
 }
 
 /** Firm-fixed-price and nothing else on the record (no hybrid type). */
@@ -627,7 +691,30 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           : []),
       ];
     }
-    case "JOFOC":
+    case "JOFOC": {
+      const simplifiedSole = simplifiedSoleSource(acq);
+      if (simplifiedSole === "noncommercial")
+        return [
+          {
+            label: "Single-source determination and findings (only one source reasonably available)",
+            citation: "RFO FAR 13.101(b); RFO FAR subpart 1.5",
+            // Same row key as the JOFOC row, read from the attached D&F. No
+            // record field: the JOFOC attach path writes a Part 6 cite there.
+            docKey: "jofoc_authority_citation",
+            attachOnly: true,
+            note: "Part 6 does not apply to simplified acquisition procedures (RFO FAR 6.001(a)). Record the basis for soliciting one source here and keep the signed D&F in the file.",
+          },
+        ];
+      if (simplifiedSole === "commercial")
+        return [
+          {
+            label: "Only-one-source documentation",
+            citation: "RFO FAR 12.102(a)",
+            docKey: "jofoc_authority_citation",
+            attachOnly: true,
+            note: "At or below the SAT, document the decision that only one source is available and the basis for it (RFO FAR 12.102(a)). No Part 6 justification and approval is needed.",
+          },
+        ];
       return [
         {
           label: "Justification for other than full and open competition",
@@ -637,6 +724,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           templateKey: "jofoc",
         },
       ];
+    }
     case "Synopsis": {
       const sole = /sole/i.test(String(acq?.competition ?? ""));
       return [
@@ -912,9 +1000,17 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "CPARS past performance evaluation",
-          citation: "RFO FAR Part 42",
+          citation: "RFO FAR 42.1102(a), (b)(1)",
           link: "templates",
           templateKey: "cpars-input",
+          // RFO FAR 42.1102(b)(1): evaluations are required for each contract
+          // and order above the SAT; at or below it the row is offered.
+          ...(Number(acq?.estimated_value ?? 0) > 0 && Number(acq?.estimated_value ?? 0) <= SIMPLIFIED_ACQUISITION_THRESHOLD
+            ? {
+                optional: true,
+                note: "Offered: past performance evaluations are required for contracts and orders above the simplified acquisition threshold (RFO FAR 42.1102(b)(1)).",
+              }
+            : {}),
         },
         // RFO FAR 1.404(b): a COR is assigned on every contract or order other
         // than firm-fixed-price; on a firm-fixed-price one the CO may assign one.
@@ -1023,6 +1119,12 @@ export function docSatisfied(
   if (generator) {
     if (!savedKeys) return hasFile ? true : null;
     return savedKeys.has(generator) || Boolean(hasFile);
+  }
+  // The T&M or labor-hour ceiling price reads from the record or from an
+  // attached page of the contract that states it.
+  if (doc.docKey === "tm-ceiling-price") {
+    if (tmCeilingPrice(acq) > 0 || hasFile === true) return true;
+    return hasFile === undefined ? null : false;
   }
   // A row whose template is still planned, or whose document of record is
   // produced elsewhere, reads from the external copy attached against it.

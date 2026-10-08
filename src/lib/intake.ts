@@ -1,6 +1,6 @@
 import { addCalendarDays, calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { COMMERCIAL_SIMPLIFIED_METHOD, igceCite, isCommercialSimplifiedMethod, WRITTEN_ACQUISITION_PLAN_THRESHOLD } from "@/lib/rfo-simplified-cites";
-import { newContractPlanKey } from "@/lib/phase-plan-key";
+import { isFar13Method, newContractPlanKey } from "@/lib/phase-plan-key";
 // Intake validation and the red-flag scan that runs before an intake is saved.
 
 export type IntakeFacts = {
@@ -358,13 +358,52 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
     });
   }
 
+  // At or below the SAT, a sole source under Part 13 rests on a D&F that only
+  // one source is reasonably available (RFO FAR 13.101(b)); Part 6 does not
+  // apply (RFO FAR 6.001(a)). A commercial one documents the decision and its
+  // basis (RFO FAR 12.102(a)).
+  const satValue = threshold(ref, "Simplified acquisition threshold") ?? 350_000;
+  const method = String(f.acquisition_method ?? "");
+  const withinSat = value > 0 && value <= satValue;
+  const commercialRoute = isCommercialSimplifiedMethod(method) || /\bPart 12\b|\b12\.201|\b12\b/.test(method);
+  const simplifiedSole = withinSat ? (commercialRoute ? "commercial" : isFar13Method(method) ? "noncommercial" : null) : null;
   if (/sole|limited sources|brand name/i.test(f.competition) && !f.jofoc_authority_citation.trim())
+    flags.push(
+      simplifiedSole === "noncommercial"
+        ? {
+            id: "jofoc",
+            title: "Sole source selected with no single-source basis recorded",
+            detail:
+              "Record the basis for soliciting one source. Under Part 13 at or below the SAT, a determination and findings that only one source is reasonably available supports it; Part 6 does not apply.",
+            citation: "RFO FAR 13.101(b); RFO FAR 6.001(a)",
+            blocking: true,
+          }
+        : simplifiedSole === "commercial"
+          ? {
+              id: "jofoc",
+              title: "Sole source selected with no single-source basis recorded",
+              detail: "At or below the SAT, document the decision that only one source is available and the basis for it.",
+              citation: "RFO FAR 12.102(a)",
+              blocking: true,
+            }
+          : {
+              id: "jofoc",
+              title: "Sole source selected with no JOFOC authority cited",
+              detail: "Record the authority for other than full and open competition.",
+              citation: "RFO FAR 6.104-1(a)(4); RFO FAR 6.104-2",
+              blocking: true,
+            },
+    );
+
+  // Below the micro-purchase threshold the purchase card comes first.
+  const mpt = threshold(ref, "Micro-purchase threshold");
+  if (mpt && value > 0 && value <= mpt)
     flags.push({
-      id: "jofoc",
-      title: "Sole source selected with no JOFOC authority cited",
-      detail: "Record the authority for other than full and open competition.",
-      citation: "RFO FAR 6.104-1(a)(4); RFO FAR 6.104-2",
-      blocking: true,
+      id: "micro-purchase",
+      title: "Estimated value is at or below the micro-purchase threshold",
+      detail: `${formatMoney(value)} is at or below ${formatMoney(mpt)}. The NASA purchase card must be used for micro-purchase threshold transactions to the maximum extent practicable. Consider the purchase card before opening a full acquisition file. T-Minus does not hold the clock for this.`,
+      citation: "RFO FAR 2.101 (micro-purchase threshold); NFS CG 1812.42(a)",
+      blocking: false,
     });
 
   if (

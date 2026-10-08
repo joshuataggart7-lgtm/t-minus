@@ -4,6 +4,7 @@
 import {
   BLACKOUT_CITATION,
   BLACKOUT_NOT_RECORDED,
+  blackoutCitation,
   blackoutDraft,
   blackoutFacts,
 } from "@/lib/blackout-notice";
@@ -29,6 +30,11 @@ export function BlackoutNoticePanel({
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="text-[18px] leading-6 font-medium">Blackout notice</h2>
         <AdvisoryTag />
+        {blackoutCitation(acq) !== BLACKOUT_CITATION ? (
+          <span className="inline-flex shrink-0 items-center rounded-full border border-border px-2 text-[12px] leading-5 text-muted-foreground">
+            Center practice
+          </span>
+        ) : null}
       </div>
 
       <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{BLACKOUT_NOT_RECORDED}</p>
@@ -46,7 +52,7 @@ export function BlackoutNoticePanel({
         </div>
         <div className="flex flex-wrap gap-x-2 border-t border-border py-2">
           <dt className="font-medium">Practice citation</dt>
-          <dd className="text-muted-foreground">{BLACKOUT_CITATION}</dd>
+          <dd className="text-muted-foreground">{blackoutCitation(acq)}</dd>
         </div>
       </dl>
 

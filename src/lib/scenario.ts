@@ -38,6 +38,8 @@ export type ScenarioAnswers = {
   urgency: boolean;
   urgency_need_arose: string;
   set_aside_type: string;
+  /** Time-and-materials or labor-hour ceiling price, in dollars (RFO FAR 12.104(b)(1)(ii); RFO FAR 16.601-3(c)). */
+  tm_ceiling_price?: string;
   precontract_costs: boolean;
   cba: "yes" | "no" | "unknown";
   subcontracting_plan_applies: boolean;
@@ -201,7 +203,7 @@ const outsideUS = (c: ScenarioContext) =>
   !/united states|^us$|^usa$/i.test(c.s.place_country.trim());
 
 import { contractTypeTemplateKey } from "@/lib/templates-hq";
-import { isCostType, isLetterContract } from "@/lib/phase-plan-key";
+import { isCostType, isLetterContract, simplifiedSoleSourceKind } from "@/lib/phase-plan-key";
 
 /** The seeded trigger table. Every row carries its own citation and state. */
 export const TRIGGERS: TriggerDef[] = [
@@ -621,7 +623,14 @@ export const TRIGGERS: TriggerDef[] = [
   {
     key: "justification-posting",
     condition: "Sole source new contract with a justification",
-    when: (c) => c.sole && !c.ratification && !isOrderVehicle(c),
+    // At or below the SAT a simplified or commercial sole source carries no
+    // 6.104 justification (RFO FAR 6.001(a); RFO FAR 12.102(a)), so there is
+    // nothing to post under RFO FAR 6.301.
+    when: (c) =>
+      c.sole &&
+      !c.ratification &&
+      !isOrderVehicle(c) &&
+      !simplifiedSoleSourceKind(c.acq, /13\.5|12\.201-1|\b12\b|commercial simplified/i.test(c.method)),
     docs: [
       {
         doc_key: "justification-posting",
@@ -807,7 +816,9 @@ function currentCitation(stored: string | null | undefined, current: string): st
 
 function configured(triggerKey: string, doc: TriggerDoc): TriggerDoc | null {
   const row = configByKey.get(`${triggerKey}|${doc.doc_key}`);
-  if (!row) return doc;
+  // Always a copy: triggeredDocs adjusts rows per record, and that must never
+  // write back into the shared trigger table.
+  if (!row) return { ...doc };
   if (!row.enabled) return null;
   return {
     ...doc,
@@ -891,6 +902,17 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
     }
     // RFO FAR 6.301(b)(1): a justification under 6.103-2 is posted within 30
     // days after award.
+    // When NASA is the servicing agency (another agency funds NASA), the
+    // requesting agency writes the Economy Act D&F and sends a copy with its
+    // order (RFO FAR 17.502-2(b)(4), (5)); NASA obtains the executed copy and
+    // keeps it in the contract file (NFS CG 1817.53(c)(3)).
+    if (d.doc_key === "economy-act-dandf" && context.s.funding === "reimbursable" && context.s.reimbursable_authority === "economy_act") {
+      d.label = "Economy Act determination and findings, received from the requesting agency";
+      d.citation = "RFO FAR 17.502-2(b)(5); NFS CG 1817.53(c)(3)";
+      d.note = "NASA is the servicing agency. Obtain a copy of the requesting agency's executed D&F and retain it in the contract file (NFS CG 1817.53(c)(3)).";
+      delete d.templateKey;
+      delete d.templateKeyFor;
+    }
     if (d.doc_key === "justification-posting" && context.s.urgency) {
       d.citation = "RFO FAR 6.301(b)(1)";
       d.note = "Post the justification within 30 days after award (RFO FAR 6.301(b)(1), unusual and compelling urgency).";
