@@ -748,7 +748,6 @@ function IntakePage() {
       <p className="mc-intake-note mb-4">
         Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
       </p>
-      {readOnly ? <p className="mb-2 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {readOnly ? <LockHint className="mb-6" /> : null}
 
       <div className="mc-intake-layout">

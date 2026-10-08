@@ -1,5 +1,4 @@
 import { writeAudit } from "@/lib/audit";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -164,7 +163,6 @@ function ClauseChangesPage() {
         title="Clause change impact"
         lead="Under RFO FAR 1.107(d), incorporating a changed clause into an existing contract is generally discretionary and needs consideration unless the change direction says otherwise. This list shows candidates; the direction decides."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {loading ? <LoadingNote what="the clause changes" /> : null}
       {failed ? <ErrorNote message="The list did not load. Reload the page and try again." /> : null}

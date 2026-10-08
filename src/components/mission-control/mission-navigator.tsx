@@ -18,6 +18,17 @@ function openContainingDetails(target: HTMLElement) {
   if (containedDetails) containedDetails.open = true;
 }
 
+/**
+ * Space taken at the top of the window by sticky chrome: the app header and,
+ * on the file page, the identity strip. Sections land just below it, and the
+ * scroll spy reads a section as current once its top passes this line.
+ */
+export function stickyOffset(): number {
+  const header = document.querySelector("header.sticky");
+  const strip = document.querySelector<HTMLElement>("[data-file-strip]");
+  return (header?.getBoundingClientRect().bottom ?? 0) + (strip?.offsetHeight ?? 0) + 12;
+}
+
 function focusSection(target: HTMLElement) {
   const focusTarget =
     target.querySelector<HTMLElement>("h1, h2, h3, summary") ?? target;
@@ -37,13 +48,22 @@ export function MissionNavigator({
   const [availableIds, setAvailableIds] = useState<string[]>([]);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const frameRef = useRef<number | null>(null);
+  // After a jump the clicked item stays current until the reader scrolls on
+  // their own. A short section near the end of the page can never reach the
+  // top of the window, so the spy alone would name the section above it.
+  const lockRef = useRef<string | null>(null);
 
   const recomputeCurrent = useCallback(() => {
     const targets = availableIds
       .map((id) => document.getElementById(id))
       .filter((element): element is HTMLElement => Boolean(element));
     if (!targets.length) return;
-    const threshold = 80;
+    if (lockRef.current && targets.some((t) => t.id === lockRef.current)) {
+      const locked = lockRef.current;
+      setCurrentId((value) => value === locked ? value : locked);
+      return;
+    }
+    const threshold = stickyOffset() + 8;
     const current = targets.reduce<HTMLElement | null>(
       (last, target) => target.getBoundingClientRect().top <= threshold ? target : last,
       null,
@@ -75,6 +95,19 @@ export function MissionNavigator({
   }, [items]);
 
   useEffect(() => {
+    const release = () => {
+      if (lockRef.current === null) return;
+      lockRef.current = null;
+      scheduleRecompute();
+    };
+    const events = ["wheel", "touchstart", "keydown"] as const;
+    for (const ev of events) window.addEventListener(ev, release, { passive: true });
+    return () => {
+      for (const ev of events) window.removeEventListener(ev, release);
+    };
+  }, [scheduleRecompute]);
+
+  useEffect(() => {
     recomputeCurrent();
     window.addEventListener("scroll", scheduleRecompute, { passive: true });
     window.addEventListener("resize", scheduleRecompute);
@@ -98,11 +131,21 @@ export function MissionNavigator({
     if (!target) return;
     openContainingDetails(target);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - stickyOffset());
+    // A long trip is instant: a smooth scroll across many screens of loading
+    // sections lands short. Short trips stay smooth.
+    const far = Math.abs(top - window.scrollY) > window.innerHeight * 2;
+    lockRef.current = id;
+    window.scrollTo({ top, behavior: reducedMotion || far ? "auto" : "smooth" });
     history.replaceState(null, "", `#${id}`);
     focusSection(target);
     setCurrentId(id);
-    window.setTimeout(scheduleRecompute, reducedMotion ? 0 : 500);
+    // Land again once sections above have settled, in case they grew.
+    window.setTimeout(() => {
+      if (lockRef.current !== id || !target.isConnected) return;
+      const settled = Math.max(0, target.getBoundingClientRect().top + window.scrollY - stickyOffset());
+      if (Math.abs(settled - window.scrollY) > 4) window.scrollTo({ top: settled, behavior: "auto" });
+    }, reducedMotion || far ? 120 : 700);
   };
 
   const setAll = (open: boolean) => {

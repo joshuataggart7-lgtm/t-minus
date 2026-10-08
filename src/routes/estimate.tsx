@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader, DataTable } from "@/components/ui-mc";
+import { planToAward } from "@/lib/file-timeline";
+import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { CenterOverrideRow } from "@/lib/center-config";
@@ -11,15 +14,15 @@ import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
 export const Route = createFileRoute("/estimate")({
   head: () => ({
     meta: [
-      { title: "Estimate — T-Minus" },
+      { title: "Estimate · T-Minus" },
       {
         name: "description",
-        content: "Contracting hours by phase and months to award for one acquisition, from the record.",
+        content: "Contracting hours by phase and planned days to award for one acquisition, from the record.",
       },
-      { property: "og:title", content: "Estimate — T-Minus" },
+      { property: "og:title", content: "Estimate · T-Minus" },
       {
         property: "og:description",
-        content: "Contracting hours by phase and months to award for one acquisition, from the record.",
+        content: "Contracting hours by phase and planned days to award for one acquisition, from the record.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -90,6 +93,11 @@ function EstimatePage() {
 
   const est = useMemo(() => (acq ? estimate(inputsFromAcq(acq), ref) : null), [acq, ref]);
   const atIntake = (acq?.intake_estimate ?? null) as StoredEstimate | null;
+  // Days and phases come from the one phase-plan source the file page uses.
+  const plan = useMemo(
+    () => (acq ? planToAward(acq as Record<string, unknown>, (q.data?.plan ?? []) as unknown as PhasePlanRow[]) : null),
+    [acq, q.data],
+  );
 
   const byPhase = useMemo(() => {
     const out = new Map<string, { hours: number; names: string[] }>();
@@ -103,10 +111,11 @@ function EstimatePage() {
   }, [est]);
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Level of effort"
         title="Estimate"
-        lead="Contracting hours by phase and months to award, read from the record with the seeded level-of-effort model."
+        lead="Contracting hours by phase and planned days to award, read from the record with the seeded level-of-effort model. Days and phases come from the same phase plan the file page uses."
       />
 
       {q.isLoading ? <LoadingNote what="the acquisitions and the phase plan" /> : null}
@@ -116,80 +125,82 @@ function EstimatePage() {
         <EmptyState sentence="No acquisition has been entered yet. Start one on Intake." />
       ) : null}
 
-      {q.data && acq && est ? (
+      {q.data && acq && est && plan ? (
         <>
-          <div className="mc-work-toolbar mb-6 max-w-[80ch]">
-            <label className="block max-w-[60ch] text-[15px]">
-              Acquisition
-              <select
-                value={acq.acquisition_id}
-                onChange={(e) => setSelected(e.target.value)}
-                className="mt-1 block w-full border border-input bg-background px-3 py-2 [border-radius:var(--mc-radius-control)]"
-              >
-                {q.data.acqs.map((a) => (
-                  <option key={a.acquisition_id} value={a.acquisition_id}>
-                    {a.acquisition_id} — {a.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px]">{est.sentence}</p>
-          </div>
-
-          <dl className="mc-work-summary mb-8 grid max-w-[80ch] grid-cols-2 text-[15px] sm:grid-cols-4">
-            <div>
-              <dt className="text-muted-foreground">Months to award</dt>
-              <dd data-numeric>{est.monthsToAward}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Planned working days in the launch sequence</dt>
-              <dd data-numeric>{est.plannedDaysToAward}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Contracting hours</dt>
-              <dd data-numeric>{est.hours.total.toLocaleString("en-US")}</dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground">Specialist / officer split</dt>
-              <dd data-numeric>
-                {est.hours.cs.toLocaleString("en-US")} / {est.hours.co.toLocaleString("en-US")}
-              </dd>
-            </div>
-          </dl>
-
-          <h2 className="section-title text-[18px] leading-6 font-medium">Hours by phase</h2>
-          <div className="mc-work-table-wrap mt-3 max-w-[80ch] border border-border bg-background">
-          <table className="w-full text-[13px] leading-[18px]">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">Phase</th>
-                <th scope="col" className="p-2">Hours</th>
-                <th scope="col" className="p-2">Work counted</th>
-              </tr>
-            </thead>
-            <tbody>
-              {byPhase.map(([phase, row]) => (
-                <tr key={phase} className="border-b border-border align-top">
-                  <td className="p-2">{phase}</td>
-                  <td className="p-2" data-numeric>{row.hours}</td>
-                  <td className="p-2 text-muted-foreground">{row.names.join("; ")}</td>
-                </tr>
+          <div className="mc-est-pick">
+            <label htmlFor="estimate-acq" className="mc-field-label">Acquisition</label>
+            <select id="estimate-acq" value={acq.acquisition_id} onChange={(e) => setSelected(e.target.value)} className="mc-input">
+              {q.data.acqs.map((a) => (
+                <option key={a.acquisition_id} value={a.acquisition_id}>
+                  {a.acquisition_id} · {a.title}
+                </option>
               ))}
-            </tbody>
-          </table>
+            </select>
+            <p className="mc-est-lead" data-numeric>
+              {plan.plannedDays
+                ? `The phase plan for this kind of buy runs ${plan.plannedDays} calendar days from intake to award, through ${plan.phases.length} phases, with about ${est.hours.total.toLocaleString("en-US")} hours of contracting work.`
+                : `The seeded phase plan has no entry for this type. The model counts about ${est.hours.total.toLocaleString("en-US")} hours of contracting work.`}
+            </p>
           </div>
 
-          <h2 className="section-title mt-8 text-[18px] leading-6 font-medium">Phases to award</h2>
-          <p className="mt-2 max-w-[80ch] text-[15px] leading-[22px]">
-            {est.phases.length ? est.phases.join(" · ") : "The seeded phase plan has no entry for this type."}
-          </p>
+          <div className="mc-today-stats mc-est-stats">
+            <div className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>{plan.plannedDays || "None"}</span>
+              <span className="mc-today-stat-label">Planned calendar days to award</span>
+            </div>
+            <div className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>{plan.phases.length}</span>
+              <span className="mc-today-stat-label">Phases to award</span>
+            </div>
+            <div className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>{est.hours.total.toLocaleString("en-US")}</span>
+              <span className="mc-today-stat-label">Contracting hours (estimate)</span>
+            </div>
+            <div className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>
+                {est.hours.cs.toLocaleString("en-US")} / {est.hours.co.toLocaleString("en-US")}
+              </span>
+              <span className="mc-today-stat-label">Specialist / officer hours</span>
+            </div>
+          </div>
 
-          <h2 className="section-title mt-8 text-[18px] leading-6 font-medium">Estimate at intake</h2>
-          <p className="mt-2 max-w-[80ch] text-[15px] leading-[22px]">
-            {atIntake
-              ? `${atIntake.months_to_award} months, ${atIntake.hours_total.toLocaleString("en-US")} contracting hours, recorded ${String(atIntake.estimated_at).slice(0, 10)}.`
-              : "No estimate was recorded when this file was submitted."}
-          </p>
+          <div className="mc-est-grid">
+            <section aria-labelledby="est-hours-h">
+              <h2 id="est-hours-h" className="mc-confirm-h">Hours by phase</h2>
+              <DataTable
+                label="Hours by phase"
+                rows={byPhase}
+                rowKey={([phase]) => phase}
+                stackOnMobile
+                columns={[
+                  { key: "phase", header: "Phase", rowHeader: true, width: "28%", cell: ([phase]) => phase },
+                  { key: "hours", header: "Hours", mobileLabel: "Hours", numeric: true, nowrap: true, width: "10%", cell: ([, row]) => row.hours },
+                  { key: "work", header: "Work counted", mobileLabel: "Work counted", cell: ([, row]) => <span className="mc-files-meta mt-0">{row.names.join("; ")}</span> },
+                ]}
+              />
+            </section>
+            <aside className="mc-est-side" aria-label="Phases and the estimate at intake">
+              <h2 className="mc-confirm-h">Phases to award</h2>
+              {plan.phases.length ? (
+                <ol className="mc-confirm-phases mc-est-phases">
+                  {plan.phases.map((p, i) => (
+                    <li key={`${i}-${p}`}>
+                      <span className="mc-confirm-phase-n" data-numeric>{i + 1}</span>
+                      <span>{p}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="mc-files-meta">The seeded phase plan has no entry for this type.</p>
+              )}
+              <h2 className="mc-confirm-h mt-6">Estimate at intake</h2>
+              <p className="text-[15px] leading-[22px]" data-numeric>
+                {atIntake
+                  ? `${atIntake.hours_total.toLocaleString("en-US")} contracting hours, recorded ${String(atIntake.estimated_at).slice(0, 10)}.`
+                  : "No estimate was recorded when this file was submitted."}
+              </p>
+            </aside>
+          </div>
         </>
       ) : null}
     </AppShell>

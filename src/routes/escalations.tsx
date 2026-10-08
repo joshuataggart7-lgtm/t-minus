@@ -1,5 +1,4 @@
 import { writeAudit } from "@/lib/audit";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -119,7 +118,6 @@ function EscalationsPage() {
         title="Aging holds and escalation"
         lead="Every hold and every pending review request carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {banner ? (
         <p role="status" className="mb-4 max-w-[70ch] text-[13px]">
           {banner}

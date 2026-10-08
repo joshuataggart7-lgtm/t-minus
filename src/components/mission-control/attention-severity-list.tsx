@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { dueView } from "@/lib/file-timeline";
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
 import { formatDate, urgencyRank } from "@/lib/metrics";
 import { daysBetween, todayISO } from "@/lib/intake";
@@ -35,7 +36,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
                   </span>
                   <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Not recorded" : `${daysInCondition}d`}</strong></span>
                   <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhase ?? "Not started"}</strong></span>
-                  <span className="mc-anomaly-data"><small>Next gate</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}</strong></span>
+                  <span className="mc-anomaly-data"><small>Next gate</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}${dueView(metric.nextDecisionDate)?.overdue ? ` · ${dueView(metric.nextDecisionDate)?.text}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}{dueView(metric.nextDecisionDate)?.overdue ? <span className="mc-due-dark"> · {dueView(metric.nextDecisionDate)?.text}</span> : null}</strong></span>
                 </Link>
               </li>
             );

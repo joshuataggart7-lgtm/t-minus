@@ -20,8 +20,11 @@ export function MissionStatusBoard({
   metrics,
   active = null,
   onSelect,
+  excluded = 0,
 }: {
   metrics: AcqMetrics[];
+  /** Scrubbed files left out of the counts, named so the total is explained. */
+  excluded?: number;
   active?: MissionControlState | null;
   onSelect?: (state: MissionControlState | null) => void;
 }) {
@@ -43,7 +46,10 @@ export function MissionStatusBoard({
             Mission readiness
           </h2>
         </div>
-        <p className="mc-board-total" data-numeric><strong>{metrics.length}</strong><span>acquisition files</span></p>
+        <p className="mc-board-total" data-numeric>
+          <strong>{metrics.length}</strong>
+          <span>acquisition files{excluded > 0 ? ` (${excluded} scrubbed, not counted)` : ""}</span>
+        </p>
       </div>
       <div className="mc-status-rail">
         <McStatBlock label="GO" value={counts.GO} pressed={active === "GO"} onSelect={onSelect ? () => pick("GO") : undefined} readiness="GO" index="01" description="On trajectory" />

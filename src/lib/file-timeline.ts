@@ -14,6 +14,7 @@
 
 import { acquisitionType, type AcqRow, type PhasePlanRow, type PhaseView } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
+import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
 
 export type PhasePosition = {
@@ -101,4 +102,32 @@ export function contractingHours(acq: AcqRow | Record<string, unknown>, plan: Ph
   } catch {
     return null;
   }
+}
+
+export type DueView = { iso: string; days: number; overdue: boolean; text: string; dateText: string };
+
+function dueDateText(iso: string): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(d.getTime())
+    ? iso
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+/**
+ * A phase-plan due date read against today's date at render, the same whole
+ * calendar days (Central time) the desk uses. A past date reads "Overdue by N
+ * days" so a stale plan date never looks current.
+ */
+export function dueView(value: string | null | undefined): DueView | null {
+  if (!value) return null;
+  const iso = value.slice(0, 10);
+  const days = calendarDaysBetween(todayCT(), iso);
+  if (Number.isNaN(days)) return null;
+  const dateText = dueDateText(iso);
+  if (days < 0) {
+    const n = Math.abs(days);
+    return { iso, days, overdue: true, dateText, text: `Overdue by ${n} ${n === 1 ? "day" : "days"}` };
+  }
+  if (days === 0) return { iso, days, overdue: false, dateText, text: "Due today" };
+  return { iso, days, overdue: false, dateText, text: `Due ${dateText}` };
 }

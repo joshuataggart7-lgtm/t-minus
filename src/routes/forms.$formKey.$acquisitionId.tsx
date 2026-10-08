@@ -6,7 +6,6 @@ import { mappingsFor } from "@/lib/form-field-mappings";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { supabase } from "@/integrations/supabase/client";
 import { loadStateAuditRows } from "@/lib/launch-events";
@@ -1014,9 +1013,6 @@ function FormPage() {
             </Button>
             <Nova acquisitionId={acquisitionId} documentLabel={FORM_NAMES[formKey]} />
           </div>
-          {readOnly ? (
-            <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>
-          ) : null}
           {!canWrite && !readOnly ? (
             <p className="mb-6 text-[13px] text-muted-foreground">Reading only. Editing and saving require Contracting or HQ.</p>
           ) : null}

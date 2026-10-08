@@ -2900,14 +2900,12 @@ function DocumentPage() {
 
 
 
-        {message && message !== DEMO_READ_ONLY_NOTE ? (
+        {message ? (
           <p role="status" className="mb-6 text-[15px]">
             {message}
           </p>
         ) : null}
-        {readOnly ? (
-          <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p>
-        ) : !canWrite ? (
+        {readOnly ? null : !canWrite ? (
           <p className="mb-6 text-[13px] text-muted-foreground">
             Reading only. Editing and saving require Contracting or HQ.
           </p>

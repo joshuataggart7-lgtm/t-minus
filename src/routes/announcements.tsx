@@ -1,5 +1,5 @@
 import { writeAudit } from "@/lib/audit";
-import { DEMO_READ_ONLY_NOTE, failureText } from "@/lib/demo-guard";
+import { failureText } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -173,7 +173,6 @@ function AnnouncementsPage() {
   return (
     <AppShell>
       <PageHeader title="Announcements" lead="Notices posted by HQ, with the action each one asks for." />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {hasRole("hq") && !readOnly ? <PostForm actor={user.name} onPosted={refresh} /> : null}
 

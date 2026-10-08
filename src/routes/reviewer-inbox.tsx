@@ -165,9 +165,8 @@ function ReviewerInbox() {
         lead={isAnonymous ? `Reviews waiting on ${user.name}. Read the one document for the phase.` : `Reviews waiting on ${user.name}. Read the one document for the phase, then record your decision.`}
       />
 
-      {isAnonymous ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
-      {banner && banner !== DEMO_READ_ONLY_NOTE ? (
+      {banner ? (
         <p role="status" className="mb-6 max-w-[80ch] border-l-2 border-primary py-1 pl-3 text-[15px]">
           {banner}
         </p>

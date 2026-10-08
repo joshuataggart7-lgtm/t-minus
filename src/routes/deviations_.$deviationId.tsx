@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useCanWrite } from "@/lib/use-can-write";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -207,7 +206,6 @@ function DeviationDetail() {
   return (
     <AppShell>
       <PageHeader title={request.title} lead={`${request.citation} · ${typeLabel?.label ?? request.deviation_type}`} />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <p className="mb-2 text-[13px] text-muted-foreground">
         {DEVIATION_TEMPLATE.name} · NF 1098 tab {DEVIATION_TEMPLATE.tab} · {DEVIATION_TEMPLATE.revision} ·{" "}

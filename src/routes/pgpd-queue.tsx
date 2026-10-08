@@ -11,7 +11,6 @@ import {
   type DefectRow,
   type DefectStatus,
 } from "@/lib/template-defects";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 
 export const Route = createFileRoute("/pgpd-queue")({
   head: () => ({
@@ -81,7 +80,6 @@ function PgpdQueuePage() {
         title="PGPD queue"
         lead="Defects reported from the templates, with the citation, the revision reported against, and who reported it."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       <p className="mb-6 max-w-[80ch] text-[15px] leading-[22px]">
         {(q.data ?? []).length} reported {(q.data ?? []).length === 1 ? "defect" : "defects"}. {open} still open.

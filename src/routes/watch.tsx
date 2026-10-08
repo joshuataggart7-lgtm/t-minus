@@ -1,5 +1,4 @@
 import { writeAudit } from "@/lib/audit";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -112,7 +111,6 @@ function WatchPage() {
         title="Watch"
         lead="Protest decisions, rule changes, and notices worth watching. Newest first."
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
       {canFetch ? (
         <section aria-label="Run a fetch" className="mb-8">
