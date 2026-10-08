@@ -2420,9 +2420,16 @@ const samNotice: TemplateDef = {
         },
         {
           key: "response_rule",
-          label: "Rule used for the response date",
+          label: "T-Minus default response period",
           kind: "readonly",
           showIf: isCombined,
+          help: "The 15 days are the T-Minus default. The rule for a combined synopsis/solicitation is a reasonable opportunity to respond (RFO FAR 12.202(b)(2)).",
+        },
+        {
+          key: "posted_date",
+          label: "Date posted to SAM.gov",
+          kind: "date",
+          help: "Enter the date the notice went live in SAM.gov. Saving the notice here is not posting it.",
         },
       ],
     },
@@ -2455,7 +2462,13 @@ const samNotice: TemplateDef = {
       standingText:
         "This is a combined synopsis/solicitation for commercial products or commercial services prepared in accordance with part 12. This announcement constitutes the only solicitation. Offers are being requested and a separate written solicitation will not be issued.",
       fields: [
-        { key: "evaluation_basis", label: "Basis for award", kind: "textarea", required: true },
+        {
+          key: "evaluation_basis",
+          label: "Basis for award",
+          kind: "textarea",
+          required: true,
+          help: "Drafted as lowest price technically acceptable. Change it to a best value tradeoff if the file calls for one.",
+        },
         { key: "clause_note", label: "Provisions and clauses that apply", kind: "textarea" },
       ],
     },
@@ -2887,8 +2900,11 @@ export function prefill(def: TemplateDef, acq: Record<string, unknown>): Values 
   }
   if (def.key === "sam-notice") {
     if (!out["notice_type"]) out["notice_type"] = samNoticeMode(acq as { competition?: string | null });
-    out["response_period_basis"] =
-      "At least 15 days from posting (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2; exemptions: RFO FAR 5.101(b).";
+    // The notice of intent reads the presolicitation table; a combined
+    // synopsis/solicitation takes its response-time line from the draft.
+    if (out["notice_type"] === "Notice of intent to sole source")
+      out["response_period_basis"] =
+        "At least 15 days from posting (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2; exemptions: RFO FAR 5.101(b).";
   }
   return out;
 }

@@ -145,6 +145,7 @@ import {
 } from "@/lib/nf1858";
 import { dayWord } from "@/lib/pluralize";
 import { AdvisoryTag } from "@/components/advisory-tag";
+import { DetailsList, DetailsSection, WithDetailsPanel } from "@/components/ui-mc";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
@@ -2146,13 +2147,95 @@ function DocumentPage() {
       <WorkShellLayout
         nav={<MissionNavigator items={documentNavItems} label="In this document" ariaLabel="In this document" />}
       >
-      <div className="mc-shell-document-content">
-      <div className="mc-work-toolbar mb-4 flex flex-wrap items-center">
-        <Nova acquisitionId={acquisitionId} documentLabel={def.name} />
-        <p className="text-[13px] text-muted-foreground">
-          <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
-        </p>
-      </div>
+      <WithDetailsPanel
+        className="mc-shell-document-content mc-doc-with-details"
+        panelLabel="About this document"
+        panel={
+            <>
+              <DetailsSection title="This document">
+              <section aria-label="Version badge" className="mc-doc-about">
+                <p className="text-[15px] font-semibold leading-[22px]">
+                  {def.badge.revision}
+                  {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
+                </p>
+                <p className="mt-1 text-[13px] text-muted-foreground">
+                  {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
+                </p>
+                {badgeTextState === "heading" ? (
+                  <p className="mt-1 text-[13px] text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
+                ) : badgeCiteStatus.kind === "stub" && badgeTextState === "none" ? (
+                  <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
+                ) : null}
+                <p className="mt-1">
+                  <ShowTheText citation={badgeCite} />
+                </p>
+                {badgeNoteText ? (
+                  <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
+                    <p>{badgeNoteText}</p>
+                    {def.badge.corrections?.length ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label="Show the three citation corrections"
+                              className="shrink-0 rounded-lg border border-border px-2 text-foreground"
+                            >
+                              Details
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm bg-popover text-popover-foreground">
+                            <ul className="list-disc space-y-1 pl-4">
+                              {def.badge.corrections.map((correction) => (
+                                <li key={correction}>{correction}</li>
+                              ))}
+                            </ul>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : null}
+                  </div>
+                ) : null}
+                {guidance ? (
+                  <p className="mt-2 text-[13px]">
+                    <StatusMark color="var(--attention)">Newer guidance published; review</StatusMark>{" "}
+                    {guidance.url ? (
+                      <a href={guidance.url} target="_blank" rel="noreferrer" className="text-primary underline">
+                        {guidance.title}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">{guidance.title}</span>
+                    )}
+                    <span className="text-muted-foreground"> · {guidance.date ?? "date not published"}</span>
+                  </p>
+                ) : null}
+                <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
+                  {headerLine}
+                  {estimatedValue !== null ? ` · IGCE ${formatMoney(estimatedValue)}` : ""}
+                </p>
+              </section>
+              </DetailsSection>
+              {def.key === "sam-notice" ? (
+                <DetailsSection title="Posting">
+                  <DetailsList
+                    items={[
+                      { term: "Posted to SAM.gov", value: String(values["posted_date"] ?? "").trim() || "Not recorded" },
+                      { term: "Response date", value: String(values["response_date"] ?? "").trim() || "Not set" },
+                    ]}
+                  />
+                </DetailsSection>
+              ) : null}
+              <DetailsSection title="Activity">
+                <div className="mc-doc-activity flex flex-wrap items-center gap-3">
+                  <Nova acquisitionId={acquisitionId} documentLabel={def.name} />
+                  <p className="text-[13px] text-muted-foreground">
+                    <DocReadCount acquisitionId={acquisitionId} docKind="template" docKey={templateKey} />
+                  </p>
+                </div>
+              </DetailsSection>
+            </>
+        }
+      >
 
       {/* A standalone draft is taken outside the launch sequence. It saves and
           exports like any document and adds no required row to the file. */}
@@ -2195,67 +2278,6 @@ function DocumentPage() {
         </section>
       ) : null}
 
-      <section aria-label="Version badge" className="mc-work-summary mb-8 max-w-[80ch]">
-        <p className="text-[15px] leading-[22px]">
-          {def.badge.revision}
-          {def.tab === "—" ? "" : ` · NF 1098 tab ${def.tab}`}
-        </p>
-        <p className="mt-1 text-[13px] text-muted-foreground">
-          {badgeCite} · {def.badge.tier === "binding" ? "Binding" : "Guidance"}
-        </p>
-        {badgeTextState === "heading" ? (
-          <p className="mt-1 text-[13px] text-muted-foreground">{CITE_HEADING_ONLY_NOTE}</p>
-        ) : badgeCiteStatus.kind === "stub" && badgeTextState === "none" ? (
-          <p className="mt-1 text-[13px] text-muted-foreground">{badgeCiteStatus.note}</p>
-        ) : null}
-        <p className="mt-1">
-          <ShowTheText citation={badgeCite} />
-        </p>
-        {badgeNoteText ? (
-          <div className="mt-1 flex items-start gap-2 text-[13px] text-muted-foreground">
-            <p>{badgeNoteText}</p>
-            {def.badge.corrections?.length ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label="Show the three citation corrections"
-                      className="shrink-0 rounded-lg border border-border px-2 text-foreground"
-                    >
-                      Details
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-sm bg-popover text-popover-foreground">
-                    <ul className="list-disc space-y-1 pl-4">
-                      {def.badge.corrections.map((correction) => (
-                        <li key={correction}>{correction}</li>
-                      ))}
-                    </ul>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : null}
-          </div>
-        ) : null}
-        {guidance ? (
-          <p className="mt-2 text-[13px]">
-            <StatusMark color="var(--attention)">Newer guidance published; review</StatusMark>{" "}
-            {guidance.url ? (
-              <a href={guidance.url} target="_blank" rel="noreferrer" className="text-primary underline">
-                {guidance.title}
-              </a>
-            ) : (
-              <span className="text-muted-foreground">{guidance.title}</span>
-            )}
-            <span className="text-muted-foreground"> · {guidance.date ?? "date not published"}</span>
-          </p>
-        ) : null}
-        <p className="mt-1 text-[13px] text-muted-foreground" data-numeric>
-          {headerLine}
-          {estimatedValue !== null ? ` · IGCE ${formatMoney(estimatedValue)}` : ""}
-        </p>
-      </section>
 
       {/* Until the record is in hand the form frame is drawn empty of fields,
           so no field reads blank while its value is still on the way. */}
@@ -3342,7 +3364,7 @@ function DocumentPage() {
           Open the acquisition file
         </Link>
       </div>
-      </div>
+      </WithDetailsPanel>
       </WorkShellLayout>
     </AppShell>
   );

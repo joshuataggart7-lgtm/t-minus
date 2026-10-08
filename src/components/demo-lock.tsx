@@ -24,11 +24,11 @@ export function DemoFieldset({ children, locked }: { children: ReactNode; locked
 }
 
 /** One muted line per locked region, never per control. */
-export function LockHint({ className = "" }: { className?: string }) {
+export function LockHint({ className = "", lead }: { className?: string; lead?: string }) {
   return (
     <p className={`flex items-center gap-1.5 text-[13px] text-muted-foreground ${className}`}>
       <Lock className="size-[14px] shrink-0" aria-hidden="true" />
-      <span>{LOCK_HINT_TEXT}</span>
+      <span>{lead ? `${lead} ${LOCK_HINT_TEXT}` : LOCK_HINT_TEXT}</span>
     </p>
   );
 }

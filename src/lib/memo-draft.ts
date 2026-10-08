@@ -658,9 +658,19 @@ export function repairSavedSamResponseRule(values: Record<string, string | undef
   const m = /^Later of 15 calendar days after posting \(\d{4}-\d{2}-\d{2}\) and the date the contracting officer enters\. Posted \d{4}-\d{2}-\d{2}, not yet posted\. (.*)$/s.exec(
     rule,
   );
-  if (!m) return rule;
-  return `Later of 15 calendar days after posting and the date the contracting officer enters. Not yet posted. ${m[1]}`;
+  if (m) return `Later of 15 calendar days after posting and the date the contracting officer enters. Posting date not recorded. ${m[1]}`;
+  // An older generated rule said "Not yet posted." even after the notice went
+  // out. With no posting date on the notice, the honest line is that the date
+  // is not recorded.
+  const older = /^Later of 15 calendar days after posting and the date the contracting officer enters\. Not yet posted\. (.*)$/s.exec(rule);
+  if (older) return `Later of 15 calendar days after posting and the date the contracting officer enters. Posting date not recorded. ${older[1]}`;
+  return rule;
 }
+
+/** The response-time rule for a combined synopsis/solicitation (RFO FAR 12.202(b)(2)). */
+export const COMBINED_RESPONSE_RULE = "RFO FAR 12.202(b)(2): a reasonable opportunity to respond.";
+/** The minimum-timeframe table for receipt of quotations or offers. */
+export const COMBINED_RESPONSE_TABLE = "RFO FAR 12.202(b)(2); RFO FAR 5.201(d), Table 5-3.";
 
 function samNotice(ctx: MemoDraftCtx): Values {
   const a = ctx.acq;
@@ -676,19 +686,23 @@ function samNotice(ctx: MemoDraftCtx): Values {
     : entered;
   // A sole-source notice of intent is not a combined synopsis/solicitation, so
   // it carries the notice authority, never RFO FAR 12.202(b).
-  const ruleCite = isSoleSourceRecord(a)
-    ? "Notice timing: RFO FAR 5.101(d), Table 5-2."
-    : "RFO FAR 12.202(b)(2): a reasonable opportunity to respond.";
+  const soleSource = isSoleSourceRecord(a);
+  const ruleCite = soleSource ? "Notice timing: RFO FAR 5.101(d), Table 5-2." : COMBINED_RESPONSE_RULE;
+  // The 15 days are the T-Minus default, not a regulatory minimum. For a
+  // combined synopsis/solicitation the rule is a reasonable opportunity to
+  // respond (RFO FAR 12.202(b)(2)).
+  const defaultLine = posting
+    ? `T-Minus default: the later of 15 calendar days after posting (${fifteen}) and the date the contracting officer enters.`
+    : "T-Minus default: the later of 15 calendar days after posting and the date the contracting officer enters.";
+  const postedLine = posting ? `Posted ${posting}.` : "Posting date not recorded.";
   return {
     period_of_performance: start && end ? `${start} to ${end}` : start || end,
     response_date: response,
-    response_rule: posting
-      ? `Later of 15 calendar days after posting (${fifteen}) and the date the contracting officer enters. Posted ${
-          ctx.notice?.postedOn ? ctx.notice.postedOn : `${posting}, not yet posted`
-        }. ${ruleCite}`
-      : `Later of 15 calendar days after posting and the date the contracting officer enters. Not yet posted. ${ruleCite}`,
+    response_rule: `${defaultLine} ${postedLine} The rule: ${ruleCite}`,
+    // The drafting choice (lowest price technically acceptable or a best value
+    // tradeoff) is helper text beside the field, never words in the notice.
     evaluation_basis:
-      "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (RFO FAR 12.203(b)). Change this to a best value tradeoff if the file calls for one. Drafted from the record, confirm.",
+      "Award will be made to the responsible quoter whose quotation is the lowest price technically acceptable, conforming to this notice (RFO FAR 12.203(b)). Drafted from the record, confirm.",
     clause_note: clauseNote(ctx),
     // The public notice carries one sentence of the reason from item 5 of the
     // justification, not the whole item.
@@ -696,9 +710,13 @@ function samNotice(ctx: MemoDraftCtx): Values {
       soleSourceSentence(str(ctx.jofocValues?.["authority_rationale"]), a) ||
       gap("state why only this source can meet the need, or draft the JOFOC first"),
     authority: samNoticeAuthority(a),
-    response_period_basis: posting
-      ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2.`
-      : "At least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2.",
+    response_period_basis: soleSource
+      ? posting
+        ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2.`
+        : "At least 15 calendar days after publication (T-Minus default). Notice timing: RFO FAR 5.101(d), Table 5-2."
+      : posting
+        ? `Responses are due ${response || fifteen}, at least 15 calendar days after publication (T-Minus default). Response time: ${COMBINED_RESPONSE_TABLE}`
+        : `At least 15 calendar days after publication (T-Minus default). Response time: ${COMBINED_RESPONSE_TABLE}`,
     poc_email: ctx.co?.email ?? "",
     poc_phone: ctx.co?.phone ?? "",
   };

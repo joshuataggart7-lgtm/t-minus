@@ -76,7 +76,7 @@ import { ClausePicker } from "@/components/clause-picker";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { FilePhaseStepper } from "@/components/file-phase-stepper";
 import { DataTable, EmptyCell, StatusChip } from "@/components/ui-mc";
-import { dueView, holdShortLabel, phasePosition, phasePositionText } from "@/lib/file-timeline";
+import { dueView, holdAlertText, holdShortLabel, phasePosition, phasePositionText } from "@/lib/file-timeline";
 import { certifiedDataBasis, CERTIFIED_DATA_LABEL } from "@/lib/certified-data";
 import { AdvisoryTag } from "@/components/advisory-tag";
 import { LockHint } from "@/components/demo-lock";
@@ -206,6 +206,7 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import {
   MissionNavigator,
   MissionNavSection,
+  MISSION_NAV_CURRENT,
   MISSION_NAV_REVEAL,
   MISSION_NAV_SET_ALL,
   stickyOffset,
@@ -1009,6 +1010,26 @@ function FilePage() {
     });
   }, [acq, currentPhase, attachments, savedKeys, effectiveState]);
 
+  // Display only (ep05 C4): a phase marked complete while one of its Required
+  // rows still reads unmet on the record. The row test is the same one the
+  // launch sequence draws; the exit gate and the phase status are unchanged.
+  const openRequiredByPhase = useMemo(() => {
+    const out = new Map<string, RequiredDoc[]>();
+    if (!acq) return out;
+    for (const p of phases) {
+      if (p.status !== "complete") continue;
+      const open = p.docs.filter((d) => {
+        if (d.optional) return false;
+        if (d.dueAfterAward && effectiveState !== "launched") return false;
+        const key = d.docKey ?? docKey(d.field, d.label);
+        const generator = generatorKey(d);
+        return docSatisfied(d, acq, d.field || generator || d.attachOnly ? Boolean(attachmentFor(key)) : undefined, savedKeys) === false;
+      });
+      if (open.length) out.set(p.phase, open);
+    }
+    return out;
+  }, [acq, phases, attachments, savedKeys, effectiveState]);
+
   const holdDoc = hold?.doc;
   const holdRequirementHref =
     holdDoc && phases.some((p) => p.phase === holdDoc.phase && p.docs.some((d) => d.label === holdDoc.label))
@@ -1106,6 +1127,8 @@ function FilePage() {
       focusTarget(el);
       if (opts.updateHash) window.history.replaceState(window.history.state, "", "#" + el.id);
       pinTarget(el, block);
+      // The "On this file" highlight follows the section shown.
+      window.dispatchEvent(new CustomEvent(MISSION_NAV_CURRENT, { detail: { id: el.id } }));
     };
     const showSequence = () => {
       if (!sequence) return;
@@ -2604,6 +2627,9 @@ function FilePage() {
         ? "Target award date is today"
         : `Target award passed ${fileCountdownView.days} ${fileCountdownView.days === 1 ? "day" : "days"} ago`
       : null;
+  // Display only: a clock past its target reads OVERDUE beside the readiness
+  // badge, the same word the countdown shows. Readiness and gates are unchanged.
+  const showOverdueBadge = Boolean(targetPassedText) && (fileCountdownView.days ?? 0) > 0 && effectiveState !== "scrubbed";
 
   // The rail's attention list reads the same figures as the hero and the
   // section badges. It adds no rule of its own.
@@ -2634,6 +2660,17 @@ function FilePage() {
         target: `poll-${currentPhase.phase}`,
       });
     }
+    for (const p of phases) {
+      const open = openRequiredByPhase.get(p.phase);
+      if (!open?.length || !open[0]) continue;
+      items.push({
+        key: `open-${p.phase}`,
+        tone: "watch",
+        text: `${phaseLabel(p)} marked complete with ${plural(open.length, "required item", "required items")} open`,
+        sub: open.slice(0, 3).map((d) => d.label).join(", "),
+        target: requirementId(p.phase, open[0].label),
+      });
+    }
     const openGates = companionGates.filter((gate) => gate.applies && gate.status === "Open").length;
     if (openGates) items.push({ key: "gates", tone: "watch", text: `${plural(openGates, "companion gate", "companion gates")} open`, target: "companion-gates" });
     if (fileIndex.missing.length) {
@@ -2662,6 +2699,7 @@ function FilePage() {
     place(el, "start");
     focusTarget(el.querySelector<HTMLElement>("h2, summary") ?? el);
     window.history.replaceState(window.history.state, "", `#${id}`);
+    window.dispatchEvent(new CustomEvent(MISSION_NAV_CURRENT, { detail: { id } }));
   };
 
   // A step in the phase row shows that phase in the launch sequence.
@@ -2739,7 +2777,7 @@ function FilePage() {
                   onClick={(e) => { e.preventDefault(); revealHash(holdRequirementHref, { updateHash: true }); }}
                   className="text-primary underline-offset-2 hover:underline"
                 >
-                  {hold.reason}
+                  {holdAlertText(hold.reason)}
                 </a>
               </p>
               <p className="mt-1 text-[13px] text-muted-foreground">
@@ -2794,6 +2832,9 @@ function FilePage() {
             <div className="mc-file-hero-eyebrow">
               <span className="mc-file-hero-id" data-numeric>{acquisitionId}</span>
               {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
+              {showOverdueBadge ? (
+                <span className="mc-state mc-state-hold" title={targetPassedText ?? undefined}>OVERDUE</span>
+              ) : null}
               <span className="mc-file-hero-type">{acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}</span>
             </div>
             <h1 className={presenter ? "mc-file-hero-title is-presenter" : "mc-file-hero-title"}>{acq?.title ?? acquisitionId}</h1>
@@ -2945,6 +2986,9 @@ function FilePage() {
                   ? "Owner not recorded"
                   : effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Nothing is blocking"}
             </p>
+            {heroAction && !canWrite && readOnly ? (
+              <LockHint className="mt-1" lead={`${heroAction.label} is locked here.`} />
+            ) : null}
             {holdShort ? (
               <p className="mc-glance-sub">
                 <a
@@ -3054,11 +3098,24 @@ function FilePage() {
                   label={p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
                   tone={p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
                 />
+                {openRequiredByPhase.get(p.phase)?.length ? (
+                  <StatusChip
+                    label={`${openRequiredByPhase.get(p.phase)?.length} required ${openRequiredByPhase.get(p.phase)?.length === 1 ? "item" : "items"} open`}
+                    tone="attention"
+                  />
+                ) : null}
                 <span className="mc-seq-phase-days" data-numeric>
                   {phaseDayLine(p)}
                 </span>
               </div>
               <p className="mc-seq-phase-cite">{p.citation}</p>
+              {openRequiredByPhase.get(p.phase)?.length ? (
+                <p className="mc-phase-open-note max-w-[80ch]">
+                  Marked complete with a required item open:{" "}
+                  {openRequiredByPhase.get(p.phase)?.map((d) => d.label).join("; ")}. The exit gate passed, but the
+                  record does not show this item. Check it, or record why it was not needed.
+                </p>
+              ) : null}
               {mode === "novice" ? <p className="mt-2 max-w-[80ch] text-[15px]">{p.guidance}</p> : null}
 
               <ul className="mc-seq-rows">
@@ -4286,6 +4343,7 @@ function FilePage() {
                         <ReviewCard
                           key={`${b.phase}-${b.reviewer_role}`}
                           entry={b}
+                          launched={effectiveState === "launched"}
                           explain={<ExplainThis explanation={explainReview(b, acq as AcqRow)} />}
                           action={
                             canWrite && b.poll_id ? (
@@ -4346,7 +4404,11 @@ function FilePage() {
               aria-selected={fileTab === t.key}
               tabIndex={fileTab === t.key ? 0 : -1}
               className="mc-tab"
-              onClick={() => setFileTab(t.key)}
+              onClick={() => {
+                flushSync(() => setFileTab(t.key));
+                // The "On this file" highlight moves to the tab's first section.
+                window.dispatchEvent(new CustomEvent(MISSION_NAV_CURRENT, { detail: { id: `file-panel-${t.key}` } }));
+              }}
             >
               <span>{t.label}</span>
               {fileTabBadges[t.key] ? <span className="mc-tab-badge">{fileTabBadges[t.key]}</span> : null}
@@ -4680,6 +4742,7 @@ function FilePage() {
                     key={`${b.phase}-${b.reviewer_role}`}
                     entry={b}
                     showOverdue={effectiveState !== "launched"}
+                    launched={effectiveState === "launched"}
                     explain={<ExplainThis explanation={explainReview(b, acq as AcqRow)} />}
                     action={
                       canWrite && b.poll_id && effectiveState !== "launched" ? (

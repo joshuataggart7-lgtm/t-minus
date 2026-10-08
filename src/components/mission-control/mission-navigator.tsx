@@ -10,6 +10,21 @@ export const MISSION_NAV_SET_ALL = "mission-nav:set-all";
  * jump lands on a visible section.
  */
 export const MISSION_NAV_REVEAL = "mission-nav:reveal";
+/**
+ * Window event a page fires after it shows a section itself (a hash link, a
+ * tab, a rail link); detail is { id }. The navigator marks the item that holds
+ * that element, or the first item inside it, as current.
+ */
+export const MISSION_NAV_CURRENT = "mission-nav:current";
+
+function decodedHash(): string {
+  const h = window.location.hash.replace(/^#/, "");
+  try {
+    return decodeURIComponent(h);
+  } catch {
+    return h;
+  }
+}
 
 export type MissionNavItem = {
   id: string;
@@ -132,6 +147,62 @@ export function MissionNavigator({
       if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     };
   }, [recomputeCurrent, scheduleRecompute]);
+
+  // Name the item that holds an element (or the first item inside it), so the
+  // highlight follows a hash link or a tab the page opened on its own.
+  const resolveItem = useCallback((elementId: string): string | null => {
+    const el = elementId ? document.getElementById(elementId) : null;
+    if (!el) return null;
+    const ids = items.map((item) => item.id);
+    let node: HTMLElement | null = el;
+    while (node) {
+      if (node.id && ids.includes(node.id)) return node.id;
+      node = node.parentElement;
+    }
+    for (const id of ids) {
+      const target = document.getElementById(id);
+      if (target && el.contains(target)) return id;
+    }
+    return null;
+  }, [items]);
+
+  const markCurrent = useCallback((elementId: string) => {
+    const id = resolveItem(elementId);
+    if (!id) return;
+    lockRef.current = id;
+    setCurrentId(id);
+  }, [resolveItem]);
+
+  useEffect(() => {
+    const onCurrent = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (id) markCurrent(id);
+    };
+    const onHash = () => {
+      const h = decodedHash();
+      if (h) markCurrent(h);
+    };
+    window.addEventListener(MISSION_NAV_CURRENT, onCurrent);
+    window.addEventListener("hashchange", onHash);
+    return () => {
+      window.removeEventListener(MISSION_NAV_CURRENT, onCurrent);
+      window.removeEventListener("hashchange", onHash);
+    };
+  }, [markCurrent]);
+
+  // On load, a hash in the address names the current item once its section exists.
+  const loadHashDone = useRef(false);
+  useEffect(() => {
+    if (loadHashDone.current || !availableIds.length) return;
+    const h = decodedHash();
+    if (!h) {
+      loadHashDone.current = true;
+      return;
+    }
+    if (!document.getElementById(h)) return;
+    loadHashDone.current = true;
+    markCurrent(h);
+  }, [availableIds, markCurrent]);
 
   const visibleItems = useMemo(
     () => items.filter((item) => availableIds.includes(item.id)),
