@@ -80,7 +80,7 @@ export function clauseFillinSlots(
     push("NAICS code", txt(f, "naics_code"));
     push("Set-aside", txt(f, "set_aside"));
   } else if (num === "52.212-2") {
-    push("Evaluation factors", "Not recorded — carried from Section M on this file");
+    push("Evaluation factors", "Not recorded; carried from Section M on this file");
     push("Estimated value", money(f["estimated_value"]));
   } else if (num === "52.212-4") {
     push("Period of performance start", txt(f, "period_of_performance_start"));

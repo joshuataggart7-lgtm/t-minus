@@ -13,6 +13,7 @@ import { CLAUSE_FILLIN_NOTE } from "@/lib/clause-fillins";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { StatusMark } from "@/components/app-shell";
+import { StatusChip, toneForStatus, type StatusTone } from "@/components/ui-mc";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 import { SECTION_J_EMPTY } from "@/lib/section-j";
 import { CDRL_EMPTY, CDRL_EMPTY_NOTE, CDRL_LABEL, cdrlPackNotes } from "@/lib/cdrl";
@@ -27,12 +28,46 @@ const NCMS_CHIP = "NCMS is the system of record. T-Minus does not write to NCMS.
 
 function Head({ n, children }: { n: number; children: React.ReactNode }) {
   return (
-    <h5 className="text-[15px] font-medium">
-      <span className="text-muted-foreground" data-numeric>
-        {n}.
-      </span>{" "}
-      {children}
+    <h5 className="mc-pa-h">
+      <span className="mc-pa-n" data-numeric aria-hidden="true">
+        {n}
+      </span>
+      <span className="mc-req-h">
+        <span className="sr-only">{n}. </span>
+        {children}
+      </span>
     </h5>
+  );
+}
+
+/** Tone for a representations checklist status word; the word itself is always shown. */
+function kStatusTone(status: string): StatusTone {
+  if (/\bnot\b|missing|expired|open|blank/i.test(status)) return "attention";
+  return toneForStatus(status, /recorded|active|current|complete|on file|yes/i.test(status) ? "ontrack" : "info");
+}
+
+/** One fill-in value: recorded values read as data, blanks are marked. */
+function FillIn({ part }: { part: string }) {
+  const at = part.indexOf(":");
+  const label = at > 0 ? part.slice(0, at) : part;
+  const value = at > 0 ? part.slice(at + 1).trim() : "";
+  const blank = value === "Not recorded";
+  return (
+    <li>
+      <span>{label}</span>
+      {value ? (
+        <>
+          {": "}
+          {blank ? (
+            <StatusMark color="var(--attention)" className="tabular-nums">
+              Not recorded, blank
+            </StatusMark>
+          ) : (
+            <span className="text-foreground" data-numeric>{value}</span>
+          )}
+        </>
+      ) : null}
+    </li>
   );
 }
 
@@ -62,7 +97,7 @@ export function AwardHandoffPanel({
   if (!scaffold) return null;
 
   const sf = scaffold.mode === "sf1449";
-  const jTitle = sf ? "Attachments" : "Section J — List of attachments";
+  const jTitle = sf ? "Attachments" : "Section J: List of attachments";
 
   // Partial records are normal on a live file. Read every list defensively so a
   // half-built scaffold still renders instead of throwing.
@@ -87,7 +122,7 @@ export function AwardHandoffPanel({
       ? `Schedule: ${clins.length} line items`
       : "Schedule: no line items recorded yet",
     clauses.length > 0
-      ? `Clauses: ${clauses.length} selected — ${clausesWithBlanks} with a Not recorded fill-in`
+      ? `Clauses: ${clauses.length} selected; ${clausesWithBlanks} with a Not recorded fill-in`
       : "Clauses: none selected yet",
     lmLines > 0
       ? `${sf ? "Instructions and evaluation" : "Sections L and M"}: ${lmLines} lines recorded`
@@ -104,7 +139,7 @@ export function AwardHandoffPanel({
     payments.length > 0
       ? `Payment milestones: ${payments.length}`
       : `Payment milestones: ${PAYMENT_MILESTONES_EMPTY}`,
-    "Signatures: blank on purpose — signed in NCMS",
+    "Signatures: blank on purpose, signed in NCMS",
   ];
   if (assemblyCounts) {
     readiness.push(
@@ -115,52 +150,78 @@ export function AwardHandoffPanel({
   const allEnclosuresEmpty =
     clins.length === 0 && attachments.length === 0 && cdrl.length === 0 && payments.length === 0;
 
+  const coverBlank = notRecorded;
   return (
-    <div className="mt-4 border border-border p-4">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 className="text-[15px] font-medium leading-[22px]">Award handoff</h4>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="text-[15px] text-primary"
-          aria-expanded={open}
-        >
-          {open ? "Close the Award handoff" : "Open the Award handoff"}
-        </button>
+    <div className="mc-kpanel mc-pa mt-4">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h4 className="mc-kpanel-title">Award handoff</h4>
+          <p className="mc-pa-sub">
+            The handoff packet in reading order: {scaffold.formatLabel}.{" "}
+            {scaffold.lm?.methodLabel ?? "Acquisition method not recorded"}. The downloaded packet
+            carries the same content.
+          </p>
+        </div>
+        <div className="mc-kpanel-status">
+          <StatusChip label="Keyed into NCMS" tone="info" />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            className="mc-pa-link"
+            aria-expanded={open}
+          >
+            {open ? "Close the Award handoff" : "Open the Award handoff"}
+          </button>
+        </div>
       </div>
-      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-        The handoff packet in reading order: {scaffold.formatLabel}.{" "}
-        {scaffold.lm?.methodLabel ?? "Acquisition method not recorded"}. The downloaded packet
-        carries the same content.
-      </p>
+
+      <div className="mc-pa-stats" role="list" aria-label="Handoff packet counts">
+        <div role="listitem" className={coverBlank > 0 ? "is-attention" : "is-ontrack"}>
+          <strong data-numeric>{blocks.length - coverBlank} of {blocks.length}</strong>
+          <span>cover fields recorded</span>
+        </div>
+        <div role="listitem" className={clins.length > 0 ? "is-ontrack" : "is-attention"}>
+          <strong data-numeric>{clins.length}</strong>
+          <span>line items on the schedule</span>
+        </div>
+        <div role="listitem" className={clauses.length === 0 || clausesWithBlanks > 0 ? "is-attention" : "is-ontrack"}>
+          <strong data-numeric>{clauses.length}</strong>
+          <span>
+            clauses selected
+            {clauses.length > 0 ? `, ${clausesWithBlanks} with a blank fill-in` : ""}
+          </span>
+        </div>
+      </div>
+
       {suggestedForm && acquisitionId ? (
-        <p className="mt-2 max-w-[80ch] text-[13px]">
+        <p className="mc-pa-text mt-4">
           <Link
             to="/forms/$formKey/$acquisitionId"
             params={{ formKey: suggestedForm.key, acquisitionId }}
-            className="text-primary underline-offset-2 hover:underline"
+            className="mc-pa-link"
           >
             Fill the {suggestedForm.name}
           </Link>{" "}
-          <span className="text-muted-foreground">
+          <span className="mc-req-meta inline">
             {suggestedForm.why} Other official forms stay open on this file.
           </span>
         </p>
       ) : null}
-      <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+      <p className="mc-pa-sub mt-2">
         {suggestedForm && acquisitionId
           ? "The filled preview and PDF export are for a human field check in desktop Adobe Acrobat Reader; a blank form in Chrome or PDF.js is expected for this kind of form. This is guidance, not an Adobe verification."
           : "No official form is suggested from this record. Any form you open here exports for a human field check in desktop Adobe Acrobat Reader; a blank form in Chrome or PDF.js is expected for this kind of form. This is guidance, not an Adobe verification."}
       </p>
-      <p className="mt-2 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
-        {NCMS_CHIP}
-      </p>
+      <p className="mc-pa-sub mt-1">{NCMS_CHIP}</p>
 
       {open ? (
-        <div className="mt-4 space-y-6">
-          <section aria-label="Packet completeness" className="break-inside-avoid">
-            <h5 className="text-[15px] font-medium">Packet completeness — advisory</h5>
-            <ul className="mt-1 max-w-[80ch] border-l-2 border-border pl-3 text-[13px] leading-[18px] text-muted-foreground">
+        <div className="mt-2">
+          <section aria-label="Packet completeness" className="mc-kpanel-section break-inside-avoid">
+            <div className="mc-pa-h">
+              <h5 className="mc-req-h">Packet completeness</h5>
+              <StatusChip label="Advisory" tone="neutral" />
+            </div>
+            <ul className="mc-pa-list is-meta">
               {readiness.map((line) => (
                 <li key={line}>{line}</li>
               ))}
@@ -171,7 +232,7 @@ export function AwardHandoffPanel({
                   cover blocks only.
                 </li>
               ) : null}
-              <li>Advisory only — nothing here holds the file or blocks a phase exit.</li>
+              <li>Advisory only; nothing here holds the file or blocks a phase exit.</li>
               <li>
                 Counts read the record as it stands. No form on this file is Adobe verified; a
                 person checks the fields in desktop Adobe Acrobat Reader.
@@ -179,51 +240,51 @@ export function AwardHandoffPanel({
             </ul>
           </section>
 
-          <section>
-            <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format — cover blocks"}</Head>
-            <p className="mt-1 text-[13px] text-muted-foreground">{scaffold.formatSource}</p>
-            <dl className="mt-2 grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-[18px] sm:grid-cols-2">
+          <section className="mc-kpanel-section">
+            <Head n={1}>{sf ? "SF 1449 blocks" : "Uniform Contract Format: cover blocks"}</Head>
+            <p className="mc-pa-sub">{scaffold.formatSource}</p>
+            <dl className="mc-pa-facts is-2 mt-2">
               {scaffold.blocks.map((b) => (
-                <div key={b.label} className="flex justify-between gap-4 border-b border-border py-1 max-xl:flex-wrap">
-                  <dt className="text-muted-foreground">{b.label}</dt>
-                  <dd className="max-xl:ml-auto max-xl:min-w-0 max-xl:text-right max-xl:[overflow-wrap:anywhere]" data-numeric>{b.value}</dd>
+                <div key={b.label}>
+                  <dt>{b.label}</dt>
+                  <dd className={b.value === "Not recorded" ? "is-blank" : undefined} data-numeric>{b.value}</dd>
                 </div>
               ))}
             </dl>
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={2}>Schedule of line items</Head>
             {scaffold.clins.length === 0 ? (
-              <p className="mt-2 text-[13px] text-muted-foreground">
+              <p className="mc-req-fallback">
                 No line items on the schedule for this file.
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff line items table, ${regionContext}` : "Handoff line items table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Handoff line items table, ${regionContext}` : "Handoff line items table"}>
+<table className="mc-dt stack">
                 <caption className="sr-only">Line items on this file</caption>
                 <thead>
-                  <tr className="border-y border-border text-left">
-                    <th scope="col" className="p-2">CLIN</th>
-                    <th scope="col" className="p-2">Description</th>
-                    <th scope="col" className="p-2">Quantity</th>
-                    <th scope="col" className="p-2">Unit</th>
-                    <th scope="col" className="p-2">Amount</th>
+                  <tr>
+                    <th scope="col" className="is-nowrap">CLIN</th>
+                    <th scope="col">Description</th>
+                    <th scope="col" className="is-numeric">Quantity</th>
+                    <th scope="col">Unit</th>
+                    <th scope="col" className="is-numeric">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scaffold.clins.map((c) => (
-                    <tr key={c.clin} className="border-b border-border align-top">
-                      <td className="p-2" data-numeric>{c.clin}</td>
-                      <td className="p-2">
+                    <tr key={c.clin}>
+                      <td data-label="CLIN" className="is-nowrap" data-numeric>{c.clin}</td>
+                      <td data-label="Description">
                         {c.description}
                         {c.note ? (
-                          <span className="block text-muted-foreground">{c.note}</span>
+                          <span className="mc-req-meta">{c.note}</span>
                         ) : null}
                       </td>
-                      <td className="p-2" data-numeric>{c.quantity}</td>
-                      <td className="p-2">{c.unit}</td>
-                      <td className="p-2" data-numeric>{c.amount}</td>
+                      <td data-label="Quantity" className="is-numeric">{c.quantity}</td>
+                      <td data-label="Unit">{c.unit}</td>
+                      <td data-label="Amount" className="is-numeric">{c.amount}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -232,26 +293,27 @@ export function AwardHandoffPanel({
             )}
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={3}>{scaffold.sectionK?.heading ?? "Representations and certifications"}</Head>
             {scaffold.sectionK ? (
               <>
-                <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-                  {scaffold.sectionK.path_note}
-                </p>
-                <p className="mt-1 text-[13px]">
+                <p className="mc-pa-sub">{scaffold.sectionK.path_note}</p>
+                <p className="mc-pa-text mt-2">
                   SAM representations: {scaffold.sectionK.sam_status}
                 </p>
-                <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+                <ul className="mc-pa-check mt-2">
                   {scaffold.sectionK.checklist.map((row) => (
-                    <li key={row.label}>
-                      {row.label} — {row.status}
-                      {row.note ? <span className="text-muted-foreground"> {row.note}</span> : null}
+                    <li key={row.label} className="is-neutral">
+                      <span className="mc-pa-check-main">
+                        <span>{row.label}</span>
+                      </span>
+                      <StatusChip label={row.status} tone={kStatusTone(row.status)} />
+                      {row.note ? <span className="mc-pa-check-note">{row.note}</span> : null}
                     </li>
                   ))}
                 </ul>
                 {scaffold.sectionK.clauses.length > 0 ? (
-                  <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+                  <ul className="mc-pa-list mt-3">
                     {scaffold.sectionK.clauses.map((c) => (
                       <li key={c.clause_number}>
                         <span data-numeric>{c.clause_number}</span> {c.title}
@@ -259,35 +321,29 @@ export function AwardHandoffPanel({
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-2 text-[13px] text-muted-foreground">
-                    {scaffold.sectionK.clauses_empty_note}
-                  </p>
+                  <p className="mc-pa-sub mt-2">{scaffold.sectionK.clauses_empty_note}</p>
                 )}
                 {scaffold.sectionK.notes ? (
-                  <p className="mt-2 text-[13px]">{scaffold.sectionK.notes}</p>
+                  <p className="mc-pa-text mt-2">{scaffold.sectionK.notes}</p>
                 ) : null}
                 {scaffold.sectionK.empty_note ? (
-                  <p className="mt-2 text-[13px] text-muted-foreground">
-                    {scaffold.sectionK.empty_note}
-                  </p>
+                  <p className="mc-pa-sub mt-2">{scaffold.sectionK.empty_note}</p>
                 ) : null}
-                <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
-                  {scaffold.sectionK.note}
-                </p>
+                <p className="mc-pa-sub mt-2">{scaffold.sectionK.note}</p>
               </>
             ) : (
-              <p className="mt-2 text-[13px] text-muted-foreground">
+              <p className="mc-req-fallback">
                 Representations and certifications are not recorded on this file.
               </p>
             )}
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={4}>{sf ? "Instructions and evaluation" : "Sections L and M"}</Head>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              {scaffold.lm?.chip ?? "L/M are handoff stubs — not the solicitation of record"}
+            <p className="mc-pa-sub">
+              {scaffold.lm?.chip ?? "L/M are handoff stubs, not the solicitation of record"}
             </p>
-            <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
+            <ul className="mc-pa-list mt-2">
               {scaffold.instructions.map((line) => (
                 <li key={line.text}>
                   {line.text}
@@ -297,12 +353,12 @@ export function AwardHandoffPanel({
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[13px] text-muted-foreground">
+            <p className="mc-pa-sub mt-3">
               {scaffold.evaluation.mode === "sole-source"
                 ? "Sole source: competitive evaluation factors are not stated."
                 : "Evaluation factors stated to offerors."}
             </p>
-            <ul className="mt-1 space-y-1 text-[13px] leading-[18px]">
+            <ul className="mc-pa-list mt-1">
               {scaffold.evaluation.lines.map((line) => (
                 <li key={line.text}>
                   {line.text}
@@ -314,64 +370,44 @@ export function AwardHandoffPanel({
             </ul>
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={5}>Clauses in order, with fill-ins</Head>
-            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
+            <p className="mc-pa-sub">{CLAUSE_FILLIN_NOTE}</p>
             {scaffold.clauses.length === 0 ? (
-              <p className="mt-2 text-[13px] text-muted-foreground">
+              <p className="mc-req-fallback mt-2">
                 No clauses selected for this file yet.
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff clauses table, ${regionContext}` : "Handoff clauses table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Handoff clauses table, ${regionContext}` : "Handoff clauses table"}>
+<table className="mc-dt stack">
                 <caption className="sr-only">Clauses on this file with their fill-ins</caption>
                 <thead>
-                  <tr className="border-y border-border text-left">
-                    <th scope="col" className="p-2">Clause</th>
-                    <th scope="col" className="p-2">Title</th>
-                    <th scope="col" className="p-2">Section</th>
-                    <th scope="col" className="p-2">Fill-in</th>
+                  <tr>
+                    <th scope="col" className="is-nowrap">Clause</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Section</th>
+                    <th scope="col">Fill-in</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scaffold.clauses.map((c) => (
-                    <tr key={c.clause_number} className="border-b border-border align-top">
-                      <td className="p-2" data-numeric>{c.clause_number}</td>
-                      <td className="p-2">
+                    <tr key={c.clause_number}>
+                      <td data-label="Clause" className="is-nowrap" data-numeric>{c.clause_number}</td>
+                      <td data-label="Title">
                         {c.title}
-                        <span className="block text-muted-foreground">{c.reason}</span>
+                        <span className="mc-req-meta">{c.reason}</span>
                       </td>
-                      <td className="p-2">{c.section}</td>
-                      <td className="p-2 text-muted-foreground">
+                      <td data-label="Section">{c.section}</td>
+                      <td data-label="Fill-in" className="text-muted-foreground">
                         {c.fillIns ? (
                           <ul className="space-y-[2px]">
                             {c.fillIns
                               .split(/;\s*|\n/)
                               .map((part) => part.trim())
                               .filter(Boolean)
-                              .map((part) => {
-                                const at = part.indexOf(":");
-                                const label = at > 0 ? part.slice(0, at) : part;
-                                const value = at > 0 ? part.slice(at + 1).trim() : "";
-                                const blank = value === "Not recorded";
-                                return (
-                                  <li key={part}>
-                                    <span>{label}</span>
-                                    {value ? (
-                                      <>
-                                        {": "}
-                                        {blank ? (
-                                          <StatusMark color="var(--attention)" className="tabular-nums">
-                                            Not recorded — blank
-                                          </StatusMark>
-                                        ) : (
-                                          <span className="text-foreground" data-numeric>{value}</span>
-                                        )}
-                                      </>
-                                    ) : null}
-                                  </li>
-                                );
-                              })}
+                              .map((part) => (
+                                <FillIn key={part} part={part} />
+                              ))}
                           </ul>
                         ) : (
                           "No fill-in recorded on the file or in the matrices"
@@ -385,30 +421,29 @@ export function AwardHandoffPanel({
             )}
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={6}>{jTitle}</Head>
             {scaffold.attachments.length === 0 ? (
-              <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>
+              <p className="mc-req-fallback">{SECTION_J_EMPTY}</p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff attachments table, ${regionContext}` : "Handoff attachments table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Handoff attachments table, ${regionContext}` : "Handoff attachments table"}>
+<table className="mc-dt stack">
                 <caption className="sr-only">Attachments on this file</caption>
                 <thead>
-                  <tr className="border-y border-border text-left">
-                    <th scope="col" className="p-2">NF 1098 tab</th>
-                    <th scope="col" className="p-2">Label</th>
-                    <th scope="col" className="p-2">File name</th>
+                  <tr>
+                    <th scope="col" className="is-nowrap">NF 1098 tab</th>
+                    <th scope="col">Label</th>
+                    <th scope="col">File name</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scaffold.attachments.map((a, i) => (
-                    <tr
-                      key={`${a.nf_1098_tab}-${a.label}-${a.file_name}-${i}`}
-                      className="border-b border-border align-top"
-                    >
-                      <td className="p-2" data-numeric>{a.nf_1098_tab}</td>
-                      <td className="p-2">{a.label}</td>
-                      <td className="p-2 text-muted-foreground">{a.file_name}</td>
+                    <tr key={`${a.nf_1098_tab}-${a.label}-${a.file_name}-${i}`}>
+                      <td data-label="NF 1098 tab" className="is-nowrap" data-numeric>
+                        {a.nf_1098_tab === "\u2014" ? <span className="text-muted-foreground">Not recorded</span> : a.nf_1098_tab}
+                      </td>
+                      <td data-label="Label">{a.label}</td>
+                      <td data-label="File name" className="text-muted-foreground [overflow-wrap:anywhere]">{a.file_name}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -417,39 +452,39 @@ export function AwardHandoffPanel({
             )}
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={7}>{CDRL_LABEL}</Head>
-            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+            <p className="mc-pa-sub">
               Data requirements on this file. Listed beside the document attachments in section 6,
               not among them.
             </p>
             {cdrl.length === 0 ? (
-              <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+              <p className="mc-req-fallback mt-2">
                 {CDRL_EMPTY} {CDRL_EMPTY_NOTE}
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff data requirements table, ${regionContext}` : "Handoff data requirements table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Handoff data requirements table, ${regionContext}` : "Handoff data requirements table"}>
+<table className="mc-dt stack">
                 <caption className="sr-only">Data requirements on this file</caption>
                 <thead>
-                  <tr className="border-y border-border text-left">
-                    <th scope="col" className="p-2">Item</th>
-                    <th scope="col" className="p-2">Title</th>
-                    <th scope="col" className="p-2">Frequency</th>
-                    <th scope="col" className="p-2">As-of</th>
-                    <th scope="col" className="p-2">Distribution</th>
-                    <th scope="col" className="p-2">DRD ref</th>
+                  <tr>
+                    <th scope="col" className="is-nowrap">Item</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Frequency</th>
+                    <th scope="col">As-of</th>
+                    <th scope="col">Distribution</th>
+                    <th scope="col">DRD ref</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scaffold.cdrl.map((r) => (
-                    <tr key={r.item_number} className="border-b border-border align-top">
-                      <td className="p-2" data-numeric>{r.item_number}</td>
-                      <td className="p-2">{r.title}</td>
-                      <td className="p-2">{r.frequency}</td>
-                      <td className="p-2">{r.as_of}</td>
-                      <td className="p-2">{r.distribution}</td>
-                      <td className="p-2">{r.drd_ref}</td>
+                    <tr key={r.item_number}>
+                      <td data-label="Item" className="is-nowrap" data-numeric>{r.item_number}</td>
+                      <td data-label="Title">{r.title}</td>
+                      <td data-label="Frequency">{r.frequency}</td>
+                      <td data-label="As-of">{r.as_of}</td>
+                      <td data-label="Distribution">{r.distribution}</td>
+                      <td data-label="DRD ref">{r.drd_ref}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -457,53 +492,50 @@ export function AwardHandoffPanel({
 </TableScrollRegion>
             )}
             {cdrlPackNotes(cdrl).map((n) => (
-              <p key={n} className="mt-1 text-[13px] text-muted-foreground">
+              <p key={n} className="mc-pa-sub mt-1">
                 {n}
               </p>
             ))}
           </section>
 
-          <section>
-            <Head n={8}>Payment milestones — invoice plan</Head>
-            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-              {PAYMENT_PLAN_LABEL}
-            </p>
+          <section className="mc-kpanel-section">
+            <Head n={8}>Payment milestones: invoice plan</Head>
+            <p className="mc-pa-sub">{PAYMENT_PLAN_LABEL}</p>
             {scaffold.paymentMilestones.length === 0 ? (
-              <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+              <p className="mc-req-fallback mt-2">
                 {PAYMENT_MILESTONES_EMPTY} {PAYMENT_MILESTONES_EMPTY_NOTE}
               </p>
             ) : (
-              <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Handoff payment milestones table, ${regionContext}` : "Handoff payment milestones table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+              <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Handoff payment milestones table, ${regionContext}` : "Handoff payment milestones table"}>
+<table className="mc-dt stack">
                 <caption className="sr-only">Payment milestones on this file</caption>
                 <thead>
-                  <tr className="border-y border-border text-left">
-                    <th scope="col" className="p-2">Event</th>
-                    <th scope="col" className="p-2">Due logic</th>
-                    <th scope="col" className="p-2">CLIN</th>
-                    <th scope="col" className="p-2">Amount</th>
-                    <th scope="col" className="p-2">Percent</th>
+                  <tr>
+                    <th scope="col">Event</th>
+                    <th scope="col">Due logic</th>
+                    <th scope="col" className="is-nowrap">CLIN</th>
+                    <th scope="col" className="is-numeric">Amount</th>
+                    <th scope="col" className="is-numeric">Percent</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scaffold.paymentMilestones.map((m, i) => (
-                    <tr key={`${m.event}-${i}`} className="border-b border-border align-top">
-                      <td className="p-2">
+                    <tr key={`${m.event}-${i}`}>
+                      <td data-label="Event">
                         {m.event}
                         {m.value_note ? (
-                          <span className="block text-muted-foreground">{m.value_note}</span>
+                          <span className="mc-req-meta">{m.value_note}</span>
                         ) : null}
                       </td>
-                      <td className="p-2">{m.due_logic}</td>
-                      <td className="p-2" data-numeric>
+                      <td data-label="Due logic">{m.due_logic}</td>
+                      <td data-label="CLIN" data-numeric>
                         {m.clin_number}
                         {m.clin_note ? (
-                          <span className="block text-muted-foreground">{m.clin_note}</span>
+                          <span className="mc-req-meta">{m.clin_note}</span>
                         ) : null}
                       </td>
-
-                      <td className="p-2" data-numeric>{m.amount}</td>
-                      <td className="p-2" data-numeric>{m.percent}</td>
+                      <td data-label="Amount" className="is-numeric">{m.amount}</td>
+                      <td data-label="Percent" className="is-numeric">{m.percent}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -511,19 +543,19 @@ export function AwardHandoffPanel({
 </TableScrollRegion>
             )}
             {paymentPlanNotes(scaffold.paymentMilestones).map((n) => (
-              <p key={n} className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+              <p key={n} className="mc-pa-sub mt-1">
                 {n}
               </p>
             ))}
           </section>
 
-          <section>
+          <section className="mc-kpanel-section">
             <Head n={9}>Signatures</Head>
-            <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+            <p className="mc-pa-sub">
               Every line below is blank on purpose. T-Minus stores no signature and does not write
               to NCMS; the contracting officer signs the award in NCMS, the system of record.
             </p>
-            <dl className="mt-2 grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-[18px] sm:grid-cols-2">
+            <dl className="mc-pa-facts is-2 mt-2">
               {[
                 "Contractor signature",
                 "Name and title of signer",
@@ -532,12 +564,12 @@ export function AwardHandoffPanel({
                 "Name of contracting officer",
                 "Date of award",
               ].map((label) => (
-                <div key={label} className="flex justify-between gap-4 border-b border-border py-1">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className="text-muted-foreground">
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd className="is-blank">
                     {label.startsWith("Date")
-                      ? "Not recorded — completed in NCMS"
-                      : "Blank — signed in NCMS"}
+                      ? "Not recorded, completed in NCMS"
+                      : "Blank, signed in NCMS"}
                   </dd>
                 </div>
               ))}

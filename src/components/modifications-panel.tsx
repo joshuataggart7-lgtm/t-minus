@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
+import { CiteChip, StatusChip } from "@/components/ui-mc";
 import { IDIQ_CLAUSE_DELTA_WITHHELD_NOTE } from "@/lib/clause-packet";
 import {
   MOD_TYPES,
@@ -138,166 +139,208 @@ export function ModificationsPanel({
     "",
     "Keyed by hand in FPDS-NG. T-Minus does not write to FPDS.",
   ].join("\n");
-  const input = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]";
+  const input = "mc-pa-input";
+  const label = "mc-pa-label";
+
+  const rowChips = (list: { label: string; state: string; citation: string }[]) => (
+    <ul className="mc-pa-check mt-2">
+      {list.map((r) => (
+        <li key={r.label} className={r.state === "required" ? undefined : "is-info"}>
+          <span className="mc-pa-check-main">
+            <span>{r.label}</span>
+            {r.citation ? <CiteChip cite={r.citation} /> : null}
+          </span>
+          <StatusChip label={r.state === "required" ? "Required" : "Offered"} />
+        </li>
+      ))}
+    </ul>
+  );
+  const drafts = rows.filter((m) => m.state === "draft").length;
 
   return (
-    <section aria-label="Modifications" className="mb-10 rounded-xl border border-border bg-background p-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-[18px] leading-6 font-medium">Modifications</h2>
-        {canWrite ? (
-          <button type="button" onClick={() => setOpen((v) => !v)} className="text-[15px] text-primary">
-            {open ? "Cancel" : "New modification"}
-          </button>
-        ) : null}
+    <section aria-label="Modifications" className="mc-kpanel mc-pa mb-10">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h2 className="mc-kpanel-title">Modifications</h2>
+          <p className="mc-pa-sub">
+            The SF 30 of record is written in NCMS. Answer five questions (what changes, why, who
+            asked, funded or not, within scope or not) and T-Minus sets the SF 30 block 13 authority
+            from the clause already in the instrument, lists the rows the change calls for, and gives
+            you an FPDS fill sheet to key by hand.
+          </p>
+        </div>
+        <div className="mc-kpanel-status">
+          <StatusChip
+            label={rows.length === 0 ? "None recorded" : `${rows.length} recorded`}
+            tone={rows.length === 0 ? "neutral" : "info"}
+          />
+          {rows.length > 0 ? (
+            <span className="mc-req-meta" data-numeric>
+              {drafts} draft · {rows.length - drafts} issued
+            </span>
+          ) : null}
+          {canWrite ? (
+            <button type="button" onClick={() => setOpen((v) => !v)} className="mc-pa-link">
+              {open ? "Cancel" : "New modification"}
+            </button>
+          ) : null}
+        </div>
       </div>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        The SF 30 of record is written in NCMS. Answer five questions — what changes, why, who
-        asked, funded or not, within scope or not — and T-Minus sets the SF 30 block 13 authority
-        from the clause already in the instrument, lists the rows the change calls for, and gives
-        you an FPDS fill sheet to key by hand.
-      </p>
 
       {open && canWrite ? (
         <form
-          className="mt-4 grid max-w-[70ch] gap-3 sm:grid-cols-2"
+          className="mc-kpanel-section"
           onSubmit={(e) => {
             e.preventDefault();
             create.mutate();
           }}
         >
-          <label className="block text-[13px] text-muted-foreground">
-            Type
-            <select className={input} value={type} onChange={(e) => setType(e.target.value)}>
-              {MOD_TYPES.map((m) => (
-                <option key={m.key} value={m.key}>
-                  {m.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block text-[13px] text-muted-foreground">
-            Value change, dollars
-            <input className={input} inputMode="decimal" value={valueChange} onChange={(e) => setValueChange(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground sm:col-span-2">
-            Description
-            <input className={input} value={description} onChange={(e) => setDescription(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground">
-            New period end
-            <input type="date" className={input} value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground">
-            Funds line
-            <input className={input} value={fundsLine} onChange={(e) => setFundsLine(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground sm:col-span-2">
-            Why the change is needed
-            <input className={input} value={reason} onChange={(e) => setReason(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground">
-            Who asked for it
-            <input className={input} value={requestedBy} onChange={(e) => setRequestedBy(e.target.value)} />
-          </label>
-          <label className="block text-[13px] text-muted-foreground">
-            Funding
-            <select className={input} value={funded} onChange={(e) => setFunded(e.target.value === "no" ? "no" : "yes")}>
-              <option value="yes">Funds are available on this line</option>
-              <option value="no">Not funded yet</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-2 text-[13px] sm:col-span-2">
-            <input type="checkbox" checked={outOfScope} onChange={(e) => setOutOfScope(e.target.checked)} />
-            This modification adds work outside the scope of the contract
-          </label>
-          <div className="border border-border p-3 text-[13px] leading-[18px] sm:col-span-2">
-            <p>
+          <h3 className="mc-req-h">New modification</h3>
+          <div className="mc-pa-form">
+            <label className={label}>
+              Type
+              <select className={input} value={type} onChange={(e) => setType(e.target.value)}>
+                {MOD_TYPES.map((m) => (
+                  <option key={m.key} value={m.key}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={label}>
+              Value change, dollars
+              <input className={input} inputMode="decimal" value={valueChange} onChange={(e) => setValueChange(e.target.value)} />
+            </label>
+            <label className={`${label} is-wide`}>
+              Description
+              <input className={input} value={description} onChange={(e) => setDescription(e.target.value)} />
+            </label>
+            <label className={label}>
+              New period end
+              <input type="date" className={input} value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} />
+            </label>
+            <label className={label}>
+              Funds line
+              <input className={input} value={fundsLine} onChange={(e) => setFundsLine(e.target.value)} />
+            </label>
+            <label className={`${label} is-wide`}>
+              Why the change is needed
+              <input className={input} value={reason} onChange={(e) => setReason(e.target.value)} />
+            </label>
+            <label className={label}>
+              Who asked for it
+              <input className={input} value={requestedBy} onChange={(e) => setRequestedBy(e.target.value)} />
+            </label>
+            <label className={label}>
+              Funding
+              <select className={input} value={funded} onChange={(e) => setFunded(e.target.value === "no" ? "no" : "yes")}>
+                <option value="yes">Funds are available on this line</option>
+                <option value="no">Not funded yet</option>
+              </select>
+            </label>
+            <label className="mc-pa-toggle is-wide">
+              <input type="checkbox" checked={outOfScope} onChange={(e) => setOutOfScope(e.target.checked)} />
+              This modification adds work outside the scope of the contract
+            </label>
+          </div>
+          <div className="mc-pa-card mt-4">
+            <p className="mc-pa-card-title">
               SF 30 block {modTypeInfo(type).block}. Authority: {draftAuthority}
             </p>
-            <p className="mt-1 text-muted-foreground">
+            <p className="mc-pa-sub">
               Block 13 names the authority already in the instrument, or the administrative form
               cite at RFO FAR 43.203(b). Form use RFO 43.401; modification types RFO 43.203. A
               negotiation memorandum or a justification is a document this change may trigger, never
               the block 13 authority.
             </p>
             {funded === "no" ? (
-              <p className="mt-1 text-muted-foreground">
+              <p className="mc-pa-callout mt-2">
                 Funds are not certified yet on this change. Record the funds line before the
                 modification is signed.
               </p>
             ) : null}
-            <p className="mt-2">Rows this change calls for:</p>
-            <ul className="mt-1 space-y-1">
-              {draftRows.map((r) => (
-                <li key={r.label}>
-                  {r.label} · {r.state === "required" ? "Required" : "Offered"} · {r.citation}
-                </li>
-              ))}
-            </ul>
+            <h4 className="mc-req-h mt-3">Rows this change calls for</h4>
+            {rowChips(draftRows)}
             {clauseDeltaWithheld ? (
-              <p className="mt-2 text-muted-foreground">{IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}</p>
+              <p className="mc-pa-sub mt-2">{IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}</p>
             ) : (
-              <p className="mt-2 text-muted-foreground">
+              <p className="mc-pa-sub mt-2">
                 Clause delta: read from the clause matrices on the file after the modification is
                 created. Removed clauses are never carried forward.
               </p>
             )}
-            <button
-              type="button"
-              onClick={() => void navigator.clipboard?.writeText(fpdsSheet)}
-              className="mt-2 text-primary"
-            >
-              Copy the FPDS fill sheet
-            </button>
-            <span className="ml-2 text-muted-foreground">
-              A local aid for keying FPDS-NG. T-Minus does not write to FPDS.
-            </span>
+            <div className="mc-pa-actions">
+              <button
+                type="button"
+                onClick={() => void navigator.clipboard?.writeText(fpdsSheet)}
+                className="mc-pa-link"
+              >
+                Copy the FPDS fill sheet
+              </button>
+              <span className="mc-req-meta">
+                A local aid for keying FPDS-NG. T-Minus does not write to FPDS.
+              </span>
+            </div>
           </div>
-          <div className="sm:col-span-2">
-            <button
-              type="submit"
-              disabled={create.isPending}
-              className="rounded-lg border border-border px-4 py-2 text-[15px] text-primary disabled:opacity-60"
-            >
+          <div className="mc-pa-actions">
+            <button type="submit" disabled={create.isPending} className="mc-req-button">
               {create.isPending ? "Creating" : "Create the modification"}
             </button>
           </div>
         </form>
       ) : null}
 
-      {rows.length === 0 ? (
-        <p className="mt-3 text-[13px] text-muted-foreground">
-          No modifications are recorded on this file.
-        </p>
-      ) : (
-        <ul className="mt-4 space-y-4">
-          {rows.map((m) => {
-            const info = modTypeInfo(m.mod_type);
-            const change = Number(m.value_change ?? 0);
-            return (
-              <li key={m.mod_id} className="border-t border-border pt-3">
-                <p className="text-[15px] leading-[22px]">
-                  {m.mod_number} · {info.label} · {m.state === "draft" ? "Draft" : "Issued"}
-                </p>
-                <p className="mt-1 text-[13px] text-muted-foreground">
-                  SF 30 block {info.block}: {m.authority_text ?? modAuthorityText(m.mod_type, acq)}.
-                  {change ? ` Value change ${money(change)}.` : ""}
-                  {m.period_change_end ? ` Period runs to ${m.period_change_end}.` : ""}
-                  {m.funds_line ? ` Funds line ${m.funds_line}.` : ""}
-                </p>
-                {m.description ? <p className="mt-1 text-[13px]">{m.description}</p> : null}
-                <ul className="mt-2 space-y-1 text-[13px]">
-                  {modRows(m, { method }).map((r) => (
-                    <li key={r.label}>
-                      {r.label} · {r.state === "required" ? "Required" : "Offered"} · {r.citation}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <div className="mc-kpanel-section">
+        {rows.length === 0 ? (
+          <p className="mc-req-fallback">
+            No modifications are recorded on this file.
+          </p>
+        ) : (
+          <ul aria-label="Modifications on this file">
+            {rows.map((m) => {
+              const info = modTypeInfo(m.mod_type);
+              const change = Number(m.value_change ?? 0);
+              const draftState = m.state === "draft";
+              return (
+                <li key={m.mod_id} className={`mc-pa-card ${draftState ? "is-draft" : "is-issued"}`}>
+                  <div className="mc-pa-card-head">
+                    <p className="mc-pa-card-title">
+                      {m.mod_number} · {info.label}
+                    </p>
+                    <StatusChip label={draftState ? "Draft" : "Issued"} tone={draftState ? "attention" : "ontrack"} />
+                  </div>
+                  <dl className="mc-pa-facts is-2 mt-1">
+                    <div className="is-wide">
+                      <dt>SF 30 block {info.block}</dt>
+                      <dd>{m.authority_text ?? modAuthorityText(m.mod_type, acq)}</dd>
+                    </div>
+                    {change ? (
+                      <div>
+                        <dt>Value change</dt>
+                        <dd data-numeric>{money(change)}</dd>
+                      </div>
+                    ) : null}
+                    {m.period_change_end ? (
+                      <div>
+                        <dt>Period runs to</dt>
+                        <dd data-numeric>{m.period_change_end}</dd>
+                      </div>
+                    ) : null}
+                    {m.funds_line ? (
+                      <div>
+                        <dt>Funds line</dt>
+                        <dd>{m.funds_line}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                  {m.description ? <p className="mc-pa-text mt-2">{m.description}</p> : null}
+                  {rowChips(modRows(m, { method }))}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </section>
   );
 }

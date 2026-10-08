@@ -442,6 +442,12 @@ export function SebCockpitPanel({
             This file is sole-source on the record, so competitive factors are not the path. The
             technical evaluation of the single proposal carries the finding.
           </p>
+        ) : factors.length === 0 && technicalQ.data && technicalQ.data.quotes > 0 ? (
+          <p className="mc-req-text mt-1 max-w-[80ch]">
+            No separate Section M factors are recorded. The Evaluation of Quotations Record carries
+            the technical acceptability finding: <span data-numeric>{technicalQ.data.rated} of {technicalQ.data.quotes}</span>{" "}
+            quotations rated.
+          </p>
         ) : factors.length === 0 ? (
           <p className="mc-dt-empty mt-2">
             No factors recorded. There is no evaluation evidence to map yet.

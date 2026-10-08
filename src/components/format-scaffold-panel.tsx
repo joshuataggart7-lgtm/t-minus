@@ -187,7 +187,7 @@ export function FormatScaffoldPanel({ scaffold, regionContext }: { scaffold: For
           <section>
             <h5 className="text-[15px] font-medium">Instructions to offerors</h5>
             <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
-              {scaffold.lm?.chip ?? "L/M are handoff stubs — not the solicitation of record"}
+              {scaffold.lm?.chip ?? "L/M are handoff stubs, not the solicitation of record"}
             </p>
             <ul className="mt-2 space-y-1 text-[13px]">
               {scaffold.instructions.map((line) => (
@@ -204,7 +204,7 @@ export function FormatScaffoldPanel({ scaffold, regionContext }: { scaffold: For
               {scaffold.evaluation.mode === "competitive" ? "Evaluation factors" : "Evaluation on a sole-source file"}
             </h5>
             <p className="mt-1 inline-block border border-border px-2 py-0.5 text-[13px] text-muted-foreground">
-              {scaffold.lm?.chip ?? "L/M are handoff stubs — not the solicitation of record"}
+              {scaffold.lm?.chip ?? "L/M are handoff stubs, not the solicitation of record"}
             </p>
             <ul className="mt-2 space-y-1 text-[13px]">
               {scaffold.evaluation.lines.map((line) => (

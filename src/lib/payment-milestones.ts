@@ -53,7 +53,7 @@ export const paymentUnlinkedNote = (
   clinCount: number,
 ): string | null =>
   !row.clin_id && clinCount > 0
-    ? `CLIN not linked — schedule has ${clinCount} line ${clinCount === 1 ? "item" : "items"} on this file.`
+    ? `CLIN not linked; the schedule has ${clinCount} line ${clinCount === 1 ? "item" : "items"} on this file.`
     : null;
 
 /** Advisory only: the stored link points at a CLIN no longer on the schedule. */
