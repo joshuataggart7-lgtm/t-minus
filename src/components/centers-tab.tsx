@@ -3,7 +3,7 @@ import { agingByCenter, agingItems, type CenterRow, type UserRow } from "@/lib/a
 import type { PollRow } from "@/lib/launch-sequence";
 import type { AcqMetrics } from "@/lib/metrics";
 import { TableScrollRegion } from "@/components/table-scroll-region";
-import { recordedPaceLabel } from "@/lib/executive-wording";
+import { executiveBlocker, recordedPaceLabel } from "@/lib/executive-wording";
 
 // Same names the masthead uses. A stored name that is only the code is not a name.
 const CENTER_NAMES: Record<string, string> = {
@@ -114,7 +114,7 @@ export function CentersTab({
     for (const m of metrics) {
       if (!m.hold) continue;
       const center = centerOf(m);
-      const reason = m.hold.reason || "Reason not recorded";
+      const reason = executiveBlocker(m.hold.reason) || "Reason not recorded";
       const byReason = map.get(center) ?? new Map<string, number>();
       byReason.set(reason, (byReason.get(reason) ?? 0) + 1);
       map.set(center, byReason);

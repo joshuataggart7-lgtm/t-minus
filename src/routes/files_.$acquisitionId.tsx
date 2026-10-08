@@ -3,6 +3,8 @@ import { FadeStrip } from "@/components/fade-strip";
 import { loadTechnicalRecord } from "@/lib/eqr-summary";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { auditActionLabel, auditFieldLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
+import { checkDocsFrom, fileSelfCheck } from "@/lib/file-self-check";
+import { FileSelfCheckPanel } from "@/components/file-self-check-panel";
 import { DECISION_LABEL, PHASE_EXIT_RULE, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
@@ -2539,6 +2541,22 @@ function FilePage() {
     0,
   );
 
+  const selfCheck = useMemo(() => {
+    if (!acq) return [];
+    return fileSelfCheck({
+      acq,
+      phases,
+      attachedKeys: keysFrom(attachments),
+      savedKeys,
+      documents: checkDocsFrom(q.data?.documents ?? [], q.data?.templates ?? []),
+      hours: (clinQ.data ?? []).map((line) => ({
+        quantity: line.quantity,
+        unit: line.unit_of_issue,
+        description: line.description,
+      })),
+    });
+  }, [acq, phases, attachments, savedKeys, q.data?.documents, q.data?.templates, clinQ.data]);
+
   const missionNavItems = useMemo<MissionNavItem[]>(() => {
     const phaseOpenCount = missingCurrentRequirements.length + pendingCurrentReviews.length;
     const companionOpenCount = companionGates.filter((gate) => gate.applies && gate.status === "Open").length;
@@ -2554,6 +2572,14 @@ function FilePage() {
         label: "Launch sequence",
         badge: phaseOpenCount > 0 ? { tone: "watch" as const, text: `${phaseOpenCount} open` } : null,
       },
+      ...(selfCheck.length > 0
+        ? [{
+            id: "file-self-check",
+            label: "Disagrees with itself",
+            group: FILE_TAB_LABEL.overview,
+            badge: { tone: "watch" as const, text: String(selfCheck.length) },
+          }]
+        : []),
       { id: "schedule-forecast", label: "Schedule & forecast", group: FILE_TAB_LABEL.overview },
       { id: "coordination", label: "Coordination", group: FILE_TAB_LABEL.overview },
       { id: "alerts-determinations", label: "Alerts & determinations", group: FILE_TAB_LABEL.overview },
@@ -2588,9 +2614,10 @@ function FilePage() {
         badge: auditCount > 0 ? { tone: "neutral" as const, text: String(auditCount) } : null,
       },
     ];
-  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, pendingReviewCount, q.data?.auditCount]);
+  }, [companionGates, effectiveState, fileIndex.missing.length, hold, missingCurrentRequirements.length, pendingCurrentReviews.length, pendingReviewCount, q.data?.auditCount, selfCheck.length]);
 
   const fileTabBadges: Partial<Record<FileTabKey, string>> = {
+    ...(selfCheck.length > 0 ? { overview: String(selfCheck.length) } : {}),
     ...(pendingReviewCount > 0 ? { reviews: `${pendingReviewCount} pending` } : {}),
     ...(fileIndex.missing.length > 0 ? { documents: `${fileIndex.missing.length} missing` } : {}),
     ...((q.data?.auditCount ?? 0) > 0 ? { audit: String(q.data?.auditCount ?? 0) } : {}),
@@ -4454,6 +4481,7 @@ function FilePage() {
           hidden={fileTab !== "overview"}
           className="mc-tab-panel"
         >
+      <FileSelfCheckPanel acquisitionId={acquisitionId} findings={selfCheck} />
       <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
       {!successor && effectiveState === "launched" ? (
         <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
