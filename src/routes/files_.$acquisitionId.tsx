@@ -1,6 +1,6 @@
 import { writeAudit } from "@/lib/audit";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
-import { auditActionLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
+import { auditActionLabel, auditFieldLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { DEMO_READ_ONLY_NOTE, failureText, isDemoSession } from "@/lib/demo-guard";
@@ -47,6 +47,7 @@ import {
   docSatisfied,
   generatorKey,
   NCMS_CHECKLIST,
+  phaseLabel,
   phaseOverrunDays,
   pollBoard,
   reviewerNameForRole,
@@ -199,6 +200,7 @@ import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import {
   MissionNavigator,
   MissionNavSection,
+  MISSION_NAV_SET_ALL,
   type MissionNavItem,
 } from "@/components/mission-control/mission-navigator";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
@@ -359,6 +361,13 @@ function FilePage() {
   const navigate = useNavigate();
   const [step, setStep] = useState<number | null>(null);
   const [showFullSequence, setShowFullSequence] = useState(false);
+  // Expand all shows every phase of the launch sequence, not only the
+  // "Past, now, and next" window; Collapse secondary returns to the window.
+  useEffect(() => {
+    const onSetAll = (e: Event) => setShowFullSequence(Boolean((e as CustomEvent<{ open?: boolean }>).detail?.open));
+    window.addEventListener(MISSION_NAV_SET_ALL, onSetAll);
+    return () => window.removeEventListener(MISSION_NAV_SET_ALL, onSetAll);
+  }, []);
   const [banner, setBanner] = useState<string | null>(null);
   // Edits in progress on the proposed price row, before they are saved.
   const [priceDraft, setPriceDraft] = useState<{ price: string; received: string } | null>(null);
@@ -899,6 +908,8 @@ function FilePage() {
     for (const d of currentPhase.docs) {
         const generator = generatorKey(d);
         if (d.optional || (!d.field && !generator)) continue;
+        // A row that may follow award (urgency justification, RFO FAR 6.103-2(d)) is not the next step.
+        if (d.dueAfterAward) continue;
         const key = d.docKey ?? docKey(d.field, d.label);
         const state = docSatisfied(
           d,
@@ -927,7 +938,8 @@ function FilePage() {
             : `Attach the ${d.label}`;
         return { label, doc: d };
     }
-    if ((boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Send the review requests" };
+    // Reviews of a justification that may follow award (RFO FAR 6.103-2(d)) are not the next step.
+    if (!currentPhase.followsAward?.length && (boards[current] ?? []).some((b) => b.vote === "pending")) return { label: "Send the review requests" };
     return { label: `Exit ${current}` };
   }, [acq, lifecycle, effectiveState, phases, attachments, boards, savedKeys, q.data?.researchRuns]);
 
@@ -940,10 +952,12 @@ function FilePage() {
     if (!acq || !currentPhase) return [];
     return currentPhase.docs.filter((doc) => {
       if (doc.optional) return false;
+      // Before award, a row that may follow award (RFO FAR 6.103-2(d)) does not block exit.
+      if (doc.dueAfterAward && effectiveState !== "launched") return false;
       const key = doc.docKey ?? docKey(doc.field, doc.label);
       return docSatisfied(doc, acq, Boolean(attachmentFor(key)), savedKeys) === false;
     });
-  }, [acq, currentPhase, attachments, savedKeys]);
+  }, [acq, currentPhase, attachments, savedKeys, effectiveState]);
 
   const holdDoc = hold?.doc;
   const holdRequirementHref =
@@ -1110,7 +1124,7 @@ function FilePage() {
 
   const pendingCurrentReviews = useMemo(
     () =>
-      currentPhase
+      currentPhase && !currentPhase.followsAward?.length
         ? (boards[currentPhase.phase] ?? []).filter((entry) => entry.poll_id && entry.vote !== "favorable")
         : [],
     [boards, currentPhase],
@@ -2605,7 +2619,7 @@ function FilePage() {
             </div>
             <div className="min-w-0 [overflow-wrap:anywhere]">
             <p className="text-[13px] text-muted-foreground">Current phase</p>
-            <p className="mt-1 text-[18px] leading-6 font-medium [overflow-wrap:anywhere]">{lifecycle?.currentPhase ?? "Not started"}</p>
+            <p className="mt-1 text-[18px] leading-6 font-medium [overflow-wrap:anywhere]">{currentPhase ? phaseLabel(currentPhase) : (lifecycle?.currentPhase ?? "Not started")}</p>
             {/* Only a Required row reads as missing here. With none missing the
                 line says the phase is ready to exit. */}
             <p className="mt-4 max-w-[48ch] text-[15px] leading-[22px] [overflow-wrap:anywhere]">
@@ -2615,7 +2629,11 @@ function FilePage() {
                     effectiveState !== "launched" && effectiveState !== "scrubbed"
                   ? // On WATCH or HOLD the line carries the overrun (same figure as the
                     // rail) or the reason, so it never reads as an all-clear.
-                    `Ready to exit ${currentPhase.phase}${
+                    `Ready to exit ${phaseLabel(currentPhase)}${
+                      currentPhase.followsAward?.length
+                        ? `. Not blocking award: the justification and approval may follow award (RFO FAR 6.103-2(d)); post it within 30 days after award (RFO FAR 6.301(b)(1))`
+                        : ""
+                    }${
                       statusLine && statusLine.state !== "GO" && statusLine.state !== "LAUNCHED"
                         ? statusLine.overrunDays !== null
                           ? `. ${statusLine.overrunDays} ${statusLine.overrunDays === 1 ? "day" : "days"} over plan.`
@@ -3318,7 +3336,7 @@ function FilePage() {
               />
               <div className="flex flex-wrap items-baseline gap-3">
                 <h3 className="text-[18px] leading-6 font-medium">
-                  {p.order}. {p.phase}
+                  {p.order}. {phaseLabel(p)}
                 </h3>
                 <span className="text-[13px] text-muted-foreground">
                   {p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
@@ -5031,7 +5049,7 @@ function FilePage() {
                   <td className="p-2">{new Date(row.logged_at).toLocaleString()}</td>
                   <td className="p-2">{row.actor}</td>
                   <td className="p-2" title={storedAs(row.action, auditActionLabel(row.action))}>{auditActionLabel(row.action)}</td>
-                  <td className="p-2">{row.field}</td>
+                  <td className="p-2" title={storedAs(row.field, auditFieldLabel(row.field))}>{auditFieldLabel(row.field)}</td>
                   <td className="p-2" title={storedAs(row.new_value, auditValueLabel(row.action, row.new_value))}>{auditValueLabel(row.action, row.new_value)}</td>
                   <td className="p-2" title={storedAs(row.reason, auditTextLabel(row.reason))}>{auditTextLabel(row.reason)}</td>
                 </tr>

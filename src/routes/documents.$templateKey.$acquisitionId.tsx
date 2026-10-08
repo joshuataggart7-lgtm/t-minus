@@ -1270,6 +1270,9 @@ function DocumentPage() {
         fillBlank("quoted_price", sam("quoted_price"));
         fillBlank("negotiated_price", sam("negotiated_price"));
         fillBlank("determination", sam("determination"));
+        // A version saved before the IGCE amount was asked for takes the same
+        // record value a fresh draft uses (the IGCE answer, else the estimated value).
+        fillBlank("igce_amount", sam("igce_amount"));
       }
       return next;
     };

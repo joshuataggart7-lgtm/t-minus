@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent, typ
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+/** Window event fired by Expand all / Collapse secondary; detail is { open: boolean }. */
+export const MISSION_NAV_SET_ALL = "mission-nav:set-all";
+
 export type MissionNavItem = {
   id: string;
   label: string;
@@ -106,6 +109,9 @@ export function MissionNavigator({
     document.querySelectorAll<HTMLDetailsElement>("details[data-mission-nav-collapsible]").forEach((details) => {
       details.open = open;
     });
+    // Sections that collapse with their own toggle (the launch sequence window
+    // and the rail's "Show all") follow Expand all and Collapse secondary too.
+    window.dispatchEvent(new CustomEvent(MISSION_NAV_SET_ALL, { detail: { open } }));
   };
 
   return (

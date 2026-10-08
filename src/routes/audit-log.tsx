@@ -6,7 +6,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { buildActorAliases, displayActor, type ProfileAliasRow } from "@/lib/actor-alias";
-import { auditActionLabel, auditPhaseLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
+import { auditActionLabel, auditFieldLabel, auditPhaseLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 
 export const Route = createFileRoute("/audit-log")({
   head: () => ({
@@ -237,7 +237,7 @@ function AuditLogPage() {
                   </td>
                   <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.action, auditActionLabel(r.action))}>{auditActionLabel(r.action) ?? "Not recorded"}</td>
                   <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.phase, auditPhaseLabel(r.phase))}>{auditPhaseLabel(r.phase) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.field ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.field, auditFieldLabel(r.field))}>{auditFieldLabel(r.field) ?? "Not recorded"}</td>
                   <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.old_value, auditValueLabel(r.action, r.old_value))}>{auditValueLabel(r.action, r.old_value) ?? "Not recorded"}</td>
                   <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.new_value, auditValueLabel(r.action, r.new_value))}>{auditValueLabel(r.action, r.new_value) ?? "Not recorded"}</td>
                   <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.reason, auditTextLabel(r.reason))}>{auditTextLabel(r.reason) ?? "Not recorded"}</td>
