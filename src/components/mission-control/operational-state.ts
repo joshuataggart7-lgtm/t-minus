@@ -3,6 +3,7 @@ import { phaseAlias } from "@/lib/phase-alias";
 import { dateCT } from "@/lib/calendar-date";
 import type { AcqRow } from "@/lib/launch-sequence";
 import type { AcqMetrics } from "@/lib/metrics";
+import { isLetterContract } from "@/lib/phase-plan-key";
 
 type LaunchEvent = {
   acquisition_id: string | null;
@@ -67,7 +68,12 @@ export function deriveOverviewAcquisitionState(acq: AcqRow, log: LaunchEvent[]):
   const isAwarded = actualAwardDate !== null;
   const recordedClock = String(acq.clock_state ?? "running").toLowerCase();
   const recordedPhase = String(acq.current_phase ?? "");
-  const isPostAwardPhase = recordedPhase === "Administration" || recordedPhase === "Closeout";
+  // A letter contract is definitized after award (RFO FAR 16.603-2(c)), so its
+  // Price Reasonableness phase is a post-award phase on that plan.
+  const isPostAwardPhase =
+    recordedPhase === "Administration" ||
+    recordedPhase === "Closeout" ||
+    (recordedPhase === "Price Reasonableness" && isLetterContract(acq as Record<string, unknown>));
 
   return {
     actualAwardDate,

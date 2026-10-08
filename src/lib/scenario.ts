@@ -136,6 +136,8 @@ export type TriggerDoc = {
   handoff?: boolean;
   /** Replaces the standard justification rather than adding a row. */
   replacesJofoc?: boolean;
+  /** Due after award: the row never holds the file before award. */
+  dueAfterAward?: boolean;
 };
 
 export type TriggerDef = {
@@ -155,6 +157,10 @@ export type ScenarioContext = {
   competed: boolean;
   oci: boolean;
   type: string;
+  /** A letter contract (RFO FAR 16.603) on the record. */
+  letter: boolean;
+  /** A ratification of an unauthorized commitment is requested. */
+  ratification: boolean;
 };
 
 export function scenarioContext(acq: Record<string, unknown>): ScenarioContext {
@@ -171,11 +177,23 @@ export function scenarioContext(acq: Record<string, unknown>): ScenarioContext {
     competed: !sole,
     oci: s.oci_advisory || s.oci_systems_engineering || s.oci_proprietary_data || s.oci_incumbent,
     type: (s.contract_type || "").toUpperCase(),
+    letter: isLetterContract(acq),
+    ratification: s.ratification_requested === true,
   };
 }
 
 const far15 = (c: ScenarioContext) => /\b15\b|part 15/i.test(c.method);
-const isCost = (c: ScenarioContext) => /^CP/.test(c.type);
+const isCost = (c: ScenarioContext) => isCostType(c.type);
+/** Firm-fixed-price and nothing else: no hybrid element, no level-of-effort term. */
+const isFfpOnly = (c: ScenarioContext) =>
+  /^(FFP|FIRM[- ]FIXED[- ]PRICE)( \(FFP\))?$/.test(c.type.trim()) &&
+  !String(c.acq["hybrid_contract_type"] ?? "").trim();
+/** RFO FAR 16.104(a): other than fixed-price, FFP level-of-effort term, or a hybrid with either. */
+const isCoveredType = (c: ScenarioContext) =>
+  !/^(FFP|FIRM[- ]FIXED|FP|FIXED[- ]PRICE)/.test(c.type.trim()) ||
+  /LOE|LEVEL[- ]OF[- ]EFFORT/.test(c.type) ||
+  Boolean(String(c.acq["hybrid_contract_type"] ?? "").trim());
+const isOrderVehicle = (c: ScenarioContext) => c.s.vehicle === "idiq_order" || c.s.vehicle === "gsa_fss" || c.s.vehicle === "bpa";
 const notDomestic = (c: ScenarioContext) =>
   c.s.deliverable === "supplies" && c.s.end_products_domestic !== "yes";
 const outsideUS = (c: ScenarioContext) =>
@@ -183,6 +201,7 @@ const outsideUS = (c: ScenarioContext) =>
   !/united states|^us$|^usa$/i.test(c.s.place_country.trim());
 
 import { contractTypeTemplateKey } from "@/lib/templates-hq";
+import { isCostType, isLetterContract } from "@/lib/phase-plan-key";
 
 /** The seeded trigger table. Every row carries its own citation and state. */
 export const TRIGGERS: TriggerDef[] = [
@@ -196,6 +215,62 @@ export const TRIGGERS: TriggerDef[] = [
       { doc_key: "rdt-request-appointment", label: "RDT request and appointment letters", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "rdt-request-appointment", tab: "005" },
       { doc_key: "psm-executive-presentation", label: "PSM executive presentation", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "psm-executive-presentation", tab: "005" },
       { doc_key: "asm-not-conducted", label: "ASM not conducted memorandum", citation: "NFS CG 1807.11", phase: "Intake", state: "offered", templateKey: "asm-not-conducted", tab: "005" },
+    ],
+  },
+  {
+    key: "cost-type-written-plan",
+    condition: "A cost-reimbursement contract type below $10,000,000",
+    // RFO FAR 16.301-3(a)(1): a cost-reimbursement contract may be used only
+    // when a written acquisition plan has been approved at least one level
+    // above the contracting officer.
+    when: (c) => isCost(c) && c.value < 10_000_000,
+    docs: [
+      { doc_key: "written-acquisition-plan", label: "Written acquisition plan", citation: "NFS CG 1807.11; RFO FAR 16.301-3(a)(1)", phase: "Intake", state: "required", templateKey: "written-acquisition-plan", tab: "005" },
+    ],
+  },
+  {
+    key: "eo-14402",
+    condition: "A covered contract or order (RFO FAR 16.104(a)) valued at or above $35,000,000",
+    // RFO FAR 16.104(c)(1)(ii): $35 million for NASA. Exceptions in 16.104(e):
+    // multiple-award contracts themselves (orders under them are covered),
+    // and research and development contracts or orders.
+    when: (c) =>
+      isCoveredType(c) &&
+      c.value >= 35_000_000 &&
+      !(c.s.vehicle === "idiq_award" && !c.s.idiq_single_award) &&
+      c.s.deliverable !== "rd",
+    docs: [
+      {
+        doc_key: "eo-14402-justification",
+        label: "Executive Order 14402 justification for a covered contract or order",
+        citation: "RFO FAR 16.104(c)(1)(ii); NFS CG 1816.15(a)",
+        phase: "Intake",
+        state: "required",
+        tab: "005",
+        note: "Submitted to the NASA Administrator for approval in the ANOSCA application, and approved before the solicitation is released (NFS CG 1816.15(a), (b)).",
+      },
+    ],
+  },
+  {
+    key: "contract-type-documentation",
+    condition: "Other than firm-fixed-price, with no written acquisition plan",
+    // RFO FAR 16.103(a); NFS CG 1816.14: without a written acquisition plan,
+    // the contract file documents the contract type on the agency-wide
+    // "Contract Type Documentation" template. Firm-fixed-price files are
+    // excepted (RFO FAR 16.103(b)). A file at or above $10,000,000, or on a
+    // cost-reimbursement type, carries the written acquisition plan row
+    // instead, and the plan addresses the same elements (NFS CG 1816.14).
+    when: (c) => !isFfpOnly(c) && !isCost(c) && c.value < 10_000_000 && !c.ratification,
+    docs: [
+      {
+        doc_key: "contract-type-documentation",
+        label: "Contract type documentation",
+        citation: "RFO FAR 16.103(a); NFS CG 1816.14",
+        phase: "Market Research",
+        state: "required",
+        tab: "010",
+        note: "Use the agency-wide Contract Type Documentation template (NFS CG 1816.14); attach the completed copy here.",
+      },
     ],
   },
   {
@@ -403,6 +478,23 @@ export const TRIGGERS: TriggerDef[] = [
   },
 
   {
+    key: "letter-contract",
+    condition: "A letter contract",
+    when: (c) => c.letter,
+    docs: [
+      {
+        doc_key: "uca-letter-contract",
+        label: "Letter contract justification and HCA approval",
+        citation: "RFO FAR 16.603-3; NFS CG 1816.66(a), (c)",
+        phase: "Solicitation/Quote",
+        state: "required",
+        templateKey: "uca-letter-contract",
+        tab: "020",
+        note: "The head of the contracting activity approves issuing the letter contract (NFS CG 1816.66(a)), on the agency-wide UCA and letter contract template (NFS CG 1816.66(c)).",
+      },
+    ],
+  },
+  {
     key: "urgency",
     condition: "Unusual and compelling urgency",
     when: (c) => c.s.urgency,
@@ -509,6 +601,38 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => c.s.cba === "yes",
     docs: [
       { doc_key: "cba-notification", label: "Notification to interested parties under collective bargaining agreements", citation: "RFO FAR 22.1004-6(a)", phase: "Solicitation/Quote", state: "required", templateKey: "cba-notification", tab: "030" },
+    ],
+  },
+  {
+    key: "cost-realism",
+    condition: "Cost-reimbursement contract type, competed",
+    when: (c) => isCost(c) && c.competed && !isOrderVehicle(c),
+    docs: [
+      {
+        doc_key: "cost-realism-analysis",
+        label: "Cost realism analysis and probable cost",
+        citation: "RFO FAR 15.404-3(b)",
+        phase: "Price Reasonableness",
+        state: "required",
+        note: "Cost realism analyses must be performed on cost-reimbursement contracts to determine the probable cost of performance for each offeror (RFO FAR 15.404-3(b)).",
+      },
+    ],
+  },
+  {
+    key: "justification-posting",
+    condition: "Sole source new contract with a justification",
+    when: (c) => c.sole && !c.ratification && !isOrderVehicle(c),
+    docs: [
+      {
+        doc_key: "justification-posting",
+        label: "Justification made publicly available",
+        citation: "RFO FAR 6.301(b)",
+        phase: "Award",
+        state: "required",
+        tab: "015",
+        note: "Post the justification within 14 days after award (RFO FAR 6.301(b)).",
+        dueAfterAward: true,
+      },
     ],
   },
   {
@@ -746,6 +870,30 @@ export function triggeredDocs(acq: Record<string, unknown>): TriggerDoc[] {
       d.citation = "RFO FAR 12.301(b) (explanation to an unsuccessful quoter, on request)";
       d.state = "offered";
       d.note = "Offered: a brief explanation is owed only when a quoter asks (RFO FAR 12.301(b)).";
+    }
+  }
+  for (const d of out) {
+    // RFO FAR 12.104(b)(1) for a commercial T&M or labor-hour buy, plus
+    // 12.104(c)(2)(i) for an order under an IDIQ; RFO FAR 16.601-3 otherwise.
+    if (d.doc_key === "tm-lh-dandf") {
+      d.citation = context.s.commercial
+        ? context.s.vehicle === "idiq_order"
+          ? "RFO FAR 12.104(b)(1); RFO FAR 12.104(c)(2)(i)"
+          : "RFO FAR 12.104(b)(1)"
+        : "RFO FAR 16.601-3";
+    }
+    // RFO FAR 16.301-3(a)(1): a cost-reimbursement contract may be used only
+    // when a written acquisition plan has been approved at least one level
+    // above the contracting officer, so the plan is Required on that file.
+    if (d.doc_key === "written-acquisition-plan" && isCost(context)) {
+      d.state = "required";
+      d.citation = "NFS CG 1807.11; RFO FAR 16.301-3(a)(1)";
+    }
+    // RFO FAR 6.301(b)(1): a justification under 6.103-2 is posted within 30
+    // days after award.
+    if (d.doc_key === "justification-posting" && context.s.urgency) {
+      d.citation = "RFO FAR 6.301(b)(1)";
+      d.note = "Post the justification within 30 days after award (RFO FAR 6.301(b)(1), unusual and compelling urgency).";
     }
   }
   // A consolidation determination and a bundling determination never both
