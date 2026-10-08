@@ -2,7 +2,8 @@ import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote } from "@/components/app-shell";
+import { DataTable, McPageHeader, StatusChip } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
@@ -14,6 +15,7 @@ import { attachedKeys as keysFrom, savedDocKeys, withResolvedHolds } from "@/lib
 import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
+import { executiveBlocker } from "@/lib/executive-wording";
 
 export const Route = createFileRoute("/digest")({
   head: () => ({
@@ -178,10 +180,19 @@ function DigestPage() {
   }
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Leadership digest"
         lead="The week in one page. Every figure is computed from the record; nothing here is typed by hand."
+        actions={digest ? (
+          <div className="mc-pa-actions">
+            <button type="button" className="mc-req-button is-secondary" onClick={() => { if (!exportDigestPdf(digest)) setMsg("The print window did not open. Allow pop-ups for this site, then export again."); }}>Export as PDF</button>
+            {hasRole("hq") && !readOnly ? (
+              <button type="button" className="mc-req-button" onClick={() => void postAsAnnouncement()} disabled={busy}>{busy ? "Sending" : "Send as an announcement"}</button>
+            ) : null}
+          </div>
+        ) : undefined}
       />
 
       {q.isLoading ? <LoadingNote what="the week's figures" /> : null}
@@ -189,67 +200,63 @@ function DigestPage() {
 
       {digest ? (
         <>
-          <p className="text-[13px] text-muted-foreground">
-            Week of {digest.weekStart} through {digest.weekEnd}. Generated {new Date(digest.generatedAt).toLocaleString()}.
+          <p className="text-[15px] leading-[22px] text-muted-foreground" data-numeric>
+            Week of {digest.weekStart} through {digest.weekEnd}. Generated {new Date(digest.generatedAt).toLocaleString()}.{" "}
+            <Link to="/" className="text-primary underline">Compare with the Acquisitions tab</Link>
           </p>
+          {msg ? <p role="status" className="mt-3 max-w-[80ch] text-[15px]">{msg}</p> : null}
 
-          <div className="mc-work-toolbar mt-4 flex flex-wrap">
-            <button
-              type="button"
-              className="border border-border px-3 py-2 text-[13px] [border-radius:var(--mc-radius-control)]"
-              onClick={() => {
-                if (!exportDigestPdf(digest)) {
-                  setMsg("The print window did not open. Allow pop-ups for this site, then export again.");
-                }
-              }}
-            >
-              Export as PDF
-            </button>
-            {hasRole("hq") && !readOnly ? (
-              <button
-                type="button"
-                className="border border-border px-3 py-2 text-[13px] [border-radius:var(--mc-radius-control)]"
-                onClick={() => void postAsAnnouncement()}
-                disabled={busy}
-              >
-                {busy ? "Sending" : "Send as an announcement"}
-              </button>
-            ) : null}
-            <Link to="/" className="self-center text-[13px] text-primary underline">
-              Compare with the Acquisitions tab
-            </Link>
+          <div className="mc-pa-stats is-4 mt-6">
+            <div className="is-ontrack"><strong data-numeric>{digest.counts.running}</strong><span>Running</span></div>
+            <div className={digest.counts.onHold ? "is-atrisk" : undefined}><strong data-numeric>{digest.counts.onHold}</strong><span>On hold</span></div>
+            <div className="is-info"><strong data-numeric>{digest.counts.launchedThisQuarter}</strong><span>Launched this quarter</span></div>
+            <div><strong data-numeric>{digest.counts.scrubbed}</strong><span>Scrubbed</span></div>
           </div>
 
-          {msg ? (
-            <p role="status" className="mt-3 max-w-[80ch] text-[13px]">
-              {msg}
-            </p>
-          ) : null}
+          <section className="mc-kpanel mt-6">
+            <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">At risk <span data-numeric>{digest.atRisk.length}</span></h2></div></div>
+            <div className="mt-4">
+              <DataTable label="Files at risk" empty={<p className="text-muted-foreground">No file is at risk this week.</p>}
+                rowKey={(r) => r.id} rows={digest.atRisk.slice(0, 5)} columns={[
+                  { key: "id", header: "File", rowHeader: true, cell: (r) => <Link to="/files/$acquisitionId" params={{ acquisitionId: r.id }}>{r.id}</Link> },
+                  { key: "title", header: "Title", cell: (r) => r.title || "No title recorded" },
+                  { key: "center", header: "Center", cell: (r) => r.center },
+                  { key: "blocker", header: "Blocker", cell: (r) => executiveBlocker(r.blocker) },
+                  { key: "owner", header: "Owner", cell: (r) => r.owner },
+                  { key: "days", header: "Days to award", numeric: true, cell: (r) => <span data-numeric>{r.daysToAward === null ? "No date" : r.daysToAward}</span> },
+                ]} />
+            </div>
+            {digest.atRisk.length > 5 ? <p className="mc-kpanel-foot" data-numeric>{digest.atRisk.length - 5} more at-risk files are in the full listing below.</p> : null}
+          </section>
 
-          {sections.length === 0 ? (
-            <p className="mt-8 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
-              Nothing has moved this week, so the digest has no lines to send.
-            </p>
-          ) : null}
+          <section className="mc-kpanel mt-6">
+            <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">Aging holds <span data-numeric>{digest.agingHolds.length}</span></h2></div></div>
+            <div className="mt-4">
+              <DataTable label="Aging holds" empty={<p className="text-muted-foreground">No hold has passed its Center window.</p>}
+                rowKey={(r) => `${r.id}-${r.subject}`} rows={digest.agingHolds.slice(0, 5)} columns={[
+                  { key: "id", header: "File", rowHeader: true, cell: (r) => <Link to="/files/$acquisitionId" params={{ acquisitionId: r.id }}>{r.id}</Link> },
+                  { key: "center", header: "Center", cell: (r) => r.center },
+                  { key: "subject", header: "Waiting on", cell: (r) => r.subject },
+                  { key: "owner", header: "Owner", cell: (r) => r.owner },
+                  { key: "age", header: "Age", numeric: true, cell: (r) => <span data-numeric>{r.ageDays} days</span> },
+                  { key: "standing", header: "Standing", cell: (r) => <StatusChip tone="attention" label={`${r.ageDays - r.thresholdDays} days past the Center window`} /> },
+                ]} />
+            </div>
+          </section>
 
-          {sections.map((s) => (
-            <section key={s.heading} className="mt-8">
-              <h2 className="text-[18px] leading-6 font-medium">{s.heading}</h2>
-              {s.lines.length === 0 ? (
-                <p className="mt-2 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-                  Nothing recorded under this heading.
-                </p>
-              ) : (
-                <ul className="mt-2 max-w-[80ch] space-y-1 text-[13px] leading-[18px]">
-                  {s.lines.map((line) => (
-                    <li key={line} data-numeric>
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
-          ))}
+          <details className="mc-kpanel mt-6">
+            <summary className="mc-kpanel-title">The full digest, line by line</summary>
+            <p className="mt-2 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">The same lines the PDF and the announcement carry.</p>
+            {sections.length === 0 ? <p className="mt-4 text-muted-foreground">Nothing has moved this week, so the digest has no lines to send.</p> : null}
+            {sections.map((s) => (
+              <section key={s.heading} className="mt-6">
+                <h3 className="text-[18px] leading-6 font-medium">{s.heading}</h3>
+                {s.lines.length === 0 ? <p className="mt-2 text-muted-foreground">Nothing recorded under this heading.</p> : (
+                  <ul className="mt-2 max-w-[80ch] space-y-1 text-[15px] leading-[22px]">{s.lines.map((line) => <li key={line} data-numeric>{line}</li>)}</ul>
+                )}
+              </section>
+            ))}
+          </details>
         </>
       ) : null}
     </AppShell>

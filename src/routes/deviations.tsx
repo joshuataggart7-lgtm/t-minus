@@ -2,7 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCanWrite } from "@/lib/use-can-write";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote } from "@/components/app-shell";
+import { DataTable, McPageHeader, StatusChip, type StatusTone } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -35,12 +36,12 @@ export const Route = createFileRoute("/deviations")({
   component: DeviationsPage,
 });
 
-const inputClass = "mt-1 w-full border border-border bg-background px-3 py-2 text-[15px] [border-radius:var(--mc-radius-control)]";
+const inputClass = "mc-pa-input";
 
-function statusColor(row: DeviationRow) {
-  if (row.decision === "approved") return "var(--mc-readiness-go)";
-  if (row.decision === "denied" || row.decision === "disapproved") return "var(--mc-readiness-hold)";
-  return row.clock_state === "running" ? "var(--mc-readiness-watch)" : "var(--muted-foreground)";
+function statusTone(row: DeviationRow): StatusTone {
+  if (row.decision === "approved") return "ontrack";
+  if (row.decision === "denied" || row.decision === "disapproved") return "atrisk";
+  return row.clock_state === "running" ? "attention" : "neutral";
 }
 
 function DeviationsPage() {
@@ -117,13 +118,19 @@ function DeviationsPage() {
   const ready = form.title.trim().length > 2 && form.citation.trim().length > 2;
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Deviations and waivers"
         lead="FAR and NFS deviation requests, each with its own review board (Approve or Disapprove) and its own clock to the decision."
+        actions={canWrite ? (
+          <button type="button" className={open ? "mc-req-button is-secondary" : "mc-req-button"} aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+            {open ? "Close the request form" : "New deviation request"}
+          </button>
+        ) : undefined}
       />
 
-      <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
+      <p className="mc-pa-callout is-info mb-6">
         {DEVIATION_TEMPLATE.name} · NF 1098 tab {DEVIATION_TEMPLATE.tab} · {DEVIATION_TEMPLATE.revision} ·{" "}
         {DEVIATION_TEMPLATE.citation} · guidance
       </p>
@@ -138,25 +145,17 @@ function DeviationsPage() {
       ) : null}
 
       {canWrite ? (
-        <section className="mb-10">
-          <button
-            type="button"
-            className="border border-border px-3 py-2 text-[15px] text-primary [border-radius:var(--mc-radius-control)]"
-            onClick={() => setOpen((v) => !v)}
-          >
-            {open ? "Close the request form" : "New deviation request"}
-          </button>
-
+        <section className="mb-6">
           {open ? (
             <form
-              className="mc-work-summary mt-6 max-w-[70ch]"
+              className="mc-kpanel max-w-[80ch]"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (ready) create.mutate();
               }}
             >
               <div className="mb-4">
-                <label htmlFor="dv-title" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-title" className="mc-pa-label">
                   What the deviation is for (required)
                 </label>
                 <input
@@ -167,7 +166,7 @@ function DeviationsPage() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-citation" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-citation" className="mc-pa-label">
                   Regulation being deviated from (required)
                 </label>
                 <input
@@ -179,7 +178,7 @@ function DeviationsPage() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-type" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-type" className="mc-pa-label">
                   Type of deviation
                 </label>
                 <select
@@ -190,13 +189,13 @@ function DeviationsPage() {
                 >
                   {DEVIATION_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
-                      {t.label} — {t.citation}
+                      {`${t.label}: ${t.citation}`}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-acq" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-acq" className="mc-pa-label">
                   Acquisition it is attached to
                 </label>
                 <select
@@ -208,13 +207,13 @@ function DeviationsPage() {
                   <option value="">Standalone, not attached to an acquisition</option>
                   {(acqs.data ?? []).map((a) => (
                     <option key={a.acquisition_id} value={a.acquisition_id}>
-                      {a.acquisition_id} — {a.title}
+                      {`${a.acquisition_id} · ${a.title}`}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-need" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-need" className="mc-pa-label">
                   Date the decision is needed
                 </label>
                 <input
@@ -226,7 +225,7 @@ function DeviationsPage() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-reg" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-reg" className="mc-pa-label">
                   What the regulation requires
                 </label>
                 <textarea
@@ -238,7 +237,7 @@ function DeviationsPage() {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="dv-prop" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-prop" className="mc-pa-label">
                   What is proposed instead
                 </label>
                 <textarea
@@ -250,7 +249,7 @@ function DeviationsPage() {
                 />
               </div>
               <div className="mb-6">
-                <label htmlFor="dv-just" className="block text-[13px] text-muted-foreground">
+                <label htmlFor="dv-just" className="mc-pa-label">
                   Justification
                 </label>
                 <textarea
@@ -263,7 +262,7 @@ function DeviationsPage() {
               </div>
               <button
                 type="submit"
-                className="bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-50 [border-radius:var(--mc-radius-control)]"
+                className="mc-req-button"
                 disabled={!ready || create.isPending}
               >
                 {create.isPending ? "Saving" : "Save the request"}
@@ -273,63 +272,42 @@ function DeviationsPage() {
         </section>
       ) : null}
 
-      {q.data && rows.length === 0 ? (
-        <EmptyState
-          sentence="No deviation requests yet."
-          action={
-            canWrite ? (
-              <button
-                type="button"
-                className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
-                onClick={() => setOpen(true)}
-              >
-                New deviation request
-              </button>
-            ) : undefined
-          }
-        />
-      ) : null}
-
-      {rows.length ? (
-        <div className="mc-work-table-wrap border border-border bg-background">
-        <table className="w-full text-[13px] leading-[18px]">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="px-3 py-2 font-medium">Request</th>
-              <th scope="col" className="px-3 py-2 font-medium">Regulation</th>
-              <th scope="col" className="px-3 py-2 font-medium">Attached to</th>
-              <th scope="col" className="px-3 py-2 font-medium">Clock</th>
-              <th scope="col" className="px-3 py-2 font-medium">State</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => {
-              const clock = deviationClock(r);
-              return (
-                <tr key={r.deviation_id} className="border-b border-border align-top last:border-0">
-                  <td className="px-3 py-2">
-                    <Link
-                      to="/deviations/$deviationId"
-                      params={{ deviationId: r.deviation_id }}
-                      className="text-primary"
-                    >
-                      {r.title}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2">{r.citation}</td>
-                  <td className="px-3 py-2">{r.acquisition_id ?? "Standalone"}</td>
-                  <td className="px-3 py-2" data-numeric>
-                    {clock.reading}
-                  </td>
-                  <td className="px-3 py-2">
-                    <StatusMark color={statusColor(r)}>{clock.state}</StatusMark>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        </div>
+      {q.data ? (
+        <section className="mc-kpanel">
+          <div className="mc-kpanel-head"><div>
+            <h2 className="mc-kpanel-title">Requests on record</h2>
+            <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground" data-numeric>
+              {rows.length ? `${rows.length} ${rows.length === 1 ? "request" : "requests"}, each with its own clock to the decision.` : "Each request opens its own review board and starts its own clock."}
+            </p>
+          </div></div>
+          <div className="mt-4">
+            <DataTable
+              label="Deviation requests"
+              rowKey={(r) => r.deviation_id}
+              rows={rows}
+              empty={
+                <div>
+                  <p className="font-medium text-foreground">No deviation requests yet.</p>
+                  <p className="mt-1 max-w-[70ch] text-muted-foreground">
+                    When a file needs to depart from a FAR or NFS requirement, start a request here. It records the regulation, the proposed text and the justification, then routes to legal, policy and the HCA.
+                  </p>
+                  {canWrite && !open ? (
+                    <button type="button" className="mc-req-button mt-3" onClick={() => setOpen(true)}>
+                      New deviation request
+                    </button>
+                  ) : null}
+                </div>
+              }
+              columns={[
+                { key: "request", header: "Request", rowHeader: true, cell: (r) => <Link to="/deviations/$deviationId" params={{ deviationId: r.deviation_id }} className="text-primary underline">{r.title}</Link> },
+                { key: "reg", header: "Regulation", cell: (r) => r.citation },
+                { key: "acq", header: "Attached to", nowrap: true, cell: (r) => r.acquisition_id ?? "Standalone" },
+                { key: "clock", header: "Clock", nowrap: true, cell: (r) => <span data-numeric>{deviationClock(r).reading}</span> },
+                { key: "state", header: "State", cell: (r) => <StatusChip tone={statusTone(r)} label={deviationClock(r).state} /> },
+              ]}
+            />
+          </div>
+        </section>
       ) : null}
     </AppShell>
   );

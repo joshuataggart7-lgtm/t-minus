@@ -5266,7 +5266,7 @@ function FilePage() {
                 "Current phase",
                 // The phase the file is actually in: a later phase cannot start
                 // while an earlier one is short a required document.
-                phases.find((p) => p.status === "current")?.phase ?? String(phaseAlias(acq?.current_phase) ?? "Not recorded"),
+                (() => { const cur = phases.find((p) => p.status === "current"); return cur ? phaseLabel(cur) : String(phaseAlias(acq?.current_phase) ?? "Not recorded"); })(),
               ],
             ] as const
           ).map(([k, v]) => (

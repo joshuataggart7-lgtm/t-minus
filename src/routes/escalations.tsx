@@ -2,7 +2,8 @@ import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState, StatusMark } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { DataTable, McPageHeader, StatusChip } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/lib/aging";
 import type { AcqRow, PollRow } from "@/lib/launch-sequence";
 import { withResolvedHolds } from "@/lib/hold";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { LockHint } from "@/components/demo-lock";
 
 export const Route = createFileRoute("/escalations")({
@@ -41,6 +41,8 @@ function EscalationsPage() {
   const { authState, user, hasRole, readOnly } = useRole();
   const qc = useQueryClient();
   const [banner, setBanner] = useState<string | null>(null);
+  // Aging first: items still inside their Center window stay one click away.
+  const [showWithin, setShowWithin] = useState(false);
   const canConfigure = hasRole("hq") && !readOnly;
   // Demo HQ sees the dimmed input (HQ can change it); other roles read text.
   const showInput = hasRole("hq");
@@ -112,14 +114,20 @@ function EscalationsPage() {
     onError: (e: Error) => setBanner(`That number did not save: ${e.message}. Try again.`),
   });
 
+  const agingCount = items.filter((item) => item.aging).length;
+  const shownItems = showWithin ? items : items.filter((item) => item.aging);
+  // Oldest first, so the longest wait leads the list.
+  const sortedItems = [...shownItems].sort((a, b) => Number(b.aging) - Number(a.aging) || b.ageDays - a.ageDays);
+
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Aging holds and escalation"
         lead="Every hold and every pending review request carries an age in days. Past the number of days the Center sets, the item is aging and appears in the digest for the owner's supervisor."
       />
       {banner ? (
-        <p role="status" className="mb-4 max-w-[70ch] text-[13px]">
+        <p role="status" className="mb-4 max-w-[70ch] text-[15px]">
           {banner}
         </p>
       ) : null}
@@ -128,140 +136,101 @@ function EscalationsPage() {
       {q.isError ? <ErrorNote message="The aging items did not load. Refresh the page to try again." /> : null}
 
       {q.data ? (
-        <>
-          <h2 className="section-title text-[18px] leading-6 font-medium">Open holds and pending polls</h2>
-          {items.length === 0 ? (
-            <EmptyState sentence="No file is on hold and no review is waiting on a decision." />
-          ) : (
-            <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3 border border-border bg-background" label="Open holds and pending polls">
-            <table className="w-full text-[13px] leading-[18px]">
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <th scope="col" className="p-2">Acquisition</th>
-                  <th scope="col" className="p-2">Center</th>
-                  <th scope="col" className="p-2">Waiting on</th>
-                  <th scope="col" className="p-2">Owner</th>
-                  <th scope="col" className="p-2">Age</th>
-                  <th scope="col" className="p-2">Aging after</th>
-                  <th scope="col" className="p-2">Standing</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, i) => (
-                  <tr key={`${item.kind}-${item.acquisitionId}-${i}`} className="border-b border-border last:border-0">
-                    <td className="p-2">
-                      <Link
-                        to="/files/$acquisitionId"
-                        params={{ acquisitionId: item.acquisitionId }}
-                        className="text-primary underline"
-                      >
-                        {item.acquisitionId}
-                      </Link>
-                    </td>
-                    <td className="p-2">{item.centerCode}</td>
-                    <td className="p-2">
-                      {item.subject}
-                      {item.alsoRecorded ? <span className="mt-1 block text-[12px] text-muted-foreground">{item.alsoRecorded}</span> : null}
-                    </td>
-                    <td className="p-2">{item.owner}</td>
-                    <td className="p-2" data-numeric>
-                      {item.ageDays} days
-                    </td>
-                    <td className="p-2" data-numeric>
-                      {item.thresholdDays} days
-                    </td>
-                    <td className="p-2">
-                      {item.aging ? (
-                        <StatusMark color="var(--mc-readiness-watch)" className="text-[13px] leading-[18px]">
-                          Aging
-                        </StatusMark>
-                      ) : (
-                        <StatusMark color="var(--mc-readiness-go)" className="text-[13px] leading-[18px]">
-                          Within the Center window
-                        </StatusMark>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            </TableScrollRegion>
-          )}
+        <div className="mc-pa-stack">
+          <div className="mc-pa-stats">
+            <div className={agingCount ? "is-attention" : "is-ontrack"}><strong data-numeric>{agingCount}</strong><span>Aging past the Center window</span></div>
+            <div><strong data-numeric>{items.length - agingCount}</strong><span>Open, still within the window</span></div>
+            <div className="is-info"><strong data-numeric>{digest.length}</strong><span>Supervisors with a digest entry</span></div>
+          </div>
 
-          <h2 className="section-title mt-10 text-[18px] leading-6 font-medium">Supervisor digest</h2>
-          <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-            One entry per aging item, gathered for the supervisor recorded on the owner's user record.
-          </p>
-          {digest.length === 0 ? (
-            <EmptyState sentence="Nothing is aging, so no digest entry has been raised." />
-          ) : (
-            digest.map((group) => (
-              <div key={group.supervisor} className="mt-4">
-                <h3 className="text-[15px] leading-[22px] font-medium">
-                  {group.supervisor}
-                  {group.supervisorEmail ? ` · ${group.supervisorEmail}` : ""}
-                </h3>
-                <ul className="mt-1 max-w-[70ch] text-[13px] leading-[22px]">
-                  {group.items.map((item, i) => (
-                    <li key={`${item.acquisitionId}-${i}`}>
-                      {item.acquisitionId}: {item.subject} — {item.ageDays} days with {item.owner}
-                      {item.phase ? ` at ${item.phase}` : ""}
-                      {item.alsoRecorded ? <span className="block text-muted-foreground">{item.alsoRecorded}</span> : null}
-                    </li>
-                  ))}
-                </ul>
+          <section className="mc-kpanel">
+            <div className="mc-kpanel-head">
+              <div>
+                <h2 className="mc-kpanel-title">{showWithin ? "Open holds and pending reviews" : "Aging holds and pending reviews"}</h2>
+                <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">{showWithin ? "Every open item, aging first, oldest first." : "Only the items past their Center window, oldest first."}</p>
               </div>
-            ))
-          )}
+              {items.length > agingCount ? (
+                <button type="button" className="mc-req-button is-secondary" aria-pressed={showWithin} onClick={() => setShowWithin((value) => !value)}>
+                  {showWithin ? "Show aging only" : `Show all ${items.length} open items`}
+                </button>
+              ) : null}
+            </div>
+            <div className="mt-4">
+              {items.length === 0 ? (
+                <EmptyState sentence="No file is on hold and no review is waiting on a decision." />
+              ) : (
+                <DataTable label="Open holds and pending reviews" empty={<p className="text-muted-foreground">Nothing is past its Center window. Show all open items to see the rest.</p>}
+                  rowKey={(item, i) => `${item.kind}-${item.acquisitionId}-${i}`} rows={sortedItems} columns={[
+                    { key: "id", header: "Acquisition", rowHeader: true, nowrap: true, cell: (item) => <Link to="/files/$acquisitionId" params={{ acquisitionId: item.acquisitionId }}>{item.acquisitionId}</Link> },
+                    { key: "center", header: "Center", cell: (item) => item.centerCode },
+                    { key: "subject", header: "Waiting on", cell: (item) => <>{item.subject}{item.alsoRecorded ? <span className="mt-1 block text-[13px] text-muted-foreground">{item.alsoRecorded}</span> : null}</> },
+                    { key: "owner", header: "Owner", cell: (item) => item.owner },
+                    { key: "age", header: "Age", numeric: true, nowrap: true, cell: (item) => <span data-numeric>{item.ageDays} days</span> },
+                    { key: "after", header: "Aging after", numeric: true, nowrap: true, cell: (item) => <span data-numeric>{item.thresholdDays} days</span> },
+                    { key: "standing", header: "Standing", cell: (item) => item.aging ? <StatusChip tone="attention" label="Aging" /> : <StatusChip tone="ontrack" label="Within the Center window" /> },
+                  ]} />
+              )}
+            </div>
+          </section>
 
-          <h2 className="section-title mt-10 text-[18px] leading-6 font-medium">Aging threshold by Center</h2>
-          <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-            Center policy sets the number of days. The default is {DEFAULT_AGING_DAYS} days.
-          </p>
-          <TableScrollRegion baseClassName="mc-work-table-wrap" className="mt-3 max-w-[640px] border border-border bg-background max-sm:max-w-[calc(100vw-2rem)]" label="Aging threshold by Center">
-          <table className="w-full text-[13px] leading-[18px]">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">Center</th>
-                <th scope="col" className="p-2">Aging after</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(q.data.centers ?? []).map((c) => (
-                <tr key={c.center_code} className="border-b border-border last:border-0">
-                  <td className="p-2">
-                    {c.center_code} — {c.center_name}
-                  </td>
-                  <td className="p-2">
-                    {showInput ? (<>
-                    <label className="sr-only" htmlFor={`aging-${c.center_code}`}>
-                      Aging threshold in days for {c.center_code}
-                    </label>
+          <section className="mc-kpanel">
+            <div className="mc-kpanel-head"><div>
+              <h2 className="mc-kpanel-title">Supervisor digest</h2>
+              <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">One entry per aging item, gathered for the supervisor recorded on the owner's user record.</p>
+            </div></div>
+            {digest.length === 0 ? (
+              <p className="mt-4 text-muted-foreground">Nothing is aging, so no digest entry has been raised.</p>
+            ) : (
+              digest.map((group) => (
+                <div key={group.supervisor} className="mc-pa-card mt-4">
+                  <h3 className="mc-pa-card-title">
+                    {group.supervisor}
+                    {group.supervisorEmail ? <span className="font-normal text-muted-foreground">{` · ${group.supervisorEmail}`}</span> : null}
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-[15px] leading-[22px]">
+                    {group.items.map((item, i) => (
+                      <li key={`${item.acquisitionId}-${i}`} data-numeric>
+                        {item.acquisitionId}: {item.subject}, {item.ageDays} days with {item.owner}
+                        {item.phase ? ` at ${item.phase}` : ""}
+                        {item.alsoRecorded ? <span className="block text-muted-foreground">{item.alsoRecorded}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            )}
+          </section>
+
+          <section className="mc-kpanel">
+            <div className="mc-kpanel-head"><div>
+              <h2 className="mc-kpanel-title">Aging threshold by Center</h2>
+              <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">Center policy sets the number of days. The default is {DEFAULT_AGING_DAYS} days.</p>
+            </div></div>
+            <div className="mt-4 max-w-[720px]">
+              <DataTable label="Aging threshold by Center" rowKey={(c) => c.center_code} rows={q.data.centers ?? []} columns={[
+                { key: "center", header: "Center", rowHeader: true, cell: (c) => `${c.center_code} · ${c.center_name}` },
+                { key: "after", header: "Aging after", cell: (c) => showInput ? (
+                  <>
+                    <label className="sr-only" htmlFor={`aging-${c.center_code}`}>Aging threshold in days for {c.center_code}</label>
                     <input
                       id={`aging-${c.center_code}`}
                       type="number"
                       min={0}
                       max={90}
-                      className="h-9 w-24 border border-border bg-background px-2 text-[13px] [border-radius:var(--mc-radius-control)]"
+                      className="mc-pa-input !mt-0 w-24"
                       defaultValue={c.aging_threshold_days ?? DEFAULT_AGING_DAYS}
                       disabled={!canConfigure}
-                      onBlur={(e) =>
-                        setThreshold.mutate({ centerCode: c.center_code, days: Number(e.target.value || 0) })
-                      }
+                      onBlur={(e) => setThreshold.mutate({ centerCode: c.center_code, days: Number(e.target.value || 0) })}
                     />
-                    </>) : (
-                      <span className="tabular-nums" data-numeric>
-                        {c.aging_threshold_days ?? DEFAULT_AGING_DAYS} days
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </TableScrollRegion>
-          {showInput && readOnly ? <LockHint className="mt-2" /> : null}
-        </>
+                  </>
+                ) : (
+                  <span className="tabular-nums" data-numeric>{c.aging_threshold_days ?? DEFAULT_AGING_DAYS} days</span>
+                ) },
+              ]} />
+            </div>
+            {showInput && readOnly ? <LockHint className="mt-2" /> : null}
+          </section>
+        </div>
       ) : null}
     </AppShell>
   );

@@ -109,7 +109,7 @@ export function itemsFromWatchRows(rows: WatchItemRow[]): FeedItem[] {
     source: normalizeSource(r.source),
     title: r.title ?? "Untitled item",
     date: toISODate(r.decided_or_published_date),
-    outcomeOrType: r.outcome_or_type ?? "—",
+    outcomeOrType: r.outcome_or_type ?? "Type not recorded",
     summary: r.summary ?? "",
     url: r.url,
     tags: r.tags ?? [],
@@ -125,7 +125,7 @@ export function itemsFromRefs(refs: RegRefRow[]): FeedItem[] {
       source: (r.source === "PCD" || r.source === "PIC" || r.source === "PN"
         ? "PCD/PIC/PN"
         : "OP notice") as WatchSource,
-      title: `${r.citation} — ${r.title ?? ""}`.replace(/ — $/, ""),
+      title: r.title ? `${r.citation}: ${r.title}` : r.citation,
       date: toISODate(r.effective_date),
       outcomeOrType: r.tier === "binding" ? "Binding" : "Guidance",
       summary: r.title ?? "",

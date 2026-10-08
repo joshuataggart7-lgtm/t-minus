@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { DataTable, EmptyCell, McPageHeader } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { buildActorAliases, displayActor, type ProfileAliasRow } from "@/lib/actor-alias";
 import { auditActionLabel, auditFieldLabel, auditPhaseLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 
@@ -24,12 +24,12 @@ export const Route = createFileRoute("/audit-log")({
   }),
   errorComponent: () => (
     <AppShell>
-      <PageHeader title="The audit log could not be loaded" lead="Reload the page to try again." />
+      <McPageHeader eyebrow="Oversight" title="The audit log could not be loaded" lead="Reload the page to try again." />
     </AppShell>
   ),
   notFoundComponent: () => (
     <AppShell>
-      <PageHeader title="Not found" lead="Go back to the work queue." />
+      <McPageHeader eyebrow="Oversight" title="Not found" lead="Go back to the work queue." />
     </AppShell>
   ),
   component: AuditLogPage,
@@ -48,7 +48,11 @@ type LogRow = {
   logged_at: string;
 };
 
+/** Each file's timeline opens on its latest entries; the rest are one click away. */
+const AUDIT_GROUP_TOP = 10;
+
 function AuditLogPage() {
+  const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
   const { authState } = useRole();
   const [actor, setActor] = useState("");
   const [phase, setPhase] = useState("");
@@ -118,21 +122,31 @@ function AuditLogPage() {
     return Array.from(map.entries());
   }, [filtered]);
 
+  const filteredActors = new Set(filtered.map((r) => (r.actor ? displayActor(r.actor, aliases).name : ""))).size;
+
   return (
-    <AppShell>
-      <PageHeader
-        title="Audit Log"
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
+        title="Audit log"
         lead="Who did what, when, and why. Kept for the contract file under RFO FAR 4.101. Reading only."
       />
 
-      <div className="mc-work-toolbar mb-8 flex min-w-0 flex-wrap gap-6" aria-label="Audit log filters">
+      {q.data ? (
+        <div className="mc-pa-stats mb-6">
+          <div className="is-info"><strong data-numeric>{filtered.length}</strong><span>{filtered.length === 1 ? "Entry" : "Entries"}{actor || phase ? " for this filter" : " recorded"}</span></div>
+          <div><strong data-numeric>{groups.filter(([id]) => id !== "No acquisition").length}</strong><span>Acquisitions with activity</span></div>
+          <div><strong data-numeric>{filteredActors}</strong><span>People and services acting</span></div>
+        </div>
+      ) : null}
+
+      <div className="mc-pa-form is-2 mb-8 max-w-[720px]" aria-label="Audit log filters">
         <div>
-          <label htmlFor="filter-actor" className="block text-[13px] text-muted-foreground">
+          <label htmlFor="filter-actor" className="mc-pa-label">
             Actor
-          </label>
-          <select
+            <select
             id="filter-actor"
-            className="mt-1 rounded-lg border border-border bg-background p-2 text-[15px]"
+            className="mc-pa-input"
             value={actor}
             onChange={(e) => setActor(e.target.value)}
           >
@@ -143,14 +157,14 @@ function AuditLogPage() {
               </option>
             ))}
           </select>
+          </label>
         </div>
         <div>
-          <label htmlFor="filter-phase" className="block text-[13px] text-muted-foreground">
+          <label htmlFor="filter-phase" className="mc-pa-label">
             Phase
-          </label>
-          <select
+            <select
             id="filter-phase"
-            className="mt-1 rounded-lg border border-border bg-background p-2 text-[15px]"
+            className="mc-pa-input"
             value={phase}
             onChange={(e) => setPhase(e.target.value)}
           >
@@ -161,6 +175,7 @@ function AuditLogPage() {
               </option>
             ))}
           </select>
+          </label>
         </div>
       </div>
 
@@ -180,7 +195,7 @@ function AuditLogPage() {
                 setActor("");
                 setPhase("");
               }}
-              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
+              className="mc-req-button"
             >
               Clear the filters
             </button>
@@ -190,62 +205,46 @@ function AuditLogPage() {
 
 
       {groups.map(([acqId, list]) => (
-        <section key={acqId} className="mb-10">
-          <h2 className="mb-3 text-[18px] leading-6 font-medium">
-            {acqId === "No acquisition" ? (
-              acqId
-            ) : (
-              <Link to="/files/$acquisitionId" params={{ acquisitionId: acqId }} className="text-primary">
-                {acqId}
-              </Link>
-            )}
-          </h2>
-          <TableScrollRegion baseClassName="mc-work-table-wrap" label={`Audit log table: ${acqId}`}>
-          <table className="w-full min-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th scope="col" className="px-3 py-2 font-medium">When</th>
-                <th scope="col" className="px-3 py-2 font-medium">Actor</th>
-                <th scope="col" className="px-3 py-2 font-medium">Action</th>
-                <th scope="col" className="px-3 py-2 font-medium">Phase</th>
-                <th scope="col" className="px-3 py-2 font-medium">Field</th>
-                <th scope="col" className="px-3 py-2 font-medium">Old</th>
-                <th scope="col" className="px-3 py-2 font-medium">New</th>
-                <th scope="col" className="px-3 py-2 font-medium">Reason</th>
-              </tr>
-            </thead>
-            <tbody>
-              {list.map((r) => (
-                <tr key={r.log_id} className="border-b border-border align-top last:border-0">
-                  <td className="px-3 py-2" data-numeric>
-                    {new Date(r.logged_at).toLocaleString()}
-                  </td>
-                  <td className="min-w-0 break-words px-3 py-2">
-                    {r.actor
-                      ? (() => {
-                          const shown = displayActor(r.actor, aliases);
-                          return (
-                            <>
-                              {shown.name}
-                              {shown.loginId ? (
-                                <div className="text-[12px] text-muted-foreground">Login: {shown.loginId}</div>
-                              ) : null}
-                            </>
-                          );
-                        })()
-                      : "—"}
-                  </td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.action, auditActionLabel(r.action))}>{auditActionLabel(r.action) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.phase, auditPhaseLabel(r.phase))}>{auditPhaseLabel(r.phase) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.field, auditFieldLabel(r.field))}>{auditFieldLabel(r.field) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.old_value, auditValueLabel(r.action, r.old_value))}>{auditValueLabel(r.action, r.old_value) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.new_value, auditValueLabel(r.action, r.new_value))}>{auditValueLabel(r.action, r.new_value) ?? "Not recorded"}</td>
-                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.reason, auditTextLabel(r.reason))}>{auditTextLabel(r.reason) ?? "Not recorded"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </TableScrollRegion>
+        <section key={acqId} className="mc-kpanel mb-6">
+          <div className="mc-kpanel-head">
+            <h2 className="mc-kpanel-title">
+              {acqId === "No acquisition" ? acqId : (
+                <Link to="/files/$acquisitionId" params={{ acquisitionId: acqId }} className="text-primary underline">{acqId}</Link>
+              )}
+              <span className="ml-2 font-normal text-muted-foreground" data-numeric>{`${list.length} ${list.length === 1 ? "entry" : "entries"}`}</span>
+            </h2>
+          </div>
+          <div className="mt-4">
+            <DataTable label={`Audit log table: ${acqId}`} rowKey={(r) => r.log_id} rows={expanded.has(acqId) ? list : list.slice(0, AUDIT_GROUP_TOP)} columns={[
+              { key: "when", header: "When", nowrap: true, cell: (r) => <span data-numeric>{new Date(r.logged_at).toLocaleString()}</span> },
+              { key: "actor", header: "Actor", cell: (r) => r.actor ? (() => { const shown = displayActor(r.actor!, aliases); return <>{shown.name}{shown.loginId ? <span className="block text-[13px] text-muted-foreground">Login: {shown.loginId}</span> : null}</>; })() : <EmptyCell /> },
+              { key: "action", header: "Action", cell: (r) => <span title={storedAs(r.action, auditActionLabel(r.action))}>{auditActionLabel(r.action) ?? "Not recorded"}</span> },
+              { key: "phase", header: "Phase", cell: (r) => <span title={storedAs(r.phase, auditPhaseLabel(r.phase))}>{auditPhaseLabel(r.phase) ?? "Not recorded"}</span> },
+              { key: "field", header: "Field", cell: (r) => <span title={storedAs(r.field, auditFieldLabel(r.field))}>{auditFieldLabel(r.field) ?? "Not recorded"}</span> },
+              { key: "old", header: "Old", cell: (r) => <span title={storedAs(r.old_value, auditValueLabel(r.action, r.old_value))}>{auditValueLabel(r.action, r.old_value) ?? "Not recorded"}</span> },
+              { key: "new", header: "New", cell: (r) => <span title={storedAs(r.new_value, auditValueLabel(r.action, r.new_value))}>{auditValueLabel(r.action, r.new_value) ?? "Not recorded"}</span> },
+              { key: "reason", header: "Reason", cell: (r) => <span title={storedAs(r.reason, auditTextLabel(r.reason))}>{auditTextLabel(r.reason) ?? "Not recorded"}</span> },
+            ]} />
+          </div>
+          {list.length > AUDIT_GROUP_TOP ? (
+            <div className="mc-kpanel-foot mt-3">
+              <button
+                type="button"
+                className="mc-req-button is-secondary"
+                aria-expanded={expanded.has(acqId)}
+                onClick={() =>
+                  setExpanded((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(acqId)) next.delete(acqId);
+                    else next.add(acqId);
+                    return next;
+                  })
+                }
+              >
+                {expanded.has(acqId) ? `Show the latest ${AUDIT_GROUP_TOP}` : `Show all ${list.length} entries`}
+              </button>
+            </div>
+          ) : null}
         </section>
       ))}
     </AppShell>

@@ -14,6 +14,7 @@ import { LaunchCountdownCompact, countdownView } from "@/components/launch-count
 import { missionReadinessClass, type MissionReadiness } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { dayWord } from "@/lib/pluralize";
+import { phaseAlias } from "@/lib/phase-alias";
 
 export const Route = createFileRoute("/today")({
   head: () => ({
@@ -439,7 +440,7 @@ function TodayPage() {
                               {p.reviewer_role} · {p.reviewer_name ?? "not named"}
                             </span>
                             <span className="mc-today-meta" data-numeric>
-                              {p.phase} ·{" "}
+                              {p.phase ? phaseAlias(p.phase) : "Phase not recorded"} ·{" "}
                               {p.due_date
                                 ? late
                                   ? `due ${p.due_date}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`

@@ -136,7 +136,7 @@ export function ReadinessQueue({
                   >
                     <td className="p-2 font-medium text-primary">{id}</td>
                     <td className="p-2 text-foreground">{title}</td>
-                    <td className="p-2">{m.currentPhase ?? NR}</td>
+                    <td className="p-2">{m.currentPhaseLabel ?? NR}</td>
                     <td className="p-2">{isHold ? r.nextOwner : String(m.acq.co_name ?? "").trim() || r.nextOwner}</td>
                     <td className="p-2">
                       {r.targetAward ? formatDate(r.targetAward) : NR}

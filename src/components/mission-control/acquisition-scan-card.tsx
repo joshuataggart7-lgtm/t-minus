@@ -66,7 +66,7 @@ export function AcquisitionScanCard({
         <small>{view.pastTarget ? `${dayWord(view.days)} past target${view.badge && view.badge !== state ? ` · ${view.badge}` : ""}` : view.badge ?? view.caption}</small>
       </div>
       <div className="mc-strip-phase" data-label="Phase">
-        <strong title={metric.currentPhase ?? "Not started"}>{metric.currentPhase ?? "Not started"}</strong>
+        <strong title={metric.currentPhaseLabel ?? "Not started"}>{metric.currentPhaseLabel ?? "Not started"}</strong>
         <span className="mc-mini-lifecycle" aria-hidden="true">
           {phaseSegments.map((phase) => (
             <i key={phase.phase} className={cn(phase.status === "complete" && "is-complete", phase.status === "current" && "is-current")} />

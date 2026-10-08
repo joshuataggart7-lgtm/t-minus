@@ -4,6 +4,7 @@
 import { dateCT } from "@/lib/calendar-date";
 import { addDays, daysBetween, todayISO, type RefData } from "@/lib/intake";
 import {
+  phaseLabel,
   buildSequence,
   computeHold,
   docRowKey,
@@ -20,6 +21,7 @@ import {
   type ReviewRuleRow,
 } from "@/lib/launch-sequence";
 import { resolveHold } from "@/lib/hold";
+import { phaseAlias } from "@/lib/phase-alias";
 
 export type MissionRow = {
   mission_id: string;
@@ -44,6 +46,12 @@ export type AcqMetrics = {
   hold: { reason: string; owner: string; doc?: { phase: string; label: string } } | null;
   clockState: string;
   currentPhase: string | null;
+  /**
+   * The current phase as every screen shows it: the phase plan name (legacy
+   * stored names read through phaseAlias) or the phase's display label. Display
+   * only; logic keeps comparing currentPhase.
+   */
+  currentPhaseLabel: string | null;
   nextDecision: string;
   nextDecisionDate: string | null;
   daysToNextDecision: number | null;
@@ -346,6 +354,7 @@ export function computeMetrics(
     hold,
     clockState,
     currentPhase: current?.phase ?? (acq.current_phase ? String(acq.current_phase) : null),
+    currentPhaseLabel: current ? phaseLabel(current) : acq.current_phase ? String(phaseAlias(String(acq.current_phase))) : null,
     nextDecision,
     nextDecisionDate: nextDecisionDate ?? null,
     daysToNextDecision,

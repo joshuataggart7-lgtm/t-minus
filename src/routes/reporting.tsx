@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote } from "@/components/app-shell";
+import { DataTable, EmptyCell, McPageHeader } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
-import { MissionNavSection } from "@/components/mission-control/mission-navigator";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -91,7 +90,7 @@ function headerLabel(key: string): string {
 
 function displayCell(row: Record<string, unknown>, column: string) {
     if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
-      return row[column] === null || row[column] === undefined ? "—" : String(row[column]);
+      return row[column] === null || row[column] === undefined ? null : String(row[column]);
     }
     const acquisitionId = typeof row["acquisition_id"] === "string" ? row["acquisition_id"] : "";
     const display = operational.byId.get(acquisitionId);
@@ -99,125 +98,108 @@ function displayCell(row: Record<string, unknown>, column: string) {
     if (column === "current_phase") return display.phase;
     if (column === "clock_state") return display.clockMode;
     if (column === "on_hold") return display.readiness === "HOLD" ? "true" : "false";
-    if (column === "hold_reason") return display.holdReason ?? "—";
-    if (column === "hold_owner") return display.holdOwner ?? "—";
+    if (column === "hold_reason") return display.holdReason ?? null;
+    if (column === "hold_owner") return display.holdOwner ?? null;
     return display.readiness;
   }
 
+  const openView = REPORT_VIEWS.find((v) => v.view === open);
+
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Reporting views"
         lead="Read-only views of the record for agency reporting. Nothing here is editable. Every figure is computed from the record."
       />
 
-      <section className="mt-8">
-        <h2 className="text-[18px] leading-6 font-medium">Views</h2>
-        <TableScrollRegion className="mt-3" label="Report views table">
-        <table className="w-full border-collapse text-sm max-sm:block">
-          <thead className="max-sm:hidden">
-            <tr className="border-b border-border text-left text-muted-foreground">
-              <th scope="col" className="py-2 pr-4 font-medium">View</th>
-              <th scope="col" className="py-2 pr-4 font-medium">What it holds</th>
-              <th scope="col" className="py-2 pr-4 text-right font-medium">Rows</th>
-              <th scope="col" className="py-2 font-medium">Open</th>
-            </tr>
-          </thead>
-          <tbody className="max-sm:block">
-            {REPORT_VIEWS.map((v) => (
-              <tr key={v.view} className="border-b border-border align-top max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0">
-                <td data-label="View" className="py-2 pr-4 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.label}</td>
-                <td data-label="What it holds" className="py-2 pr-4 text-muted-foreground max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{v.note}</td>
-                <td data-label="Rows" className="py-2 pr-4 text-right tabular-nums max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:text-left max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{counts.data?.[v.view] ?? "—"}</td>
-                <td data-label="Open" className="py-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
-                  <button
-                    type="button"
-                    aria-pressed={open === v.view}
-                    className="rounded-lg border border-border px-3 py-1 text-primary"
-                    onClick={() => setOpen(v.view)}
-                  >
-                    Open
+      <div className="mc-pa-stack">
+        <section className="mc-kpanel" aria-label="Views">
+          <div className="mc-kpanel-head"><div>
+            <h2 className="mc-kpanel-title">Views</h2>
+            <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">Open a view to see its rows below and download them as CSV.</p>
+          </div></div>
+          <div className="mt-4">
+            <DataTable label="Report views table" rowKey={(v) => v.view} rows={[...REPORT_VIEWS]}
+              rowClassName={(v) => (open === v.view ? "is-selected" : undefined)}
+              columns={[
+                { key: "view", header: "View", rowHeader: true, cell: (v) => v.label },
+                { key: "note", header: "What it holds", cell: (v) => <span className="text-muted-foreground">{v.note}</span> },
+                { key: "rows", header: "Rows", numeric: true, cell: (v) => counts.data?.[v.view] === undefined ? <EmptyCell>{counts.isLoading ? "Counting" : "Not recorded"}</EmptyCell> : <span data-numeric>{counts.data[v.view]}</span> },
+                { key: "open", header: "Open", cell: (v) => (
+                  <button type="button" aria-pressed={open === v.view} className={open === v.view ? "mc-req-button" : "mc-req-button is-secondary"} onClick={() => setOpen(v.view)}>
+                    {open === v.view ? "Showing" : "Open"}
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </TableScrollRegion>
-        {operational.byId.size ? (
-          <p className="mt-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
-            The Executive Overview HOLD count also includes files blocked by a missing required item. That count is{" "}
-            <span data-numeric>{overviewHoldCount}</span> today.
-          </p>
-        ) : null}
-        {counts.isLoading ? <LoadingNote what="the view counts" /> : null}
-        {counts.error ? <ErrorNote message="The view counts could not be read. Refresh the page to try again." /> : null}
-      </section>
+                ) },
+              ]} />
+          </div>
+          {operational.byId.size ? (
+            <p className="mc-kpanel-foot mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+              The Executive Overview HOLD count also includes files blocked by a missing required item. That count is{" "}
+              <span data-numeric>{overviewHoldCount}</span> today.
+            </p>
+          ) : null}
+          {counts.isLoading ? <LoadingNote what="the view counts" /> : null}
+          {counts.error ? <ErrorNote message="The view counts could not be read. Refresh the page to try again." /> : null}
+        </section>
 
-      <section className="mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[18px] leading-6 font-medium">{REPORT_VIEWS.find((v) => v.view === open)?.label}</h2>
-          <button
-            type="button"
-            disabled={!preview.data || preview.data.length === 0}
-            className="rounded-lg border border-border px-3 py-1 text-primary disabled:cursor-not-allowed disabled:text-muted-foreground"
-            onClick={download}
-          >
-            Download CSV
-          </button>
-        </div>
-        {preview.isLoading ? <LoadingNote what="the view" /> : null}
-        {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
-        {preview.data && preview.data.length > 0 ? (
-          <MissionNavSection id="report-preview" label="Preview rows" collapsible defaultOpen summary={`${preview.data.length} rows`}>
-          {open === "v_report_acquisitions" ? (
-            <p className="mb-3 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">
+        <section className="mc-kpanel" aria-label="Preview rows">
+          <div className="mc-kpanel-head">
+            <div>
+              <h2 className="mc-kpanel-title">{openView?.label}</h2>
+              <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground" data-numeric>
+                {preview.data ? `${preview.data.length} ${preview.data.length === 1 ? "row" : "rows"} shown, up to 200.` : "Loading the rows."}
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={!preview.data || preview.data.length === 0}
+              className="mc-req-button is-secondary"
+              onClick={download}
+            >
+              Download CSV
+            </button>
+          </div>
+          {preview.isLoading ? <LoadingNote what="the view" /> : null}
+          {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
+          {open === "v_report_acquisitions" && preview.data?.length ? (
+            <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
               Phase, clock, status and hold on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
             </p>
           ) : null}
-          <TableScrollRegion label="Preview rows table, scrolls horizontally">
-            <table className="w-full border-collapse text-[13px] leading-[18px]">
-              <thead>
-                <tr className="border-b border-border text-left text-muted-foreground">
-                  {cols.map((c) => (
-                    <th key={c} scope="col" className="min-w-[8ch] whitespace-normal py-2 pr-4 align-bottom font-medium">
-                      {headerLabel(c)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {preview.data.map((r, i) => (
-                  <tr key={i} className="border-b border-border">
-                    {cols.map((c) => (
-                      <td key={c} className="max-w-[32ch] truncate whitespace-nowrap py-2 pr-4 tabular-nums" title={String(displayCell(r, c) ?? "")}>
-                        {displayCell(r, c)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TableScrollRegion>
-          </MissionNavSection>
-        ) : null}
-        {!preview.isLoading && !preview.error && preview.data && preview.data.length === 0 ? (
-          <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
-            This view holds no rows yet, so there is nothing to show or download.
-          </p>
-        ) : null}
-      </section>
-
-      <MissionNavSection id="report-extract" label="Nightly extract" collapsible summary="Delivery details">
-        <section className="min-w-0">
-        <p className="max-w-[70ch] break-words text-muted-foreground">
-          A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
-          Power BI reads a view directly at{" "}
-          <code className="break-all rounded bg-muted px-1 font-mono text-[13px]">/api/public/hooks/reporting-extract?view=v_report_acquisitions</code>, with the
-          extract token supplied by HQ.
-        </p>
+          {preview.data ? (
+            <div className="mt-4">
+              <DataTable
+                label="Preview rows table, scrolls horizontally"
+                stackOnMobile={false}
+                maxHeight="70vh"
+                rowKey={(_, i) => String(i)}
+                rows={preview.data}
+                empty={<p className="text-muted-foreground">This view holds no rows yet, so there is nothing to show or download.</p>}
+                columns={cols.map((c) => ({
+                  key: c,
+                  header: headerLabel(c),
+                  nowrap: true,
+                  cell: (r: Record<string, unknown>) => {
+                    const shown = displayCell(r, c);
+                    return shown === null ? <EmptyCell /> : <span className="block max-w-[32ch] truncate tabular-nums" title={shown}>{shown}</span>;
+                  },
+                }))}
+              />
+            </div>
+          ) : null}
         </section>
-      </MissionNavSection>
+
+        <section className="mc-kpanel" aria-label="Nightly extract">
+          <h2 className="mc-kpanel-title">Nightly extract</h2>
+          <p className="mt-2 max-w-[70ch] break-words text-[15px] leading-[22px] text-muted-foreground">
+            A scheduled job writes one CSV extract of each view every night and records the row counts in the audit log.
+            Power BI reads a view directly at{" "}
+            <code className="break-all rounded bg-muted px-1 font-mono text-[13px]">/api/public/hooks/reporting-extract?view=v_report_acquisitions</code>, with the
+            extract token supplied by HQ.
+          </p>
+        </section>
+      </div>
     </AppShell>
   );
 }

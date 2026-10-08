@@ -10,29 +10,27 @@ import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
 import { dayWord } from "@/lib/pluralize";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
-import { LEGACY_REVIEW_PHASE } from "@/lib/phase-alias";
+import { phaseLabel } from "@/lib/launch-sequence";
+import { executiveBlocker } from "@/lib/executive-wording";
 
 const NR = "Not recorded";
 const list = (items: string[]) => (items.length ? <ul>{items.map((i) => <li key={i}>{i}</li>)}</ul> : <span>None recorded</span>);
 const READINESS_WORD: Record<string, string> = { READY: "Ready", ATTENTION: "Needs attention", BLOCKED: "Blocked" };
 const evidenceOf = (m: AcqMetrics) => (m as AcqMetrics & { phaseEvidence?: PhaseEvidence[] }).phaseEvidence;
 
-const LIFECYCLE = [
-  // Step names follow the file page's phase names; each step groups the phases listed.
-  { label: "Intake", phases: ["Intake"] },
-  { label: "Market Research", phases: ["Market Research"] },
-  { label: "Competition", phases: ["JOFOC", "Fair Opportunity"] },
-  { label: "Solicitation", phases: ["Synopsis", "Solicitation/Quote"] },
-  { label: "Evaluation", phases: ["Technical Evaluation"] },
-  { label: "Price and responsibility", phases: ["Price Reasonableness", "Responsibility Check"] },
-  { label: "Reviews", phases: ["Reviews and approvals", "Go/No-go Poll"] },
-  { label: "Award", phases: ["Award", "FPDS-NG Report"] },
-  { label: "Administration", phases: ["Administration"] },
-  { label: "Closeout", phases: ["Closeout"] },
-] as const;
+type Step = { label: string; phases: string[] };
 
-function stageIndex(metric: AcqMetrics) {
-  return LIFECYCLE.findIndex((stage) => stage.phases.some((phase) => phase === metric.currentPhase));
+/**
+ * The featured file's steps are the file's own phases, named exactly as the
+ * file page phase row names them (phaseLabel over the phase plan names). No
+ * grouping and no Executive-only names.
+ */
+function stepsFor(metric: AcqMetrics): Step[] {
+  return metric.phases.map((phase) => ({ label: phaseLabel(phase), phases: [phase.phase] }));
+}
+
+function stageIndex(metric: AcqMetrics, steps: Step[]) {
+  return steps.findIndex((stage) => stage.phases.some((phase) => phase === metric.currentPhase));
 }
 
 const FEATURED_DEFAULT_ID = "A-2027-0101";
@@ -60,34 +58,35 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
 
   useEffect(() => setDetailExpanded(false), [selectedStage]);
 
+  const steps = useMemo(() => (metric ? stepsFor(metric) : []), [metric]);
   const evidence = useMemo(() => {
     if (!metric) return null;
-    const index = selectedStage ?? Math.max(0, stageIndex(metric));
-    const stage = LIFECYCLE[index];
+    const index = selectedStage ?? Math.max(0, stageIndex(metric, steps));
+    const stage = steps[index];
     if (!stage) return null;
     const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
-    const summary = summarizeGate(metric, stage.phases, evidenceOf(metric), index === stageIndex(metric));
+    const summary = summarizeGate(metric, stage.phases, evidenceOf(metric), index === stageIndex(metric, steps));
     return { index, stage, phases, summary };
-  }, [metric, selectedStage]);
+  }, [metric, steps, selectedStage]);
 
   if (!metric) return null;
   const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
   const view = overviewCountdownView(metric);
   const state = missionControlState(metric);
-  const activeIndex = stageIndex(metric);
-  const nextIndex = activeIndex < 0 ? 0 : Math.min(activeIndex + 1, LIFECYCLE.length - 1);
+  const activeIndex = stageIndex(metric, steps);
+  const nextIndex = activeIndex < 0 ? 0 : Math.min(activeIndex + 1, steps.length - 1);
   const title = String(metric.acq.title ?? "").trim() || "Untitled acquisition";
   const consequence = metric.hold
-    ? `${metric.hold.reason} · owner: ${metric.hold.owner}`
+    ? `${executiveBlocker(metric.hold.reason)} · owner: ${metric.hold.owner}`
     : metric.blocker !== "None"
-      ? metric.blocker
+      ? executiveBlocker(metric.blocker)
       : metric.nextAction;
   const selectedPrimaryBlocker = evidence?.summary.blocking[0]?.trim() || NR;
   const administrationRule = metric.awardDate
     ? NR
     : "Administration opens only after the award step clears and the actual award is recorded.";
-  const upcomingGate = evidence && evidence.index < LIFECYCLE.length - 1
-    ? LIFECYCLE[evidence.index + 1]?.label ?? NR
+  const upcomingGate = evidence && evidence.index < steps.length - 1
+    ? steps[evidence.index + 1]?.label ?? NR
     : NR;
 
   return (
@@ -133,12 +132,12 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       </div>
 
       {(() => {
-        const currentGate = summarizeGate(metric, LIFECYCLE[activeIndex]?.phases ?? [], evidenceOf(metric), true);
+        const currentGate = summarizeGate(metric, steps[activeIndex]?.phases ?? [], evidenceOf(metric), true);
         const value = metric.acq.estimated_value;
         const valueText = value === null || value === undefined || value === "" ? NR : Number(value).toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
         const org = String((metric.acq as Record<string, unknown>)["requester_org_code"] ?? "").trim();
         const target = metric.acq.target_award_date ? String(metric.acq.target_award_date) : null;
-        const blocker = metric.hold ? metric.hold.reason : metric.blocker && metric.blocker !== "None" ? metric.blocker : "None recorded";
+        const blocker = metric.hold ? executiveBlocker(metric.hold.reason) : metric.blocker && metric.blocker !== "None" ? executiveBlocker(metric.blocker) : "None recorded";
         const owner = metric.blockerOwner?.trim() || String(metric.acq.co_name ?? "").trim() || NR;
         const days = metric.awardDate ? null : metric.daysToAward;
         // With no target date the big clock counts to the forecast; say so here
@@ -162,7 +161,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           : NR;
         const ordered = metric.phases;
         const currentAt = ordered.findIndex((phase) => phase.phase === metric.currentPhase);
-        const nextPhase = currentAt >= 0 ? ordered.slice(currentAt + 1).find((phase) => phase.status !== "complete")?.phase : undefined;
+        const nextPhaseRow = currentAt >= 0 ? ordered.slice(currentAt + 1).find((phase) => phase.status !== "complete") : undefined;
+        const nextPhase = nextPhaseRow ? phaseLabel(nextPhaseRow) : undefined;
         return (
           <>
             <div className="mc-critical-path" aria-label="Critical path">
@@ -178,8 +178,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               <div><dt>Requesting org</dt><dd>{org || NR}</dd></div>
               <div><dt>Est. value</dt><dd data-numeric>{valueText}</dd></div>
               <div><dt>Acquisition method</dt><dd>{methodDisplayLabel(String(metric.acq.acquisition_method ?? "").trim()) || NR}</dd></div>
-              <div><dt>Current phase</dt><dd>{metric.currentPhase || NR}</dd></div>
-              <div><dt>Next phase</dt><dd>{metric.awardDate ? (nextPhase ?? "None ahead") : (nextPhase ?? (activeIndex >= 0 && activeIndex < LIFECYCLE.length - 1 ? LIFECYCLE[nextIndex]!.label : NR))}</dd></div>
+              <div><dt>Current phase</dt><dd>{metric.currentPhaseLabel || NR}</dd></div>
+              <div><dt>Next phase</dt><dd>{metric.awardDate ? (nextPhase ?? "None ahead") : (nextPhase ?? (activeIndex >= 0 && activeIndex < steps.length - 1 ? steps[nextIndex]!.label : NR))}</dd></div>
               <div><dt>Evidence status</dt><dd data-numeric>{evidenceText}</dd></div>
             </dl>
           </>
@@ -193,8 +193,9 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         <span><i className="is-projected" />Projected</span>
       </div>
 
-      <div className="mc-featured-track" role="list" aria-label={`${title} lifecycle`}>
-        {LIFECYCLE.map((stage, index) => {
+      {steps.length === 0 ? <p className="mc-exception-empty">No phase plan for this file.</p> : null}
+      <div className="mc-featured-track" role="list" aria-label={`${title} phases`} style={{ ["--n" as string]: String(Math.max(1, steps.length)) }}>
+        {steps.map((stage, index) => {
           const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
           const complete = phases.length > 0 && phases.every((phase) => phase.status === "complete");
           const current = index === activeIndex;
@@ -219,7 +220,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
                 <span className={cn("mc-gate-readiness", `is-${gate.readiness.toLowerCase()}`)}>{gate.readiness}</span>
               ) : null}
               {tipStage === index ? (
-                <span className="mc-gate-tip"><b>{`Includes ${stage.phases.filter((name) => name !== LEGACY_REVIEW_PHASE).join(", ")}`}</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => `${phase.phase}: ${phase.status}`).join("; ") : "Not on this file's path"}</span>
+                <span className="mc-gate-tip"><b>{`Phase ${index + 1} of ${steps.length}`}</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join("; ") : "Not on this file's path"}</span>
               ) : null}
             </Button>
           );
