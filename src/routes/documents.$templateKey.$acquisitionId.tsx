@@ -1436,15 +1436,18 @@ function DocumentPage() {
     // field the record can fill is ever opened empty.
     const draft = draftMemoBody(def.key, { ...draftCtx, acq: q.data.acq, values: filled });
     if (def.key === "market-research-memo") {
+      // The order of priority starts with existing governmentwide contracts.
+      const governmentwideFirst =
+        "Existing governmentwide contracts are checked first: whether a commercial product or commercial service on an existing governmentwide contract can meet the requirement (RFO FAR 10.001(f)(1)).";
       const savedCommerciality = [...q.data.fileDocRows]
         .reverse()
         .find((row) => /commerciality determination/i.test(row.templates?.name ?? ""));
       if (savedCommerciality?.field_values && typeof savedCommerciality.field_values === "object") {
         const savedValues = savedCommerciality.field_values as Record<string, unknown>;
         const determination = String(savedValues["determination"] ?? savedValues["commercial_determination"] ?? "").trim();
-        if (determination) draft["commercial"] = determination;
+        if (determination) draft["commercial"] = `${determination} ${governmentwideFirst}`;
       } else {
-        draft["commercial"] = "A commerciality determination will be recorded before solicitation.";
+        draft["commercial"] = `A commerciality determination will be recorded before solicitation. ${governmentwideFirst}`;
       }
     }
     const drafted = applyMemoDraft(filled, draft);

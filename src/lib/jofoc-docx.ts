@@ -288,9 +288,10 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   let authority10Line = "";
   let authority41Line = "";
   if (is41 && !is10) {
-    // Commercial sole source prints exactly one statute — whichever the record
-    // carries (1901 or 1903). Never both statutes, and never a 10 U.S.C. stem.
-    const statuteNumber = /41\s*U\.?\s*S\.?\s*C\.?\s*1903/i.test(authority) ? "1903" : "1901";
+    // Commercial sole source prints the statute the record carries: 41 U.S.C.
+    // 1901, or 1901 and 1903 for an acquisition described at RFO FAR 12.001(c)
+    // (RFO FAR 12.102(b), Table 12-1). Never a 10 U.S.C. stem.
+    const statuteNumber = /1903/.test(authority) ? (/1901/.test(authority) ? "1901 and 1903" : "1903") : "1901";
     const remainder = authority
       .replace(/41\s*U\.?\s*S\.?\s*C\.?\s*190[13](\s*(?:or|and|\/)\s*(?:41\s*U\.?\s*S\.?\s*C\.?\s*)?190[13])?/gi, "")
       .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")

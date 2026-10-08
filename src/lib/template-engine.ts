@@ -337,9 +337,9 @@ const jofoc: TemplateDef = {
             "10 U.S.C. 3204(a)(6) as implemented by RFO FAR 6.103-6 (national security)",
             "10 U.S.C. 3204(a)(7) as implemented by RFO FAR 6.103-7 (public interest)",
             "41 U.S.C. 1901 (RFO FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
-            "41 U.S.C. 1903 (RFO FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
+            "41 U.S.C. 1901 and 1903 (RFO FAR 12.102 procedures, acquisition described at RFO FAR 12.001(c); only one responsible source basis under RFO FAR 6.103-1)",
           ],
-          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1, or, on a commercial simplified file under RFO FAR 12.201-1, the 41 U.S.C. 1901 or 1903 option that names that basis. Item 5 must then document the only-one-responsible-source rationale.",
+          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1, or, on a commercial simplified file under RFO FAR 12.201-1, the 41 U.S.C. 1901 option, or the 41 U.S.C. 1901 and 1903 option for an acquisition described at RFO FAR 12.001(c) (RFO FAR 12.102(b), Table 12-1). Item 5 must then document the only-one-responsible-source rationale.",
           helpFor: (v) =>
             (v["action_type"] ?? "").startsWith("Sole-source") &&
             (v["authority"] ?? "") !== "" &&
@@ -1054,7 +1054,7 @@ const commerciality: TemplateDef = {
             "Commercial product (RFO FAR 2.101 'commercial product')",
             "Commercial service (RFO FAR 2.101 'commercial service')",
             "Commercially available off-the-shelf item (RFO FAR 2.101 'COTS')",
-            "Service offered and sold competitively at catalog or market prices (RFO FAR 2.101(6))",
+            "Service offered and sold competitively at catalog or market prices (RFO FAR 2.101 'commercial service' (2))",
             "Not commercial",
           ],
         },
@@ -2033,7 +2033,7 @@ const marketResearchMemo: TemplateDef = {
   name: "Market Research Memorandum",
   tab: "N/A",
   badge: {
-    citation: "RFO FAR Part 10; NFS 1810",
+    citation: "RFO FAR 10.001; NFS CG 1810.12",
     tier: "binding",
     revision: "T-Minus form; issued on NF 1858",
     note: "Issued on NASA Form 1858 (Rev 12/24) electronic letterhead.",
@@ -2830,8 +2830,8 @@ export function matchAuthorityOption(stored: string, options: string[]): string 
     );
     if (hit) return hit;
   }
-  if (/41 U\.S\.C\. 1903/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1903"));
-  if (/41 U\.S\.C\. 1901/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1901"));
+  if (/1903/.test(text) && /41 U\.S\.C\./.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1901 and 1903"));
+  if (/41 U\.S\.C\. 1901/.test(text)) return options.find((o) => o.startsWith("41 U.S.C. 1901 ("));
   return undefined;
 }
 
