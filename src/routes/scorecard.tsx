@@ -5,13 +5,13 @@ import { getPublicScorecard, VALUE_FLOOR, CELL_FLOOR } from "@/lib/scorecard.fun
 export const Route = createFileRoute("/scorecard")({
   head: () => ({
     meta: [
-      { title: "Acquisition scorecard — T-Minus prototype" },
+      { title: "Acquisition scorecard · T-Minus prototype" },
       {
         name: "description",
         content:
           "Aggregate acquisition figures from the T-Minus prototype: median days to award, competition rate, small business share, holds by reason.",
       },
-      { property: "og:title", content: "Acquisition scorecard — T-Minus prototype" },
+      { property: "og:title", content: "Acquisition scorecard · T-Minus prototype" },
       {
         property: "og:description",
         content: "Aggregate figures only, from fictional prototype data. No file, vendor, or dollar detail.",

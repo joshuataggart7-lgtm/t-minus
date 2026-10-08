@@ -24,12 +24,12 @@ const SAMPLE_IDS = ["A-2027-0101", "A-2027-0102"];
 export const Route = createFileRoute("/requester")({
   head: () => ({
     meta: [
-      { title: "Requester portal — T-Minus" },
+      { title: "Requester portal · T-Minus" },
       {
         name: "description",
         content: "Your requests: what you owe, how long the file has been waiting, and what happens next.",
       },
-      { property: "og:title", content: "Requester portal — T-Minus" },
+      { property: "og:title", content: "Requester portal · T-Minus" },
       {
         property: "og:description",
         content: "Your requests: what you owe, how long the file has been waiting, and what happens next.",

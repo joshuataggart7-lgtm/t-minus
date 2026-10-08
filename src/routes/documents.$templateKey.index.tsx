@@ -10,9 +10,9 @@ import { DefectReport } from "@/components/defect-report";
 export const Route = createFileRoute("/documents/$templateKey/")({
   head: () => ({
     meta: [
-      { title: "Choose an acquisition — T-Minus" },
+      { title: "Choose an acquisition · T-Minus" },
       { name: "description", content: "Pick the acquisition this template should be filled from." },
-      { property: "og:title", content: "Choose an acquisition — T-Minus" },
+      { property: "og:title", content: "Choose an acquisition · T-Minus" },
       { property: "og:description", content: "Pick the acquisition this template should be filled from." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -23,9 +23,9 @@ import {
 export const Route = createFileRoute("/deviations_/$deviationId")({
   head: () => ({
     meta: [
-      { title: "Deviation request — T-Minus" },
+      { title: "Deviation request · T-Minus" },
       { name: "description", content: "A FAR or NFS deviation request with its review board, its clock and its decision." },
-      { property: "og:title", content: "Deviation request — T-Minus" },
+      { property: "og:title", content: "Deviation request · T-Minus" },
       { property: "og:description", content: "Legal, policy and HCA Approve or Disapprove on one deviation request." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -202,10 +202,9 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           const future = index > activeIndex;
           const gate = summarizeGate(metric, stage.phases, evidenceOf(metric), current);
           return (
-            <Button
+            <button
               key={stage.label}
               type="button"
-              variant="ghost"
               className={cn("mc-featured-gate", complete && "is-complete", current && "is-current", future && "is-future", index === nextIndex && "is-next", current && state === "HOLD" && "is-hold")}
               aria-pressed={evidence?.index === index}
               onClick={() => setSelectedStage(index)}
@@ -214,15 +213,17 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               onMouseEnter={() => setTipStage(index)}
               onMouseLeave={() => setTipStage(null)}
             >
-              <span className="mc-gate-node" aria-hidden="true" />
+              <span className="mc-gate-rail" aria-hidden="true"><span className="mc-gate-node" /></span>
               <span className="mc-gate-label">{stage.label}</span>
               {gate.status !== "not on path" && !future ? (
                 <span className={cn("mc-gate-readiness", `is-${gate.readiness.toLowerCase()}`)}>{gate.readiness}</span>
-              ) : null}
+              ) : (
+                <span className="mc-gate-readiness" />
+              )}
               {tipStage === index ? (
                 <span className="mc-gate-tip"><b>{`Phase ${index + 1} of ${steps.length}`}</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join("; ") : "Not on this file's path"}</span>
               ) : null}
-            </Button>
+            </button>
           );
         })}
       </div>
@@ -235,16 +236,15 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               <h3>{evidence.stage.label}</h3>
               <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
             </div>
-            <Button
+            <button
               type="button"
-              variant="outline"
-              size="sm"
+              className="mc-req-button is-secondary"
               aria-expanded={detailExpanded}
               aria-controls="selected-gate-forensic-detail"
               onClick={() => setDetailExpanded((value) => !value)}
             >
               {detailExpanded ? "Hide the evidence detail" : "Show the evidence detail"}
-            </Button>
+            </button>
           </div>
 
           <GateGlance aria-label={`${evidence.stage.label} leadership scan`}>

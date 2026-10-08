@@ -18,12 +18,12 @@ import { TableScrollRegion } from "@/components/table-scroll-region";
 export const Route = createFileRoute("/center-config")({
   head: () => ({
     meta: [
-      { title: "Center configuration — T-Minus" },
+      { title: "Center configuration · T-Minus" },
       {
         name: "description",
         content: "Per-Center overrides of threshold values and review rule triggers, each with an effective date.",
       },
-      { property: "og:title", content: "Center configuration — T-Minus" },
+      { property: "og:title", content: "Center configuration · T-Minus" },
       {
         property: "og:description",
         content: "HQ and Center procurement officers set threshold and review trigger values by Center.",

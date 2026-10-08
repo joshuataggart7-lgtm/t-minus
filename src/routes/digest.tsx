@@ -20,13 +20,13 @@ import { executiveBlocker } from "@/lib/executive-wording";
 export const Route = createFileRoute("/digest")({
   head: () => ({
     meta: [
-      { title: "Leadership digest — T-Minus" },
+      { title: "Leadership digest · T-Minus" },
       {
         name: "description",
         content:
           "The week in one page: launched this week, at risk, aging holds, holds by reason by Center, and days returned to missions.",
       },
-      { property: "og:title", content: "Leadership digest — T-Minus" },
+      { property: "og:title", content: "Leadership digest · T-Minus" },
       {
         property: "og:description",
         content: "A weekly digest computed from the record, exportable to PDF and postable as an announcement.",
@@ -214,7 +214,7 @@ function DigestPage() {
           </div>
 
           <section className="mc-kpanel mt-6">
-            <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">At risk <span data-numeric>{digest.atRisk.length}</span></h2></div></div>
+            <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">At risk: <span data-numeric>{digest.atRisk.length}</span></h2></div></div>
             <div className="mt-4">
               <DataTable label="Files at risk" empty={<p className="text-muted-foreground">No file is at risk this week.</p>}
                 rowKey={(r) => r.id} rows={digest.atRisk.slice(0, 5)} columns={[

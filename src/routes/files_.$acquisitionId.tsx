@@ -243,12 +243,12 @@ const PACKET_PHASES: readonly string[] = [
 export const Route = createFileRoute("/files_/$acquisitionId")({
   head: () => ({
     meta: [
-      { title: "Acquisition file — T-Minus" },
+      { title: "Acquisition file · T-Minus" },
       {
         name: "description",
         content: "The clock line, the launch sequence, the reviews and approvals, and the thresholds for one acquisition.",
       },
-      { property: "og:title", content: "Acquisition file — T-Minus" },
+      { property: "og:title", content: "Acquisition file · T-Minus" },
       {
         property: "og:description",
         content: "Clock line, launch sequence, reviews and approvals, and thresholds for one acquisition.",
@@ -4234,13 +4234,19 @@ function FilePage() {
                   </div>
 
                   <p className="mc-pa-text mt-3">
-                    Records retention date{" "}
-                    <span data-numeric>{retention.date ?? "not computed"}</span>
-                    <span className="ml-2 text-muted-foreground">
-                      {retention.years === null
-                        ? "No retention row is loaded in thresholds."
-                        : `${retention.years} years from the ${retention.fromLabel} (${retention.from ?? "no date"}). ${retention.citation ?? ""}`}
-                    </span>
+                    {retention.years === null ? (
+                      "No retention period is loaded."
+                    ) : retention.fromLabel === "final payment" && retention.date ? (
+                      <>
+                        Records are kept for <span data-numeric>{retention.years} years</span> after final payment. The retention date is <span data-numeric>{retention.date}</span>.{" "}
+                        <CiteChip cite="RFO FAR 4.309" />
+                      </>
+                    ) : (
+                      <>
+                        Records are kept for <span data-numeric>{retention.years} years</span> after final payment. Final payment is not recorded, so the retention date is not computed.{" "}
+                        <CiteChip cite="RFO FAR 4.309" />
+                      </>
+                    )}
                   </p>
 
                   <h5 className="mc-req-h mt-4">Closeout Transfer Checklist</h5>

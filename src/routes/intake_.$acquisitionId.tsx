@@ -15,12 +15,12 @@ import { isPostAward, owedRows } from "@/lib/requester-owed";
 export const Route = createFileRoute("/intake_/$acquisitionId")({
   head: () => ({
     meta: [
-      { title: "Request submitted — T-Minus" },
+      { title: "Request submitted · T-Minus" },
       {
         name: "description",
         content: "What the request is expected to take: planned days to award, the phases, and the contracting hours behind it.",
       },
-      { property: "og:title", content: "Request submitted — T-Minus" },
+      { property: "og:title", content: "Request submitted · T-Minus" },
       {
         property: "og:description",
         content: "Planned days to award, the phases the request passes through, and the contracting hours behind it.",

@@ -15,9 +15,9 @@ import {
 export const Route = createFileRoute("/pgpd-queue")({
   head: () => ({
     meta: [
-      { title: "PGPD queue — T-Minus" },
+      { title: "PGPD queue · T-Minus" },
       { name: "description", content: "Template defects reported from the forms, for HQ to work with PGPD." },
-      { property: "og:title", content: "PGPD queue — T-Minus" },
+      { property: "og:title", content: "PGPD queue · T-Minus" },
       { property: "og:description", content: "Reported template defects, their citation, revision, and status." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

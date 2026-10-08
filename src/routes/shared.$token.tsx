@@ -6,9 +6,9 @@ import { TEMPLATES, renderDocument, type Values } from "@/lib/template-engine";
 export const Route = createFileRoute("/shared/$token")({
   head: () => ({
     meta: [
-      { title: "Shared document — T-Minus" },
+      { title: "Shared document · T-Minus" },
       { name: "description", content: "A single read-only acquisition document shared for a limited time." },
-      { property: "og:title", content: "Shared document — T-Minus" },
+      { property: "og:title", content: "Shared document · T-Minus" },
       { property: "og:description", content: "One read-only document, shared for seven days." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -28,11 +28,32 @@ export function auditPhaseLabel(phase: string | null | undefined): string | null
 }
 
 /** Free text (reason, values): the old phase name and "poll votes" read in today's words. */
+/** A fetch that came back as a raw error page reads as one sentence. */
+function plainSourceFailure(text: string): string | null {
+  const decoded = text
+    .replace(/&#(\d+);/g, (_, n: string) => String.fromCharCode(Number(n)))
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&amp;/gi, "&");
+  const looksLikeMarkup = /<[a-z!/]/i.test(decoded);
+  if (/gao\.gov/i.test(decoded) && (/403/.test(decoded) || /access denied/i.test(decoded))) {
+    return "GAO did not return data (access denied).";
+  }
+  if (looksLikeMarkup && /403|access denied/i.test(decoded)) {
+    return "The source did not return data (access denied).";
+  }
+  if (looksLikeMarkup) return "The source returned a page instead of a record.";
+  return null;
+}
+
 export function auditTextLabel(text: string | null | undefined): string | null {
   if (text == null) return null;
+  const plain = plainSourceFailure(text);
+  if (plain) return plain;
   return text
     .replace(LEGACY_PHASE_TEXT, REVIEW_PHASE)
     .replace(/\bpoll votes\b/gi, "review decisions")
+    .replace(/\bORBIT Power BI\b/g, "Power BI")
     // Read receipts written before plain labels named the route.
     .replace(/\bfrom the (reviewer-inbox|document-route|form-route)\b/g, (_m, src: string) =>
       `from the ${src === "reviewer-inbox" ? "reviewer inbox" : src === "document-route" ? "document page" : "form page"}`,
@@ -55,6 +76,12 @@ export function auditValueLabel(action: string | null | undefined, value: string
 const FIELD_RELABEL: Record<string, string> = {
   polls: "reviews",
   poll: "review",
+  watch_items: "Watch items",
+  v_report_polls: "Polls report",
+  v_report_acquisitions: "Acquisitions report",
+  v_report_holds: "Holds report",
+  v_report_missions: "Missions report",
+  v_report_audit_counts: "Audit counts report",
 };
 
 /** The field column: an internal table name reads in today's words. */

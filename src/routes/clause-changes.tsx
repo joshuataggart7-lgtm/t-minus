@@ -24,13 +24,13 @@ import {
 export const Route = createFileRoute("/clause-changes")({
   head: () => ({
     meta: [
-      { title: "Clause change impact — T-Minus" },
+      { title: "Clause change impact · T-Minus" },
       {
         name: "description",
         content:
           "Every launched or active contract touched by a clause change, its deadline, its mod task, and the SF 30 handoff packet.",
       },
-      { property: "og:title", content: "Clause change impact — T-Minus" },
+      { property: "og:title", content: "Clause change impact · T-Minus" },
       {
         property: "og:description",
         content: "Contracts affected by a clause change, sorted by months of performance remaining.",

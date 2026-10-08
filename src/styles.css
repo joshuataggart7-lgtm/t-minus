@@ -702,9 +702,12 @@
 }
 
 @utility mc-featured-flight {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--mc-line);
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 1.25rem 1.5rem 1.5rem;
 }
 
 @utility mc-featured-heading {
@@ -736,11 +739,12 @@
 
 @utility mc-featured-summary {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 36rem) auto auto;
+  justify-content: start;
   align-items: center;
-  gap: 2rem;
-  margin-top: 1.75rem;
-  padding: 1.75rem 0 2rem;
+  gap: 1rem 2rem;
+  margin-top: 1rem;
+  padding: 0.25rem 0 1rem;
   & h3 {
     color: var(--mc-foreground);
     font-size: 27px;
@@ -828,18 +832,7 @@
   line-height: 1.25;
   white-space: normal;
   text-align: center;
-  &::before {
-    position: absolute;
-    top: 4px;
-    left: 50%;
-    right: -50%;
-    height: 1px;
-    content: "";
-    background: var(--mc-line);
-  }
-  &.is-complete::before {
-    background: var(--accent-cyan);
-  }
+  &::before { content: none; }
   &.is-current {
     color: var(--mc-foreground);
     font-weight: 600;
@@ -2396,14 +2389,15 @@
 }
 @media (min-width: 640px) and (max-width: 1023.98px) {
   .mc-featured-track { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 1rem; }
-  .mc-featured-track > .mc-featured-gate:nth-child(5n)::before { right: 50%; }
+  .mc-featured-track > .mc-featured-gate:nth-child(5n) .mc-gate-rail::before { display: none; }
 }
 @media (max-width: 639.98px) {
   .mc-featured-track { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 0.75rem 0 0.5rem; }
   .mc-featured-track > .mc-featured-gate { flex-direction: row; align-items: center; justify-content: flex-start; gap: 0.6rem; min-height: 1.75rem; padding: 0.3rem 0; text-align: left; }
-  .mc-featured-track > .mc-featured-gate::before { top: 50%; left: 6px; right: auto; width: 1px; height: 100%; }
-  .mc-featured-track > .mc-featured-gate:last-child::before { display: none; }
-  .mc-featured-track > .mc-featured-gate > .mc-gate-node { flex: none; margin: 0 0 0 2px; }
+  .mc-featured-track > .mc-featured-gate .mc-gate-rail { width: 16px; height: 100%; flex: none; }
+  .mc-featured-track > .mc-featured-gate .mc-gate-rail::before { top: 50%; left: 50%; right: auto; width: 2px; height: 100%; }
+  .mc-featured-track > .mc-featured-gate:last-child .mc-gate-rail::before { display: none; }
+  .mc-featured-track > .mc-featured-gate > .mc-gate-rail .mc-gate-node { margin: 0; }
   .mc-featured-track > .mc-featured-gate.is-current > .mc-gate-node { margin-left: 0; }
   .mc-featured-track > .mc-featured-gate > .mc-gate-label { flex: 1 1 auto; width: auto; max-width: none; min-width: 0; min-height: 0; text-align: left; }
   .mc-featured-track > .mc-featured-gate > .mc-gate-readiness { flex: none; margin: 0 0 0 auto; }
@@ -3361,3 +3355,45 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-decision-file a { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .mc-decision-file span, .mc-decision-detail { color: var(--foreground); font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
 @media (max-width: 900px) { .mc-decision-list li { grid-template-columns: minmax(0, 1fr); } }
+
+/* Featured file reads on the cream card, the same surface as the oversight pages. */
+.mc-featured-flight .mc-heading,
+.mc-featured-flight h3,
+.mc-featured-flight .mc-featured-clock strong,
+.mc-featured-flight .mc-critical-path strong,
+.mc-featured-flight .mc-featured-facts dd,
+.mc-featured-flight .mc-gate-glance dd,
+.mc-featured-flight .mc-gate-glance h3 { color: var(--foreground); }
+.mc-featured-flight .mc-label,
+.mc-featured-flight .mc-featured-summary p,
+.mc-featured-flight .mc-featured-clock span,
+.mc-featured-flight .mc-flight-select span,
+.mc-featured-flight .mc-gate-glance dt,
+.mc-featured-flight .mc-critical-path span { color: var(--mc-meta-ink); }
+.mc-featured-flight .mc-featured-id { color: var(--primary) !important; }
+.mc-featured-flight .mc-featured-clock strong { color: var(--primary); }
+.mc-featured-flight .mc-flight-select select { background: var(--background); color: var(--foreground); border-color: var(--border); }
+.mc-featured-flight .mc-featured-facts,
+.mc-featured-flight .mc-critical-path,
+.mc-featured-flight .mc-gate-glance { border-color: var(--border); }
+.mc-featured-flight .mc-featured-gate { color: var(--mc-meta-ink); }
+.mc-featured-flight .mc-featured-gate.is-current { color: var(--foreground); }
+.mc-gate-rail { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: 16px; }
+.mc-gate-rail::before { content: ""; position: absolute; top: 50%; left: 50%; right: -50%; height: 2px; background: var(--border); transform: translateY(-50%); z-index: 0; }
+.mc-featured-gate.is-complete .mc-gate-rail::before { background: var(--primary); }
+.mc-featured-gate:last-child .mc-gate-rail::before { display: none; }
+.mc-featured-flight .mc-gate-node { background: var(--background); border-color: var(--mc-meta-ink); }
+.mc-featured-flight .mc-featured-gate.is-complete .mc-gate-node { background: var(--primary); border-color: var(--primary); }
+.mc-featured-flight .mc-featured-gate { gap: 0.2rem; overflow: hidden; }
+.mc-featured-flight .mc-gate-label { width: 100%; max-width: 100%; margin-top: 0.3rem; color: inherit; font-size: 10px; line-height: 1.25; letter-spacing: 0; text-align: center; overflow-wrap: break-word; }
+.mc-featured-flight .mc-gate-readiness { width: 100%; margin-top: 0.2rem; text-align: center; }
+/* Outline buttons on the navy band inherited white text onto a white fill. */
+.mc-command-field .mc-req-button.is-secondary { background: #fff; color: var(--primary); border-color: var(--primary); }
+.mc-featured-flight .mc-req-button.is-secondary { background: var(--background); color: var(--primary); }
+.mc-command-field .mc-exception-sub,
+.mc-command-field .mc-model-note p { color: var(--mc-muted); }
+.mc-anomaly-data strong { overflow: visible; text-overflow: unset; white-space: normal; }
+.mc-strip-next strong, .mc-strip-mission h3, .mc-strip-mission p, .mc-strip-phase strong { overflow: visible; text-overflow: unset; white-space: normal; }
+.mc-exception-table { min-width: 0; }
+.mc-exception-table th, .mc-exception-table td { white-space: normal; }
+.mc-watch-summary { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }

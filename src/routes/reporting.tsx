@@ -11,12 +11,12 @@ import { useOperationalDisplay } from "@/components/mission-control/use-operatio
 export const Route = createFileRoute("/reporting")({
   head: () => ({
     meta: [
-      { title: "Reporting views — T-Minus" },
+      { title: "Reporting views · T-Minus" },
       {
         name: "description",
         content: "Read-only reporting views of missions, acquisitions, holds, polls, and audit counts for ORBIT.",
       },
-      { property: "og:title", content: "Reporting views — T-Minus" },
+      { property: "og:title", content: "Reporting views · T-Minus" },
       {
         property: "og:description",
         content: "Missions, acquisitions with computed metrics, holds, polls, and audit counts, with a CSV extract.",
@@ -84,6 +84,22 @@ function ReportingPage() {
   const cols = preview.data?.[0] ? Object.keys(preview.data[0]) : [];
   /** Display only: "branch_name" reads "Branch name". The CSV keeps the raw column keys. */
 function headerLabel(key: string): string {
+  const plain: Record<string, string> = {
+    center_code: "Center",
+    branch_code: "Branch",
+    mission_id: "Mission",
+    acquisition_id: "Acquisition",
+    poll_id: "Review",
+    current_phase: "Phase",
+    clock_state: "Clock",
+    status_word: "Status",
+    hold_reason: "Hold reason",
+    hold_owner: "Hold owner",
+    on_hold: "On hold",
+    target_award_date: "Target award",
+    forecast_award_date: "Forecast award",
+  };
+  if (plain[key]) return plain[key];
   const words = key.replace(/_/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
@@ -179,10 +195,10 @@ function displayCell(row: Record<string, unknown>, column: string) {
                 columns={cols.map((c) => ({
                   key: c,
                   header: headerLabel(c),
-                  nowrap: true,
+                  nowrap: false,
                   cell: (r: Record<string, unknown>) => {
                     const shown = displayCell(r, c);
-                    return shown === null ? <EmptyCell /> : <span className="block max-w-[32ch] truncate tabular-nums" title={shown}>{shown}</span>;
+                    return shown === null ? <EmptyCell /> : <span className="block max-w-[36ch] tabular-nums" title={shown}>{shown}</span>;
                   },
                 }))}
               />

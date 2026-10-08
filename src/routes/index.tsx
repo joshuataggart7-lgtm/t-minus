@@ -5,7 +5,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
 import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { DataTable, StatusChip } from "@/components/ui-mc";
-import { executiveBlocker } from "@/lib/executive-wording";
+import { executiveBlocker, recordedPaceLabel } from "@/lib/executive-wording";
+import { countdownText, countdownView } from "@/components/launch-countdown";
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,20 +50,19 @@ import { AttentionSeverityList } from "@/components/mission-control/attention-se
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
-import { dayWord } from "@/lib/pluralize";
 import { isUnfavorableVote } from "@/lib/review-decisions";
 import { auditActionLabel } from "@/lib/audit-display";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Executive Overview — T-Minus" },
+      { title: "Executive Overview · T-Minus" },
       {
         name: "description",
         content:
           "T-Minus turns acquisition time into mission readiness: phase, next decision, days to award, and the blocker for every priority project.",
       },
-      { property: "og:title", content: "Executive Overview — T-Minus" },
+      { property: "og:title", content: "Executive Overview · T-Minus" },
       {
         property: "og:description",
         content: "Mission readiness, next decision, and days to award for every priority project.",
@@ -487,14 +487,19 @@ function ClockBoard({
   );
 
   const leadByPhase = useMemo(() => {
-    const map = new Map<string, { planned: number; actual: number; n: number }>();
+    const map = new Map<string, { completeN: number; completePlanned: number; completeActual: number; openN: number; openActual: number }>();
     for (const m of metrics) {
       for (const p of m.phases) {
         if (p.actual_days === null) continue;
-        const row = map.get(p.phase) ?? { planned: 0, actual: 0, n: 0 };
-        row.planned += p.planned_days;
-        row.actual += p.actual_days;
-        row.n += 1;
+        const row = map.get(p.phase) ?? { completeN: 0, completePlanned: 0, completeActual: 0, openN: 0, openActual: 0 };
+        if (p.status === "complete") {
+          row.completeN += 1;
+          row.completePlanned += p.planned_days;
+          row.completeActual += p.actual_days;
+        } else {
+          row.openN += 1;
+          row.openActual += p.actual_days;
+        }
         map.set(p.phase, row);
       }
     }
@@ -566,8 +571,11 @@ function ClockBoard({
               { key: "id", header: "Acquisition", rowHeader: true, cell: ({ m }) => <Link to="/files/$acquisitionId" params={{ acquisitionId: m.acq.acquisition_id }}>{m.acq.acquisition_id}</Link> },
               { key: "reason", header: "Reason", cell: ({ m }) => executiveBlocker(m.hold?.reason ?? String(m.acq.hold_reason ?? "Not recorded")) },
               { key: "owner", header: "Responsible role", cell: ({ m }) => m.blockerOwner ?? String(m.acq.hold_owner ?? "Not recorded") },
-              { key: "days", header: "Days on hold", numeric: true, cell: ({ m, days }) => <span data-numeric>{m.blockerSince ? days : "Start not recorded"}</span> },
+              ...(longestHolds.some(({ m }) => m.blockerSince) ? [{ key: "days", header: "Days on hold", numeric: true, cell: ({ m, days }: { m: AcqMetrics; days: number }) => <span data-numeric>{days}</span> }] : []),
             ]} />
+          {longestHolds.length && !longestHolds.some(({ m }) => m.blockerSince) ? (
+            <p className="mc-kpanel-foot mt-3 text-[15px] leading-[22px] text-muted-foreground">The day each hold started is not on the record, so days on hold are not shown.</p>
+          ) : null}
         </div>
       </section>
 
@@ -577,10 +585,8 @@ function ClockBoard({
           <DataTable label="Lead time by phase against the phase plan" empty={<p className="text-muted-foreground">No phase has recorded time yet.</p>}
             rowKey={([phase]) => phase} rows={leadByPhase} columns={[
               { key: "phase", header: "Phase", rowHeader: true, cell: ([phase]) => phase },
-              { key: "n", header: "Files measured", numeric: true, cell: ([, r]) => <span data-numeric>{r.n}</span> },
-              { key: "planned", header: "Planned days", numeric: true, cell: ([, r]) => <span data-numeric>{r.planned}</span> },
-              { key: "actual", header: "Actual days", numeric: true, cell: ([, r]) => <span data-numeric>{r.actual}</span> },
-              { key: "delta", header: "Against plan", numeric: true, cell: ([, r]) => { const delta = r.planned - r.actual; return <span data-numeric>{delta === 0 ? "On plan" : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}</span>; } },
+              { key: "n", header: "Files measured", numeric: true, cell: ([, r]) => <span data-numeric>{r.completeN + r.openN}</span> },
+              { key: "reading", header: "What the days measure", cell: ([, r]) => recordedPaceLabel(r) },
             ]} />
         </div>
       </section>
@@ -673,7 +679,7 @@ function EnterpriseTab({
     <div>
       <h2 className="text-[18px] leading-6 font-medium">Enterprise</h2>
       <p className="mt-1 max-w-[80ch] text-muted-foreground">
-        The ORBIT prototype with fictional data. Its workforce tabs are unchanged. Executive
+        A prototype view with fictional data. Its workforce tabs are unchanged. Executive
         summary, project status, and recurring actions read live from T-Minus.
       </p>
 
@@ -711,13 +717,8 @@ function EnterpriseTab({
               {sample ? (
                 <>
                   {" "}
-                  Status: {sample.status}. Phase: {sample.currentPhase}.{" "}
-                  {sample.daysToAward !== null && sample.daysToAward >= 0
-                    ? `${sample.daysToAward} ${dayWord(sample.daysToAward)} to award.`
-                    : sample.daysToAward !== null && sample.daysToAward < 0
-                      ? `${Math.abs(sample.daysToAward)} ${dayWord(Math.abs(sample.daysToAward))} past target.`
-
-                      : "Clock not started."}
+                  Status: {sample.status}. Phase: {sample.currentPhaseLabel ?? sample.currentPhase}.{" "}
+                  {countdownText(countdownView(sample))}.
                   {sample.blocker ? ` Blocker: ${sample.blocker}.` : ""}
                 </>
               ) : (
@@ -735,7 +736,7 @@ function EnterpriseTab({
 
       <iframe
         ref={frame}
-        title="ORBIT prototype"
+        title="Enterprise prototype"
         src="/orbit-prototype.html"
         className="mt-6 h-[1200px] w-full rounded-lg border border-border bg-background"
       />

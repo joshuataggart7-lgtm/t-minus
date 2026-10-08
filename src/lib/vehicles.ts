@@ -154,7 +154,7 @@ export function modTypeInfo(type: string) {
 }
 
 /** Printed when the instrument clause cannot be read from the record. */
-export const AUTHORITY_PENDING = "authority from record / RFO-pending";
+export const AUTHORITY_PENDING = "not confirmed on this file yet";
 
 /** A commercial file carries RFO FAR 52.212-4 Changes, not the 52.243 series. */
 export function isCommercialInstrument(acq: Record<string, unknown> | null | undefined): boolean {

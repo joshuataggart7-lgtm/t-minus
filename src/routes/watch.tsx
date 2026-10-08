@@ -23,12 +23,12 @@ import {
 export const Route = createFileRoute("/watch")({
   head: () => ({
     meta: [
-      { title: "Watch — T-Minus" },
+      { title: "Watch · T-Minus" },
       {
         name: "description",
         content: "GAO bid protest decisions, Federal Register documents, class deviations, and OP notices.",
       },
-      { property: "og:title", content: "Watch — T-Minus" },
+      { property: "og:title", content: "Watch · T-Minus" },
       {
         property: "og:description",
         content: "GAO decisions, Federal Register documents, class deviations, and OP notices, newest first.",
@@ -252,7 +252,7 @@ function FeedRow({ item }: { item: FeedItem }) {
       </div>
       <p className="mt-2 text-[16px] leading-[23px] font-medium text-foreground">{item.title}</p>
       {item.summary && item.summary !== item.title && !item.title.endsWith(item.summary) ? (
-        <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">{item.summary}</p>
+        <p className="mc-watch-summary mt-1 text-[15px] leading-[22px] text-muted-foreground" title={item.summary}>{item.summary}</p>
       ) : null}
       <p className="mt-2 text-[14px]">
         {item.url ? (
