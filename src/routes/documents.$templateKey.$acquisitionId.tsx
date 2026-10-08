@@ -4,6 +4,7 @@ import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, deci
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { pollOptions } from "@/lib/poll";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
@@ -391,8 +392,8 @@ function DocumentPage() {
   const q = useQuery({
     queryKey: ["document-context", templateKey, acquisitionId],
     enabled: authState === "signed-in" && !!def,
-    // Votes and comments from other reviewers appear without a reload.
-    refetchInterval: 5000,
+    // Votes and comments from other reviewers appear without a reload (cadence in lib/poll.ts).
+    ...pollOptions,
     queryFn: async () => {
       const [acq, thr, tpl, polls, rules, users, watchRows, refs, routing, approvals, fileDocs] = await Promise.all([
         supabase.from("acquisition_facts").select("*").eq("acquisition_id", acquisitionId).maybeSingle(),

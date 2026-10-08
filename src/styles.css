@@ -2382,3 +2382,126 @@
 @media (max-width: 639.98px) {
   .mc-featured-track > .mc-featured-gate.is-current > .mc-gate-node { margin-right: -2px; }
 }
+
+/* ------------------------------------------------------------------
+   Design kit (Batch 0). One type scale and the shared page pieces in
+   src/components/ui-mc. Later batches adopt these page by page.
+   Scale: display 46/52, title 24/30, heading 18/24, body 15/22 (table
+   cells too), meta 13/18, label 11/14 uppercase.
+   ------------------------------------------------------------------ */
+@utility type-display {
+  font-size: 46px;
+  line-height: 52px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-title {
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 600;
+}
+@utility type-heading {
+  font-size: 18px;
+  line-height: 24px;
+}
+@utility type-body {
+  font-size: 15px;
+  line-height: 22px;
+}
+@utility type-meta {
+  font-size: 13px;
+  line-height: 18px;
+}
+@utility type-label {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* Page header: navy rule, optional eyebrow and scope, the page h1, a lead, actions. */
+.mc-page-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+.mc-page-header-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 1.5rem; }
+.mc-page-header-rule { display: block; width: 2.5rem; height: 3px; margin-bottom: 0.75rem; border-radius: 2px; background: var(--primary); }
+.mc-page-header-eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin-bottom: 0.375rem; color: var(--muted-foreground); }
+.mc-page-header-title { color: var(--foreground); font-size: 24px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em; }
+.mc-page-header-lead { max-width: 70ch; margin-top: 0.5rem; color: var(--muted-foreground); font-size: 15px; line-height: 22px; }
+.mc-page-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.mc-page-header-scope { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; padding: 0 0.5rem; color: var(--foreground); font-size: 11px; line-height: 18px; font-weight: 600; letter-spacing: 0.04em; text-transform: none; }
+
+/* Status chip: a colored mark plus the word in the text color (never color alone). */
+.mc-chip { --chip-tone: var(--muted-foreground); display: inline-flex; align-items: center; gap: 0.4rem; max-width: 100%; border: 1px solid color-mix(in oklab, var(--chip-tone) 35%, transparent); border-radius: 999px; background: color-mix(in oklab, var(--chip-tone) 8%, transparent); padding: 0.0625rem 0.55rem 0.0625rem 0.45rem; color: var(--foreground); font-size: 13px; line-height: 18px; font-weight: 500; white-space: nowrap; }
+.mc-chip-mark { display: inline-block; flex-shrink: 0; width: 0.5rem; height: 0.5rem; border-radius: 2px; background: var(--chip-tone); }
+.mc-chip.is-ontrack { --chip-tone: var(--ontrack); }
+.mc-chip.is-attention { --chip-tone: var(--attention); }
+.mc-chip.is-atrisk { --chip-tone: var(--atrisk); }
+.mc-chip.is-launched { --chip-tone: var(--primary); }
+.mc-chip.is-info { --chip-tone: var(--primary); }
+.mc-chip.is-neutral { --chip-tone: var(--muted-foreground); }
+.mc-chip.on-dark { color: var(--mc-foreground); }
+.mc-chip.on-dark.is-ontrack { --chip-tone: var(--mc-readiness-go); }
+.mc-chip.on-dark.is-attention { --chip-tone: var(--mc-readiness-watch); }
+.mc-chip.on-dark.is-atrisk { --chip-tone: var(--mc-readiness-hold); }
+.mc-chip.on-dark.is-launched, .mc-chip.on-dark.is-info { --chip-tone: var(--mc-readiness-launched); }
+.mc-chip.on-dark.is-neutral { --chip-tone: var(--mc-muted); }
+
+/* Shared data table: body type in cells, label type in the head, sticky head when height is capped. */
+.mc-dt-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: var(--mc-radius-control); background: var(--card); }
+.mc-dt-scroll { overflow: auto; }
+.mc-dt { width: 100%; border-collapse: separate; border-spacing: 0; color: var(--foreground); font-size: 15px; line-height: 22px; }
+.mc-dt thead th { position: sticky; top: 0; z-index: 1; border-bottom: 1px solid var(--border); background: var(--card); padding: 0.625rem 0.875rem; color: var(--muted-foreground); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.12em; text-align: left; text-transform: uppercase; vertical-align: bottom; }
+.mc-dt tbody td, .mc-dt tbody th { border-bottom: 1px solid var(--border); padding: 0.625rem 0.875rem; height: 44px; text-align: left; vertical-align: top; font-weight: 400; }
+.mc-dt tbody tr:last-child > * { border-bottom: 0; }
+.mc-dt tbody tr { transition: background-color 150ms; }
+.mc-dt tbody tr:hover { background: color-mix(in oklab, var(--primary) 4%, transparent); }
+.mc-dt .is-numeric { text-align: right; font-variant-numeric: tabular-nums; }
+.mc-dt .is-nowrap { white-space: nowrap; }
+.mc-dt a { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+.mc-dt a:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; border-radius: 2px; }
+.mc-dt-empty-cell { color: var(--muted-foreground); }
+.mc-dt-empty { border: 1px dashed var(--border); border-radius: var(--mc-radius-control); padding: 1.25rem; }
+@media (max-width: 639px) {
+  .mc-dt-wrap.stack { border: 0; background: transparent; overflow: visible; }
+  .mc-dt.stack, .mc-dt.stack tbody, .mc-dt.stack tr, .mc-dt.stack td, .mc-dt.stack tbody th { display: block; width: 100%; }
+  .mc-dt.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mc-dt.stack tbody tr { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: var(--mc-radius-control); background: var(--card); padding: 0.375rem 0; }
+  .mc-dt.stack tbody tr:last-child > * { border-bottom: 0; }
+  .mc-dt.stack tbody td, .mc-dt.stack tbody th { display: grid; grid-template-columns: minmax(7rem, 38%) minmax(0, 1fr); justify-items: start; align-items: start; gap: 0.75rem; height: auto; border-bottom: 0; padding: 0.375rem 0.875rem; text-align: left; }
+  .mc-dt.stack tbody td::before, .mc-dt.stack tbody th::before { content: attr(data-label); color: var(--muted-foreground); font-size: 11px; line-height: 22px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+}
+
+/* Main column plus a right-side details panel. Side by side from 1280px; stacked below otherwise. */
+.mc-with-details { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+.mc-details-panel { display: grid; align-content: start; gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+@media (min-width: 1280px) {
+  .mc-with-details { grid-template-columns: minmax(0, 1fr) 18rem; }
+  .mc-details-panel { position: sticky; top: 5rem; border-top: 0; border-left: 1px solid var(--border); padding-top: 0; padding-left: 1.5rem; }
+}
+.mc-details-section > h2 { margin-bottom: 0.5rem; color: var(--muted-foreground); font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.mc-details-list { display: grid; gap: 0.5rem; }
+.mc-details-list > div { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+.mc-details-list > div:last-child { border-bottom: 0; padding-bottom: 0; }
+.mc-details-list dt { color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-details-list dd { color: var(--foreground); font-size: 15px; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Cite chip: the citation as written; opening it shows only regulation text held on file. */
+.mc-cite-chip { display: inline; border: 0; border-bottom: 1px dashed color-mix(in oklab, var(--primary) 55%, transparent); background: transparent; padding: 0; color: var(--primary); font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.mc-cite-chip:hover { border-bottom-style: solid; }
+.mc-cite-chip:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; border-radius: 2px; }
+.mc-cite-chip.is-practice { color: var(--foreground); border-bottom-color: var(--border); }
+.mc-cite-pop { width: min(34rem, calc(100vw - 2rem)); max-height: min(28rem, 70vh); overflow-y: auto; border-radius: var(--mc-radius-dialog); padding: 1rem 1.125rem; font-size: 13px; line-height: 18px; }
+.mc-cite-pop h3 { color: var(--foreground); font-size: 15px; line-height: 22px; font-weight: 600; }
+.mc-cite-pop .mc-cite-part + .mc-cite-part { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+.mc-cite-pop .mc-cite-text { margin-top: 0.5rem; display: grid; gap: 0.375rem; color: var(--foreground); font-size: 13px; line-height: 20px; }
+.mc-cite-pop .mc-cite-text p[data-level="1"] { padding-left: 0; }
+.mc-cite-pop .mc-cite-text p[data-level="2"] { padding-left: 1rem; }
+.mc-cite-pop .mc-cite-text p[data-level="3"] { padding-left: 2rem; }
+.mc-cite-pop .mc-cite-text p[data-level="4"] { padding-left: 3rem; }
+.mc-cite-pop .mc-cite-note { margin-top: 0.5rem; color: var(--muted-foreground); }
+.mc-cite-pop .mc-cite-source { margin-top: 0.75rem; color: var(--muted-foreground); font-size: 11px; line-height: 16px; }
+@media print {
+  .mc-dt-wrap { overflow: visible !important; border: 0; }
+  .mc-details-panel { position: static; border: 0; padding: 0; }
+  .mc-dt thead th { position: static; }
+}
