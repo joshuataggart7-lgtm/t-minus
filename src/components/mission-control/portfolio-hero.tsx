@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { AcqMetrics, MissionRow } from "@/lib/metrics";
-import { ExecutiveExceptions } from "./executive-exceptions";
+import { ExecutiveExceptions, LeadershipDecisions } from "./executive-exceptions";
 import { ReadinessQueue } from "./readiness-queue";
 import type { MissionControlState } from "./mission-status-board";
 import { AcquisitionScanCard } from "./acquisition-scan-card";
@@ -8,7 +8,7 @@ import { MissionStatusBoard } from "./mission-status-board";
 import { MissionTrajectory } from "./mission-trajectory";
 import { NovaProvenance } from "./nova-provenance";
 import { StateContractPanel } from "./state-contract";
-import { MissionStripTable, ProvenanceChip } from "./primitives";
+import { MissionStripTable } from "./primitives";
 
 type LatestEvent = { action: string; loggedAt: string };
 
@@ -36,8 +36,9 @@ export function PortfolioHero({
         <div className="mc-command-beacon" aria-hidden="true" />
         <div className="relative z-10">
         <MissionStatusBoard metrics={counted} excluded={scrubbedCount} active={filter} onSelect={setFilter} />
-        <MissionTrajectory metrics={metrics} missions={missions} />
+          <LeadershipDecisions metrics={metrics} />
           <ExecutiveExceptions metrics={metrics} />
+        <MissionTrajectory metrics={metrics} missions={missions} />
           <NovaProvenance />
         </div>
       </div>
@@ -52,7 +53,7 @@ export function PortfolioHero({
           </div>
           <div className="hidden items-center gap-2 text-[12px] text-muted-foreground sm:flex">
             <span className="mc-live-marker" aria-hidden="true" />
-            Record-derived portfolio scan
+            Read from the record
           </div>
         </div>
         {filter ? (
@@ -82,8 +83,7 @@ export function PortfolioHero({
           ))}
         </MissionStripTable>
         <p className="mc-scan-consistency">
-          <ProvenanceChip kind="RULE" light />
-          The same recorded facts drive this scan, the file countdown and executive exceptions.
+          This scan, the file countdown and the attention list above all read the same recorded facts.
         </p>
       </div>
     </section>

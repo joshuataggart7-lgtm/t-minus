@@ -10,18 +10,21 @@ import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
 import { dayWord } from "@/lib/pluralize";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
+import { LEGACY_REVIEW_PHASE } from "@/lib/phase-alias";
 
 const NR = "Not recorded";
 const list = (items: string[]) => (items.length ? <ul>{items.map((i) => <li key={i}>{i}</li>)}</ul> : <span>None recorded</span>);
+const READINESS_WORD: Record<string, string> = { READY: "Ready", ATTENTION: "Needs attention", BLOCKED: "Blocked" };
 const evidenceOf = (m: AcqMetrics) => (m as AcqMetrics & { phaseEvidence?: PhaseEvidence[] }).phaseEvidence;
 
 const LIFECYCLE = [
-  { label: "Requirement / Intake", phases: ["Intake"] },
+  // Step names follow the file page's phase names; each step groups the phases listed.
+  { label: "Intake", phases: ["Intake"] },
   { label: "Market Research", phases: ["Market Research"] },
-  { label: "Strategy", phases: ["JOFOC", "Fair Opportunity"] },
+  { label: "Competition", phases: ["JOFOC", "Fair Opportunity"] },
   { label: "Solicitation", phases: ["Synopsis", "Solicitation/Quote"] },
   { label: "Evaluation", phases: ["Technical Evaluation"] },
-  { label: "Negotiation", phases: ["Price Reasonableness", "Responsibility Check"] },
+  { label: "Price and responsibility", phases: ["Price Reasonableness", "Responsibility Check"] },
   { label: "Reviews", phases: ["Reviews and approvals", "Go/No-go Poll"] },
   { label: "Award", phases: ["Award", "FPDS-NG Report"] },
   { label: "Administration", phases: ["Administration"] },
@@ -82,7 +85,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
   const selectedPrimaryBlocker = evidence?.summary.blocking[0]?.trim() || NR;
   const administrationRule = metric.awardDate
     ? NR
-    : "Administration remains unavailable until Award clears and an actual award is recorded.";
+    : "Administration opens only after the award step clears and the actual award is recorded.";
   const upcomingGate = evidence && evidence.index < LIFECYCLE.length - 1
     ? LIFECYCLE[evidence.index + 1]?.label ?? NR
     : NR;
@@ -91,15 +94,15 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
     <section className="mc-featured-flight" aria-labelledby="trajectory-heading">
       <div className="mc-featured-heading">
         <div>
-          <p className="mc-label">Featured mission trajectory</p>
-          <h2 id="trajectory-heading" className="mc-heading">Portfolio flight path</h2>
+          <p className="mc-label">One file up close</p>
+          <h2 id="trajectory-heading" className="mc-heading">Featured file: where it stands</h2>
         </div>
         <label className="mc-flight-select">
-          <span>Featured acquisition</span>
+          <span>Choose a file to feature</span>
           <select value={metric.acq.acquisition_id} onChange={(event) => setSelectedId(event.target.value)}>
             {metrics.map((item) => {
               const itemMission = missions.find((row) => row.mission_id === item.acq.mission_id);
-              return <option key={item.acq.acquisition_id} value={item.acq.acquisition_id}>{`${item.acq.acquisition_id} — ${String(item.acq.title ?? "").trim() || "Untitled acquisition"}${itemMission?.name ? ` (${itemMission.name})` : ""}`}</option>;
+              return <option key={item.acq.acquisition_id} value={item.acq.acquisition_id}>{`${item.acq.acquisition_id}: ${String(item.acq.title ?? "").trim() || "Untitled acquisition"}${itemMission?.name ? ` (${itemMission.name})` : ""}`}</option>;
             })}
           </select>
         </label>
@@ -129,11 +132,6 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         </div>
       </div>
 
-      <p className="mc-identity-assurance">
-        <ProvenanceChip kind="FACT" />
-        Identity match: ID, title, mission, value, method, gates and clock are read from this acquisition record.
-      </p>
-
       {(() => {
         const currentGate = summarizeGate(metric, LIFECYCLE[activeIndex]?.phases ?? [], evidenceOf(metric), true);
         const value = metric.acq.estimated_value;
@@ -150,12 +148,21 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
           : days !== null
             ? days < 0 ? `${Math.abs(days)} overdue` : String(days)
             : view.mode === "forecast" && view.days !== null
-              ? view.pastTarget ? `${view.days} overdue (forecast)` : `${view.days} (forecast)`
+              ? view.pastTarget ? `${view.days} past the forecast award` : `${view.days} to the forecast award`
               : NR;
+        // With no target date the clock runs to the forecast, so the target row
+        // says "Not set" and points at the forecast instead of a bare "Not recorded".
+        const targetText = target ? formatDate(target) : view.mode === "forecast" ? "Not set; counting to the forecast" : "Not set";
         const untracked = Math.max(0, currentGate.required.length - currentGate.completed.length - currentGate.missing.length);
+        const readinessWord = READINESS_WORD[currentGate.readiness] ?? currentGate.readiness;
         const evidenceText = currentGate.required.length
-          ? `${currentGate.completed.length} of ${currentGate.required.length} recorded${untracked ? ` · ${untracked} not tracked yet` : ""} · ${currentGate.readiness}${untracked ? " (recorded rows)" : ""}`
+          ? untracked
+            ? `${currentGate.completed.length} of ${currentGate.required.length} recorded; ${untracked} not tracked in T-Minus yet. ${readinessWord} on what is recorded.`
+            : `${currentGate.completed.length} of ${currentGate.required.length} recorded. ${readinessWord}.`
           : NR;
+        const ordered = metric.phases;
+        const currentAt = ordered.findIndex((phase) => phase.phase === metric.currentPhase);
+        const nextPhase = currentAt >= 0 ? ordered.slice(currentAt + 1).find((phase) => phase.status !== "complete")?.phase : undefined;
         return (
           <>
             <div className="mc-critical-path" aria-label="Critical path">
@@ -163,7 +170,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               <p><span>Next step</span><strong>{metric.nextDecision?.trim() || NR}</strong></p>
               <p><span>Blocker</span><strong>{blocker}</strong></p>
               <p><span>Owner</span><strong>{owner}</strong></p>
-              <p><span>Target award</span><strong data-numeric>{target ? formatDate(target) : NR}</strong></p>
+              <p><span>Target award</span><strong data-numeric>{targetText}</strong></p>
               <p><span>Days remaining</span><strong data-numeric>{daysText}</strong></p>
             </div>
             <dl className="mc-featured-facts">
@@ -171,8 +178,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               <div><dt>Requesting org</dt><dd>{org || NR}</dd></div>
               <div><dt>Est. value</dt><dd data-numeric>{valueText}</dd></div>
               <div><dt>Acquisition method</dt><dd>{methodDisplayLabel(String(metric.acq.acquisition_method ?? "").trim()) || NR}</dd></div>
-              <div><dt>Current gate</dt><dd>{LIFECYCLE[activeIndex]?.label ? `${LIFECYCLE[activeIndex]!.label}${metric.currentPhase ? ` · ${metric.currentPhase}` : ""}` : (metric.currentPhase || NR)}</dd></div>
-              <div><dt>Next gate</dt><dd>{activeIndex >= 0 && activeIndex < LIFECYCLE.length - 1 ? LIFECYCLE[nextIndex]!.label : NR}</dd></div>
+              <div><dt>Current phase</dt><dd>{metric.currentPhase || NR}</dd></div>
+              <div><dt>Next phase</dt><dd>{metric.awardDate ? (nextPhase ?? "None ahead") : (nextPhase ?? (activeIndex >= 0 && activeIndex < LIFECYCLE.length - 1 ? LIFECYCLE[nextIndex]!.label : NR))}</dd></div>
               <div><dt>Evidence status</dt><dd data-numeric>{evidenceText}</dd></div>
             </dl>
           </>
@@ -208,11 +215,11 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             >
               <span className="mc-gate-node" aria-hidden="true" />
               <span className="mc-gate-label">{stage.label}</span>
-              {gate.status !== "not on path" ? (
+              {gate.status !== "not on path" && !future ? (
                 <span className={cn("mc-gate-readiness", `is-${gate.readiness.toLowerCase()}`)}>{gate.readiness}</span>
               ) : null}
               {tipStage === index ? (
-                <span className="mc-gate-tip"><b>Preview</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => phase.status).join(" · ") : "No recorded phase evidence"}</span>
+                <span className="mc-gate-tip"><b>{`Includes ${stage.phases.filter((name) => name !== LEGACY_REVIEW_PHASE).join(", ")}`}</b>{current ? consequence : index === nextIndex ? metric.nextAction : phases.length ? phases.map((phase) => `${phase.phase}: ${phase.status}`).join("; ") : "Not on this file's path"}</span>
               ) : null}
             </Button>
           );
@@ -223,7 +230,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
         <GateDisclosureShell blocked={state === "HOLD" && evidence.index === activeIndex}>
           <div className="mc-gate-glance-heading">
             <div>
-              <p className="mc-label">Selected gate</p>
+              <p className="mc-label">Selected step</p>
               <h3>{evidence.stage.label}</h3>
               <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
             </div>
@@ -235,16 +242,16 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
               aria-controls="selected-gate-forensic-detail"
               onClick={() => setDetailExpanded((value) => !value)}
             >
-              {detailExpanded ? "Collapse detail" : "Expand audit detail"}
+              {detailExpanded ? "Hide the evidence detail" : "Show the evidence detail"}
             </Button>
           </div>
 
           <GateGlance aria-label={`${evidence.stage.label} leadership scan`}>
-            <div><dt>Gate readiness</dt><dd className={cn("mc-gate-readiness", `is-${evidence.summary.readiness.toLowerCase()}`)}>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</dd></div>
+            <div><dt>Step readiness</dt><dd className={cn("mc-gate-readiness", `is-${evidence.summary.readiness.toLowerCase()}`)}>{evidence.summary.status === "not on path" ? "Not on this path" : evidence.summary.readiness}</dd></div>
             <div><dt>Evidence completeness</dt><dd data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length}</dd></div>
             <div><dt>Approvals</dt><dd data-numeric>{evidence.summary.approvalsObtained.length} of {evidence.summary.approvalsRequired.length}</dd></div>
-            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="FACT" /> Primary blocker</dt><dd>{selectedPrimaryBlocker}</dd></div>
-            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="RULE" /> Downstream consequence</dt><dd>{administrationRule}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="FACT" /> Primary blocker</dt><dd>{selectedPrimaryBlocker === NR ? "None recorded" : selectedPrimaryBlocker}</dd></div>
+            <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="RULE" /> What this holds back</dt><dd>{administrationRule === NR ? "Nothing; the award is recorded" : administrationRule}</dd></div>
             <div className="mc-gate-glance-wide"><dt><ProvenanceChip kind="FACT" /> Next action</dt><dd>{evidence.summary.nextAction}</dd></div>
             <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
           </GateGlance>
@@ -253,8 +260,8 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             <div id="selected-gate-forensic-detail" className="mc-gate-forensic">
               <div className="mc-gate-forensic-heading">
                 <div>
-                  <p className="mc-label">Audit detail</p>
-                  <h3>Recorded gate evidence</h3>
+                  <p className="mc-label">Evidence detail</p>
+                  <h3>What the record shows for this step</h3>
                 </div>
                 <Button asChild size="lg" className={cn(state === "HOLD" && "mc-hold-cta")}>
                   <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }}>
@@ -270,7 +277,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
                 <div><dt>Responsible role</dt><dd>{evidence.summary.responsibleRole}</dd></div>
                 <div><dt>Approvals required</dt><dd>{list(evidence.summary.approvalsRequired)}</dd></div>
                 <div><dt>Evidence completeness</dt><dd data-numeric>{evidence.summary.completed.length} of {evidence.summary.required.length}</dd></div>
-                <div><dt>Upcoming gate</dt><dd>{upcomingGate}</dd></div>
+                <div><dt>Next step</dt><dd>{upcomingGate}</dd></div>
                 <div><dt>Required evidence</dt><dd>{list(evidence.summary.required)}</dd></div>
                 <div><dt>Completed evidence</dt><dd>{list(evidence.summary.completed)}</dd></div>
                 <div><dt>Outstanding evidence</dt><dd>{list(evidence.summary.missing)}</dd></div>

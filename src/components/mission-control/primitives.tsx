@@ -20,9 +20,30 @@ export function MissionReadinessChip({ state, className }: { state: MissionReadi
   return <span className={cn("mc-state", missionReadinessClass(state, "mc-state"), className)}>{state}</span>;
 }
 
+/** Plain-language source note behind the small info mark beside a figure. */
+export const PROVENANCE_NOTE: Record<ProvenanceKind, string> = {
+  FACT: "Read straight from the acquisition record.",
+  RULE: "Worked out by a T-Minus rule from the recorded facts.",
+  INFERENCE: "Inferred from recorded facts and the loaded rules.",
+  DRAFT: "Proposed text that a person has to review.",
+};
+
 export function ProvenanceChip({ kind, light = false, markerOnly = false }: { kind: ProvenanceKind; light?: boolean; markerOnly?: boolean }) {
   if (markerOnly) return <span aria-hidden="true" />;
-  return <span className={cn("mc-recon-chip", light && "is-light")}>{kind}</span>;
+  // An info mark, not a FACT/RULE word on every line. The note shows on hover
+  // and on keyboard focus, and screen readers hear it.
+  return (
+    <span
+      className={cn("mc-recon-chip", light && "is-light")}
+      role="note"
+      tabIndex={0}
+      aria-label={`Source: ${PROVENANCE_NOTE[kind]}`}
+      data-tip={PROVENANCE_NOTE[kind]}
+      title={PROVENANCE_NOTE[kind]}
+    >
+      i
+    </span>
+  );
 }
 
 export function McPanel({

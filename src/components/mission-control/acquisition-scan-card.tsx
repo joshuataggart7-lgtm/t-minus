@@ -78,7 +78,7 @@ export function AcquisitionScanCard({
         <strong title={metric.nextDecision}>{metric.nextDecision}</strong>
       </div>
       <div className="mc-strip-variance" data-label="Var" data-numeric>
-        {variance === null || variance === 0 ? "—" : `${variance > 0 ? "+" : ""}${variance}d`}
+        {variance === null || variance === 0 ? "None" : `${variance > 0 ? "+" : ""}${variance}d`}
       </div>
 
       <div className="mc-strip-disclosure">

@@ -1,26 +1,21 @@
-import { ProvenanceChip } from "./primitives";
-
 const CONTRACT_ROWS = [
-  "Launched, T+ and Awarded require a recorded Launched audit event.",
-  "Before award, T− uses the target date; a forecast may stand in when no target is recorded.",
-  "A stored launched clock state does not establish an award.",
-  "Administration and Closeout begin only after an actual award is recorded.",
-  "Every acquisition resolves to one readiness bucket: GO, WATCH, HOLD or LAUNCHED.",
-  "Featured and scan identity facts come from the same acquisition record.",
+  "A file shows Launched, T+ and Awarded only after its award is recorded in the audit log.",
+  "Before award, T− counts down to the target award date. When no target is set, the forecast stands in and is labeled as a forecast.",
+  "A clock marked launched without a recorded award does not count as an award.",
+  "Administration and Closeout open only after the actual award is recorded.",
+  "Every file sits in exactly one group: GO, WATCH, HOLD or LAUNCHED.",
+  "The featured file, the scan below and the file page all read the same record.",
 ] as const;
 
 export function StateModelNote() {
   return (
-    <aside className="mc-model-note" aria-label="Readiness model">
-      <div>
-        <ProvenanceChip kind="FACT" />
-        <ProvenanceChip kind="RULE" />
-      </div>
+    <aside className="mc-model-note" aria-label="How the groups are counted">
       <p>
-        Recorded status resolves to one readiness bucket and each gate resolves to READY,
-        ATTENTION or BLOCKED. The file remains pre-award until a Launched audit event;
-        T− uses the target or recorded forecast, while T+ and Administration begin only
-        after actual award.
+        <strong>How the groups are counted.</strong> GO is on track. WATCH needs attention. HOLD is
+        stopped by a recorded hold or missing required evidence. LAUNCHED means the award is
+        recorded; a file stays pre-award until then. Before award the clock counts down to the
+        target award date (or the forecast when no target is set); after award it counts days
+        since award.
       </p>
     </aside>
   );
@@ -28,17 +23,11 @@ export function StateModelNote() {
 
 export function StateContractPanel() {
   return (
-    <section className="mc-state-contract" aria-labelledby="state-contract-heading">
-      <div className="mc-state-contract-heading">
-        <div>
-          <div className="flex items-center gap-2">
-            <ProvenanceChip kind="RULE" light />
-            <p className="mc-label-light">Reconciliation foundation</p>
-          </div>
-          <h2 id="state-contract-heading">State contract</h2>
-        </div>
-        <p>One derivation across readiness, trajectory, clocks and file views.</p>
-      </div>
+    <details className="mc-state-contract">
+      <summary>
+        <span className="mc-label-light">How this page reads the record</span>
+        <span className="mc-state-contract-hint">Six rules every count, clock and status on this page follows</span>
+      </summary>
       <ol>
         {CONTRACT_ROWS.map((row, index) => (
           <li key={row}>
@@ -47,6 +36,6 @@ export function StateContractPanel() {
           </li>
         ))}
       </ol>
-    </section>
+    </details>
   );
 }

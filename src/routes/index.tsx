@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { pollOptions } from "@/lib/poll";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
-import { AppShell, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { DataTable, StatusChip } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,7 +48,6 @@ import { AttentionSeverityList } from "@/components/mission-control/attention-se
 import { DaysReturned } from "@/components/mission-control/days-returned";
 import { MissionMasthead } from "@/components/mission-control/mission-masthead";
 import { deriveOverviewAcquisitionState } from "@/components/mission-control/operational-state";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 import { isUnfavorableVote } from "@/lib/review-decisions";
 import { auditActionLabel } from "@/lib/audit-display";
@@ -252,11 +252,12 @@ export function ExecutiveOverview() {
       <section aria-label="Mission clock" className="mb-8 w-full">
         <h2 className="sr-only">Mission clock</h2>
         {q.isLoading ? (
-          <p role="status" className="text-muted-foreground">
-            Loading the priority projects.
-          </p>
+          <div className="mc-kpanel" role="status" aria-busy="true">
+            <p className="mc-kpanel-title">Loading the priority projects</p>
+            <p className="mt-2 text-[15px] leading-[22px] text-muted-foreground">The portfolio counts, the featured file and the attention list appear here once the record loads.</p>
+          </div>
         ) : missionRows.length === 0 ? (
-          <p className="text-muted-foreground">No priority projects are loaded yet.</p>
+          <div className="mc-kpanel"><p className="text-muted-foreground">No priority projects are loaded yet.</p></div>
         ) : (
           <PortfolioHero
             metrics={metrics}
@@ -268,6 +269,8 @@ export function ExecutiveOverview() {
         )}
       </section>
 
+      {/* The lower half waits for the same load as the hero, so the page never shows zeros under a loading line. */}
+      {q.isLoading ? null : (
       <div className="mc-overview-environment">
         {computedAt ? (
           <div className="mc-refresh-line" data-numeric>
@@ -329,6 +332,7 @@ export function ExecutiveOverview() {
           />
         )}
       </div>
+      )}
     </AppShell>
   );
 }
@@ -336,13 +340,11 @@ export function ExecutiveOverview() {
 function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
   const recent = items.filter((i) => withinDays(i, 14));
   return (
-    <section aria-label="Watch" className="mb-10 max-w-[80ch] border-t border-border pt-4">
-      <h2 className="section-title text-[18px] leading-6 font-medium">Watch</h2>
-      <p className="mt-2 text-[15px] leading-[22px]" data-numeric>
+    <section aria-label="Watch" className="mc-kpanel">
+      <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">Watch</h2></div></div>
+      <p className="mt-3 text-[15px] leading-[22px]" data-numeric>
         {recent.length} new item{recent.length === 1 ? "" : "s"} in the last 14 days.{" "}
-        <Link to="/watch" className="text-primary underline">
-          Open Watch
-        </Link>
+        <Link to="/watch" className="text-primary underline">Open Watch</Link>
       </p>
     </section>
   );
@@ -367,62 +369,23 @@ function AgingPanel({
   const total = rows.reduce((n, r) => n + r.holds + r.polls, 0);
 
   return (
-    <>
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Aging holds and pending reviews</h3>
-      <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-        A hold or an unanswered review request is aging once it passes the number of days the Center
-        sets. Each aging item raises an entry in the digest for the owner's supervisor.
-      </p>
-      <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
-        {total}
-      </p>
-      <p className="mt-1 text-[13px] text-muted-foreground">Aging items across all Centers</p>
-      {rows.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">Nothing is past its Center window.</p>
-      ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Aging holds and pending reviews by Center">
-        <table className="mt-3 w-full max-w-[720px] border border-border bg-background text-[13px] leading-[18px]">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">
-                Center
-              </th>
-              <th scope="col" className="p-2">
-                Aging holds
-              </th>
-              <th scope="col" className="p-2">
-                Aging reviews
-              </th>
-              <th scope="col" className="p-2">
-                Aging after
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.centerCode} className="border-b border-border last:border-0">
-                <td className="p-2">{r.centerCode}</td>
-                <td className="p-2" data-numeric>
-                  {r.holds}
-                </td>
-                <td className="p-2" data-numeric>
-                  {r.polls}
-                </td>
-                <td className="p-2" data-numeric>
-                  {r.thresholdDays} days
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </TableScrollRegion>
-      )}
-      <p className="mt-2 text-[13px]">
-        <Link to="/escalations" className="text-primary underline">
-          Open the escalation digest
-        </Link>
-      </p>
-    </>
+    <section className="mc-kpanel">
+      <div className="mc-kpanel-head"><div>
+        <h3 className="mc-kpanel-title">Aging holds and pending reviews</h3>
+        <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">A hold or an unanswered review request is aging once it passes the number of days the Center sets. Each aging item raises an entry in the digest for the owner's supervisor.</p>
+      </div></div>
+      <div className="mc-pa-stats"><div className={total ? "is-attention" : undefined}><strong data-numeric>{total}</strong><span>Aging items across all Centers</span></div></div>
+      <div className="mt-4">
+        <DataTable label="Aging holds and pending reviews by Center" empty={<p className="text-muted-foreground">Nothing is past its Center window.</p>}
+          rowKey={(r) => r.centerCode} rows={rows} columns={[
+            { key: "center", header: "Center", rowHeader: true, cell: (r) => r.centerCode },
+            { key: "holds", header: "Aging holds", numeric: true, cell: (r) => <span data-numeric>{r.holds}</span> },
+            { key: "polls", header: "Aging reviews", numeric: true, cell: (r) => <span data-numeric>{r.polls}</span> },
+            { key: "days", header: "Aging after", numeric: true, cell: (r) => <span data-numeric>{r.thresholdDays} days</span> },
+          ]} />
+      </div>
+      <p className="mc-kpanel-foot"><Link to="/escalations" className="text-primary underline">Open the escalation digest</Link></p>
+    </section>
   );
 }
 
@@ -432,103 +395,29 @@ function SuccessorPanel({ acqs, plan }: { acqs: AcqRow[]; plan: PhasePlanRow[] }
   const flagged = rows.filter((r) => r.overdue);
 
   return (
-    <>
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Successor clock</h3>
-      <p className="mt-1 max-w-[70ch] text-[13px] text-muted-foreground">
-        Method: the period of performance end date less the summed planned days in the phase plan
-        for that acquisition type, plus a 30-day transition allowance. A file is flagged once that
-        date has passed with no successor file linked to it. Advisory only — it never places a hold,
-        and no successor file is created automatically.
-      </p>
+    <section className="mc-kpanel">
+      <div className="mc-kpanel-head"><div>
+        <h3 className="mc-kpanel-title">Successor clock</h3>
+        <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">Method: the period of performance end date less the summed planned days in the phase plan for that acquisition type, plus a 30-day transition allowance. A file is flagged once that date has passed with no successor file linked to it. Advisory only: it never places a hold, and no successor file is created automatically.</p>
+      </div></div>
       {rows.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">
-          No launched file records a period of performance end.
-        </p>
+        <p className="mt-4 text-muted-foreground">No launched file records a period of performance end.</p>
       ) : (
         <>
-          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
-            {flagged.length}
-          </p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Launched files past their successor start date with nothing linked
-          </p>
-          <TableScrollRegion baseClassName="overflow-x-auto" label="Successor clock files">
-          <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th scope="col" className="p-2">
-                  Acquisition
-                </th>
-                <th scope="col" className="p-2">
-                  Period of performance ends
-                </th>
-                <th scope="col" className="p-2">
-                  Planned days
-                </th>
-                <th scope="col" className="p-2">
-                  Successor must start by
-                </th>
-                <th scope="col" className="p-2">
-                  Successor file
-                </th>
-                <th scope="col" className="p-2">
-                  Standing
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.acq.acquisition_id} className="border-b border-border last:border-0">
-                  <td className="p-2">
-                    <Link
-                      to="/files/$acquisitionId"
-                      params={{ acquisitionId: r.acq.acquisition_id }}
-                      className="text-primary underline"
-                    >
-                      {r.acq.acquisition_id}
-                    </Link>
-                  </td>
-                  <td className="p-2">{formatDate(String(r.acq.period_of_performance_end))}</td>
-                  <td className="p-2" data-numeric>
-                    {r.plannedDays} + 30 transition
-                  </td>
-                  <td className="p-2">{formatDate(r.startBy)}</td>
-                  <td className="p-2">
-                    {r.successorId ? (
-                      <Link
-                        to="/files/$acquisitionId"
-                        params={{ acquisitionId: r.successorId }}
-                        className="text-primary underline"
-                      >
-                        {r.successorId}
-                      </Link>
-                    ) : (
-                      "None linked"
-                    )}
-                  </td>
-                  <td className="p-2">
-                    {r.overdue ? (
-                      <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
-                        {`Successor overdue by ${Math.abs(r.daysUntilStart)} days`}
-                      </StatusMark>
-                    ) : r.successorId ? (
-                      <StatusMark color="var(--ontrack)" className="text-[13px] leading-[18px]">
-                        Successor linked
-                      </StatusMark>
-                    ) : (
-                      <StatusMark color="var(--ontrack)" className="text-[13px] leading-[18px]">
-                        {`Starts in ${r.daysUntilStart} days`}
-                      </StatusMark>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </TableScrollRegion>
+          <div className="mc-pa-stats"><div className={flagged.length ? "is-atrisk" : "is-ontrack"}><strong data-numeric>{flagged.length}</strong><span>Launched files past their successor start date with nothing linked</span></div></div>
+          <div className="mt-4">
+            <DataTable label="Successor clock files" rowKey={(r) => r.acq.acquisition_id} rows={rows} columns={[
+              { key: "id", header: "Acquisition", rowHeader: true, cell: (r) => <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acq.acquisition_id }}>{r.acq.acquisition_id}</Link> },
+              { key: "end", header: "Period of performance ends", cell: (r) => <span data-numeric>{formatDate(String(r.acq.period_of_performance_end))}</span> },
+              { key: "planned", header: "Planned days", numeric: true, cell: (r) => <span data-numeric>{`${r.plannedDays} + 30 transition`}</span> },
+              { key: "start", header: "Successor must start by", cell: (r) => <span data-numeric>{formatDate(r.startBy)}</span> },
+              { key: "succ", header: "Successor file", cell: (r) => r.successorId ? <Link to="/files/$acquisitionId" params={{ acquisitionId: r.successorId }}>{r.successorId}</Link> : "None linked" },
+              { key: "standing", header: "Standing", cell: (r) => r.overdue ? <StatusChip tone="atrisk" label={`Successor overdue by ${Math.abs(r.daysUntilStart)} days`} /> : r.successorId ? <StatusChip tone="ontrack" label="Successor linked" /> : <StatusChip tone="ontrack" label={`Starts in ${r.daysUntilStart} days`} /> },
+            ]} />
+          </div>
         </>
       )}
-    </>
+    </section>
   );
 }
 
@@ -615,180 +504,85 @@ function ClockBoard({
   const maxHold = Math.max(1, ...byReason.map(([, n]) => n));
 
   return (
-    <div>
-      <h2 className="text-[18px] leading-6 font-medium">Acquisitions</h2>
-      <p className="mt-1 text-muted-foreground">
-        Every number on this page is computed from the work itself.
-      </p>
-
-      <div className="mt-6 grid gap-8 sm:grid-cols-4">
-        {[
-          ["Running", running],
-          ["On hold", onHold.length],
-          ["Launched this quarter", launchedThisQuarter],
-          ["Scrubbed", scrubbed],
-        ].map(([label, value]) => (
-          <div key={label as string}>
-            <p className="text-[28px] leading-[34px] font-semibold" data-numeric>
-              {value as number}
-            </p>
-            <p className="mt-1 text-[13px] text-muted-foreground">{label as string}</p>
+    <div className="mc-pa-stack">
+      <section className="mc-kpanel">
+        <div className="mc-kpanel-head">
+          <div>
+            <h2 className="mc-kpanel-title">Acquisitions</h2>
+            <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">Every number on this page is computed from the work itself.</p>
           </div>
-        ))}
-      </div>
+        </div>
+        <div className="mc-pa-stats is-4">
+          <div><strong data-numeric>{running}</strong><span>Running</span></div>
+          <div className={onHold.length ? "is-atrisk" : undefined}><strong data-numeric>{onHold.length}</strong><span>On hold</span></div>
+          <div className="is-info"><strong data-numeric>{launchedThisQuarter}</strong><span>Launched this quarter</span></div>
+          <div><strong data-numeric>{scrubbed}</strong><span>Scrubbed</span></div>
+        </div>
+      </section>
 
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">
-        Clause change mods, done against due
-      </h3>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        Modifications required by a clause change, by Center.{" "}
-        <Link to="/clause-changes" className="text-primary">
-          Open the clause change impact list
-        </Link>
-        .
-      </p>
-      {modCounts.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No clause change mod task has been created.</p>
-      ) : (
-        <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
-          {modCounts.map((c) => (
-            <li
-              key={c.center}
-              className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]"
-            >
-              <span>{c.center}</span>
-              <span data-numeric>
-                {c.done} done of {c.due} due
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <section className="mc-kpanel">
+        <div className="mc-kpanel-head"><div>
+          <h3 className="mc-kpanel-title">Clause change mods, done against due</h3>
+          <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">Modifications required by a clause change, by Center. <Link to="/clause-changes" className="text-primary underline">Open the clause change impact list</Link>.</p>
+        </div></div>
+        <div className="mt-4">
+          {modCounts.length === 0 ? (
+            <p className="text-muted-foreground">No clause change mod task has been created.</p>
+          ) : (
+            <DataTable label="Clause change mods by Center" rowKey={(c) => c.center} rows={modCounts} columns={[
+              { key: "center", header: "Center", cell: (c) => c.center, rowHeader: true },
+              { key: "done", header: "Done", numeric: true, cell: (c) => <span data-numeric>{c.done}</span> },
+              { key: "due", header: "Due", numeric: true, cell: (c) => <span data-numeric>{c.due}</span> },
+            ]} />
+          )}
+        </div>
+      </section>
 
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">Holds by reason</h3>
-      {byReason.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">Nothing is on hold.</p>
-      ) : (
-        <ul className="mt-3 max-w-[70ch] space-y-2">
-          {byReason.map(([reason, n]) => (
-            <li key={reason} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <div>
-                <p className="text-[13px] leading-[18px]">{reason}</p>
-                <div
-                  className="mt-1 h-2 rounded"
-                  style={{ width: `${(n / maxHold) * 100}%`, backgroundColor: "var(--atrisk)" }}
-                  role="img"
-                  aria-label={`${n} on hold for ${reason}`}
-                />
-              </div>
-              <span className="text-[13px]" data-numeric>
-                {n}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">The ten longest current holds</h3>
-      {longestHolds.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No file is on hold today.</p>
-      ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="The ten longest current holds">
-        <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">
-                Acquisition
-              </th>
-              <th scope="col" className="p-2">
-                Reason
-              </th>
-              <th scope="col" className="p-2">
-                Responsible role
-              </th>
-              <th scope="col" className="p-2">
-                Days on hold
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {longestHolds.map(({ m, days }) => (
-              <tr key={m.acq.acquisition_id} className="border-b border-border last:border-0">
-                <td className="p-2">
-                  <Link
-                    to="/files/$acquisitionId"
-                    params={{ acquisitionId: m.acq.acquisition_id }}
-                    className="text-primary underline"
-                  >
-                    {m.acq.acquisition_id}
-                  </Link>
-                </td>
-                <td className="p-2">{m.hold?.reason ?? String(m.acq.hold_reason ?? "—")}</td>
-                <td className="p-2">{m.blockerOwner ?? String(m.acq.hold_owner ?? "—")}</td>
-                <td className="p-2" data-numeric>
-                  {days}
-                </td>
-              </tr>
+      <section className="mc-kpanel">
+        <div className="mc-kpanel-head"><div><h3 className="mc-kpanel-title">Holds by reason</h3></div></div>
+        {byReason.length === 0 ? (
+          <p className="mt-4 text-muted-foreground">Nothing is on hold.</p>
+        ) : (
+          <ul className="mt-4 max-w-[70ch] space-y-3">
+            {byReason.map(([reason, n]) => (
+              <li key={reason} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                <div className="min-w-0">
+                  <p className="text-[15px] leading-[22px]">{reason}</p>
+                  <div className="mt-1 h-2 rounded" style={{ width: `${(n / maxHold) * 100}%`, backgroundColor: "var(--atrisk)" }} role="img" aria-label={`${n} on hold for ${reason}`} />
+                </div>
+                <span className="text-[15px]" data-numeric>{n}</span>
+              </li>
             ))}
-          </tbody>
-        </table>
-        </TableScrollRegion>
-      )}
+          </ul>
+        )}
+      </section>
 
-      <h3 className="mt-10 text-[18px] leading-6 font-medium">
-        Lead time by phase against the phase plan
-      </h3>
-      {leadByPhase.length === 0 ? (
-        <p className="mt-2 text-muted-foreground">No phase has recorded time yet.</p>
-      ) : (
-        <TableScrollRegion baseClassName="overflow-x-auto" label="Lead time by phase against the phase plan">
-        <table className="mt-3 w-full border border-border bg-background text-[13px] leading-[18px]">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">
-                Phase
-              </th>
-              <th scope="col" className="p-2">
-                Files measured
-              </th>
-              <th scope="col" className="p-2">
-                Planned days
-              </th>
-              <th scope="col" className="p-2">
-                Actual days
-              </th>
-              <th scope="col" className="p-2">
-                Against plan
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {leadByPhase.map(([phase, r]) => {
-              const delta = r.planned - r.actual;
-              return (
-                <tr key={phase} className="border-b border-border last:border-0">
-                  <td className="p-2">{phase}</td>
-                  <td className="p-2" data-numeric>
-                    {r.n}
-                  </td>
-                  <td className="p-2" data-numeric>
-                    {r.planned}
-                  </td>
-                  <td className="p-2" data-numeric>
-                    {r.actual}
-                  </td>
-                  <td className="p-2" data-numeric>
-                    {delta === 0
-                      ? "On plan"
-                      : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        </TableScrollRegion>
-      )}
+      <section className="mc-kpanel">
+        <div className="mc-kpanel-head"><div><h3 className="mc-kpanel-title">The ten longest current holds</h3></div></div>
+        <div className="mt-4">
+          <DataTable label="The ten longest current holds" empty={<p className="text-muted-foreground">No file is on hold today.</p>}
+            rowKey={({ m }) => m.acq.acquisition_id} rows={longestHolds} columns={[
+              { key: "id", header: "Acquisition", rowHeader: true, cell: ({ m }) => <Link to="/files/$acquisitionId" params={{ acquisitionId: m.acq.acquisition_id }}>{m.acq.acquisition_id}</Link> },
+              { key: "reason", header: "Reason", cell: ({ m }) => m.hold?.reason ?? String(m.acq.hold_reason ?? "Not recorded") },
+              { key: "owner", header: "Responsible role", cell: ({ m }) => m.blockerOwner ?? String(m.acq.hold_owner ?? "Not recorded") },
+              { key: "days", header: "Days on hold", numeric: true, cell: ({ m, days }) => <span data-numeric>{m.blockerSince ? days : "Start not recorded"}</span> },
+            ]} />
+        </div>
+      </section>
+
+      <section className="mc-kpanel">
+        <div className="mc-kpanel-head"><div><h3 className="mc-kpanel-title">Lead time by phase against the phase plan</h3></div></div>
+        <div className="mt-4">
+          <DataTable label="Lead time by phase against the phase plan" empty={<p className="text-muted-foreground">No phase has recorded time yet.</p>}
+            rowKey={([phase]) => phase} rows={leadByPhase} columns={[
+              { key: "phase", header: "Phase", rowHeader: true, cell: ([phase]) => phase },
+              { key: "n", header: "Files measured", numeric: true, cell: ([, r]) => <span data-numeric>{r.n}</span> },
+              { key: "planned", header: "Planned days", numeric: true, cell: ([, r]) => <span data-numeric>{r.planned}</span> },
+              { key: "actual", header: "Actual days", numeric: true, cell: ([, r]) => <span data-numeric>{r.actual}</span> },
+              { key: "delta", header: "Against plan", numeric: true, cell: ([, r]) => { const delta = r.planned - r.actual; return <span data-numeric>{delta === 0 ? "On plan" : `${Math.abs(delta)} days ${delta > 0 ? "ahead of" : "behind"} plan`}</span>; } },
+            ]} />
+        </div>
+      </section>
 
       <AgingPanel acqs={metrics.map((m) => m.acq)} polls={polls} centers={centers} users={users} />
       <SuccessorPanel acqs={metrics.map((m) => m.acq)} plan={plan} />
@@ -882,24 +676,22 @@ function EnterpriseTab({
         summary, project status, and recurring actions read live from T-Minus.
       </p>
 
-      <section className="mt-6 rounded-lg border border-border bg-background p-5">
-        <div className="flex items-center justify-between gap-4">
+      <section className="mc-kpanel mt-6">
+        <div className="mc-kpanel-head">
           <div>
-            <h3 className="text-[15px] font-medium">Microsoft Teams bot</h3>
-            <p className="mt-1 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
+            <h3 className="mc-kpanel-title">Microsoft Teams bot</h3>
+            <p className="mt-1 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
               A production Teams bot so mission leaders ask T-Minus in the flow of work. Mention the
               bot with a PR number and it answers with the file&apos;s clock line, status, owner,
               and a link to the file. It reads the same data as the Executive Overview; nothing is
               stored in Teams.
             </p>
           </div>
-          <span className="shrink-0 rounded-full border border-border px-3 py-1 text-[12px] font-medium text-muted-foreground">
-            Planned
-          </span>
+          <StatusChip tone="neutral" label="Planned" />
         </div>
 
         <div className="mt-4 rounded-lg border border-border bg-canvas p-4">
-          <p className="text-[12px] font-medium text-muted-foreground">Mock transcript</p>
+          <p className="text-[13px] font-medium text-muted-foreground">Mock transcript</p>
           <div className="mt-3 space-y-3 text-[13px] leading-5">
             <p className="text-foreground">
               <span className="font-medium">You</span>
