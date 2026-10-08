@@ -28,9 +28,9 @@ import {
   type Announcement,
 } from "@/lib/announcements";
 
-// The evaluator demo persona is not an audience an announcement can target.
+// The evaluator and approver demo personas are not audiences an announcement can target.
 const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS]
-  .filter((u) => u.role !== "evaluator")
+  .filter((u) => u.role !== "evaluator" && u.role !== "approver")
   .map((u) => ({
     id: u.role,
     label: u.title,

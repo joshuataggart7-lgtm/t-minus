@@ -58,7 +58,7 @@ function sampleExclusion(legalName: string | null, uei: string) {
       {
         entityRegistration: {
           legalBusinessName: legalName ?? "Fictional vendor",
-          registrationStatus: "Active — sample",
+          registrationStatus: "Active (sample)",
           exclusionStatusFlag: "N",
         },
       },
@@ -234,7 +234,7 @@ export async function runExclusionsSweep(actor: string): Promise<SweepResult> {
       await supabaseAdmin.from("audit_log").insert({
         acquisition_id: file.acquisition_id,
         actor,
-        action: "Exclusion review flag set — CO review",
+        action: "Exclusion review flag set for CO review",
         field: "vendor exclusions",
         old_value: null,
         new_value: EXCLUSION_REVIEW_FLAG,

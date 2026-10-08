@@ -103,7 +103,7 @@ function sampleResponse(legalName: string | null, cage: string | null, naicsCode
       {
         entityRegistration: {
           legalBusinessName: legalName ?? "Fictional vendor",
-          registrationStatus: "Active — sample",
+          registrationStatus: "Active (sample)",
           registrationExpirationDate: "2027-08-31",
           exclusionStatusFlag: "N",
         },

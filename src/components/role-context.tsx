@@ -112,7 +112,7 @@ function roleFromProfile(value: string | undefined | null): RoleId | null {
 
 // Administrator first, so a multi-role account always reads as the strongest
 // role it holds rather than whichever row the database returned first.
-const ROLE_ORDER: RoleId[] = ["administrator", "hq", "specialist", "executive", "reviewer", "requester", "evaluator"];
+const ROLE_ORDER: RoleId[] = ["administrator", "hq", "specialist", "executive", "reviewer", "requester", "evaluator", "approver"];
 
 function orderRoles(roles: RoleId[]): RoleId[] {
   const unique = Array.from(new Set(roles));

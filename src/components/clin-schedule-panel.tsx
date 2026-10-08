@@ -355,7 +355,7 @@ export function ClinSchedulePanel({
 </TableScrollRegion>
       )}
       {rows.length > 0 ? (
-        <p className="mc-kpanel-foot mc-clin-total">
+        <div className="mc-kpanel-foot mc-clin-total">
           <span>
             Total of the amounts shown{" "}
             <span data-numeric>
@@ -363,7 +363,7 @@ export function ClinSchedulePanel({
             </span>
           </span>
           <strong data-numeric>{priced.length ? money(total) : "Not recorded"}</strong>
-        </p>
+        </div>
       ) : null}
 
       {canWrite && adding ? (

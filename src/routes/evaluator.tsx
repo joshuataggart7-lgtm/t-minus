@@ -17,7 +17,9 @@ import { supabase } from "@/integrations/supabase/client";
 // The evaluator's view. Read-only: it reads saved Evaluation of Quotations
 // Records whose technical evaluator is the signed-in persona, and the
 // evaluation factors stored for those files. Prices stay with the contracting
-// officer and are never read into this page.
+// officer and are never read into this page: only the named technical fields
+// below are selected from the record, and any clause that still speaks of
+// price is left out of what the evaluator sees.
 
 const EQR_TEMPLATE = "Evaluation of Quotations Record";
 
@@ -33,7 +35,6 @@ type Assignment = {
   coName: string;
   version: number;
   savedAt: string | null;
-  awardBasis: string;
   criteria: string;
   statements: string;
   statementsDate: string;
@@ -50,6 +51,39 @@ function text(v: unknown): string {
   return typeof v === "string" ? v.trim() : v == null ? "" : String(v).trim();
 }
 
+// The record fields the evaluator may see. Prices, the price comparison and
+// the recommendation are not selected.
+const EQR_FIELDS = [
+  "title",
+  "co_name",
+  "evaluator_name",
+  "evaluator_statements",
+  "evaluator_statements_date",
+  "evaluation_criteria",
+  ...[1, 2, 3, 4].flatMap((n) => [`quoter_${n}_name`, `quoter_${n}_uei`, `quoter_${n}_rating`, `quoter_${n}_reason`]),
+];
+const EQR_SELECT = ["acquisition_id", "version", "saved_at", ...EQR_FIELDS.map((k) => `${k}:field_values->>${k}`)].join(",");
+
+const PRICE_WORDS = /\b(price[sd]?|pricing|cost|costs|cheap|expensive|dollars?)\b|\$\s?\d/i;
+
+/** Keeps only the clauses of a sentence or list that do not speak of price. */
+function technicalOnly(value: string): string {
+  if (!PRICE_WORDS.test(value)) return value;
+  const sentences = value.split(/(?<=\.)\s+/);
+  const kept = sentences
+    .map((sentence) => {
+      const end = /\.\s*$/.test(sentence) ? "." : "";
+      const clauses = sentence
+        .replace(/\.\s*$/, "")
+        .split(/;|,?\s+and\s+(?=the\b)/)
+        .map((c) => c.trim())
+        .filter((c) => c && !PRICE_WORDS.test(c));
+      return clauses.length ? `${clauses.join("; ")}${end}` : "";
+    })
+    .filter(Boolean);
+  return kept.join(" ").trim();
+}
+
 async function loadAssignments(evaluatorName: string): Promise<Assignment[]> {
   const me = personKey(evaluatorName);
   const tpl = await supabase.from("templates").select("template_id,name").eq("name", EQR_TEMPLATE);
@@ -58,18 +92,25 @@ async function loadAssignments(evaluatorName: string): Promise<Assignment[]> {
   if (!ids.length || !me) return [];
   const docs = await supabase
     .from("documents")
-    .select("acquisition_id,version,saved_at,field_values")
+    .select(EQR_SELECT)
     .in("template_id", ids)
     .order("version", { ascending: false });
   if (docs.error) throw docs.error;
+  type Row = { acquisition_id: string | null; version: number | null; saved_at: string | null; field_values: Record<string, unknown> };
+  const fetched: Row[] = ((docs.data ?? []) as unknown as Array<Record<string, unknown>>).map((r) => ({
+    acquisition_id: (r["acquisition_id"] as string | null) ?? null,
+    version: (r["version"] as number | null) ?? null,
+    saved_at: (r["saved_at"] as string | null) ?? null,
+    field_values: Object.fromEntries(EQR_FIELDS.map((k) => [k, r[k] ?? null])),
+  }));
   // The current version of each file's record.
-  const latest = new Map<string, (typeof docs.data)[number]>();
-  for (const d of docs.data ?? []) {
+  const latest = new Map<string, Row>();
+  for (const d of fetched) {
     if (!d.acquisition_id || latest.has(d.acquisition_id)) continue;
     latest.set(d.acquisition_id, d);
   }
   const mine = [...latest.values()].filter((d) => {
-    const fv = (d.field_values ?? {}) as Record<string, unknown>;
+    const fv = d.field_values;
     const who = personKey(text(fv["evaluator_name"]));
     return Boolean(who) && (who === me || who.endsWith(me) || me.endsWith(who));
   });
@@ -93,7 +134,7 @@ async function loadAssignments(evaluatorName: string): Promise<Assignment[]> {
           name,
           uei: text(fv[`quoter_${n}_uei`]),
           rating: text(fv[`quoter_${n}_rating`]),
-          reason: text(fv[`quoter_${n}_reason`]),
+          reason: technicalOnly(text(fv[`quoter_${n}_reason`])),
         });
       }
       return {
@@ -102,8 +143,7 @@ async function loadAssignments(evaluatorName: string): Promise<Assignment[]> {
         coName: text(fv["co_name"]),
         version: d.version ?? 1,
         savedAt: d.saved_at ?? null,
-        awardBasis: text(fv["award_basis"]),
-        criteria: text(fv["evaluation_criteria"]),
+        criteria: technicalOnly(text(fv["evaluation_criteria"])),
         statements: text(fv["evaluator_statements"]),
         statementsDate: text(fv["evaluator_statements_date"]),
         quotes,
@@ -266,11 +306,11 @@ function EvaluatorPage() {
                     ) : (
                       <dl className="mc-eval-basis">
                         <div>
-                          <dt>Basis for award</dt>
-                          <dd>{a.awardBasis || <EmptyCell />}</dd>
+                          <dt>What you rate</dt>
+                          <dd>Technical acceptability: each quotation is rated acceptable or unacceptable.</dd>
                         </div>
                         <div>
-                          <dt>Criteria stated in the notice</dt>
+                          <dt>Technical criteria stated in the notice</dt>
                           <dd>{a.criteria || <EmptyCell />}</dd>
                         </div>
                       </dl>

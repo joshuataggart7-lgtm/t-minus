@@ -12,9 +12,10 @@ type ProfileRow = {
 
 type MembershipRow = { id: string; user_id: string; role: RoleId };
 
-// The evaluator is a demo persona only, never assigned to an account.
+// The evaluator and the approver are demo personas only, never assigned to an account.
+type AssignableRole = Exclude<RoleId, "evaluator" | "approver">;
 const ASSIGNABLE_ROLES = (Object.keys(ROLE_LABELS) as RoleId[]).filter(
-  (role): role is Exclude<RoleId, "evaluator"> => role !== "evaluator",
+  (role): role is AssignableRole => role !== "evaluator" && role !== "approver",
 );
 
 /** Administrators assign any combination of roles to signed-in accounts. */
@@ -39,7 +40,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
     },
   });
 
-  async function toggleRole(row: ProfileRow, role: Exclude<RoleId, "evaluator">, enabled: boolean) {
+  async function toggleRole(row: ProfileRow, role: AssignableRole, enabled: boolean) {
     setMessage(null);
     setProblem(null);
     const current = (q.data?.memberships ?? []).filter((membership) => membership.user_id === row.id);

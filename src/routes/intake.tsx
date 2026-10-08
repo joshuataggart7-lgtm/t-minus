@@ -72,7 +72,7 @@ export const Route = createFileRoute("/intake")({
 type Answers = Record<string, string>;
 
 function strategyValue(strategy: { psl: string; name: string | null }) {
-  return `${strategy.psl} — ${strategy.name ?? ""}`.trim().replace(/—$/, "").trim();
+  return `${strategy.psl}: ${strategy.name ?? ""}`.trim().replace(/:$/, "").trim();
 }
 
 type StrategyRow = {

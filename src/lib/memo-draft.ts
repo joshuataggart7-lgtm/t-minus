@@ -1185,7 +1185,7 @@ function comparablesParagraph(ctx: MemoDraftCtx): string {
   const stamp = c.checkedAt ? ` Checked ${String(c.checkedAt).slice(0, 10)}.` : "";
   const label =
     c.source === "local"
-      ? "from T-Minus prior actions — live feed unavailable"
+      ? "from T-Minus prior actions: live feed unavailable"
       : c.source === "sample"
         ? "sample data, fictional prior awards"
         : c.sourceLabel;
