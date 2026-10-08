@@ -9,6 +9,7 @@ import { countdownText } from "@/components/launch-countdown";
 import type { ReadinessExplanation } from "./readiness";
 import { AnalystTableShell, LeadershipExceptionList, LeadershipExceptionStrip, ProvenanceChip } from "./primitives";
 import { DECISION_LABEL } from "@/lib/review-decisions";
+import { executiveBlocker } from "@/lib/executive-wording";
 
 export type PriorityTier = "Mission Critical" | "High Priority" | "Standard" | "Priority not recorded";
 
@@ -93,8 +94,13 @@ function scheduleFor(metric: AcqMetrics, readiness: ReadinessExplanation) {
     : view.days === null || !view.prefix
       ? NR
       : `${view.prefix}${view.days}${view.mode === "forecast" ? " forecast" : ""}`;
-  const target = readiness.targetAward ? formatDate(readiness.targetAward) : NR;
-  return `${clock} · target ${target}`;
+  // Same words as the featured file: with no target the clock runs to the forecast.
+  if (!readiness.targetAward) {
+    if (view.mode === "forecast" && view.days !== null && view.prefix && !view.pastTarget) return `${view.prefix}${view.days} to forecast award; no target set`;
+    return clock === NR ? "No target set" : `${clock}; no target set`;
+  }
+  const target = formatDate(readiness.targetAward);
+  return view.pastTarget ? `${clock}; target was ${target}` : clock === NR ? `Target ${target}` : `${clock} to target award, ${target}`;
 }
 
 /**
@@ -139,7 +145,7 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
       readiness,
       title,
       owner,
-      gate: metric.currentPhase?.trim() || NR,
+      gate: metric.currentPhaseLabel?.trim() || NR,
       schedule: scheduleFor(metric, readiness),
       blocker: primaryBlocker(metric, exception, readiness),
       blockerProvenance: blockerProvenance(metric, readiness),
@@ -213,7 +219,7 @@ export function ExecutiveExceptions({ metrics }: { metrics: AcqMetrics[] }) {
                 <div><dt>Owner / role</dt><dd>{row.owner}</dd></div>
                 <div><dt>Phase</dt><dd>{row.gate}</dd></div>
                 <div><dt><ProvenanceChip kind={row.readiness.targetAward ? "FACT" : "RULE"} light /> Schedule impact</dt><dd data-numeric>{row.schedule}</dd></div>
-                <div><dt><ProvenanceChip kind={row.blockerProvenance} light /> Blocker</dt><dd>{row.blocker}</dd></div>
+                <div><dt><ProvenanceChip kind={row.blockerProvenance} light /> Blocker</dt><dd title={row.blocker}>{executiveBlocker(row.blocker)}</dd></div>
                 <div><dt><ProvenanceChip kind="RULE" light /> Next action</dt><dd>{row.next}</dd></div>
               </dl>
             </LeadershipExceptionStrip>
@@ -280,7 +286,7 @@ export function deriveLeadershipDecisions(metrics: AcqMetrics[]): LeadershipDeci
       }
     }
     if (m.hold && /fund/i.test(m.hold.reason)) {
-      out.push({ id, title, what: "Funding hold", detail: m.hold.reason, order: 1, rank });
+      out.push({ id, title, what: "Funding hold", detail: executiveBlocker(m.hold.reason), order: 1, rank });
     }
   }
   return out.sort((a, b) => a.order - b.order || a.rank - b.rank || a.id.localeCompare(b.id));

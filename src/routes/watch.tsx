@@ -2,7 +2,8 @@ import { writeAudit } from "@/lib/audit";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader, StatusChip, type StatusTone } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { runWatchFetch } from "@/lib/watch.functions";
@@ -106,35 +107,24 @@ function WatchPage() {
   });
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Watch"
         lead="Protest decisions, rule changes, and notices worth watching. Newest first."
+        actions={canFetch ? (
+          <div className="mc-pa-actions !mt-0">
+            <button type="button" className="mc-req-button is-secondary" disabled={fetchFeeds.isPending} onClick={() => fetchFeeds.mutate("gao")}>Fetch GAO decisions</button>
+            <button type="button" className="mc-req-button is-secondary" disabled={fetchFeeds.isPending} onClick={() => fetchFeeds.mutate("federal-register")}>Fetch Federal Register</button>
+          </div>
+        ) : undefined}
       />
 
       {canFetch ? (
-        <section aria-label="Run a fetch" className="mb-8">
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
-              disabled={fetchFeeds.isPending}
-              onClick={() => fetchFeeds.mutate("gao")}
-            >
-              Fetch GAO decisions
-            </button>
-            <button
-              type="button"
-              className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
-              disabled={fetchFeeds.isPending}
-              onClick={() => fetchFeeds.mutate("federal-register")}
-            >
-              Fetch Federal Register
-            </button>
-          </div>
+        <section aria-label="Fetch results" className="mb-6">
           {fetchFeeds.isPending ? <LoadingNote what="the fetch" /> : null}
           {runNote ? (
-            <p className="mt-3 max-w-[80ch] text-[13px] text-muted-foreground">{runNote}</p>
+            <p className="max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">{runNote}</p>
           ) : null}
           {runError ? <ErrorNote message={runError} /> : null}
         </section>
@@ -142,14 +132,23 @@ function WatchPage() {
 
       {canPost ? <OpNoticeForm actor={user.name} onPosted={() => queryClient.invalidateQueries({ queryKey: ["watch-feed"] })} /> : null}
 
-      <section aria-label="Filters" className="mb-6 flex flex-wrap gap-6">
+      <div className="mc-pa-stats is-4 mb-6">
+        {WATCH_SOURCES.map((s) => (
+          <button key={s} type="button" className={source === s ? "is-info text-left" : "text-left"} aria-pressed={source === s} onClick={() => setSource(source === s ? "all" : s)}>
+            <strong data-numeric>{items.filter((i) => i.source === s).length}</strong>
+            <span>{s}</span>
+          </button>
+        ))}
+      </div>
+
+      <section aria-label="Filters" className="mc-pa-form is-2 mb-6 max-w-[720px]">
         <div>
-          <label htmlFor="watch-source" className="block text-[13px] text-muted-foreground">
+          <label htmlFor="watch-source" className="mc-pa-label">
             Source
           </label>
           <select
             id="watch-source"
-            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+            className="mc-pa-input"
             value={source}
             onChange={(e) => setSource(e.target.value as "all" | WatchSource)}
           >
@@ -162,12 +161,12 @@ function WatchPage() {
           </select>
         </div>
         <div>
-          <label htmlFor="watch-tag" className="block text-[13px] text-muted-foreground">
+          <label htmlFor="watch-tag" className="mc-pa-label">
             Tag
           </label>
           <select
             id="watch-tag"
-            className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+            className="mc-pa-input"
             value={tag}
             onChange={(e) => setTag(e.target.value)}
           >
@@ -193,7 +192,7 @@ function WatchPage() {
             canFetch ? (
               <button
                 type="button"
-                className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+                className="mc-req-button is-secondary"
                 onClick={() => {
                   setSource("all");
                   setTag("all");
@@ -207,7 +206,8 @@ function WatchPage() {
         />
       ) : null}
 
-      <ul className="max-w-[80ch] divide-y divide-border border-t border-border">
+      {shown.length ? <p className="mb-3 text-[15px] text-muted-foreground" data-numeric>{`${shown.length} ${shown.length === 1 ? "item" : "items"}${source !== "all" || tag !== "all" ? " match these filters" : ""}`}</p> : null}
+      <ul className="mc-watch-list">
         {shown.map((item) => (
           <FeedRow key={item.id} item={item} />
         ))}
@@ -233,17 +233,28 @@ function WatchPage() {
   );
 }
 
+const SOURCE_TONE: Record<WatchSource, StatusTone> = {
+  GAO: "atrisk",
+  "Federal Register": "info",
+  "PCD/PIC/PN": "attention",
+  "OP notice": "launched",
+};
+
 function FeedRow({ item }: { item: FeedItem }) {
   return (
-    <li className="py-4">
-      <p className="text-[13px] text-muted-foreground" data-numeric>
-        {item.source} · {item.sample ? "Sample · " : ""}{item.date ?? "Date not published"} · {item.outcomeOrType}
-      </p>
-      <p className="mt-1 text-[15px] leading-[22px] text-foreground">{item.title}</p>
-      {item.summary ? (
-        <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{item.summary}</p>
+    <li className="mc-pa-card">
+      <div className="mc-pa-card-head">
+        <span className="flex flex-wrap items-center gap-2">
+          <StatusChip tone={SOURCE_TONE[item.source] ?? "neutral"} label={item.source} />
+          {item.sample ? <StatusChip tone="neutral" label="Sample" /> : null}
+          <span className="text-[13px] text-muted-foreground" data-numeric>{item.date ?? "Date not published"} · {item.outcomeOrType}</span>
+        </span>
+      </div>
+      <p className="mt-2 text-[16px] leading-[23px] font-medium text-foreground">{item.title}</p>
+      {item.summary && item.summary !== item.title && !item.title.endsWith(item.summary) ? (
+        <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground">{item.summary}</p>
       ) : null}
-      <p className="mt-1 text-[13px]">
+      <p className="mt-2 text-[14px]">
         {item.url ? (
           <a href={item.url} target="_blank" rel="noreferrer" className="text-primary underline">
             Open the source
@@ -307,10 +318,10 @@ function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void
   };
 
   return (
-    <section aria-label="Post an OP notice" className="mb-8 max-w-[80ch]">
+    <section aria-label="Post an OP notice" className="mb-6 max-w-[80ch]">
       <button
         type="button"
-        className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+        className="mc-req-button is-secondary"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
@@ -318,60 +329,60 @@ function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void
       </button>
       {open ? (
         <form
-          className="mt-4 space-y-4"
+          className="mc-kpanel mt-4 space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
             void post();
           }}
         >
           <div>
-            <label htmlFor="op-title" className="block text-[13px] text-muted-foreground">
+            <label htmlFor="op-title" className="mc-pa-label">
               Title
             </label>
             <input
               id="op-title"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              className="mc-pa-input"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
           </div>
           <div>
-            <label htmlFor="op-date" className="block text-[13px] text-muted-foreground">
+            <label htmlFor="op-date" className="mc-pa-label">
               Date
             </label>
             <input
               id="op-date"
               type="date"
-              className="mt-1 rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              className="mc-pa-input max-w-[14rem]"
               value={date}
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
           <div>
-            <label htmlFor="op-summary" className="block text-[13px] text-muted-foreground">
+            <label htmlFor="op-summary" className="mc-pa-label">
               One-line summary
             </label>
             <input
               id="op-summary"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              className="mc-pa-input"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
           </div>
           <div>
-            <label htmlFor="op-url" className="block text-[13px] text-muted-foreground">
+            <label htmlFor="op-url" className="mc-pa-label">
               Link
             </label>
             <input
               id="op-url"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+              className="mc-pa-input"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>
           {error ? <ErrorNote message={error} /> : null}
           {saved ? <p className="text-[13px] text-muted-foreground">The notice is posted.</p> : null}
-          <button type="submit" className="rounded-lg border border-border px-3 py-2 text-[15px] text-primary">
+          <button type="submit" className="mc-req-button">
             Post the notice
           </button>
         </form>

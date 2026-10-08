@@ -473,7 +473,7 @@ function WorkQueuePage() {
                 <td data-label="Owner" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
                 <td data-label="Next task" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
                 <td data-label="Waiting on" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
-                <td data-label="Phase" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
+                <td data-label="Phase" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhaseLabel ?? "Not started"}<span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
               </tr>
             ))}
           </tbody>
@@ -528,7 +528,7 @@ function CardView({ c }: { c: Card }) {
         <div>
           <dt>Phase</dt>
           <dd data-numeric>
-            {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
+            {c.m.currentPhaseLabel ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
           </dd>
         </div>
       </dl>

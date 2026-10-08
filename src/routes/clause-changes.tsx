@@ -4,10 +4,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { DataTable, McPageHeader, StatusChip } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
-import { MissionNavSection } from "@/components/mission-control/mission-navigator";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import {
   completeModTask,
   createModTasks,
@@ -158,8 +157,9 @@ function ClauseChangesPage() {
   const failed = changesQ.error || contractsQ.error || tasksQ.error;
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Oversight"
         title="Clause change impact"
         lead="Under RFO FAR 1.107(d), incorporating a changed clause into an existing contract is generally discretionary and needs consideration unless the change direction says otherwise. This list shows candidates; the direction decides."
       />
@@ -168,13 +168,11 @@ function ClauseChangesPage() {
       {failed ? <ErrorNote message="The list did not load. Reload the page and try again." /> : null}
 
       {changes.length > 0 ? (
-        <section aria-label="Clause change" className="mb-8 max-w-[80ch]">
-          <label htmlFor="cc-change" className="block text-[13px] text-muted-foreground">
-            Clause change
-          </label>
+        <section aria-label="Clause change" className="mc-kpanel mb-6">
+          <label htmlFor="cc-change" className="mc-pa-label">Clause change</label>
           <select
             id="cc-change"
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
+            className="mc-pa-input max-w-[44rem]"
             value={change?.id ?? ""}
             onChange={(e) => {
               setSelected(e.target.value);
@@ -183,38 +181,21 @@ function ClauseChangesPage() {
           >
             {changes.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.clause_number} — {KIND_WORD[c.kind] ?? c.kind} ({c.source})
+                {`${c.clause_number}: ${KIND_WORD[c.kind] ?? c.kind} (${c.source})`}
               </option>
             ))}
           </select>
 
           {change ? (
-            <><dl className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
-              <div>
-                <dt className="text-[13px] text-muted-foreground">Status recorded</dt>
-                <dd className="text-[15px]">{change.status}</dd>
-              </div>
-              <div>
-                <dt className="text-[13px] text-muted-foreground">Source</dt>
-                <dd className="text-[15px]">{change.source}</dd>
-              </div>
-              <div>
-                <dt className="text-[13px] text-muted-foreground">Deadline the change sets</dt>
-                <dd className="text-[15px]" data-numeric>
-                  {deadline.date ?? "No date set by the change"}
-                  {deadline.overdue ? " — already due" : ""}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[13px] text-muted-foreground">Contracts affected</dt>
-                <dd className="text-[15px]" data-numeric>
-                  {rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified · {solicitationRows.length} solicitations to re-check
-                </dd>
-              </div>
+            <><dl className="mc-pa-facts mt-4">
+              <div><dt>Status recorded</dt><dd>{change.status}</dd></div>
+              <div><dt>Source</dt><dd>{change.source}</dd></div>
+              <div><dt>Deadline the change sets</dt><dd data-numeric>{deadline.date ?? "No date set by the change"}{deadline.overdue ? "; already due" : ""}</dd></div>
+              <div><dt>Contracts affected</dt><dd data-numeric>{rows.filter((row) => row.clauseListKnown).length} affected · {rows.filter((row) => !row.clauseListKnown).length} unverified · {solicitationRows.length} solicitations to re-check</dd></div>
             </dl>
             {hasRole("hq") && !readOnly ? (
               <div className="mt-4 flex flex-wrap items-end gap-4 border-t border-border pt-4">
-                <label className="flex items-center gap-2 text-[13px]">
+                <label className="flex items-center gap-2 text-[15px]">
                   <input
                     type="checkbox"
                     checked={change.modification_required}
@@ -222,13 +203,13 @@ function ClauseChangesPage() {
                   />
                   Direction requires existing contracts to be modified
                 </label>
-                <label className="text-[13px]">
-                  <span className="block text-muted-foreground">Direction deadline</span>
+                <label className="mc-pa-label">
+                  Direction deadline
                   <input
                     type="date"
                     value={change.change_deadline ?? ""}
                     onChange={(event) => setDirection.mutate({ required: change.modification_required, deadline: event.target.value || null })}
-                    className="mt-1 rounded-lg border border-border bg-background px-3 py-2"
+                    className="mc-pa-input max-w-[14rem]"
                   />
                 </label>
               </div>
@@ -246,7 +227,7 @@ function ClauseChangesPage() {
       {canWrite && change?.modification_required && rows.some((row) => row.clauseListKnown) ? (
         <button
           type="button"
-          className="mb-6 rounded-lg border border-border px-3 py-2 text-[15px] text-primary"
+          className="mc-req-button mb-6"
           onClick={() => create.mutate()}
           disabled={create.isPending}
         >
@@ -266,142 +247,65 @@ function ClauseChangesPage() {
       ) : null}
 
       {rows.length > 0 ? (
-        <TableScrollRegion baseClassName="mc-work-table-wrap" label={`Contracts affected by ${change?.clause_number}, sorted by months of performance remaining`}>
-        <table className="w-full border-collapse text-[13px] leading-[18px]">
-          <caption className="sr-only">
-            Contracts affected by {change?.clause_number}, sorted by months of performance remaining
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="py-2 pr-3 font-medium">
-                File
-              </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                Center
-              </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                Months remaining
-              </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                Why it is listed
-              </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                Mod task
-              </th>
-              <th scope="col" className="py-2 font-medium">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.acquisition_id} className="border-b border-border align-top">
-                <td className="py-2 pr-3">
-                  <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acquisition_id }} className="text-primary">
-                    {r.acquisition_id}
-                  </Link>
-                  <span className="block text-muted-foreground">{r.title ?? "No title recorded"}</span>
-                  <span className="block text-muted-foreground">
-                    {r.contract_number ?? "No contract number recorded"} · {r.clock_state ?? "state not recorded"}
-                  </span>
-                </td>
-                <td className="py-2 pr-3">{r.center_code ?? "Unassigned"}</td>
-                <td className="py-2 pr-3" data-numeric>
-                  {r.monthsRemaining === null
-                    ? "End date not recorded"
-                    : r.monthsRemaining < 0
-                      ? `${Math.abs(r.monthsRemaining)} months past end`
-                      : `${r.monthsRemaining} months`}
-                </td>
-                 <td className="py-2 pr-3 max-w-[36ch]"><span className="font-medium">{r.label}</span><span className="block text-muted-foreground">{r.reason}</span></td>
-                <td className="py-2 pr-3">
-                  {r.task ? (
-                    <>
-                      <span>{r.task.status === "complete" ? "Complete" : "Open"}</span>
-                      <span className="block text-muted-foreground">
-                        {r.task.owner_name ?? "Owner not recorded"} · due {r.task.deadline_date ?? "no date"}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground">Not created</span>
-                  )}
-                </td>
-                <td className="py-2">
-                  <button
-                    type="button"
-                    className="text-primary underline"
-                    onClick={() => void downloadPacket(r)}
-                  >
-                    SF 30 handoff packet
-                  </button>
-                  {canWrite && r.task && r.task.status !== "complete" ? (
-                    <button
-                      type="button"
-                      className="mt-2 block text-primary underline"
-                      onClick={() => complete.mutate(r)}
-                      disabled={complete.isPending}
-                    >
-                      Mark the mod complete
-                    </button>
-                  ) : null}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        </TableScrollRegion>
+        <section className="mc-kpanel mb-6">
+          <div className="mc-kpanel-head"><div>
+            <h2 className="mc-kpanel-title">Affected contracts</h2>
+            <p className="mt-1 text-[15px] leading-[22px] text-muted-foreground" data-numeric>{`Contracts affected by ${change?.clause_number}, sorted by months of performance remaining.`}</p>
+          </div></div>
+          <div className="mt-4">
+            <DataTable label={`Contracts affected by ${change?.clause_number}, sorted by months of performance remaining`} caption={`Contracts affected by ${change?.clause_number}, sorted by months of performance remaining`} rowKey={(r) => r.acquisition_id} rows={rows} columns={[
+              { key: "file", header: "File", rowHeader: true, cell: (r) => (<>
+                <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acquisition_id }} className="text-primary underline">{r.acquisition_id}</Link>
+                <span className="block text-muted-foreground">{r.title ?? "No title recorded"}</span>
+                <span className="block text-muted-foreground">{r.contract_number ?? "No contract number recorded"} · {r.clock_state ?? "state not recorded"}</span>
+              </>) },
+              { key: "center", header: "Center", cell: (r) => r.center_code ?? "Unassigned" },
+              { key: "months", header: "Months remaining", numeric: true, nowrap: true, cell: (r) => <span data-numeric>{r.monthsRemaining === null ? "End date not recorded" : r.monthsRemaining < 0 ? `${Math.abs(r.monthsRemaining)} months past end` : `${r.monthsRemaining} months`}</span> },
+              { key: "why", header: "Why it is listed", cell: (r) => <><span className="font-medium">{r.label}</span><span className="block text-muted-foreground">{r.reason}</span></> },
+              { key: "task", header: "Mod task", cell: (r) => r.task ? <><StatusChip tone={r.task.status === "complete" ? "ontrack" : "attention"} label={r.task.status === "complete" ? "Complete" : "Open"} /><span className="mt-1 block text-muted-foreground">{r.task.owner_name ?? "Owner not recorded"} · due {r.task.deadline_date ?? "no date"}</span></> : <span className="text-muted-foreground">Not created</span> },
+              { key: "actions", header: "Actions", cell: (r) => <>
+                <button type="button" className="text-primary underline" onClick={() => void downloadPacket(r)}>SF 30 handoff packet</button>
+                {canWrite && r.task && r.task.status !== "complete" ? <button type="button" className="mt-2 block text-primary underline" onClick={() => complete.mutate(r)} disabled={complete.isPending}>Mark the mod complete</button> : null}
+              </> },
+            ]} />
+          </div>
+        </section>
       ) : null}
+
+
 
       {solicitationRows.length > 0 ? (
-        <MissionNavSection
-          id="clause-solicitations"
-          label="Solicitations to re-check"
-          collapsible
-          summary={`${solicitationRows.length} ${solicitationRows.length === 1 ? "file" : "files"}`}
-        >
-        <section>
-          <h2 className="text-[18px] leading-6 font-medium">Solicitations to re-check</h2>
-          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-            These files have no contract number yet, so there is nothing to modify. Re-check the clause in the
-            solicitation before award.
-          </p>
-          <ul className="mt-3 max-w-[80ch] space-y-2 border-t border-border pt-3">
-            {solicitationRows.map((r) => (
-              <li key={r.acquisition_id} className="text-[13px] leading-[18px]">
-                <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acquisition_id }} className="text-primary">
-                  {r.acquisition_id}
-                </Link>{" "}
-                <span>{r.title ?? "No title recorded"}</span>
-                <span className="block text-muted-foreground">
-                  {r.center_code ?? "Unassigned"} · {r.label} · {r.reason}
-                </span>
-              </li>
-            ))}
-          </ul>
+        <section className="mc-kpanel mb-6" id="clause-solicitations">
+          <div className="mc-kpanel-head"><div>
+            <h2 className="mc-kpanel-title">Solicitations to re-check</h2>
+            <p className="mt-1 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">These files have no contract number yet, so there is nothing to modify. Re-check the clause in the solicitation before award.</p>
+          </div></div>
+          <div className="mt-4">
+            <DataTable label="Solicitations to re-check" rowKey={(r) => r.acquisition_id} rows={solicitationRows} columns={[
+              { key: "file", header: "File", rowHeader: true, nowrap: true, cell: (r) => <Link to="/files/$acquisitionId" params={{ acquisitionId: r.acquisition_id }} className="text-primary underline">{r.acquisition_id}</Link> },
+              { key: "title", header: "Title", cell: (r) => r.title ?? "No title recorded" },
+              { key: "center", header: "Center", cell: (r) => r.center_code ?? "Unassigned" },
+              { key: "why", header: "Why it is listed", cell: (r) => <><span className="font-medium">{r.label}</span><span className="block text-muted-foreground">{r.reason}</span></> },
+            ]} />
+          </div>
         </section>
-        </MissionNavSection>
       ) : null}
 
-      <MissionNavSection id="clause-support" label="Center progress and handoff note" collapsible summary={`${counts.length} ${counts.length === 1 ? "Center" : "Centers"}`}>
-        <section className="min-w-0">
-          <h2 className="text-[18px] leading-6 font-medium">Mods done against mods due, by Center</h2>
-          {counts.length === 0 ? (
-            <p className="mt-2 text-muted-foreground">No mod task has been created yet.</p>
-          ) : (
-            <ul className="mt-3 max-w-[70ch] space-y-1 border-t border-border pt-3">
-              {counts.map((c) => (
-                <li key={c.center} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-3 text-[13px] leading-[18px]">
-                  <span className="break-words">{c.center}</span>
-                  <span data-numeric>{c.done} done of {c.due} due</span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <p className="mt-6 max-w-[80ch] break-words text-[13px] text-muted-foreground">
-            NCMS writes the modification of record (NFS CG 1804.11(b)). The packet here is a handoff showing the clause delta.
-          </p>
-        </section>
-      </MissionNavSection>
+      <section className="mc-kpanel" id="clause-support">
+        <div className="mc-kpanel-head"><div>
+          <h2 className="mc-kpanel-title">Mods done against mods due, by Center</h2>
+        </div></div>
+        <div className="mt-4">
+          <DataTable label="Mods done against mods due, by Center" empty={<p className="text-muted-foreground">No mod task has been created yet.</p>} rowKey={(c) => c.center} rows={counts} columns={[
+            { key: "center", header: "Center", rowHeader: true, cell: (c) => c.center },
+            { key: "done", header: "Done", numeric: true, cell: (c) => <span data-numeric>{c.done}</span> },
+            { key: "due", header: "Due", numeric: true, cell: (c) => <span data-numeric>{c.due}</span> },
+          ]} />
+        </div>
+        <p className="mc-kpanel-foot mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
+          NCMS writes the modification of record (NFS CG 1804.11(b)). The packet here is a handoff showing the clause delta.
+        </p>
+      </section>
     </AppShell>
   );
 }

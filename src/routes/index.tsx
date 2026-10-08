@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
 import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { DataTable, StatusChip } from "@/components/ui-mc";
+import { executiveBlocker } from "@/lib/executive-wording";
 import { useRole } from "@/components/role-context";
 import { ExclusionsSweepPanel } from "@/components/exclusions-sweep-panel";
 import { supabase } from "@/integrations/supabase/client";
@@ -547,7 +548,7 @@ function ClockBoard({
             {byReason.map(([reason, n]) => (
               <li key={reason} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                 <div className="min-w-0">
-                  <p className="text-[15px] leading-[22px]">{reason}</p>
+                  <p className="text-[15px] leading-[22px]">{executiveBlocker(reason)}</p>
                   <div className="mt-1 h-2 rounded" style={{ width: `${(n / maxHold) * 100}%`, backgroundColor: "var(--atrisk)" }} role="img" aria-label={`${n} on hold for ${reason}`} />
                 </div>
                 <span className="text-[15px]" data-numeric>{n}</span>
@@ -563,7 +564,7 @@ function ClockBoard({
           <DataTable label="The ten longest current holds" empty={<p className="text-muted-foreground">No file is on hold today.</p>}
             rowKey={({ m }) => m.acq.acquisition_id} rows={longestHolds} columns={[
               { key: "id", header: "Acquisition", rowHeader: true, cell: ({ m }) => <Link to="/files/$acquisitionId" params={{ acquisitionId: m.acq.acquisition_id }}>{m.acq.acquisition_id}</Link> },
-              { key: "reason", header: "Reason", cell: ({ m }) => m.hold?.reason ?? String(m.acq.hold_reason ?? "Not recorded") },
+              { key: "reason", header: "Reason", cell: ({ m }) => executiveBlocker(m.hold?.reason ?? String(m.acq.hold_reason ?? "Not recorded")) },
               { key: "owner", header: "Responsible role", cell: ({ m }) => m.blockerOwner ?? String(m.acq.hold_owner ?? "Not recorded") },
               { key: "days", header: "Days on hold", numeric: true, cell: ({ m, days }) => <span data-numeric>{m.blockerSince ? days : "Start not recorded"}</span> },
             ]} />

@@ -6,6 +6,7 @@ import { daysBetween, todayISO } from "@/lib/intake";
 import { McPanel } from "./primitives";
 import { missionControlState } from "./mission-status-board";
 import { overviewCountdownView } from "./operational-state";
+import { executiveBlocker } from "@/lib/executive-wording";
 
 export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetrics[]; missions: MissionRow[] }) {
   const rows = [...metrics]
@@ -25,7 +26,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
             const state = missionControlState(metric);
             const mission = missions.find((item) => item.mission_id === metric.acq.mission_id);
             const daysInCondition = metric.blockerSince ? Math.max(0, daysBetween(metric.blockerSince, todayISO())) : null;
-            const condition = metric.blocker !== "None" ? metric.blocker : metric.nextAction;
+            const condition = metric.blocker !== "None" ? executiveBlocker(metric.blocker) : metric.nextAction;
             return (
               <li key={metric.acq.acquisition_id}>
                 <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }} className="mc-anomaly-row">
@@ -35,7 +36,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
                     <span className="block truncate text-[12px] text-mc-muted" title={condition}>{condition}</span>
                   </span>
                   <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Start not recorded" : `${daysInCondition} days`}</strong></span>
-                  <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhase ?? "Not started"}</strong></span>
+                  <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhaseLabel ?? "Not started"}</strong></span>
                   <span className="mc-anomaly-data"><small>Next step</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}${dueView(metric.nextDecisionDate)?.overdue ? ` · ${dueView(metric.nextDecisionDate)?.text}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}{dueView(metric.nextDecisionDate)?.overdue ? <span className="mc-due-dark"> · {dueView(metric.nextDecisionDate)?.text}</span> : null}</strong></span>
                 </Link>
               </li>
