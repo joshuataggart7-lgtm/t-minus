@@ -51,6 +51,7 @@ import {
   phaseOverrunDays,
   pollBoard,
   reviewerNameForRole,
+  jofocAuthorityFor,
   REVIEW_PHASES,
   reviewRulesForPhase,
   type AcqRow,
@@ -1358,7 +1359,7 @@ function FilePage() {
     mutationFn: async ({ doc, attach, reason }: { doc: RequiredDoc; attach: boolean; reason?: string }) => {
       if (!acq || !doc.field) return;
       const who = await signedInName(actorName);
-      const value = doc.field === "jofoc_authority_citation" ? (attach ? "RFO FAR 6.301(a)(1)" : "") : attach;
+      const value = doc.field === "jofoc_authority_citation" ? (attach ? jofocAuthorityFor(acq) : "") : attach;
       const next: Record<string, unknown> = { [doc.field]: value, updated_at: new Date().toISOString() };
 
       // recompute the clock with the new value applied

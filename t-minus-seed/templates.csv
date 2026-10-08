@@ -1,5 +1,5 @@
 nf_1098_tab,name,hq_effective_date,status,governing_citation,citation_tier
-N/A,Commerciality Determination and Findings,,live,FAR 2.101; FAR 10.002(e); FAR 12.102,binding
+N/A,Commerciality Determination and Findings,,live,"RFO FAR 2.101 (commercial product, commercial service); RFO FAR 10.001(f); RFO FAR 12.101(a)",binding
 —,NASA Form 1707 (intake),"current XFA form (Adobe Experience Manager), field map in nf1707_fields.csv",live,"NF 1707, Special Approvals and Affirmations of Requisitions",binding
 002,Addendum Outlining Significant Changes to Approved PSMs / Written Acquisition Plans Template,4/6/2026,live,[fill from template header],guidance
 002,Determination and Findings for Consolidation of Requirements,4/21/2026,live,"RFO FAR 7.107-1(a)(6), (b)(1); RFO FAR 7.107-2; 15 U.S.C. 657q",binding
@@ -28,7 +28,7 @@ N/A,Commerciality Determination and Findings,,live,FAR 2.101; FAR 10.002(e); FAR
 016,Limited Sources Justification (LSJ) GSA Federal Supply Schedule (FSS),4/16/2026,live,[fill from template header],guidance
 018,OCI Determination Memorandum and Checklist Template,5/1/2026,live,[fill from template header],binding
 021,Determination and Findings Authority to Exclude a Source,4/27/2026,live,[fill from template header],binding
-024,Option Justification,7/21/2026,live,FAR 17.205(a); FAR 17.202,guidance
+024,Option Justification,7/21/2026,live,RFO FAR 17.201-1; RFO FAR 17.201-2,guidance
 025,Buy American Act Nonavailability Determination - Supplies,4/20/2026,live,[fill from template header],binding
 028/72,UCA-Letter Contract Justification,5/14/2026,live,[fill from template header],guidance
 030,Notification to Interested Parties under CBAs,4/30/2026,live,[fill from template header],guidance
@@ -99,26 +99,26 @@ DRD,UMRDI DRD,6/15/2026,planned,NFS 1852 / DRD program,guidance
 DRD,OCI Plan DRD,5/1/2026,live,NFS 1852 / DRD program,guidance
 DRD,Supply Chain Visibility (SCV) Reporting DRD,7/1/2024,planned,NFS 1852 / DRD program,guidance
 N/A,Market Research Memorandum,,live,RFO FAR 10.001; NFS CG 1810.12,binding
-N/A,Waiver or Deviation Request,,live,FAR 1.402; NFS 1801.404,binding
+N/A,Waiver or Deviation Request,,live,RFO FAR 1.303; RFO FAR 1.304; NFS CG 1801.31,binding
 N/A,Coordination Memorandum,,live,RFO FAR 4.101; NFS CG 1804.8,guidance
 N/A,Pre-award Package Transmittal Memorandum,,live,NF 1098 Checklist for Contract Award File Content; RFO FAR 4.101,binding
-005,Competition Advocate reporting questions,,Planned,FAR 6.502,binding
-005,Compliance with Ethical Obligations self-certification,,Planned,FAR 3.101,binding
+005,Competition Advocate reporting questions,,Planned,RFO FAR 6.003(b); NFS CG 1806.01(c) through (e),binding
+005,Compliance with Ethical Obligations self-certification,,Planned,RFO FAR 3.101-1; NFS CG 1803.11; NFS CG 1803.15,binding
 020,Contract Data Requirements List,,Planned,NFS 1811.170,binding
-060,Contract Transfer,,Planned,FAR 42.12,binding
-003,Determination and Findings GSA Time and Materials or Labor Hour Order,11/1/2025,live,FAR 8.401; FAR 12.104(b); FAR 16.601-4(c),binding
-020,Electronic submission of proposals through Box,,Planned,FAR 5.102,guidance
+060,Contract Transfer,,Planned,NFS CG 1804.82; NFS CG 1804.88,binding
+003,Determination and Findings GSA Time and Materials or Labor Hour Order,11/1/2025,live,RFO FAR 8.401(b); RFO FAR 12.104(b)(1); RFO FAR 16.601-3(a)(2),binding
+020,Electronic submission of proposals through Box,,Planned,NFS CG 1815.18(a),guidance
 054,Evaluation of Quotations Record,09/2026,live,RFO FAR 12.203; RFO FAR 13.202,binding
-010,Financial Capability Assessment,,Planned,FAR 9.104-1(a),binding
+010,Financial Capability Assessment,,Planned,RFO FAR 9.104-1(a); RFO FAR 9.104-3(a),binding
 N/A,Memorandum for Record,,live,RFO FAR 4.101,guidance
 7,"NF 1787, Small Business Coordination Record",,live,NFS CG 1819.11(a) (Companion Guide),binding
 7,"NF 1787A, Market Research Report",,live,NFS CG 1810.12(c),guidance
 ,"OF 347, Order for Supplies or Services",02/2012,Ready,RFO FAR 13.203(c); RFO FAR 12.204(c)(1),binding
-010,Requirements Statements List,,live,FAR 11.101,binding
+010,Requirements Statements List,,live,RFO FAR 11.102(a)(2); NFS CG 1811.26,binding
 N/A,SAM.gov notice,T-Minus form; posted in SAM.gov,live,RFO FAR 5.101; RFO FAR 5.101(c)(4)(vii); RFO FAR 5.201; RFO FAR 12.202(b),binding
 020,Section L and M Mission Suitability volume,,Planned,NFS 1815.204,binding
-020,Section L notice of potential OCI,,Planned,FAR 9.504,binding
-020,Section M responsibility and eligibility standards,,Planned,FAR 15.304,binding
+020,Section L notice of potential OCI,,Planned,RFO FAR 9.504; NFS CG 1815.18(b),binding
+020,Section M responsibility and eligibility standards,,Planned,RFO FAR 9.104-1; NFS CG 1815.18(c),binding
 ,"SF 1449, Solicitation/Contract/Order for Commercial Products and Commercial Services",,live,RFO FAR 12.204(c),binding
 ,"SF 30, Amendment of Solicitation/Modification of Contract",,Ready,RFO FAR 43.401,binding
-030,"Total Compensation Plan analysis tools, 5 year and 10 year",,Planned,FAR 22.1103,guidance
+030,"Total Compensation Plan analysis tools, 5 year and 10 year",,Planned,NFS CG 1831.13,guidance

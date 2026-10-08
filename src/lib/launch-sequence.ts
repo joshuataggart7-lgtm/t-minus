@@ -213,6 +213,36 @@ export function simplifiedSoleSource(acq?: AcqRow | null): "noncommercial" | "co
   return simplifiedSoleSourceKind((acq ?? null) as Record<string, unknown> | null, path === "commercial");
 }
 
+/** Display name for the JOFOC phase on a simplified sole-source file; the phase key stays "JOFOC". */
+function simplifiedSoleLabel(acq?: AcqRow | null): { label?: string } {
+  const kind = simplifiedSoleSource(acq);
+  if (kind === "noncommercial") return { label: "Single-source D&F" };
+  if (kind === "commercial") return { label: "Only-one-source documentation" };
+  return {};
+}
+
+/**
+ * The statutory authority a justification records (RFO FAR 6.104-1(a)(4)),
+ * matching the file's reason: unusual and compelling urgency (RFO FAR 6.103-2),
+ * an 8(a) sole source above $30 million (RFO FAR 6.103-5(e); RFO FAR
+ * 19.208-2(a)(1)), a commercial simplified file under RFO FAR 12.201-1
+ * (41 U.S.C. 1901), otherwise only one responsible source (RFO FAR 6.103-1).
+ * A value already on the record is kept.
+ */
+export function jofocAuthorityFor(acq?: AcqRow | null): string {
+  const row = (acq ?? {}) as Record<string, unknown>;
+  const recorded = String(row["jofoc_authority_citation"] ?? "").trim();
+  if (recorded && recorded !== "RFO FAR 6.301(a)(1)") return recorded;
+  const variant = acq ? jofocVariant(row) : null;
+  if (variant?.doc_key === "jofoc-urgency" || variant?.templateKey === "jofoc-urgency")
+    return "10 U.S.C. 3204(a)(2) as implemented by RFO FAR 6.103-2 (unusual and compelling urgency)";
+  if (variant?.templateKey === "jofoc-8a-over-30m")
+    return "10 U.S.C. 3204(a)(5) as implemented by RFO FAR 6.103-5 (authorized or required by statute)";
+  if (isCommercialBuy(acq) && /12\.201-1/.test(String(row["acquisition_method"] ?? "")))
+    return "41 U.S.C. 1901 (RFO FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)";
+  return "10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1 (only one responsible source)";
+}
+
 /** The award instrument named on the signature and award rows. */
 function awardInstrument(path: AwardPath): string {
   switch (path) {
@@ -1648,6 +1678,7 @@ export function buildSequence(
     return {
       phase,
       ...(definitization ? { label: "Definitization (price reasonableness)" } : {}),
+      ...(phase === "JOFOC" ? simplifiedSoleLabel(acq) : {}),
       ...(followsAward.length ? { followsAward } : {}),
       planned_days: planned,
       order: r.order ?? i + 1,

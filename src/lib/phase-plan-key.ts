@@ -6,7 +6,10 @@
  * - A letter contract runs the letter_contract plan, which puts Price
  *   Reasonableness after award as the definitization window (RFO FAR
  *   16.603-2(c): 180 days or 40 percent of the work, whichever comes first).
- * - Sole source stays on the shared sole-source plan; its rows follow the
+ * - Noncommercial sole source outside simplified procedures (a negotiated
+ *   FAR Part 15 buy with a Part 6 justification) runs noncommercial_sole_source,
+ *   or noncommercial_sole_source_cost on a cost-reimbursement type.
+ * - Other sole source stays on the shared sole-source plan; its rows follow the
  *   file's path (commercial, simplified or negotiated) in launch-sequence.ts.
  * - Competed, noncommercial FAR Part 15 buys run noncommercial_far15_competed,
  *   or noncommercial_far15_competed_cost on a cost-reimbursement type.
@@ -20,6 +23,8 @@ export const COMMERCIAL_COMPETED_PLAN = "commercial_ffp_13_5_competed";
 export const COMMERCIAL_SOLE_SOURCE_PLAN = "commercial_ffp_13_5_sole_source";
 export const NONCOMMERCIAL_FAR15_COMPETED_PLAN = "noncommercial_far15_competed";
 export const NONCOMMERCIAL_FAR15_COMPETED_COST_PLAN = "noncommercial_far15_competed_cost";
+export const NONCOMMERCIAL_SOLE_SOURCE_PLAN = "noncommercial_sole_source";
+export const NONCOMMERCIAL_SOLE_SOURCE_COST_PLAN = "noncommercial_sole_source_cost";
 export const SIMPLIFIED_COMPETED_PLAN = "simplified_competed";
 export const LETTER_CONTRACT_PLAN = "letter_contract";
 export const RATIFICATION_PLAN = "ratification";
@@ -107,16 +112,26 @@ export function newContractPlanKey(
   const has = (key: string) => !plan || plan.some((p) => p.acquisition_type === key);
   if (facts.ratification && has(RATIFICATION_PLAN)) return RATIFICATION_PLAN;
   if (facts.letterContract && has(LETTER_CONTRACT_PLAN)) return LETTER_CONTRACT_PLAN;
-  if (/sole/i.test(String(facts.competition ?? ""))) return COMMERCIAL_SOLE_SOURCE_PLAN;
+  const value = Number(facts.value ?? NaN);
+  const sat = facts.sat ?? SAT_DEFAULT;
+  const withinSat = !Number.isFinite(value) || value <= sat;
+  if (/sole/i.test(String(facts.competition ?? ""))) {
+    const noncommercial =
+      facts.commercial === false || (facts.commercial !== true && isNoncommercialFar15Method(facts.method));
+    const simplified = isFar13Method(facts.method) && withinSat;
+    if (noncommercial && !simplified) {
+      if (isCostType(facts.contractType) && has(NONCOMMERCIAL_SOLE_SOURCE_COST_PLAN))
+        return NONCOMMERCIAL_SOLE_SOURCE_COST_PLAN;
+      if (has(NONCOMMERCIAL_SOLE_SOURCE_PLAN)) return NONCOMMERCIAL_SOLE_SOURCE_PLAN;
+    }
+    return COMMERCIAL_SOLE_SOURCE_PLAN;
+  }
   const far15 = facts.commercial !== true && isNoncommercialFar15Method(facts.method);
   if (far15) {
     if (isCostType(facts.contractType) && has(NONCOMMERCIAL_FAR15_COMPETED_COST_PLAN))
       return NONCOMMERCIAL_FAR15_COMPETED_COST_PLAN;
     if (has(NONCOMMERCIAL_FAR15_COMPETED_PLAN)) return NONCOMMERCIAL_FAR15_COMPETED_PLAN;
   }
-  const value = Number(facts.value ?? NaN);
-  const sat = facts.sat ?? SAT_DEFAULT;
-  const withinSat = !Number.isFinite(value) || value <= sat;
   if (facts.commercial !== true && isFar13Method(facts.method) && withinSat && facts.value !== undefined && has(SIMPLIFIED_COMPETED_PLAN))
     return SIMPLIFIED_COMPETED_PLAN;
   return COMMERCIAL_COMPETED_PLAN;

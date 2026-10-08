@@ -1268,7 +1268,7 @@ const dandfGsaTmLh = tmLhDandF({
   authoritySentence:
     "Based on the following determination and findings, made under the authority of RFO FAR 12.104(b), the acquisition described below may be entered into on a time-and-materials or labor-hour basis.",
   badge: {
-    citation: "RFO FAR 8.401; RFO FAR 12.104(b); RFO FAR 16.601-4(c); RFO FAR 16.601-3(a)(2)",
+    citation: "RFO FAR 8.401(b); RFO FAR 12.104(b)(1); RFO FAR 16.601-3(a)(2)",
     tier: "binding",
     revision: "HQ 11/2025 revision",
     effective: "2025-11-01",
@@ -1284,7 +1284,7 @@ const dandfGsaTmLh = tmLhDandF({
   },
   finalFinding: {
     title: "The order must specify separate fixed hourly rates.",
-    text: "The contract or order must specify separate fixed hourly rates that include wages, overhead, general and administrative expenses, and profit for each labor category (see 16.601-4(c)).",
+    text: "The contract or order must specify separate fixed hourly rates that include wages, overhead, general and administrative expenses, and profit for each labor category (see RFO FAR 16.601-2(b)(1)).",
   },
   determination:
     "There are too many variables in the services required to accurately establish a reasonable fixed price. Therefore, it is considered impracticable to secure services of this kind or quality required without the use of a time-and-materials or labor-hour order or BPA. Based on the findings above, I have determined that the issuance of a time-and-materials or labor-hour order or BPA is in the best interest of the Government.",
