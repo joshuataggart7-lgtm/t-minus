@@ -218,7 +218,12 @@ export function computeMetrics(
       ? (launched ? "launched" : "scrubbed")
       : hold
         ? "hold"
-        : String(acq.clock_state ?? "running");
+        : // A stored "hold" with no cause left to show (an engine-written reason
+          // that no longer recomputes, and nothing typed by a person) reads as
+          // running, so the header never shows HOLD without a cause.
+          String(acq.clock_state ?? "running") === "hold"
+          ? "running"
+          : String(acq.clock_state ?? "running");
 
   // Planned exit of the current phase. One source of truth with the launch
   // sequence line and the award forecast: the days already worked in the phase

@@ -124,7 +124,8 @@ export function withResolvedHolds(
       ...acq,
       hold_reason: cause?.reason ?? null,
       hold_owner: cause?.owner ?? null,
-      clock_state: cause ? "hold" : acq.clock_state,
+      // Same rule as the file header: no cause to show means the clock runs.
+      clock_state: cause ? "hold" : acq.clock_state === "hold" ? "running" : acq.clock_state,
       __also_recorded: alsoRecordedHold(acq, cause),
     } as AcqRow;
   });

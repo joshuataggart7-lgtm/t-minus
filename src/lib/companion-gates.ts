@@ -15,6 +15,7 @@ import {
 } from "@/lib/launch-sequence";
 import type { RefData } from "@/lib/intake";
 import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
+import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { DECISION_LABEL } from "@/lib/review-decisions";
 
 export type GateStatus = "Satisfied" | "Open" | "Not applicable";
@@ -98,7 +99,7 @@ export function evaluateCompanionGates(
   // NF 1787 small business coordination, per NFS CG 1819.11(a) (Companion
   // Guide guidance). A seeded Center review-chain row still shows on the
   // board; this gate is about the Companion Guide trigger only.
-  const micro = threshold(ref, "Micro-purchase threshold", 10_000);
+  const micro = threshold(ref, MICRO_PURCHASE_THRESHOLD_NAME, MICRO_PURCHASE_THRESHOLD);
   const sb = nf1787Trigger(acq as Record<string, unknown>, { micro });
   const sbApplies = sb.required;
   const sbSat = hasKey(evidence, ["nf-1787", "nf-1787a"]);

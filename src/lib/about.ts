@@ -59,7 +59,9 @@ export const SEED_SOURCES: { name: string; asOf: string }[] = [
   // 26-03B." (hq.nasa.gov NFS.pdf, read Oct 7, 2026). The copy T-Minus loaded
   // earlier reads "Last modified on July 23, 2026, through PCD 26-03B."
   { name: "NFS interim rule", asOf: "Last modified September 15, 2026, through PCD 26-03B (earlier version July 23, 2026)" },
-  { name: "NFS Companion Guide", asOf: "August 5, 2026" },
+  // CG cover "Updated September 11, 2026"; Appendix C logs an earlier update
+  // implemented 8/05/26 and the 9/11/26 update.
+  { name: "NFS Companion Guide", asOf: "Updated September 11, 2026 (earlier update August 5, 2026)" },
   { name: "PCD 26-03B clause matrix", asOf: "June 25, 2026" },
   { name: "NFS applicability matrix", asOf: "July 23, 2026 version of the interim NFS" },
   { name: "OP template list", asOf: "September 10, 2026" },

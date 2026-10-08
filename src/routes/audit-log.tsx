@@ -6,6 +6,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { buildActorAliases, displayActor, type ProfileAliasRow } from "@/lib/actor-alias";
+import { auditActionLabel, auditPhaseLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 
 export const Route = createFileRoute("/audit-log")({
   head: () => ({
@@ -95,14 +96,14 @@ function AuditLogPage() {
     [rows, aliases],
   );
   const phases = useMemo(
-    () => Array.from(new Set(rows.map((r) => r.phase).filter((p): p is string => !!p))).sort(),
+    () => Array.from(new Set(rows.map((r) => auditPhaseLabel(r.phase)).filter((p): p is string => !!p))).sort(),
     [rows],
   );
 
   const filtered = rows.filter(
     (r) =>
       (!actor || (!!r.actor && displayActor(r.actor, aliases).name === actor)) &&
-      (!phase || r.phase === phase),
+      (!phase || auditPhaseLabel(r.phase) === phase),
   );
 
   // One timeline per acquisition, newest activity first.
@@ -234,12 +235,12 @@ function AuditLogPage() {
                         })()
                       : "—"}
                   </td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.action ?? "—"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.phase ?? "—"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.field ?? "—"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.old_value ?? "—"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.new_value ?? "—"}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{r.reason ?? "—"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.action, auditActionLabel(r.action))}>{auditActionLabel(r.action) ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.phase, auditPhaseLabel(r.phase))}>{auditPhaseLabel(r.phase) ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{r.field ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.old_value, auditValueLabel(r.action, r.old_value))}>{auditValueLabel(r.action, r.old_value) ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.new_value, auditValueLabel(r.action, r.new_value))}>{auditValueLabel(r.action, r.new_value) ?? "Not recorded"}</td>
+                  <td className="min-w-0 break-words px-3 py-2" title={storedAs(r.reason, auditTextLabel(r.reason))}>{auditTextLabel(r.reason) ?? "Not recorded"}</td>
                 </tr>
               ))}
             </tbody>
