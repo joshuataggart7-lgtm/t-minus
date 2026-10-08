@@ -92,7 +92,7 @@ export function methodShell(facts: ScaffoldFacts | null | undefined): MethodShel
 }
 
 export const LM_STUB_CHIP =
-  "L/M are handoff stubs — not the solicitation of record.";
+  "L/M are handoff stubs, not the solicitation of record.";
 export const LM_AUTHORED_CHIP =
   "L/M drafted in T-Minus for handoff — NCMS remains the solicitation of record.";
 

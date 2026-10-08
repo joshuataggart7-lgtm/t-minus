@@ -67,7 +67,7 @@ export function corToMemo(acq: Acq, request: CorToRequest): string {
   const id = str(acq?.["acquisition_id"]) ?? NOT_RECORDED;
   const kind = request.request_type === "TO" ? "Task order request" : "COR request";
   const lines = [
-    `Memorandum to file — ${kind}`,
+    `Memorandum to file: ${kind}`,
     `Acquisition: ${id}`,
     `Contract number: ${str(acq?.["contract_number"]) ?? NOT_RECORDED}`,
     `Requester: ${request.requester ?? d.requester ?? NOT_RECORDED}`,

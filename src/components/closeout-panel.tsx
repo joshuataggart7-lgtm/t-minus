@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
+import { CiteChip, StatusChip } from "@/components/ui-mc";
 import {
   closeoutChecklist,
   closeoutMemo,
@@ -66,122 +67,163 @@ export function CloseoutPanel({
   if (!launched && phase !== "Closeout") return null;
 
   const set = (patch: Partial<CloseoutRecord>) => setDraft({ ...record, ...patch });
-  const input = "mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]";
   const retention = retentionDate(record.final_payment_date);
   const items = closeoutChecklist(record, { cparsRecorded });
   const open = items.filter((i) => !i.done);
   const ready = closeoutReady(items);
+  const done = items.length - open.length;
 
   return (
-    <section aria-label="Closeout record" className="mb-10 w-full [&_p]:max-w-[70ch] rounded-xl border border-border bg-background p-5">
-      <h2 className="text-[18px] leading-6 font-medium">Closeout record</h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <label className="block text-[13px] text-muted-foreground">
-          Deobligation amount, dollars
-          <input
-            className={input}
-            inputMode="decimal"
-            disabled={!canWrite}
-            value={record.deobligation_amount ?? ""}
-            onChange={(e) =>
-              set({ deobligation_amount: e.target.value.trim() ? Number(e.target.value) : null })
-            }
+    <section aria-label="Closeout record" className="mc-kpanel mc-pa mb-10 w-full">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h2 className="mc-kpanel-title">Closeout record</h2>
+          <p className="mc-pa-sub">
+            The Closeout Transfer Checklist reads these values. Each line reads from this record;
+            nothing is marked complete that the record does not show.
+          </p>
+        </div>
+        <div className="mc-kpanel-status">
+          <StatusChip
+            label={ready ? "Ready for transfer" : `${open.length} open`}
+            tone={ready ? "ontrack" : "attention"}
           />
-        </label>
-        <label className="block text-[13px] text-muted-foreground">
-          Deobligation date
-          <input
-            type="date"
-            className={input}
-            disabled={!canWrite}
-            value={record.deobligation_date ?? ""}
-            onChange={(e) => set({ deobligation_date: e.target.value })}
-          />
-        </label>
-        <label className="block text-[13px] text-muted-foreground">
-          Final invoice date
-          <input
-            type="date"
-            className={input}
-            disabled={!canWrite}
-            value={record.final_invoice_date ?? ""}
-            onChange={(e) => set({ final_invoice_date: e.target.value })}
-          />
-        </label>
-        <label className="block text-[13px] text-muted-foreground">
-          Final payment date
-          <input
-            type="date"
-            className={input}
-            disabled={!canWrite}
-            value={record.final_payment_date ?? ""}
-            onChange={(e) => set({ final_payment_date: e.target.value })}
-          />
-        </label>
-        <label className="flex items-center gap-2 text-[15px] sm:col-span-2">
-          <input
-            type="checkbox"
-            disabled={!canWrite}
-            checked={Boolean(record.release_of_claims)}
-            onChange={(e) => set({ release_of_claims: e.target.checked })}
-          />
-          Release of claims received
-        </label>
-        <label className="flex items-center gap-2 text-[15px] sm:col-span-2">
-          <input
-            type="checkbox"
-            disabled={!canWrite}
-            checked={Boolean(record.property_cleared)}
-            onChange={(e) => set({ property_cleared: e.target.checked })}
-          />
-          Government property cleared
-        </label>
+          <span className="mc-req-meta" data-numeric>
+            {done} of {items.length} complete
+          </span>
+        </div>
       </div>
-      <p className="mt-3 text-[13px] text-muted-foreground">
-        Final CPARS: {cparsRecorded ? "entered on this file" : "not entered yet"}. Retention date:{" "}
-        {retention ?? "set the final payment date to compute it"}
-        {retention ? ", six years after final payment (RFO FAR 4.309)" : ""}.
-      </p>
 
-      <h3 className="mt-5 text-[15px] leading-[22px] font-medium">Closeout checklist</h3>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        Each line reads from this record. Nothing is marked complete that the record does not show.
-      </p>
-      <ul className="mt-2 space-y-1 text-[13px] leading-[18px]">
-        {items.map((i) => (
-          <li key={i.label}>
-            {i.label} · {i.done ? "Complete" : "Open"}{i.citation ? ` · ${i.citation}` : ""}
-            {i.note ? ` · ${i.note}` : ""}
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 max-w-[70ch] border border-border p-3 text-[13px] leading-[18px]">
-        {ready
-          ? "Every closeout item reads complete. This file is ready for transfer."
-          : `This file is not ready for transfer yet. ${open.length} item${open.length === 1 ? "" : "s"} still open: ${open
-              .map((i) => i.label.toLowerCase())
-              .join(", ")}.`}
-      </p>
-      <button
-        type="button"
-        onClick={() => {
-          void navigator.clipboard?.writeText(closeoutMemo(acquisitionId, items, record));
-          onBanner("The memorandum to file was copied. Paste it where you keep the file.");
-        }}
-        className="mt-2 text-[15px] text-primary"
-      >
-        Copy the memorandum to file
-      </button>
-      {canWrite ? (
+      <div className="mc-kpanel-section">
+        <div className="mc-pa-form">
+          <label className="mc-pa-label">
+            Deobligation amount, dollars
+            <input
+              className="mc-pa-input"
+              inputMode="decimal"
+              disabled={!canWrite}
+              value={record.deobligation_amount ?? ""}
+              onChange={(e) =>
+                set({ deobligation_amount: e.target.value.trim() ? Number(e.target.value) : null })
+              }
+            />
+          </label>
+          <label className="mc-pa-label">
+            Deobligation date
+            <input
+              type="date"
+              className="mc-pa-input"
+              disabled={!canWrite}
+              value={record.deobligation_date ?? ""}
+              onChange={(e) => set({ deobligation_date: e.target.value })}
+            />
+          </label>
+          <label className="mc-pa-label">
+            Final invoice date
+            <input
+              type="date"
+              className="mc-pa-input"
+              disabled={!canWrite}
+              value={record.final_invoice_date ?? ""}
+              onChange={(e) => set({ final_invoice_date: e.target.value })}
+            />
+          </label>
+          <label className="mc-pa-label">
+            Final payment date
+            <input
+              type="date"
+              className="mc-pa-input"
+              disabled={!canWrite}
+              value={record.final_payment_date ?? ""}
+              onChange={(e) => set({ final_payment_date: e.target.value })}
+            />
+          </label>
+          <label className="mc-pa-toggle">
+            <input
+              type="checkbox"
+              disabled={!canWrite}
+              checked={Boolean(record.release_of_claims)}
+              onChange={(e) => set({ release_of_claims: e.target.checked })}
+            />
+            Release of claims received
+          </label>
+          <label className="mc-pa-toggle">
+            <input
+              type="checkbox"
+              disabled={!canWrite}
+              checked={Boolean(record.property_cleared)}
+              onChange={(e) => set({ property_cleared: e.target.checked })}
+            />
+            Government property cleared
+          </label>
+        </div>
+        <dl className="mc-pa-facts is-2 mt-4">
+          <div>
+            <dt>Final CPARS</dt>
+            <dd className={cparsRecorded ? undefined : "is-blank"}>
+              {cparsRecorded ? "Entered on this file" : "Not entered yet"}
+            </dd>
+          </div>
+          <div>
+            <dt>Retention date</dt>
+            <dd className={retention ? undefined : "is-blank"}>
+              {retention ? (
+                <>
+                  {retention}, six years after final payment <CiteChip cite="RFO FAR 4.309" />
+                </>
+              ) : (
+                "Set the final payment date to compute it"
+              )}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div className="mc-kpanel-section">
+        <h3 className="mc-req-h">Closeout checklist</h3>
+        <ul className="mc-pa-check">
+          {items.map((i) => (
+            <li key={i.label} className={i.done ? "is-done" : undefined}>
+              <span className="mc-pa-check-main">
+                <span>{i.label}</span>
+                {i.citation ? <CiteChip cite={i.citation} /> : null}
+              </span>
+              <StatusChip label={i.done ? "Complete" : "Open"} tone={i.done ? "ontrack" : "attention"} />
+              {i.note ? <span className="mc-pa-check-note">{i.note}</span> : null}
+            </li>
+          ))}
+        </ul>
+        <p className={`mc-pa-callout mt-3 ${ready ? "is-ontrack" : ""}`}>
+          {ready
+            ? "Every closeout item reads complete. This file is ready for transfer."
+            : `This file is not ready for transfer yet. ${open.length} item${open.length === 1 ? "" : "s"} still open: ${open
+                .map((i) => i.label.toLowerCase())
+                .join(", ")}.`}
+        </p>
+      </div>
+
+      <div className="mc-pa-actions">
+        {canWrite ? (
+          <button
+            type="button"
+            disabled={!draft || save.isPending}
+            onClick={() => draft && save.mutate(draft)}
+            className="mc-req-button"
+          >
+            {save.isPending ? "Saving" : "Save the closeout record"}
+          </button>
+        ) : null}
         <button
           type="button"
-          disabled={!draft || save.isPending}
-          onClick={() => draft && save.mutate(draft)}
-          className="mt-3 rounded-lg border border-border px-4 py-2 text-[15px] text-primary disabled:opacity-60"
+          onClick={() => {
+            void navigator.clipboard?.writeText(closeoutMemo(acquisitionId, items, record));
+            onBanner("The memorandum to file was copied. Paste it where you keep the file.");
+          }}
+          className="mc-pa-link"
         >
-          {save.isPending ? "Saving" : "Save the closeout record"}
+          Copy the memorandum to file
         </button>
-      ) : null}
+      </div>
     </section>
   );
 }

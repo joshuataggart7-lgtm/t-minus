@@ -77,7 +77,7 @@ import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { FilePhaseStepper } from "@/components/file-phase-stepper";
-import { DataTable, EmptyCell, StatusChip } from "@/components/ui-mc";
+import { CiteChip, DataTable, EmptyCell, StatusChip } from "@/components/ui-mc";
 import { dueView, holdAlertText, holdShortLabel, phasePosition, phasePositionText } from "@/lib/file-timeline";
 import { certifiedDataBasis, CERTIFIED_DATA_LABEL } from "@/lib/certified-data";
 import { AdvisoryTag } from "@/components/advisory-tag";
@@ -3744,10 +3744,10 @@ function FilePage() {
                     regionContext={`${p.phase} phase`}
                   />
                   {p.phase === "Award" && awardFillins.length > 0 ? (
-                    <div className="mt-3 border border-border p-4">
-                      <h5 className="text-[15px] font-medium">Fill-ins the award carries</h5>
-                      <p className="mt-1 text-[13px] text-muted-foreground">{CLAUSE_FILLIN_NOTE}</p>
-                      <ul className="mt-2 space-y-1 text-[13px]">
+                    <div className="mc-pa-card mt-3">
+                      <h5 className="mc-req-h">Fill-ins the award carries</h5>
+                      <p className="mc-pa-sub">{CLAUSE_FILLIN_NOTE}</p>
+                      <ul className="mc-pa-list mt-2">
                         {awardFillins.map((row) => (
                           <li key={row.clause_number}>
                             <span data-numeric>{row.clause_number}</span>{" "}
@@ -3757,13 +3757,13 @@ function FilePage() {
                       </ul>
                     </div>
                   ) : null}
-                  <button type="button" onClick={downloadPacket} className="mt-3 text-[15px] text-primary">
+                  <button type="button" onClick={downloadPacket} className="mc-pa-link mt-3">
                     Download the handoff packet
                   </button>
                 </div>
                 </details>
               ) : packetPhase && p.status === "complete" && PACKET_PHASES.includes(p.phase) ? (
-                <p className="mt-3 text-[13px] text-muted-foreground">
+                <p className="mc-pa-sub mt-3">
                   Clause packet: see{" "}
                   <a
                     href="#clause-packet"
@@ -3780,42 +3780,48 @@ function FilePage() {
               ) : null}
 
               {p.phase === "Administration" ? (
-                <div className="mt-3 w-full [&_p]:max-w-[80ch] space-y-4">
-                  <div className="border border-border p-4">
-                    <h4 className="text-[15px] font-medium">Option exercise</h4>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
+                <div className="mc-pa-stack mt-3 w-full">
+                  <div className="mc-kpanel mc-pa">
+                    <div className="mc-pa-card-head">
+                      <h4 className="mc-kpanel-title">Option exercise</h4>
+                      <StatusChip
+                        label={pa.option_exercised_date ? `Exercised ${pa.option_exercised_date}` : options.periods.length === 0 ? "No option dates recorded" : "Not exercised"}
+                        tone={pa.option_exercised_date ? "ontrack" : options.periods.length === 0 ? "neutral" : "attention"}
+                      />
+                    </div>
+                    <p className="mc-pa-sub">
                       Option dates come only from the contract schedule on the record. The
                       preliminary notice is due {options.noticeLeadDays} days before the option period begins (FAR
                       52.217-9 fill-in).
                     </p>
-                    <TableScrollRegion baseClassName="overflow-x-auto" label="Option periods table">
-<table className="mt-3 w-full text-[13px] leading-[18px]">
+                    <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label="Option periods table">
+<table className="mc-dt stack">
                       <caption className="sr-only">Option periods and notice dates</caption>
                       <thead>
-                        <tr className="border-y border-border text-left">
-                          <th scope="col" className="p-2">Period</th>
-                          <th scope="col" className="p-2">Start</th>
-                          <th scope="col" className="p-2">End</th>
-                          <th scope="col" className="p-2">Preliminary notice due</th>
+                        <tr>
+                          <th scope="col">Period</th>
+                          <th scope="col">Start</th>
+                          <th scope="col">End</th>
+                          <th scope="col">Preliminary notice due</th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-b border-border">
-                          <td className="p-2">Base period</td>
-                          <td className="p-2" data-numeric>{options.baseStart ?? "not recorded"}</td>
-                          <td className="p-2" data-numeric>{options.baseEnd ?? "not recorded"}</td>
-                          <td className="p-2"><EmptyCell>Not applicable</EmptyCell></td>
+                        <tr>
+                          <td data-label="Period">Base period</td>
+                          <td data-label="Start" data-numeric>{options.baseStart ?? "not recorded"}</td>
+                          <td data-label="End" data-numeric>{options.baseEnd ?? "not recorded"}</td>
+                          <td data-label="Preliminary notice due"><EmptyCell>Not applicable</EmptyCell></td>
                         </tr>
                         {options.periods.map((o) => (
-                          <tr key={o.label} className="border-b border-border">
-                            <td className="p-2">{o.label}</td>
-                            <td className="p-2" data-numeric>{o.start ?? "not recorded"}</td>
-                            <td className="p-2" data-numeric>{o.end ?? "not recorded"}</td>
-                            <td className="p-2" data-numeric>{o.noticeDue ?? "not recorded"}</td>
+                          <tr key={o.label}>
+                            <td data-label="Period">{o.label}</td>
+                            <td data-label="Start" data-numeric>{o.start ?? "not recorded"}</td>
+                            <td data-label="End" data-numeric>{o.end ?? "not recorded"}</td>
+                            <td data-label="Preliminary notice due" data-numeric>{o.noticeDue ?? "not recorded"}</td>
                           </tr>
                         ))}
                         {options.periods.length === 0 ? (
-                          <tr className="border-b border-border"><td colSpan={4} className="p-2 text-muted-foreground">Option dates are not recorded in the contract schedule.</td></tr>
+                          <tr><td colSpan={4} className="text-muted-foreground">Option dates are not recorded in the contract schedule.</td></tr>
                         ) : null}
                       </tbody>
                     </table>
@@ -3836,30 +3842,30 @@ function FilePage() {
                       };
                       return (
                         <>
-                          <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <h5 className="text-[15px] font-medium">What an option exercise carries</h5>
+                          <div className="mc-pa-h mt-4">
+                            <h5 className="mc-req-h">What an option exercise carries</h5>
                             <AdvisoryTag />
                           </div>
-                          <p className="mt-1 text-[13px] text-muted-foreground">Checklist read from the record.</p>
-                          <TableScrollRegion baseClassName="overflow-x-auto" label="Option checklist table">
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+                          <p className="mc-pa-sub">Checklist read from the record.</p>
+                          <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label="Option checklist table">
+<table className="mc-dt stack">
                             <caption className="sr-only">Option exercise checklist</caption>
                             <thead>
-                              <tr className="border-y border-border text-left">
-                                <th scope="col" className="p-2">Step</th>
-                                <th scope="col" className="p-2">Citation</th>
-                                <th scope="col" className="p-2">Status</th>
+                              <tr>
+                                <th scope="col">Step</th>
+                                <th scope="col">Citation</th>
+                                <th scope="col">Status</th>
                               </tr>
                             </thead>
                             <tbody>
                               {optionExercise.rows.map((r) => (
-                                <tr key={r.label} className="border-b border-border">
-                                  <td className="p-2">
+                                <tr key={r.label}>
+                                  <td data-label="Step">
                                     {r.templateKey ? (
                                       <Link
                                         to="/documents/$templateKey/$acquisitionId"
                                         params={{ templateKey: r.templateKey, acquisitionId }}
-                                        className="text-primary"
+                                        className="mc-pa-link"
                                       >
                                         {r.label}
                                       </Link>
@@ -3867,14 +3873,24 @@ function FilePage() {
                                       r.label
                                     )}
                                   </td>
-                                  <td className="p-2">{r.citation}</td>
-                                  <td className="p-2">{stateFor(r.citation)}</td>
+                                  <td data-label="Citation">{r.citation ? <CiteChip cite={r.citation} /> : <EmptyCell />}</td>
+                                  <td data-label="Status">
+                                    {(() => {
+                                      const st = stateFor(r.citation);
+                                      return (
+                                        <StatusChip
+                                          label={st}
+                                          tone={st.startsWith("Recorded") ? "ontrack" : st.startsWith("Due") ? "info" : "attention"}
+                                        />
+                                      );
+                                    })()}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
                           </table>
 </TableScrollRegion>
-                          <p className="mt-2 text-[13px] text-muted-foreground">
+                          <p className="mc-pa-sub mt-2">
                             {next && next.start && next.end
                               ? `The option must be exercised within ${next.label}, ${next.start} to ${next.end}.`
                               : "No option period start and end are recorded, so the exercise window cannot be read from the file."}
@@ -3884,8 +3900,8 @@ function FilePage() {
                     })()}
 
 
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <label className="text-[13px]" htmlFor="option-notice-date">
+                    <div className="mc-pa-dates mt-3">
+                      <label className="mc-pa-label" htmlFor="option-notice-date">
                         Preliminary notice sent on
                       </label>
                       <input
@@ -3902,10 +3918,10 @@ function FilePage() {
                             phase: "Administration",
                           })
                         }
-                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        className="mc-pa-input"
                         data-numeric
                       />
-                      <label className="text-[13px]" htmlFor="option-exercised-date">
+                      <label className="mc-pa-label" htmlFor="option-exercised-date">
                         Option exercised on
                       </label>
                       <input
@@ -3922,16 +3938,16 @@ function FilePage() {
                             phase: "Administration",
                           })
                         }
-                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        className="mc-pa-input"
                         data-numeric
                       />
                     </div>
 
-                    <p className="mt-3 text-[13px]">
+                    <p className="mc-pa-text mt-3">
                       <Link
                         to="/documents/$templateKey/$acquisitionId"
                         params={{ templateKey: "option-exercise-notification", acquisitionId }}
-                        className="text-primary"
+                        className="mc-pa-link"
                       >
                         Open the preliminary notice
                       </Link>
@@ -3939,7 +3955,7 @@ function FilePage() {
                       <Link
                         to="/documents/$templateKey/$acquisitionId"
                         params={{ templateKey: "option-exercise-determination", acquisitionId }}
-                        className="text-primary"
+                        className="mc-pa-link"
                       >
                         Open the option exercise determination
                       </Link>
@@ -3949,24 +3965,24 @@ function FilePage() {
                       onClick={() =>
                         downloadModPacket("option exercise", optionExercise.authority, options.periods[0] ?? null)
                       }
-                      className="mt-3 text-[15px] text-primary"
+                      className="mc-pa-link mt-3"
                     >
                       Download the SF 30 handoff packet for the option modification
                     </button>
-                    <p className="mt-2 text-[13px] text-muted-foreground">
+                    <p className="mc-pa-sub mt-2">
                       SF 30 block 13 authority: {optionExercise.authority}. The signed modification is
                       built and signed in NCMS (NFS CG 1804.11(b)); T-Minus produces the handoff packet only.
                     </p>
-                    <p className="mt-2 text-[13px] text-muted-foreground">
+                    <p className="mc-pa-sub mt-2">
                       To draft the modification itself, open Modifications on this file, choose New
                       modification, and pick Option exercise.
                     </p>
                   </div>
 
-                  <div className="border border-border p-4">
-                    <h4 className="text-[15px] font-medium">Contracting officer's representative</h4>
-                    <div className="mt-2 flex flex-wrap items-center gap-3">
-                      <label className="text-[13px]" htmlFor="cor-appointed-date">
+                  <div className="mc-kpanel mc-pa">
+                    <h4 className="mc-kpanel-title">Contracting officer's representative</h4>
+                    <div className="mc-pa-dates mt-2">
+                      <label className="mc-pa-label" htmlFor="cor-appointed-date">
                         Appointed on
                       </label>
                       <input
@@ -3983,10 +3999,10 @@ function FilePage() {
                             phase: "Administration",
                           })
                         }
-                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        className="mc-pa-input"
                         data-numeric
                       />
-                      <label className="text-[13px]" htmlFor="cor-cancelled-date">
+                      <label className="mc-pa-label" htmlFor="cor-cancelled-date">
                         Cancelled on
                       </label>
                       <input
@@ -4003,15 +4019,15 @@ function FilePage() {
                             phase: "Administration",
                           })
                         }
-                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        className="mc-pa-input"
                         data-numeric
                       />
                     </div>
-                    <p className="mt-3 text-[13px]">
+                    <p className="mc-pa-text mt-3">
                       <Link
                         to="/documents/$templateKey/$acquisitionId"
                         params={{ templateKey: "cor-appointment", acquisitionId }}
-                        className="text-primary"
+                        className="mc-pa-link"
                       >
                         Open the appointment letter
                       </Link>
@@ -4019,7 +4035,7 @@ function FilePage() {
                       <Link
                         to="/documents/$templateKey/$acquisitionId"
                         params={{ templateKey: "cor-cancellation", acquisitionId }}
-                        className="text-primary"
+                        className="mc-pa-link"
                       >
                         Open the cancellation memorandum
                       </Link>
@@ -4027,9 +4043,15 @@ function FilePage() {
                     </p>
                   </div>
 
-                  <div className="border border-border p-4">
-                    <h4 className="text-[15px] font-medium">CPARS input</h4>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
+                  <div className="mc-kpanel mc-pa">
+                    <div className="mc-pa-card-head">
+                      <h4 className="mc-kpanel-title">CPARS input</h4>
+                      <StatusChip
+                        label={pa.cpars_submitted_date ? "Entered" : cpars.applies ? "Required" : cpars.thresholdValue === null ? "Not determined" : "Not required"}
+                        tone={pa.cpars_submitted_date ? "ontrack" : cpars.applies ? "attention" : "neutral"}
+                      />
+                    </div>
+                    <p className="mc-pa-sub">
                       {cpars.thresholdValue === null
                         ? "No CPARS threshold row is loaded."
                         : cpars.applies
@@ -4038,13 +4060,13 @@ function FilePage() {
                       {cpars.citation ?? ""}
                     </p>
                     {cpars.applies ? (
-                      <p className="mt-2 text-[13px]" data-numeric>
+                      <p className="mc-pa-text mt-2" data-numeric>
                         Evaluation period {awardDate ?? "not recorded"} to {cpars.periodEnd ?? "not recorded"}; input due{" "}
                         {cpars.dueDate ?? "not recorded"} (120 days after the period ends).
                       </p>
                     ) : null}
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <label className="text-[13px]" htmlFor="cpars-submitted">
+                    <div className="mc-pa-dates mt-3">
+                      <label className="mc-pa-label" htmlFor="cpars-submitted">
                         Entered in CPARS on
                       </label>
                       <input
@@ -4061,13 +4083,13 @@ function FilePage() {
                             phase: "Administration",
                           })
                         }
-                        className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                        className="mc-pa-input"
                         data-numeric
                       />
                       <Link
                         to="/documents/$templateKey/$acquisitionId"
                         params={{ templateKey: "cpars-input", acquisitionId }}
-                        className="text-[13px] text-primary"
+                        className="mc-pa-link"
                       >
                         Open the CPARS input form
                       </Link>
@@ -4076,39 +4098,39 @@ function FilePage() {
 
                   {/* A clause delta only exists once there is a contract to modify. */}
                   {!String(acq?.["contract_number"] ?? "").trim() ? (
-                    <div className="border border-border p-4">
-                      <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
-                      <p className="mt-1 text-[13px] text-muted-foreground">
+                    <div className="mc-kpanel mc-pa">
+                      <h4 className="mc-kpanel-title">SF 30 modifications</h4>
+                      <p className="mc-pa-sub">
                         No contract number is recorded on this file yet. The clause delta appears after award, when
                         there is a contract to modify. Until then, clause changes are re-checked against the
                         solicitation.
                       </p>
                     </div>
                   ) : (
-                  <div className="border border-border p-4">
-                    <h4 className="text-[15px] font-medium">SF 30 modifications</h4>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
+                  <div className="mc-kpanel mc-pa">
+                    <h4 className="mc-kpanel-title">SF 30 modifications</h4>
+                    <p className="mc-pa-sub">
                       The modification of record is written in NCMS (NFS CG 1804.11(b)). The clause set is read from the
                       clause matrices; removed clauses are struck and never carried forward.
                     </p>
                     {clauseDeltaWithheld ? (
-                      <p className="mt-2 border border-border p-3 text-[13px] leading-[18px] text-muted-foreground">
+                      <p className="mc-pa-callout is-info mt-2">
                         {IDIQ_CLAUSE_DELTA_WITHHELD_NOTE}
                       </p>
                     ) : (
                       <>
-                        <p className="mt-2 text-[13px]" data-numeric>
+                        <p className="mc-pa-text mt-2" data-numeric>
                           {delta.updated.length} updated · {delta.removed.length} removed ·{" "}
                           {delta.unchanged.length} unchanged
                         </p>
-                        <TableScrollRegion baseClassName="overflow-x-auto" label="Clause delta table">
-<table className="mt-3 w-full text-[13px] leading-[18px]">
+                        <TableScrollRegion baseClassName="mc-dt-wrap mt-3" label="Clause delta table">
+<table className="mc-dt">
                           <caption className="sr-only">Clause delta for the modification</caption>
                           <thead>
-                            <tr className="border-y border-border text-left">
-                              <th scope="col" className="p-2">Clause</th>
-                              <th scope="col" className="p-2">Change</th>
-                              <th scope="col" className="p-2">Recorded status</th>
+                            <tr>
+                              <th scope="col">Clause</th>
+                              <th scope="col">Change</th>
+                              <th scope="col">Recorded status</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -4116,9 +4138,9 @@ function FilePage() {
                               ...delta.removed.map((c) => ({ c, change: "Removed" })),
                               ...delta.updated.map((c) => ({ c, change: "Updated" })),
                             ].map(({ c, change }) => (
-                              <tr key={`${change}-${c.clause_number}`} className="border-b border-border">
-                                <td className="p-2" data-numeric>{c.clause_number}</td>
-                                <td className="p-2">
+                              <tr key={`${change}-${c.clause_number}`}>
+                                <td data-numeric>{c.clause_number}</td>
+                                <td>
                                   <StatusMark
                                     color={change === "Removed" ? "var(--atrisk)" : "var(--attention)"}
                                     className="text-[13px]"
@@ -4126,16 +4148,16 @@ function FilePage() {
                                     {change}
                                   </StatusMark>
                                 </td>
-                                <td className="p-2 text-muted-foreground">{c.status ?? <EmptyCell />}</td>
+                                <td className="text-muted-foreground">{c.status ?? <EmptyCell />}</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
 </TableScrollRegion>
                         {modFillIns.length > 0 ? (
-                          <div className="mt-3 border border-border p-3">
-                            <h5 className="text-[15px] font-medium">Fill-ins on the updated clauses</h5>
-                            <ul className="mt-2 space-y-1 text-[13px]">
+                          <div className="mc-pa-card mt-3">
+                            <h5 className="mc-req-h">Fill-ins on the updated clauses</h5>
+                            <ul className="mc-pa-list mt-2">
                               {modFillIns.map((row) => (
                                 <li key={row.clause_number}>
                                   <span data-numeric>{row.clause_number}</span>{" "}
@@ -4147,7 +4169,7 @@ function FilePage() {
                         ) : null}
                       </>
                     )}
-                    <ul className="mt-3 list-disc pl-5 text-[13px] text-muted-foreground">
+                    <ul className="mc-pa-list is-meta mt-3">
                       {SF30_CHECKLIST.map((c) => (
                         <li key={c}>{c}</li>
                       ))}
@@ -4155,7 +4177,7 @@ function FilePage() {
                     <button
                       type="button"
                       onClick={() => downloadModPacket("administrative", "RFO FAR 43.203(b); RFO FAR 43.401", null)}
-                      className="mt-3 text-[15px] text-primary"
+                      className="mc-pa-link mt-3"
                     >
                       Download the SF 30 handoff packet
                     </button>
@@ -4165,10 +4187,10 @@ function FilePage() {
               ) : null}
 
               {p.phase === "Closeout" ? (
-                <div className="mt-3 w-full [&_p]:max-w-[80ch] border border-border p-4">
-                  <h4 className="text-[15px] font-medium">Closeout</h4>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <label className="text-[13px]" htmlFor="closeout-pr">
+                <div className="mc-kpanel mc-pa mt-3 w-full">
+                  <h4 className="mc-kpanel-title">Closeout</h4>
+                  <div className="mc-pa-dates mt-3">
+                    <label className="mc-pa-label" htmlFor="closeout-pr">
                       NASA closeout requisition (PR) number
                     </label>
                     <input
@@ -4186,10 +4208,10 @@ function FilePage() {
                           phase: "Closeout",
                         })
                       }
-                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      className="mc-pa-input"
                       data-numeric
                     />
-                    <label className="text-[13px]" htmlFor="final-payment">
+                    <label className="mc-pa-label" htmlFor="final-payment">
                       Final payment made on
                     </label>
                     <input
@@ -4206,12 +4228,12 @@ function FilePage() {
                           phase: "Closeout",
                         })
                       }
-                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      className="mc-pa-input"
                       data-numeric
                     />
                   </div>
 
-                  <p className="mt-3 text-[13px]">
+                  <p className="mc-pa-text mt-3">
                     Records retention date{" "}
                     <span data-numeric>{retention.date ?? "not computed"}</span>
                     <span className="ml-2 text-muted-foreground">
@@ -4221,17 +4243,17 @@ function FilePage() {
                     </span>
                   </p>
 
-                  <h5 className="mt-4 text-[15px]">Closeout Transfer Checklist</h5>
-                  <ul className="mt-2 list-disc pl-5 text-[13px] text-muted-foreground">
+                  <h5 className="mc-req-h mt-4">Closeout Transfer Checklist</h5>
+                  <ul className="mc-pa-list is-meta mt-2">
                     {CLOSEOUT_CHECKLIST.map((c) => (
                       <li key={c}>{c}</li>
                     ))}
                   </ul>
-                  <p className="mt-3 text-[13px]">
+                  <p className="mc-pa-text mt-3">
                     <Link
                       to="/documents/$templateKey/$acquisitionId"
                       params={{ templateKey: "closeout-checklist", acquisitionId }}
-                      className="text-primary"
+                      className="mc-pa-link"
                     >
                       Open the Closeout Transfer Checklist
                     </Link>
@@ -4242,9 +4264,9 @@ function FilePage() {
 
 
               {p.phase === "Award" && protestDeadlines.length ? (
-                <div className="mt-3 w-full [&_p]:max-w-[80ch] border border-border p-4">
-                  <h4 className="text-[15px] font-medium">Protest window</h4>
-                  <p className="mt-1 text-[13px] text-muted-foreground">
+                <div className="mc-kpanel mc-pa mt-3 w-full">
+                  <h4 className="mc-kpanel-title">Protest window</h4>
+                  <p className="mc-pa-sub">
                     Counted from the award date{" "}
                     <span data-numeric>{awardDate ?? "not recorded"}</span>
                     {debriefingDate ? (
@@ -4256,8 +4278,8 @@ function FilePage() {
                     . The day counts come from the thresholds table.
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <label className="text-[13px]" htmlFor="debriefing-date">
+                  <div className="mc-pa-dates mt-3">
+                    <label className="mc-pa-label" htmlFor="debriefing-date">
                       Debriefing date
                     </label>
                     <input
@@ -4266,44 +4288,44 @@ function FilePage() {
                       value={debriefingDate ?? ""}
                       disabled={!canWrite}
                       onChange={(e) => setDebriefing.mutate(e.target.value)}
-                      className="rounded-lg border border-input bg-background px-3 py-2 text-[13px]"
+                      className="mc-pa-input"
                       data-numeric
                     />
                     {debriefingDate && canWrite ? (
                       <button
                         type="button"
                         onClick={() => setDebriefing.mutate("")}
-                        className="text-[13px] text-primary"
+                        className="mc-pa-link"
                       >
                         Clear
                       </button>
                     ) : (
-                      <span className="text-[13px] text-muted-foreground">
+                      <span className="mc-req-meta">
                         Leave blank if no debriefing was required.
                       </span>
                     )}
                   </div>
 
-                  <TableScrollRegion baseClassName="overflow-x-auto" label="Protest deadlines table">
-<table className="mt-3 w-full text-[13px] leading-[18px]">
+                  <TableScrollRegion baseClassName="mc-dt-wrap mt-3" label="Protest deadlines table">
+<table className="mc-dt">
                     <caption className="sr-only">Protest deadlines for this award</caption>
                     <thead>
-                      <tr className="border-y border-border text-left">
-                        <th scope="col" className="p-2">Deadline</th>
-                        <th scope="col" className="p-2">Date</th>
-                        <th scope="col" className="p-2">Days</th>
-                        <th scope="col" className="p-2">Measured from</th>
-                        <th scope="col" className="p-2">Citation</th>
+                      <tr>
+                        <th scope="col">Deadline</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Days</th>
+                        <th scope="col">Measured from</th>
+                        <th scope="col">Citation</th>
                       </tr>
                     </thead>
                     <tbody>
                       {protestDeadlines.map((d) => (
-                        <tr key={d.key} className="border-b border-border align-top">
-                          <td className="p-2">{d.label}</td>
-                          <td className="p-2" data-numeric>
+                        <tr key={d.key}>
+                          <td>{d.label}</td>
+                          <td data-numeric>
                             {d.date ?? <EmptyCell />}
                           </td>
-                          <td className="p-2" data-numeric>
+                          <td data-numeric>
                             {d.days === null ? <EmptyCell /> : `${d.days} days`}
                             {d.daysRemaining === null ? (
                               ""
@@ -4315,8 +4337,8 @@ function FilePage() {
                               </span>
                             )}
                           </td>
-                          <td className="p-2 text-muted-foreground">{d.measuredFrom}</td>
-                          <td className="p-2 text-muted-foreground">
+                          <td className="text-muted-foreground">{d.measuredFrom}</td>
+                          <td className="text-muted-foreground">
                             {d.citation ?? <EmptyCell />}
                             {d.note ? <span className="block">{d.note}</span> : null}
                           </td>
@@ -4326,8 +4348,8 @@ function FilePage() {
                   </table>
 </TableScrollRegion>
 
-                  <p className="mt-3 text-[13px]">
-                    <Link to="/watch" search={{ tag: "Bid protest" }} className="text-primary">
+                  <p className="mc-pa-text mt-3">
+                    <Link to="/watch" search={{ tag: "Bid protest" }} className="mc-pa-link">
                       Open the Watch items for protests
                     </Link>
                   </p>

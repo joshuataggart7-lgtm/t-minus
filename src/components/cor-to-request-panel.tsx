@@ -1,5 +1,5 @@
 /**
- * COR / task order request panel — a local scaffold on awarded and IDIQ files.
+ * COR or task order request panel: a local scaffold on awarded and IDIQ files.
  * Advisory only: it never holds a phase exit and never writes to NCMS.
  */
 
@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useReadOnly } from "@/components/role-context";
 import { postAward } from "@/lib/post-award";
+import { StatusChip } from "@/components/ui-mc";
 import {
   COR_TO_NOTE,
   NOT_RECORDED,
@@ -20,8 +21,7 @@ import {
   type CorToRequestType,
 } from "@/lib/cor-to-request";
 
-const input =
-  "mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-[13px]";
+const input = "mc-pa-input";
 
 export function CorToRequestPanel({
   acq,
@@ -77,125 +77,140 @@ export function CorToRequestPanel({
   const empty = !form.what_asking?.trim() && !form.narrative?.trim();
 
   return (
-    <section aria-label="COR or task order request" className="mb-8 w-full [&_p]:max-w-[80ch] border border-border p-4">
-      <h3 className="text-[18px] font-medium leading-[24px]">COR or task order request</h3>
-      <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{COR_TO_NOTE}</p>
+    <section aria-label="COR or task order request" className="mc-kpanel mc-pa mb-8 w-full">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h3 className="mc-kpanel-title">COR or task order request</h3>
+          <p className="mc-pa-sub">{COR_TO_NOTE}</p>
+        </div>
+        <div className="mc-kpanel-status">
+          <StatusChip label={empty ? "Not written yet" : "Recorded"} tone={empty ? "neutral" : "ontrack"} />
+          {saved.updated_at ? (
+            <span className="mc-req-meta" data-numeric>
+              Last saved {new Date(saved.updated_at).toLocaleString()}
+            </span>
+          ) : null}
+        </div>
+      </div>
 
-      <dl className="mt-3 grid grid-cols-1 gap-2 text-[13px] sm:grid-cols-3">
-        <div>
-          <dt className="text-muted-foreground">Requester on the record</dt>
-          <dd>{defaults.requester ?? NOT_RECORDED}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">COR on the record</dt>
-          <dd>{defaults.corOrTo ?? NOT_RECORDED}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">COR appointed on</dt>
-          <dd data-numeric>{defaults.appointedOn ?? NOT_RECORDED}</dd>
-        </div>
-      </dl>
-      <p className="mt-1 text-[13px] text-muted-foreground">
-        Appointment dates stay in the contracting officer's representative block above; this panel reads them.
-      </p>
+      <div className="mc-kpanel-section">
+        <h4 className="mc-req-h">On the record</h4>
+        <dl className="mc-pa-facts is-3">
+          <div>
+            <dt>Requester on the record</dt>
+            <dd className={defaults.requester ? undefined : "is-blank"}>{defaults.requester ?? NOT_RECORDED}</dd>
+          </div>
+          <div>
+            <dt>COR on the record</dt>
+            <dd className={defaults.corOrTo ? undefined : "is-blank"}>{defaults.corOrTo ?? NOT_RECORDED}</dd>
+          </div>
+          <div>
+            <dt>COR appointed on</dt>
+            <dd className={defaults.appointedOn ? undefined : "is-blank"} data-numeric>{defaults.appointedOn ?? NOT_RECORDED}</dd>
+          </div>
+        </dl>
+        <p className="mc-pa-sub mt-2">
+          Appointment dates stay in the contracting officer's representative block above; this panel reads them.
+        </p>
+      </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <label className="text-[13px]" htmlFor="cor-to-requester">Requester</label>
-          <input
-            id="cor-to-requester"
-            className={input}
-            disabled={!canWrite}
-            value={form.requester ?? ""}
-            placeholder={defaults.requester ?? NOT_RECORDED}
-            onChange={(e) => setForm({ ...form, requester: e.target.value })}
-          />
+      <div className="mc-kpanel-section">
+        <h4 className="mc-req-h">The request</h4>
+        <div className="mc-pa-form">
+          <div>
+            <label className="mc-pa-label" htmlFor="cor-to-requester">Requester</label>
+            <input
+              id="cor-to-requester"
+              className={input}
+              disabled={!canWrite}
+              value={form.requester ?? ""}
+              placeholder={defaults.requester ?? NOT_RECORDED}
+              onChange={(e) => setForm({ ...form, requester: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mc-pa-label" htmlFor="cor-to-name">COR or task order manager</label>
+            <input
+              id="cor-to-name"
+              className={input}
+              disabled={!canWrite}
+              value={form.cor_or_to ?? ""}
+              placeholder={defaults.corOrTo ?? NOT_RECORDED}
+              onChange={(e) => setForm({ ...form, cor_or_to: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="mc-pa-label" htmlFor="cor-to-type">Request type</label>
+            <select
+              id="cor-to-type"
+              className={input}
+              disabled={!canWrite}
+              value={form.request_type ?? "COR"}
+              onChange={(e) => setForm({ ...form, request_type: e.target.value as CorToRequestType })}
+            >
+              <option value="COR">COR</option>
+              <option value="TO">Task order</option>
+            </select>
+          </div>
+          <div>
+            <label className="mc-pa-label" htmlFor="cor-to-asking">What is being asked</label>
+            <input
+              id="cor-to-asking"
+              className={input}
+              disabled={!canWrite}
+              value={form.what_asking ?? ""}
+              onChange={(e) => setForm({ ...form, what_asking: e.target.value })}
+            />
+          </div>
+          <div className="is-wide">
+            {readOnly ? (
+              form.narrative ? <p className="mc-pa-text whitespace-pre-wrap">{form.narrative}</p> : null
+            ) : (<>
+            <label className="mc-pa-label" htmlFor="cor-to-narrative">Narrative</label>
+            <textarea
+              id="cor-to-narrative"
+              rows={4}
+              className={input}
+              disabled={!canWrite}
+              value={form.narrative ?? ""}
+              onChange={(e) => setForm({ ...form, narrative: e.target.value })}
+            />
+            </>)}
+            {empty ? (
+              <p className="mc-pa-sub mt-1">
+                Nothing written yet. The memo below shows "Not recorded" until it is.
+              </p>
+            ) : null}
+          </div>
         </div>
-        <div>
-          <label className="text-[13px]" htmlFor="cor-to-name">COR or task order manager</label>
-          <input
-            id="cor-to-name"
-            className={input}
-            disabled={!canWrite}
-            value={form.cor_or_to ?? ""}
-            placeholder={defaults.corOrTo ?? NOT_RECORDED}
-            onChange={(e) => setForm({ ...form, cor_or_to: e.target.value })}
-          />
-        </div>
-        <div>
-          <label className="text-[13px]" htmlFor="cor-to-type">Request type</label>
-          <select
-            id="cor-to-type"
-            className={input}
-            disabled={!canWrite}
-            value={form.request_type ?? "COR"}
-            onChange={(e) => setForm({ ...form, request_type: e.target.value as CorToRequestType })}
+
+        <div className="mc-pa-actions">
+          {readOnly ? null : <button
+            type="button"
+            disabled={!canWrite || save.isPending}
+            onClick={() => save.mutate()}
+            className="mc-req-button"
           >
-            <option value="COR">COR</option>
-            <option value="TO">Task order</option>
-          </select>
+            Save the request
+          </button>}
+          <button
+            type="button"
+            onClick={() => {
+              void navigator.clipboard?.writeText(memo);
+              setNote("Memo copied.");
+            }}
+            className="mc-pa-link"
+          >
+            Copy the memo to file
+          </button>
         </div>
-        <div>
-          <label className="text-[13px]" htmlFor="cor-to-asking">What is being asked</label>
-          <input
-            id="cor-to-asking"
-            className={input}
-            disabled={!canWrite}
-            value={form.what_asking ?? ""}
-            onChange={(e) => setForm({ ...form, what_asking: e.target.value })}
-          />
-        </div>
+        {note ? <p className="mc-pa-text mt-2" role="status">{note}</p> : null}
       </div>
 
-      <div className="mt-3">
-        {readOnly ? (
-          form.narrative ? <p className="whitespace-pre-wrap text-[15px] text-foreground">{form.narrative}</p> : null
-        ) : (<>
-        <label className="text-[13px]" htmlFor="cor-to-narrative">Narrative</label>
-        <textarea
-          id="cor-to-narrative"
-          rows={4}
-          className={input}
-          disabled={!canWrite}
-          value={form.narrative ?? ""}
-          onChange={(e) => setForm({ ...form, narrative: e.target.value })}
-        />
-        </>)}
-        {empty ? (
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Nothing written yet. The memo below shows "Not recorded" until it is.
-          </p>
-        ) : null}
+      <div className="mc-kpanel-section">
+        <h4 className="mc-req-h">Memo to file</h4>
+        <pre className="mc-pa-memo">{memo}</pre>
       </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        {readOnly ? null : <button
-          type="button"
-          disabled={!canWrite || save.isPending}
-          onClick={() => save.mutate()}
-          className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground disabled:opacity-60"
-        >
-          Save the request
-        </button>}
-        <button
-          type="button"
-          onClick={() => {
-            void navigator.clipboard?.writeText(memo);
-            setNote("Memo copied.");
-          }}
-          className="text-[15px] text-primary"
-        >
-          Copy the memo to file
-        </button>
-        {saved.updated_at ? (
-          <span className="text-[13px] text-muted-foreground" data-numeric>
-            Last saved {new Date(saved.updated_at).toLocaleString()}
-          </span>
-        ) : null}
-      </div>
-      {note ? <p className="mt-2 text-[13px]">{note}</p> : null}
-
-      <pre className="mt-3 whitespace-pre-wrap border border-border p-3 text-[13px] leading-[18px]">{memo}</pre>
     </section>
   );
 }
