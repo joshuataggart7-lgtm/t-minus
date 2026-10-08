@@ -139,7 +139,7 @@ function subawardsFromRaw(raw: unknown): SetAsideSubaward[] {
 function sampleEntities(naics: string, state: string | null) {
   const st = state ?? "CA";
   const make = (name: string, uei: string, cage: string, small: string, types: string[]) => ({
-    entityRegistration: { legalBusinessName: name, ueiSAM: uei, registrationStatus: "Active — sample" },
+    entityRegistration: { legalBusinessName: name, ueiSAM: uei, registrationStatus: "Active (sample)" },
     coreData: {
       cageCode: cage,
       physicalAddress: { stateOrProvinceCode: st },

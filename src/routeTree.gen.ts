@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AnnouncementsRouteImport } from './routes/announcements'
+import { Route as ApprovalsRouteImport } from './routes/approvals'
 import { Route as AuditLogRouteImport } from './routes/audit-log'
 import { Route as CenterConfigRouteImport } from './routes/center-config'
 import { Route as ChecksRouteImport } from './routes/checks'
@@ -62,6 +63,11 @@ const AboutRoute = AboutRouteImport.update({
 const AnnouncementsRoute = AnnouncementsRouteImport.update({
   id: '/announcements',
   path: '/announcements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApprovalsRoute = ApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuditLogRoute = AuditLogRouteImport.update({
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/announcements': typeof AnnouncementsRoute
+  '/approvals': typeof ApprovalsRoute
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
@@ -296,6 +303,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/announcements': typeof AnnouncementsRoute
+  '/approvals': typeof ApprovalsRoute
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
@@ -338,6 +346,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/announcements': typeof AnnouncementsRoute
+  '/approvals': typeof ApprovalsRoute
   '/audit-log': typeof AuditLogRoute
   '/center-config': typeof CenterConfigRoute
   '/checks': typeof ChecksRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/announcements'
+    | '/approvals'
     | '/audit-log'
     | '/center-config'
     | '/checks'
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/announcements'
+    | '/approvals'
     | '/audit-log'
     | '/center-config'
     | '/checks'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/announcements'
+    | '/approvals'
     | '/audit-log'
     | '/center-config'
     | '/checks'
@@ -505,6 +517,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AnnouncementsRoute: typeof AnnouncementsRoute
+  ApprovalsRoute: typeof ApprovalsRoute
   AuditLogRoute: typeof AuditLogRoute
   CenterConfigRoute: typeof CenterConfigRoute
   ChecksRoute: typeof ChecksRoute
@@ -564,6 +577,13 @@ declare module '@tanstack/react-router' {
       path: '/announcements'
       fullPath: '/announcements'
       preLoaderRoute: typeof AnnouncementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/approvals': {
+      id: '/approvals'
+      path: '/approvals'
+      fullPath: '/approvals'
+      preLoaderRoute: typeof ApprovalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/audit-log': {
@@ -825,6 +845,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AnnouncementsRoute: AnnouncementsRoute,
+  ApprovalsRoute: ApprovalsRoute,
   AuditLogRoute: AuditLogRoute,
   CenterConfigRoute: CenterConfigRoute,
   ChecksRoute: ChecksRoute,

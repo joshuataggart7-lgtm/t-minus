@@ -206,7 +206,7 @@ function comparablesSummary(view: ComparablesView): string {
   );
   const lead =
     view.source === "local"
-      ? `Comparables are drawn from T-Minus prior actions — live feed unavailable. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} on NAICS ${view.naicsCode} / PSC ${view.pscCode} in this system, not external awards.${stamp}`
+      ? `Comparables are drawn from T-Minus prior actions: live feed unavailable. ${view.awards.length} prior action${view.awards.length === 1 ? "" : "s"} on NAICS ${view.naicsCode} / PSC ${view.pscCode} in this system, not external awards.${stamp}`
       : `${view.awards.length} prior award${view.awards.length === 1 ? "" : "s"} for NAICS ${view.naicsCode} and PSC ${view.pscCode} between ${money(view.minValue)} and ${money(view.maxValue)} (${view.sourceLabel}).${stamp}`;
   return [lead, ...lines].join("\n");
 }
@@ -889,7 +889,7 @@ function DocumentPage() {
     if (!rows.length) return null;
     return {
       source: "local",
-      sourceLabel: "from T-Minus prior actions — live feed unavailable",
+      sourceLabel: "from T-Minus prior actions: live feed unavailable",
       awards: rows.map((r) => ({
         agency: `${r.acquisition_id} · ${r.title ?? "Untitled"} (T-Minus prior action)`,
         awardDate: String(r.target_award_date ?? "Not yet determined"),

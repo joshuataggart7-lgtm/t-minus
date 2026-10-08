@@ -1,7 +1,8 @@
-export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq" | "evaluator";
-// Demo personas cover six roles; there is no administrator demo persona.
+export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq" | "evaluator" | "approver";
+// Demo personas cover seven roles; there is no administrator demo persona.
 // The evaluator is a demo persona only: no profile value maps to it and it is
-// never offered as an assignable role.
+// never offered as an assignable role. The approver is the same: a demo
+// persona for the approving official, never assigned to an account.
 export type PersonaRole = RoleId;
 
 export type SeededUser = {
@@ -24,7 +25,7 @@ export const ADMINISTRATOR_DEFAULTS: SeededUser = {
   landing: "/today",
 };
 
-// Five demo personas, one per non-administrator role. Fictional people.
+// Seven demo personas, one per non-administrator role. Fictional people.
 // Christina and Roger remain email/password-only and never appear in this list.
 export const SEEDED_USERS: SeededUser[] = [
   {
@@ -75,12 +76,21 @@ export const SEEDED_USERS: SeededUser[] = [
     center_code: "ARC",
     landing: "/evaluator",
   },
+  {
+    role: "approver",
+    name: "L. Mwangi (fictional)",
+    title: "Approving official",
+    email: "approver@t-minus.demo",
+    center_code: "ARC",
+    landing: "/approvals",
+  },
 ];
 
 export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; note?: string }[] = [
   { to: "/overview", label: "Executive Overview", roles: "all" },
   { to: "/today", label: "Today", roles: ["specialist"] },
   { to: "/reviewer-inbox", label: "Reviewer inbox", roles: ["reviewer"] },
+  { to: "/approvals", label: "Approvals", roles: ["approver"] },
   { to: "/evaluator", label: "Evaluation workspace", roles: ["evaluator"] },
   { to: "/requester", label: "Requester portal", roles: ["requester"] },
   { to: "/work-queue", label: "Work Queue", roles: ["specialist", "hq"] },
@@ -114,6 +124,7 @@ export const ROLE_LABELS: Record<RoleId, string> = {
   requester: "Requester",
   hq: "HQ",
   evaluator: "Evaluator",
+  approver: "Approver",
 };
 
 // The value stored on a profile for each role.
@@ -125,6 +136,7 @@ export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
   requester: "requester",
   hq: "hq",
   evaluator: "evaluator",
+  approver: "approver",
 };
 
 export function userForRole(role: RoleId): SeededUser {
