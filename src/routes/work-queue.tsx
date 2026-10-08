@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { pollOptions } from "@/lib/poll";
 import { useMemo, useState } from "react";
 import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { useRole } from "@/components/role-context";
@@ -115,7 +116,7 @@ function WorkQueuePage() {
   const q = useQuery({
     queryKey: ["work-queue"],
     enabled: authState === "signed-in",
-    refetchInterval: 5000,
+    ...pollOptions,
     queryFn: async () => {
       const [missions, acqs, plan, rules, overrides, thresholds, strategies, polls, log, users, launches] = await Promise.all([
         supabase.from("missions").select("*").order("priority"),

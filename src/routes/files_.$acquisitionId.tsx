@@ -11,6 +11,7 @@ import { usePresenter } from "@/lib/presenter";
 import { copyAsNewSample } from "@/lib/copy-sample";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { pollOptions } from "@/lib/poll";
 import { loadStateAuditRows } from "@/lib/launch-events";
 import { cparsRecorded } from "@/lib/state-audit";
 import { AppShell, PageHeader, StatusMark, LoadingNote, ErrorNote, EmptyState, FilePageSkeleton } from "@/components/app-shell";
@@ -387,8 +388,8 @@ function FilePage() {
   const q = useQuery({
     queryKey: ["acquisition-file", acquisitionId],
     enabled: authState === "signed-in",
-    // The poll board updates live as reviewers vote.
-    refetchInterval: 5000,
+    // The poll board updates live as reviewers vote (cadence in lib/poll.ts).
+    ...pollOptions,
     queryFn: async () => {
       // Every read here is independent of the others, so they run together.
       // Only the mission read below needs the acquisition row first.

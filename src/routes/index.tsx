@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { pollOptions } from "@/lib/poll";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadModTasks, modsByCenter } from "@/lib/clause-impact";
 import { AppShell, StatusMark, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
@@ -79,7 +80,7 @@ export function ExecutiveOverview() {
   const q = useQuery({
     queryKey: ["executive-overview"],
     enabled: authState === "signed-in",
-    refetchInterval: 5000,
+    ...pollOptions,
     queryFn: async () => {
       const [
         missions,

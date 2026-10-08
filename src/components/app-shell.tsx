@@ -241,8 +241,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
         }}
         className={
           inSheet
-            ? "w-full rounded-lg border border-border bg-background px-3 py-2 text-[15px]"
-            : "min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 text-[13px] text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
+            ? "w-full rounded-lg border border-border bg-background px-3 py-2 type-body"
+            : "min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 type-meta text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
         }
       >
         {SEEDED_USERS.map((u) => (
@@ -294,8 +294,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               }
             }}
           >
-            <span className="shrink-0 text-[18px] leading-6 font-semibold text-chrome-foreground">T-Minus</span>
-            <span className="hidden truncate text-[13px] text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
+            <span className="shrink-0 type-heading font-semibold text-chrome-foreground">T-Minus</span>
+            <span className="hidden truncate type-meta text-chrome-muted min-[1440px]:block" title="Mission Acquisition Acceleration">Mission Acquisition Acceleration</span>
           </a>
         </div>
         <div className={cn("app-chrome-search col-span-2 row-start-2 min-w-0 xl:col-span-1 xl:col-start-2 xl:row-start-1", mobileSearchOpen ? "" : "max-sm:hidden")}><GlobalSearch /></div>
@@ -315,7 +315,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             type="button"
             onClick={() => setAccountOpen(true)}
             aria-label={`Account: ${user.name}`}
-            className="grid size-9 shrink-0 place-items-center rounded-full border border-chrome-structure text-[13px] font-medium text-chrome-foreground sm:hidden"
+            className="grid size-9 shrink-0 place-items-center rounded-full border border-chrome-structure type-meta font-medium text-chrome-foreground sm:hidden"
           >
             {initialsOf(user.name)}
           </button>
@@ -325,7 +325,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               onClick={() => setPresenter(!presenter)}
               aria-pressed={presenter}
               className={cn(
-                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 text-[13px] max-sm:hidden min-[1440px]:px-3",
+                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 type-meta max-sm:hidden min-[1440px]:px-3",
                 presenter ? "text-chrome-foreground" : "text-chrome-muted",
               )}
             >
@@ -333,7 +333,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             </button>
           ) : null}
           {isAnonymous ? (
-            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 text-[13px] text-chrome-muted max-sm:hidden min-[1440px]:px-2">
+            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 type-meta text-chrome-muted max-sm:hidden min-[1440px]:px-2">
               Demo
             </span>
           ) : null}
@@ -344,7 +344,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             <Link
               to="/center-config"
               hash="my-record"
-              className="min-w-0 max-w-32 truncate text-[13px] text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
+              className="min-w-0 max-w-32 truncate type-meta text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
               title={user.name}
             >
               {user.name}
@@ -369,7 +369,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           <button
             type="button"
             onClick={() => void signOut()}
-            className="shrink-0 text-[13px] text-chrome-foreground hover:text-chrome-foreground max-sm:hidden"
+            className="shrink-0 type-meta text-chrome-foreground hover:text-chrome-foreground max-sm:hidden"
           >
             Sign out
           </button>
@@ -381,25 +381,25 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
           <SheetHeader>
             <SheetTitle>Account</SheetTitle>
           </SheetHeader>
-          <div className="mt-4 grid gap-4 text-[15px]">
+          <div className="mt-4 grid gap-4 type-body">
             <Link to="/center-config" hash="my-record" onClick={() => setAccountOpen(false)} className="text-primary">
               {user.name}
             </Link>
             {canSwitchPersona ? (
               <div className="grid gap-1">
-                <span className="text-[13px] text-muted-foreground">Signed in as</span>
+                <span className="type-meta text-muted-foreground">Signed in as</span>
                 {personaSelect("role-toggle-mobile", true)}
               </div>
             ) : (
-              <p className="text-[13px] text-muted-foreground">{roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}</p>
+              <p className="type-meta text-muted-foreground">{roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}</p>
             )}
             {isAnonymous || presenter ? (
-              <p className="text-[13px] text-muted-foreground">
+              <p className="type-meta text-muted-foreground">
                 {[isAnonymous ? "Demo session" : null, presenter ? "Presenter mode on" : null].filter(Boolean).join(" · ")}
               </p>
             ) : null}
             {isAdministrator ? (
-              <button type="button" onClick={() => setPresenter(!presenter)} aria-pressed={presenter} className="justify-self-start rounded-lg border border-border px-3 py-1.5 text-[13px]">
+              <button type="button" onClick={() => setPresenter(!presenter)} aria-pressed={presenter} className="justify-self-start rounded-lg border border-border px-3 py-1.5 type-meta">
                 Presenter
               </button>
             ) : null}
@@ -453,7 +453,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
               const groupItems = group.items;
               const expanded = Boolean(groups[group.label]) || autoOpen === group.label;
               return <section key={group.label} className="mb-2">
-                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", railCollapsed && "sr-only")}>
+                <button type="button" onClick={() => toggleGroup(group.label)} aria-expanded={expanded} className={cn("flex w-full items-center justify-between px-4 py-2 type-label text-chrome-muted", railCollapsed && "sr-only")}>
                   <span>{group.label}</span><ChevronDown className={cn("size-3 transition-transform duration-150", expanded && "rotate-180")} />
                 </button>
                 <ul className={cn(!expanded && "hidden", railCollapsed && "block")}>
@@ -479,7 +479,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                        }
                      }}
                     className={cn(
-                      "nav-label group relative flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 text-[13px] transition-colors duration-150",
+                      "nav-label group relative flex min-h-10 items-center gap-3 border-l-[3px] px-[13px] py-2 type-meta transition-colors duration-150",
                       active
                         ? "border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_12%,transparent)] font-semibold text-accent-cyan"
                         : "border-transparent text-chrome-muted hover:bg-white/[0.04] hover:text-chrome-foreground",
@@ -498,7 +498,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             })}
             {openAcquisitionId ? (
               <section className={cn("mx-3 mt-5 border-t border-chrome-structure pt-4", railCollapsed && "mx-0 border-t-0 pt-0")}>
-                <p className={cn("px-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-chrome-muted", railCollapsed && "sr-only")}>Open file</p>
+                <p className={cn("px-1 type-label text-chrome-muted", railCollapsed && "sr-only")}>Open file</p>
                 <Link
                   to="/files/$acquisitionId"
                   params={{ acquisitionId: openAcquisitionId }}
@@ -517,8 +517,8 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
                      aria-current={openAcquisitionId && /^\/files\/[^/]+$/.test(pathname) ? "page" : openAcquisitionId && /^\/(?:documents|forms)\/[^/]+\/[^/]+$/.test(pathname) ? "true" : undefined}
                    aria-label={railCollapsed ? `Open file ${openAcquisitionId}` : undefined}
                    className={cn(
-                     "mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] px-3 py-2 text-[13px] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]",
-                     railCollapsed && "truncate px-1 text-[11px]",
+                     "mt-2 block border-l-2 border-accent-cyan bg-[color:color-mix(in_oklab,var(--accent-cyan)_10%,transparent)] font-medium text-accent-cyan [font-variant-numeric:tabular-nums]",
+                     railCollapsed ? "truncate px-1 text-[11px]" : "px-3 py-2 type-meta",
                    )}
                 >
                   {openAcquisitionId}
@@ -538,7 +538,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             {authMessage ? (
               <p
                 role="status"
-                className="mb-6 border-l-2 py-1 pl-3 text-[13px]"
+                className="mb-6 border-l-2 py-1 pl-3 type-meta"
                 style={{ borderColor: "var(--attention)", color: "var(--attention)" }}
               >
                 Needs attention: {authMessage}
@@ -551,7 +551,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
 
       </div>
 
-      <footer {...inertProps} className="chrome-surface relative border-t-2 border-chrome-structure px-4 py-4 text-[13px] text-chrome-foreground sm:px-8">
+      <footer {...inertProps} className="chrome-surface relative border-t-2 border-chrome-structure px-4 py-4 type-meta text-chrome-foreground sm:px-8">
         Prototype. Not an official NASA system. Viewing as {user.title === user.center_code ? user.title : `${user.title}, ${user.center_code}`}.{" "}
         <Link to="/about" className="text-chrome-foreground underline decoration-chrome-structure underline-offset-4">
           About T-Minus
