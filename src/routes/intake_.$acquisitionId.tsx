@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import type { StoredEstimate } from "@/lib/estimator";
@@ -46,10 +47,16 @@ function ConfirmationPage() {
   const est = (q.data?.intake_estimate ?? null) as StoredEstimate | null;
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Request submitted"
         title="Your request is in"
-        lead={`${acquisitionId} · ${q.data?.title ?? ""}`}
+        lead={q.data?.title ? `${acquisitionId} · ${q.data.title}` : acquisitionId}
+        actions={
+          <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="mc-req-button">
+            Open the file
+          </Link>
+        }
       />
 
       {q.isLoading ? <LoadingNote what="your estimate" /> : null}
@@ -69,69 +76,58 @@ function ConfirmationPage() {
       ) : null}
 
       {est ? (
-        <>
-          <p className="mb-8 max-w-[70ch] text-[18px] leading-[26px]">{est.sentence}</p>
+        <div className="mc-confirm">
+          <p className="mc-confirm-lead">{est.sentence}</p>
 
-          <div className="mb-8 grid gap-8 sm:grid-cols-3">
-            <div>
-              <p className="text-[13px] text-muted-foreground">Months to award</p>
-              <p className="text-[28px] font-semibold leading-[34px] tabular-nums">
-                {est.months_to_award}
-              </p>
-              <p className="text-[13px] text-muted-foreground">
-                About {est.planned_days_to_award} working days in the plan
+          <div className="mc-confirm-stats">
+            <div className="mc-confirm-stat">
+              <p className="mc-confirm-stat-label">Estimated months to award</p>
+              <p className="mc-confirm-stat-value" data-numeric>{est.months_to_award}</p>
+              <p className="mc-confirm-stat-note" data-numeric>
+                The phase plan for this type plans {est.planned_days_to_award} calendar days to award.
               </p>
             </div>
-            <div>
-              <p className="text-[13px] text-muted-foreground">Phases</p>
-              <p className="text-[28px] font-semibold leading-[34px] tabular-nums">
-                {est.phases.length}
-              </p>
-              <p className="text-[13px] text-muted-foreground">Intake through award</p>
+            <div className="mc-confirm-stat">
+              <p className="mc-confirm-stat-label">Phases to award</p>
+              <p className="mc-confirm-stat-value" data-numeric>{est.phases.length}</p>
+              <p className="mc-confirm-stat-note">Intake through award, as estimated when the clock started.</p>
             </div>
-            <div>
-              <p className="text-[13px] text-muted-foreground">Contracting hours</p>
-              <p className="text-[28px] font-semibold leading-[34px] tabular-nums">
-                {est.hours_total.toLocaleString("en-US")}
-              </p>
-              <p className="text-[13px] text-muted-foreground">
+            <div className="mc-confirm-stat">
+              <p className="mc-confirm-stat-label">Contracting hours</p>
+              <p className="mc-confirm-stat-value" data-numeric>{est.hours_total.toLocaleString("en-US")}</p>
+              <p className="mc-confirm-stat-note" data-numeric>
                 Contracting officer {est.hours_co.toLocaleString("en-US")} · specialist{" "}
                 {est.hours_cs.toLocaleString("en-US")}
               </p>
             </div>
           </div>
 
-          <h2 className="mb-3 text-[18px] font-medium leading-[24px]">
-            What the request passes through
-          </h2>
-          <ol className="mb-8 max-w-[70ch] border border-border bg-background text-[13px] leading-[18px]">
+          <h2 className="mc-confirm-h">What the request passes through</h2>
+          <ol className="mc-confirm-phases">
             {est.phases.map((p, i) => (
-              <li key={p} className="flex gap-3 border-b border-border p-2 last:border-b-0">
-                <span className="tabular-nums text-muted-foreground">{i + 1}</span>
+              <li key={p}>
+                <span className="mc-confirm-phase-n" data-numeric>{i + 1}</span>
                 <span>{p}</span>
               </li>
             ))}
           </ol>
 
-          <p className="mb-8 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
+          <p className="mc-confirm-note">
             The estimate comes from the value, the competition approach, the pricing, the
             instrument, and the requirement type you entered. It is a planning figure, not a
-            commitment; a protest, an audit, or a change in the requirement moves it.
+            commitment; a protest, an audit, or a change in the requirement moves it. The file
+            page shows the live phase count and countdown from here on.
           </p>
 
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/files/$acquisitionId"
-              params={{ acquisitionId }}
-              className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
-            >
+          <div className="flex flex-wrap gap-3">
+            <Link to="/files/$acquisitionId" params={{ acquisitionId }} className="mc-req-button">
               Open the file
             </Link>
-            <Link to="/files" className="rounded-lg border border-border px-4 py-2 text-[15px]">
+            <Link to="/files" className="mc-req-button is-secondary">
               See all requests
             </Link>
           </div>
-        </>
+        </div>
       ) : null}
     </AppShell>
   );

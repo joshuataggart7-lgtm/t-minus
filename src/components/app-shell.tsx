@@ -47,7 +47,11 @@ const wordmarkClicks = { current: { count: 0, at: 0, acq: null as string | null 
 // Survives route remounts so drawer navigation can move focus into the new page.
 const drawerNavFocus = { pending: false, at: 0 };
 
-export function AppShell({ children, wide = false, overviewMode = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean }) {
+/**
+ * kit: pages moved onto the design kit (components/ui-mc) use the wide-screen
+ * width, up to 1760px, so 1920 screens carry content instead of gutters.
+ */
+export function AppShell({ children, wide = false, overviewMode = false, kit = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean; kit?: boolean }) {
 
   const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut, profile, authState, readOnly } = useRole();
   useTriggerConfig();
@@ -533,7 +537,7 @@ export function AppShell({ children, wide = false, overviewMode = false }: { chi
             id="main-content"
             tabIndex={-1}
             key={pathname}
-            className={cn("page-fade mx-auto px-4 py-8 sm:px-8", wide ? "max-w-[1440px]" : "max-w-[1280px]")}
+            className={cn("page-fade mx-auto px-4 py-8 sm:px-8", kit ? "max-w-[1760px]" : wide ? "max-w-[1440px]" : "max-w-[1280px]")}
           >
             {authMessage ? (
               <p

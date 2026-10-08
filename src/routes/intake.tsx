@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell, PageHeader, StatusMark } from "@/components/app-shell";
+import { McPageHeader, StatusChip } from "@/components/ui-mc";
 import { useRole } from "@/components/role-context";
 import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { DemoFieldset, LockHint } from "@/components/demo-lock";
@@ -37,7 +38,7 @@ import {
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
 import { explainRedFlag } from "@/lib/explain";
-import { Nf1707Intake, answersFromStored, canonicalAnswers, canonicalFromFacts, mappedNf1707 } from "@/components/nf1707-intake";
+import { Nf1707Intake, answersFromStored, canonicalAnswers, canonicalFromFacts, mappedNf1707, nf1707SectionList } from "@/components/nf1707-intake";
 import { RequesterPackageDraft } from "@/components/requester-package-draft";
 import type { PackageClin } from "@/lib/requester-package.functions";
 import { ATTACHMENT_ACCEPT, igceFromFile, uploadAttachment } from "@/lib/attachments";
@@ -171,11 +172,11 @@ function Field({
 }) {
   return (
     <div className="mb-4">
-      <label htmlFor={htmlFor} className="block text-[13px] text-muted-foreground">
+      <label htmlFor={htmlFor} className="mc-field-label">
         {label}
       </label>
       <div className="mt-1">{children}</div>
-      {hint ? <p className="mt-1 text-[13px] text-muted-foreground">{hint}</p> : null}
+      {hint ? <p className="mc-field-hint">{hint}</p> : null}
       {error ? (
         <p className="mt-1 text-[13px]" style={{ color: "var(--atrisk)" }} role="alert">
           {error}
@@ -185,8 +186,8 @@ function Field({
   );
 }
 
-const inputClass =
-  "w-full border border-border bg-background px-3 py-2 text-[15px] text-foreground [border-radius:var(--mc-radius-control)]";
+// Kit field style (styles.css .mc-input): one border, radius, size and focus ring for every intake field.
+const inputClass = "mc-input";
 
 // The estimator timeline counts months and the phase plan counts days. Show the
 // phase plan figure in months as well, rounded to the nearest half month, so the
@@ -688,36 +689,55 @@ function IntakePage() {
   const intakeEstimate = scan && data.data ? estimate(inputsFromFacts(facts, scenario.vehicle), data.data.ref) : null;
   const blocking = scan?.filter((f) => f.blocking) ?? [];
 
+  const nfSections = nf1707SectionList(answers, facts);
+  const nfAnswered = nfSections.filter((section) => section.answered).length;
+  const scanStatus = scan === null
+    ? { label: "Not run", tone: "neutral" as const }
+    : blocking.length > 0
+      ? { label: `${blocking.length} blocking`, tone: "atrisk" as const }
+      : scan.length > 0
+        ? { label: `${scan.length} to review`, tone: "attention" as const }
+        : { label: "Clear", tone: "ontrack" as const };
+  const goTo = (id: string) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    if (target instanceof HTMLDetailsElement) target.open = true;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const focusable = target.querySelector<HTMLElement>("summary, h2, button, input, select, textarea");
+    focusable?.focus({ preventScroll: true });
+  };
+  const scanAndShow = () => {
+    runScan();
+    window.setTimeout(() => goTo("intake-scan"), 60);
+  };
+
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
         title="Intake: NF 1707"
         lead="Enter the acquisition once. Every document, check, and record reads from this file."
+        actions={
+          <div className="mc-intake-samples" role="group" aria-label="Demo samples">
+            <span className="mc-intake-samples-label">Demo samples</span>
+            <button type="button" onClick={() => void loadSample("A-2027-0101")} className="mc-intake-button">
+              Load Sample 1 (competed)
+            </button>
+            <button type="button" onClick={() => void loadSample("A-2027-0102")} className="mc-intake-button">
+              Load Sample 2 (sole source)
+            </button>
+          </div>
+        }
       />
+      <p className="mc-intake-note mb-4">
+        Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
+      </p>
       {readOnly ? <p className="mb-2 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
       {readOnly ? <LockHint className="mb-6" /> : null}
 
-      <div className="mc-work-toolbar mb-8 flex flex-wrap items-center">
-        <button
-          type="button"
-          onClick={() => void loadSample("A-2027-0101")}
-          className="border border-border bg-background px-3 py-2 text-[14px] text-primary [border-radius:var(--mc-radius-control)]"
-        >
-          Load Sample 1 (competed)
-        </button>
-        <button
-          type="button"
-          onClick={() => void loadSample("A-2027-0102")}
-          className="border border-border bg-background px-3 py-2 text-[14px] text-primary [border-radius:var(--mc-radius-control)]"
-        >
-          Load Sample 2 (sole source)
-        </button>
-        <span className="text-[13px] text-muted-foreground">
-          Sample A-2027-0101 loads as a requester would send it: IGCE not yet attached.
-        </span>
-      </div>
-
+      <div className="mc-intake-layout">
+      <div className="min-w-0">
       <DemoFieldset>
+      <div id="intake-package" className="scroll-mt-24">
       <RequesterPackageDraft
         missions={data.data?.missions ?? []}
         applyFact={(key, nextValue) => set(key, nextValue)}
@@ -728,11 +748,12 @@ function IntakePage() {
         onClinsConfirmed={setPackageClins}
         onConfirmedCount={setPackageConfirmedCount}
       />
+      </div>
 
       {/* T-Minus section: the facts the paper form does not carry. */}
-      <section className="mc-work-form-section mb-10">
+      <section id="intake-record" className="mc-work-form-section mb-10 scroll-mt-24">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[18px] leading-6 font-medium">T-Minus record</h2>
+          <h2 tabIndex={-1} className="text-[18px] leading-6 font-medium">T-Minus record</h2>
           <StatusMark color={packageComplete ? "var(--ontrack)" : "var(--attention)"} className="text-[13px] font-medium">
             Package {packageComplete ? "complete" : "incomplete"}
           </StatusMark>
@@ -1587,7 +1608,7 @@ function IntakePage() {
 
 
       {/* Red-flag scan and submit */}
-      <section className="mc-work-form-section">
+      <section id="intake-scan" className="mc-work-form-section scroll-mt-24">
         {touched && errorCount > 0 ? (
           <div className="mb-4" role="alert">
             <p className="text-[15px]" style={{ color: "var(--atrisk)" }}>
@@ -1696,6 +1717,68 @@ function IntakePage() {
           </div>
         ) : null}
       </section>
+
+      {/* Save state: the intake lives only on this screen until the clock starts. */}
+      <div className="mc-intake-savebar" role="region" aria-label="Save state">
+        <p className="mc-intake-savebar-text">
+          <span className="font-medium">Not saved yet.</span>{" "}
+          <span className="mc-intake-savebar-long">Nothing is stored until you start the clock.</span>
+          <span className="mc-intake-savebar-meta" data-numeric>
+            {nfAnswered} of {nfSections.length} NF 1707 sections answered · Package {packageComplete ? "complete" : "incomplete"}
+            {scan !== null ? ` · Scan: ${scanStatus.label.toLowerCase()}` : ""}
+          </span>
+        </p>
+        <button type="button" onClick={scanAndShow} className="mc-intake-button is-primary">
+          {scan === null ? "Run the red-flag scan" : "Scan again"}
+        </button>
+      </div>
+      </div>
+
+      <aside className="mc-intake-rail" aria-label="Intake progress">
+        <p className="mc-intake-rail-title">Your progress</p>
+        <ol className="mc-intake-steps">
+          <li>
+            <button type="button" onClick={() => goTo("intake-package")}>
+              <span>Requester package draft</span>
+              <span className="mc-intake-step-meta">Optional upload</span>
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={() => goTo("intake-record")}>
+              <span>T-Minus record</span>
+              <StatusChip label={packageComplete ? "Complete" : "Incomplete"} tone={packageComplete ? "ontrack" : "attention"} />
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={() => goTo("nf1707-title")}>
+              <span>NF 1707 questions</span>
+              <span className="mc-intake-step-meta" data-numeric>{nfAnswered} of {nfSections.length}</span>
+            </button>
+            <ol className="mc-intake-sections">
+              {nfSections.map((section) => (
+                <li key={section.key}>
+                  <button type="button" onClick={() => goTo(`nf-section-${section.key}`)} aria-label={`Section ${section.key}, ${section.title}: ${section.answered ? "answered" : "not answered"}`}>
+                    <span className={section.answered ? "mc-intake-dot is-done" : "mc-intake-dot"} aria-hidden="true" />
+                    <span className="min-w-0">{section.key}. {section.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </li>
+          <li>
+            <button type="button" onClick={() => goTo("intake-scan")}>
+              <span>Red-flag scan and start</span>
+              <StatusChip label={scanStatus.label} tone={scanStatus.tone} />
+            </button>
+          </li>
+        </ol>
+        {touched && errorCount > 0 ? (
+          <p className="mc-intake-rail-alert" data-numeric>
+            {errorCount} field{errorCount === 1 ? "" : "s"} need attention.
+          </p>
+        ) : null}
+      </aside>
+      </div>
     </AppShell>
   );
 }
