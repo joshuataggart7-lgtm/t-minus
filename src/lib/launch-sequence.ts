@@ -139,6 +139,12 @@ export type RequiredDoc = {
   handoff?: boolean;
   /** due after award: never holds the file before award */
   dueAfterAward?: boolean;
+  /**
+   * The justification and approval may be made after award (unusual and
+   * compelling urgency, RFO FAR 6.103-2(d)): neither the row nor its phase
+   * reviews block award.
+   */
+  mayFollowAward?: boolean;
 };
 
 /** The facts a new contract's plan key reads (see phase-plan-key.ts). */
@@ -482,6 +488,7 @@ export function requiredDocs(phase: string, acq?: AcqRow, planPhases?: readonly 
             ...(variant.doc_key === "jofoc-urgency"
               ? {
                   dueAfterAward: true,
+                  mayFollowAward: true,
                   note: "May be made after award when making it first would unreasonably delay the acquisition (RFO FAR 6.103-2(d)). Post it within 30 days after award (RFO FAR 6.301(b)(1)).",
                 }
               : {}),
@@ -1486,7 +1493,22 @@ export type PhaseView = {
   citation: string;
   guidance: string;
   needsPoll: boolean;
+  /**
+   * Display name where it differs from the stored phase name. On a letter
+   * contract the Price Reasonableness phase after Award is the definitization
+   * window (RFO FAR 16.603-2(c)). The stored name stays in phase.
+   */
+  label?: string;
+  /**
+   * Before award, the rows in this phase whose justification and approval may
+   * be made after award (urgency, RFO FAR 6.103-2(d)). Neither these rows nor
+   * this phase's reviews block exit or award.
+   */
+  followsAward?: string[];
 };
+
+/** The name a phase is shown under; the stored name when no display name is set. */
+export const phaseLabel = (p: Pick<PhaseView, "phase" | "label">): string => p.label ?? p.phase;
 
 /**
  * Days the phase has run past its planned days, or null when it has not (or
@@ -1619,8 +1641,14 @@ export function buildSequence(
       else if (!recordedPhases && elapsed !== null) actual = Math.max(0, elapsed - before);
     }
     const phase = phaseName;
+    const awardAt = rows.findIndex((row) => String(row.phase ?? "").toLowerCase() === "award");
+    const definitization =
+      phase === "Price Reasonableness" && awardAt >= 0 && i > awardAt && isLetterContract(acq as Record<string, unknown>);
+    const followsAward = clockNow !== "launched" ? docs.filter((d) => d.mayFollowAward).map((d) => d.label) : [];
     return {
       phase,
+      ...(definitization ? { label: "Definitization (price reasonableness)" } : {}),
+      ...(followsAward.length ? { followsAward } : {}),
       planned_days: planned,
       order: r.order ?? i + 1,
       status,
@@ -1683,6 +1711,8 @@ export function computeHold(
   const indexOf = (phase: string) => phases.findIndex((p) => p.phase === phase);
   const pending = board.find((b) => {
     const i = indexOf(b.phase);
+    // Reviews of a justification that may follow award (RFO FAR 6.103-2(d)) do not hold the file before award.
+    if (i >= 0 && phases[i]?.followsAward?.length) return false;
     return b.vote === "pending" && i >= 0 && currentIndex > i;
   });
   if (pending)

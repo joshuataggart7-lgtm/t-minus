@@ -47,6 +47,18 @@ export function auditValueLabel(action: string | null | undefined, value: string
   return auditTextLabel(value);
 }
 
+/** Field names the old poll board wrote (internal table names), and the wording used now. */
+const FIELD_RELABEL: Record<string, string> = {
+  polls: "reviews",
+  poll: "review",
+};
+
+/** The field column: an internal table name reads in today's words. */
+export function auditFieldLabel(field: string | null | undefined): string | null {
+  if (field == null) return null;
+  return FIELD_RELABEL[field.trim().toLowerCase()] ?? field;
+}
+
 /** The stored text, for a title attribute, only when the display differs. */
 export function storedAs(stored: string | null | undefined, shown: string | null | undefined): string | undefined {
   return stored != null && shown != null && stored !== shown ? `Stored as: ${stored}` : undefined;

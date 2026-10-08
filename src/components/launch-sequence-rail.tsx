@@ -1,4 +1,5 @@
-import { phaseOverrunDays } from "@/lib/launch-sequence";
+import { phaseLabel, phaseOverrunDays } from "@/lib/launch-sequence";
+import { MISSION_NAV_SET_ALL } from "@/components/mission-control/mission-navigator";
 // Launch sequence rail (ORBIT Chunk 3). A vertical scan view of the same
 // phases array the file page already computes via buildSequence(). Display
 // only: every figure is read from PhaseView; no date math, no hours/minutes.
@@ -11,7 +12,7 @@ import { phaseOverrunDays } from "@/lib/launch-sequence";
 // the metrics, show a compact T− N. Never fabricated, never red on a
 // healthy current phase.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { PhaseView } from "@/lib/launch-sequence";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,12 @@ export function LaunchSequenceRail({
   compact?: boolean;
 }) {
   const [showAll, setShowAll] = useState(false);
+  // Expand all on the page shows every phase here too; Collapse secondary trims it back.
+  useEffect(() => {
+    const onSetAll = (e: Event) => setShowAll(Boolean((e as CustomEvent<{ open?: boolean }>).detail?.open));
+    window.addEventListener(MISSION_NAV_SET_ALL, onSetAll);
+    return () => window.removeEventListener(MISSION_NAV_SET_ALL, onSetAll);
+  }, []);
   if (!phases.length) return null;
   const indexed = phases.map((p, i) => ({ p, i }));
   const currentIndex = phases.findIndex((p) => p.status === "current");
@@ -91,7 +98,7 @@ export function LaunchSequenceRail({
                         : "text-muted-foreground",
                   )}
                 >
-                  {p.phase}
+                  {phaseLabel(p)}
                 </span>
                 <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-[14px] text-muted-foreground">
                   <span className="tabular-nums">
@@ -119,6 +126,11 @@ export function LaunchSequenceRail({
                     </span>
                   ) : null}
                 </span>
+                {isCurrent && p.followsAward?.length ? (
+                  <span className="mt-0.5 block text-[11px] leading-[14px] text-muted-foreground">
+                    Not blocking award: the justification and approval may follow award (RFO FAR 6.103-2(d)).
+                  </span>
+                ) : null}
               </span>
             </li>
           );

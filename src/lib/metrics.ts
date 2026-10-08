@@ -311,11 +311,14 @@ export function computeMetrics(
     blocker = hold.reason;
     blockerOwner = hold.owner;
   } else {
-    const pending = board.find((b) => b.vote === "pending");
+    // Reviews of a justification that may follow award (RFO FAR 6.103-2(d)) do not block it.
+    const pending = current?.followsAward?.length ? undefined : board.find((b) => b.vote === "pending");
     // Only a Required row blocks. An offered row never reads as missing.
     const missingDoc = current?.docs.find(
       (d) =>
         !d.optional &&
+        // A row that may follow award (urgency justification, RFO FAR 6.103-2(d)) does not block it.
+        !d.dueAfterAward &&
         (d.field || generatorKey(d)) &&
         docSatisfied(
           d,
@@ -332,6 +335,7 @@ export function computeMetrics(
       blockerOwner = (acq.co_name as string) ?? null;
     }
     if (missingDoc) heroLabel = heroActionLabel(missingDoc);
+    else if (current?.followsAward?.length) heroLabel = `Exit ${current.phase}; the justification may follow award`;
   }
 
   return {
