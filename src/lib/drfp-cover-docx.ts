@@ -12,6 +12,7 @@
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
 import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 import type { ExportContext } from "@/lib/template-engine";
+import { withArticle } from "@/lib/article";
 
 export const DRFP_COVER_MASTER_URL = "/forms/DRFP_COVER_MASTER.docx";
 
@@ -108,8 +109,8 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
   const email = value("co_email");
 
   const competitionParts = [
-    competition ? `NASA will conduct this acquisition as a ${competition}.` : "",
-    contractType ? `This competitive acquisition will result in a ${contractType}.` : "",
+    competition ? `NASA will conduct this acquisition as ${withArticle(competition)}.` : "",
+    contractType ? `This competitive acquisition will result in ${withArticle(contractType)}.` : "",
     pop ? `The contract will have ${pop}` : "",
     naics ? `The North American Industry Classification System (NAICS) code for this acquisition is ${naics}${standard ? ` and the small business size standard is ${standard}` : ""}.` : "",
   ].filter(Boolean);
@@ -139,12 +140,12 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
     "[[ADDITIONAL_INTRO]]": "",
     "[[PHASE_IN]]": value("phase_in") ? `1. ${value("phase_in")}` : "",
     "[[PROPERTY]]": /^yes$/i.test(value("gfp_offsite")) ? "2. Government Furnished Property for offsite use at the Contractor’s facility is described in the DRFP." : "",
-    "[[INDUSTRY_EVENT]]": event ? `3. After release of the final RFP, a ${event}${eventDate ? ` is anticipated on ${eventDate}` : ""}.` : "",
+    "[[INDUSTRY_EVENT]]": event ? `3. After release of the final RFP, ${withArticle(event)}${eventDate ? ` is anticipated on ${eventDate}` : ""}.` : "",
     "[[SITE_VISITS]]": value("site_visits") ? `4. ${value("site_visits")}` : "",
     "[[OCI]]": value("oci") ? `5. ${value("oci")}` : "",
     "[[AI_INSTRUCTION]]": "",
     "[[AI_TRANSPARENCY]]": ai ? `6. AI Use Transparency Disclosure: ${ai}${aiLocation ? ` The required AI Impact Assessment documentation is included in ${aiLocation}.` : ""}` : "",
-    "[[SECURITY]]": security ? `7. A ${security} facilities clearance is required for this acquisition in accordance with the DD Form 254, Contract Security Classification Specification.${securityTiming ? ` ${securityTiming}` : ""}` : "",
+    "[[SECURITY]]": security ? `7. ${withArticle(security, true)} facilities clearance is required for this acquisition in accordance with the DD Form 254, Contract Security Classification Specification.${securityTiming ? ` ${securityTiming}` : ""}` : "",
     "[[EFSS]]": "",
     "[[OTHER_EMPHASIS]]": value("other_emphasis"),
     // An empty marker removes the whole Ombudsman paragraph. Never print an

@@ -8,7 +8,7 @@
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { StatusMark } from "@/components/app-shell";
+import { StatusChip } from "@/components/ui-mc";
 import { signedInName } from "@/lib/account-name";
 import { boardReadiness, boardReadinessItems } from "@/lib/board-readiness";
 import {
@@ -35,7 +35,7 @@ import {
 } from "@/lib/solicitation-lm";
 
 const field =
-  "w-full border border-border bg-background px-2 py-1 text-[13px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "w-full rounded-md border border-border bg-background px-2 py-1 text-[14px] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 type ClarificationDraft = { sent_on: string; topic: string; recipients: string; notes: string };
 const emptyClarification: ClarificationDraft = { sent_on: "", topic: "", recipients: "", notes: "" };
@@ -180,100 +180,102 @@ export function SebCockpitPanel({
   const readinessItems = boardReadinessItems(readiness);
 
   return (
-    <div className="mt-3 border border-border p-4">
-      <div className="flex flex-wrap items-baseline gap-2">
-        <h4 className="text-[15px] font-medium">Evaluation cockpit</h4>
-        <span className="text-[13px] text-muted-foreground">
-          Advisory and soft. Nothing on this panel holds a phase exit, a hold or a required document.
-        </span>
+    <div className="mc-kpanel mc-seb mt-3">
+      <div className="mc-kpanel-head">
+        <div className="min-w-0">
+          <h4 className="mc-kpanel-title">Evaluation cockpit</h4>
+          <p className="mc-req-meta">
+            Advisory and soft. Nothing on this panel holds a phase exit, a hold or a required document.
+          </p>
+        </div>
+        <StatusChip label="Advisory" tone="info" />
       </div>
 
+      <div className="mc-kpanel-grid is-2 mt-4">
+
       {/* Board brief — one scannable strip, counts only, never a gate. */}
-      <section className="mt-3 break-inside-avoid" aria-label="Board brief">
-        <div className="flex flex-wrap items-center gap-2">
-          <h5 className="text-[15px] font-medium">Board brief</h5>
-          <span className="rounded-lg border border-border px-2 py-[2px] text-[12px] text-muted-foreground">
-            {readiness.methodLabel}
-          </span>
+      <section className="mc-seb-card break-inside-avoid" aria-label="Board brief">
+        <div className="mc-seb-card-head">
+          <h5 className="mc-req-h">Board brief</h5>
+          <StatusChip label={readiness.methodLabel} tone="neutral" />
         </div>
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+        <p className="mc-req-meta mt-1">
           {readiness.methodVoice}
         </p>
-        <dl className="mt-1 max-w-[80ch] divide-y divide-border border-y border-border text-[13px] leading-[18px]">
+        <dl className="mc-details-list mt-3">
           {readinessItems.map((item) => (
-            <div key={item.label} className="flex flex-wrap items-baseline justify-between gap-4 py-1">
-              <dt className="text-muted-foreground">{item.label}</dt>
+            <div key={item.label}>
+              <dt>{item.label}</dt>
               <dd className="font-medium" data-numeric>{item.value}</dd>
             </div>
           ))}
         </dl>
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+        <p className="mc-req-meta mt-3">
           A brief only. Every count is advisory; nothing here gates the board, the file or a phase
           exit. The detail behind each line sits below.
         </p>
       </section>
 
-      {/* 1 — L to M consistency lamp. */}
-      <section className="mt-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <h5 className="text-[15px] font-medium">L↔M consistency</h5>
-          <StatusMark color={lamp.status === "ok" ? "var(--ontrack)" : "var(--attention)"} className="text-[13px]">
-            {lamp.status === "ok" ? "Consistent" : "Advisory"}
-          </StatusMark>
+      {/* 1: L to M consistency lamp. */}
+      <section className="mc-seb-card" aria-label="L and M consistency">
+        <div className="mc-seb-card-head">
+          <h5 className="mc-req-h">L↔M consistency</h5>
+          <StatusChip label={lamp.status === "ok" ? "Consistent" : "Advisory"} tone={lamp.status === "ok" ? "ontrack" : "attention"} />
         </div>
         {lamp.findings.length === 0 ? (
-          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{LM_LAMP_OK}</p>
+          <p className="mc-req-text mt-2">{LM_LAMP_OK}</p>
         ) : (
-          <ul className="mt-1 max-w-[80ch] list-disc pl-5 text-[13px] leading-[18px]">
+          <ul className="mc-req-text mt-2 list-disc pl-5">
             {lamp.findings.map((f) => (
               <li key={f}>{f}</li>
             ))}
           </ul>
         )}
-        <p className="mt-1 text-[13px] text-muted-foreground">{LM_LAMP_LABEL}</p>
+        <p className="mc-req-meta mt-3">{LM_LAMP_LABEL}</p>
       </section>
+      </div>
 
-      {/* 2 — clarifications fairness ledger. */}
-      <section className="mt-4 border-t border-border pt-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <h5 className="text-[15px] font-medium">Clarifications ledger</h5>
+      {/* 2: clarifications fairness ledger. */}
+      <section className="mc-kpanel-section mc-seb-section">
+        <div className="mc-seb-card-head">
+          <h5 className="mc-req-h">Clarifications ledger</h5>
           {canWrite ? (
             <button
               type="button"
               onClick={() => setAdding((v) => !v)}
-              className="ml-auto text-[13px] text-primary underline-offset-2 hover:underline"
+              className="ml-auto text-[14px] font-medium text-primary underline-offset-2 hover:underline"
             >
               {adding ? "Cancel" : "Record a clarification"}
             </button>
           ) : null}
         </div>
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{CLARIFICATIONS_CHIP}</p>
+        <p className="mc-req-meta mt-1">{CLARIFICATIONS_CHIP}</p>
         {clarifications.length === 0 ? (
-          <p className="mt-2 text-[13px] text-muted-foreground">
-            None recorded — the fairness ledger stays empty until the office adds one.
+          <p className="mc-dt-empty mt-2">
+            None recorded. The fairness ledger stays empty until the office adds one.
           </p>
         ) : (
-          <TableScrollRegion baseClassName="overflow-x-auto" label={regionContext ? `Clarification log table, ${regionContext}` : "Clarification log table"}>
-<table className="mt-2 w-full text-[13px] leading-[18px]">
+          <TableScrollRegion baseClassName="mc-dt-wrap mt-2" className="stack" label={regionContext ? `Clarification log table, ${regionContext}` : "Clarification log table"}>
+<table className="mc-dt stack">
             <caption className="sr-only">Clarifications recorded on this file</caption>
             <thead>
-              <tr className="border-y border-border text-left">
-                <th scope="col" className="p-2">Sent</th>
-                <th scope="col" className="p-2">Topic</th>
-                <th scope="col" className="p-2">Recipients</th>
-                <th scope="col" className="p-2">Notes</th>
-                {canWrite ? <th scope="col" className="p-2">Actions</th> : null}
+              <tr>
+                <th scope="col" className="is-nowrap">Sent</th>
+                <th scope="col">Topic</th>
+                <th scope="col">Recipients</th>
+                <th scope="col">Notes</th>
+                {canWrite ? <th scope="col">Actions</th> : null}
               </tr>
             </thead>
             <tbody>
               {clarifications.map((row) => (
-                <tr key={row.clarification_id} className="border-b border-border align-top">
-                  <td className="p-2" data-numeric>{clarificationText(row.sent_on)}</td>
-                  <td className="p-2">{row.topic}</td>
-                  <td className="p-2">{clarificationText(row.recipients)}</td>
-                  <td className="p-2 text-muted-foreground">{clarificationText(row.notes)}</td>
+                <tr key={row.clarification_id}>
+                  <td data-label="Sent" className="is-nowrap" data-numeric>{clarificationText(row.sent_on)}</td>
+                  <td data-label="Topic">{row.topic}</td>
+                  <td data-label="Recipients">{clarificationText(row.recipients)}</td>
+                  <td data-label="Notes" className="text-muted-foreground">{clarificationText(row.notes)}</td>
                   {canWrite ? (
-                    <td className="p-2">
+                    <td data-label="Actions">
                       <button
                         type="button"
                         onClick={() => {
@@ -308,8 +310,8 @@ export function SebCockpitPanel({
                 ? clarifications
                     .filter((r) => r.clarification_id === editingId)
                     .map((row) => (
-                      <tr key={`edit-${row.clarification_id}`} className="border-b border-border">
-                        <td className="p-2">
+                      <tr key={`edit-${row.clarification_id}`}>
+                        <td data-label="Sent">
                           <label className="sr-only" htmlFor="clar-edit-date">Date sent</label>
                           <input
                             id="clar-edit-date"
@@ -319,7 +321,7 @@ export function SebCockpitPanel({
                             onChange={(e) => setEditDraft({ ...editDraft, sent_on: e.target.value })}
                           />
                         </td>
-                        <td className="p-2">
+                        <td data-label="Topic">
                           <label className="sr-only" htmlFor="clar-edit-topic">Topic</label>
                           <input
                             id="clar-edit-topic"
@@ -328,7 +330,7 @@ export function SebCockpitPanel({
                             onChange={(e) => setEditDraft({ ...editDraft, topic: e.target.value })}
                           />
                         </td>
-                        <td className="p-2">
+                        <td data-label="Recipients">
                           <label className="sr-only" htmlFor="clar-edit-recipients">Recipients</label>
                           <input
                             id="clar-edit-recipients"
@@ -337,7 +339,7 @@ export function SebCockpitPanel({
                             onChange={(e) => setEditDraft({ ...editDraft, recipients: e.target.value })}
                           />
                         </td>
-                        <td className="p-2">
+                        <td data-label="Notes">
                           <label className="sr-only" htmlFor="clar-edit-notes">Notes</label>
                           <input
                             id="clar-edit-notes"
@@ -346,12 +348,12 @@ export function SebCockpitPanel({
                             onChange={(e) => setEditDraft({ ...editDraft, notes: e.target.value })}
                           />
                         </td>
-                        <td className="p-2">
+                        <td data-label="Actions">
                           <button
                             type="button"
                             disabled={!editDraft.topic.trim() || editClarification.isPending}
                             onClick={() => editClarification.mutate(row)}
-                            className="border border-border px-3 py-1 disabled:opacity-50"
+                            className="rounded-md border border-border px-3 py-1 text-[14px] font-medium disabled:opacity-50"
                           >
                             Save
                           </button>
@@ -364,7 +366,7 @@ export function SebCockpitPanel({
 </TableScrollRegion>
         )}
         {canWrite && adding ? (
-          <div className="mt-3 grid grid-cols-1 gap-3 border border-border p-3 sm:grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 gap-3 rounded-lg border border-border p-3 sm:grid-cols-2">
             <div>
               <label className="block text-[13px] text-muted-foreground" htmlFor="clar-date">
                 Date sent
@@ -415,7 +417,7 @@ export function SebCockpitPanel({
                 type="button"
                 disabled={!draft.topic.trim() || addClarification.isPending}
                 onClick={() => addClarification.mutate()}
-                className="border border-border px-3 py-1 text-[13px] disabled:opacity-50"
+                className="rounded-md border border-border px-3 py-1 text-[14px] font-medium disabled:opacity-50"
               >
                 Record the clarification
               </button>
@@ -424,29 +426,27 @@ export function SebCockpitPanel({
         ) : null}
       </section>
 
-      {/* 3 — evaluation factor to evidence map. */}
-      <section className="mt-4 border-t border-border pt-4">
-        <h5 className="text-[15px] font-medium">Evidence map</h5>
+      {/* 3: evaluation factor to evidence map. */}
+      <section className="mc-kpanel-section mc-seb-section">
+        <h5 className="mc-req-h">Evidence map</h5>
         {!shell.competitive ? (
-          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+          <p className="mc-req-text mt-1 max-w-[80ch]">
             This file is sole-source on the record, so competitive factors are not the path. The
             technical evaluation of the single proposal carries the finding.
           </p>
         ) : factors.length === 0 ? (
-          <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
-            No factors recorded — there is no evaluation evidence to map yet.
+          <p className="mc-dt-empty mt-2">
+            No factors recorded. There is no evaluation evidence to map yet.
           </p>
         ) : (
-          <ul className="mt-2 divide-y divide-border border-y border-border">
+          <ul className="mc-seb-factors mt-2">
             {factors.map((f) => {
               const has = factorHasEvidence(f);
               return (
-                <li key={f.factor_id} className="p-2 text-[13px] leading-[18px]">
-                  <div className="flex flex-wrap items-baseline gap-2">
+                <li key={f.factor_id} className={has ? "is-noted" : "is-open"}>
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium">{f.name}</span>
-                    <StatusMark color={has ? "var(--ontrack)" : "var(--attention)"}>
-                      {has ? "Evidence noted" : "No evidence noted"}
-                    </StatusMark>
+                    <StatusChip label={has ? "Evidence noted" : "No evidence noted"} tone={has ? "ontrack" : "attention"} />
                     {canWrite ? (
                       <button
                         type="button"
@@ -481,7 +481,7 @@ export function SebCockpitPanel({
                         type="button"
                         disabled={saveEvidence.isPending}
                         onClick={() => saveEvidence.mutate(f)}
-                        className="mt-2 border border-border px-3 py-1 disabled:opacity-50"
+                        className="mt-2 rounded-md border border-border px-3 py-1 text-[14px] font-medium disabled:opacity-50"
                       >
                         Save the evidence note
                       </button>
@@ -492,15 +492,15 @@ export function SebCockpitPanel({
             })}
           </ul>
         )}
-        <p className="mt-2 max-w-[80ch] text-[13px] text-muted-foreground">
+        <p className="mc-req-meta mt-2">
           The evidence map is advisory and does not hold the file, a phase or a document.
         </p>
       </section>
 
-      {/* 4 — pointer to the read receipts that sit directly below on the Board path. */}
-      <section className="mt-4 border-t border-border pt-4">
-        <h5 className="text-[15px] font-medium">Read receipts</h5>
-        <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
+      {/* 4: pointer to the read receipts that sit directly below on the Board path. */}
+      <section className="mc-kpanel-section mc-seb-section">
+        <h5 className="mc-req-h">Read receipts</h5>
+        <p className="mc-req-meta mt-1 max-w-[80ch]">
           {receiptCountQ.isError
             ? "Receipt counts are omitted when the record cannot be read. The receipts panel below remains the source of truth."
             : receiptCountQ.data !== undefined && receiptCountQ.data > 0

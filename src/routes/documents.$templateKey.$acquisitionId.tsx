@@ -1796,7 +1796,12 @@ function DocumentPage() {
           { id: "doc-versions", label: "Versions" },
           { id: "doc-regulations", label: "Regulations" },
           { id: "doc-defect", label: "Report a defect" },
-        ]
+        ].filter((item, index, all) => {
+          // No entry repeats: a template section and a page panel with the
+          // same title (the PNM's "Comparable prior awards") list once.
+          const key = item.label.trim().toLowerCase();
+          return all.findIndex((other) => other.id === item.id || other.label.trim().toLowerCase() === key) === index;
+        })
       : [],
     [def, documentSections, errors, signature, values],
   );
@@ -1929,7 +1934,7 @@ function DocumentPage() {
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
           The preaward notice to the apparent successful offeror runs under RFO FAR 15.206-1(b)(1) with the size
-          status challenge period at RFO FAR 19.201-2(d)(1). Record a RFO FAR Part 15 negotiated path and a small
+          status challenge period at RFO FAR 19.201-2(d)(1). Record an RFO FAR Part 15 negotiated path and a small
           business set-aside on the acquisition before opening or exporting this notice. Commercial and
           simplified files notify under Parts 12 and 13 instead.
         </p>
@@ -2406,7 +2411,7 @@ function DocumentPage() {
                     // The prenegotiation position is written into the NASA OP master.
                     if (!isPpmPath(exportContext)) {
                       setMessage(
-                        "This file does not record a RFO FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
+                        "This file does not record an RFO FAR Part 15 non-competitive action, so the prenegotiation position memorandum was not written. A commercial or simplified file records price reasonableness under Part 12 and Part 13 instead.",
                       );
                     } else {
                       void generatePpmDocx(exportContext)
@@ -2417,7 +2422,7 @@ function DocumentPage() {
                     // The set-aside preaward notice is written into the NASA OP master.
                     if (!isSetAsidePreawardPath(exportContext)) {
                       setMessage(
-                        "This file does not record a RFO FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
+                        "This file does not record an RFO FAR Part 15 negotiated set-aside, so the preaward notification was not written. Record the Part 15 path and the small business set-aside first; commercial and simplified files notify under Part 12 and Part 13 instead.",
                       );
                     } else {
                       void generateSetAsidePreawardDocx(exportContext)

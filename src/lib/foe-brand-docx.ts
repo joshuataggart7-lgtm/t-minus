@@ -22,6 +22,7 @@ import JSZip from "jszip";
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
 import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 import type { ExportContext } from "@/lib/template-engine";
+import { withArticle } from "@/lib/article";
 
 export const FOE_BRAND_MASTER_URL = "/forms/FOE_BRAND_MASTER.docx";
 
@@ -152,7 +153,7 @@ export function foeBrandMarkers(ctx: FoeBrandContext): MarkerMap {
     .join(" ");
 
   const suppliesText = [
-    contractType ? `This action is a ${contractType} order for` : "This action is an order for",
+    contractType ? `This action is ${withArticle(`${contractType} order`)} for` : "This action is an order for",
     supplies + ".",
   ].join(" ");
 

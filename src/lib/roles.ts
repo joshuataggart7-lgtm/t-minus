@@ -1,5 +1,7 @@
-export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq";
-// Demo personas cover five roles; there is no administrator demo persona.
+export type RoleId = "administrator" | "executive" | "specialist" | "reviewer" | "requester" | "hq" | "evaluator";
+// Demo personas cover six roles; there is no administrator demo persona.
+// The evaluator is a demo persona only: no profile value maps to it and it is
+// never offered as an assignable role.
 export type PersonaRole = RoleId;
 
 export type SeededUser = {
@@ -65,12 +67,21 @@ export const SEEDED_USERS: SeededUser[] = [
     center_code: "HQ",
     landing: "/overview",
   },
+  {
+    role: "evaluator",
+    name: "L. Park (fictional COR)",
+    title: "Technical evaluator",
+    email: "evaluator@t-minus.demo",
+    center_code: "ARC",
+    landing: "/evaluator",
+  },
 ];
 
 export const NAV_ITEMS: { to: string; label: string; roles: RoleId[] | "all"; note?: string }[] = [
   { to: "/overview", label: "Executive Overview", roles: "all" },
   { to: "/today", label: "Today", roles: ["specialist"] },
   { to: "/reviewer-inbox", label: "Reviewer inbox", roles: ["reviewer"] },
+  { to: "/evaluator", label: "Evaluation workspace", roles: ["evaluator"] },
   { to: "/requester", label: "Requester portal", roles: ["requester"] },
   { to: "/work-queue", label: "Work Queue", roles: ["specialist", "hq"] },
   { to: "/files", label: "Files", roles: "all" },
@@ -102,6 +113,7 @@ export const ROLE_LABELS: Record<RoleId, string> = {
   reviewer: "Reviewer",
   requester: "Requester",
   hq: "HQ",
+  evaluator: "Evaluator",
 };
 
 // The value stored on a profile for each role.
@@ -112,6 +124,7 @@ export const PROFILE_ROLE_VALUES: Record<RoleId, string> = {
   reviewer: "reviewer",
   requester: "requester",
   hq: "hq",
+  evaluator: "evaluator",
 };
 
 export function userForRole(role: RoleId): SeededUser {
@@ -129,6 +142,17 @@ export function hasAnyRole(roles: readonly RoleId[], allowed: readonly RoleId[])
   return roles.includes("administrator") || allowed.some((role) => roles.includes(role));
 }
 
+/** Pages an evaluator-only session may open. Everything else in the file is outside an evaluator's need to know. */
+export const EVALUATOR_PATHS = ["/evaluator", "/announcements"] as const;
+
+/** True when every role held is the evaluator role (the evaluator demo persona). */
+export function isEvaluatorOnly(roles: readonly RoleId[]): boolean {
+  return roles.length > 0 && roles.every((r) => r === "evaluator");
+}
+
 export function navFor(roles: readonly RoleId[]) {
+  if (isEvaluatorOnly(roles)) {
+    return NAV_ITEMS.filter((i) => (EVALUATOR_PATHS as readonly string[]).includes(i.to));
+  }
   return NAV_ITEMS.filter((i) => i.roles === "all" || hasAnyRole(roles, i.roles));
 }

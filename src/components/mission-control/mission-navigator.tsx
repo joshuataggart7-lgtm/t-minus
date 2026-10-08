@@ -205,7 +205,15 @@ export function MissionNavigator({
   }, [availableIds, markCurrent]);
 
   const visibleItems = useMemo(
-    () => items.filter((item) => availableIds.includes(item.id)),
+    () =>
+      items
+        .filter((item) => availableIds.includes(item.id))
+        // No entry repeats on any page: the first item with a given id or
+        // title is the one listed.
+        .filter((item, index, all) => {
+          const label = item.label.trim().toLowerCase();
+          return all.findIndex((other) => other.id === item.id || other.label.trim().toLowerCase() === label) === index;
+        }),
     [availableIds, items],
   );
 

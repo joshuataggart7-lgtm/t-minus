@@ -17,6 +17,7 @@
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
 import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 import type { ExportContext } from "@/lib/template-engine";
+import { withArticle } from "@/lib/article";
 
 export const UCA_JUST_MASTER_URL = "/forms/UCA_JUST_MASTER.docx";
 
@@ -137,7 +138,7 @@ export function ucaJustMarkers(ctx: UcaJustContext): MarkerMap {
 
   const authorizationText = [
     "Upon approval of this letter contract, NASA will authorize the contractor to begin incurring costs for urgent work performed in advance of definitization.",
-    authorization ? `NASA will communicate this authorization by issuing a ${authorization.toLowerCase()}.` : "",
+    authorization ? `NASA will communicate this authorization by issuing ${withArticle(authorization.toLowerCase())}.` : "",
     nte ? `The not-to-exceed estimate amount is ${nte}.` : "",
   ]
     .filter(Boolean)

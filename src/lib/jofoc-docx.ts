@@ -11,6 +11,7 @@
  */
 import { type ExportContext } from "@/lib/template-engine";
 import { applyMarkers, lintMarkersSplit, readDocumentXml, type MarkerMap } from "@/lib/apply-docx-markers";
+import { withArticle } from "@/lib/article";
 
 export const JOFOC_MASTER_URL = "/forms/JOFOC_MASTER.docx";
 
@@ -321,7 +322,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
     "[[CENTER_NAME_ACRONYM]]": centerAcronym || KEEP,
     "[[FOR_SOLICITATION_CONTRACT]]": `For ${solicitation}`,
     "[[BUYING_LOCATION]]": buying,
-    "[[ACTION_NATURE_PROSE]]": `This action is a ${action} to ${contractor} for ${actionDescription}.`,
+    "[[ACTION_NATURE_PROSE]]": `This action is ${withArticle(action)} to ${contractor} for ${actionDescription}.`,
     "[[ACTION_ALT_MOD]]": "",
     "[[ACTION_ALT_EXTENSION]]": "",
     "[[REQUIREMENT_DESCRIPTION]]": value("requirement_description") || actionDescription || KEEP,

@@ -28,10 +28,13 @@ import {
   type Announcement,
 } from "@/lib/announcements";
 
-const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS].map((u) => ({
-  id: u.role,
-  label: u.title,
-}));
+// The evaluator demo persona is not an audience an announcement can target.
+const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS]
+  .filter((u) => u.role !== "evaluator")
+  .map((u) => ({
+    id: u.role,
+    label: u.title,
+  }));
 
 function fmt(ts: string | null): string {
   if (!ts) return "—";

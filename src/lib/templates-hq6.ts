@@ -309,7 +309,7 @@ const setAsidePreaward: TemplateDef = {
     tier: "binding",
     revision: "HQ base issuance 01/2021, revision 04/2026",
     effective: "2026-04-01",
-    note: "The preaward notice runs on a RFO FAR Part 15 negotiated set-aside; NFS CG 1815.28 carries the NASA notification process.",
+    note: "The preaward notice runs on an RFO FAR Part 15 negotiated set-aside; NFS CG 1815.28 carries the NASA notification process.",
   },
   lead: "Preaward notice on a set-aside: to the apparent successful offeror, or to the unsuccessful offerors.",
   sections: [

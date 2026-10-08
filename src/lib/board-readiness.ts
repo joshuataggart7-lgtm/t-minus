@@ -86,7 +86,7 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
       label: "L↔M",
       value:
         readiness.lamp.status === "ok"
-          ? "Consistent — no findings"
+          ? "Consistent, no findings"
           : `${readiness.lamp.findings.length} advisory finding${readiness.lamp.findings.length === 1 ? "" : "s"}`,
     },
     {
@@ -109,7 +109,7 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
       value: !readiness.competitive
         ? "Single-proposal evaluation; competitive evidence map not used"
         : readiness.factorCount === 0
-          ? "None recorded — no factors to map"
+          ? "None recorded, no factors to map"
           : readiness.evidenceCount === 0
             ? "None recorded"
             : `${readiness.evidenceCount} of ${readiness.factorCount} factors noted`,
@@ -121,7 +121,7 @@ export function boardReadinessItems(readiness: BoardReadiness): { label: string;
       label: "Read receipts",
       value:
         readiness.receiptCount === 0
-          ? "None yet — per-document status below"
+          ? "None yet. Per-document status below"
           : `${readiness.receiptCount} recorded`,
     });
   }

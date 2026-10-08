@@ -11,7 +11,7 @@ import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, todayISO, type RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
-import { attachedKeys as keysFrom, savedDocKeys } from "@/lib/hold";
+import { attachedKeys as keysFrom, holdOwnerDisplay, savedDocKeys } from "@/lib/hold";
 import { awardConfidence, historyFrom, type AwardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
@@ -217,7 +217,7 @@ function WorkQueuePage() {
         const priority = mission?.priority ?? null;
         const dependency = m.blocker === "None"
           ? "None"
-          : `${m.blocker}${m.blockerOwner ? ` · owner ${m.blockerOwner}` : ""}`;
+          : `${m.blocker}${m.blockerOwner ? ` · owner ${holdOwnerDisplay(m.blockerOwner)}` : ""}`;
         return {
           m,
           column: columnFor(m, readiness),

@@ -36,7 +36,7 @@ export type ReadReceiptInput = {
 };
 
 export const READ_RECEIPTS_EMPTY = "No read receipts on this file yet.";
-export const READ_RECEIPTS_CHIP = "Soft tracking — does not hold the file.";
+export const READ_RECEIPTS_CHIP = "Soft tracking. It does not hold the file.";
 
 /** Two minutes: a second open inside this window is treated as the same visit. */
 const DEDUPE_MS = 2 * 60 * 1000;

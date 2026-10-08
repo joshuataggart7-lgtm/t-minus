@@ -19,6 +19,7 @@ import { findingText, type FindingMap } from "@/lib/research-findings";
 import { humanMemoProse } from "@/lib/memo-prose";
 import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 import { UNFAVORABLE_HOLD_PREFIX } from "@/lib/review-decisions";
+import { withArticle } from "@/lib/article";
 
 export type ResearchLogLine = {
   source: string;
@@ -338,12 +339,12 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     /sole|brand/i.test(competition)
       ? "as a sole source"
       : competition
-        ? `on a ${competition.toLowerCase()} basis`
+        ? `on ${withArticle(competition.toLowerCase())} basis`
         : "",
     /total small business/i.test(setAside)
       ? "as a total small business set-aside"
       : setAside && !/none/i.test(setAside)
-        ? `as a ${setAside.toLowerCase()}`
+        ? `as ${withArticle(setAside.toLowerCase())}`
         : "",
   ]
     .filter(Boolean)
@@ -364,7 +365,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
     research: humanMemoProse(research.join("\n")),
     findings: humanMemoProse(ruleOfTwo(ctx)),
     commercial: commercialDetermination
-      ? `The requirement is a ${commercialDetermination.toLowerCase()} within RFO FAR 2.101, so the procedures of RFO FAR Part 12 apply.${
+      ? `The requirement is ${withArticle(commercialDetermination.toLowerCase())} within RFO FAR 2.101, so the procedures of RFO FAR Part 12 apply.${
           commercialityOnFile ? " The commerciality determination on this file states the basis in full." : ""
         }`
       : gap("record the commerciality determination, then cross-reference it here"),
@@ -447,7 +448,7 @@ function competitionBasis(ctx: MemoDraftCtx): string {
     ].join(" ");
   }
   return [
-    `Competed as a ${setAside ? setAside.toLowerCase() : "[set-aside not recorded]"} under RFO FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1), NAICS ${
+    `Competed as ${setAside ? withArticle(setAside.toLowerCase()) : "a [set-aside not recorded]"} under RFO FAR Part 12 with the simplified procedures of RFO FAR 12.201-1 (Table 12-1), NAICS ${
       naics || "[not recorded]"
     }, ${size}.`,
     posted
@@ -668,7 +669,8 @@ export function repairSavedSamResponseRule(values: Record<string, string | undef
 }
 
 /** The response-time rule for a combined synopsis/solicitation (RFO FAR 12.202(b)(2)). */
-export const COMBINED_RESPONSE_RULE = "RFO FAR 12.202(b)(2): a reasonable opportunity to respond.";
+export const COMBINED_RESPONSE_RULE =
+  "The rule for a combined synopsis/solicitation is a reasonable opportunity to respond (RFO FAR 12.202(b)(2)).";
 /** The minimum-timeframe table for receipt of quotations or offers. */
 export const COMBINED_RESPONSE_TABLE = "RFO FAR 12.202(b)(2); RFO FAR 5.201(d), Table 5-3.";
 
@@ -687,18 +689,17 @@ function samNotice(ctx: MemoDraftCtx): Values {
   // A sole-source notice of intent is not a combined synopsis/solicitation, so
   // it carries the notice authority, never RFO FAR 12.202(b).
   const soleSource = isSoleSourceRecord(a);
-  const ruleCite = soleSource ? "Notice timing: RFO FAR 5.101(d), Table 5-2." : COMBINED_RESPONSE_RULE;
-  // The 15 days are the T-Minus default, not a regulatory minimum. For a
-  // combined synopsis/solicitation the rule is a reasonable opportunity to
-  // respond (RFO FAR 12.202(b)(2)).
+  const ruleSentence = soleSource ? "Notice timing for a notice of intent: RFO FAR 5.101(d), Table 5-2." : COMBINED_RESPONSE_RULE;
+  // One sentence for the default and one for the rule. The 15 days are the
+  // T-Minus default, not a regulatory minimum; the posting date shows in its
+  // own field, so it is not repeated here.
   const defaultLine = posting
-    ? `T-Minus default: the later of 15 calendar days after posting (${fifteen}) and the date the contracting officer enters.`
-    : "T-Minus default: the later of 15 calendar days after posting and the date the contracting officer enters.";
-  const postedLine = posting ? `Posted ${posting}.` : "Posting date not recorded.";
+    ? `T-Minus default: the later of 15 calendar days after posting (${fifteen}) or the date the contracting officer enters.`
+    : "T-Minus default: the later of 15 calendar days after posting or the date the contracting officer enters. Posting date not recorded.";
   return {
     period_of_performance: start && end ? `${start} to ${end}` : start || end,
     response_date: response,
-    response_rule: `${defaultLine} ${postedLine} The rule: ${ruleCite}`,
+    response_rule: `${defaultLine} ${ruleSentence}`,
     // The drafting choice (lowest price technically acceptable or a best value
     // tradeoff) is helper text beside the field, never words in the notice.
     evaluation_basis:
