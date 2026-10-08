@@ -11,9 +11,10 @@ import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { fileStatusLine } from "@/components/mission-control/file-status";
 import { countdownView, type CountdownView } from "@/components/launch-countdown";
 import { dayWord } from "@/lib/pluralize";
+import { calendarDaysBetween } from "@/lib/calendar-date";
 import { formatDate } from "@/lib/metrics";
 import { isPostAward, owedRows } from "@/lib/requester-owed";
-import { phasePosition, phasePositionText, plannedDaysToAward } from "@/lib/file-timeline";
+import { dueView, phasePosition, phasePositionText, plannedDaysToAward } from "@/lib/file-timeline";
 import { McPageHeader, StatusChip, WithDetailsPanel, DetailsSection, DetailsList, CiteChip, type StatusTone } from "@/components/ui-mc";
 
 /** The two files walked in the demo, used only as a soft fallback view. */
@@ -253,10 +254,12 @@ function RequesterPortal() {
                       <span className="mc-req-todo-what">
                         {[
                           r.waitingOnMe ? "On hold waiting on your organization" : null,
-                          ...r.owed.filter((o) => !o.present).map((o) => o.label),
+                          r.owed.some((o) => !o.present)
+                            ? `Needed from you: ${r.owed.filter((o) => !o.present).map((o) => o.label).join(", ")}`
+                            : null,
                         ]
                           .filter(Boolean)
-                          .join("; ")}
+                          .join(". ")}
                       </span>
                       <a href={`#req-${r.id}`} className="mc-req-todo-go" aria-label={`Go to ${r.id}`}>
                         Go to request
@@ -333,8 +336,25 @@ function RequesterPortal() {
                             <dd data-numeric>{r.plannedDays > 0 ? `${r.plannedDays} calendar days` : "No phase plan for this type"}</dd>
                           </div>
                           <div>
-                            <dt>Open for</dt>
-                            <dd data-numeric>{r.openDays === null ? "Start not recorded" : `${r.openDays} ${dayWord(r.openDays)}`}</dd>
+                            {r.c.m.awardDate ? (
+                              <>
+                                <dt>Took</dt>
+                                <dd data-numeric>
+                                  {(() => {
+                                    const created = (r.acq['created_at'] as string | null) ?? null;
+                                    const took = created ? calendarDaysBetween(created.slice(0, 10), String(r.c.m.awardDate).slice(0, 10)) : NaN;
+                                    return Number.isNaN(took) || took < 0
+                                      ? `Awarded on ${formatDate(String(r.c.m.awardDate))}`
+                                      : `${took} ${dayWord(took)} from intake to award`;
+                                  })()}
+                                </dd>
+                              </>
+                            ) : (
+                              <>
+                                <dt>Open for</dt>
+                                <dd data-numeric>{r.openDays === null ? "Start not recorded" : `${r.openDays} ${dayWord(r.openDays)}`}</dd>
+                              </>
+                            )}
                           </div>
                           {onHold ? (
                             <div>
@@ -396,15 +416,21 @@ function RequesterPortal() {
                         ) : null}
                         <p className="mc-req-text mt-2">
                           Next step: {c.m.nextDecision}.
-                          {c.m.nextDecisionDate ? ` Planned by ${formatDate(c.m.nextDecisionDate)} in the phase plan` : ""}
-                          {c.m.nextDecisionDate && c.m.daysToNextDecision != null ? (
-                            c.m.daysToNextDecision < 0 ? (
-                              <span className="mc-req-late">, {Math.abs(c.m.daysToNextDecision)} {dayWord(Math.abs(c.m.daysToNextDecision))} ago</span>
+                          {(() => {
+                            const due = dueView(c.m.nextDecisionDate);
+                            if (!due) return null;
+                            return due.overdue ? (
+                              <>
+                                {" "}Planned for {due.dateText} in the phase plan.{" "}
+                                <span className="mc-due is-overdue" data-numeric>{due.text}</span>
+                              </>
                             ) : (
-                              <>, {c.m.daysToNextDecision === 0 ? "today" : `${c.m.daysToNextDecision} ${dayWord(c.m.daysToNextDecision)} from now`}</>
-                            )
-                          ) : null}
-                          {c.m.nextDecisionDate ? "." : ""}
+                              <>
+                                {" "}Planned by {due.dateText} in the phase plan,{" "}
+                                {due.days === 0 ? "today" : `${due.days} ${dayWord(due.days)} from now`}.
+                              </>
+                            );
+                          })()}
                         </p>
                         <dl className="mc-req-facts">
                           <div>

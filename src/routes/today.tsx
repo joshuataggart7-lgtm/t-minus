@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo } from "react";
 import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
 import { McPageHeader, DataTable, StatusChip, type StatusTone } from "@/components/ui-mc";
-import { phasePosition, phasePositionText } from "@/lib/file-timeline";
+import { dueView, phasePosition, phasePositionText } from "@/lib/file-timeline";
 import { formatDate } from "@/lib/metrics";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
@@ -200,6 +200,7 @@ function TodayPage() {
   );
 
   const pastTarget = live.filter((c) => countdownView(c.m).mode === "overdue").length;
+  const stepsOverdue = waitingOnMe.filter((c) => dueView(c.m.nextDecisionDate)?.overdue).length;
   const reviewsThisWeek = reviewsDue.filter((p) => {
     const due = daysUntil(p.due_date);
     return due !== null && due <= 7;
@@ -232,7 +233,10 @@ function TodayPage() {
           <nav className="mc-today-stats" aria-label="Your day in numbers">
             <a href="#today-mine" className="mc-today-stat is-mine">
               <span className="mc-today-stat-value" data-numeric>{waitingOnMe.length}</span>
-              <span className="mc-today-stat-label">Waiting on me</span>
+              <span className="mc-today-stat-label">
+                Waiting on me
+                {stepsOverdue ? <span className="mc-due is-overdue ml-2" data-numeric>{stepsOverdue} overdue</span> : null}
+              </span>
             </a>
             <a href="#today-others" className="mc-today-stat">
               <span className="mc-today-stat-value" data-numeric>{waitingOnOthers.length}</span>
@@ -267,6 +271,7 @@ function TodayPage() {
                         const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
                         const view = countdownView(c.m);
                         const pos = phasePosition(c.m.phases);
+                        const due = dueView(c.m.nextDecisionDate);
                         return (
                           <li
                             key={c.m.acq.acquisition_id}
@@ -291,9 +296,17 @@ function TodayPage() {
                             <div className="mc-today-strip-owner">
                               <span className="mc-today-cell-label">Owner and due</span>
                               <span>{c.owner || "Not recorded"}</span>
-                              <span className="mc-today-meta" data-numeric>
-                                {c.m.nextDecisionDate ? `Due ${formatDate(c.m.nextDecisionDate)}` : "No date planned"}
-                              </span>
+                              {due ? (
+                                due.overdue ? (
+                                  <span className="mc-due is-overdue" data-numeric title={`Planned for ${due.dateText} in the phase plan`}>
+                                    {due.text}
+                                  </span>
+                                ) : (
+                                  <span className="mc-today-meta" data-numeric>{due.text}</span>
+                                )
+                              ) : (
+                                <span className="mc-today-meta">No date planned</span>
+                              )}
                             </div>
                             <div className="mc-today-strip-chip">
                               <StatusChip label={readiness} tone={READINESS_TONE[readiness]} />

@@ -72,6 +72,9 @@ import { orderPacketForScreen } from "@/lib/ncms-handoff";
 import { CorToRequestPanel } from "@/components/cor-to-request-panel";
 import { ClausePicker } from "@/components/clause-picker";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
+import { FilePhaseStepper } from "@/components/file-phase-stepper";
+import { EmptyCell, StatusChip } from "@/components/ui-mc";
+import { dueView, phasePosition, phasePositionText } from "@/lib/file-timeline";
 import { certifiedDataBasis, CERTIFIED_DATA_LABEL } from "@/lib/certified-data";
 import { AdvisoryTag } from "@/components/advisory-tag";
 import { LockHint } from "@/components/demo-lock";
@@ -193,16 +196,16 @@ import { SituationMemoPanel } from "@/components/situation-memo-panel";
 import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
-import { LaunchCountdown, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
+import { LaunchCountdown, LaunchCountdownCompact, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
 import { deriveOverviewAcquisitionState, overviewCountdownView, STORED_LAUNCH_NOTE } from "@/components/mission-control/operational-state";
 import { fileStatusLine } from "@/components/mission-control/file-status";
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
-import { LaunchSequenceRail } from "@/components/launch-sequence-rail";
 import {
   MissionNavigator,
   MissionNavSection,
   MISSION_NAV_SET_ALL,
+  stickyOffset,
   type MissionNavItem,
 } from "@/components/mission-control/mission-navigator";
 import { exclusionFlagFrom, type SweepCheckRow } from "@/lib/sweep-flag";
@@ -977,8 +980,8 @@ function FilePage() {
     el.focus({ preventScroll: true });
   };
   const clampBelowHeader = (el: HTMLElement) => {
-    const header = document.querySelector("header.sticky");
-    const minTop = (header?.getBoundingClientRect().bottom ?? 0) + 16;
+    // Below the app header and the file identity strip.
+    const minTop = stickyOffset() + 4;
     const top = el.getBoundingClientRect().top;
     if (top < minTop) window.scrollBy(0, top - minTop);
   };
@@ -1345,7 +1348,11 @@ function FilePage() {
     return reached.length ? reached[reached.length - 1]!.phase : null;
   })();
   const goToPacket = () => {
-    const show = () => document.getElementById("clause-packet")?.scrollIntoView({ block: "start" });
+    const show = () => {
+      const packet = document.getElementById("clause-packet");
+      if (packet instanceof HTMLDetailsElement) packet.open = true;
+      if (packet) place(packet, "start");
+    };
     if (document.getElementById("clause-packet")) return show();
     const idx = phases.findIndex((x) => x.phase === packetPhase);
     if (idx >= 0) setStep(idx);
@@ -2429,6 +2436,11 @@ function FilePage() {
         ? [{ id: "current-hold", label: "Current hold", badge: { tone: "hold" as const, text: "HOLD" } }]
         : []),
       { id: "summary-clock", label: "Summary & clock" },
+      {
+        id: "launch-sequence",
+        label: "Launch sequence",
+        badge: phaseOpenCount > 0 ? { tone: "watch" as const, text: `${phaseOpenCount} open` } : null,
+      },
       { id: "exports-peer-systems", label: "Exports & peer systems" },
       { id: "coordination", label: "Coordination" },
       { id: "schedule-forecast", label: "Schedule & forecast" },
@@ -2445,11 +2457,6 @@ function FilePage() {
       },
       { id: "alerts-determinations", label: "Alerts & determinations" },
       { id: "reference-links", label: "Reference links" },
-      {
-        id: "launch-sequence",
-        label: "Launch sequence",
-        badge: phaseOpenCount > 0 ? { tone: "watch" as const, text: `${phaseOpenCount} open` } : null,
-      },
       { id: "directive-compliance", label: "Directive compliance" },
       { id: "thresholds", label: "Thresholds" },
       { id: "facts-of-record", label: "Facts of record" },
@@ -2464,9 +2471,106 @@ function FilePage() {
   // P1-E: on a client navigation the record arrives a moment after the route
   // does. Until it is in hand the page says it is loading rather than painting
   // an empty file that reads like a record with nothing on it.
+  // Hero visibility drives the identity strip.
+  const [heroEl, setHeroEl] = useState<HTMLElement | null>(null);
+  const [stripShown, setStripShown] = useState(false);
+  useEffect(() => {
+    if (!heroEl || typeof IntersectionObserver === "undefined") return;
+    const headerH = document.querySelector("header.sticky")?.getBoundingClientRect().height ?? 56;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStripShown(Boolean(entry && !entry.isIntersecting && entry.boundingClientRect.top < headerH)),
+      { rootMargin: `-${Math.round(headerH)}px 0px 0px 0px`, threshold: 0 },
+    );
+    observer.observe(heroEl);
+    return () => observer.disconnect();
+  }, [heroEl]);
+
+  const filePosition = phasePosition(phases);
+  const nextDecisionDue = dueView(lifecycle?.nextDecisionDate ?? null);
+
+  // The rail's attention list reads the same figures as the hero and the
+  // section badges. It adds no rule of its own.
+  const railAttention = (() => {
+    const items: { key: string; tone: "hold" | "watch"; text: string; sub?: string; target: string }[] = [];
+    const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+    if (effectiveState === "hold" && hold) {
+      items.push({ key: "hold", tone: "hold", text: `On hold: ${hold.reason}`, sub: `Owner: ${hold.owner}`, target: "current-hold" });
+    }
+    if (nextDecisionDue?.overdue && lifecycle) {
+      items.push({ key: "overdue", tone: "hold", text: `${lifecycle.nextDecision}: ${nextDecisionDue.text.toLowerCase()}`, sub: `Planned for ${nextDecisionDue.dateText}`, target: "launch-sequence" });
+    }
+    if (missingCurrentRequirements.length && currentPhase) {
+      items.push({
+        key: "missing",
+        tone: "watch",
+        text: `${plural(missingCurrentRequirements.length, "required document", "required documents")} missing in ${phaseLabel(currentPhase)}`,
+        sub: missingCurrentRequirements.slice(0, 3).map((d) => d.label).join(", "),
+        target: missingCurrentRequirements[0] ? requirementId(currentPhase.phase, missingCurrentRequirements[0].label) : "launch-sequence",
+      });
+    }
+    if (pendingCurrentReviews.length && currentPhase) {
+      items.push({
+        key: "reviews",
+        tone: "watch",
+        text: `${plural(pendingCurrentReviews.length, "review decision", "review decisions")} pending`,
+        sub: pendingCurrentReviews.slice(0, 3).map((b) => b.reviewer_role).join(", "),
+        target: `poll-${currentPhase.phase}`,
+      });
+    }
+    const openGates = companionGates.filter((gate) => gate.applies && gate.status === "Open").length;
+    if (openGates) items.push({ key: "gates", tone: "watch", text: `${plural(openGates, "companion gate", "companion gates")} open`, target: "companion-gates" });
+    if (fileIndex.missing.length) {
+      items.push({ key: "index", tone: "watch", text: `${plural(fileIndex.missing.length, "tab", "tabs")} missing from the contract file index`, target: "contract-file-index" });
+    }
+    return items;
+  })();
+
+  // Bring a section or row into view below the sticky chrome. Requirement rows
+  // and the launch sequence go through revealHash, which opens and waits.
+  const jumpToSection = (id: string) => {
+    if (id === "launch-sequence" || id.startsWith("requirement-")) {
+      revealHash(`#${id}`, { updateHash: true });
+      return;
+    }
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id.startsWith("poll-")) {
+      const sequence = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+      if (sequence) sequence.open = true;
+    }
+    if (el instanceof HTMLDetailsElement) el.open = true;
+    const inner = el.querySelector<HTMLDetailsElement>(":scope > details, :scope > .mc-nav-section-content > details");
+    if (inner) inner.open = true;
+    place(el, "start");
+    focusTarget(el.querySelector<HTMLElement>("h2, summary") ?? el);
+    window.history.replaceState(window.history.state, "", `#${id}`);
+  };
+
+  // A step in the phase row shows that phase in the launch sequence.
+  const showPhase = (index: number) => {
+    const p = phases[index];
+    if (!p) return;
+    const sequence = document.getElementById("launch-sequence") as HTMLDetailsElement | null;
+    if (sequence) sequence.open = true;
+    if (!shownPhases.includes(p)) setShowFullSequence(true);
+    let frames = 0;
+    const tryPhase = () => {
+      const el = document.getElementById(`phase-${p.order}`);
+      if (el) {
+        place(el, "start");
+        focusTarget(el.querySelector<HTMLElement>("h3") ?? el);
+        pinTarget(el, "start");
+        return;
+      }
+      frames += 1;
+      if (frames < 10) window.requestAnimationFrame(tryPhase);
+    };
+    window.requestAnimationFrame(tryPhase);
+  };
+
   if (q.isPending || q.isLoading || q.isFetching && !q.data) {
     return (
-      <AppShell>
+      <AppShell kit>
         <FilePageSkeleton acquisitionId={acquisitionId} />
       </AppShell>
     );
@@ -2476,7 +2580,7 @@ function FilePage() {
   // back rather than waiting forever.
   if (q.isError || !acq) {
     return (
-      <AppShell>
+      <AppShell kit>
         <ErrorNote
           message={
             q.isError
@@ -2492,16 +2596,15 @@ function FilePage() {
   }
 
   return (
-    <AppShell>
+    <AppShell kit>
       {/* Quiet print-only header: the record's id and title on the handout. */}
       <div data-print="header" className="hidden">
         <p className="text-[13px]">{acquisitionId}</p>
         <p className="text-[15px] font-medium">{acq?.title ?? acquisitionId}</p>
       </div>
 
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
 
-      {banner && banner !== DEMO_READ_ONLY_NOTE ? (
+      {banner ? (
         <p className="mb-6 border-l-2 py-1 pl-3 text-[13px]" style={{ borderColor: "var(--attention)" }}>
           {banner}
         </p>
@@ -2509,7 +2612,7 @@ function FilePage() {
 
       {!q.isLoading && effectiveState === "hold" && hold ? (
         <MissionNavSection id="current-hold" label="Current hold">
-        <section aria-label="Current hold" className="mb-5 border-l-2 border-atrisk py-2 pl-4">
+        <section aria-label="Current hold" className="mc-file-hold">
           <div className="grid min-w-0 grid-cols-1 items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0">
               <p className="max-w-[80ch] text-[15px] leading-[22px]">
@@ -2544,112 +2647,47 @@ function FilePage() {
       ) : null}
 
       {!q.isLoading ? (
-      <div className="mb-2 grid min-w-0 gap-6 min-[1440px]:grid-cols-[200px_minmax(0,1fr)] min-[1440px]:gap-8">
-        <aside className="no-print hidden min-[1440px]:block">
-          <div className="min-[1440px]:sticky min-[1440px]:top-[72px]">
-            <MissionNavigator items={missionNavItems} />
-            <LaunchSequenceRail
-              compact
-              phases={phases}
-              daysToPhaseExit={
-                lifecycle?.nextDecision?.startsWith("Exit")
-                  ? lifecycle.daysToNextDecision
-                  : null
-              }
-              className="mt-6 min-[1440px]:static"
-            />
-          </div>
-        </aside>
-        <div className="min-w-0">
+      <div className="mc-file-layout">
+        <div className="mc-file-main">
 
-      <details className="no-print mb-5 border-y border-border bg-background min-[1440px]:hidden">
-        <summary className="cursor-pointer px-3 py-3 text-[13px] font-medium">Jump to section</summary>
+      {/* Identity strip: once the hero scrolls away, the file, its state and
+          the clock stay in view. Display only; the actions live in the hero. */}
+      <div className="mc-file-strip-anchor no-print">
+        <div data-file-strip className={`mc-file-strip${stripShown ? " is-shown" : ""}`} aria-hidden={!stripShown}>
+          <span className="mc-file-strip-id" data-numeric>{acquisitionId}</span>
+          {readiness ? <MissionReadinessChip state={readiness} /> : null}
+          <span className="mc-file-strip-title">{acq?.title ?? acquisitionId}</span>
+          <span className="mc-file-strip-phase" data-numeric>
+            {filePosition.number !== null && filePosition.name ? `${phasePositionText(filePosition)}: ${filePosition.name}` : phasePositionText(filePosition)}
+          </span>
+          <LaunchCountdownCompact view={fileCountdownView} className="mc-file-strip-clock" />
+        </div>
+      </div>
+
+      <details className="no-print mc-file-jump min-[1440px]:hidden">
+        <summary>Jump to section</summary>
         <MissionNavigator items={missionNavItems} label="On this file" />
       </details>
 
       <MissionNavSection id="summary-clock" label="Summary & clock">
-      <section data-print="story" aria-label="Clock line" className="mb-10 min-w-0 rounded-[var(--mc-radius-control)] border border-border bg-background p-7 lg:p-10">
-        <div className="grid min-w-0 gap-10 min-[1440px]:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] min-[1440px]:items-start min-[1440px]:gap-12">
+      <section ref={setHeroEl} data-print="story" aria-label="Clock line" className="mc-file-hero">
+        <div className="mc-file-hero-top">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <p className="text-[13px] font-medium text-primary" data-numeric>{acquisitionId}</p>
+            <div className="mc-file-hero-eyebrow">
+              <span className="mc-file-hero-id" data-numeric>{acquisitionId}</span>
               {readiness && !(readiness === "HOLD" && fileCountdownView.mode === "hold") ? <MissionReadinessChip state={readiness} /> : null}
+              <span className="mc-file-hero-type">{acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}</span>
             </div>
-            {statusLine?.reason ? (
-              <p className="mt-1 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground [overflow-wrap:anywhere]">
+            <h1 className={presenter ? "mc-file-hero-title is-presenter" : "mc-file-hero-title"}>{acq?.title ?? acquisitionId}</h1>
+            {/* On hold the reason already leads the page in the hold panel. */}
+            {statusLine?.reason && !(effectiveState === "hold" && hold) ? (
+              <p className="mc-file-hero-status">
                 {statusLine.state} · {statusLine.reason}
               </p>
             ) : null}
-            <h1 className={presenter ? "mt-2 text-[28px] leading-9 font-semibold" : "mt-2 text-[24px] leading-8 font-semibold"}>{acq?.title ?? acquisitionId}</h1>
-            <p className="mt-2 text-[15px] text-muted-foreground">
-              {acq?.center_code ?? ""} · {acq ? acquisitionTypeWords(acq) : "Loading the file"}
-            </p>
-            {acq && !q.isLoading ? (
-              <>
-                <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-foreground">
-                  {fileStory(acq as AcqRow, q.data?.mission?.name ?? null, q.data?.mission?.milestone_date ?? null, lifecycle?.currentPhase ?? null, effectiveState ?? null, (acq as AcqRow).need_date ?? null, (acq as AcqRow).period_of_performance_start ?? null)}
-                </p>
-                <p className="mt-2 max-w-[80ch] text-[13px] leading-5 text-muted-foreground">
-                  {fileStoryProvenance()}
-                </p>
-              </>
-            ) : null}
           </div>
-          <div className="grid min-w-0 gap-7 border-t border-border pt-7 sm:max-[1439px]:grid-cols-[auto_minmax(0,1fr)] min-[1440px]:grid-cols-1 min-[1440px]:border-l min-[1440px]:border-t-0 min-[1440px]:pl-10 min-[1440px]:pt-0">
-            <div className="min-w-0">
-            <LaunchCountdown
-              view={fileCountdownView}
-              acquisitionId={acquisitionId}
-            />
-            {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
-              <p className="mt-2 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">
-                {confidence.sentence}
-              </p>
-            ) : null}
-            <p className="mt-4 text-[15px] font-medium">
-              {effectiveState === "running"
-                ? "Clock running"
-                : effectiveState === "hold"
-                  ? "On hold"
-                  : effectiveState === "launched"
-                    ? "Launched"
-                    : (effectiveState ?? "—")}
-            </p>
-            {acq && String((acq as AcqRow).clock_state ?? "").toLowerCase() === "launched" && effectiveState !== "launched" ? (
-              <p className="mt-1 max-w-[44ch] text-[13px] leading-[18px] text-muted-foreground">{STORED_LAUNCH_NOTE}</p>
-            ) : null}
-            </div>
-            <div className="min-w-0 [overflow-wrap:anywhere]">
-            <p className="text-[13px] text-muted-foreground">Current phase</p>
-            <p className="mt-1 text-[18px] leading-6 font-medium [overflow-wrap:anywhere]">{currentPhase ? phaseLabel(currentPhase) : (lifecycle?.currentPhase ?? "Not started")}</p>
-            {/* Only a Required row reads as missing here. With none missing the
-                line says the phase is ready to exit. */}
-            <p className="mt-4 max-w-[48ch] text-[15px] leading-[22px] [overflow-wrap:anywhere]">
-              {lifecycle?.blocker && lifecycle.blocker !== "None"
-                ? lifecycle.blocker
-                : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
-                    effectiveState !== "launched" && effectiveState !== "scrubbed"
-                  ? // On WATCH or HOLD the line carries the overrun (same figure as the
-                    // rail) or the reason, so it never reads as an all-clear.
-                    `Ready to exit ${phaseLabel(currentPhase)}${
-                      currentPhase.followsAward?.length
-                        ? `. Not blocking award: the justification and approval may follow award (RFO FAR 6.103-2(d)); post it within 30 days after award (RFO FAR 6.301(b)(1))`
-                        : ""
-                    }${
-                      statusLine && statusLine.state !== "GO" && statusLine.state !== "LAUNCHED"
-                        ? statusLine.overrunDays !== null
-                          ? `. ${statusLine.overrunDays} ${statusLine.overrunDays === 1 ? "day" : "days"} over plan.`
-                          : statusLine.reason
-                            ? `. ${statusLine.reason}.`
-                            : ""
-                        : ""
-                    }`
-                  : (lifecycle?.nextAction ?? "Loading")}
-            </p>
-            <p className="mt-1 text-[13px] text-muted-foreground [overflow-wrap:anywhere]">
-              {lifecycle?.blockerOwner ?? (effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Next action")}
-            </p>
-            <div className="mt-5 flex min-w-0 flex-wrap items-center gap-2">
+          <div className="min-w-0">
+            <div className="mc-file-hero-actions">
               {heroAction && canWrite ? primaryAction() : null}
               {heroAction && !canWrite && readOnly ? (
                 <Button disabled className="max-w-full whitespace-normal text-left">{heroAction.label}</Button>
@@ -2720,574 +2758,114 @@ function FilePage() {
               ) : null}
             </div>
             {heroAction && !canWrite && readOnly ? <LockHint className="mt-2" /> : null}
-            </div>
           </div>
         </div>
+
+        <div className="mc-file-glance">
+          <div className="mc-glance mc-glance-clock">
+            <LaunchCountdown
+              view={fileCountdownView}
+              acquisitionId={acquisitionId}
+            />
+            <p className="mc-glance-state">
+              {effectiveState === "running"
+                ? "Clock running"
+                : effectiveState === "hold"
+                  ? "On hold"
+                  : effectiveState === "launched"
+                    ? "Launched"
+                    : (effectiveState ?? "Not recorded")}
+            </p>
+            {confidence && effectiveState !== "launched" && effectiveState !== "scrubbed" ? (
+              <p className="mc-glance-sub">{confidence.sentence}</p>
+            ) : null}
+            {acq && String((acq as AcqRow).clock_state ?? "").toLowerCase() === "launched" && effectiveState !== "launched" ? (
+              <p className="mc-glance-sub">{STORED_LAUNCH_NOTE}</p>
+            ) : null}
+          </div>
+          <div className="mc-glance">
+            <p className="mc-glance-label">Where it is</p>
+            <p className="mc-glance-value">{currentPhase ? phaseLabel(currentPhase) : (lifecycle?.currentPhase ?? "Not started")}</p>
+            <p className="mc-glance-sub" data-numeric>
+              {phasePositionText(filePosition)}
+              {currentPhase ? ` · ${phaseDayLine(currentPhase)}` : ""}
+            </p>
+          </div>
+          <div className="mc-glance">
+            <p className="mc-glance-label">{lifecycle?.blocker && lifecycle.blocker !== "None" ? "What is blocking" : "What is next"}</p>
+            {/* Only a Required row reads as missing here. With none missing the
+                line says the phase is ready to exit. */}
+            <p className={`mc-glance-value is-text${effectiveState === "hold" && hold ? " is-clamp" : ""}`} title={effectiveState === "hold" && hold ? hold.reason : undefined}>
+              {lifecycle?.blocker && lifecycle.blocker !== "None"
+                ? lifecycle.blocker
+                : currentPhase && !missingCurrentRequirements.length && !pendingCurrentReviews.length &&
+                    effectiveState !== "launched" && effectiveState !== "scrubbed"
+                  ? // On WATCH or HOLD the line carries the overrun (same figure as the
+                    // rail) or the reason, so it never reads as an all-clear.
+                    `Ready to exit ${phaseLabel(currentPhase)}${
+                      currentPhase.followsAward?.length
+                        ? `. Not blocking award: the justification and approval may follow award (RFO FAR 6.103-2(d)); post it within 30 days after award (RFO FAR 6.301(b)(1))`
+                        : ""
+                    }${
+                      statusLine && statusLine.state !== "GO" && statusLine.state !== "LAUNCHED"
+                        ? statusLine.overrunDays !== null
+                          ? `. ${statusLine.overrunDays} ${statusLine.overrunDays === 1 ? "day" : "days"} over plan.`
+                          : statusLine.reason
+                            ? `. ${statusLine.reason}.`
+                            : ""
+                        : ""
+                    }`
+                  : (lifecycle?.nextAction ?? "Loading")}
+            </p>
+            <p className="mc-glance-sub">
+              {lifecycle?.blockerOwner
+                ? `Owner: ${lifecycle.blockerOwner}`
+                : lifecycle?.blocker && lifecycle.blocker !== "None"
+                  ? "Owner not recorded"
+                  : effectiveState === "launched" ? "Post-award next action" : effectiveState === "scrubbed" ? "No countdown" : "Nothing is blocking"}
+            </p>
+          </div>
+          <div className="mc-glance mc-glance-next">
+            <p className="mc-glance-label">Next decision</p>
+            <p className="mc-glance-value is-text">{lifecycle?.nextDecision ?? "Loading"}</p>
+            {nextDecisionDue ? (
+              nextDecisionDue.overdue ? (
+                <p className="mc-glance-sub">
+                  <span className="mc-due is-overdue" title={`Planned for ${nextDecisionDue.dateText}`}>{nextDecisionDue.text}</span>
+                </p>
+              ) : (
+                <p className="mc-glance-sub" data-numeric>{nextDecisionDue.text}</p>
+              )
+            ) : (
+              <p className="mc-glance-sub">No date planned</p>
+            )}
+            <p className="mc-glance-sub">
+              Contracting officer: {String(acq?.co_name ?? "").trim() || "Not assigned"}
+            </p>
+          </div>
+        </div>
+
+        {acq && !q.isLoading ? (
+          <div className="mc-file-hero-story">
+            <p>
+              {fileStory(acq as AcqRow, q.data?.mission?.name ?? null, q.data?.mission?.milestone_date ?? null, lifecycle?.currentPhase ?? null, effectiveState ?? null, (acq as AcqRow).need_date ?? null, (acq as AcqRow).period_of_performance_start ?? null)}
+            </p>
+            <p className="mc-file-hero-prov">{fileStoryProvenance()}</p>
+          </div>
+        ) : null}
       </section>
       </MissionNavSection>
 
-      <PilotKnownGapsLine className="mb-4" />
-      <p className="mb-6 max-w-[80ch] text-[13px] text-muted-foreground">
-        Panels marked Advisory never hold the file or block a phase exit.
-      </p>
+      <FilePhaseStepper phases={phases} daysToPhaseExit={lifecycle?.nextDecision?.startsWith("Exit") ? lifecycle.daysToNextDecision : null} onSelect={showPhase} />
 
-      <MissionNavSection id="exports-peer-systems" label="Exports & peer systems" collapsible summary="NEAR export, NCMS packet and peer systems">
-      {acq ? (
-        <>
-        <section aria-label="Peer systems" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-3">
-          <p className="mb-1 text-[13px] text-muted-foreground">Peer systems</p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] leading-[18px]">
-            <button
-              type="button"
-              className="text-primary underline-offset-2 hover:underline disabled:text-muted-foreground"
-              disabled={nearExport.isPending}
-              onClick={() => nearExport.mutate()}
-            >
-              {nearExport.isPending ? "Building the NEAR export" : "NEAR export"}
-            </button>
-            <button
-              type="button"
-              className="text-primary underline-offset-2 hover:underline"
-              onClick={() => downloadPacket()}
-            >
-              NCMS packet (local — planned write-back)
-            </button>
-            <Link to="/checks" className="text-primary underline-offset-2 hover:underline">
-              Checks
-            </Link>
-            <span className="text-muted-foreground" data-numeric>
-              {lastCheck
-                ? `Last check: ${lastCheck.check_type ?? "Check"} · ${formatStamp(lastCheck.checked_at)}`
-                : "No check recorded on this file yet."}
-            </span>
-          </div>
-          {sweepFlag ? (
-            <p className="mt-3 max-w-[80ch] border-l-2 border-destructive pl-3 text-[13px]">
-              Flagged for contracting officer review: {sweepFlag.why} Checked{" "}
-              {formatStamp(sweepFlag.checkedAt)}. The clock was not changed. Run a record check on this UEI; a clean
-              result clears the flag.
-            </p>
-          ) : null}
-          <p className="mt-2 text-[13px] text-muted-foreground">
-            NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
-            The handoff is a local packet you key into NCMS, which stays the system of record under NFS CG
-            1804.11(b); writing into NCMS from here is planned and not available in this prototype.
-          </p>
-        </section>
-        </>
-      ) : null}
-      </MissionNavSection>
+      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`mc-seq${presenter ? " presenter-step" : ""}`}>
+        <summary className="mc-seq-summary">
+          <span>Launch sequence</span>
+          <span className="mc-seq-summary-note" data-numeric>{phasePositionText(filePosition)}</span>
+        </summary>
+        <div className="mc-seq-body">
 
-      <MissionNavSection id="coordination" label="Coordination" collapsible summary="Requests and offices on this file">
-      {acq ? (
-        <CorToRequestPanel
-          acq={acq as unknown as Record<string, unknown>}
-          profile={acquisitionProfile(acq)}
-          actorName={actorName}
-          canWrite={canWrite}
-          onSaved={() => void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] })}
-        />
-      ) : null}
-
-      {acq && canWrite ? (
-        <EmailDraftsPanel
-          drafts={buildEmailDrafts({
-            acq: acq as unknown as Record<string, unknown>,
-            coName: String(acq.co_name ?? actorName),
-            phase: lifecycle?.currentPhase ?? "the current phase",
-            citation: currentPhase?.citation ?? "",
-            missingLabels: missingCurrentRequirements.map((d) => ({ label: d.label, citation: d.citation })),
-            pendingReviewers: pendingCurrentReviews.map((e) => ({
-              role: e.reviewer_role,
-              name: e.reviewer_name,
-              due: e.due_date,
-            })),
-            vendorOutcome:
-              acq.clock_state === "launched" && acq.vendor_legal_name
-                ? { vendor: String(acq.vendor_legal_name), successful: true }
-                : null,
-          })}
-          onCopied={(label) => setBanner(`${label} copied. Paste it into your mail client; T-Minus sends no mail.`)}
-        />
-      ) : null}
-
-      {acq ? (
-        <WhatIfPanel
-          acq={acq}
-          plan={(q.data?.plan ?? []) as never}
-          thresholds={(q.data?.thresholds ?? []) as never}
-          clauseRows={q.data?.clauses ?? []}
-        />
-      ) : null}
-
-      {warrant ? (
-        <details aria-label="Warrant check" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
-          <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Warrant check</summary>
-          <div className="border-t border-border px-5 py-4">
-          {warrant.exceeds ? (
-            <p
-              className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
-              style={{ borderColor: "var(--at-risk)" }}
-            >
-              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the IGCE{" "}
-              <span data-numeric>{formatMoney(warrant.value)}</span> exceeds the warrant of{" "}
-              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
-              contracting officer with a warrant at or above the value has to sign the award.
-            </p>
-          ) : null}
-          {warrant.exceeds ? (
-            <div className="mt-2">
-              <ExplainThis
-                explanation={explainWarrant({
-                  coName: warrant.coName,
-                  value: warrant.value,
-                  limit: warrant.limit as number,
-                })}
-              />
-            </div>
-          ) : warrant.unknown ? (
-            <p className="text-[15px] leading-[22px] text-muted-foreground">
-              No warrant limit is recorded for {warrant.coName}, so the IGCE of{" "}
-              <span data-numeric>{formatMoney(warrant.value)}</span> cannot be checked against a
-              warrant.
-            </p>
-          ) : (
-            <p className="text-[15px] leading-[22px] text-muted-foreground">
-              Within warrant: the IGCE{" "}
-              <span data-numeric>{formatMoney(warrant.value)}</span> is at or below the warrant of{" "}
-              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
-            </p>
-          )}
-          </div>
-        </details>
-      ) : null}
-      </MissionNavSection>
-
-
-      <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
-      {!successor && effectiveState === "launched" ? (
-        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
-          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            This file has no period of performance end recorded, so the date its successor must start
-            cannot be computed. Record the end date to start the successor clock.
-          </p>
-          <label className="mt-3 block text-[13px]" htmlFor="pop-end">
-            Period of performance end
-          </label>
-          <input
-            id="pop-end"
-            type="date"
-            className="mt-1 h-9 rounded-lg border border-border bg-background px-2 text-[13px]"
-            defaultValue=""
-            disabled={!canWrite}
-            onChange={(e) => setPopEnd.mutate(e.target.value)}
-          />
-        </section>
-      ) : null}
-
-      {successor ? (
-        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
-          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
-            {successor.plannedDays} planned pre-award days plus a 30-day transition allowance.
-          </p>
-          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
-            {formatDate(successor.startBy)}
-          </p>
-          <p className="mt-1 text-[13px] text-muted-foreground">The successor acquisition must start by this date</p>
-          <p className="mt-3 text-[13px]">
-            {successor.successorId ? (
-              <>
-                Successor file{" "}
-                <Link
-                  to="/files/$acquisitionId"
-                  params={{ acquisitionId: successor.successorId }}
-                  className="text-primary underline"
-                >
-                  {successor.successorId}
-                </Link>{" "}
-                is linked to this one.
-              </>
-            ) : successor.overdue ? (
-              <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
-                {`Successor overdue by ${Math.abs(successor.daysUntilStart)} days; no successor file is linked`}
-              </StatusMark>
-            ) : (
-              `No successor file is linked yet; ${successor.daysUntilStart} days until it must start.`
-            )}
-          </p>
-          {effectiveState === "launched" && !successor.successorId ? (
-            <p className="mt-2 text-[13px] text-muted-foreground">
-              This file is in Administration. The follow-on acquisition must start by {formatDate(successor.startBy)} so
-              it can be awarded before the period of performance ends. Start it from Intake and link it as the
-              successor of this file.
-            </p>
-          ) : null}
-          <p className="mt-2 text-[13px] text-muted-foreground">
-            Advisory only — the successor clock never places a hold, changes the phase, or creates a file on its own.
-          </p>
-        </section>
-      ) : null}
-
-      <details aria-label="Acquisition Forecast" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
-        <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
-        <div className="border-t border-border px-5 py-4">
-        <p className="mb-3 text-[13px] text-muted-foreground">
-          {FORECAST_CITATION} · binding
-          {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
-        </p>
-        {q.isLoading ? (
-          <LoadingNote what="the forecast facts" />
-        ) : forecast ? (
-          <>
-            <TableScrollRegion baseClassName="overflow-x-auto" label="Forecast entry table">
-<table className="w-full border border-border text-[13px] leading-[18px]">
-              <caption className="sr-only">Acquisition Forecast entry for this file</caption>
-              <tbody>
-                {FORECAST_FIELDS.map((f) => (
-                  <tr key={f.key} className="border-b border-border last:border-b-0">
-                    <th scope="row" className="w-[42%] px-3 py-2 text-left font-medium">
-                      {f.header}
-                    </th>
-                    <td className="px-3 py-2">
-                      {forecast[f.key]}
-                      {f.key === "anticipated_award_date" && forecast[f.key] === ANTICIPATED_AWARD_TBD ? (
-                        <span className="mt-1 block text-muted-foreground">
-                          {ANTICIPATED_AWARD_TBD_NOTE}
-                        </span>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-</TableScrollRegion>
-            <p className="mt-2 text-[15px] leading-[22px]">
-              {acq?.acquisition_forecast_verified
-                ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
-                : "The entry exists. The NF 1707 affirmation is marked satisfied by a specialist or HQ."}
-            </p>
-            <button
-              type="button"
-              onClick={exportForecastCsv}
-              className="mt-3 rounded-lg border border-border px-3 py-2 text-[13px]"
-            >
-              Export forecast entry to CSV
-            </button>
-          </>
-        ) : (
-          <p className="text-[15px] leading-[22px]">
-            This acquisition is at or below the simplified acquisition threshold, so it has no forecast
-            entry.
-          </p>
-        )}
-        </div>
-      </details>
-
-      {phaseNames.length ? (
-        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} compact={coldPathSample} />
-      ) : null}
-
-      {intakeEstimate ? (
-        <section aria-label="Estimate at intake" className="mb-10 w-full [&_p]:max-w-[70ch]">
-          <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
-          <p className="text-[15px] leading-[22px]">{intakeEstimate.sentence}</p>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Contracting officer {intakeEstimate.hours_co.toLocaleString("en-US")} hours · specialist{" "}
-            {intakeEstimate.hours_cs.toLocaleString("en-US")} hours · recorded{" "}
-            {intakeEstimate.estimated_at.slice(0, 10)}
-          </p>
-        </section>
-      ) : null}
-
-      {lifecycle && lifecycle.upcomingReviews.length > 0 ? (
-        <section aria-labelledby="upcoming-reviews" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-4">
-          <h2 id="upcoming-reviews" className="text-[18px] leading-6 font-medium">Upcoming reviews</h2>
-          <ul className="mt-2 space-y-1 text-[13px] text-muted-foreground">
-            {lifecycle.upcomingReviews.map((review) => (
-              <li key={`${review.phase}-${review.reviewer_role}`}>{review.phase} · {review.reviewer_role} · {review.reviewer_name}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <DeadlinesPanel
-        acq={acq as Record<string, unknown> | null}
-        awardDate={awardDate}
-        debriefingDate={debriefingDate}
-        thresholds={(q.data?.thresholds ?? []) as never}
-        noticePostedDate={null}
-        quoteDueDate={(acq?.['proposed_price_received'] as string | null | undefined) ?? null}
-      />
-      </MissionNavSection>
-
-      <MissionNavSection id="vehicle-orders-post-award" label="Vehicle, orders & post-award" collapsible summary="Standalone drafts, orders and modifications">
-      <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
-
-      <NewOrderPanel
-        acq={acq as Record<string, unknown> | null}
-        canWrite={canWrite}
-        actor={actorName}
-      />
-
-      <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
-
-      <ModificationsPanel
-        acq={acq as Record<string, unknown> | null}
-        canWrite={canWrite}
-        actor={actorName}
-        onBanner={setBanner}
-      />
-
-      <SituationMemoPanel
-        acq={acq as Record<string, unknown> | null}
-        actor={actorName}
-        onBanner={setBanner}
-        operational={
-          lifecycle && readiness
-            ? {
-                phase: lifecycle.currentPhase ?? "Not recorded",
-                readiness,
-                countdownLine: (() => {
-                  const view = overviewCountdownView(lifecycle);
-                  return view.pastTarget
-                    ? countdownText(view, { omitBadge: view.badge === readiness })
-                    : view.days === null || !view.prefix
-                      ? view.caption
-                      : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`;
-                })(),
-                holdReason: lifecycle.hold?.reason ?? null,
-                holdOwner: lifecycle.hold?.owner ?? null,
-              }
-            : null
-        }
-      />
-
-      <CloseoutPanel
-        acq={acq as Record<string, unknown> | null}
-        canWrite={canWrite}
-        actor={actorName}
-        onBanner={setBanner}
-        cparsRecorded={cparsRecorded(q.data?.stateLog ?? [])}
-      />
-
-      <ClauseModTasks acquisitionId={acquisitionId} />
-
-      <Nf1707Signoffs
-        acquisitionId={acquisitionId}
-        centerCode={acq?.center_code ?? null}
-        storedAnswers={(acq?.['nf1707_answers'] ?? {}) as Record<string, unknown>}
-        rows={q.data?.nfApprovals ?? []}
-        routing={q.data?.memoRouting ?? []}
-        canWrite={canWrite}
-        actor={actorName}
-        onBanner={setBanner}
-        onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); void qc.invalidateQueries({ queryKey: ["work-queue"] }); }}
-      />
-      </MissionNavSection>
-
-      <MissionNavSection
-        id="contract-file-index"
-        label="Contract file index"
-        collapsible
-        summary={`${fileIndex.present.length} of ${fileIndex.present.length + fileIndex.missing.length} tabs on file`}
-      >
-      <details data-print="index" open aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
-        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
-        <div className="border-t border-border px-5 py-4">
-        <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
-          Every document on this file, drafted or uploaded: its NEAR file element (NF 1098 tab for actions
-          before Oct 1, 2024), version, who saved or
-          uploaded it and when. Each row opens the official version. Required tabs with no document
-          are listed at the end. RFO FAR 4.101 contract file.
-        </p>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="mb-4 text-[13px] text-primary"
-        >
-          Print the cover sheet
-        </button>
-        <TableScrollRegion baseClassName="overflow-x-auto" label="File index table">
-<table className="w-full border border-border text-[13px] leading-[18px]">
-          <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
-          <thead>
-            <tr className="border-b border-border bg-canvas text-left">
-              <th scope="col" className="px-3 py-2 font-medium">Tab</th>
-              <th scope="col" className="px-3 py-2 font-medium">Document</th>
-              <th scope="col" className="px-3 py-2 font-medium">Source</th>
-              <th scope="col" className="px-3 py-2 font-medium">Official</th>
-              <th scope="col" className="px-3 py-2 font-medium">Version</th>
-              <th scope="col" className="px-3 py-2 font-medium">Saved</th>
-              <th scope="col" className="px-3 py-2 font-medium">By</th>
-              <th scope="col" className="px-3 py-2 font-medium">Required here</th>
-              <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fileIndex.present.map((t) => {
-              const officialDoc = t.documents.find((d) => d.official);
-              const latest = officialDoc ?? t.documents.at(-1);
-              return (
-                <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
-                  <td className="px-3 py-2" data-numeric>{t.tab}</td>
-                  <td className="px-3 py-2">
-                    {t.open?.kind === "document" ? (
-                      <Link
-                        className="text-primary underline-offset-2 hover:underline"
-                        to="/documents/$templateKey/$acquisitionId"
-                        params={{ templateKey: t.open.templateKey, acquisitionId }}
-                      >
-                        {t.templateName}
-                      </Link>
-                    ) : t.open?.kind === "form" ? (
-                      <Link
-                        className="text-primary underline-offset-2 hover:underline"
-                        to="/forms/$formKey/$acquisitionId"
-                        params={{ formKey: t.open.formKey, acquisitionId }}
-                      >
-                        {t.templateName}
-                      </Link>
-                    ) : t.open?.kind === "attachment" ? (
-                      <button
-                        type="button"
-                        className="text-primary underline-offset-2 hover:underline"
-                        onClick={() => void openIndexAttachment(attachmentIdOf(t.open))}
-                      >
-                        {t.templateName}
-                      </button>
-                    ) : (
-                      t.templateName
-                    )}
-                    {latest && t.origin === "uploaded" ? (
-                      <span className="block text-muted-foreground">{latest.templateName}</span>
-                    ) : null}
-                    {t.nearOrder ? (
-                      <span className="block text-muted-foreground">
-                        NEAR order {t.nearOrder} · {t.nearTitle}
-                      </span>
-                    ) : null}
-                    {t.nearNotes ? (
-                      <span className="block text-muted-foreground">
-                        What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
-                  <td className="px-3 py-2">
-                    {t.origin === "uploaded" ? "—" : officialDoc ? "Official" : "Draft"}
-                  </td>
-                  <td className="px-3 py-2" data-numeric>{latest?.version ?? "—"}</td>
-                  <td className="px-3 py-2" data-numeric>
-                    {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
-                  </td>
-                  <td className="px-3 py-2">{latest?.savedBy ?? "Not recorded"}</td>
-                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : offeredTabSet.has(t.tab) ? "Offered" : "Not required"}</td>
-                  <td className="px-3 py-2">
-                    {latest?.memo ? `Yes, to ${latest.memoTo ?? "addressee not set"}` : "No"}
-                  </td>
-                </tr>
-              );
-            })}
-            {fileIndex.missing.map((t) => (
-              <tr key={`m-${t.tab}`} className="border-b border-border">
-                <td className="px-3 py-2" data-numeric>{t.tab}</td>
-                <td className="px-3 py-2">
-                  {t.templateName}
-                  {t.nearOrder ? (
-                    <span className="block text-muted-foreground">
-                      NEAR order {t.nearOrder} · {t.nearTitle}
-                    </span>
-                  ) : null}
-                  {t.nearNotes ? (
-                    <span className="block text-muted-foreground">
-                      What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
-                    </span>
-                  ) : null}
-                </td>
-                <td className="px-3 py-2">—</td>
-                <td className="px-3 py-2">—</td>
-                <td className="px-3 py-2">—</td>
-                <td className="px-3 py-2">—</td>
-                <td className="px-3 py-2">—</td>
-                <td className="px-3 py-2">Required</td>
-                <td className="px-3 py-2">
-                  <StatusMark color="var(--attention)">No document on this tab</StatusMark>
-                </td>
-              </tr>
-            ))}
-            {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
-              <tr>
-                <td className="px-3 py-3 text-muted-foreground" colSpan={9}>
-                  No documents are saved or uploaded on this file yet.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-</TableScrollRegion>
-        </div>
-      </details>
-      </MissionNavSection>
-
-      <MissionNavSection id="companion-gates" label="Companion gates" collapsible summary={`${companionGates.length} gate${companionGates.length === 1 ? "" : "s"}`}>
-      <ClauseChangeBanner acquisitionId={acquisitionId} />
-
-      <CompanionGatesPanel gates={companionGates} />
-      </MissionNavSection>
-
-      <MissionNavSection id="alerts-determinations" label="Alerts & determinations">
-      <PcdAdoptionPanel
-        baselineDate={(acq?.regulatory_baseline_date as string | null | undefined) ?? null}
-        deviations={deviationsQ.data ?? []}
-      />
-
-      <BlackoutNoticePanel acq={acq as Record<string, unknown> | null} onBanner={setBanner} />
-
-      <DraftRfpAlertPanel acq={acq as Record<string, unknown> | null} />
-
-      <EnterprisePslPanel acq={acq as Record<string, unknown> | null} />
-
-      <ThresholdConflictsPanel />
-
-      <MissionNavSection
-        id="reference-links"
-        label="Reference links"
-        collapsible
-        summary="Center clauses and practice links"
-      >
-      <CenterLocalClausesPanel />
-
-      <PracticeLinksPanel />
-      </MissionNavSection>
-
-      <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
-
-      <OfficeInvitePanel
-        acquisitionId={acquisitionId}
-        acq={acq as Record<string, unknown> | null}
-        onBanner={setBanner}
-      />
-
-      <DocumentVersionsPanel acquisitionId={acquisitionId} />
-
-      {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
-        <section aria-label="Reserved clause note" className="mb-12 w-full [&_p]:max-w-[80ch] border border-border p-4">
-          <p className="text-[15px] leading-[22px]">
-            <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
-            {RFO_RESERVED_212_NOTE}
-          </p>
-        </section>
-      ) : null}
-      </MissionNavSection>
-
-      <details id="launch-sequence" data-print="sequence" open aria-label="Launch sequence" className={`scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-12 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2${presenter ? " presenter-step" : ""}`}>
-        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Launch sequence</summary>
-        <div className="border-t border-border p-5">
-
-        <div className="mb-5 flex items-center justify-between gap-4">
+        <div className="mc-seq-toolbar">
           <p className="text-[13px] text-muted-foreground">
             {showFullSequence ? `All ${phases.length} phases` : "Past, now, and next"}
           </p>
@@ -3320,12 +2898,12 @@ function FilePage() {
           </div>
         ) : null}
 
-        <ol className="border-l border-border pl-6">
+        <ol className="mc-seq-list">
           {shownPhases.map((p) => (
-            <li key={p.phase} className="relative mb-8">
+            <li key={p.phase} id={`phase-${p.order}`} className={`mc-seq-phase is-${p.status}`}>
               <span
                 aria-hidden="true"
-                className="absolute -left-[31px] top-1 size-3 rounded-full border-2"
+                className="mc-seq-dot"
                 style={{
                    borderColor: p.status === "upcoming" ? "var(--border)" : statusColor(effectiveState),
                   background:
@@ -3336,21 +2914,22 @@ function FilePage() {
                         : "transparent",
                 }}
               />
-              <div className="flex flex-wrap items-baseline gap-3">
-                <h3 className="text-[18px] leading-6 font-medium">
-                  {p.order}. {phaseLabel(p)}
+              <div className="mc-seq-phase-head">
+                <h3 className="mc-seq-phase-title">
+                  <span className="mc-seq-phase-n" data-numeric>{p.order}</span> {phaseLabel(p)}
                 </h3>
-                <span className="text-[13px] text-muted-foreground">
-                  {p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
-                </span>
-                <span className="text-[13px] text-muted-foreground" data-numeric>
+                <StatusChip
+                  label={p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
+                  tone={p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
+                />
+                <span className="mc-seq-phase-days" data-numeric>
                   {phaseDayLine(p)}
                 </span>
               </div>
-              <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">{p.citation}</p>
+              <p className="mc-seq-phase-cite">{p.citation}</p>
               {mode === "novice" ? <p className="mt-2 max-w-[80ch] text-[15px]">{p.guidance}</p> : null}
 
-              <ul className="mt-3 max-w-[80ch]">
+              <ul className="mc-seq-rows">
                 {p.docs.map((d) => {
                   const key = d.docKey ?? docKey(d.field, d.label);
                   const attached = attachmentFor(key);
@@ -3367,15 +2946,17 @@ function FilePage() {
                     <li
                       id={requirementId(p.phase, d.label)}
                       key={d.label}
-                      className="scroll-mt-[186px] sm:scroll-mt-[156px] xl:scroll-mt-[72px] mb-3 flex flex-wrap items-baseline gap-3 rounded-lg border border-border px-3 py-2 text-[15px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      className={`mc-seq-row ${state === true ? "is-done" : state === false ? (d.optional ? "is-offered" : "is-needed") : "is-info"}`}
                     >
-                      <span>{d.label}</span>
-                      <span className="text-[13px] text-muted-foreground">
-                        {d.optional ? "Offered" : "Required"}
+                      <span className="mc-seq-row-head">
+                        <span className="mc-seq-row-label">{d.label}</span>
+                        <span className={`mc-seq-tag${d.optional ? " is-offered" : ""}`}>
+                          {d.optional ? "Offered" : "Required"}
+                        </span>
+                        {d.citation ? (
+                          <span className="mc-seq-row-cite">{d.citation}</span>
+                        ) : null}
                       </span>
-                      {d.citation ? (
-                        <span className="text-[13px] text-muted-foreground">{d.citation}</span>
-                      ) : null}
                       {generator ? (
                         <>
                           <StatusMark
@@ -3442,7 +3023,7 @@ function FilePage() {
                           <span className="block w-full">
                             <span className="flex flex-wrap items-center gap-2">
                               <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(saved || attached))} label={saved || attached ? "Why this row" : "Why?"} />
-                              <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                              <span className="mc-seq-nova"><Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} /></span>
                             </span>
                           </span>
 
@@ -3477,7 +3058,7 @@ function FilePage() {
                            <span className="block w-full">
                               <span className="flex flex-wrap items-center gap-2">
                                 <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state ? "Why this row" : "Why?"} />
-                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                                <span className="mc-seq-nova"><Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} /></span>
                               </span>
                            </span>
 
@@ -3556,7 +3137,7 @@ function FilePage() {
                            <span className="block w-full">
                               <span className="flex flex-wrap items-center gap-2">
                                 <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
-                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                                <span className="mc-seq-nova"><Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} /></span>
                               </span>
                            </span>
 
@@ -3615,7 +3196,7 @@ function FilePage() {
                            <span className="block w-full">
                               <span className="flex flex-wrap items-center gap-2">
                                 <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
-                                <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                                <span className="mc-seq-nova"><Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} /></span>
                               </span>
                            </span>
 
@@ -3707,7 +3288,7 @@ function FilePage() {
                           <span className="block w-full">
                             <span className="flex flex-wrap items-center gap-2">
                               <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(state))} label={state === false ? "Why?" : "Why this row"} />
-                              <Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} />
+                              <span className="mc-seq-nova"><Nova acquisitionId={acquisitionId} rowLabel={`document row · ${d.label}`} /></span>
                             </span>
                           </span>
 
@@ -3795,7 +3376,16 @@ function FilePage() {
                 </div>
               ) : null}
               {p.phase === packetPhase ? (
-                <div id="clause-packet" className="mt-3 w-full [&_p]:max-w-[80ch] scroll-mt-[96px] border border-border p-4">
+                // The packet runs many screens. It stays one click away under
+                // the phase; Expand all, print, and every packet link open it.
+                <details id="clause-packet" data-mission-nav-collapsible className="mc-packet">
+                <summary className="mc-packet-summary">
+                  <span>NCMS clause packet and handoff</span>
+                  <span className="mc-packet-note" data-numeric>
+                    {q.isLoading ? "Loading the clause list" : `${packetSelection.length} clauses`}
+                  </span>
+                </summary>
+                <div className="mc-packet-body [&_p]:max-w-[80ch]">
                   <p className="text-[15px]">
                     NCMS is the system of record for the solicitation and the award. T-Minus hands over a packet.
                   </p>
@@ -3979,6 +3569,7 @@ function FilePage() {
                     Download the handoff packet
                   </button>
                 </div>
+                </details>
               ) : packetPhase && p.status === "complete" && PACKET_PHASES.includes(p.phase) ? (
                 <p className="mt-3 text-[13px] text-muted-foreground">
                   Clause packet: see{" "}
@@ -4021,7 +3612,7 @@ function FilePage() {
                           <td className="p-2">Base period</td>
                           <td className="p-2" data-numeric>{options.baseStart ?? "not recorded"}</td>
                           <td className="p-2" data-numeric>{options.baseEnd ?? "not recorded"}</td>
-                          <td className="p-2">—</td>
+                          <td className="p-2"><EmptyCell>Not applicable</EmptyCell></td>
                         </tr>
                         {options.periods.map((o) => (
                           <tr key={o.label} className="border-b border-border">
@@ -4343,7 +3934,7 @@ function FilePage() {
                                     {change}
                                   </StatusMark>
                                 </td>
-                                <td className="p-2 text-muted-foreground">{c.status ?? "—"}</td>
+                                <td className="p-2 text-muted-foreground">{c.status ?? <EmptyCell />}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -4518,10 +4109,10 @@ function FilePage() {
                         <tr key={d.key} className="border-b border-border align-top">
                           <td className="p-2">{d.label}</td>
                           <td className="p-2" data-numeric>
-                            {d.date ?? "—"}
+                            {d.date ?? <EmptyCell />}
                           </td>
                           <td className="p-2" data-numeric>
-                            {d.days === null ? "—" : `${d.days} days`}
+                            {d.days === null ? <EmptyCell /> : `${d.days} days`}
                             {d.daysRemaining === null ? (
                               ""
                             ) : (
@@ -4534,7 +4125,7 @@ function FilePage() {
                           </td>
                           <td className="p-2 text-muted-foreground">{d.measuredFrom}</td>
                           <td className="p-2 text-muted-foreground">
-                            {d.citation ?? "—"}
+                            {d.citation ?? <EmptyCell />}
                             {d.note ? <span className="block">{d.note}</span> : null}
                           </td>
                         </tr>
@@ -4594,7 +4185,10 @@ function FilePage() {
                             </td>
 
                             <td className="p-2" data-numeric>
-                              {b.due_date ?? "—"}
+                              {b.due_date ?? "Not set"}
+                              {b.due_date && b.vote === "pending" && dueView(b.due_date)?.overdue ? (
+                                <span className="mc-due is-overdue mt-1">{dueView(b.due_date)?.text}</span>
+                              ) : null}
                             </td>
                             <td className="p-2 text-muted-foreground">
                               {b.citation}
@@ -4645,6 +4239,570 @@ function FilePage() {
         </ol>
         </div>
       </details>
+
+      <div className="mc-file-footnote">
+        <PilotKnownGapsLine />
+        <p>Panels marked Advisory never hold the file or block a phase exit.</p>
+      </div>
+
+      <MissionNavSection id="exports-peer-systems" label="Exports & peer systems" collapsible summary="NEAR export, NCMS packet and peer systems">
+      {acq ? (
+        <>
+        <section aria-label="Peer systems" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-3">
+          <p className="mb-1 text-[13px] text-muted-foreground">Peer systems</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] leading-[18px]">
+            <button
+              type="button"
+              className="text-primary underline-offset-2 hover:underline disabled:text-muted-foreground"
+              disabled={nearExport.isPending}
+              onClick={() => nearExport.mutate()}
+            >
+              {nearExport.isPending ? "Building the NEAR export" : "NEAR export"}
+            </button>
+            <button
+              type="button"
+              className="text-primary underline-offset-2 hover:underline"
+              onClick={() => downloadPacket()}
+            >
+              NCMS packet (local; planned write-back)
+            </button>
+            <Link to="/checks" className="text-primary underline-offset-2 hover:underline">
+              Checks
+            </Link>
+            <span className="text-muted-foreground" data-numeric>
+              {lastCheck
+                ? `Last check: ${lastCheck.check_type ?? "Check"} · ${formatStamp(lastCheck.checked_at)}`
+                : "No check recorded on this file yet."}
+            </span>
+          </div>
+          {sweepFlag ? (
+            <p className="mt-3 max-w-[80ch] border-l-2 border-destructive pl-3 text-[13px]">
+              Flagged for contracting officer review: {sweepFlag.why} Checked{" "}
+              {formatStamp(sweepFlag.checkedAt)}. The clock was not changed. Run a record check on this UEI; a clean
+              result clears the flag.
+            </p>
+          ) : null}
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            NEAR export and NCMS packet are local files. T-Minus writes nothing to NEAR, NCMS, or SAM.gov.
+            The handoff is a local packet you key into NCMS, which stays the system of record under NFS CG
+            1804.11(b); writing into NCMS from here is planned and not available in this prototype.
+          </p>
+        </section>
+        </>
+      ) : null}
+      </MissionNavSection>
+
+      <MissionNavSection id="coordination" label="Coordination" collapsible summary="Requests and offices on this file">
+      {acq ? (
+        <CorToRequestPanel
+          acq={acq as unknown as Record<string, unknown>}
+          profile={acquisitionProfile(acq)}
+          actorName={actorName}
+          canWrite={canWrite}
+          onSaved={() => void qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] })}
+        />
+      ) : null}
+
+      {acq && canWrite ? (
+        <EmailDraftsPanel
+          drafts={buildEmailDrafts({
+            acq: acq as unknown as Record<string, unknown>,
+            coName: String(acq.co_name ?? actorName),
+            phase: lifecycle?.currentPhase ?? "the current phase",
+            citation: currentPhase?.citation ?? "",
+            missingLabels: missingCurrentRequirements.map((d) => ({ label: d.label, citation: d.citation })),
+            pendingReviewers: pendingCurrentReviews.map((e) => ({
+              role: e.reviewer_role,
+              name: e.reviewer_name,
+              due: e.due_date,
+            })),
+            vendorOutcome:
+              acq.clock_state === "launched" && acq.vendor_legal_name
+                ? { vendor: String(acq.vendor_legal_name), successful: true }
+                : null,
+          })}
+          onCopied={(label) => setBanner(`${label} copied. Paste it into your mail client; T-Minus sends no mail.`)}
+        />
+      ) : null}
+
+      {acq ? (
+        <WhatIfPanel
+          acq={acq}
+          plan={(q.data?.plan ?? []) as never}
+          thresholds={(q.data?.thresholds ?? []) as never}
+          clauseRows={q.data?.clauses ?? []}
+        />
+      ) : null}
+
+      {warrant ? (
+        <details aria-label="Warrant check" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
+          <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Warrant check</summary>
+          <div className="border-t border-border px-5 py-4">
+          {warrant.exceeds ? (
+            <p
+              className="border-l-2 py-1 pl-3 text-[15px] leading-[22px]"
+              style={{ borderColor: "var(--at-risk)" }}
+            >
+              <span style={{ color: "var(--at-risk)" }}>Red flag:</span> the IGCE{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> exceeds the warrant of{" "}
+              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>. A
+              contracting officer with a warrant at or above the value has to sign the award.
+            </p>
+          ) : null}
+          {warrant.exceeds ? (
+            <div className="mt-2">
+              <ExplainThis
+                explanation={explainWarrant({
+                  coName: warrant.coName,
+                  value: warrant.value,
+                  limit: warrant.limit as number,
+                })}
+              />
+            </div>
+          ) : warrant.unknown ? (
+            <p className="text-[15px] leading-[22px] text-muted-foreground">
+              No warrant limit is recorded for {warrant.coName}, so the IGCE of{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> cannot be checked against a
+              warrant.
+            </p>
+          ) : (
+            <p className="text-[15px] leading-[22px] text-muted-foreground">
+              Within warrant: the IGCE{" "}
+              <span data-numeric>{formatMoney(warrant.value)}</span> is at or below the warrant of{" "}
+              {warrant.coName}, <span data-numeric>{formatMoney(warrant.limit as number)}</span>.
+            </p>
+          )}
+          </div>
+        </details>
+      ) : null}
+      </MissionNavSection>
+
+
+      <MissionNavSection id="schedule-forecast" label="Schedule & forecast">
+      {!successor && effectiveState === "launched" ? (
+        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            This file has no period of performance end recorded, so the date its successor must start
+            cannot be computed. Record the end date to start the successor clock.
+          </p>
+          <label className="mt-3 block text-[13px]" htmlFor="pop-end">
+            Period of performance end
+          </label>
+          <input
+            id="pop-end"
+            type="date"
+            className="mt-1 h-9 rounded-lg border border-border bg-background px-2 text-[13px]"
+            defaultValue=""
+            disabled={!canWrite}
+            onChange={(e) => setPopEnd.mutate(e.target.value)}
+          />
+        </section>
+      ) : null}
+
+      {successor ? (
+        <section aria-label="Successor clock" className="mb-10 w-full [&_p]:max-w-[70ch] border-t border-border pt-4">
+          <h2 className="section-title text-[18px] leading-6 font-medium">Successor clock</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Period of performance ends {formatDate(String(acq?.period_of_performance_end))}, less{" "}
+            {successor.plannedDays} planned pre-award days plus a 30-day transition allowance.
+          </p>
+          <p className="mt-3 text-[28px] leading-[34px] font-semibold" data-numeric>
+            {formatDate(successor.startBy)}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">The successor acquisition must start by this date</p>
+          <p className="mt-3 text-[13px]">
+            {successor.successorId ? (
+              <>
+                Successor file{" "}
+                <Link
+                  to="/files/$acquisitionId"
+                  params={{ acquisitionId: successor.successorId }}
+                  className="text-primary underline"
+                >
+                  {successor.successorId}
+                </Link>{" "}
+                is linked to this one.
+              </>
+            ) : successor.overdue ? (
+              <StatusMark color="var(--atrisk)" className="text-[13px] leading-[18px]">
+                {`Successor overdue by ${Math.abs(successor.daysUntilStart)} days; no successor file is linked`}
+              </StatusMark>
+            ) : (
+              `No successor file is linked yet; ${successor.daysUntilStart} days until it must start.`
+            )}
+          </p>
+          {effectiveState === "launched" && !successor.successorId ? (
+            <p className="mt-2 text-[13px] text-muted-foreground">
+              This file is in Administration. The follow-on acquisition must start by {formatDate(successor.startBy)} so
+              it can be awarded before the period of performance ends. Start it from Intake and link it as the
+              successor of this file.
+            </p>
+          ) : null}
+          <p className="mt-2 text-[13px] text-muted-foreground">
+            Advisory only: the successor clock never places a hold, changes the phase, or creates a file on its own.
+          </p>
+        </section>
+      ) : null}
+
+      <details aria-label="Acquisition Forecast" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] font-medium leading-[24px]">Acquisition Forecast</summary>
+        <div className="border-t border-border px-5 py-4">
+        <p className="mb-3 text-[13px] text-muted-foreground">
+          {FORECAST_CITATION} · binding
+          {sat ? ` · simplified acquisition threshold ${formatMoney(sat.value)} (${sat.citation})` : ""}
+        </p>
+        {q.isLoading ? (
+          <LoadingNote what="the forecast facts" />
+        ) : forecast ? (
+          <>
+            <TableScrollRegion baseClassName="overflow-x-auto" label="Forecast entry table">
+<table className="w-full border border-border text-[13px] leading-[18px]">
+              <caption className="sr-only">Acquisition Forecast entry for this file</caption>
+              <tbody>
+                {FORECAST_FIELDS.map((f) => (
+                  <tr key={f.key} className="border-b border-border last:border-b-0">
+                    <th scope="row" className="w-[42%] px-3 py-2 text-left font-medium">
+                      {f.header}
+                    </th>
+                    <td className="px-3 py-2">
+                      {forecast[f.key]}
+                      {f.key === "anticipated_award_date" && forecast[f.key] === ANTICIPATED_AWARD_TBD ? (
+                        <span className="mt-1 block text-muted-foreground">
+                          {ANTICIPATED_AWARD_TBD_NOTE}
+                        </span>
+                      ) : null}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+</TableScrollRegion>
+            <p className="mt-2 text-[15px] leading-[22px]">
+              {acq?.acquisition_forecast_verified
+                ? "The entry exists, so the NF 1707 forecast affirmation is satisfied."
+                : "The entry exists. The NF 1707 affirmation is marked satisfied by a specialist or HQ."}
+            </p>
+            <button
+              type="button"
+              onClick={exportForecastCsv}
+              className="mt-3 rounded-lg border border-border px-3 py-2 text-[13px]"
+            >
+              Export forecast entry to CSV
+            </button>
+          </>
+        ) : (
+          <p className="text-[15px] leading-[22px]">
+            This acquisition is at or below the simplified acquisition threshold, so it has no forecast
+            entry.
+          </p>
+        )}
+        </div>
+      </details>
+
+      {phaseNames.length ? (
+        <RegulationSidebar phase={sidebarPhase} phases={phaseNames} onPhaseChange={setRegPhase} compact={coldPathSample} />
+      ) : null}
+
+      {intakeEstimate ? (
+        <section aria-label="Estimate at intake" className="mb-10 w-full [&_p]:max-w-[70ch]">
+          <h2 className="mb-2 text-[18px] font-medium leading-[24px]">Estimate at intake</h2>
+          {/* Calendar days from the phase plan, the same source as the file
+              timeline. The stored sentence's months figure is not shown. */}
+          <p className="text-[15px] leading-[22px]">
+            {Number.isFinite(Number(intakeEstimate.planned_days_to_award)) && Number(intakeEstimate.planned_days_to_award) > 0
+              ? `At intake the phase plan put award ${Number(intakeEstimate.planned_days_to_award).toLocaleString("en-US")} calendar days out, through ${(intakeEstimate.phases ?? []).length} phases, with about ${Number(intakeEstimate.hours_total ?? 0).toLocaleString("en-US")} hours of contracting work.`
+              : `At intake the estimate was about ${Number(intakeEstimate.hours_total ?? 0).toLocaleString("en-US")} hours of contracting work, through ${(intakeEstimate.phases ?? []).length} phases.`}
+          </p>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Contracting officer {intakeEstimate.hours_co.toLocaleString("en-US")} hours · specialist{" "}
+            {intakeEstimate.hours_cs.toLocaleString("en-US")} hours · recorded{" "}
+            {intakeEstimate.estimated_at.slice(0, 10)}
+          </p>
+        </section>
+      ) : null}
+
+      {lifecycle && lifecycle.upcomingReviews.length > 0 ? (
+        <section aria-labelledby="upcoming-reviews" className="mb-8 w-full [&_p]:max-w-[80ch] border-t border-border pt-4">
+          <h2 id="upcoming-reviews" className="text-[18px] leading-6 font-medium">Upcoming reviews</h2>
+          <ul className="mt-2 space-y-1 text-[13px] text-muted-foreground">
+            {lifecycle.upcomingReviews.map((review) => (
+              <li key={`${review.phase}-${review.reviewer_role}`}>{review.phase} · {review.reviewer_role} · {review.reviewer_name}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <DeadlinesPanel
+        acq={acq as Record<string, unknown> | null}
+        awardDate={awardDate}
+        debriefingDate={debriefingDate}
+        thresholds={(q.data?.thresholds ?? []) as never}
+        noticePostedDate={null}
+        quoteDueDate={(acq?.['proposed_price_received'] as string | null | undefined) ?? null}
+      />
+      </MissionNavSection>
+
+      <MissionNavSection id="vehicle-orders-post-award" label="Vehicle, orders & post-award" collapsible summary="Standalone drafts, orders and modifications">
+      <StandaloneDraft acquisitionId={acquisitionId} canWrite={canWrite} />
+
+      <NewOrderPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+      />
+
+      <VehiclePanel acq={acq as Record<string, unknown> | null} todayISO={todayISO()} />
+
+      <ModificationsPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+      />
+
+      <SituationMemoPanel
+        acq={acq as Record<string, unknown> | null}
+        actor={actorName}
+        onBanner={setBanner}
+        operational={
+          lifecycle && readiness
+            ? {
+                phase: lifecycle.currentPhase ?? "Not recorded",
+                readiness,
+                countdownLine: (() => {
+                  const view = overviewCountdownView(lifecycle);
+                  return view.pastTarget
+                    ? countdownText(view, { omitBadge: view.badge === readiness })
+                    : view.days === null || !view.prefix
+                      ? view.caption
+                      : `${view.prefix}${view.days}${view.badge && view.badge !== readiness ? ` ${view.badge}` : ""}`;
+                })(),
+                holdReason: lifecycle.hold?.reason ?? null,
+                holdOwner: lifecycle.hold?.owner ?? null,
+              }
+            : null
+        }
+      />
+
+      <CloseoutPanel
+        acq={acq as Record<string, unknown> | null}
+        canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+        cparsRecorded={cparsRecorded(q.data?.stateLog ?? [])}
+      />
+
+      <ClauseModTasks acquisitionId={acquisitionId} />
+
+      <Nf1707Signoffs
+        acquisitionId={acquisitionId}
+        centerCode={acq?.center_code ?? null}
+        storedAnswers={(acq?.['nf1707_answers'] ?? {}) as Record<string, unknown>}
+        rows={q.data?.nfApprovals ?? []}
+        routing={q.data?.memoRouting ?? []}
+        canWrite={canWrite}
+        actor={actorName}
+        onBanner={setBanner}
+        onChanged={async () => { await qc.invalidateQueries({ queryKey: ["acquisition-file", acquisitionId] }); void qc.invalidateQueries({ queryKey: ["work-queue"] }); }}
+      />
+      </MissionNavSection>
+
+      <MissionNavSection
+        id="contract-file-index"
+        label="Contract file index"
+        collapsible
+        summary={`${fileIndex.present.length} of ${fileIndex.present.length + fileIndex.missing.length} tabs on file`}
+      >
+      <details data-print="index" open aria-label="Contract file index" className="mb-8 rounded-xl border border-border bg-background">
+        <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Contract file index</summary>
+        <div className="border-t border-border px-5 py-4">
+        <p className="mb-2 max-w-[80ch] text-[13px] text-muted-foreground">
+          Every document on this file, drafted or uploaded: its NEAR file element (NF 1098 tab for actions
+          before Oct 1, 2024), version, who saved or
+          uploaded it and when. Each row opens the official version. Required tabs with no document
+          are listed at the end. RFO FAR 4.101 contract file.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="mb-4 text-[13px] text-primary"
+        >
+          Print the cover sheet
+        </button>
+        <TableScrollRegion baseClassName="overflow-x-auto" label="File index table">
+<table className="w-full border border-border text-[13px] leading-[18px]">
+          <caption className="sr-only">NF 1098 tabs present in this file and required tabs with no document</caption>
+          <thead>
+            <tr className="border-b border-border bg-canvas text-left">
+              <th scope="col" className="px-3 py-2 font-medium">Tab</th>
+              <th scope="col" className="px-3 py-2 font-medium">Document</th>
+              <th scope="col" className="px-3 py-2 font-medium">Source</th>
+              <th scope="col" className="px-3 py-2 font-medium">Official</th>
+              <th scope="col" className="px-3 py-2 font-medium">Version</th>
+              <th scope="col" className="px-3 py-2 font-medium">Saved</th>
+              <th scope="col" className="px-3 py-2 font-medium">By</th>
+              <th scope="col" className="px-3 py-2 font-medium">Required here</th>
+              <th scope="col" className="px-3 py-2 font-medium">Memo (NF 1858)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {fileIndex.present.map((t) => {
+              const officialDoc = t.documents.find((d) => d.official);
+              const latest = officialDoc ?? t.documents.at(-1);
+              return (
+                <tr key={`p-${t.tab}-${t.templateName}`} className="border-b border-border">
+                  <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                  <td className="px-3 py-2">
+                    {t.open?.kind === "document" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/documents/$templateKey/$acquisitionId"
+                        params={{ templateKey: t.open.templateKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "form" ? (
+                      <Link
+                        className="text-primary underline-offset-2 hover:underline"
+                        to="/forms/$formKey/$acquisitionId"
+                        params={{ formKey: t.open.formKey, acquisitionId }}
+                      >
+                        {t.templateName}
+                      </Link>
+                    ) : t.open?.kind === "attachment" ? (
+                      <button
+                        type="button"
+                        className="text-primary underline-offset-2 hover:underline"
+                        onClick={() => void openIndexAttachment(attachmentIdOf(t.open))}
+                      >
+                        {t.templateName}
+                      </button>
+                    ) : (
+                      t.templateName
+                    )}
+                    {latest && t.origin === "uploaded" ? (
+                      <span className="block text-muted-foreground">{latest.templateName}</span>
+                    ) : null}
+                    {t.nearOrder ? (
+                      <span className="block text-muted-foreground">
+                        NEAR order {t.nearOrder} · {t.nearTitle}
+                      </span>
+                    ) : null}
+                    {t.nearNotes ? (
+                      <span className="block text-muted-foreground">
+                        What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
+                      </span>
+                    ) : null}
+                  </td>
+                  <td className="px-3 py-2">{t.origin === "uploaded" ? "Uploaded" : "Generated"}</td>
+                  <td className="px-3 py-2">
+                    {t.origin === "uploaded" ? <EmptyCell>Not applicable</EmptyCell> : officialDoc ? "Official" : "Draft"}
+                  </td>
+                  <td className="px-3 py-2" data-numeric>{latest?.version ?? <EmptyCell />}</td>
+                  <td className="px-3 py-2" data-numeric>
+                    {latest?.savedAt ? formatDate(String(latest.savedAt).slice(0, 10)) : "Not recorded"}
+                  </td>
+                  <td className="px-3 py-2">{latest?.savedBy ?? "Not recorded"}</td>
+                  <td className="px-3 py-2">{requiredTabSet.has(t.tab) ? "Required" : offeredTabSet.has(t.tab) ? "Offered" : "Not required"}</td>
+                  <td className="px-3 py-2">
+                    {latest?.memo ? `Yes, to ${latest.memoTo ?? "addressee not set"}` : "No"}
+                  </td>
+                </tr>
+              );
+            })}
+            {fileIndex.missing.map((t) => (
+              <tr key={`m-${t.tab}`} className="border-b border-border">
+                <td className="px-3 py-2" data-numeric>{t.tab}</td>
+                <td className="px-3 py-2">
+                  {t.templateName}
+                  {t.nearOrder ? (
+                    <span className="block text-muted-foreground">
+                      NEAR order {t.nearOrder} · {t.nearTitle}
+                    </span>
+                  ) : null}
+                  {t.nearNotes ? (
+                    <span className="block text-muted-foreground">
+                      What to file here: {t.nearNotes.replace(/\n/g, " ").replace(/·\s*/g, "").trim()}
+                    </span>
+                  ) : null}
+                </td>
+                <td className="px-3 py-2"><EmptyCell>Not on file</EmptyCell></td>
+                <td className="px-3 py-2"><EmptyCell>None</EmptyCell></td>
+                <td className="px-3 py-2"><EmptyCell>None</EmptyCell></td>
+                <td className="px-3 py-2"><EmptyCell>None</EmptyCell></td>
+                <td className="px-3 py-2"><EmptyCell>None</EmptyCell></td>
+                <td className="px-3 py-2">Required</td>
+                <td className="px-3 py-2">
+                  <StatusMark color="var(--attention)">No document on this tab</StatusMark>
+                </td>
+              </tr>
+            ))}
+            {fileIndex.present.length === 0 && fileIndex.missing.length === 0 ? (
+              <tr>
+                <td className="px-3 py-3 text-muted-foreground" colSpan={9}>
+                  No documents are saved or uploaded on this file yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+</TableScrollRegion>
+        </div>
+      </details>
+      </MissionNavSection>
+
+      <MissionNavSection id="companion-gates" label="Companion gates" collapsible summary={`${companionGates.length} gate${companionGates.length === 1 ? "" : "s"}`}>
+      <ClauseChangeBanner acquisitionId={acquisitionId} />
+
+      <CompanionGatesPanel gates={companionGates} />
+      </MissionNavSection>
+
+      <MissionNavSection id="alerts-determinations" label="Alerts & determinations">
+      <PcdAdoptionPanel
+        baselineDate={(acq?.regulatory_baseline_date as string | null | undefined) ?? null}
+        deviations={deviationsQ.data ?? []}
+      />
+
+      <BlackoutNoticePanel acq={acq as Record<string, unknown> | null} onBanner={setBanner} />
+
+      <DraftRfpAlertPanel acq={acq as Record<string, unknown> | null} />
+
+      <EnterprisePslPanel acq={acq as Record<string, unknown> | null} />
+
+      <ThresholdConflictsPanel />
+
+      <MissionNavSection
+        id="reference-links"
+        label="Reference links"
+        collapsible
+        summary="Center clauses and practice links"
+      >
+      <CenterLocalClausesPanel />
+
+      <PracticeLinksPanel />
+      </MissionNavSection>
+
+      <DeterminationHelpersPanel acq={acq as Record<string, unknown> | null} acquisitionId={acquisitionId} />
+
+      <OfficeInvitePanel
+        acquisitionId={acquisitionId}
+        acq={acq as Record<string, unknown> | null}
+        onBanner={setBanner}
+      />
+
+      <DocumentVersionsPanel acquisitionId={acquisitionId} />
+
+      {acq && isSimplifiedCommercial(acq as Record<string, unknown>) ? (
+        <section aria-label="Reserved clause note" className="mb-12 w-full [&_p]:max-w-[80ch] border border-border p-4">
+          <p className="text-[15px] leading-[22px]">
+            <span className="font-medium">RFO FAR 52.212-5 is Reserved on this commercial file.</span>{" "}
+            {RFO_RESERVED_212_NOTE}
+          </p>
+        </section>
+      ) : null}
+      </MissionNavSection>
+
 
       <MissionNavSection id="directive-compliance" label="Directive compliance" collapsible summary="Directive checklist for this file">
       <section className="mb-12 w-full [&_p]:max-w-[80ch]">
@@ -5068,13 +5226,49 @@ function FilePage() {
         </section>
       </MissionNavSection>
 
-      </div>
-      </div>
-      ) : null}
-
       <Link to="/files" activeOptions={{ exact: true }} className="text-primary underline underline-offset-2">
         Back to Files
       </Link>
+        </div>
+
+        {/* Context rail: what needs attention and the section index. Sticky,
+            and never taller than the window, so it scrolls inside itself. */}
+        <aside className="mc-file-rail no-print" aria-label="File context">
+          <section className="mc-rail-card" aria-labelledby="rail-attention">
+            <h2 id="rail-attention" className="mc-rail-title">Needs attention</h2>
+            {railAttention.length ? (
+              <ul className="mc-rail-list">
+                {railAttention.map((item) => (
+                  <li key={item.key} className={`mc-rail-item is-${item.tone}`}>
+                    <a href={`#${item.target}`} onClick={(e) => { e.preventDefault(); jumpToSection(item.target); }}>
+                      <span className="mc-rail-item-text">{item.text}</span>
+                      {item.sub ? <span className="mc-rail-item-sub">{item.sub}</span> : null}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mc-rail-empty">Nothing open on this file right now.</p>
+            )}
+          </section>
+          <section className="mc-rail-card" aria-label="People on this file">
+            <h2 className="mc-rail-title">People</h2>
+            <dl className="mc-rail-people">
+              <div><dt>Contracting officer</dt><dd>{String(acq?.co_name ?? "").trim() || "Not assigned"}</dd></div>
+              {String(acq?.["requester_name"] ?? "").trim() ? (
+                <div><dt>Requester</dt><dd>{String(acq?.["requester_name"])}</dd></div>
+              ) : null}
+              {q.data?.mission?.name ? (
+                <div><dt>Mission</dt><dd>{q.data.mission.name}</dd></div>
+              ) : null}
+            </dl>
+          </section>
+          <div className="mc-rail-card">
+            <MissionNavigator items={missionNavItems} />
+          </div>
+        </aside>
+      </div>
+      ) : null}
     </AppShell>
   );
 }

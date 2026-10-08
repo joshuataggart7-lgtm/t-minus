@@ -26,12 +26,16 @@ export function PortfolioHero({
   latestEvents: Record<string, LatestEvent>;
 }) {
   const [filter, setFilter] = useState<MissionControlState | null>(null);
+  // One counting rule across Executive, Files and Work Queue: scrubbed files stay
+  // on the record but are not counted in the readiness buckets.
+  const counted = metrics.filter((m) => m.clockState !== "scrubbed");
+  const scrubbedCount = metrics.length - counted.length;
   return (
     <section className="mc-lock-d" aria-label="Mission control portfolio">
       <div className="mc-command-field mc-grid mc-glow-rim">
         <div className="mc-command-beacon" aria-hidden="true" />
         <div className="relative z-10">
-        <MissionStatusBoard metrics={metrics} active={filter} onSelect={setFilter} />
+        <MissionStatusBoard metrics={counted} excluded={scrubbedCount} active={filter} onSelect={setFilter} />
         <MissionTrajectory metrics={metrics} missions={missions} />
           <ExecutiveExceptions metrics={metrics} />
           <NovaProvenance />
@@ -54,7 +58,7 @@ export function PortfolioHero({
         {filter ? (
           <ReadinessQueue
             state={filter}
-            metrics={metrics}
+            metrics={counted}
             missions={missions}
             watchWindowDays={watchWindowDays}
             onWatchWindowChange={onWatchWindowChange}

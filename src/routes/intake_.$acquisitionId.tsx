@@ -9,7 +9,7 @@ import { useDeskData } from "@/lib/desk-data";
 import { countdownView } from "@/components/launch-countdown";
 import { formatDate } from "@/lib/metrics";
 import { dayWord } from "@/lib/pluralize";
-import { contractingHours, phasePosition, phasePositionText, planToAward } from "@/lib/file-timeline";
+import { contractingHours, dueView, phasePosition, phasePositionText, planToAward } from "@/lib/file-timeline";
 import { isPostAward, owedRows } from "@/lib/requester-owed";
 
 export const Route = createFileRoute("/intake_/$acquisitionId")({
@@ -179,7 +179,12 @@ function ConfirmationPage() {
                 <div>
                   <p className="font-medium">{awarded ? "The contract is running" : `Your contracting officer works the file: ${card.m.nextDecision}`}</p>
                   <p className="mc-req-meta">
-                    {card.m.nextDecisionDate
+                    {dueView(card.m.nextDecisionDate)?.overdue ? (
+                      <>
+                        Planned for {dueView(card.m.nextDecisionDate)?.dateText} in the phase plan.{" "}
+                        <span className="mc-due is-overdue" data-numeric>{dueView(card.m.nextDecisionDate)?.text}</span>
+                      </>
+                    ) : card.m.nextDecisionDate
                       ? `Planned by ${formatDate(card.m.nextDecisionDate)} in the phase plan.`
                       : "No date is planned for this step yet."}
                   </p>
