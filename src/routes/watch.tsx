@@ -240,6 +240,15 @@ const SOURCE_TONE: Record<WatchSource, StatusTone> = {
   "OP notice": "launched",
 };
 
+
+function summaryOnWords(text: string): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length < 380 || /[.!?…]$/.test(clean)) return clean;
+  const space = clean.lastIndexOf(" ");
+  if (space < 40) return clean;
+  return `${clean.slice(0, space).replace(/[,:;]+$/, "")}…`;
+}
+
 function FeedRow({ item }: { item: FeedItem }) {
   return (
     <li className="mc-pa-card">
@@ -252,7 +261,7 @@ function FeedRow({ item }: { item: FeedItem }) {
       </div>
       <p className="mt-2 text-[16px] leading-[23px] font-medium text-foreground">{item.title}</p>
       {item.summary && item.summary !== item.title && !item.title.endsWith(item.summary) ? (
-        <p className="mc-watch-summary mt-1 text-[15px] leading-[22px] text-muted-foreground" title={item.summary}>{item.summary}</p>
+        <p className="mc-watch-summary mt-1 text-[15px] leading-[22px] text-muted-foreground" title={item.summary}>{summaryOnWords(item.summary)}</p>
       ) : null}
       <p className="mt-2 text-[14px]">
         {item.url ? (

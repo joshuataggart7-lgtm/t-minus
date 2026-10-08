@@ -13,6 +13,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
     .filter((metric) => missionControlState(metric) === "HOLD" || missionControlState(metric) === "WATCH")
     .sort((a, b) => urgencyRank(a) - urgencyRank(b));
 
+  const showTime = rows.some((metric) => Boolean(metric.blockerSince));
   return (
     <McPanel aria-labelledby="attention-heading" className="mc-ops-panel mc-anomaly-panel">
       <p className="mc-label">What needs attention</p>
@@ -20,6 +21,8 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
       {rows.length === 0 ? (
         <p className="mt-4 text-mc-muted">No acquisition needs leadership attention.</p>
       ) : (
+        <>
+        {!showTime ? <p className="mt-3 text-[15px] leading-[22px] text-mc-muted">The day each hold or watch started is not on the record, so time in condition is not shown.</p> : null}
         <ul className="mc-anomaly-list">
           {rows.map((metric) => {
             const view = overviewCountdownView(metric);
@@ -32,10 +35,10 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
                 <Link to="/files/$acquisitionId" params={{ acquisitionId: metric.acq.acquisition_id }} className="mc-anomaly-row">
                   <span className={`mc-severity mc-severity-${state.toLowerCase()}`}>{view.mode === "overdue" ? "Past target" : state}</span>
                   <span className="min-w-0">
-                    <span className="block truncate text-[14px] font-medium text-mc-foreground" title={mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}>{mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}</span>
-                    <span className="block truncate text-[12px] text-mc-muted" title={condition}>{condition}</span>
+                    <span className="block text-[14px] font-medium text-mc-foreground" title={mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}>{mission?.name || String(metric.acq.title ?? "").trim() || "Untitled acquisition"}</span>
+                    <span className="block text-[12px] text-mc-muted" title={condition}>{condition}</span>
                   </span>
-                  <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Start not recorded" : `${daysInCondition} days`}</strong></span>
+                  {showTime ? <span className="mc-anomaly-data"><small>Time in condition</small><strong data-numeric>{daysInCondition === null ? "Not on the record" : `${daysInCondition} days`}</strong></span> : null}
                   <span className="mc-anomaly-data"><small>Phase</small><strong>{metric.currentPhaseLabel ?? "Not started"}</strong></span>
                   <span className="mc-anomaly-data"><small>Next step</small><strong title={`${metric.nextAction}${metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}${dueView(metric.nextDecisionDate)?.overdue ? ` · ${dueView(metric.nextDecisionDate)?.text}` : ""}`}>{metric.nextAction}{metric.nextDecisionDate ? ` · ${formatDate(metric.nextDecisionDate)}` : ""}{dueView(metric.nextDecisionDate)?.overdue ? <span className="mc-due-dark"> · {dueView(metric.nextDecisionDate)?.text}</span> : null}</strong></span>
                 </Link>
@@ -43,6 +46,7 @@ export function AttentionSeverityList({ metrics, missions }: { metrics: AcqMetri
             );
           })}
         </ul>
+        </>
       )}
     </McPanel>
   );
