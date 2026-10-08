@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader, DataTable, StatusChip, type StatusTone } from "@/components/ui-mc";
+import { phasePosition, phasePositionText } from "@/lib/file-timeline";
+import { formatDate } from "@/lib/metrics";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
 import { urgencyRank } from "@/lib/metrics";
@@ -8,9 +11,8 @@ import { awardConfidence } from "@/lib/confidence";
 import { RowKeysHint, useRowKeysContainer } from "@/components/row-keys";
 import { PilotKnownGapsLine } from "@/components/pilot-known-gaps";
 import { LaunchCountdownCompact, countdownView } from "@/components/launch-countdown";
-import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { missionReadinessClass, type MissionReadiness } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { dayWord } from "@/lib/pluralize";
 
 export const Route = createFileRoute("/today")({
@@ -63,11 +65,30 @@ function FileLink({ card }: { card: DeskCard }) {
   );
 }
 
-function Section({ title, lead, children }: { title: string; lead?: string; children: React.ReactNode }) {
+const READINESS_TONE: Record<MissionReadiness, StatusTone> = { GO: "ontrack", WATCH: "attention", HOLD: "atrisk", LAUNCHED: "launched" };
+
+function Section({
+  title,
+  lead,
+  id,
+  count,
+  children,
+}: {
+  title: string;
+  lead?: string;
+  id?: string;
+  count?: number;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="border-t border-border pt-6 first:border-0 first:pt-0">
-      <h2 className="text-[18px] leading-6 font-medium">{title}</h2>
-      {lead ? <p className="mt-1 max-w-[80ch] text-[13px] leading-[18px] text-muted-foreground">{lead}</p> : null}
+    <section className="mc-today-section" id={id} aria-labelledby={id ? `${id}-h` : undefined}>
+      <div className="mc-today-section-head">
+        <h2 id={id ? `${id}-h` : undefined}>
+          {title}
+          {count !== undefined ? <span className="mc-today-count" data-numeric>{count}</span> : null}
+        </h2>
+        {lead ? <p>{lead}</p> : null}
+      </div>
       <div className="mt-3">{children}</div>
     </section>
   );
@@ -178,9 +199,25 @@ function TodayPage() {
     [live],
   );
 
+  const pastTarget = live.filter((c) => countdownView(c.m).mode === "overdue").length;
+  const reviewsThisWeek = reviewsDue.filter((p) => {
+    const due = daysUntil(p.due_date);
+    return due !== null && due <= 7;
+  }).length;
+  const scopeNote = isAdmin
+    ? ownsMine
+      ? `All prototype files are shown, with the files that list ${user.name} as contracting officer first. The owner of record is shown on each file.`
+      : `No file lists ${user.name} as the contracting officer, so all prototype files are shown. The owner of record is shown on each file.`
+    : !ownsMine
+      ? isRequesterFallback
+        ? "Showing files where you are the requester of record."
+        : `No file lists ${user.name} as the contracting officer, so ${isAdminAll ? "all prototype files are shown" : fallbackScope}. The owner of record is shown on each file.`
+      : undefined;
+
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow={formatDate(new Date().toISOString().slice(0, 10))}
         title="Today"
         lead={`What is waiting on ${user.name}, what is waiting on someone else, and the three things to do next.`}
       />
@@ -190,225 +227,267 @@ function TodayPage() {
       ) : isError ? (
         <ErrorNote message="Today did not load. Refresh the page. If it still fails, tell the T-Minus team." />
       ) : (
-        <div className="max-w-[80ch] space-y-8 lg:max-w-none">
-          {isAdmin ? (
-            <p className="text-[13px] leading-[18px] text-muted-foreground">
-              {ownsMine
-                ? `All prototype files are shown, with the files that list ${user.name} as contracting officer first. The owner of record is shown on each file.`
-                : `No file lists ${user.name} as the contracting officer, so all prototype files are shown. The owner of record is shown on each file.`}
-            </p>
-          ) : !ownsMine ? (
-            <p className="text-[13px] leading-[18px] text-muted-foreground">
-              {isRequesterFallback
-                ? "Showing files where you are the requester of record."
-                : `No file lists ${user.name} as the contracting officer, so ${
-                    isAdminAll ? "all prototype files are shown" : fallbackScope
-                  }. The owner of record is shown on each file.`}
-            </p>
-          ) : null}
-
-          <Section title="Waiting on me" lead="Files where the next step belongs to the contracting officer.">
-            {waitingOnMe.length === 0 ? (
-              <EmptyState sentence="Nothing is waiting on you right now." />
-            ) : (
-              <>
-                <RowKeysHint />
-                <ul ref={rowsRef} className="mt-3 divide-y divide-border border-y border-border">
-                  {waitingOnMe.map((c) => {
-                    const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
-                    return (
-                    <li
-                      key={c.m.acq.acquisition_id}
-                      data-row-nav
-                      tabIndex={0}
-                      className={`mc-work-strip ${missionReadinessClass(readiness, "is")} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
-                    >
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                        <p className="text-[15px]">
-                          <FileLink card={c} />{" "}
-                          <span className="text-muted-foreground" data-numeric>
-                            {c.m.acq.acquisition_id}
-                          </span>
-                        </p>
-                        <MissionReadinessChip state={readiness} />
-                      </div>
-                      <p className="text-[13px] leading-[18px] text-muted-foreground">
-                        {c.m.currentPhase ?? "Not started"} · {c.m.nextAction}
-                      </p>
-                      <Link
-                        to="/files/$acquisitionId"
-                        params={{ acquisitionId: c.m.acq.acquisition_id }}
-                        hash="launch-sequence"
-                        data-row-action="exit"
-                        className="sr-only"
-                      >
-                        Open the launch sequence for {c.m.acq.acquisition_id}
-                      </Link>
-                      {/^write\b/i.test(c.m.nextAction ?? "") ? (
-                        <Link
-                          to="/files/$acquisitionId"
-                          params={{ acquisitionId: c.m.acq.acquisition_id }}
-                          data-row-action="write"
-                          className="sr-only"
-                        >
-                          {c.m.nextAction} on {c.m.acq.acquisition_id}
-                        </Link>
-                      ) : null}
-                    </li>
-                    );
-                  })}
-                </ul>
-              </>
-            )}
-          </Section>
-
-          <Section title="Waiting on someone else" lead="Who owns the next step, and how long they have held it.">
-            {waitingOnOthers.length === 0 ? (
-              <EmptyState sentence="No file is waiting on anyone else." />
-            ) : (
-              <TableScrollRegion label="Files waiting on someone else">
-              <table className="w-full table-fixed border border-border bg-background text-[13px] leading-[18px] max-sm:block">
-                <thead className="max-sm:hidden">
-                  <tr className="border-b border-border text-left">
-                    <th scope="col" className="p-2">Acquisition</th>
-                    <th scope="col" className="p-2">Waiting on</th>
-                    <th scope="col" className="p-2">Reason</th>
-                    <th scope="col" className="p-2">Days held</th>
-                  </tr>
-                </thead>
-                <tbody className="max-sm:block">
-                  {waitingOnOthers.map((c) => {
-                    const started =
-                      ((c.m.acq as Record<string, unknown>)['hold_started_at'] as string | null) ??
-                      c.m.blockerSince;
-                    return (
-                      <tr key={c.m.acq.acquisition_id} className="border-b border-border last:border-0 max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0 max-sm:last:border">
-                         <td data-label="Acquisition" className="p-2 break-words max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
-                          <FileLink card={c} />
-                        </td>
-                          <td data-label="Waiting on" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blockerOwner ?? "Not named"}</td>
-                          <td data-label="Reason" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{c.m.blocker}</td>
-                         <td data-label="Days held" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>
-                          {daysSince(started) ?? "—"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-               </table>
-               </TableScrollRegion>
-            )}
-          </Section>
-
-          <Section
-            title="Three things to do next"
-            lead="Ranked by the same urgency the Overview uses. Planned days come from the phase plan; the range is what prior files of the same profile actually took."
-          >
-            {topThree.length === 0 ? (
-              <EmptyState sentence="No open file needs a next step." />
-            ) : (
-              <ol className="space-y-3">
-                {topThree.map((c, i) => {
-                  const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
-                  const view = countdownView(c.m);
-                  return (
-                  <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")} text-[15px] leading-[22px]`}>
-                    <MissionReadinessChip state={readiness} className="float-right ml-3" />
-                    <span className="text-muted-foreground" data-numeric>
-                      {i + 1}.
-                    </span>{" "}
-                    {c.m.nextAction} — <FileLink card={c} />
-                    <span className="block text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-                      {view.mode === "overdue" ? (
-                        <span className="mr-2" data-numeric>{`${view.days} ${dayWord(view.days)} past target · OVERDUE`}</span>
-                      ) : (
-                        <LaunchCountdownCompact view={view} className="mr-2" />
-                      )}
-                      {desk
-                        ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence
-                        : ""}
-                    </span>
-                  </li>
-                  );
-                })}
-              </ol>
-            )}
-          </Section>
-
-          <Section title="Reviews due" lead="Open reviews and approvals on your files.">
-            {reviewsDue.length === 0 ? (
-              <EmptyState sentence="No review is open on your files." />
-            ) : (
-              <ul className="divide-y divide-border border-y border-border">
-                {reviewsDue.map((p) => {
-                  const due = daysUntil(p.due_date);
-                  return (
-                    <li key={p.poll_id} className="py-3 text-[15px]">
-                      <Link
-                        to="/files/$acquisitionId"
-                        params={{ acquisitionId: p.acquisition_id ?? "" }}
-                        className="text-primary hover:text-primary-hover"
-                      >
-                        {p.acquisition_id}
-                      </Link>{" "}
-                      — {p.reviewer_role} · {p.reviewer_name ?? "not named"}
-                      <span className="block text-[13px] text-muted-foreground" data-numeric>
-                        {p.phase} ·{" "}
-                        {p.due_date
-                          ? due !== null && due < 0
-                            ? `due ${p.due_date}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
-                            : `due ${p.due_date}, ${due} ${dayWord(due)} left`
-
-                          : "no due date recorded"}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Section>
-
-          <details className="mc-nav-section-collapsible" data-mission-nav-collapsible>
-            <summary>
-              <span>Regulation changes touching my files</span>
-              <span className="mc-nav-section-summary">{regChanges.length} recorded</span>
-              <span className="mc-nav-section-toggle" aria-hidden="true" />
-            </summary>
-            <div className="mc-nav-section-content">
-          <Section title="Regulation changes" lead="Clause change tasks recorded against your files. Nothing here is inferred.">
-            {regChanges.length === 0 ? (
-              <EmptyState
-                sentence="No clause change task is recorded against your files."
-                action={
-                  <Link to="/clause-changes" className="text-[15px] text-primary hover:text-primary-hover">
-                    Open Clause changes
-                  </Link>
-                }
-              />
-            ) : (
-              <ul className="divide-y divide-border border-y border-border">
-                {regChanges.map((t, i) => (
-                  <li key={`${t.acquisition_id}-${t.clause_number}-${i}`} className="py-3 text-[15px]">
-                    <Link
-                      to="/files/$acquisitionId"
-                      params={{ acquisitionId: t.acquisition_id }}
-                      className="text-primary hover:text-primary-hover"
-                    >
-                      {t.acquisition_id}
-                    </Link>{" "}
-                    — {t.clause_number} · {t.change_kind}
-                    <span className="block text-[13px] text-muted-foreground">
-                      {t.status}
-                      {t.deadline_date ? ` · deadline ${t.deadline_date}` : ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Section>
+        <>
+          {scopeNote ? <p className="mc-today-scope">{scopeNote}</p> : null}
+          <nav className="mc-today-stats" aria-label="Your day in numbers">
+            <a href="#today-mine" className="mc-today-stat is-mine">
+              <span className="mc-today-stat-value" data-numeric>{waitingOnMe.length}</span>
+              <span className="mc-today-stat-label">Waiting on me</span>
+            </a>
+            <a href="#today-others" className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>{waitingOnOthers.length}</span>
+              <span className="mc-today-stat-label">Waiting on someone else</span>
+            </a>
+            <a href="#today-reviews" className="mc-today-stat">
+              <span className="mc-today-stat-value" data-numeric>{reviewsThisWeek}</span>
+              <span className="mc-today-stat-label">Reviews due in 7 days or late</span>
+            </a>
+            <div className={`mc-today-stat${pastTarget ? " is-late" : ""}`}>
+              <span className="mc-today-stat-value" data-numeric>{pastTarget}</span>
+              <span className="mc-today-stat-label">Open files past target</span>
             </div>
-          </details>
-        </div>
+          </nav>
+
+          <div className="mc-today-grid">
+            <div className="mc-today-main">
+              <Section id="today-mine" title="Waiting on me" count={waitingOnMe.length} lead="Files where the next step belongs to the contracting officer.">
+                {waitingOnMe.length === 0 ? (
+                  <EmptyState sentence="Nothing is waiting on you right now." />
+                ) : (
+                  <>
+                    <div className="mc-today-strip-head" aria-hidden="true">
+                      <span>File</span>
+                      <span>T±</span>
+                      <span>Next action</span>
+                      <span>Owner and due</span>
+                      <span>Status</span>
+                    </div>
+                    <ul ref={rowsRef} className="mc-today-strips">
+                      {waitingOnMe.map((c) => {
+                        const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
+                        const view = countdownView(c.m);
+                        const pos = phasePosition(c.m.phases);
+                        return (
+                          <li
+                            key={c.m.acq.acquisition_id}
+                            data-row-nav
+                            tabIndex={0}
+                            className={`mc-work-strip mc-today-strip ${missionReadinessClass(readiness, "is")} focus:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
+                          >
+                            <div className="mc-today-strip-file">
+                              <span className="mc-today-strip-title"><FileLink card={c} /></span>
+                              <span className="mc-today-meta" data-numeric>
+                                {c.m.acq.acquisition_id} · {phasePositionText(pos)}
+                                {pos.name ? `, ${pos.name}` : ""}
+                              </span>
+                            </div>
+                            <div className="mc-today-strip-t" data-numeric>
+                              <LaunchCountdownCompact view={view} hideBadge={view.mode === "hold"} />
+                            </div>
+                            <div className="mc-today-strip-next">
+                              <span className="mc-today-cell-label">Next action</span>
+                              {c.m.nextAction}
+                            </div>
+                            <div className="mc-today-strip-owner">
+                              <span className="mc-today-cell-label">Owner and due</span>
+                              <span>{c.owner || "Not recorded"}</span>
+                              <span className="mc-today-meta" data-numeric>
+                                {c.m.nextDecisionDate ? `Due ${formatDate(c.m.nextDecisionDate)}` : "No date planned"}
+                              </span>
+                            </div>
+                            <div className="mc-today-strip-chip">
+                              <StatusChip label={readiness} tone={READINESS_TONE[readiness]} />
+                            </div>
+                            <Link
+                              to="/files/$acquisitionId"
+                              params={{ acquisitionId: c.m.acq.acquisition_id }}
+                              hash="launch-sequence"
+                              data-row-action="exit"
+                              className="sr-only"
+                            >
+                              Open the launch sequence for {c.m.acq.acquisition_id}
+                            </Link>
+                            {/^write\b/i.test(c.m.nextAction ?? "") ? (
+                              <Link
+                                to="/files/$acquisitionId"
+                                params={{ acquisitionId: c.m.acq.acquisition_id }}
+                                data-row-action="write"
+                                className="sr-only"
+                              >
+                                {c.m.nextAction} on {c.m.acq.acquisition_id}
+                              </Link>
+                            ) : null}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <RowKeysHint className="mt-3" />
+                  </>
+                )}
+              </Section>
+
+              <Section id="today-others" title="Waiting on someone else" count={waitingOnOthers.length} lead="Who owns the next step, and how long they have held it.">
+                {waitingOnOthers.length === 0 ? (
+                  <EmptyState sentence="No file is waiting on anyone else." />
+                ) : (
+                  <DataTable
+                    label="Files waiting on someone else"
+                    rows={waitingOnOthers}
+                    rowKey={(c) => c.m.acq.acquisition_id}
+                    stackOnMobile
+                    columns={[
+                      {
+                        key: "file",
+                        header: "Acquisition",
+                        rowHeader: true,
+                        width: "34%",
+                        cell: (c) => (
+                          <span className="grid">
+                            <FileLink card={c} />
+                            <span className="mc-today-meta" data-numeric>{c.m.acq.acquisition_id}</span>
+                          </span>
+                        ),
+                      },
+                      { key: "who", header: "Waiting on", mobileLabel: "Waiting on", cell: (c) => c.m.blockerOwner ?? "Not named" },
+                      { key: "why", header: "Reason", mobileLabel: "Reason", cell: (c) => c.m.blocker },
+                      {
+                        key: "days",
+                        header: "Days held",
+                        mobileLabel: "Days held",
+                        numeric: true,
+                        nowrap: true,
+                        cell: (c) => {
+                          const started = ((c.m.acq as Record<string, unknown>)['hold_started_at'] as string | null) ?? c.m.blockerSince;
+                          const d = daysSince(started);
+                          return d === null ? <span className="mc-today-meta">Not recorded</span> : d;
+                        },
+                      },
+                    ]}
+                  />
+                )}
+              </Section>
+            </div>
+
+            <div className="mc-today-side">
+              <Section
+                id="today-next"
+                title="Three things to do next"
+                lead="Ranked by the same urgency the Overview uses. The range is what prior files of the same profile actually took."
+              >
+                {topThree.length === 0 ? (
+                  <EmptyState sentence="No open file needs a next step." />
+                ) : (
+                  <ol className="mc-today-next">
+                    {topThree.map((c, i) => {
+                      const readiness = explainWorkReadiness(c.m, { acq: c.m.acq, attachedKeys: c.attachedKeys, savedKeys: c.savedKeys }).state;
+                      const view = countdownView(c.m);
+                      return (
+                        <li key={c.m.acq.acquisition_id} className={`mc-work-strip mc-work-strip-compact ${missionReadinessClass(readiness, "is")}`}>
+                          <span className="mc-today-next-n" data-numeric aria-hidden="true">{i + 1}</span>
+                          <div className="min-w-0">
+                            <p className="mc-today-next-action">{c.m.nextAction}</p>
+                            <p className="mc-today-strip-title"><FileLink card={c} /></p>
+                            <p className="mc-today-meta" data-numeric>
+                              {view.mode === "overdue" ? (
+                                <span className="mr-2">{`${view.days} ${dayWord(view.days)} past target · OVERDUE`}</span>
+                              ) : (
+                                <LaunchCountdownCompact view={view} className="mr-2" />
+                              )}
+                              {desk ? awardConfidence(c.m.acq, desk.history, desk.plan).sentence : ""}
+                            </p>
+                          </div>
+                          <StatusChip label={readiness} tone={READINESS_TONE[readiness]} />
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+              </Section>
+
+              <Section id="today-reviews" title="Reviews due" count={reviewsDue.length} lead="Open reviews and approvals on your files.">
+                {reviewsDue.length === 0 ? (
+                  <EmptyState sentence="No review is open on your files." />
+                ) : (
+                  <ul className="mc-today-list">
+                    {reviewsDue.map((p) => {
+                      const due = daysUntil(p.due_date);
+                      const late = due !== null && due < 0;
+                      return (
+                        <li key={p.poll_id}>
+                          <div className="min-w-0">
+                            <Link
+                              to="/files/$acquisitionId"
+                              params={{ acquisitionId: p.acquisition_id ?? "" }}
+                              className="mc-today-list-id"
+                            >
+                              {p.acquisition_id}
+                            </Link>
+                            <span className="mc-today-list-main">
+                              {p.reviewer_role} · {p.reviewer_name ?? "not named"}
+                            </span>
+                            <span className="mc-today-meta" data-numeric>
+                              {p.phase} ·{" "}
+                              {p.due_date
+                                ? late
+                                  ? `due ${p.due_date}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
+                                  : `due ${p.due_date}, ${due} ${dayWord(due)} left`
+                                : "no due date recorded"}
+                            </span>
+                          </div>
+                          {late ? <StatusChip label="Past due" tone="atrisk" /> : due !== null && due <= 7 ? <StatusChip label="This week" tone="attention" /> : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </Section>
+
+              <details className="mc-nav-section-collapsible mc-today-regs" data-mission-nav-collapsible>
+                <summary>
+                  <span>Regulation changes touching my files</span>
+                  <span className="mc-nav-section-summary">{regChanges.length} recorded</span>
+                  <span className="mc-nav-section-toggle" aria-hidden="true" />
+                </summary>
+                <div className="mc-nav-section-content">
+                  <p className="mc-today-meta mb-3">Clause change tasks recorded against your files. Nothing here is inferred.</p>
+                  {regChanges.length === 0 ? (
+                    <EmptyState
+                      sentence="No clause change task is recorded against your files."
+                      action={
+                        <Link to="/clause-changes" className="text-[15px] text-primary hover:text-primary-hover">
+                          Open Clause changes
+                        </Link>
+                      }
+                    />
+                  ) : (
+                    <ul className="mc-today-list">
+                      {regChanges.map((t, i) => (
+                        <li key={`${t.acquisition_id}-${t.clause_number}-${i}`}>
+                          <div className="min-w-0">
+                            <Link
+                              to="/files/$acquisitionId"
+                              params={{ acquisitionId: t.acquisition_id }}
+                              className="mc-today-list-id"
+                            >
+                              {t.acquisition_id}
+                            </Link>
+                            <span className="mc-today-list-main">
+                              {t.clause_number} · {t.change_kind}
+                            </span>
+                            <span className="mc-today-meta">
+                              {t.status}
+                              {t.deadline_date ? ` · deadline ${t.deadline_date}` : ""}
+                            </span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </details>
+            </div>
+          </div>
+        </>
       )}
       <PilotKnownGapsLine className="mt-10" />
     </AppShell>

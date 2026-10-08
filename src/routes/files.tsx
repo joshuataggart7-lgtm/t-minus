@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DEMO_READ_ONLY_NOTE } from "@/lib/demo-guard";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader, DataTable, StatusChip, type DataColumn, type StatusTone } from "@/components/ui-mc";
+import { contractingHours, phasePosition, phasePositionText, planToAward } from "@/lib/file-timeline";
 import { useRole } from "@/components/role-context";
-import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { missionReadinessClass, type MissionReadiness } from "@/components/mission-control/primitives";
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
@@ -12,48 +13,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
 import type { CenterOverrideRow } from "@/lib/center-config";
 import { formatMoney, type RefData } from "@/lib/intake";
-import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys, savedDocKeys } from "@/lib/hold";
 import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { computeMetrics, holdSince, type MissionRow } from "@/lib/metrics";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
-/**
- * The summary the requester saw when the clock started, when it was stored.
- * A file with no stored intake estimate shows the current estimate, worked the
- * same way the requester portal and the estimator work it, and says so.
- */
-function estimateLine(est: StoredEstimate | null, acq: Record<string, unknown>, plan: PhasePlanRow[]) {
-  const months = (n: number) => `${n} ${n === 1 ? "month" : "months"}`;
-  if (est) {
-    return `About ${months(est.months_to_award)}, ${est.phases.length} phases, ${est.hours_total.toLocaleString("en-US")} hours (at intake)`;
-  }
-  const live = liveEstimate(acq, plan);
-  if (!live) return "No estimate yet";
-  return `About ${months(live.monthsToAward)}, ${live.phases.length} phases, ${live.hours.total.toLocaleString("en-US")} hours (current estimate)`;
-}
+const READINESS_TONE: Record<MissionReadiness, StatusTone> = { GO: "ontrack", WATCH: "attention", HOLD: "atrisk", LAUNCHED: "launched" };
 
-function liveEstimate(acq: Record<string, unknown>, plan: PhasePlanRow[]) {
-  try {
-    return estimate(inputsFromAcq(acq as never), {
-      thresholds: [],
-      overrides: [],
-      strategies: [],
-      phasePlan: plan.map((p) => ({ acquisition_type: p.acquisition_type, phase: p.phase, planned_days: p.planned_days })),
-    });
-  } catch {
-    return null;
-  }
+/** Hours line for the Files list, from the shared helper in lib/file-timeline.ts. */
+function hoursLine(acq: Record<string, unknown>, plan: PhasePlanRow[]) {
+  const h = contractingHours(acq, plan);
+  if (!h) return "No hours estimate yet";
+  return `${h.total.toLocaleString("en-US")} contracting hours, ${h.source === "intake" ? "estimate at intake" : "current estimate"}`;
 }
 
 export const Route = createFileRoute("/files")({
   head: () => ({
     meta: [
-      { title: "Files — T-Minus" },
+      { title: "Files · T-Minus" },
       { name: "description", content: "Every acquisition file, its clock line, and its days to award." },
-      { property: "og:title", content: "Files — T-Minus" },
+      { property: "og:title", content: "Files · T-Minus" },
       { property: "og:description", content: "Every acquisition file, its clock line, and its days to award." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -149,7 +129,9 @@ function FilesPage() {
         awardDate: operational.actualAwardDate,
       });
       const readiness = explainWorkReadiness(metric, keys);
-      return { acq, operational: operational.acquisition, metric, mission, readiness };
+      const position = phasePosition(metric.phases);
+      const plan = planToAward(operational.acquisition, q.data.plan);
+      return { acq, operational: operational.acquisition, metric, mission, readiness, position, plan };
     });
   }, [q.data, ref]);
 
@@ -157,91 +139,197 @@ function FilesPage() {
   const isScrubbed = (row: (typeof rows)[number]) =>
     row.acq.clock_state === "scrubbed" || row.operational.clock_state === "scrubbed";
   const scrubbedCount = rows.filter(isScrubbed).length;
-  const visibleRows = showScrubbed ? rows : rows.filter((row) => !isScrubbed(row));
+  const [stateFilter, setStateFilter] = useState<MissionReadiness | "ALL">("ALL");
+  const [find, setFind] = useState("");
+  const live = rows.filter((row) => !isScrubbed(row));
+  const counts = (["GO", "WATCH", "HOLD", "LAUNCHED"] as MissionReadiness[]).map((state) => ({
+    state,
+    n: live.filter((row) => row.readiness.state === state).length,
+  }));
+  const needle = find.trim().toLowerCase();
+  const visibleRows = (showScrubbed ? rows : live)
+    .filter((row) => stateFilter === "ALL" || (!isScrubbed(row) && row.readiness.state === stateFilter))
+    .filter((row) =>
+      !needle
+        ? true
+        : [row.acq.acquisition_id, row.acq.title, row.mission?.name, row.acq.co_name, row.acq.center_code]
+            .map((v) => String(v ?? "").toLowerCase())
+            .some((v) => v.includes(needle)),
+    );
+  const canStart = hasAnyRole(["specialist", "requester", "hq"]) && !readOnly;
+
+  type Row = (typeof rows)[number];
+  const columns: DataColumn<Row>[] = [
+    {
+      key: "file",
+      header: "Acquisition",
+      rowHeader: true,
+      width: "24%",
+      cell: ({ acq }) => {
+        const copyOf = String(acq['source_tag'] ?? "").startsWith("Copy of") ? String(acq['source_tag']) : null;
+        return (
+          <div className="mc-files-file">
+            <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="mc-files-link">
+              <span className="mc-files-id" data-numeric>{acq.acquisition_id}</span>
+              <span className="mc-files-title">{String(acq.title ?? acq.acquisition_id)}</span>
+            </Link>
+            {copyOf ? <span className="mc-files-meta">{copyOf}</span> : null}
+            {acq['source_tag'] === "backfilled" ? (
+              <span className="mc-files-meta">Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}</span>
+            ) : null}
+          </div>
+        );
+      },
+    },
+    {
+      key: "status",
+      header: "Status",
+      mobileLabel: "Status",
+      cell: (row) =>
+        isScrubbed(row) ? (
+          <div>
+            <StatusChip label="Scrubbed" tone="neutral" />
+            <span className="mc-files-meta">{String(row.acq.hold_reason ?? "").trim() || "Reason not recorded"}</span>
+          </div>
+        ) : (
+          <div>
+            <StatusChip label={row.readiness.state} tone={READINESS_TONE[row.readiness.state]} />
+            <span className="mc-files-meta" data-numeric>{phasePositionText(row.position)}</span>
+            <span className="mc-files-strong">{row.position.name ?? String(row.operational.current_phase ?? "Not recorded")}</span>
+          </div>
+        ),
+    },
+    {
+      key: "t",
+      header: "T±",
+      mobileLabel: "Countdown",
+      nowrap: true,
+      cell: (row) =>
+        isScrubbed(row) ? (
+          <span className="mc-files-meta">No countdown</span>
+        ) : (
+          <LaunchCountdownCompact view={overviewCountdownView(row.metric)} hideBadge={overviewCountdownView(row.metric).mode === "hold"} />
+        ),
+    },
+    {
+      key: "plan",
+      header: "Plan to award",
+      mobileLabel: "Plan to award",
+      width: "15%",
+      cell: ({ acq, plan }) => (
+        <div>
+          <span className="mc-files-strong" data-numeric>
+            {plan.plannedDays ? `${plan.plannedDays} planned days` : "No phase plan"}
+          </span>
+          {plan.phases.length ? <span className="mc-files-meta" data-numeric>{plan.phases.length} phases to award</span> : null}
+          <span className="mc-files-meta" data-numeric>{hoursLine(acq as Record<string, unknown>, q.data?.plan ?? [])}</span>
+        </div>
+      ),
+    },
+    {
+      key: "buy",
+      header: "Value and method",
+      mobileLabel: "Value and method",
+      width: "16%",
+      cell: ({ acq, mission }) => (
+        <div>
+          <span className="mc-files-strong" data-numeric>
+            {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "IGCE not recorded"}
+          </span>
+          <span className="mc-files-meta">{methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))}</span>
+          <span className="mc-files-meta">
+            {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
+          </span>
+        </div>
+      ),
+    },
+    {
+      key: "owner",
+      header: "Owner",
+      mobileLabel: "Owner",
+      cell: ({ acq }) => String(acq.co_name ?? "").trim() || <span className="mc-files-meta">Not recorded</span>,
+    },
+    {
+      key: "next",
+      header: "Next action",
+      mobileLabel: "Next action",
+      width: "15%",
+      cell: (row) => (isScrubbed(row) ? <span className="mc-files-meta">None</span> : row.readiness.nextAction),
+    },
+  ];
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Acquisition files"
         title="Files"
-        lead={`Every acquisition file, its phase, and its days to award.${rows.length ? ` ${visibleRows.length} ${visibleRows.length === 1 ? "file" : "files"} shown.` : ""}`}
+        lead="Every acquisition file with its phase, countdown, and planned days to award. Days and phases come from the same phase plan the file page uses."
+        actions={
+          canStart ? (
+            <Link to="/intake" className="mc-req-button">
+              Start an intake
+            </Link>
+          ) : null
+        }
       />
-      {readOnly ? <p className="mb-6 text-[13px] text-muted-foreground">{DEMO_READ_ONLY_NOTE}</p> : null}
-      {hasAnyRole(["specialist", "requester", "hq"]) && !readOnly ? (
-        <Link to="/intake" className="mb-6 inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">
-          {readOnly ? "See the intake form" : "Start an intake"}
-        </Link>
-      ) : null}
       {q.isLoading ? <LoadingNote what="the files" layout="table" /> : null}
       {q.isError ? <ErrorNote message="The file list did not load. Refresh the page. If it still fails, tell the T-Minus team." /> : null}
 
-      {scrubbedCount ? (
-        <button
-          type="button"
-          onClick={() => setShowScrubbed((v) => !v)}
-          aria-pressed={showScrubbed}
-          className="mb-4 text-[13px] text-primary hover:text-primary-hover"
-        >
-          {showScrubbed ? `Hide scrubbed (${scrubbedCount})` : `Show scrubbed (${scrubbedCount})`}
-        </button>
-      ) : null}
-
       {rows.length ? (
-        <TableScrollRegion baseClassName="mc-work-table-wrap" label="Acquisition files">
-          <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-sm:block max-sm:border-0">
-            <thead className="max-sm:hidden">
-              <tr className="border-b border-border text-left">
-                <th scope="col" className="min-w-[28ch] p-2">Acquisition</th>
-                <th scope="col" className="p-2">Status</th>
-                <th scope="col" className="p-2">T±</th>
-                <th scope="col" className="p-2">Owner</th>
-                <th scope="col" className="p-2">Next action</th>
-              </tr>
-            </thead>
-            <tbody className="max-sm:block">
-              {visibleRows.map(({ acq, operational, metric, mission, readiness }) => {
-                const scrubbed = acq.clock_state === "scrubbed" || operational.clock_state === "scrubbed";
-                const copyOf = String(acq['source_tag'] ?? "").startsWith("Copy of") ? String(acq['source_tag']) : null;
-                return (
-                <tr key={acq.acquisition_id} className={`mc-work-table-row ${missionReadinessClass(readiness.state, "is")} border-b border-border align-top last:border-0 max-sm:relative max-sm:mb-3 max-sm:block max-sm:border max-sm:p-3 max-sm:last:mb-0 max-sm:last:border`}>
-                  <td className="p-2 break-words max-sm:block max-sm:p-0 max-sm:pr-28">
-                    <Link to="/files/$acquisitionId" params={{ acquisitionId: acq.acquisition_id }} className="text-primary hover:text-primary-hover">
-                      <span className="block text-[12px] text-muted-foreground" data-numeric>{acq.acquisition_id}</span>
-                      <span className="block font-medium">{String(acq.title ?? acq.acquisition_id)}</span>
-                    </Link>
-                    {/* Below 640px the status pill sits on the ID line. */}
-                    <span className="absolute right-3 top-3 sm:hidden">
-                      {scrubbed ? <span className="inline-block rounded-full border border-border px-2 text-[12px] leading-5">Scrubbed</span> : <MissionReadinessChip state={readiness.state} />}
-                    </span>
-                    {copyOf ? <span className="mt-1 block text-[12px] text-muted-foreground">{copyOf}</span> : null}
-                    {acq['source_tag'] === "backfilled" ? (
-                      <span className="mt-1 block text-[12px] text-muted-foreground">
-                        Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}
-                      </span>
-                    ) : null}
-                    <span className="mt-1 block text-[12px] text-muted-foreground">
-                      {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
-                    </span>
-                    <span className="mt-1 block text-[12px] text-muted-foreground">
-                      {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "Not recorded"} · {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))} · Estimate: {estimateLine(acq['intake_estimate'] as StoredEstimate | null, acq as Record<string, unknown>, q.data?.plan ?? [])}
-                    </span>
-                  </td>
-                  {scrubbed ? (
-                    <td data-label="Status" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">
-                      <span className="inline-block rounded-full max-sm:hidden border border-border px-2 text-[12px] leading-5">Scrubbed</span>
-                      <span className="mt-1 block text-[12px] text-muted-foreground">{String(acq.hold_reason ?? "").trim() || "Reason not recorded"}</span>
-                    </td>
-                  ) : (
-                    <td data-label="Phase" className="p-2 max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]"><span className="max-sm:hidden"><MissionReadinessChip state={readiness.state} /></span><span className="mt-1 block text-[12px] text-muted-foreground max-sm:mt-0 max-sm:text-[13px] max-sm:text-foreground"><span className="max-sm:hidden">Phase: </span>{String(operational.current_phase ?? "Not recorded")}</span></td>
-                  )}
-                  <td data-label="T±" className="p-2 whitespace-nowrap max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]" data-numeric>{scrubbed ? <span className="text-muted-foreground">No countdown</span> : <LaunchCountdownCompact view={overviewCountdownView(metric)} hideBadge={overviewCountdownView(metric).mode === "hold"} />}</td>
-                  <td data-label="Owner" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{String(acq.co_name ?? "").trim() || "Not recorded"}</td>
-                  <td data-label="Next action" className="p-2 break-words max-sm:mt-3 max-sm:block max-sm:h-auto max-sm:min-h-0 max-sm:p-0 max-sm:before:mb-1 max-sm:before:block max-sm:before:text-[12px] max-sm:before:font-medium max-sm:before:text-muted-foreground max-sm:before:content-[attr(data-label)]">{scrubbed ? <span className="text-muted-foreground">None</span> : readiness.nextAction}</td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </TableScrollRegion>
+        <>
+          <div className="mc-files-tools">
+            <div className="mc-files-filters" role="group" aria-label="Show files by status">
+              <button type="button" aria-pressed={stateFilter === "ALL"} onClick={() => setStateFilter("ALL")} className="mc-files-filter">
+                All <span data-numeric>{live.length}</span>
+              </button>
+              {counts.map(({ state, n }) => (
+                <button
+                  key={state}
+                  type="button"
+                  aria-pressed={stateFilter === state}
+                  onClick={() => setStateFilter(state)}
+                  disabled={n === 0}
+                  className={`mc-files-filter ${missionReadinessClass(state, "is")}`}
+                >
+                  {state} <span data-numeric>{n}</span>
+                </button>
+              ))}
+            </div>
+            <label className="mc-files-find">
+              <span className="sr-only">Find a file</span>
+              <input
+                type="search"
+                value={find}
+                onChange={(e) => setFind(e.target.value)}
+                placeholder="Find by ID, title, mission or owner"
+                className="mc-input"
+              />
+            </label>
+            {scrubbedCount ? (
+              <button
+                type="button"
+                onClick={() => setShowScrubbed((v) => !v)}
+                aria-pressed={showScrubbed}
+                className="mc-files-scrubbed"
+              >
+                {showScrubbed ? `Hide scrubbed (${scrubbedCount})` : `Show scrubbed (${scrubbedCount})`}
+              </button>
+            ) : null}
+          </div>
+          <p className="mc-files-count" aria-live="polite" data-numeric>
+            {visibleRows.length} {visibleRows.length === 1 ? "file" : "files"} shown
+          </p>
+          <DataTable
+            label="Acquisition files"
+            columns={columns}
+            rows={visibleRows}
+            rowKey={(row) => row.acq.acquisition_id}
+            rowClassName={(row) => `mc-work-table-row ${isScrubbed(row) ? "is-scrubbed" : missionReadinessClass(row.readiness.state, "is")}`}
+            empty="No file matches. Clear the search or pick another status."
+            stackOnMobile
+            className="mc-files-table"
+          />
+        </>
       ) : q.isLoading || q.isError ? null : (
         <EmptyState sentence="No files are on the clock yet." action={
           <Link to="/intake" className="inline-block rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground">{readOnly ? "See the intake form" : "Start an intake"}</Link>

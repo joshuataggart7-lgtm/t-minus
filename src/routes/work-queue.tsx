@@ -2,7 +2,9 @@ import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { pollOptions } from "@/lib/poll";
 import { useMemo, useState } from "react";
-import { AppShell, PageHeader, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-shell";
+import { McPageHeader, StatusChip, type StatusTone } from "@/components/ui-mc";
+import type { MissionReadiness } from "@/components/mission-control/primitives";
 import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { loadLaunchEvents, loadStateAuditRows } from "@/lib/launch-events";
@@ -20,7 +22,7 @@ import {
   type MissionRow,
 } from "@/lib/metrics";
 import { LaunchCountdownCompact } from "@/components/launch-countdown";
-import { MissionReadinessChip, missionReadinessClass } from "@/components/mission-control/primitives";
+import { missionReadinessClass } from "@/components/mission-control/primitives";
 import { loadAttachmentKeyRows, loadDocumentKeyRows } from "@/lib/evidence-rows";
 import { explainWorkReadiness, type ReadinessExplanation } from "@/components/mission-control/readiness";
 import { deriveOverviewAcquisitionState, overviewCountdownView } from "@/components/mission-control/operational-state";
@@ -30,7 +32,6 @@ import {
   priorityBand,
   type PriorityBandValue,
 } from "@/components/mission-control/work-triage";
-import { TableScrollRegion } from "@/components/table-scroll-region";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
 
 export const Route = createFileRoute("/work-queue")({
@@ -62,6 +63,8 @@ const COLUMN_LABEL: Record<Column, string> = {
   "Awaiting decisions": "Awaiting review decisions",
   Launched: "Launched",
 };
+
+const READINESS_TONE: Record<MissionReadiness, StatusTone> = { GO: "ontrack", WATCH: "attention", HOLD: "atrisk", LAUNCHED: "launched" };
 
 type Card = {
   m: AcqMetrics;
@@ -279,30 +282,24 @@ function WorkQueuePage() {
   if (deskInstead) return <Navigate to={deskInstead} replace />;
 
   return (
-    <AppShell>
-      <PageHeader
+    <AppShell kit>
+      <McPageHeader
+        eyebrow="Contracting desk"
         title="Work Queue"
-        lead="Files you own, what each one is waiting on, and when the next decision is due."
+        lead="Files you own, what each one is waiting on, and when the next decision is due. Cards open the file; status changes happen in the file, not by dragging."
+        actions={
+          <Link to="/intake" className="mc-req-button">
+            Start an intake
+          </Link>
+        }
       />
 
-      <div className="mc-work-toolbar mb-6 flex flex-wrap items-end">
-        <Link
-          to="/intake"
-          className="rounded-lg bg-primary px-4 py-2 text-[15px] text-primary-foreground"
-        >
-          Start an intake
-        </Link>
-
-        <div>
-          <label htmlFor="scope" className="block text-[13px] text-muted-foreground">
+      <div className="mc-wq-toolbar">
+        <div className="mc-wq-field">
+          <label htmlFor="scope" className="mc-field-label">
             Show
           </label>
-          <select
-            id="scope"
-            value={scope}
-            onChange={(e) => setScope(e.target.value as typeof scope)}
-             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
-          >
+          <select id="scope" value={scope} onChange={(e) => setScope(e.target.value as typeof scope)} className="mc-input">
             <option value="all">Everything</option>
             <option value="mine">Mine</option>
             <option value="branch">My branch{myBranch ? ` (${myBranch})` : ""}</option>
@@ -310,16 +307,11 @@ function WorkQueuePage() {
           </select>
         </div>
 
-        <div>
-          <label htmlFor="mission" className="block text-[13px] text-muted-foreground">
+        <div className="mc-wq-field">
+          <label htmlFor="mission" className="mc-field-label">
             Mission
           </label>
-          <select
-            id="mission"
-            value={missionId}
-            onChange={(e) => setMissionId(e.target.value)}
-             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
-          >
+          <select id="mission" value={missionId} onChange={(e) => setMissionId(e.target.value)} className="mc-input">
             <option value="all">Every mission</option>
             {(q.data?.missions ?? []).map((m) => (
               <option key={m.mission_id} value={m.mission_id}>
@@ -329,28 +321,30 @@ function WorkQueuePage() {
           </select>
         </div>
 
-        <div role="group" aria-label="View" className="flex gap-4">
+        {view === "list" ? (
+          <div className="mc-wq-field">
+            <label htmlFor="sort" className="mc-field-label">Sort by</label>
+            <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="mc-input">
+              <option value="owner">Owner</option>
+              <option value="phase">Phase</option>
+              <option value="days">Days to award</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
+        ) : null}
+
+        <div role="group" aria-label="View" className="mc-seg">
           {(["board", "list"] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              aria-pressed={view === v}
-              onClick={() => setView(v)}
-              className={
-                view === v
-                  ? "border-b-2 border-primary pb-1 text-[15px] font-medium text-foreground"
-                  : "border-b-2 border-transparent pb-1 text-[15px] text-muted-foreground hover:text-foreground"
-              }
-            >
+            <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} className="mc-seg-btn">
               {v === "board" ? "Board" : "List"}
             </button>
           ))}
         </div>
-      </div>
 
-      <p className="mb-6 text-[13px] text-muted-foreground">
-        Cards open the file. Status changes happen in the file, not by dragging.
-      </p>
+        <p className="mc-wq-count" data-numeric>
+          {filtered.length} of {cards.length} files shown
+        </p>
+      </div>
 
       {q.isLoading ? (
         <LoadingNote what="the queue" />
@@ -373,70 +367,58 @@ function WorkQueuePage() {
           }
         />
       ) : view === "board" ? (
-
-        <div
-          role="region"
-          aria-label="Work Queue board, scrolls horizontally"
-          tabIndex={0}
-          className="overflow-x-auto pb-2"
-        >
-        <div className="grid gap-4 md:grid-cols-[repeat(5,minmax(260px,1fr))]">
-          {COLUMNS.map((col) => {
-            const items = filtered
-              .filter((c) => c.column === col)
-              .sort((a, b) => priorityRank(a) - priorityRank(b));
-            return (
-              <section key={col} aria-label={COLUMN_LABEL[col]}>
-                <div className="flex min-h-11 items-baseline justify-between border-b border-border pb-3">
-                <h2 className="text-[18px] leading-6 font-medium">{COLUMN_LABEL[col]}</h2>
-                <p className="text-[13px] text-muted-foreground" data-numeric>
-                  {items.length} {items.length === 1 ? "file" : "files"}
+        (() => {
+          const byCol = COLUMNS.map((col) => ({
+            col,
+            items: filtered.filter((c) => c.column === col).sort((a, b) => priorityRank(a) - priorityRank(b)),
+          }));
+          const shown = byCol.filter((x) => x.items.length > 0);
+          const empty = byCol.filter((x) => x.items.length === 0);
+          return (
+            <>
+              {/* Columns with files share the width; they wrap instead of clipping, so every column stays in view. */}
+              <div className="mc-wq-board" style={{ ["--cols" as string]: String(Math.max(shown.length, 1)) }}>
+                {shown.map(({ col, items }) => (
+                  <section key={col} aria-label={COLUMN_LABEL[col]} className="mc-wq-col">
+                    <div className="mc-wq-col-head">
+                      <h2>{COLUMN_LABEL[col]}</h2>
+                      <span className="mc-today-count" data-numeric aria-label={`${items.length} ${items.length === 1 ? "file" : "files"}`}>
+                        {items.length}
+                      </span>
+                    </div>
+                    <ul className="mc-wq-cards">
+                      {items.map((c) => (
+                        <li key={c.m.acq.acquisition_id}>
+                          <CardView c={c} />
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
+              </div>
+              {empty.length ? (
+                <p className="mc-wq-empty-cols">
+                  No files in: {empty.map((x) => COLUMN_LABEL[x.col]).join(", ")}.
                 </p>
-                </div>
-                <ul className="mt-4 space-y-4">
-                  {items.length === 0 ? (
-                    <li className="text-[13px] text-muted-foreground">No file is in this column.</li>
-                  ) : null}
-                  {items.map((c) => (
-                    <li key={c.m.acq.acquisition_id}>
-                      <CardView c={c} />
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            );
-          })}
-        </div>
-        </div>
+              ) : null}
+            </>
+          );
+        })()
       ) : (
         <>
-        <div className="mb-4">
-          <label htmlFor="sort" className="block text-[13px] text-muted-foreground">Sort by</label>
-          <select
-            id="sort"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-             className="mt-1 rounded-[var(--mc-radius-control)] border border-border bg-background px-3 py-2 text-[15px]"
-          >
-            <option value="owner">Owner</option>
-            <option value="phase">Phase</option>
-            <option value="days">Days to award</option>
-            <option value="priority">Priority</option>
-          </select>
-        </div>
-        <RowKeysHint />
-        <TableScrollRegion className="mt-3" label="Work Queue files table, scrolls horizontally">
-        <table className="w-full border border-border bg-background text-[13px] leading-[18px] max-md:block">
+        <RowKeysHint className="mb-3" />
+        <div className="mc-dt-wrap mc-wq-table-wrap" role="region" aria-label="Work Queue files table" tabIndex={0}>
+        <table className="mc-dt mc-wq-table max-md:block">
           <thead className="max-md:hidden">
             <tr className="border-b border-border text-left">
-              <th scope="col" className="p-2">Acquisition</th>
-              <th scope="col" className="p-2 whitespace-nowrap">Priority</th>
-              <th scope="col" className="p-2">Status</th>
-              <th scope="col" className="p-2">T±</th>
-              <th scope="col" className="p-2">Owner</th>
-              <th scope="col" className="p-2">Next task</th>
-              <th scope="col" className="p-2">Waiting on</th>
-              <th scope="col" className="p-2">Phase</th>
+              <th scope="col">Acquisition</th>
+              <th scope="col" className="whitespace-nowrap">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">T±</th>
+              <th scope="col">Owner</th>
+              <th scope="col">Next task</th>
+              <th scope="col">Waiting on</th>
+              <th scope="col">Phase</th>
             </tr>
           </thead>
           <tbody ref={rowsRef} className="max-md:block">
@@ -445,16 +427,16 @@ function WorkQueuePage() {
                 key={c.acquisitionId}
                 data-row-nav
                 tabIndex={0}
-                className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} border-b border-border align-top last:border-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary max-md:mb-3 max-md:block max-md:border max-md:p-3 max-md:last:border`}
+                className={`mc-work-table-row ${missionReadinessClass(c.readiness.state, "is")} align-top focus:outline-none focus-visible:ring-2 focus-visible:ring-primary max-md:mb-3 max-md:block max-md:border max-md:p-3 max-md:last:border`}
               >
-                <td data-label="Acquisition" className="p-2 break-words max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">
+                <td data-label="Acquisition" className="break-words max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">
                   <Link
                     to="/files/$acquisitionId"
                     params={{ acquisitionId: c.acquisitionId }}
-                    className="text-primary hover:text-primary-hover"
+                    className="mc-files-link"
                   >
-                    <span className="block text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span>
-                    <span className="block font-medium">{c.title}</span>
+                    <span className="mc-files-id" data-numeric>{c.acquisitionId}</span>
+                    <span className="mc-files-title">{c.title}</span>
                   </Link>
                   <Link
                     to="/files/$acquisitionId"
@@ -475,33 +457,33 @@ function WorkQueuePage() {
                       {c.nextTask} on {c.acquisitionId}
                     </Link>
                   ) : null}
-                  <span className="mt-1 block text-[12px] text-muted-foreground">{c.value} · {c.method}</span>
-                  <span className="mt-1 block text-[12px] text-muted-foreground">{c.mission}</span>
+                  <span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]">{c.value} · {c.method}</span>
+                  <span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]">{c.mission}</span>
                 </td>
-                <td data-label="Priority" className="p-2 whitespace-nowrap max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
-                <td data-label="Status" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><MissionReadinessChip state={c.readiness.state} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[12px] text-muted-foreground">Column: {COLUMN_LABEL[c.column]}</span></td>
-                <td data-label="Countdown" className="p-2 max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
+                <td data-label="Priority" className="whitespace-nowrap max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><PriorityBand priority={c.priority} /></td>
+                <td data-label="Status" className="max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]"><StatusChip label={c.readiness.state} tone={READINESS_TONE[c.readiness.state]} /><WorkTriageSignal readiness={c.readiness} /><span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]">Column: {COLUMN_LABEL[c.column]}</span></td>
+                <td data-label="Countdown" className="max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]" data-numeric>
                   <span className="whitespace-nowrap max-md:whitespace-normal"><LaunchCountdownCompact view={overviewCountdownView(c.m)} hideBadge={overviewCountdownView(c.m).mode === "hold"} /></span>
                   {c.readiness.state === "LAUNCHED" ? null : (
-                    <span className="mt-1 block text-[12px] leading-[16px] text-muted-foreground">
+                    <span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]">
                       {c.confidence.sentence}
                     </span>
                   )}
                 </td>
-                <td data-label="Owner" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
-                <td data-label="Next task" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
-                <td data-label="Waiting on" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
-                <td data-label="Phase" className="p-2 break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[12px] text-muted-foreground" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
+                <td data-label="Owner" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.owner}</td>
+                <td data-label="Next task" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.nextTask}</td>
+                <td data-label="Waiting on" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.dependency}</td>
+                <td data-label="Phase" className="break-words max-md:mt-3 max-md:block max-md:h-auto max-md:min-h-0 max-md:p-0 max-md:before:mb-1 max-md:before:block max-md:before:text-[12px] max-md:before:font-medium max-md:before:text-muted-foreground max-md:before:content-[attr(data-label)]">{c.m.currentPhase ?? "Not started"}<span className="mt-1 block text-[14px] leading-5 text-[var(--mc-meta-ink)]" data-numeric>{c.daysInPhase ?? "Not recorded"} days in phase</span></td>
               </tr>
             ))}
           </tbody>
         </table>
-        </TableScrollRegion>
+        </div>
         </>
       )}
 
-      <p className="mt-6 text-[13px] text-muted-foreground" data-numeric>
-        {filtered.length} of {cards.length} files shown. Today is {today}.
+      <p className="mt-6 text-[14px] text-[var(--mc-meta-ink)]" data-numeric>
+        Today is {today}.
       </p>
       <PilotKnownGapsLine className="mt-8" />
     </AppShell>
@@ -509,35 +491,48 @@ function WorkQueuePage() {
 }
 
 function CardView({ c }: { c: Card }) {
+  const view = overviewCountdownView(c.m);
   return (
     <Link
       to="/files/$acquisitionId"
       params={{ acquisitionId: c.acquisitionId }}
-      className={`mc-work-card ${missionReadinessClass(c.readiness.state, "is")} block transition-colors duration-150 hover:border-primary`}
+      className={`mc-work-card mc-wq-card ${missionReadinessClass(c.readiness.state, "is")}`}
     >
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <div className="min-w-0">
-          <span className="text-[12px] text-muted-foreground" data-numeric>{c.acquisitionId}</span>
-          <p className="mt-1 break-words text-[15px] leading-[22px] font-medium">
-            {c.title}
-          </p>
-        </div>
-        <MissionReadinessChip state={c.readiness.state} />
+      <div className="mc-wq-card-top">
+        <span className="mc-files-id" data-numeric>{c.acquisitionId}</span>
+        <StatusChip label={c.readiness.state} tone={READINESS_TONE[c.readiness.state]} />
       </div>
-      <div className="mt-3 flex min-w-0 flex-wrap items-end justify-between gap-3 border-t border-border pt-3">
+      <p className="mc-wq-card-title">{c.title}</p>
+      <div className="mc-wq-card-t">
         <div>
-          <p className="whitespace-nowrap text-[24px] leading-7 font-semibold max-xl:whitespace-normal" data-numeric><LaunchCountdownCompact view={overviewCountdownView(c.m)} hideBadge={overviewCountdownView(c.m).mode === "hold"} /></p>
-          <p className="text-[12px] text-muted-foreground">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
+          <p className="mc-wq-card-count" data-numeric>
+            <LaunchCountdownCompact view={view} hideBadge={view.mode === "hold"} />
+          </p>
+          <p className="mc-wq-card-meta">{c.readiness.state === "LAUNCHED" ? "Since award" : "To award"}</p>
         </div>
         <PriorityBand priority={c.priority} />
       </div>
       <WorkTriageSignal readiness={c.readiness} />
-      <p className="mt-3 text-[13px] font-medium">Next: {c.nextTask}</p>
-      <p className="mt-2 break-words text-[12px] leading-4 text-muted-foreground">{c.mission} · {c.value} · {c.method}</p>
-      <p className="mt-1 text-[12px] leading-4 text-muted-foreground">Owner: {c.owner} · Waiting on: {c.dependency}</p>
-      <p className="mt-1 text-[12px] leading-4 text-muted-foreground" data-numeric>
-        Phase: {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
+      <p className="mc-wq-card-next">
+        <span className="mc-wq-card-label">Next</span> {c.nextTask}
       </p>
+      <dl className="mc-wq-card-facts">
+        <div>
+          <dt>Owner</dt>
+          <dd>{c.owner}</dd>
+        </div>
+        <div>
+          <dt>Waiting on</dt>
+          <dd>{c.dependency}</dd>
+        </div>
+        <div>
+          <dt>Phase</dt>
+          <dd data-numeric>
+            {c.m.currentPhase ?? "Not started"} · {c.daysInPhase ?? "Not recorded"} days in phase
+          </dd>
+        </div>
+      </dl>
+      <p className="mc-wq-card-meta">{c.mission} · {c.value} · {c.method}</p>
     </Link>
   );
 }

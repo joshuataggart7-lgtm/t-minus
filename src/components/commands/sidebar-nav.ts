@@ -14,9 +14,17 @@ export type SidebarItem = ReturnType<typeof navFor>[number];
  * The pages each narrower role sees first. Everything else that role could
  * already open stays available under a collapsed "More" group and in the
  * command menu; nothing is removed and no route or permission changes.
- * Executive, Contracting and Administrator keep the full grouped list.
+ * Executive and Administrator keep the full grouped list. Contracting gets its
+ * desk first, with the leadership pages (Executive Overview, Leadership digest,
+ * Reporting views) under "More" like every other narrower role.
  */
 export const PRIMARY_NAV: Partial<Record<PersonaRole, readonly string[]>> = {
+  specialist: [
+    "Today", "Work Queue", "Files", "Intake", "Estimate",
+    "Templates", "Checks", "Deviations",
+    "Audit Log", "Watch", "Directive compliance", "Clause changes", "Escalations",
+    "Center configuration", "Announcements",
+  ],
   requester: ["Requester portal", "Intake", "Files", "Announcements"],
   reviewer: ["Reviewer inbox", "Files", "Audit Log", "Escalations", "Announcements"],
   hq: [
@@ -29,7 +37,7 @@ export const PRIMARY_NAV: Partial<Record<PersonaRole, readonly string[]>> = {
 export const MORE_GROUP_LABEL = "More";
 
 function primaryLabels(roles: PersonaRole[]): Set<string> | null {
-  if (roles.some((r) => r === "administrator" || r === "executive" || r === "specialist")) return null;
+  if (roles.some((r) => r === "administrator" || r === "executive")) return null;
   const lists = roles.map((r) => PRIMARY_NAV[r]).filter((l): l is readonly string[] => Boolean(l));
   return lists.length ? new Set(lists.flat()) : null;
 }

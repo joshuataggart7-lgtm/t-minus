@@ -1,6 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
+import { SEEDED_USERS } from "@/lib/roles";
+import { AccountMenu, DemoBadge } from "@/components/account-menu";
 import { sidebarNavGroups } from "@/components/commands/sidebar-nav";
 import { useRole } from "@/components/role-context";
 import { Orby } from "@/components/orby";
@@ -8,7 +9,7 @@ import { AnnouncementBanner } from "@/components/announcement-banner";
 import { GlobalSearch } from "@/components/global-search";
 import { Nova } from "@/components/nova";
 import { PresenterScreensBeat } from "@/components/presenter-screens-beat";
-import { usePresenter, setPresenter } from "@/lib/presenter";
+import { usePresenter } from "@/lib/presenter";
 import { useTriggerConfig } from "@/lib/use-trigger-config";
 
 import { cn } from "@/lib/utils";
@@ -19,15 +20,8 @@ import {
   ScrollText, Search, Send, ShieldAlert, ShieldCheck, SlidersHorizontal, TriangleAlert, X,
   type LucideIcon,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 /** Initials for the mobile account button: "J. Rivera (fictional CO)" reads "JR". */
-function initialsOf(name: string): string {
-  const words = name.replace(/\(.*?\)/g, " ").split(/[\s.]+/).filter(Boolean);
-  return (words.slice(0, 2).map((w) => w.charAt(0)).join("") || "?").toUpperCase();
-}
-
-
 // Icons are chosen so the meaning reads at a glance beside the label.
 const NAV_ICONS: Record<string, LucideIcon> = {
   "Executive Overview": Rocket, Today: CalendarClock, "Reviewer inbox": Inbox,
@@ -53,14 +47,13 @@ const drawerNavFocus = { pending: false, at: 0 };
  */
 export function AppShell({ children, wide = false, overviewMode = false, kit = false }: { children: ReactNode; wide?: boolean; overviewMode?: boolean; kit?: boolean }) {
 
-  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, signOut, profile, authState, readOnly } = useRole();
+  const { role, roles, user, setRole, authMessage, isAnonymous, canSwitchPersona, profile, authState, readOnly } = useRole();
   useTriggerConfig();
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   // Below 640px the header keeps one row: search opens on demand and the
-  // account controls live in a sheet.
+  // account controls live in the account menu.
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const [isDrawerViewport, setIsDrawerViewport] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
@@ -98,7 +91,6 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
   }, [canSwitchPersona]); // eslint-disable-line react-hooks/exhaustive-deps
   const openAcquisitionId = /^\/(?:files|documents\/[^/]+|forms\/[^/]+)\/([^/]+)/.exec(pathname)?.[1] ?? null;
   const presenter = usePresenter();
-  const isAdministrator = roles.includes("administrator");
   const navGroups = sidebarNavGroups(roles, presenter, readOnly);
   const activeGroupLabel = navGroups.find((group) =>
     group.items.some((item) => pathname === item.to || (item.to === "/overview" && pathname === "/")),
@@ -229,35 +221,6 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
   );
 
 
-  const personaSelect = (id: string, inSheet = false) => (
-    <>
-      <label htmlFor={id} className="sr-only">Signed in as</label>
-      <select
-        id={id}
-        value={role ?? ""}
-        title={SEEDED_USERS.find((u) => u.role === role)?.title}
-        onChange={(e) => {
-          const r = e.target.value as PersonaRole;
-          setRole(r);
-          setAccountOpen(false);
-          const landing = SEEDED_USERS.find((u) => u.role === r)?.landing;
-          if (landing) void navigate({ to: landing });
-        }}
-        className={
-          inSheet
-            ? "w-full rounded-lg border border-border bg-background px-3 py-2 type-body"
-            : "min-w-0 max-w-36 truncate rounded-lg border border-chrome-structure bg-chrome px-2 py-2 type-meta text-chrome-foreground min-[1440px]:max-w-56 min-[1440px]:px-3"
-        }
-      >
-        {SEEDED_USERS.map((u) => (
-          <option key={u.role} value={u.role} title={`${u.title}, ${u.name}`}>
-            {ROLE_LABELS[u.role]}
-          </option>
-        ))}
-      </select>
-    </>
-  );
-
   return (
     <div className={cn("min-h-screen bg-canvas text-foreground", overviewMode && "mc-overview-shell")}>
       <a
@@ -315,104 +278,11 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
           </button>
           {presenter ? null : <AnnouncementBanner />}
           <div className="contents max-sm:hidden"><Nova acquisitionId={openAcquisitionId} /></div>
-          <button
-            type="button"
-            onClick={() => setAccountOpen(true)}
-            aria-label={`Account: ${user.name}`}
-            className="grid size-9 shrink-0 place-items-center rounded-full border border-chrome-structure type-meta font-medium text-chrome-foreground sm:hidden"
-          >
-            {initialsOf(user.name)}
-          </button>
-          {isAdministrator ? (
-            <button
-              type="button"
-              onClick={() => setPresenter(!presenter)}
-              aria-pressed={presenter}
-              className={cn(
-                "shrink-0 rounded-lg border border-chrome-structure px-2 py-1.5 type-meta max-sm:hidden min-[1440px]:px-3",
-                presenter ? "text-chrome-foreground" : "text-chrome-muted",
-              )}
-            >
-              Presenter
-            </button>
-          ) : null}
-          {isAnonymous ? (
-            <span className="shrink-0 rounded-lg border border-chrome-structure px-1.5 py-1 type-meta text-chrome-muted max-sm:hidden min-[1440px]:px-2">
-              Demo
-            </span>
-          ) : null}
-          {canSwitchPersona ? (
-            <span className="contents max-sm:hidden">{personaSelect("role-toggle")}</span>
-          ) : null}
-          <div className="flex min-w-0 items-center gap-2 max-sm:hidden">
-            <Link
-              to="/center-config"
-              hash="my-record"
-              className="min-w-0 max-w-32 truncate type-meta text-chrome-foreground hover:text-chrome-foreground min-[1440px]:max-w-40"
-              title={user.name}
-            >
-              {user.name}
-            </Link>
-            {/* The persona select already names the role; the chip shows only without it. */}
-            {canSwitchPersona ? null : <span
-              className="flex min-w-0 items-center gap-1 overflow-hidden"
-              title={roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}
-            >
-              {roles.slice(0, 1).map((assignedRole) => (
-                <span key={assignedRole} className="min-w-0 max-w-20 truncate rounded-lg border border-chrome-structure px-1.5 py-0.5 text-[11px] text-chrome-muted min-[1440px]:max-w-32 min-[1440px]:px-2">
-                  {ROLE_LABELS[assignedRole]}
-                </span>
-              ))}
-              {roles.length > 1 ? (
-                <span className="shrink-0 rounded-lg border border-chrome-structure px-2 py-0.5 text-[11px] text-chrome-muted" data-numeric>
-                  +{roles.length - 1}
-                </span>
-              ) : null}
-            </span>}
-          </div>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="shrink-0 type-meta text-chrome-foreground hover:text-chrome-foreground max-sm:hidden"
-          >
-            Sign out
-          </button>
+          {isAnonymous ? <DemoBadge /> : null}
+          <AccountMenu />
         </div>
       </header>
 
-      <Sheet open={accountOpen} onOpenChange={setAccountOpen}>
-        <SheetContent side="right" className="w-[min(320px,90vw)]">
-          <SheetHeader>
-            <SheetTitle>Account</SheetTitle>
-          </SheetHeader>
-          <div className="mt-4 grid gap-4 type-body">
-            <Link to="/center-config" hash="my-record" onClick={() => setAccountOpen(false)} className="text-primary">
-              {user.name}
-            </Link>
-            {canSwitchPersona ? (
-              <div className="grid gap-1">
-                <span className="type-meta text-muted-foreground">Signed in as</span>
-                {personaSelect("role-toggle-mobile", true)}
-              </div>
-            ) : (
-              <p className="type-meta text-muted-foreground">{roles.map((assignedRole) => ROLE_LABELS[assignedRole]).join(", ")}</p>
-            )}
-            {isAnonymous || presenter ? (
-              <p className="type-meta text-muted-foreground">
-                {[isAnonymous ? "Demo session" : null, presenter ? "Presenter mode on" : null].filter(Boolean).join(" · ")}
-              </p>
-            ) : null}
-            {isAdministrator ? (
-              <button type="button" onClick={() => setPresenter(!presenter)} aria-pressed={presenter} className="justify-self-start rounded-lg border border-border px-3 py-1.5 type-meta">
-                Presenter
-              </button>
-            ) : null}
-            <button type="button" onClick={() => { setAccountOpen(false); void signOut(); }} className="justify-self-start text-primary">
-              Sign out
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
 
        <div id="urgent-announcement-slot" {...inertProps} />
 

@@ -41,8 +41,8 @@ export function SectionJPanel({
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={`${r.nf_1098_tab}-${r.label}-${r.file_name}`} className="border-b border-border align-top">
+            {rows.map((r, i) => (
+              <tr key={`${r.nf_1098_tab}-${r.label}-${r.file_name}-${i}`} className="border-b border-border align-top">
                 <td className="p-2" data-numeric>{r.nf_1098_tab}</td>
                 <td className="p-2">{r.label}</td>
                 <td className="p-2 text-muted-foreground">{r.file_name}</td>

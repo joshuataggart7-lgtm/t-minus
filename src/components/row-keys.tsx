@@ -54,11 +54,14 @@ export function useRowKeys(containerRef: React.RefObject<HTMLElement | null>) {
 }
 
 /** The quiet one-line hint that tells an officer the keys exist. */
-export function RowKeysHint() {
+export function RowKeysHint({ className }: { className?: string }) {
   return (
-    <p className="text-[13px] leading-[18px] text-muted-foreground">
-      Keyboard: J and K move between rows, E opens the launch sequence for the focused file, W opens its write
-      action. Keys are ignored while you are typing.
+    <p className={`mc-row-keys${className ? ` ${className}` : ""}`}>
+      <span className="mc-row-keys-label">Keyboard</span>
+      <span><kbd>J</kbd> <kbd>K</kbd> move between rows</span>
+      <span><kbd>E</kbd> opens the launch sequence</span>
+      <span><kbd>W</kbd> opens the write action</span>
+      <span className="mc-row-keys-note">Ignored while you type.</span>
     </p>
   );
 }
