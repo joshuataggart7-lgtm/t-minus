@@ -69,6 +69,7 @@ import {
   type BoardEntry,
   type PhaseView,
   type RequiredDoc,
+  openRequiredDocs,
 } from "@/lib/launch-sequence";
 import type { PhasePlanRow } from "@/lib/launch-sequence";
 import { awardConfidence, historyFrom } from "@/lib/confidence";
@@ -161,6 +162,8 @@ import {
   saveIgceClins,
   uploadAttachment,
   type AttachmentRow,
+  isSampleRecord,
+  SAMPLE_RECORD_NOTE,
 } from "@/lib/attachments";
 import { alsoRecordedHold, holdOwnerDisplay, resolveHold, attachedKeys as keysFrom } from "@/lib/hold";
 import { TEMPLATES } from "@/lib/template-engine";
@@ -1015,13 +1018,8 @@ function FilePage() {
 
   const missingCurrentRequirements = useMemo(() => {
     if (!acq || !currentPhase) return [];
-    return currentPhase.docs.filter((doc) => {
-      if (doc.optional) return false;
-      // Before award, a row that may follow award (RFO FAR 6.103-2(d)) does not block exit.
-      if (doc.dueAfterAward && effectiveState !== "launched") return false;
-      const key = doc.docKey ?? docKey(doc.field, doc.label);
-      return docSatisfied(doc, acq, Boolean(attachmentFor(key)), savedKeys) === false;
-    });
+    // The shared open-required rule (launch-sequence.ts), on this phase's rows.
+    return openRequiredDocs(currentPhase.docs, acq, { attachedKeys: keysFrom(attachments), savedKeys, clock: effectiveState });
   }, [acq, currentPhase, attachments, savedKeys, effectiveState]);
 
   // Display only (ep05 C4): a phase marked complete while one of its Required
@@ -1032,13 +1030,9 @@ function FilePage() {
     if (!acq) return out;
     for (const p of phases) {
       if (p.status !== "complete") continue;
-      const open = p.docs.filter((d) => {
-        if (d.optional) return false;
-        if (d.dueAfterAward && effectiveState !== "launched") return false;
-        const key = d.docKey ?? docKey(d.field, d.label);
-        const generator = generatorKey(d);
-        return docSatisfied(d, acq, d.field || generator || d.attachOnly ? Boolean(attachmentFor(key)) : undefined, savedKeys) === false;
-      });
+      // The same list the sequence computed for this phase (one shared rule).
+      const labels = new Set(p.openRequired ?? []);
+      const open = p.docs.filter((d) => labels.has(d.label));
       if (open.length) out.set(p.phase, open);
     }
     return out;
@@ -1663,6 +1657,10 @@ function FilePage() {
   });
 
   async function openAttachment(row: AttachmentRow) {
+    if (isSampleRecord(row)) {
+      setBanner(`${row.file_name}: ${SAMPLE_RECORD_NOTE.toLowerCase()}. This fictional file is listed on the record only.`);
+      return;
+    }
     const url = await downloadAttachment(row);
     if (url) window.open(url, "_blank", "noopener");
     else setBanner("That file could not be opened. Try attaching it again.");
@@ -3229,6 +3227,7 @@ function FilePage() {
                               className="text-[13px] text-primary"
                             >
                               {attached.file_name}
+                              {isSampleRecord(attached) ? ` (${SAMPLE_RECORD_NOTE.toLowerCase()})` : ""}
                             </button>
                           ) : null}
                           {canWrite ? (
@@ -3395,6 +3394,7 @@ function FilePage() {
                                className="text-[13px] text-primary"
                              >
                                {attached.file_name}
+                              {isSampleRecord(attached) ? ` (${SAMPLE_RECORD_NOTE.toLowerCase()})` : ""}
                              </button>
                            ) : null}
                            {canWrite ? (
@@ -3493,6 +3493,7 @@ function FilePage() {
                               className="text-[13px] text-primary"
                             >
                               {attached.file_name}
+                              {isSampleRecord(attached) ? ` (${SAMPLE_RECORD_NOTE.toLowerCase()})` : ""}
                             </button>
                           ) : null}
 

@@ -1140,7 +1140,7 @@ const cbaNotification: TemplateDef = {
 const CHECKBOX_SYSTEM = ["", "Adequate", "Inadequate", "Other", "N/A"];
 const ppm: TemplateDef = {
   key: "ppm",
-  name: "Prenegotiation Position Memorandum (PPM), before negotiations",
+  name: "Prenegotiation Position Memorandum (PPM)",
   tab: "063",
   layout: "memo",
   badge: {

@@ -1185,6 +1185,26 @@ export function generatorKey(doc: RequiredDoc): string | null {
   return doc.templateKey ?? doc.formKey ?? null;
 }
 
+/**
+ * The one rule for a required row that is still open: not offered, not a row
+ * that may wait until after award while the clock has not launched, and not
+ * satisfied by a saved version, an attached copy or the record. Every surface
+ * that counts open required items reads it from here.
+ */
+export function openRequiredDocs(
+  docs: readonly RequiredDoc[],
+  acq: AcqRow,
+  ctx: { attachedKeys?: Set<string> | undefined; savedKeys?: Set<string> | undefined; clock: string | null | undefined },
+): RequiredDoc[] {
+  return docs.filter((d) => {
+    if (d.optional) return false;
+    if ((d.dueAfterAward || d.mayFollowAward) && ctx.clock !== "launched") return false;
+    if (generatorKey(d) && !d.field && !ctx.savedKeys) return false;
+    const hasFile = ctx.attachedKeys ? ctx.attachedKeys.has(docRowKey(d)) : undefined;
+    return docSatisfied(d, acq, hasFile, ctx.savedKeys) === false;
+  });
+}
+
 export function docSatisfied(
   doc: RequiredDoc,
   acq: AcqRow,
@@ -1665,17 +1685,8 @@ export function buildSequence(
   };
 
   const clockNow = String(acq.clock_state ?? "").toLowerCase();
-  const unmet = (docs: RequiredDoc[]): RequiredDoc[] => {
-    if (!known) return [];
-    return docs.filter((d) => {
-      if (d.optional) return false;
-      if (d.dueAfterAward && clockNow !== "launched") return false;
-      if (d.mayFollowAward && clockNow !== "launched") return false;
-      if (generatorKey(d) && !d.field && !known.savedKeys) return false;
-      const hasFile = known.attachedKeys ? known.attachedKeys.has(docRowKey(d)) : undefined;
-      return docSatisfied(d, acq, hasFile, known.savedKeys) === false;
-    });
-  };
+  const unmet = (docs: RequiredDoc[]): RequiredDoc[] =>
+    known ? openRequiredDocs(docs, acq, { ...known, clock: clockNow }) : [];
   const unfinished = (_phase: string, docs: RequiredDoc[]) => unmet(docs).length > 0;
 
   const planPhases = rows.map((r) => r.phase as string);
