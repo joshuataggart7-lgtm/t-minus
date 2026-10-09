@@ -138,7 +138,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     // session, so the first render of the app already uses it.
     const applySession = (next: Session) => {
       if (next.user?.is_anonymous) {
-        setPersonaRole(readSavedPersona() ?? "executive");
+        const asked = new URLSearchParams(window.location.search).get("as");
+        const fromLink = SEEDED_USERS.find((u) => u.role === asked)?.role;
+        if (fromLink) savePersona(fromLink);
+        setPersonaRole(fromLink ?? readSavedPersona() ?? "executive");
         setPersonaRestored(true);
       }
       setSession(next);

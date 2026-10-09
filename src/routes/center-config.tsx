@@ -208,7 +208,7 @@ function CenterConfigPage() {
                 <option value="">Choose a Center</option>
                 {(q.data?.centers ?? []).map((c) => (
                   <option key={c.center_code} value={c.center_code}>
-                    {c.center_code} — {c.center_name}
+                    {c.center_code} · {c.center_name}
                   </option>
                 ))}
               </select>

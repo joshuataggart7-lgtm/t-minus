@@ -792,7 +792,7 @@ function IntakePage() {
             >
               {CENTERS.map(([code, name]) => (
                 <option key={code} value={code}>
-                  {code} — {name}
+                  {code} · {name}
                 </option>
               ))}
             </select>
@@ -1011,7 +1011,7 @@ function IntakePage() {
             {psc ? (
               <p className="mt-2 text-[13px] text-muted-foreground">
                 {psc.state === "valid" && psc.officialName ? (
-                  `${psc.code} — ${psc.officialName}`
+                  `${psc.code} · ${psc.officialName}`
                 ) : (
                   <StatusMark color="var(--attention)">{psc.message}</StatusMark>
                 )}
@@ -1103,7 +1103,7 @@ function IntakePage() {
             <Field label="Authority for other than full and open competition" htmlFor="jofoc" error={err("jofoc_authority_citation")}>
               <select id="jofoc" className={inputClass} value={facts.jofoc_authority_citation} onChange={(e) => set("jofoc_authority_citation", e.target.value)}>
                 <option value="">Choose an authority</option>
-                {authorityOptions.map((option) => <option key={`${option.citation}-${option.description}`} value={`${option.citation} — ${option.description}`}>{option.citation} — {option.description}</option>)}
+                {authorityOptions.map((option) => <option key={`${option.citation}-${option.description}`} value={`${option.citation} · ${option.description}`}>{option.citation} · {option.description}</option>)}
               </select>
             </Field>
           ) : null}
