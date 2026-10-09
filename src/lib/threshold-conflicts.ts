@@ -53,13 +53,10 @@ export function formatThresholdValue(value: number | null): string {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
-/** The seeded flag "CONFLICT" reads as a sentence. The stored note is not rewritten. */
+/** Only the bare flag reads as a sentence. A note that already has text is shown as stored. */
 export function plainConflictNote(note: string | null | undefined): string {
   const text = String(note ?? "").trim();
   if (!text) return "";
-  if (!/^CONFLICT\b/i.test(text)) return text;
-  const rest = text.replace(/^CONFLICT\b[:\s-]*/i, "").trim();
-  if (!rest || /^with (the )?statute\.?$/i.test(rest)) return "Conflicts with the statute.";
-  const detail = rest.charAt(0).toLowerCase() + rest.slice(1);
-  return `Conflicts with the statute: ${detail.endsWith(".") ? detail : `${detail}.`}`;
+  if (/^conflict$/i.test(text)) return "Conflicts with the statute.";
+  return text;
 }

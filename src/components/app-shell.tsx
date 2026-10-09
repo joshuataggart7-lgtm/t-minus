@@ -78,17 +78,23 @@ export function AppShell({ children, wide = false, overviewMode = false, kit = f
     });
   };
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const locationHref = useRouterState({ select: (s) => s.location.href });
   const navigate = useNavigate();
 
-  // Demo only: ?as=<role> opens that persona's home. Never runs for real accounts.
+  // Demo only: ?as=<role> opens that persona's home. Runs again whenever the
+  // address changes, so a link clicked inside the app switches too. Never runs
+  // for a real account.
   useEffect(() => {
     if (!canSwitchPersona) return;
-    const as = new URLSearchParams(window.location.search).get("as");
+    const as = new URL(locationHref, window.location.origin).searchParams.get("as");
     const match = SEEDED_USERS.find((u) => u.role === as);
     if (!match) return;
     setRole(match.role);
-    void navigate({ to: match.landing, replace: true });
-  }, [canSwitchPersona]); // eslint-disable-line react-hooks/exhaustive-deps
+    const query = new URL(locationHref, window.location.origin).searchParams;
+    if (pathname !== match.landing || query.has("as")) {
+      void navigate({ to: match.landing, replace: true });
+    }
+  }, [canSwitchPersona, locationHref]); // eslint-disable-line react-hooks/exhaustive-deps
   // An evaluator-only session never gets the open-file entry: file pages are
   // outside the evaluation workspace. Everyone else keeps it.
   const openAcquisitionId = isEvaluatorOnly(roles)

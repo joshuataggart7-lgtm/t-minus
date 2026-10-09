@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { REPORT_VIEWS, rowsToCsv, type ReportViewName } from "@/lib/reporting";
 import { useOperationalDisplay } from "@/components/mission-control/use-operational-display";
 import { acquisitionTypeLabel } from "@/lib/phase-plan-key";
+import { formatDate } from "@/lib/metrics";
 
 export const Route = createFileRoute("/reporting")({
   head: () => ({
@@ -93,7 +94,8 @@ function headerLabel(key: string): string {
     poll_id: "Review",
     current_phase: "Phase",
     clock_state: "Clock",
-    status_word: "Status",
+    status: "File status",
+    status_word: "Status word",
     hold_reason: "Hold reason",
     hold_owner: "Hold owner",
     on_hold: "On hold",
@@ -105,6 +107,55 @@ function headerLabel(key: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
+
+
+const MONEY_COLUMNS = new Set(["estimated_value"]);
+
+function clockLabel(value: string): string {
+  const known: Record<string, string> = {
+    launched: "Launched",
+    forecast: "Forecast",
+    hold: "On hold",
+    running: "Running",
+    "not started": "Not started",
+    stopped: "Stopped",
+    scrubbed: "Scrubbed",
+    overdue: "Overdue",
+  };
+  return known[value.trim().toLowerCase()] ?? value;
+}
+
+function reportStamp(value: string): string {
+  const when = new Date(value);
+  if (Number.isNaN(when.getTime())) return value;
+  const formatted = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(when);
+  return `${formatted} CT`;
+}
+
+function moneyLabel(value: number): string {
+  return value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+/** Display only. The CSV download still writes the stored values. */
+function plainCell(column: string, raw: unknown): string | null {
+  if (raw === null || raw === undefined || raw === "") return null;
+  if (typeof raw === "boolean" || raw === "true" || raw === "false") return raw === true || raw === "true" ? "Yes" : "No";
+  if (MONEY_COLUMNS.has(column)) {
+    const amount = typeof raw === "number" ? raw : typeof raw === "string" && /^-?\d+(\.\d+)?$/.test(raw) ? Number(raw) : null;
+    if (amount !== null && !Number.isNaN(amount)) return moneyLabel(amount);
+  }
+  if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}T/.test(raw)) return reportStamp(raw);
+  if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return formatDate(raw);
+  if (column === "clock_state") return clockLabel(String(raw));
+  return String(raw);
+}
 
 function competitionLabel(value: string): string {
   const key = value.trim().toLowerCase();
@@ -132,18 +183,18 @@ function displayCell(row: Record<string, unknown>, column: string) {
       if (raw === null || raw === undefined || raw === "") return null;
       return competitionLabel(String(raw));
     }
-    if (open !== "v_report_acquisitions" || !["current_phase", "clock_state", "status", "status_word", "on_hold", "hold_reason", "hold_owner"].includes(column)) {
-      return row[column] === null || row[column] === undefined ? null : String(row[column]);
+    const operationalColumn = ["current_phase", "clock_state", "on_hold", "hold_reason", "hold_owner"].includes(column);
+    if (open === "v_report_acquisitions" && operationalColumn) {
+      const acquisitionId = typeof row["acquisition_id"] === "string" ? row["acquisition_id"] : "";
+      const display = operational.byId.get(acquisitionId);
+      if (!display) return operational.isLoading ? "Status loading" : "Status unavailable";
+      if (column === "current_phase") return display.phase;
+      if (column === "clock_state") return clockLabel(display.clockMode);
+      if (column === "on_hold") return display.readiness === "HOLD" ? "Yes" : "No";
+      if (column === "hold_reason") return display.holdReason ?? null;
+      if (column === "hold_owner") return display.holdOwner ?? null;
     }
-    const acquisitionId = typeof row["acquisition_id"] === "string" ? row["acquisition_id"] : "";
-    const display = operational.byId.get(acquisitionId);
-    if (!display) return operational.isLoading ? "Status loading" : "Status unavailable";
-    if (column === "current_phase") return display.phase;
-    if (column === "clock_state") return display.clockMode;
-    if (column === "on_hold") return display.readiness === "HOLD" ? "true" : "false";
-    if (column === "hold_reason") return display.holdReason ?? null;
-    if (column === "hold_owner") return display.holdOwner ?? null;
-    return display.readiness;
+    return plainCell(column, row[column]);
   }
 
   const openView = REPORT_VIEWS.find((v) => v.view === open);
@@ -207,7 +258,7 @@ function displayCell(row: Record<string, unknown>, column: string) {
           {preview.error ? <ErrorNote message="The view could not be read. Refresh the page to try again." /> : null}
           {open === "v_report_acquisitions" && preview.data?.length ? (
             <p className="mt-3 max-w-[80ch] text-[15px] leading-[22px] text-muted-foreground">
-              Phase, clock, status and hold on screen come from each file's operational state. The CSV carries the database view's columns unchanged.
+              Phase, clock, and hold on screen come from each file's operational state. File status and status word come from the view. The CSV carries the database view's columns unchanged.
             </p>
           ) : null}
           {preview.data ? (

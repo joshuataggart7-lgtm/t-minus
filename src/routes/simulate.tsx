@@ -137,8 +137,8 @@ function SimulatePage() {
         role="note"
         className="mc-work-summary mt-4 max-w-[80ch] text-sm text-muted-foreground"
       >
-        <strong className="text-foreground">Simulation · Sandbox — not saved.</strong>{" "}
-        Advisory only — no open file is changed by this screen.
+        <strong className="text-foreground">Simulation · Sandbox · not saved.</strong>{" "}
+        Advisory only · no open file is changed by this screen.
       </p>
 
       {q.isLoading ? <LoadingNote what="the rules and the files" /> : null}
