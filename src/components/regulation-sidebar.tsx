@@ -4,6 +4,7 @@ import { useRole } from "@/components/role-context";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney } from "@/lib/intake";
 import { CITE_STUB_NOTE } from "@/lib/cite-stub";
+import { ConflictNote } from "@/components/threshold-conflicts-panel";
 import {
   formatRefDate,
   loadRegulationRefs,
@@ -122,7 +123,7 @@ export function RegulationSidebar({
                   </div>
                   <p className="text-muted-foreground">{t.citation}</p>
                   <p className="text-muted-foreground">Tier: {tierLabel(t.tier)}</p>
-                  {t.note ? <p className="text-muted-foreground">{t.note}</p> : null}
+                  {t.note ? <ConflictNote note={t.note} className="text-muted-foreground" /> : null}
                 </li>
               ))}
             </ul>

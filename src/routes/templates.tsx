@@ -132,7 +132,7 @@ function TemplatesPage() {
           </p>
 
           {tabs.map((tab) => {
-            const sectionHeading = tab === NO_TAB ? "No tab" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`;
+            const sectionHeading = tab === NO_TAB ? "No tab" : /^[\s\u2013\u2014-]*$/.test(tab) ? "Tab not recorded" : tab === "DRD" ? "DRD (AW-DRD)" : `Tab ${tab}`;
             return (
             <section key={tab} className="mb-10">
               <h2 className="mb-3 text-[18px] leading-6 font-medium">
