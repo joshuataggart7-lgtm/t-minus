@@ -7,7 +7,7 @@ import {
   conflictRows,
   formatThresholdValue,
   loadThresholdRows,
-  plainConflictNote,
+  splitConflictNote,
 } from "@/lib/threshold-conflicts";
 import { AdvisoryTag } from "@/components/advisory-tag";
 
@@ -41,12 +41,28 @@ export function ThresholdConflictsPanel() {
                 {r.tier ? ` · ${r.tier}` : ""}
               </p>
               {r.note ? (
-                <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{plainConflictNote(r.note)}</p>
+                <ConflictNote note={r.note} className="mt-1 text-[13px] leading-[18px] text-muted-foreground" />
               ) : null}
             </li>
           ))}
         </ul>
       )}
     </section>
+  );
+}
+
+/** A stored note with its leading CONFLICT flag shown as a small tag. The rest reads as stored. */
+export function ConflictNote({ note, className }: { note: string | null | undefined; className?: string }) {
+  const { flagged, rest } = splitConflictNote(note);
+  if (!flagged && !rest) return null;
+  return (
+    <p className={className}>
+      {flagged ? (
+        <span className="mr-2 inline-flex items-center rounded-full border border-border px-2 text-[12px] leading-5 font-medium text-foreground">
+          Conflicts with the statute
+        </span>
+      ) : null}
+      {rest}
+    </p>
   );
 }

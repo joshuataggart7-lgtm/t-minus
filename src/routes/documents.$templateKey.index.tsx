@@ -67,7 +67,7 @@ function ChooseAcquisition() {
               params={{ templateKey, acquisitionId: a.acquisition_id }}
               className="text-primary"
             >
-              {a.acquisition_id} — {a.title}
+              {a.acquisition_id} · {a.title}
             </Link>
             <p className="text-[13px] text-muted-foreground">
               {a.center_code} · {phaseAlias(a.current_phase)}

@@ -315,7 +315,7 @@ export function GlobalSearch() {
                       className={`block w-full rounded-lg px-3 py-3 text-left hover:bg-canvas ${activeIndex === index ? "border-l-2 border-primary bg-canvas font-semibold text-foreground" : ""}`}
                     >
                       <span className="block text-[15px] leading-[22px] text-foreground">
-                        {r.acquisition_id} — {r.title ?? "Untitled"}
+                        {r.acquisition_id} · {r.title ?? "Untitled"}
                       </span>
                       <span className="block text-[13px] leading-[18px] text-muted-foreground">
                         {clockLine(operational.byId.get(r.acquisition_id), operational.isLoading)}

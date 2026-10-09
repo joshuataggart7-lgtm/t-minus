@@ -134,7 +134,7 @@ export function FormatScaffoldPanel({ scaffold, regionContext }: { scaffold: For
 
           <section>
             <h5 className="text-[15px] font-medium">
-              {scaffold.mode === "sf1449" ? "Attachments" : "Section J — List of attachments"}
+              {scaffold.mode === "sf1449" ? "Attachments" : "Section J · List of attachments"}
             </h5>
             {scaffold.attachments.length === 0 ? (
               <p className="mt-2 text-[13px] text-muted-foreground">{SECTION_J_EMPTY}</p>

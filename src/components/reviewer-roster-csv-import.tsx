@@ -81,7 +81,7 @@ export function checkReviewerCsv(
       title: (r["title"] ?? "").trim() || null,
       email: (r["email"] ?? "").trim() || null,
       skipped: seeded,
-      note: seeded ? "Skipped: seeded demo roster row — not overwritten." : "Will be saved.",
+      note: seeded ? "Skipped: seeded demo roster row, not overwritten." : "Will be saved.",
     });
   });
   return { rows, problems };

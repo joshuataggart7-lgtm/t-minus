@@ -86,8 +86,8 @@ export function PresenterScreensBeat() {
         </button>
       </div>
       <p className="mt-2 text-muted-foreground">
-        Pause — count the screens. Today that’s NCMS · NEAR · email · a spreadsheet. Same facts,
-        one file here. Not replacing NCMS — the desk that stops the bounce, then you key the
+        Pause. Count the screens. Today that’s NCMS · NEAR · email · a spreadsheet. Same facts,
+        one file here. Not replacing NCMS: the desk that stops the bounce, then you key the
         packet top to bottom.
       </p>
       <p className="mt-2 text-[13px] text-muted-foreground">
@@ -98,7 +98,7 @@ export function PresenterScreensBeat() {
         <a href="/about" className="text-primary underline-offset-2 hover:underline">About this prototype</a>.
       </p>
       <p className="mt-3 border-t border-border pt-3 text-[13px] text-muted-foreground">
-        Prototype. Local packet only — T-Minus writes nothing to NCMS, NEAR, or SAM.gov.
+        Prototype. Local packet only. T-Minus writes nothing to NCMS, NEAR, or SAM.gov.
       </p>
     </section>
   );

@@ -53,7 +53,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
               <tr key={r.document_id} className="border-b border-border align-top">
                 <td className="py-2 pr-3">{r.name}</td>
                 <td className="py-2 pr-3" data-numeric>
-                  {r.version ?? "—"}
+                  {r.version ?? "Not recorded"}
                 </td>
                 <td className="py-2 pr-3 text-muted-foreground">{textOrBlank(r.saved_by)}</td>
                 <td className="py-2 pr-3 text-muted-foreground" data-numeric>
@@ -65,7 +65,7 @@ export function DocumentVersionsPanel({ acquisitionId }: { acquisitionId: string
                 </td>
                 <td className="py-2 text-muted-foreground">
                   {r.official
-                    ? `Yes — ${stampOrBlank(r.filedAt)}${r.filedBy ? ` by ${r.filedBy}` : ""}`
+                    ? `Yes · ${stampOrBlank(r.filedAt)}${r.filedBy ? ` by ${r.filedBy}` : ""}`
                     : "Draft"}
                 </td>
               </tr>

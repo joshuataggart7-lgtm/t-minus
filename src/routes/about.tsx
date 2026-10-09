@@ -20,13 +20,13 @@ import { TableScrollRegion } from "@/components/table-scroll-region";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About T-Minus — Mission Acquisition Acceleration" },
+      { title: "About T-Minus · Mission Acquisition Acceleration" },
       {
         name: "description",
         content:
           "What T-Minus is and is not: a working prototype of mission acquisition acceleration, built on NASA's own rules, with fictional records only.",
       },
-      { property: "og:title", content: "About T-Minus — Mission Acquisition Acceleration" },
+      { property: "og:title", content: "About T-Minus · Mission Acquisition Acceleration" },
       {
         property: "og:description",
         content:

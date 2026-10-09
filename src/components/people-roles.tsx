@@ -110,8 +110,8 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
               const assigned = new Set((q.data?.memberships ?? []).filter((item) => item.user_id === row.id).map((item) => item.role));
               return (
                 <tr key={row.id} className="border-b border-border align-top">
-                  <td className="p-2">{row.display_name || "—"}</td>
-                  <td className="p-2">{row.email || "—"}</td>
+                  <td className="p-2">{row.display_name || "Not recorded"}</td>
+                  <td className="p-2">{row.email || "Not recorded"}</td>
                   <td className="p-2">
                     <fieldset className="flex flex-wrap gap-x-4 gap-y-2">
                       <legend className="sr-only">Roles for {row.email ?? row.id}</legend>

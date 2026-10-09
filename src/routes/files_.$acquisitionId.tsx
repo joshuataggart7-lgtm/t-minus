@@ -4,7 +4,7 @@ import { loadTechnicalRecord } from "@/lib/eqr-summary";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { auditActionLabel, auditFieldLabel, auditTextLabel, auditValueLabel, storedAs } from "@/lib/audit-display";
 import { checkDocsFrom, fileSelfCheck } from "@/lib/file-self-check";
-import { plainConflictNote } from "@/lib/threshold-conflicts";
+import { ConflictNote } from "@/components/threshold-conflicts-panel";
 import { changesSince, useLastLook, type LookRow } from "@/lib/since-last-look";
 import { SinceLastLookPanel } from "@/components/since-last-look-panel";
 import { FileSelfCheckPanel } from "@/components/file-self-check-panel";
@@ -1939,7 +1939,7 @@ function FilePage() {
                 ? "On hold"
                 : effectiveState === "launched"
                   ? "Launched"
-                  : (effectiveState ?? "—"),
+                  : (effectiveState ?? "Not recorded"),
           days,
           countdown: fileCountdownView,
           targetAwardDate: effectiveTargetAward,
@@ -5247,19 +5247,17 @@ function FilePage() {
                     ) : null}
                   </td>
                   <td className="p-2" data-numeric>
-                    {tv === null ? "—" : tv >= 1000 ? formatMoney(tv) : tv}
+                    {tv === null ? "Not recorded" : tv >= 1000 ? formatMoney(tv) : tv}
                   </td>
-                  <td className="p-2">{above === null ? "—" : above ? "At or above" : "Below"}</td>
+                  <td className="p-2">{above === null ? "Not recorded" : above ? "At or above" : "Below"}</td>
                   <td className="p-2">{t.tier}</td>
                   <td className="p-2" data-numeric>
-                    {t.effective_date ?? "—"}
+                    {t.effective_date ?? "Not recorded"}
                   </td>
                   <td className="p-2 text-muted-foreground">
                     {t.citation}
                     {t.note && /conflict/i.test(t.note) ? (
-                      <StatusMark color="var(--attention)" className="mt-1 block">
-                        {plainConflictNote(t.note)}
-                      </StatusMark>
+                      <ConflictNote note={t.note} className="mt-1 block" />
                     ) : t.note ? (
                       <span className="mt-1 block">{t.note}</span>
                     ) : null}
@@ -5284,7 +5282,7 @@ function FilePage() {
               <th scope="col" className="p-2">Threshold</th><th scope="col" className="p-2">Value</th><th scope="col" className="p-2">This acquisition</th><th scope="col" className="p-2">Tier</th><th scope="col" className="p-2">Effective</th><th scope="col" className="p-2">Citation and note</th>
             </tr>
           </thead>
-          <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "Not recorded" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "Not recorded" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "Not recorded"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <span className="mt-1 block">{plainConflictNote(t.note)}</span> : null}</td></tr>; })}</tbody>
+          <tbody>{(q.data?.thresholds ?? []).map((t) => { const tv = t.value === null ? null : Number(t.value); const above = value !== null && tv !== null ? value >= tv : null; return <tr key={t.threshold_id} className="border-b border-border align-top"><td className="p-2">{t.name}</td><td className="p-2" data-numeric>{tv === null ? "Not recorded" : tv >= 1000 ? formatMoney(tv) : tv}</td><td className="p-2">{above === null ? "Not recorded" : above ? "At or above" : "Below"}</td><td className="p-2">{t.tier}</td><td className="p-2" data-numeric>{t.effective_date ?? "Not recorded"}</td><td className="p-2 text-muted-foreground">{t.citation}{t.note ? <ConflictNote note={t.note} className="mt-1 block" /> : null}</td></tr>; })}</tbody>
         </table>
 </TableScrollRegion>
       </section>

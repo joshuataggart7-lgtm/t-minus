@@ -111,7 +111,7 @@ export function Nova(props: NovaProps) {
                     <li key={`${source.kind}-${source.citation}`} className="border-b border-border p-3 text-[13px] leading-[18px] last:border-0">
                       <p>
                         {source.url ? <a className="underline" href={source.url} target="_blank" rel="noreferrer">{source.citation}</a> : source.citation}
-                        {source.title ? ` — ${source.title}` : ""}
+                        {source.title ? ` · ${source.title}` : ""}
                       </p>
                       <p className="text-muted-foreground" data-numeric>
                         Tier: {source.tier} · {source.kind}{source.source ? ` · ${source.source}` : ""}{source.effectiveDate ? ` · effective ${source.effectiveDate}` : ""}

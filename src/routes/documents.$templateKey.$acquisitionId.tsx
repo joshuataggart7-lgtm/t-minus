@@ -2657,7 +2657,7 @@ function DocumentPage() {
                     >
                       <option value="">Choose one</option>
                       {(f.key === "offeror_slot" && quoterSlots.length
-                        ? quoterSlots.filter((r) => !r.awarded).map((r) => ({ value: r.slot, label: `${r.slot} — ${r.name}` }))
+                        ? quoterSlots.filter((r) => !r.awarded).map((r) => ({ value: r.slot, label: `${r.slot} · ${r.name}` }))
                         : // A value on the record that is not one of the offered
                           // choices is still shown, so the file keeps what it records.
                           [
@@ -3127,7 +3127,7 @@ function DocumentPage() {
                   {meta.official
                     ? `Official final · filed ${meta.filedAt ? meta.filedAt.slice(0, 10) : "date not recorded"}${
                         meta.filedBy ? ` by ${meta.filedBy}` : ""
-                      } — version ${latest.version}.`
+                      } · version ${latest.version}.`
                     : `Version ${latest.version} is a draft. No official final is filed for this document yet.`}
                 </p>
                 <p className="mt-1 text-[13px] leading-[18px] text-muted-foreground">{FILE_IT_NOTE}</p>

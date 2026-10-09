@@ -37,7 +37,7 @@ const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, .
   }));
 
 function fmt(ts: string | null): string {
-  if (!ts) return "—";
+  if (!ts) return "Not recorded";
   return new Date(ts).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 

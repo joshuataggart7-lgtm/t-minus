@@ -142,12 +142,12 @@ function PgpdQueuePage() {
                     <p className="text-muted-foreground">{r.acquisition_id}</p>
                   ) : null}
                 </td>
-                <td className="px-3 py-2">{r.revision ?? "—"}</td>
+                <td className="px-3 py-2">{r.revision ?? "Not recorded"}</td>
                 <td className="px-3 py-2">
                   {r.defect}
                   {r.correction ? <p className="text-muted-foreground">Correction: {r.correction}</p> : null}
                 </td>
-                <td className="px-3 py-2">{r.citation ?? "—"}</td>
+                <td className="px-3 py-2">{r.citation ?? "Not recorded"}</td>
                 <td className="px-3 py-2">
                   {r.reporter_name}
                   <p className="text-muted-foreground">{r.reporter_role ?? ""}</p>

@@ -109,7 +109,7 @@ export function AskTMinus() {
                       ) : (
                         s.citation
                       )}
-                      {s.title ? ` — ${s.title}` : ""}
+                      {s.title ? ` · ${s.title}` : ""}
                     </p>
                     <p className="text-muted-foreground" data-numeric>
                       Tier: {s.tier} · {s.kind}

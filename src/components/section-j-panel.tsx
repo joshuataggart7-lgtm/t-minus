@@ -21,7 +21,7 @@ export function SectionJPanel({
       <h4 className="text-[15px] font-medium">
         {mode === "sf1449"
           ? "Document attachments for the handoff"
-          : "Section J — Document attachments"}
+          : "Section J · Document attachments"}
       </h4>
       <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
         These files are on the record. Data requirements are listed separately under CDRL / data

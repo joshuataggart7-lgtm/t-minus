@@ -127,9 +127,9 @@ export function PeopleContacts({ actorName, mayEdit }: { actorName: string; mayE
                 className={`border-b border-border align-top ${mine ? "bg-canvas scroll-mt-20" : ""}`}
               >
                 <td className="p-2">{displayName}{mine ? " (you)" : ""}</td>
-                <td className="p-2">{row.title || "—"}</td>
-                <td className="p-2">{row.center_code || "—"}</td>
-                <td className="p-2">{row.email || "—"}</td>
+                <td className="p-2">{row.title || "Not recorded"}</td>
+                <td className="p-2">{row.center_code || "Not recorded"}</td>
+                <td className="p-2">{row.email || "Not recorded"}</td>
                 <td className="p-2">
                   <TelephoneCell row={row} mayEdit={mayEdit} onSave={save} />
                 </td>
@@ -155,7 +155,7 @@ function TelephoneCell({
 }) {
   const [value, setValue] = useState(row.telephone ?? "");
   useEffect(() => setValue(row.telephone ?? ""), [row.telephone]);
-  if (!mayEdit) return <span>{row.telephone || "—"}</span>;
+  if (!mayEdit) return <span>{row.telephone || "Not recorded"}</span>;
   return (
     <span className="flex items-center gap-2">
       <label className="sr-only" htmlFor={`tel-${row.user_id}`}>

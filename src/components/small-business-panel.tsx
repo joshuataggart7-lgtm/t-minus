@@ -13,7 +13,7 @@ import { fetchSubawards, type SubawardView } from "@/lib/sam-subawards.functions
 import { TableScrollRegion } from "@/components/table-scroll-region";
 
 function money(n: number | null) {
-  if (n === null) return "—";
+  if (n === null) return "Not recorded";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
@@ -53,7 +53,7 @@ export function SmallBusinessPanel({
       <div className="mt-4 grid gap-8 sm:grid-cols-3">
         <div>
           <p className="text-[28px] leading-[34px] font-semibold" data-numeric>
-            {panel.setAsideRate === null ? "—" : `${Math.round(panel.setAsideRate * 100)}%`}
+            {panel.setAsideRate === null ? "Not recorded" : `${Math.round(panel.setAsideRate * 100)}%`}
           </p>
           <p className="mt-1 text-[13px] text-muted-foreground">
             Set-aside rate: {panel.setAsideFiles} of {panel.totalFiles} files

@@ -84,7 +84,7 @@ export function NewOrderPanel({
       {open ? (
         <div className="mt-4 border border-border p-4 text-[15px] leading-[22px]">
           <p>
-            Carries forward: {plan.copyPaths.length} fields — {plan.counts.organization} office,{" "}
+            Carries forward: {plan.copyPaths.length} fields · {plan.counts.organization} office,{" "}
             {plan.counts.acquisition} acquisition, {plan.counts.contract} contract.
           </p>
           <p className="mt-1">Starts blank: {plan.clearPaths.length} order-level fields.</p>

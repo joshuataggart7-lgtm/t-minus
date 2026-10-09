@@ -187,7 +187,7 @@ function SignoffRow({
   const [person, setPerson] = useState(row?.owner_name ?? "");
   const [comment, setComment] = useState(row?.note ?? "");
   const status = (row?.status ?? "not_sent") as SignoffStatus;
-  const date = row?.completed_at?.slice(0, 10) ?? row?.due_date ?? "—";
+  const date = row?.completed_at?.slice(0, 10) ?? row?.due_date ?? "Not recorded";
 
   return (
     <tr className="border-b border-border align-top">

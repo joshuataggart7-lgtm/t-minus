@@ -230,7 +230,7 @@ export function RoutingCsvImport({
                   <td className="p-2">{r.center_code}</td>
                   <td className="p-2">{r.document_key}</td>
                   <td className="p-2">{r.approving_official_title}</td>
-                  <td className="p-2">{r.thru_chain.join("; ") || "—"}</td>
+                  <td className="p-2">{r.thru_chain.join("; ") || "Not recorded"}</td>
                   <td className="p-2">{r.memo_default ? "Yes" : "No"}</td>
                 </tr>
               ))}
