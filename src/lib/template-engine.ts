@@ -337,10 +337,10 @@ const jofoc: TemplateDef = {
             "10 U.S.C. 3204(a)(5) as implemented by RFO FAR 6.103-5 (authorized or required by statute)",
             "10 U.S.C. 3204(a)(6) as implemented by RFO FAR 6.103-6 (national security)",
             "10 U.S.C. 3204(a)(7) as implemented by RFO FAR 6.103-7 (public interest)",
-            "41 U.S.C. 1901 (RFO FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)",
-            "41 U.S.C. 1901 and 1903 (RFO FAR 12.102 procedures, acquisition described at RFO FAR 12.001(c); only one responsible source basis under RFO FAR 6.103-1)",
+            "41 U.S.C. 1901 (RFO FAR 12.102(b), Table 12-1)",
+            "41 U.S.C. 1901 and 1903 (RFO FAR 12.102(b), Table 12-1; acquisition described at RFO FAR 12.001(c))",
           ],
-          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1, or, on a commercial simplified file under RFO FAR 12.201-1, the 41 U.S.C. 1901 option, or the 41 U.S.C. 1901 and 1903 option for an acquisition described at RFO FAR 12.001(c) (RFO FAR 12.102(b), Table 12-1). Item 5 must then document the only-one-responsible-source rationale.",
+          help: "If the rationale is that only one responsible source can meet the need, cite 10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1, or, on a commercial simplified file under RFO FAR 12.201-1, the 41 U.S.C. 1901 option up to $9 million, or the 41 U.S.C. 1901 and 1903 option over $9 million and up to $15 million for an acquisition described at RFO FAR 12.001(c) (RFO FAR 12.102(b), Table 12-1). Over those ceilings a commercial file uses RFO FAR 12.201-2 and one of the RFO FAR 6.103 authorities. Item 5 must then document the only-one-responsible-source rationale.",
           helpFor: (v) =>
             (v["action_type"] ?? "").startsWith("Sole-source") &&
             (v["authority"] ?? "") !== "" &&

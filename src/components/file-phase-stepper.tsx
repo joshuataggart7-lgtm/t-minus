@@ -1,5 +1,5 @@
 import type { PhaseView } from "@/lib/launch-sequence";
-import { phaseLabel, phaseOverrunDays } from "@/lib/launch-sequence";
+import { phaseDone, phaseLabel, phaseOverrunDays, phaseStateWord } from "@/lib/launch-sequence";
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useScrollFade } from "@/lib/use-scroll-fade";
@@ -29,7 +29,7 @@ export function FilePhaseStepper({
     if (step) list.scrollLeft = Math.max(0, step.offsetLeft - list.offsetLeft - 16);
   }, [currentIndex, phases.length]);
   if (!phases.length) return null;
-  const complete = phases.filter((p) => p.status === "complete").length;
+  const complete = phases.filter(phaseDone).length;
   return (
     <nav aria-label="Phases on this file" className="mc-stepper no-print" data-numeric>
       <div className="mc-stepper-head">
@@ -50,10 +50,10 @@ export function FilePhaseStepper({
       >
         {phases.map((p, i) => {
           const isCurrent = p.status === "current";
-          const isComplete = p.status === "complete";
+          const isComplete = phaseDone(p);
           const overrun = isCurrent ? phaseOverrunDays(p) : null;
           const exitIn = isCurrent && daysToPhaseExit !== null && daysToPhaseExit >= 0 && overrun === null ? daysToPhaseExit : null;
-          const state = isComplete ? "Complete" : isCurrent ? "In work" : "Not started";
+          const state = phaseStateWord(p);
           return (
             <li key={`${p.phase}-${i}`} className={cn("mc-step", isComplete && "is-complete", isCurrent && "is-current", overrun !== null && "is-late")}>
               <button

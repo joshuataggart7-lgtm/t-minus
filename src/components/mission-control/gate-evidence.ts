@@ -97,7 +97,7 @@ export function summarizeGate(
 
   const readiness: GateReadiness = blocking.length
     ? "BLOCKED"
-    : status === "complete" || (!pending.length && !missing.length && !advisory.length)
+    : (status === "complete" && !missing.length) || (!pending.length && !missing.length && !advisory.length)
       ? "READY"
       : "ATTENTION";
 
@@ -111,8 +111,10 @@ export function summarizeGate(
         ? `Contracting officer (${co})`
         : "Not recorded";
 
-  const nextAction = status === "complete"
+  const nextAction = status === "complete" && !missing.length
     ? "None. Stage complete."
+    : status === "complete" && missing[0]
+      ? `Record ${missing[0]}`
     : isCurrentStage
       ? metric.nextAction?.trim() || "Not recorded"
       : missing[0]

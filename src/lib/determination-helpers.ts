@@ -1,3 +1,4 @@
+import { simplifiedSoleSourceKind } from "@/lib/phase-plan-key";
 import { methodDisplayLabel, simplifiedPriceCite, simplifiedDocCite } from "@/lib/rfo-simplified-cites";
 // Plain-language determination helpers (Parts 10 / 12 / 13 / 15).
 //
@@ -39,6 +40,10 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
   const jofoc = str(acq["jofoc_authority_citation"]);
   const soleSource = /sole|non-?competitive|other than full/i.test(`${competition} ${method}`);
   const simplified = isSimplifiedOrCommercial(acq);
+  // At or below the SAT a simplified or commercial sole source needs no Part 6
+  // justification (RFO FAR 6.001(a)): a single-source D&F (RFO FAR 13.101(b))
+  // or the only-one-source decision (RFO FAR 12.102(a)).
+  const simplifiedSole = simplifiedSoleSourceKind(acq, /13\.5|12\.201-1|\b12\b|commercial simplified/i.test(method));
 
   return [
     {
@@ -56,18 +61,26 @@ export function determinationHelpers(acq: Record<string, unknown> | null | undef
     {
       key: "competition",
       title: "Competition",
-      plain: soleSource
+      plain: simplifiedSole === "noncommercial"
+        ? `The record reads as a sole source at or below the simplified acquisition threshold on simplified procedures. Part 6 does not apply; a determination and findings that only one source is reasonably available supports it.`
+        : simplifiedSole === "commercial"
+          ? `The record reads as a commercial sole source at or below the simplified acquisition threshold. Document that only one source is available and the basis for it; no Part 6 justification applies.`
+          : soleSource
         ? `The record reads as other than full and open competition${competition ? ` (${competition})` : ""}. Statutory authority recorded on the file: ${jofoc || "Not recorded"}.`
         : competition || method
           ? `The record reads as competed${competition ? ` (${competition})` : ""}${method ? `, method ${methodDisplayLabel(method)}` : ""}.`
           : "No competition or acquisition method is recorded on this file.",
-      citation: soleSource
+      citation: simplifiedSole === "noncommercial"
+        ? "RFO FAR 13.101(b); RFO FAR 6.001(a)"
+        : simplifiedSole === "commercial"
+          ? "RFO FAR 12.102(a)"
+          : soleSource
         ? `RFO FAR 6.104 justification${jofoc ? `; authority on the record: ${jofoc}` : ""}`
         : simplified
           ? "RFO FAR 12.203 (evaluation of quotations)"
           : "RFO FAR 15.202 (proposal evaluation)",
-      templateKey: soleSource ? "jofoc" : null,
-      templateLabel: soleSource ? "Justification for other than full and open competition" : null,
+      templateKey: soleSource && !simplifiedSole ? "jofoc" : null,
+      templateLabel: soleSource && !simplifiedSole ? "Justification for other than full and open competition" : null,
     },
     {
       key: "price-reasonableness",

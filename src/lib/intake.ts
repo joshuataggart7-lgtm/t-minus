@@ -167,6 +167,20 @@ export function formatMoney(n: number | null): string {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
+/**
+ * A sole source at or below the SAT on simplified or commercial procedures. No
+ * Part 6 authority applies (RFO FAR 6.001(a)); the file records a single-source
+ * D&F (RFO FAR 13.101(b)) or the only-one-source decision (RFO FAR 12.102(a)).
+ */
+export function intakeSimplifiedSole(f: Pick<IntakeFacts, "competition" | "acquisition_method" | "estimated_value">, sat = 350_000): "noncommercial" | "commercial" | null {
+  if (!/sole|limited sources|brand name/i.test(f.competition)) return null;
+  const value = parseMoney(f.estimated_value) ?? 0;
+  if (!(value > 0 && value <= sat)) return null;
+  const method = String(f.acquisition_method ?? "");
+  if (isCommercialSimplifiedMethod(method) || /\bPart 12\b|\b12\.201|\b12\b/.test(method)) return "commercial";
+  return isFar13Method(method) ? "noncommercial" : null;
+}
+
 export function fieldErrors(f: IntakeFacts): Record<string, string> {
   const e: Record<string, string> = {};
   if (!f.title.trim()) e["title"] = "Enter a short title for this requirement.";
@@ -197,7 +211,7 @@ export function fieldErrors(f: IntakeFacts): Record<string, string> {
   if (!f.contract_type) e["contract_type"] = "Choose a contract type.";
   if (!f.acquisition_method) e["acquisition_method"] = "Choose an acquisition method.";
   if (!f.competition) e["competition"] = "Choose the competition approach.";
-  if (/limited sources|sole source|brand name/i.test(f.competition) && !f.jofoc_authority_citation)
+  if (/limited sources|sole source|brand name/i.test(f.competition) && !f.jofoc_authority_citation && !intakeSimplifiedSole(f))
     e["jofoc_authority_citation"] = "Choose the authority for this competition approach.";
 
   const start = f.period_of_performance_start;
@@ -367,24 +381,24 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
   const withinSat = value > 0 && value <= satValue;
   const commercialRoute = isCommercialSimplifiedMethod(method) || /\bPart 12\b|\b12\.201|\b12\b/.test(method);
   const simplifiedSole = withinSat ? (commercialRoute ? "commercial" : isFar13Method(method) ? "noncommercial" : null) : null;
-  if (/sole|limited sources|brand name/i.test(f.competition) && !f.jofoc_authority_citation.trim())
+  if (/sole|limited sources|brand name/i.test(f.competition) && (simplifiedSole || !f.jofoc_authority_citation.trim()))
     flags.push(
       simplifiedSole === "noncommercial"
         ? {
             id: "jofoc",
-            title: "Sole source selected with no single-source basis recorded",
+            title: "Sole source at or below the SAT: a single-source D&F, not a JOFOC",
             detail:
-              "Record the basis for soliciting one source. Under Part 13 at or below the SAT, a determination and findings that only one source is reasonably available supports it; Part 6 does not apply.",
+              "Part 6 does not apply at or below the SAT on simplified procedures. The file's JOFOC step calls for a determination and findings that only one source is reasonably available.",
             citation: "RFO FAR 13.101(b); RFO FAR 6.001(a)",
-            blocking: true,
+            blocking: false,
           }
         : simplifiedSole === "commercial"
           ? {
               id: "jofoc",
-              title: "Sole source selected with no single-source basis recorded",
-              detail: "At or below the SAT, document the decision that only one source is available and the basis for it.",
+              title: "Commercial sole source at or below the SAT: only-one-source documentation, not a JOFOC",
+              detail: "At or below the SAT, document the decision that only one source is available and the basis for it. No Part 6 justification and approval applies.",
               citation: "RFO FAR 12.102(a)",
-              blocking: true,
+              blocking: false,
             }
           : {
               id: "jofoc",
