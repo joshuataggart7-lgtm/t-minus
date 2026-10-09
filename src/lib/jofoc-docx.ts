@@ -259,9 +259,17 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
         : `${centerName} (${value("center_code")})`
       : centerName;
 
-  const contractor = value("contractor_name") || "________________";
+  // A form value left empty falls back to the record (the source of truth).
+  const fromRecord = (column: string) => str(ctx.acq?.[column]);
+  const contractor = value("contractor_name") || fromRecord("vendor_legal_name") || "________________";
   const action = (value("action_type") || "sole-source contract").toLowerCase();
-  const actionDescription = (value("action_description") || value("requirement_description") || "________________").replace(
+  const actionDescription = (
+    value("action_description") ||
+    value("requirement_description") ||
+    value("description") ||
+    fromRecord("description_of_requirement") ||
+    "________________"
+  ).replace(
     /[.!?]+$/,
     "",
   );
@@ -311,12 +319,14 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   const coName = blankName(str(ctx.coName));
   const advocateName = blankName(value("competition_advocate_name") || value("advocate_name"));
   const advocateCenter = blankName(value("advocate_center") || centerName);
-  const hcaName = blankName(value("hca_name"));
+  // Where the master prints no title under an approval line, an unnamed official
+  // reads as the office the RFO FAR 6.104-2 Table 6-1 tier names.
+  const hcaName = value("hca_name") || "Head of the procuring activity";
   const hcaActivity = blankName(value("hca_activity") || centerName);
-  const hqOgcName = blankName(value("hq_ogc_name"));
+  const hqOgcName = value("hq_ogc_name") || "Office of the General Counsel, NASA Headquarters";
   const agencyCaName = blankName(value("agency_ca_name") || value("agency_competition_advocate_name"));
   const speName = blankName(value("spe_name"));
-  const programAcq = [program, ctx.acquisitionId].filter(Boolean).join(" — ") || ctx.acquisitionId;
+  const programAcq = [program, ctx.acquisitionId].filter(Boolean).join(" · ") || ctx.acquisitionId;
 
   const map: MarkerMap = {
     "[[CENTER_NAME_ACRONYM]]": centerAcronym || KEEP,

@@ -37,6 +37,8 @@ export type FieldDef = {
   requiredAtExit?: boolean;
   /** Value the field carries before anyone types in it. */
   default?: string;
+  /** A memo export prints this field as "Label: value" rather than the bare value. */
+  printLabel?: boolean;
   help?: string;
   /** A warning that depends on what has been answered elsewhere on the form. */
   helpFor?: (v: Values) => string | undefined;
@@ -2824,8 +2826,19 @@ export function templateByKey(key: string): TemplateDef | undefined {
   return TEMPLATES.find((t) => t.key === key);
 }
 
+/** What a rendered field line carries when the record has no value for it. */
+export const EMPTY_FIELD = "Not recorded";
+
+/** A stored ISO date (2026-09-18) printed as a plain date (September 18, 2026). */
+export function plainDate(raw: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw.trim());
+  if (!m) return raw;
+  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
 export function money(n: number | null | undefined): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "Not recorded";
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 }
 
@@ -2971,6 +2984,8 @@ export type ExportContext = {
   def: TemplateDef;
   values: Values;
   acquisitionId: string;
+  /** The acquisition record, the source of truth a form value falls back to. */
+  acq?: Record<string, unknown> | undefined;
   coName: string;
   coTitle?: string | undefined;
   approvingOfficialTitle?: string | undefined;
@@ -3007,12 +3022,36 @@ function genericPrintBlocks(doc: RenderedDoc): PrintBlock[] {
     .filter((block) => !block.heading.startsWith("Signatures"))
     .map((block) => ({
       heading: block.heading,
-      lines: block.lines.map((line) => {
-        const at = line.indexOf(": ");
-        const value = at >= 0 ? line.slice(at + 2) : line;
-        return cleanExportText(value) || blankLine;
-      }),
+      lines: block.lines.map((line) => cleanExportText(line) || blankLine),
     }));
+}
+
+/**
+ * The generic export, read from the template and its values: each field prints as
+ * "Label: value"; an optional field left empty is not printed, and a required one
+ * prints as not recorded so the gap in the record shows.
+ */
+function genericContextBlocks(ctx: ExportContext): PrintBlock[] {
+  const v = ctx.values;
+  const out: PrintBlock[] = [];
+  for (const section of visibleSections(ctx.def, v)) {
+    const lines: string[] = [];
+    const standing = sectionStandingText(section, v);
+    if (standing) lines.push(cleanExportText(standing));
+    for (const f of visibleFields(section, v)) {
+      const raw = (v[f.key] ?? "").trim();
+      const value =
+        f.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+          ? money(Number(raw.replace(/[$,]/g, "")))
+          : f.kind === "date"
+            ? plainDate(raw)
+            : cleanExportText(raw);
+      if (!value && !f.required) continue;
+      lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
+    }
+    if (lines.length) out.push({ heading: section.title, lines });
+  }
+  return out;
 }
 
 export function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
@@ -3133,7 +3172,9 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
       const value =
         field.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
           ? money(Number(raw.replace(/[$,]/g, "")))
-          : cleanExportText(raw);
+          : field.kind === "date"
+            ? plainDate(raw)
+            : cleanExportText(raw);
       const isSignature = field.key.startsWith("sig_");
       if (isSignature) {
         lines.push(`${value || blankLine}, ${field.label.replace(/^(APPROVAL|CONCURRENCES?):\s*/i, "")}`);
@@ -3141,7 +3182,7 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
         continue;
       }
       if (!value && !field.required) continue;
-      lines.push(value || blankLine);
+      lines.push(field.printLabel ? `${field.label}: ${value || blankLine}` : value || blankLine);
     }
     if (!lines.length) continue;
     out.push({ heading: section.title, lines });
@@ -3153,6 +3194,7 @@ export function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBl
   if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
   if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
   if (context?.def.layout) return hqPrintBlocks(context);
+  if (context) return genericContextBlocks(context);
   return genericPrintBlocks(doc);
 }
 
@@ -3172,20 +3214,22 @@ export function renderDocument(
       const value =
         f.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
           ? money(Number(raw.replace(/[$,]/g, "")))
-          : raw;
-      lines.push(`${f.label}: ${value || "—"}`);
+          : f.kind === "date"
+            ? plainDate(raw)
+            : raw;
+      lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
     }
     return { heading: s.title, citation: sectionCitation(s, v), lines };
   });
   if (signature) {
     blocks.push({
-      heading: `Signatures — ${signature.tierLabel}`,
+      heading: `Signatures · ${signature.tierLabel}`,
       citation: signature.citation,
       lines: signature.note ? [...signature.blocks, `Note: ${signature.note}`] : signature.blocks,
     });
   }
   return {
-    title: `${def.name} — ${acquisitionId}`,
+    title: `${def.name} · ${acquisitionId}`,
     badgeLine: `${badgeCitation(def, v)} · ${def.badge.tier} · ${def.badge.revision}${badgeNote(def, v) ? ` · ${badgeNote(def, v)}` : ""}`,
     blocks,
   };
