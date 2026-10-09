@@ -48,6 +48,11 @@ export type ScenarioAnswers = {
   approved_plan_changes: boolean;
   /** Choices the contracting officer makes later in the file. */
   exclude_source: boolean;
+  /**
+   * Negotiations (discussions) are held that need Center or Headquarters
+   * review. NFS CG 1815.48(a) requires a PPM before them.
+   */
+  negotiations_center_review?: boolean;
   award_term_or_award_fee: boolean;
   mod_needs_proposal: boolean;
   ratification_requested: boolean;
@@ -564,6 +569,19 @@ export const TRIGGERS: TriggerDef[] = [
     ],
   },
   {
+    key: "ppm-required",
+    condition: "Negotiations needing Center or Headquarters review, or a non-competitive action over the SAT",
+    // NFS CG 1815.48(a): required before negotiations needing Center or HQ
+    // review, and for all non-competitive actions (new awards and
+    // modifications) over the simplified acquisition threshold.
+    when: (c) =>
+      (far15(c) && c.competed && c.s.negotiations_center_review === true) ||
+      ((c.sole || c.s.mod_needs_proposal) && c.value > 350_000 && !/simplified|13\.5|commercial/i.test(c.method)),
+    docs: [
+      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "NFS CG 1815.48(a); RFO FAR 15.408-1", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "063" },
+    ],
+  },
+  {
     key: "far15-competed",
     condition: "RFO FAR Part 15, competed",
     when: (c) => far15(c) && c.competed,
@@ -578,7 +596,18 @@ export const TRIGGERS: TriggerDef[] = [
       { doc_key: "self-clearance-template", label: "Self-clearance template", citation: "NFS CG 1807.13(b)", phase: "Solicitation/Quote", state: "offered", tab: "020" },
       { doc_key: "tcp-evaluation-memo", label: "Total compensation plan evaluation memorandum", citation: "29 CFR 541.300", phase: "Technical Evaluation", state: "offered", templateKey: "tcp-evaluation-memo", tab: "54" },
       { doc_key: "requirements-statements-list", label: "Requirements statements list", citation: "NFS CG 1811.26", phase: "Solicitation/Quote", state: "offered", templateKey: "requirements-statements-list", tab: "010" },
-      { doc_key: "ppm", label: "Prenegotiation position memorandum", citation: "RFO FAR 15.408-1; NFS CG 1815.48", phase: "Price Reasonableness", state: "required", templateKey: "ppm", tab: "063" },
+      // NFS CG 1815.48(a): on a competed file the PPM is required only before
+      // negotiations that need Center or Headquarters review; otherwise offered.
+      {
+        doc_key: "ppm",
+        label: "Prenegotiation position memorandum",
+        citation: "NFS CG 1815.48(a); RFO FAR 15.408-1",
+        phase: "Price Reasonableness",
+        state: "offered",
+        templateKey: "ppm",
+        tab: "063",
+        note: "Offered: on a competed award a PPM is required only before negotiations that need Center or Headquarters review (NFS CG 1815.48(a)).",
+      },
     ],
   },
   {

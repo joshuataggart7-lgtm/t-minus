@@ -528,8 +528,12 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
   // The vehicle box follows the acquisition method, with the record's own
   // vehicle words taking precedence when it names one.
   const bpa = has(contractType, "bpa") || has(method, "8.4") || has(method, "blanket");
-  const mac = has(contractType, "mac") || has(contractType, "gwac") || has(method, "gwac");
-  const idiq = !mac && (has(contractType, "idiq") || has(contractType, "indefinite") || has(method, "16.5"));
+  // The scenario's vehicle answer leads: an IDIQ award ticks IDIQ, and a
+  // multiple-award IDIQ also ticks the multiple award contract box.
+  const scen = (ctx.acq?.["scenario"] ?? {}) as { vehicle?: string; idiq_single_award?: boolean };
+  const idiqVehicle = scen.vehicle === "idiq_award";
+  const mac = has(contractType, "mac") || has(contractType, "gwac") || has(method, "gwac") || (idiqVehicle && scen.idiq_single_award === false);
+  const idiq = idiqVehicle || has(contractType, "idiq") || has(contractType, "indefinite") || has(method, "16.5");
   const simplified = has(method, "far 13") || has(method, "13.5") || has(method, "12.201-1") || has(method, "simplified");
   const po = !bpa && !mac && !idiq && (has(contractType, "purchase order") || simplified);
   const negotiated =

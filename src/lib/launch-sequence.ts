@@ -1088,7 +1088,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
                 optional: true,
                 note: "Offered: past performance evaluations are required for contracts and orders above the simplified acquisition threshold (RFO FAR 42.1102(b)(1)).",
               }
-            : {}),
+            : cparsNotYetDue(acq)),
         },
         // RFO FAR 1.404(b): a COR is assigned on every contract or order other
         // than firm-fixed-price; on a firm-fixed-price one the CO may assign one.
@@ -1914,4 +1914,33 @@ export function reviewCitationForDisplay(role: string, citation: string | null |
     .trim();
   if (/^small business/i.test(role)) c = `Center review chain, not a regulatory requirement${c ? `; ${c}` : ""}`;
   return c || raw;
+}
+
+
+/**
+ * RFO FAR 42.1102(a): evaluations are prepared at least annually and when the
+ * work is completed. The first one is due twelve months after performance
+ * starts (or after award, when no start is recorded), or at the end of the
+ * period when that comes first. Returns an ISO date, or null when unknown.
+ */
+export function cparsDueDate(acq: AcqRow | null | undefined): string | null {
+  const iso = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : null);
+  const start = iso(acq?.["period_of_performance_start"]) ?? iso(acq?.["award_date"]) ?? iso(acq?.["target_award_date"]);
+  if (!start) return null;
+  const [y = 0, m = 1, d = 1] = start.split("-").map(Number);
+  const anniversary = new Date(Date.UTC(y + 1, m - 1, d));
+  anniversary.setUTCDate(anniversary.getUTCDate() - 1);
+  const annual = anniversary.toISOString().slice(0, 10);
+  const end = iso(acq?.["period_of_performance_end"]);
+  return end && end < annual ? end : annual;
+}
+
+const longDate = (isoDate: string) =>
+  new Date(`${isoDate}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+
+/** The CPARS row is offered, with its due date shown, until it falls due. */
+function cparsNotYetDue(acq: AcqRow | null | undefined, today = new Date().toISOString().slice(0, 10)) {
+  const due = cparsDueDate(acq);
+  if (!due || today >= due) return {};
+  return { optional: true, note: `Not due yet; due by ${longDate(due)} (RFO FAR 42.1102(a)).` };
 }

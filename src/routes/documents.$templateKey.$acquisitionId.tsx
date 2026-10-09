@@ -1919,7 +1919,7 @@ function DocumentPage() {
         />
         <p className="max-w-[80ch] text-[15px] leading-[22px]">
           A prenegotiation position memorandum requires a Part 15 negotiation path. Record Part 15 on the
-          acquisition before opening or exporting this memorandum. Commercial and simplified files record price
+          acquisition before opening or exporting this memorandum. Simplified files (RFO FAR Part 13 and 12.201-1) record price
           reasonableness under Parts 12 and 13 instead.
         </p>
         <p className="mt-6">

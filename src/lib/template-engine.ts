@@ -1,3 +1,4 @@
+import { competitionLabel } from "@/lib/display-labels";
 /**
  * T-Minus template engine.
  *
@@ -3117,6 +3118,15 @@ function terPrintBlocks(ctx: ExportContext): PrintBlock[] {
     { lines: ["National Aeronautics and Space Administration"], center: true },
     { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
     { lines: [`Date: ${ctx.preparedDate || ""}`, `Reply to Attn of: ${org}`, `TO: ${co}`, `FROM: ${[evaluator, org].filter(Boolean).join(", ")}`, `SUBJECT: ${raw("subject")}`] },
+    // The identification lines the NASA TER template carries above item 1:
+    // who proposed, when, and the proposed amount against the IGCE.
+    { lines: [
+      `Requirement: ${value("requirement_title")}`,
+      `Offeror: ${[raw("contractor_name"), raw("contractor_uei") ? `UEI ${raw("contractor_uei")}` : ""].filter(Boolean).join(", ") || "N/A"}`,
+      `Proposal received: ${raw("proposal_received") ? plainDate(raw("proposal_received")) : "N/A"}`,
+      `Proposed amount: ${raw("proposed_price") ? money(Number(raw("proposed_price"))) : "N/A"}`,
+      `Independent government cost estimate: ${raw("igce_amount") ? money(Number(raw("igce_amount"))) : "N/A"}`,
+    ] },
     { heading: "1. Technical requirement and background", lines: [value("background")] },
     { heading: "2. Technical evaluation team members", lines: [value("team")] },
     { heading: "3. Fact-finding", lines: [value("fact_finding")] },
@@ -3174,7 +3184,9 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
           ? money(Number(raw.replace(/[$,]/g, "")))
           : field.kind === "date"
             ? plainDate(raw)
-            : cleanExportText(raw);
+            : field.key === "competition"
+              ? competitionLabel(cleanExportText(raw))
+              : cleanExportText(raw);
       const isSignature = field.key.startsWith("sig_");
       if (isSignature) {
         lines.push(`${value || blankLine}, ${field.label.replace(/^(APPROVAL|CONCURRENCES?):\s*/i, "")}`);
@@ -3182,7 +3194,10 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
         continue;
       }
       if (!value && !field.required) continue;
-      lines.push(field.printLabel ? `${field.label}: ${value || blankLine}` : value || blankLine);
+      // Short identification fields print with their label so a reader can
+      // tell a NAICS from a PSC; prose (textarea) prints as written.
+      const labelled = field.printLabel ?? field.kind !== "textarea";
+      lines.push(labelled ? `${field.label}: ${value || blankLine}` : value || blankLine);
     }
     if (!lines.length) continue;
     out.push({ heading: section.title, lines });

@@ -76,15 +76,12 @@ export function isPpmPath(ctx: PpmDocxContext): boolean {
   const v = ctx.values ?? {};
   const acq = ctx.acq ?? {};
   const method = `${str(v["acquisition_method"])} ${str(acq["acquisition_method"])} ${str(acq["contract_format"])}`;
-  const competition = `${str(v["competition_type"])} ${str(acq["competition"])} ${str(v["extent_competed"])}`;
-  // Commercial or simplified paths record price reasonableness under Part 12
-  // and Part 13, never with a Part 15 prenegotiation position.
-  if (/commercial|simplified|13\.5|12\.201-1|FAR\s*12\b/i.test(method)) return false;
-  if (!/15\b|negotiat/i.test(method)) return false;
-  if (/full and open|competed|competitive/i.test(competition) && !/sole[- ]source|other than full/i.test(competition)) {
-    return false;
-  }
-  return true;
+  // Simplified and commercial simplified paths (RFO FAR Part 13, 12.201-1)
+  // record price reasonableness without a prenegotiation position.
+  if (/simplified|13\.5|12\.201-1/i.test(method)) return false;
+  // Any Part 15 negotiation, competed or not, can carry a PPM; NFS CG
+  // 1815.48(a) decides where the sequence requires one.
+  return /15\b|negotiat/i.test(method);
 }
 
 /** The marker map for the PPM master, from the record. */

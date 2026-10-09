@@ -6,7 +6,7 @@
 // plainly. The same list rides in the local handoff packet so a contracting
 // officer does not have to hunt for it. NCMS remains the system of record.
 
-import type { AttachmentRow } from "@/lib/attachments";
+import { isSampleRecord, SAMPLE_RECORD_NOTE, type AttachmentRow } from "@/lib/attachments";
 import { tabRank } from "@/lib/file-index";
 
 export type SectionJAttachment = {
@@ -30,8 +30,10 @@ export function attachmentsForSectionJ(
 ): SectionJAttachment[] {
   const list = (rows ?? []).map((r) => ({
     label: String(r.doc_label ?? "").trim() || "Attachment",
-    file_name: String(r.file_name ?? "").trim() || "File name not recorded",
-    nf_1098_tab: String(r.nf_1098_tab ?? "").trim() || "—",
+    file_name:
+      (String(r.file_name ?? "").trim() || "File name not recorded") +
+      (isSampleRecord(r as AttachmentRow) ? ` (${SAMPLE_RECORD_NOTE.toLowerCase()})` : ""),
+    nf_1098_tab: String(r.nf_1098_tab ?? "").trim() || "Not recorded",
     doc_key: r.doc_key ?? undefined,
     created_at: String(r.created_at ?? ""),
   }));
