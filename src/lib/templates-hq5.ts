@@ -1335,7 +1335,7 @@ const ppm: TemplateDef = {
 // ------------------------------------------------ 12. TCP evaluation memo
 const tcpEvaluationMemo: TemplateDef = {
   key: "tcp-evaluation-memo",
-  name: "Total Compensation Plan (TCP) Evaluation Memo",
+  name: "Enterprise Instructions Evaluation of Total Compensation Plans (TCPs)",
   tab: "54",
   layout: "memo",
   badge: {

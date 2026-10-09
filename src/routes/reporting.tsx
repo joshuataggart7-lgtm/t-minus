@@ -1,3 +1,4 @@
+import { competitionLabel } from "@/lib/display-labels";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -163,20 +164,6 @@ function sentenceCase(value: string): string {
   return words ? words.charAt(0).toUpperCase() + words.slice(1) : value;
 }
 
-function competitionLabel(value: string): string {
-  const key = value.trim().toLowerCase();
-  const known: Record<string, string> = {
-    competitive: "Competitive",
-    "sole source": "Sole source",
-    "sole-source": "Sole source",
-    "full and open": "Full and open",
-    "full and open competition": "Full and open competition",
-    "full and open after exclusion of sources": "Full and open after exclusion of sources",
-  };
-  if (known[key]) return known[key];
-  if (value === key && value) return value.charAt(0).toUpperCase() + value.slice(1);
-  return value;
-}
 
 function displayCell(row: Record<string, unknown>, column: string) {
     if (column === "acquisition_type") {

@@ -79,6 +79,27 @@ const DEFAULT_ON = new Set([
   "coordination-memo",
   "packet-transmittal-memo",
   "memorandum-for-record",
+  // Internal memoranda whose HQ master is laid out on NF 1858 (it carries the
+  // "Reply to Attn of" block); scan in batch15/hq_nf1858_scan.txt. Letters
+  // and notices to contractors or the public stay off.
+  "asm-not-conducted",
+  "pop-deviation-request",
+  "foreign-contract-request",
+  "limitation-future-contracting",
+  "precontract-costs-approval",
+  "ratification-unauthorized-commitment",
+  "rdt-request-appointment",
+  "seb-appointment",
+  "set-appointment",
+  "ssa-appointment",
+  "peb-appointment",
+  "fdo-appointment",
+  "co-appointment-letter",
+  "co-appointment-termination",
+  // Contracting officer memoranda to the file with no HQ master of their own.
+  "single-source-dandf",
+  "only-one-source-record",
+  "gfp-determination",
 ]);
 
 /** Document types that are never memoranda. */
