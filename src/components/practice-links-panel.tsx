@@ -8,7 +8,7 @@
 import { RFO_SOURCE_URL } from "@/lib/pcd-adoption";
 import { AdvisoryTag } from "@/components/advisory-tag";
 
-const NON_BINDING = "Non-binding practice — not FAR / not NFS.";
+const NON_BINDING = "Non-binding practice · not FAR / not NFS.";
 
 export function PracticeLinksPanel() {
   return (

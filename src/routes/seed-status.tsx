@@ -291,10 +291,10 @@ function SeedStatus() {
               <tr key={r.table} className="border-b border-border last:border-0">
                 <td className="px-4 py-2">{r.table}</td>
                 <td className="px-4 py-2 text-right" data-numeric>
-                  {r.error ? "—" : r.count}
+                  {r.error ? "Not recorded" : r.count}
                 </td>
                 <td className="px-4 py-2" data-numeric>
-                  {r.seeded ?? "—"}
+                  {r.seeded ?? "Not recorded"}
                 </td>
                 <td className="px-4 py-2">
                   {r.error ? (

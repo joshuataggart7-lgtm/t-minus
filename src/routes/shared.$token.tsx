@@ -100,7 +100,7 @@ function SharedDocumentPage() {
           {Object.entries(share.values).map(([k, v]) => (
             <div key={k} className="mb-3">
               <dt className="text-muted-foreground">{k}</dt>
-              <dd>{String(v ?? "—")}</dd>
+              <dd>{String(v ?? "Not recorded")}</dd>
             </div>
           ))}
         </dl>

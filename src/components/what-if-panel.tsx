@@ -80,7 +80,7 @@ export function WhatIfPanel({
   return (
     <details aria-label="What-if sandbox" className="mb-8 w-full [&_p]:max-w-[80ch] rounded-xl border border-border bg-background">
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">
-        What-if sandbox <span className="ml-2 text-[13px] font-normal text-muted-foreground">Sandbox — not saved</span>
+        What-if sandbox · <span className="ml-2 text-[13px] font-normal text-muted-foreground">not saved</span>
       </summary>
       <div className="border-t border-border px-5 py-4">
         <p className="mb-4 text-[13px] leading-[18px] text-muted-foreground">
@@ -153,7 +153,7 @@ export function WhatIfPanel({
                   <ul className="mt-1 space-y-1 text-[13px] leading-[18px] text-muted-foreground">
                     {view.crossed.map((t) => (
                       <li key={t.name}>
-                        {t.name} ({formatMoney(t.value)}) — would read {t.thenAbove ? "at or above" : "below"}
+                        {t.name} ({formatMoney(t.value)}) · would read {t.thenAbove ? "at or above" : "below"}
                         {t.citation ? ` · ${t.citation}` : ""}
                       </li>
                     ))}

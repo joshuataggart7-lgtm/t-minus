@@ -9,7 +9,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { usePresenter } from "@/lib/presenter";
 
-export const CLAUSE_CHANGE_CHIP = "Advisory — does not hold the file.";
+export const CLAUSE_CHANGE_CHIP = "Advisory · does not hold the file.";
 
 type OpenTask = { clause_number: string; change_kind: string };
 

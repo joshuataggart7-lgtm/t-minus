@@ -179,7 +179,7 @@ export function ClausePicker({
                       {c.reason}
                       {fillIns ? (
                         <span className="mt-1 block text-muted-foreground">
-                          Fill-ins from the record — {fillIns}
+                          Fill-ins from the record · {fillIns}
                         </span>
                       ) : null}
                     </td>

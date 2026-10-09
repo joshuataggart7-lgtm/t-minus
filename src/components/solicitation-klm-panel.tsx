@@ -266,7 +266,7 @@ export function SolicitationKlmPanel({
       {/* K — the prescribed clause bucket plus a recordable shell. */}
       <section className="mt-4">
         <h5 className="text-[15px] font-medium">
-          {part15 ? "K — Representations and certifications (Uniform Contract Format)" : "K — Representations and certifications"}
+          {part15 ? "K · Representations and certifications (Uniform Contract Format)" : "K · Representations and certifications"}
         </h5>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
           {part15 ? K_UCF_PATH_NOTE : K_SAM_PATH_NOTE}
@@ -407,7 +407,7 @@ export function SolicitationKlmPanel({
 
       {/* L — authorable instructions. */}
       <section className="mt-4 border-t border-border pt-4">
-        <h5 className="text-[15px] font-medium">L — Instructions to offerors</h5>
+        <h5 className="text-[15px] font-medium">L · Instructions to offerors</h5>
         <p className="mt-1 max-w-[80ch] text-[13px] text-muted-foreground">
           {part15
             ? "Part 15 voice: proposal volumes, page limits and submission instructions ride in Section L."
@@ -483,7 +483,7 @@ export function SolicitationKlmPanel({
 
       {/* M — evaluation, suppressed on a sole-source file. */}
       <section className="mt-4 border-t border-border pt-4">
-        <h5 className="text-[15px] font-medium">M — Evaluation for award</h5>
+        <h5 className="text-[15px] font-medium">M · Evaluation for award</h5>
         {!shell.competitive ? (
           <div className="mt-2 max-w-[80ch] border border-border p-3 text-[13px] leading-[18px]">
             <p className="font-medium">Competitive Section M is suppressed on this sole-source file.</p>

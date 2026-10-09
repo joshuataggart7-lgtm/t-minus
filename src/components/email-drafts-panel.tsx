@@ -19,7 +19,7 @@ export function EmailDraftsPanel({
   if (!draft) return null;
 
   const text = draft.available
-    ? `To: ${draft.to || "—"}\nSubject: ${draft.subject}\n\n${draft.body}`
+    ? `To: ${draft.to || "Not recorded"}\nSubject: ${draft.subject}\n\n${draft.body}`
     : "";
 
   return (
@@ -27,7 +27,7 @@ export function EmailDraftsPanel({
       <summary className="cursor-pointer px-5 py-4 text-[18px] leading-6 font-medium">Draft an email</summary>
       <div className="border-t border-border px-5 py-4">
         <p className="mb-3 text-[13px] leading-[18px] text-muted-foreground">
-          Written from this record in the contracting officer&rsquo;s voice. Copy only — T-Minus does not send mail.
+          Written from this record in the contracting officer&rsquo;s voice. Copy only. T-Minus does not send mail.
         </p>
         <div className="mb-3 flex flex-wrap gap-2">
           {drafts.map((d) => (

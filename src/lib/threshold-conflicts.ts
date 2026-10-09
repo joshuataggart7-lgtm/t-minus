@@ -60,3 +60,12 @@ export function plainConflictNote(note: string | null | undefined): string {
   if (/^conflict$/i.test(text)) return "Conflicts with the statute.";
   return text;
 }
+
+/** Splits a stored note into the leading CONFLICT flag and the rest, as stored. Display only. */
+export function splitConflictNote(note: string | null | undefined): { flagged: boolean; rest: string } {
+  const text = String(note ?? "").trim();
+  if (/^conflict$/i.test(text)) return { flagged: true, rest: "" };
+  const lead = /^CONFLICT with statute\.\s*FAR text\.\s*/;
+  if (lead.test(text)) return { flagged: true, rest: text.replace(lead, "") };
+  return { flagged: false, rest: text };
+}

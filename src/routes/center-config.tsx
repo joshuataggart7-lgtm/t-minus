@@ -329,7 +329,7 @@ function CenterConfigPage() {
                     <td className="py-2 pr-4">{r.kind === "threshold" ? "Threshold" : "Review trigger"}</td>
                     <td className="py-2 pr-4">{r.target}</td>
                     <td className="py-2 pr-4 text-right tabular-nums">
-                      {r.value === null ? "—" : Number(r.value).toLocaleString()}
+                      {r.value === null ? "Not recorded" : Number(r.value).toLocaleString()}
                     </td>
                     <td className="py-2 pr-4 tabular-nums">{r.effective_date}</td>
                     <td className="py-2 pr-4">

@@ -125,7 +125,7 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
     const k = scaffold.sectionK;
     const kAuthored = Boolean(k && (k.checklist.length > 0 || (k.notes ?? "").trim() !== ""));
     push(
-      "Section K — representations and certifications",
+      "Section K · representations and certifications",
       kAuthored,
       `${k?.sam_status ?? "Status not recorded"} · ${k?.checklist.length ?? 0} checklist ${
         (k?.checklist.length ?? 0) === 1 ? "row" : "rows"
@@ -138,12 +138,12 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
       "Section L and M",
       lmAuthored,
       "Instructions and evaluation factors are authored on the record.",
-      "Section L and M are the method stub — nothing authored on the record.",
+      "Section L and M are the method stub; nothing authored on the record.",
     );
 
     const jCount = scaffold.attachments.length;
     push(
-      "Section J — attachments",
+      "Section J · attachments",
       jCount > 0,
       `${jCount} ${jCount === 1 ? "attachment" : "attachments"} on the record.`,
       "No attachments uploaded to the file.",
@@ -184,7 +184,7 @@ export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly 
     slot: "Enclosure",
     item: "Signatures",
     status: "Not required",
-    note: "Blank on purpose — the contract is signed in NCMS.",
+    note: "Blank on purpose. The contract is signed in NCMS.",
   });
 
   const counts = {

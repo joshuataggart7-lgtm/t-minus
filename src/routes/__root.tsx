@@ -78,12 +78,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "T-Minus — Mission Acquisition Acceleration" },
+      { title: "T-Minus · Mission Acquisition Acceleration" },
       {
         name: "description",
         content: "T-Minus turns acquisition time into mission readiness. Prototype, not an official NASA system.",
       },
-      { property: "og:title", content: "T-Minus — Mission Acquisition Acceleration" },
+      { property: "og:title", content: "T-Minus · Mission Acquisition Acceleration" },
       {
         property: "og:description",
         content: "T-Minus turns acquisition time into mission readiness.",

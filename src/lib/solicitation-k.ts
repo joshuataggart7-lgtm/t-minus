@@ -133,7 +133,7 @@ export function sectionKForPacket(
     path: shell?.partFamily === "15" ? "ucf_section_k" : "sam_path",
     heading:
       shell?.partFamily === "15"
-        ? "Section K — representations and certifications"
+        ? "Section K · representations and certifications"
         : "Representations and certifications",
     path_note: shell?.partFamily === "15" ? K_UCF_PATH_NOTE : K_SAM_PATH_NOTE,
     sam_status: (k?.sam_status ?? "").trim() || "Not recorded",

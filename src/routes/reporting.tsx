@@ -154,7 +154,13 @@ function plainCell(column: string, raw: unknown): string | null {
   if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}T/.test(raw)) return reportStamp(raw);
   if (typeof raw === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return formatDate(raw);
   if (column === "clock_state") return clockLabel(String(raw));
+  if (column === "status" || column === "status_word") return sentenceCase(String(raw));
   return String(raw);
+}
+
+function sentenceCase(value: string): string {
+  const words = value.replace(/_/g, " ").trim().toLowerCase();
+  return words ? words.charAt(0).toUpperCase() + words.slice(1) : value;
 }
 
 function competitionLabel(value: string): string {
