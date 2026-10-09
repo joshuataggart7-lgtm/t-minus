@@ -11,7 +11,7 @@
  * Name, Concurrence, Enclosures, Distribution, cc, bcc, CUISheetText.
  */
 
-import { TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
+import { EMPTY_FIELD, TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { humanMemoProse } from "@/lib/memo-prose";
 
@@ -176,7 +176,7 @@ export function buildMemoHeader(input: BuildMemoInput): MemoHeader {
   const org = String(input.acquisition["branch_code"] ?? input.acquisition["org_code"] ?? "").trim();
   const pr = String(input.acquisition["pr_number"] ?? "").trim();
   const title = String(input.acquisition["title"] ?? "").trim();
-  const subject = `${input.templateName} — ${title}${pr ? ` — PR ${pr}` : ""}`;
+  const subject = `${input.templateName} · ${title}${pr ? ` · PR ${pr}` : ""}`;
   const method = String(input.acquisition["acquisition_method"] ?? "");
   const refs = input.documentCitation
     .split(";")
@@ -265,14 +265,14 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoPara
   return doc.blocks
     .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
     .map((b) => {
-      const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —"));
-      const prose = lines.map(withoutPrompt).map(clean).filter((line) => line && line !== "—");
+      const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —") && !l.endsWith(`: ${EMPTY_FIELD}`));
+      const prose = lines.map(withoutPrompt).map(clean).filter((line) => line && line !== "—" && line !== EMPTY_FIELD);
       if (templateKey === "memorandum-for-record" && b.heading === "Filing") {
         const fileTab = b.lines
           .flatMap((line) => line.split("\n"))
           .map(withoutPrompt)
           .map((line) => clean(line))
-          .find((line) => line && line !== "—");
+          .find((line) => line && line !== "—" && line !== EMPTY_FIELD);
         return {
           text: fileTab
             ? `Filing. This memorandum is filed under NF 1098 tab ${fileTab}.`

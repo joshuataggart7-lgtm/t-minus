@@ -58,6 +58,7 @@ import {
   generatorKey,
   NCMS_CHECKLIST,
   phaseLabel,
+  stepLabel,
   phaseOverrunDays,
   pollBoard,
   reviewerNameForRole,
@@ -316,7 +317,7 @@ function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "p
   if (p.status === "current") {
     const over = phaseOverrunDays(p);
     const note = over !== null ? `${over} over` : actual < planned ? `${diff} left` : "on plan";
-    return `${actual} ${dayWord(actual)} in ${p.phase}, ${planned} planned (${note})`;
+    return `${actual} ${dayWord(actual)} in ${phaseLabel(p)}, ${planned} planned (${note})`;
   }
   return `${planned} planned ${dayWord(planned)}`;
 }
@@ -2992,7 +2993,7 @@ function FilePage() {
           </div>
           <div className="mc-glance">
             <p className="mc-glance-label">Where it is</p>
-            <p className="mc-glance-value">{currentPhase ? phaseLabel(currentPhase) : (lifecycle?.currentPhase ?? "Not started")}</p>
+            <p className="mc-glance-value">{currentPhase ? phaseLabel(currentPhase) : (lifecycle?.currentPhase ? stepLabel(lifecycle.currentPhase, acq as AcqRow) : "Not started")}</p>
             <p className="mc-glance-sub" data-numeric>
               {phasePositionText(filePosition)}
               {currentPhase ? ` · ${phaseDayLine(currentPhase)}` : ""}
@@ -4411,7 +4412,7 @@ function FilePage() {
               {effectiveState !== "launched" && (REVIEW_PHASES as readonly string[]).includes(p.phase) ? (
                 <div id={`poll-${p.phase}`} className="mc-review-board">
                   <p className="mc-review-board-cap">
-                    Required reviews, concurrences and approvals for {p.phase}. Each reviewer records a formal decision by name.
+                    Required reviews, concurrences and approvals for {phaseLabel(p)}. Each reviewer records a formal decision by name.
                   </p>
                   {(boards[p.phase] ?? []).length ? (
                     <div className="mc-review-grid">
@@ -4449,7 +4450,7 @@ function FilePage() {
                         onClick={() => showActionDialog({ kind: "open-poll", phase: p.phase })}
                         className="h-auto p-0"
                       >
-                        Send the review requests for {p.phase}
+                        Send the review requests for {phaseLabel(p)}
                       </Button>
                     </div>
                   ) : null}
@@ -4682,7 +4683,7 @@ function FilePage() {
           drafts={buildEmailDrafts({
             acq: acq as unknown as Record<string, unknown>,
             coName: String(acq.co_name ?? actorName),
-            phase: lifecycle?.currentPhase ?? "the current phase",
+            phase: lifecycle?.currentPhase ? stepLabel(lifecycle.currentPhase, acq as AcqRow) : "the current phase",
             citation: currentPhase?.citation ?? "",
             missingLabels: missingCurrentRequirements.map((d) => ({ label: d.label, citation: d.citation })),
             pendingReviewers: pendingCurrentReviews.map((e) => ({
@@ -5168,7 +5169,7 @@ function FilePage() {
         operational={
           lifecycle && readiness
             ? {
-                phase: lifecycle.currentPhase ?? "Not recorded",
+                phase: lifecycle.currentPhase ? stepLabel(lifecycle.currentPhase, acq as AcqRow) : "Not recorded",
                 readiness,
                 countdownLine: (() => {
                   const view = overviewCountdownView(lifecycle);
@@ -5413,7 +5414,7 @@ function FilePage() {
           <DialogHeader>
             <DialogTitle>
               {actionDialog?.kind === "exit"
-                ? `Exit ${actionDialog.phase}`
+                ? `Exit ${stepLabel(actionDialog.phase, acq as AcqRow)}`
                 : actionDialog?.kind === "scrub"
                   ? `Scrub ${acquisitionId}`
                   : actionDialog?.kind === "remove"
@@ -5421,7 +5422,7 @@ function FilePage() {
                     : actionDialog?.kind === "vote"
                       ? `Record the ${actionDialog.entry.reviewer_role} decision`
                       : actionDialog?.kind === "open-poll"
-                        ? `Send the ${actionDialog.phase} review requests`
+                        ? `Send the ${stepLabel(actionDialog.phase, acq as AcqRow)} review requests`
                         : "Confirm action"}
             </DialogTitle>
             <DialogDescription>
@@ -5567,7 +5568,7 @@ function FilePage() {
               }}
             >
               {actionDialog?.kind === "exit"
-                ? `Exit ${actionDialog.phase}`
+                ? `Exit ${stepLabel(actionDialog.phase, acq as AcqRow)}`
                 : actionDialog?.kind === "scrub"
                   ? "Scrub the acquisition"
                   : actionDialog?.kind === "remove"

@@ -213,6 +213,17 @@ export function simplifiedSoleSource(acq?: AcqRow | null): "noncommercial" | "co
   return simplifiedSoleSourceKind((acq ?? null) as Record<string, unknown> | null, path === "commercial");
 }
 
+/**
+ * The name a stored phase key is shown under on this file. The JOFOC step on a
+ * simplified sole source is the single-source D&F (RFO FAR 13.101(b)) or the
+ * only-one-source documentation (RFO FAR 12.102(a)); the key stays "JOFOC".
+ */
+export function stepLabel(phase: string | null | undefined, acq?: AcqRow | null): string {
+  const p = String(phase ?? "");
+  if (p === "JOFOC") return simplifiedSoleLabel(acq).label ?? p;
+  return p;
+}
+
 /** Display name for the JOFOC phase on a simplified sole-source file; the phase key stays "JOFOC". */
 function simplifiedSoleLabel(acq?: AcqRow | null): { label?: string } {
   const kind = simplifiedSoleSource(acq);
@@ -763,7 +774,9 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             // record field: the JOFOC attach path writes a Part 6 cite there.
             docKey: "jofoc_authority_citation",
             attachOnly: true,
-            note: "Part 6 does not apply to simplified acquisition procedures (RFO FAR 6.001(a)). Record the basis for soliciting one source here and keep the signed D&F in the file.",
+            templateKey: "single-source-dandf",
+            link: "templates",
+            note: "Part 6 does not apply to simplified acquisition procedures (RFO FAR 6.001(a)). Generate the D&F from the record, or attach the signed copy.",
           },
         ];
       if (simplifiedSole === "commercial")
@@ -773,6 +786,8 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             citation: "RFO FAR 12.102(a)",
             docKey: "jofoc_authority_citation",
             attachOnly: true,
+            templateKey: "only-one-source-record",
+            link: "templates",
             note: "At or below the SAT, document the decision that only one source is available and the basis for it (RFO FAR 12.102(a)). No Part 6 justification and approval is needed.",
           },
         ];
@@ -1786,7 +1801,7 @@ export function computeHold(
       if (generatorKey(d) && !d.field) continue;
       const hasFile = attachedKeys ? attachedKeys.has(docRowKey(d)) : undefined;
       if (docSatisfied(d, acq, hasFile, savedKeys) === false)
-        return { reason: `${p.phase}: ${d.label} is missing`, owner, doc: { phase: p.phase, label: d.label } };
+        return { reason: `${phaseLabel(p)}: ${d.label} is missing`, owner, doc: { phase: p.phase, label: d.label } };
     }
   }
 
@@ -1809,7 +1824,7 @@ export function computeHold(
   });
   if (pending)
     return {
-      reason: `${pending.phase}: ${pending.reviewer_role} has not recorded a decision`,
+      reason: `${stepLabel(pending.phase, acq)}: ${pending.reviewer_role} has not recorded a decision`,
       owner: `${pending.reviewer_name} (${pending.reviewer_role})`,
     };
   return null;

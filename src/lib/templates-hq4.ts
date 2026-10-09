@@ -1803,7 +1803,135 @@ const precontractCostsApproval: TemplateDef = {
   ],
 };
 
+
+// ------------------------------------------------ Single-source D&F and only-one-source record (at or below the SAT)
+// RFO FAR 13.101(b): a noncommercial buy at or below the SAT may be solicited from a
+// single source on a D&F (subpart 1.5) that only one source is reasonably available.
+// RFO FAR 12.102(a): a commercial buy at or below the SAT documents the decision that
+// only one source is available and the basis for it. Neither is a Part 6 justification.
+// The contracting officer signs both; no other approval applies (RFO FAR 1.506).
+const labeled = (f: FieldDef): FieldDef => ({ ...f, printLabel: true });
+const soleIdentity = (lead: string): SectionDef => ({
+  id: "identification",
+  title: "Identification",
+  citation: lead,
+  tier: "binding",
+  standingText: "National Aeronautics and Space Administration.",
+  fields: [
+    X("center_name", "Contracting activity", "center_name"),
+    X("acquisition_id", "Acquisition", "acquisition_id"),
+    X("title", "Requirement", "title"),
+    X("pr_number", "Requisition number", "pr_number"),
+    M("estimated_value", "Estimated value", "estimated_value"),
+    X("contract_type", "Contract type", "contract_type"),
+    X("source_name", "Proposed source", "vendor_legal_name"),
+    X("source_uei", "Proposed source UEI", "vendor_uei"),
+  ].map(labeled),
+});
+const soleSignature = (): FieldDef[] => [
+  X("sig_co", "Contracting Officer", "co_name"),
+  { key: "signed_on", label: "Date signed", kind: "date", printLabel: true },
+];
+const singleSourceDandF: TemplateDef = {
+  key: "single-source-dandf",
+  name: "Single-Source Determination and Findings",
+  tab: "31",
+  layout: "memo",
+  badge: {
+    citation: "RFO FAR 13.101(b); RFO FAR 1.504",
+    tier: "binding",
+    revision: "RFO FAR Part 13 and subpart 1.5",
+    effective: "2026-04-23",
+    note: "Signed by the contracting officer; no Part 6 justification or approval applies.",
+  },
+  lead: "Determination and findings that only one source is reasonably available for a noncommercial buy at or below the simplified acquisition threshold.",
+  sections: [
+    { ...soleIdentity("RFO FAR 1.504(a)"), standingText: "Determination and Findings." },
+    {
+      id: "action",
+      title: "Action being approved",
+      citation: "RFO FAR 1.504(b)",
+      tier: "binding",
+      standingText: "Solicit from a single source under simplified procedures for the requirement identified above.",
+      fields: [{ ...T("action_description", "Description of the requirement"), bind: "description_of_requirement" }],
+    },
+    {
+      id: "authority",
+      title: "Authority",
+      citation: "RFO FAR 13.101(b); RFO FAR 1.504(c)",
+      tier: "binding",
+      standingText:
+        "RFO FAR 13.101(b) permits the contracting officer to solicit from a single source based on a determination and findings under subpart 1.5 that only one source is reasonably available.",
+      fields: [],
+    },
+    {
+      id: "findings",
+      title: "Findings",
+      citation: "RFO FAR 1.504(d)",
+      tier: "binding",
+      fields: [
+        T("finding_source", "Why only one source is reasonably available"),
+        T("finding_research", "Market research performed and its result"),
+        T("finding_support", "Supporting documentation from requirements and technical personnel"),
+      ],
+    },
+    {
+      id: "determination",
+      title: "Determination",
+      citation: "RFO FAR 1.504(e), (g); RFO FAR 1.506",
+      tier: "binding",
+      standingText:
+        "Based on the findings above, I determine that only one source is reasonably available for this requirement, and that soliciting from that single source is justified under RFO FAR 13.101(b).",
+      fields: soleSignature(),
+    },
+  ],
+};
+const onlyOneSourceRecord: TemplateDef = {
+  key: "only-one-source-record",
+  name: "Only-One-Source Documentation",
+  tab: "31",
+  layout: "memo",
+  badge: {
+    citation: "RFO FAR 12.102(a)",
+    tier: "binding",
+    revision: "RFO FAR Part 12",
+    effective: "2026-04-23",
+    note: "Commercial buy at or below the simplified acquisition threshold; no Part 6 justification or approval applies.",
+  },
+  lead: "The decision that only one source is available for a commercial buy at or below the simplified acquisition threshold, and the basis for it.",
+  sections: [
+    soleIdentity("RFO FAR 12.102(a)"),
+    {
+      id: "decision",
+      title: "Decision",
+      citation: "RFO FAR 12.102(a)",
+      tier: "binding",
+      standingText: "Only one source is available for this commercial requirement, and the requirement is solicited from that source.",
+      fields: [{ ...T("action_description", "Description of the requirement"), bind: "description_of_requirement" }],
+    },
+    {
+      id: "basis",
+      title: "Basis for the decision",
+      citation: "RFO FAR 12.102(a)",
+      tier: "binding",
+      fields: [
+        T("finding_source", "Why only one source is available"),
+        T("finding_research", "Market research performed and its result"),
+      ],
+    },
+    {
+      id: "signature",
+      title: "Contracting officer",
+      citation: "RFO FAR 12.102(a)",
+      tier: "binding",
+      fields: soleSignature(),
+    },
+  ],
+};
+
 export const HQ4_TEMPLATES: TemplateDef[] = [
+  singleSourceDandF,
+  onlyOneSourceRecord,
   foreignContractRequest,
   dutyFreeCertificate,
   buyAmericanNonavailability,

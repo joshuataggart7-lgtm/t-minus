@@ -10,7 +10,7 @@ import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
 import { dayWord } from "@/lib/pluralize";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
-import { phaseDone, phaseLabel } from "@/lib/launch-sequence";
+import { phaseDone, phaseLabel, stepLabel, type AcqRow } from "@/lib/launch-sequence";
 import { executiveBlocker } from "@/lib/executive-wording";
 
 const NR = "Not recorded";
@@ -236,7 +236,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
             <div>
               <p className="mc-label">Selected step</p>
               <h3>{evidence.stage.label}</h3>
-              <p>{evidence.phases.length ? evidence.phases.map((phase) => `${phase.phase} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
+              <p>{evidence.phases.length ? evidence.phases.map((phase) => `${stepLabel(phase.phase, metric.acq as AcqRow)} · ${phase.status}`).join(" · ") : "No phase is recorded for this acquisition path."}</p>
             </div>
             <button
               type="button"

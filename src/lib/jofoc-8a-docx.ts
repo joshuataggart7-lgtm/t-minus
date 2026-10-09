@@ -124,7 +124,7 @@ export function jofoc8aMarkers(ctx: JofocDocxContext): MarkerMap {
     "[[BEST_INTEREST_PROSE]]": value("best_interest")
       ? `Use of a sole-source contract is in the best interest of the agency to ${value("best_interest").replace(/^Use of a sole-source contract[^.]*to\s*/i, "")}`
       : KEEP,
-    "[[SIG_PROGRAM_ACQ_ID]]": [program, ctx.acquisitionId].filter(Boolean).join(" — ") || ctx.acquisitionId,
+    "[[SIG_PROGRAM_ACQ_ID]]": [program, ctx.acquisitionId].filter(Boolean).join(" · ") || ctx.acquisitionId,
     "[[TECH_REP_NAME]]": str(ctx.technicalRepresentativeName) || KEEP,
     "[[CO_NAME]]": str(ctx.coName) || KEEP,
     "[[ADVOCATE_NAME]]": value("competition_advocate_name") || value("advocate_name") || KEEP,

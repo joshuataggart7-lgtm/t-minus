@@ -67,6 +67,7 @@ import {
   type AcqRow,
   type PollRow,
   type ReviewRuleRow,
+  stepLabel,
 } from "@/lib/launch-sequence";
 import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-stub";
 import { signedInName } from "@/lib/account-name";
@@ -1103,7 +1104,7 @@ function DocumentPage() {
       keys,
       view,
       operational: {
-        phase: metrics.currentPhase ?? "Not recorded",
+        phase: metrics.currentPhase ? stepLabel(metrics.currentPhase, metrics.acq as AcqRow) : "Not recorded",
         readiness,
         countdownLine: view.pastTarget
           ? countdownText(view, { omitBadge: view.badge === readiness })
@@ -1536,8 +1537,8 @@ function DocumentPage() {
     const purpose = mfrPurposeLabel(values);
     const pr = String(q.data.acq["pr_number"] ?? "").trim();
     const title = String(q.data.acq["title"] ?? "").trim();
-    const subject = `Memorandum for Record${purpose ? ` — ${purpose}` : ""}${title ? ` — ${title}` : ""}${
-      pr ? ` — PR ${pr}` : ""
+    const subject = `Memorandum for Record${purpose ? ` · ${purpose}` : ""}${title ? ` · ${title}` : ""}${
+      pr ? ` · PR ${pr}` : ""
     }`;
     const authority = String(values["authority"] ?? "").trim();
     const ref = authority ? [authority] : [];

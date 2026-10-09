@@ -252,7 +252,7 @@ export function computeMetrics(
   let nextDecision = pendingDue && pendingDue === nextDecisionDate
     ? `${board.find((b) => b.due_date === pendingDue && b.vote === "pending")?.reviewer_role ?? "Reviewer"} decision`
     : current
-      ? `Exit ${current.phase}`
+      ? `Exit ${phaseLabel(current)}`
       : "None open";
 
   if (scrubbed) {
@@ -343,7 +343,7 @@ export function computeMetrics(
       blockerOwner = (acq.co_name as string) ?? null;
     }
     if (missingDoc) heroLabel = heroActionLabel(missingDoc);
-    else if (current?.followsAward?.length) heroLabel = `Exit ${current.phase}; the justification may follow award`;
+    else if (current?.followsAward?.length) heroLabel = `Exit ${phaseLabel(current)}; the justification may follow award`;
   }
 
   return {

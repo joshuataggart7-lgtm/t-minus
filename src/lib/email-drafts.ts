@@ -101,7 +101,7 @@ export function buildEmailDrafts(input: {
     key: "requester-igce",
     label: "Requester — missing IGCE",
     to: requester,
-    subject: `${id} — independent government cost estimate still needed`,
+    subject: `${id} · independent government cost estimate still needed`,
     body: [
       `${requester},`,
       "",
@@ -133,7 +133,7 @@ export function buildEmailDrafts(input: {
     key: "requester-nudge",
     label: "Requester nudge",
     to: requester,
-    subject: `${id} — items still needed to move ${title}`,
+    subject: `${id} · items still needed to move ${title}`,
     body: [
       `${requester},`,
       "",
@@ -187,7 +187,7 @@ export function buildEmailDrafts(input: {
     key: "vendor-notice",
     label: "Vendor notice stub",
     to: outcome?.vendor ?? "",
-    subject: `${id} — notice of award decision`,
+    subject: `${id} · notice of award decision`,
     body: outcome
       ? [
           `${outcome.vendor},`,
