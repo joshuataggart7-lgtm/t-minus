@@ -37,6 +37,7 @@ import {
   type IntakeFacts,
   type RedFlag,
   type RefData,
+  intakeSimplifiedSole,
 } from "@/lib/intake";
 import { estimate, inputsFromFacts, toStored } from "@/lib/estimator";
 import { ExplainThis } from "@/components/explain-this";
@@ -278,10 +279,16 @@ function IntakePage() {
 
   const fields = data.data?.fields ?? [];
   const packageComplete = facts.funds_certified && facts.igce_attached && facts.sow_attached;
-  const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition);
-  const authorityOptions = (data.data?.authorities ?? []).filter(
+  const simplifiedSole = intakeSimplifiedSole(facts);
+  const needsAuthority = /limited sources|sole source|brand name/i.test(facts.competition) && !simplifiedSole;
+  // Over $9 million a commercial buy runs on RFO FAR 12.201-2 and cites one of
+  // the Part 6 authorities at RFO FAR 6.103 (RFO FAR 12.102(b), Table 12-1).
+  const part6Commercial = /12\.201-2|Part 15 procedures/i.test(facts.acquisition_method) && /commercial/i.test(facts.acquisition_method);
+  const authorityOptions = (data.data?.authorities ?? []).filter((row) =>
     // Reference rows may carry the legacy "FAR ..." method labels; match on the method itself.
-    (row) => methodKey(row.acquisition_method) === methodKey(facts.acquisition_method) && row.competition_type === facts.competition,
+    part6Commercial
+      ? /6\.103/.test(row.citation ?? "") && row.competition_type === facts.competition && methodKey(row.acquisition_method) === methodKey("FAR 15 negotiated")
+      : methodKey(row.acquisition_method) === methodKey(facts.acquisition_method) && row.competition_type === facts.competition,
   );
   const strategies = data.data?.ref.strategies ?? [];
   const pslOptionValues = new Set<string>([
@@ -523,7 +530,7 @@ function IntakePage() {
         acquisition_method: facts.acquisition_method,
         competition: facts.competition,
         set_aside: facts.set_aside || null,
-        jofoc_authority_citation: facts.jofoc_authority_citation || null,
+        jofoc_authority_citation: intakeSimplifiedSole(facts) ? null : facts.jofoc_authority_citation || null,
         funding_fiscal_year: facts.funding_fiscal_year || null,
         funds_certified: facts.funds_certified,
         igce_attached: facts.igce_attached,
@@ -1106,6 +1113,12 @@ function IntakePage() {
                 {authorityOptions.map((option) => <option key={`${option.citation}-${option.description}`} value={`${option.citation} · ${option.description}`}>{option.citation} · {option.description}</option>)}
               </select>
             </Field>
+          ) : simplifiedSole ? (
+            <p className="text-[13px] text-muted-foreground md:col-span-2">
+              {simplifiedSole === "noncommercial"
+                ? "At or below the simplified acquisition threshold, Part 6 does not apply. The file's JOFOC step calls for a determination and findings that only one source is reasonably available (RFO FAR 13.101(b); RFO FAR 6.001(a))."
+                : "At or below the simplified acquisition threshold, document that only one source is available and the basis for it. No Part 6 justification and approval applies (RFO FAR 12.102(a))."}
+            </p>
           ) : null}
           <Field label="Period of performance begins" htmlFor="pops">
             <input

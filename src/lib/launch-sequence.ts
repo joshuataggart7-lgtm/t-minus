@@ -225,8 +225,10 @@ function simplifiedSoleLabel(acq?: AcqRow | null): { label?: string } {
  * The statutory authority a justification records (RFO FAR 6.104-1(a)(4)),
  * matching the file's reason: unusual and compelling urgency (RFO FAR 6.103-2),
  * an 8(a) sole source above $30 million (RFO FAR 6.103-5(e); RFO FAR
- * 19.208-2(a)(1)), a commercial simplified file under RFO FAR 12.201-1
- * (41 U.S.C. 1901), otherwise only one responsible source (RFO FAR 6.103-1).
+ * 19.208-2(a)(1)), a commercial simplified file over the SAT under RFO FAR
+ * 12.201-1 (41 U.S.C. 1901, RFO FAR 12.102(b) Table 12-1), none at or below
+ * the SAT (RFO FAR 6.001(a); RFO FAR 12.102(a)), otherwise only one
+ * responsible source (RFO FAR 6.103-1).
  * A value already on the record is kept.
  */
 export function jofocAuthorityFor(acq?: AcqRow | null): string {
@@ -238,9 +240,28 @@ export function jofocAuthorityFor(acq?: AcqRow | null): string {
     return "10 U.S.C. 3204(a)(2) as implemented by RFO FAR 6.103-2 (unusual and compelling urgency)";
   if (variant?.templateKey === "jofoc-8a-over-30m")
     return "10 U.S.C. 3204(a)(5) as implemented by RFO FAR 6.103-5 (authorized or required by statute)";
-  if (isCommercialBuy(acq) && /12\.201-1/.test(String(row["acquisition_method"] ?? "")))
-    return "41 U.S.C. 1901 (RFO FAR 12.102 procedures; only one responsible source basis under RFO FAR 6.103-1)";
+  // At or below the SAT a simplified or commercial sole source carries no Part 6
+  // justification (RFO FAR 6.001(a); RFO FAR 12.102(a)), so no Part 6 authority.
+  if (simplifiedSoleSource(acq)) return "";
+  if (commercialSimplifiedOverSat(acq)) return COMMERCIAL_SIMPLIFIED_AUTHORITY;
   return "10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1 (only one responsible source)";
+}
+
+/** Table 12-1 authority for a commercial sole source over the SAT on simplified procedures. */
+export const COMMERCIAL_SIMPLIFIED_AUTHORITY = "41 U.S.C. 1901 (RFO FAR 12.102(b), Table 12-1)";
+
+/**
+ * A commercial sole source over the SAT and at or below $9 million on the
+ * simplified procedures at RFO FAR 12.201-1. It needs a written justification
+ * approved as in RFO FAR 6.104, citing 41 U.S.C. 1901 (RFO FAR 12.102(b),
+ * Table 12-1), not a Part 6 authority at RFO FAR 6.103.
+ */
+export function commercialSimplifiedOverSat(acq?: AcqRow | null): boolean {
+  const row = (acq ?? {}) as Record<string, unknown>;
+  if (!/sole/i.test(String(row["competition"] ?? ""))) return false;
+  if (!isCommercialBuy(acq) || !/12\.201-1/.test(String(row["acquisition_method"] ?? ""))) return false;
+  const value = Number(row["estimated_value"] ?? NaN);
+  return Number.isFinite(value) && value > SIMPLIFIED_ACQUISITION_THRESHOLD && value <= 9_000_000;
 }
 
 /** The award instrument named on the signature and award rows. */
@@ -371,6 +392,9 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
     if (simplifiedSole === "noncommercial")
       return "RFO FAR 13.101(b) (single-source determination and findings); RFO FAR 6.001(a) (Part 6 does not apply)";
     if (simplifiedSole === "commercial") return "RFO FAR 12.102(a) (document the only-one-source decision at or below the SAT)";
+    if (commercialSimplifiedOverSat(acq))
+      return "RFO FAR 12.102(b) (justification and approval as in RFO FAR 6.104 above the SAT); RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16";
+    return "RFO FAR 6.104; RFO FAR 6.104-2 Table 6-1; NFS CG 1806.15(a); NFS CG 1806.16";
   }
   if (soleSource && phase === "Synopsis") return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
@@ -755,7 +779,9 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       return [
         {
           label: "Justification for other than full and open competition",
-          citation: "RFO FAR 6.104-2",
+          citation: commercialSimplifiedOverSat(acq)
+            ? "RFO FAR 12.102(b); RFO FAR 6.104-1; RFO FAR 6.104-2"
+            : "RFO FAR 6.104-1; RFO FAR 6.104-2; NFS CG 1806.15(a)",
           field: "jofoc_authority_citation",
           link: "templates",
           templateKey: "jofoc",
@@ -1535,7 +1561,38 @@ export type PhaseView = {
    * this phase's reviews block exit or award.
    */
   followsAward?: string[];
+  /**
+   * On a phase the file has moved past: the required rows still unmet. Such a
+   * phase never reads Complete; it reads Required item open until they are met.
+   */
+  openRequired?: string[];
 };
+
+/** True when a phase is past and every required row in it is met. */
+export const phaseDone = (p: Pick<PhaseView, "status" | "openRequired">): boolean =>
+  p.status === "complete" && !(p.openRequired && p.openRequired.length);
+
+/** The state word for a phase: Complete, Required item open, In work or Not started. */
+export const phaseStateWord = (p: Pick<PhaseView, "status" | "openRequired">): string =>
+  p.status === "complete"
+    ? phaseDone(p)
+      ? "Complete"
+      : "Required item open"
+    : p.status === "current"
+      ? "In work"
+      : "Not started";
+
+/** The JOFOC step's plain guidance, matched to the document this file needs. */
+export function jofocGuidance(acq?: AcqRow | null): string {
+  const kind = simplifiedSoleSource(acq);
+  if (kind === "noncommercial")
+    return "Sole source at or under the simplified acquisition threshold on simplified procedures. Write the determination and findings that only one source is reasonably available. No Part 6 justification and approval applies.";
+  if (kind === "commercial")
+    return "Commercial sole source at or under the simplified acquisition threshold. Document that only one source is available and the basis for it. No Part 6 justification and approval applies.";
+  if (commercialSimplifiedOverSat(acq))
+    return "Commercial sole source over the simplified acquisition threshold on simplified procedures. Write the justification, cite 41 U.S.C. 1901, and route it for the approval its dollar tier calls for.";
+  return PHASE_GUIDANCE["JOFOC"] ?? "";
+}
 
 /** The name a phase is shown under; the stored name when no display name is set. */
 export const phaseLabel = (p: Pick<PhaseView, "phase" | "label">): string => p.label ?? p.phase;
@@ -1593,16 +1650,18 @@ export function buildSequence(
   };
 
   const clockNow = String(acq.clock_state ?? "").toLowerCase();
-  const unfinished = (phase: string, docs: RequiredDoc[]) => {
-    if (!known) return false;
-    return docs.some((d) => {
+  const unmet = (docs: RequiredDoc[]): RequiredDoc[] => {
+    if (!known) return [];
+    return docs.filter((d) => {
       if (d.optional) return false;
       if (d.dueAfterAward && clockNow !== "launched") return false;
+      if (d.mayFollowAward && clockNow !== "launched") return false;
       if (generatorKey(d) && !d.field && !known.savedKeys) return false;
       const hasFile = known.attachedKeys ? known.attachedKeys.has(docRowKey(d)) : undefined;
       return docSatisfied(d, acq, hasFile, known.savedKeys) === false;
     });
   };
+  const unfinished = (_phase: string, docs: RequiredDoc[]) => unmet(docs).length > 0;
 
   const planPhases = rows.map((r) => r.phase as string);
   const docsFor = rows.map((r) => requiredDocs(r.phase as string, acq, planPhases));
@@ -1675,18 +1734,20 @@ export function buildSequence(
     const definitization =
       phase === "Price Reasonableness" && awardAt >= 0 && i > awardAt && isLetterContract(acq as Record<string, unknown>);
     const followsAward = clockNow !== "launched" ? docs.filter((d) => d.mayFollowAward).map((d) => d.label) : [];
+    const openRequired = status === "complete" ? unmet(docs).map((d) => d.label) : [];
     return {
       phase,
       ...(definitization ? { label: "Definitization (price reasonableness)" } : {}),
       ...(phase === "JOFOC" ? simplifiedSoleLabel(acq) : {}),
       ...(followsAward.length ? { followsAward } : {}),
+      ...(openRequired.length ? { openRequired } : {}),
       planned_days: planned,
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
       docs,
       citation: phaseCitation(phase, acq),
-      guidance: PHASE_GUIDANCE[phase] ?? "",
+      guidance: phase === "JOFOC" ? jofocGuidance(acq) : (PHASE_GUIDANCE[phase] ?? ""),
       needsPoll: phase === REVIEW_PHASE,
     };
   });

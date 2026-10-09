@@ -2713,7 +2713,7 @@ function FilePage() {
       items.push({
         key: `open-${p.phase}`,
         tone: "watch",
-        text: `${phaseLabel(p)} marked complete with ${plural(open.length, "required item", "required items")} open`,
+        text: `${phaseLabel(p)} not complete: ${plural(open.length, "required item", "required items")} open`,
         sub: open.slice(0, 3).map((d) => d.label).join(", "),
         target: requirementId(p.phase, open[0].label),
       });
@@ -3141,16 +3141,17 @@ function FilePage() {
                 <h3 className="mc-seq-phase-title">
                   <span className="mc-seq-phase-n" data-numeric>{p.order}</span> {phaseLabel(p)}
                 </h3>
-                <StatusChip
-                  label={p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
-                  tone={p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
-                />
                 {openRequiredByPhase.get(p.phase)?.length ? (
                   <StatusChip
-                    label={`${openRequiredByPhase.get(p.phase)?.length} required ${openRequiredByPhase.get(p.phase)?.length === 1 ? "item" : "items"} open`}
+                    label={`Not complete · ${openRequiredByPhase.get(p.phase)?.length} required ${openRequiredByPhase.get(p.phase)?.length === 1 ? "item" : "items"} open`}
                     tone="attention"
                   />
-                ) : null}
+                ) : (
+                  <StatusChip
+                    label={p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
+                    tone={p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
+                  />
+                )}
                 <span className="mc-seq-phase-days" data-numeric>
                   {phaseDayLine(p)}
                 </span>
@@ -3158,9 +3159,9 @@ function FilePage() {
               <p className="mc-seq-phase-cite">{p.citation}</p>
               {openRequiredByPhase.get(p.phase)?.length ? (
                 <p className="mc-phase-open-note max-w-[80ch]">
-                  Marked complete with a required item open:{" "}
-                  {openRequiredByPhase.get(p.phase)?.map((d) => d.label).join("; ")}. The exit gate passed, but the
-                  record does not show this item. Check it, or record why it was not needed.
+                  This phase does not count as complete. Still open:{" "}
+                  {openRequiredByPhase.get(p.phase)?.map((d) => d.label).join("; ")}. The file has moved on, and the
+                  phase reads complete once the item is on the record.
                 </p>
               ) : null}
               {mode === "novice" ? <p className="mt-2 max-w-[80ch] text-[15px]">{p.guidance}</p> : null}
@@ -4809,8 +4810,8 @@ function FilePage() {
                   Phase {phases.indexOf(p) + 1}: {phaseLabel(p)}
                 </h3>
                 <StatusChip
-                  label={p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
-                  tone={p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
+                  label={openRequiredByPhase.get(p.phase)?.length ? "Not complete · required item open" : p.status === "complete" ? "Complete" : p.status === "current" ? "In work" : "Not started"}
+                  tone={openRequiredByPhase.get(p.phase)?.length ? "attention" : p.status === "complete" ? "ontrack" : p.status === "current" ? "info" : "neutral"}
                 />
               </div>
               <div className="mc-review-grid">

@@ -12,7 +12,7 @@
 // The level-of-effort estimator's months and its stage grouping are a separate
 // planning model. Screens that show them say "stages" and "estimate".
 
-import { acquisitionType, phaseLabel, type AcqRow, type PhasePlanRow, type PhaseView } from "@/lib/launch-sequence";
+import { acquisitionType, phaseDone, phaseLabel, type AcqRow, type PhasePlanRow, type PhaseView } from "@/lib/launch-sequence";
 import { plannedDaysForType } from "@/lib/successor";
 import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
 import { estimate, inputsFromAcq, type StoredEstimate } from "@/lib/estimator";
@@ -30,7 +30,7 @@ export type PhasePosition = {
 
 export function phasePosition(phases: PhaseView[]): PhasePosition {
   const index = phases.findIndex((p) => p.status === "current");
-  const completed = phases.filter((p) => p.status === "complete").length;
+  const completed = phases.filter(phaseDone).length;
   const current = index >= 0 ? phases[index] : undefined;
   return {
     number: index >= 0 ? index + 1 : null,

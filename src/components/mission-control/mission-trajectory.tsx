@@ -10,7 +10,7 @@ import { summarizeGate, type PhaseEvidence } from "./gate-evidence";
 import { GateDisclosureShell, GateGlance, MissionReadinessChip, ProvenanceChip } from "./primitives";
 import { dayWord } from "@/lib/pluralize";
 import { methodDisplayLabel } from "@/lib/rfo-simplified-cites";
-import { phaseLabel } from "@/lib/launch-sequence";
+import { phaseDone, phaseLabel } from "@/lib/launch-sequence";
 import { executiveBlocker } from "@/lib/executive-wording";
 
 const NR = "Not recorded";
@@ -197,7 +197,7 @@ export function MissionTrajectory({ metrics, missions }: { metrics: AcqMetrics[]
       <div className="mc-featured-track" role="list" aria-label={`${title} phases`} style={{ ["--n" as string]: String(Math.max(1, steps.length)) }}>
         {steps.map((stage, index) => {
           const phases = metric.phases.filter((phase) => stage.phases.some((name) => name === phase.phase));
-          const complete = phases.length > 0 && phases.every((phase) => phase.status === "complete");
+          const complete = phases.length > 0 && phases.every(phaseDone);
           const current = index === activeIndex;
           const future = index > activeIndex;
           const gate = summarizeGate(metric, stage.phases, evidenceOf(metric), current);

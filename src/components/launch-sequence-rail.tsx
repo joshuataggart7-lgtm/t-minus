@@ -1,4 +1,4 @@
-import { phaseLabel, phaseOverrunDays } from "@/lib/launch-sequence";
+import { phaseDone, phaseLabel, phaseOverrunDays } from "@/lib/launch-sequence";
 import { MISSION_NAV_SET_ALL } from "@/components/mission-control/mission-navigator";
 // Launch sequence rail (ORBIT Chunk 3). A vertical scan view of the same
 // phases array the file page already computes via buildSequence(). Display
@@ -40,7 +40,7 @@ export function LaunchSequenceRail({
   const currentIndex = phases.findIndex((p) => p.status === "current");
   const trimmed = compact && !showAll && currentIndex >= 0;
   const visible = trimmed ? indexed.filter(({ i }) => i >= currentIndex && i <= currentIndex + 2) : indexed;
-  const completeBefore = trimmed ? phases.slice(0, currentIndex).filter((p) => p.status === "complete").length : 0;
+  const completeBefore = trimmed ? phases.slice(0, currentIndex).filter(phaseDone).length : 0;
 
   return (
     <nav
@@ -67,7 +67,7 @@ export function LaunchSequenceRail({
         />
         {visible.map(({ p, i }) => {
           const isCurrent = p.status === "current";
-          const isComplete = p.status === "complete";
+          const isComplete = phaseDone(p);
           // The overrun is the same phaseOverrunDays() figure the file page uses.
           const pastExit = isCurrent && daysToPhaseExit !== null ? phaseOverrunDays(p) : null;
           const showExit = isCurrent && daysToPhaseExit !== null && daysToPhaseExit >= 0 && pastExit === null;
