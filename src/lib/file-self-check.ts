@@ -7,8 +7,7 @@ import { staleCitationsIn } from "@/lib/citation-corrections";
 import { FORM_NAMES, GENERATED_FORM_KEYS } from "@/lib/nf1787";
 import { TEMPLATES } from "@/lib/template-engine";
 import {
-  docRowKey,
-  docSatisfied,
+  openRequiredDocs,
   phaseLabel,
   type AcqRow,
   type PhaseView,
@@ -111,11 +110,8 @@ export function fileSelfCheck(input: {
 
   for (const phase of input.phases) {
     if (phase.status !== "complete") continue;
-    for (const doc of phase.docs) {
-      if (doc.optional) continue;
-      if ((doc.dueAfterAward || doc.mayFollowAward) && clock !== "launched") continue;
-      const hasFile = input.attachedKeys ? input.attachedKeys.has(docRowKey(doc)) : undefined;
-      if (docSatisfied(doc, input.acq, hasFile, input.savedKeys) !== false) continue;
+    const open = openRequiredDocs(phase.docs, input.acq, { attachedKeys: input.attachedKeys, savedKeys: input.savedKeys, clock });
+    for (const doc of open) {
       const name = phaseLabel(phase);
       add({
         id: `phase:${phase.phase}:${doc.label}`,

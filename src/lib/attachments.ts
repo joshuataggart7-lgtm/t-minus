@@ -163,6 +163,15 @@ export async function removeAttachment(row: AttachmentRow, actorGiven: string, r
   } as never);
 }
 
+/**
+ * A fictional sample attachment is a record only: the row names the file, but
+ * no bytes are stored for it. Such rows live under this storage prefix.
+ */
+export const SAMPLE_RECORD_PREFIX = "sample-record/";
+export const isSampleRecord = (row: Pick<AttachmentRow, "storage_path"> | null | undefined): boolean =>
+  Boolean(row?.storage_path?.startsWith(SAMPLE_RECORD_PREFIX));
+export const SAMPLE_RECORD_NOTE = "Sample record, no file stored";
+
 export async function downloadAttachment(row: AttachmentRow): Promise<string | null> {
   const { data } = await supabase.storage.from("attachments").createSignedUrl(row.storage_path, 300);
   return data?.signedUrl ?? null;

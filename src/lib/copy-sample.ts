@@ -1,3 +1,4 @@
+import { isSampleRecord, SAMPLE_RECORD_PREFIX } from "@/lib/attachments";
 // "Copy as new sample": a fresh acquisition in the same series carrying the
 // intake facts and the requester package of an existing file.
 //
@@ -130,14 +131,20 @@ export async function copyAsNewSample(sourceId: string, actorFallback: string): 
     size_bytes: number | null;
     parsed_total: number | null;
   }[]) {
-    const download = await supabase.storage.from("attachments").download(row.storage_path);
-    if (download.error || !download.data) continue;
-    const path = `${newId}/${row.doc_key}/${Date.now()}-${row.file_name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(-80)}`;
-    const upload = await supabase.storage.from("attachments").upload(path, download.data, {
-      contentType: row.content_type ?? "application/octet-stream",
-      upsert: false,
-    });
-    if (upload.error) continue;
+    // A fictional sample record has no stored bytes; the copy keeps it as a
+    // record-only row under the same prefix so the copied file reads the same.
+    const sample = isSampleRecord(row);
+    let path = `${SAMPLE_RECORD_PREFIX}${newId}/${row.doc_key}/${row.file_name}`;
+    if (!sample) {
+      const download = await supabase.storage.from("attachments").download(row.storage_path);
+      if (download.error || !download.data) continue;
+      path = `${newId}/${row.doc_key}/${Date.now()}-${row.file_name.replace(/[^A-Za-z0-9._-]+/g, "_").slice(-80)}`;
+      const upload = await supabase.storage.from("attachments").upload(path, download.data, {
+        contentType: row.content_type ?? "application/octet-stream",
+        upsert: false,
+      });
+      if (upload.error) continue;
+    }
     const inserted = await supabase
       .from("document_attachments")
       .insert({
