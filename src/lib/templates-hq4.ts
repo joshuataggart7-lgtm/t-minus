@@ -69,7 +69,7 @@ function signaturePage(
 ): SectionDef {
   return {
     id: "signature_page",
-    title: `SIGNATURE PAGE — ${pageTitle}`,
+    title: `SIGNATURE PAGE: ${pageTitle}`,
     citation,
     tier: "binding",
     standingText,

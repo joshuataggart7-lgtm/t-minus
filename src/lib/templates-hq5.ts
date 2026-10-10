@@ -725,7 +725,7 @@ const rfpNoncompetitive: TemplateDef = {
       citation: "RFO FAR 15.109",
       tier: "binding",
       standingText:
-        "Contract Volume \u2014 the signed award form and the draft contract, with any Safety and Health Plan and Small Business Subcontracting Plan attachments.\nOffer Volume \u2014 technical approach, business systems, contract administration and other information, any Cost Accounting Standards Disclosure Statement, and the Total Compensation Plan, if the solicitation calls for one.\nCost or Price Volume \u2014 the cost or price exhibits with supporting documentation and NFS provision 1852.215-85, Proposal Adequacy Checklist.",
+        "Contract Volume: the signed award form and the draft contract, with any Safety and Health Plan and Small Business Subcontracting Plan attachments.\nOffer Volume: technical approach, business systems, contract administration and other information, any Cost Accounting Standards Disclosure Statement, and the Total Compensation Plan, if the solicitation calls for one.\nCost or Price Volume: the cost or price exhibits with supporting documentation and NFS provision 1852.215-85, Proposal Adequacy Checklist.",
       fields: [
         S("award_form", "Award form in the Contract Volume", ["SF 26", "SF 33", "SF 1449"], "SF 33"),
         S("cost_or_price", "Cost or Price Volume", ["Cost", "Price"], "Cost"),
@@ -1265,7 +1265,7 @@ const ppm: TemplateDef = {
     },
     {
       id: "cost_analysis",
-      title: "IV. COST ANALYSIS \u2014 PARALLEL TABULATION BY ELEMENT OF COST AND PROFIT/FEE",
+      title: "IV. COST ANALYSIS: PARALLEL TABULATION BY ELEMENT OF COST AND PROFIT/FEE",
       citation: "RFO FAR 15.404; RFO FAR 15.404-1(b)",
       tier: "binding",
       standingText:

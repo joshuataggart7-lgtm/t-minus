@@ -490,7 +490,7 @@ const postawardConference: TemplateDef = {
     ]),
     {
       id: "gfi",
-      title: "Contract administration — Government furnished information",
+      title: "Contract administration: Government furnished information",
       citation: "RFO FAR 42.302(a)(3)",
       tier: "binding",
       collapsed: true,

@@ -3004,7 +3004,7 @@ export type ExportContext = {
 type PrintBlock = { heading?: string; lines: string[]; numbered?: boolean; center?: boolean; bold?: boolean };
 
 const cleanExportText = (text: string) =>
-  text
+  plainDatesInText(text)
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in an exported document.
@@ -3042,18 +3042,35 @@ function genericContextBlocks(ctx: ExportContext): PrintBlock[] {
     for (const f of visibleFields(section, v)) {
       const raw = (v[f.key] ?? "").trim();
       const value =
-        f.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+        isMoneyField(f) && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
           ? money(Number(raw.replace(/[$,]/g, "")))
           : f.kind === "date"
             ? plainDate(raw)
-            : cleanExportText(raw);
+            : f.key === "competition"
+              ? competitionLabel(cleanExportText(raw))
+              : cleanExportText(raw);
       if (!value && !f.required) continue;
       lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
     }
     if (lines.length) out.push({ heading: section.title, lines });
   }
+  // A determination, memorandum, appointment or letter closes with the
+  // contracting officer's signature block; checklists, notices, lists and data
+  // item descriptions are not signed documents.
+  const hasOwnSignature = (ctx.def.sections ?? []).some((s) => s.fields.some((f) => f.key.startsWith("sig_")));
+  if (!hasOwnSignature && !UNSIGNED_EXPORT.test(ctx.def.key)) {
+    out.push({
+      heading: "Signature",
+      lines: [
+        `${ctx.coName || blankLine}, ${ctx.coTitle || "Contracting Officer"}`,
+        "Signature: ______________________________    Date: __________",
+      ],
+    });
+  }
   return out;
 }
+
+const UNSIGNED_EXPORT = /checklist|notice|list\b|drd|presentation|instructions|^sam-|^nf-\d|cpars|tracker|index|briefing/i;
 
 export function jofocPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const v = ctx.values;
@@ -3180,7 +3197,7 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
     for (const field of visibleFields(section, v)) {
       const raw = (v[field.key] ?? "").trim();
       const value =
-        field.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+        isMoneyField(field) && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
           ? money(Number(raw.replace(/[$,]/g, "")))
           : field.kind === "date"
             ? plainDate(raw)
@@ -3202,14 +3219,21 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
     if (!lines.length) continue;
     out.push({ heading: section.title, lines });
   }
+  const hasOwnSignature = (def.sections ?? []).some((s) => s.fields.some((f) => f.key.startsWith("sig_")));
+  if (!hasOwnSignature && !UNSIGNED_EXPORT.test(def.key)) {
+    out.push({
+      heading: "Signature",
+      lines: [`${ctx.coName || blankLine}, ${ctx.coTitle || "Contracting Officer"}`, "Signature: ______________________________    Date: __________"],
+    });
+  }
   return out;
 }
 
 export function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBlock[] {
   if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
   if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
-  if (context?.def.layout) return hqPrintBlocks(context);
-  if (context) return genericContextBlocks(context);
+  if (context?.def.layout) return withRecordLine(hqPrintBlocks(context), context, 3);
+  if (context) return withRecordLine(genericContextBlocks(context), context, 0);
   return genericPrintBlocks(doc);
 }
 
@@ -3227,11 +3251,13 @@ export function renderDocument(
     for (const f of visibleFields(s, v)) {
       const raw = (v[f.key] ?? "").trim();
       const value =
-        f.kind === "money" && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
+        isMoneyField(f) && raw && !Number.isNaN(Number(raw.replace(/[$,]/g, "")))
           ? money(Number(raw.replace(/[$,]/g, "")))
           : f.kind === "date"
             ? plainDate(raw)
-            : raw;
+            : f.key === "competition"
+              ? competitionLabel(raw)
+              : raw;
       lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
     }
     return { heading: s.title, citation: sectionCitation(s, v), lines };
@@ -3324,4 +3350,30 @@ export async function exportPdf(doc: RenderedDoc, headerLine: string, fileName =
       : { top: 72, right: 72, bottom: 72, left: 72 },
   });
   return true;
+}
+
+/** A money field, or a read-only field carrying a dollar amount from the record. */
+function isMoneyField(f: { key: string; kind: FieldKind }): boolean {
+  return f.kind === "money" || (f.kind === "readonly" && /(^|_)(value|amount|price|cost|ceiling)(_|$)/.test(f.key));
+}
+
+/** ISO dates written into prose (research logs, saved text) print as plain dates. */
+export function plainDatesInText(text: string): string {
+  return text.replace(/\b(20\d\d)-(\d\d)-(\d\d)\b(?!T)/g, (m) => plainDate(m) || m);
+}
+
+
+/**
+ * Every export names the acquisition it belongs to. Where no field on the
+ * template carries the acquisition number or title, one identification line
+ * from the record is printed under the title.
+ */
+function withRecordLine(blocks: PrintBlock[], ctx: ExportContext, at: number): PrintBlock[] {
+  const title = String(ctx.acq?.["title"] ?? "").trim();
+  const text = blocks.flatMap((b) => [b.heading ?? "", ...b.lines]).join("\n");
+  if (text.includes(ctx.acquisitionId) || (title && text.includes(title))) return blocks;
+  const line = `Acquisition: ${[ctx.acquisitionId, title].filter(Boolean).join(" · ")}`;
+  const out = [...blocks];
+  out.splice(Math.min(at, out.length), 0, { lines: [line] });
+  return out;
 }
