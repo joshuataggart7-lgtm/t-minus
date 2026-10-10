@@ -12,6 +12,7 @@
  */
 
 import type { FileIndex } from "@/lib/file-index";
+import { dateCT } from "@/lib/calendar-date";
 import type { FormatScaffold } from "@/lib/format-scaffold";
 
 export const NF1098_ASSEMBLY_CHIP =
@@ -47,7 +48,9 @@ export type Nf1098AssemblyInput = {
   appliedClauseCount?: number | null;
 };
 
-const dateOnly = (iso: string | null | undefined) => (iso ? String(iso).slice(0, 10) : "");
+// The America/Chicago calendar date, the same clock the countdown and the
+// launch sequence use, so a save made in the evening does not read as the next day.
+const dateOnly = (iso: string | null | undefined) => (iso ? (dateCT(String(iso)) ?? String(iso).slice(0, 10)) : "");
 
 export function buildNf1098Assembly(input: Nf1098AssemblyInput): Nf1098Assembly {
   const { fileIndex, scaffold } = input;

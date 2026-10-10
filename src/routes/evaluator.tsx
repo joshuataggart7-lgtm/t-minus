@@ -13,6 +13,7 @@ import {
   type DataColumn,
 } from "@/components/ui-mc";
 import { supabase } from "@/integrations/supabase/client";
+import { dateCT } from "@/lib/calendar-date";
 
 // The evaluator's view. Read-only: it reads saved Evaluation of Quotations
 // Records whose technical evaluator is the signed-in persona, and the
@@ -272,7 +273,7 @@ function EvaluatorPage() {
                       </h2>
                       <p className="mc-req-meta">
                         Evaluation of Quotations Record, version {a.version}
-                        {a.savedAt ? `, saved ${a.savedAt.slice(0, 10)}` : ""}
+                        {a.savedAt ? `, saved ${dateCT(a.savedAt) ?? a.savedAt.slice(0, 10)}` : ""}
                         {a.coName ? ` · Contracting officer ${a.coName}` : ""}
                       </p>
                     </div>

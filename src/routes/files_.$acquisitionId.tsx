@@ -5085,7 +5085,7 @@ function FilePage() {
                 row.kind === "missing" ? (
                   <EmptyCell>None</EmptyCell>
                 ) : row.latest?.savedAt ? (
-                  formatDate(String(row.latest.savedAt).slice(0, 10))
+                  formatDate(String(row.latest.savedAt))
                 ) : (
                   "Not recorded"
                 ),
