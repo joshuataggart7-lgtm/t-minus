@@ -141,6 +141,7 @@ import {
   exportMemoDocx,
   exportMemoPdf,
   memoDefaultFor,
+  AGENCY_LINE,
   type MemoHeader,
   type MemoRoutingRow,
 } from "@/lib/nf1858";
@@ -2781,6 +2782,8 @@ function DocumentPage() {
           </div>
           {memoOn && memoHeader ? (
             <div className="mt-4 max-w-[80ch]">
+              {/* Laid out like the NF 1858 head: agency, Center and address, then date and Reply to Attn of. */}
+              <p className="mb-0 text-[13px] font-semibold">{AGENCY_LINE}</p>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 {memoHeader.centerName}
                 {memoHeader.centerAddress ? ` · ${memoHeader.centerAddress}` : ""} · {memoHeader.date} · Reply to Attn
