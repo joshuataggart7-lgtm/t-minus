@@ -153,7 +153,7 @@ function Badge({ children, tone }: { children: string; tone: "amber" | "red" | "
       className="inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold tracking-wide"
       style={
         tone === "amber"
-          ? { color: "var(--foreground)", backgroundColor: "var(--mc-amber)" }
+          ? { color: "#1d1d1f", backgroundColor: "var(--mc-amber)" }
           : tone === "red"
             ? { color: "var(--destructive-foreground)", backgroundColor: "var(--atrisk)" }
             : { color: "var(--chrome)", backgroundColor: "var(--accent-cyan)" }
@@ -237,7 +237,7 @@ export function LaunchCountdownCompact({
           className="rounded px-1 text-[10px] font-semibold tracking-wide"
           style={
             view.mode === "hold"
-              ? { color: "var(--foreground)", backgroundColor: "var(--mc-amber)" }
+              ? { color: "#1d1d1f", backgroundColor: "var(--mc-amber)" }
               : view.mode === "overdue"
                 ? { color: "var(--destructive-foreground)", backgroundColor: "var(--atrisk)" }
                 : { color: "var(--chrome)", backgroundColor: "var(--accent-cyan)" }

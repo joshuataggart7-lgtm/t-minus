@@ -210,7 +210,8 @@ import { SituationMemoPanel } from "@/components/situation-memo-panel";
 import { DeadlinesPanel } from "@/components/deadlines-panel";
 import { ageInDays, thresholdFor } from "@/lib/aging";
 import { computeMetrics, formatDate, formatStamp, holdSince } from "@/lib/metrics";
-import { LaunchCountdown, LaunchCountdownCompact, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
+import { LaunchCountdownCompact, countdownText, countdownView, type CountdownView } from "@/components/launch-countdown";
+import { LaunchArc } from "@/components/launch-arc";
 import { deriveOverviewAcquisitionState, overviewCountdownView, STORED_LAUNCH_NOTE } from "@/components/mission-control/operational-state";
 import { fileStatusLine } from "@/components/mission-control/file-status";
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
@@ -2984,12 +2985,17 @@ function FilePage() {
           </div>
         </div>
 
+        <LaunchArc
+          view={heroCountdownView}
+          phases={phases}
+          daysToPhaseExit={lifecycle?.nextDecision?.startsWith("Exit") ? lifecycle.daysToNextDecision : null}
+          onSelect={showPhase}
+          acquisitionId={acquisitionId}
+        />
+
         <div className="mc-file-glance">
           <div className="mc-glance mc-glance-clock">
-            <LaunchCountdown
-              view={heroCountdownView}
-              acquisitionId={acquisitionId}
-            />
+            <p className="mc-glance-label">Clock</p>
             <p className="mc-glance-state">
               {effectiveState === "running"
                 ? "Clock running"

@@ -73,7 +73,9 @@ import { CITE_HEADING_ONLY_NOTE, citeStatus, useCiteCorpus } from "@/lib/cite-st
 import { signedInName } from "@/lib/account-name";
 import { recordReadReceiptQuietly } from "@/lib/read-receipts";
 import { DocReadCount } from "@/components/doc-read-count";
+import { DocumentSheet, DocumentViewSwitch, type DocumentView } from "@/components/document-page";
 import {
+  exportBlocks,
   exportDocx,
   exportPdf,
   money,
@@ -301,6 +303,9 @@ function DocumentPage() {
   // NF 1858: whether this document is issued as a memorandum, and its header.
   const [memoOn, setMemoOn] = useState<boolean | null>(null);
   const [memoHeader, setMemoHeader] = useState<MemoHeader | null>(null);
+  // How the document is read: as a page (what Export PDF writes) or as fields.
+  // Unset until the reader chooses; a saved document opens as a page.
+  const [docView, setDocView] = useState<DocumentView | null>(null);
 
   const phase = phaseForTemplate(templateKey);
   const runComparablesFn = useServerFn(samContractAwards);
@@ -1629,6 +1634,25 @@ function DocumentPage() {
       cancelled = true;
     };
   }, [companionPrefetchKey, def?.key, exportContext]);
+  const view: DocumentView = docView ?? (q.data?.versions[0] ? "page" : "fields");
+  const pageMemo = memoOn && memoDoc ? memoDoc : null;
+  const pageBlocks = !pageMemo && exportRendered ? exportBlocks(exportRendered, exportContext) : null;
+  // In the page view the fields are hidden. A jump to a field section from the
+  // document navigator switches back to Fields and lands on that section.
+  useEffect(() => {
+    if (view !== "page") return;
+    const onClick = (event: MouseEvent) => {
+      const link = (event.target as Element | null)?.closest?.('a[href^="#doc-"]');
+      const id = link?.getAttribute("href")?.slice(1);
+      if (!id || id === "doc-save-export") return;
+      const target = document.getElementById(id);
+      if (!target || !target.closest("form.mc-doc-form")) return;
+      setDocView("fields");
+      window.requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [view]);
   const setMemo = <K extends keyof MemoHeader>(key: K, value: MemoHeader[K]) =>
     setMemoHeader((prev) => (prev ? { ...prev, [key]: value } : prev));
   const linesToList = (text: string) => text.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -2344,8 +2368,13 @@ function DocumentPage() {
         </div>
       ) : null}
 
+      <DocumentViewSwitch
+        view={view}
+        onChange={setDocView}
+        note={view === "page" ? "This is what Export PDF writes, built from the record. Edit in Fields." : null}
+      />
       <form
-        className="max-w-[80ch]"
+        className={`mc-doc-form max-w-[80ch]${view === "page" ? " is-page-view" : ""}`}
         onSubmit={(e) => {
           e.preventDefault();
           setTouched(true);
@@ -2958,6 +2987,9 @@ function DocumentPage() {
           </p>
         ) : null}
       </form>
+      {view === "page" ? (
+        <DocumentSheet memo={pageMemo} blocks={pageBlocks} headerLine={exportHeaderLine} title={def.name} />
+      ) : null}
       </>
       )}
 

@@ -3192,3 +3192,23 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
 - Requester, Reviewer and HQ menus show their primary pages first; the rest sit in a
   collapsed "More" group and stay in the command menu.
 - The deviation board records Approve or Disapprove (round J); older Go and No-go values read as Approve and Disapprove.
+
+## Night look, launch arc and document page view (Oct 10, 2026)
+
+- Appearance is a view preference, not a record: `src/lib/theme.ts` keeps Night or Day in
+  localStorage and sets `data-theme` on `<html>` before first paint. Night is the default.
+  Night tokens are screen-only in `src/styles.css`, so print keeps the white Day palette.
+- `src/components/launch-arc.tsx` replaces the countdown card and, at 700 px of column width
+  and up, the phase row on the acquisition file. It reads the same `CountdownView` and
+  `PhaseView[]` and calls the same `showPhase`. Below 700 px the phase row still shows.
+  No gate or phase logic changed.
+- `src/components/document-page.tsx` renders `buildMemoDoc` (NF 1858) or `exportBlocks`,
+  the same data Export PDF uses. A document with a saved version opens in Page; a new one
+  opens in Fields. Documents that export into an official Word master still export that way;
+  the page is the PDF layout.
+- Labels are sentence case through one rule block at the end of `src/styles.css`.
+- Checked before merge: type check, production build, 24 captured pages rendered in Night
+  and Day, an automated text contrast pass (Night has fewer misses than Day), and the arc in
+  running, forecast, hold, overdue, launched and stopped states at phone, tablet and desktop widths.
+- Simplest option taken: the NASA insignia stays where it already was. Joshua decided this on
+  Oct 10, 2026.

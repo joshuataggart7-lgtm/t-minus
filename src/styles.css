@@ -3397,3 +3397,257 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
 .mc-exception-table { min-width: 0; }
 .mc-exception-table th, .mc-exception-table td { white-space: normal; }
 .mc-watch-summary { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+
+/*
+ * Night appearance (the default). One dark navy deck for every page, so the
+ * Executive Overview and the work surfaces read as one product. Day keeps the
+ * original light palette. Print always uses Day: these tokens are screen-only.
+ * Status colors are lifted for contrast on navy and stay paired with their word.
+ */
+@media screen {
+  :root[data-theme="night"] {
+    color-scheme: dark;
+    --background: #0b1730;
+    --canvas: #060d1f;
+    --foreground: #edf2fc;
+    --muted: #101d3b;
+    --muted-foreground: #9cb0d6;
+    --border: #1e2e55;
+    --input: #2a3c69;
+    --card: #0b1730;
+    --card-foreground: #edf2fc;
+    --popover: #112042;
+    --popover-foreground: #edf2fc;
+    --primary: #8fbbff;
+    --primary-hover: #b7d3ff;
+    --primary-foreground: #051029;
+    --secondary: #13234a;
+    --secondary-foreground: #edf2fc;
+    --accent: #13234a;
+    --accent-foreground: #b7d3ff;
+    --ring: #8fbbff;
+    --chrome: #040916;
+    --chrome-elevated: #060d1f;
+    --chrome-structure: #1e2e55;
+    --accent-cyan: #8fbbff;
+    --ontrack: #41d98d;
+    --attention: #f4bc50;
+    --atrisk: #ff7d69;
+    --destructive: #ff7d69;
+    --destructive-foreground: #2a0a05;
+    --mc-meta-ink: #a9bad9;
+    --mc-warm-field: #081226;
+    --mc-warm-surface: #0b1730;
+    --mc-warm-line: #1e2e55;
+    --shadow-elevate: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 18px 40px -28px rgb(0 0 0 / 0.9);
+  }
+  :root[data-theme="night"] body {
+    background: radial-gradient(1200px 700px at 78% -10%, #10224d 0%, rgb(16 34 77 / 0) 60%), var(--canvas);
+    background-attachment: fixed;
+  }
+  /* The outline button on the navy band keeps a white fill; give it dark ink. */
+  :root[data-theme="night"] .mc-command-field .mc-req-button.is-secondary:not(.mc-featured-flight *) { color: #0b3d91; border-color: #ffffff; }
+}
+
+/*
+ * Labels read in sentence case, with no letterspacing (design rule: no
+ * all-caps labels). Status words such as HOLD and FORECAST are typed in
+ * capitals where they are data and are not touched here.
+ */
+table thead,
+.mc-dt thead th,
+.mc-loe-table thead th,
+.mc-label,
+.mc-label-light,
+.type-label,
+.mc-masthead-kicker,
+.mc-strip-head,
+.mc-preview-label,
+.mc-glance-label,
+.mc-stepper-title,
+.mc-rail-title,
+.mc-nav-label,
+.mc-rail-card .mc-nav-label,
+.mc-nav-group,
+.mc-details-section > h2,
+.mc-req-h,
+.mc-intake-samples-label,
+.mc-intake-rail-title,
+.mc-confirm-stat-label,
+.mc-row-keys-label,
+.mc-today-strip-head,
+.mc-today-cell-label,
+.mc-wq-card-label,
+.mc-wq-card-facts dt,
+.mc-account-label,
+.mc-review-kind,
+.chrome-rail button,
+.chrome-rail p {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/*
+ * Launch arc: the file's countdown over a horizon, each phase a point on it.
+ * The band is navy in both appearances; it is the one bold element on the page.
+ */
+.mc-arc {
+  --arc-limb-top: #17377e;
+  --arc-limb-mid: #0e2152;
+  --arc-limb-low: #08142e;
+  --arc-limb-line: #3a5596;
+  --arc-lit-from: #8fbbff;
+  --arc-lit-to: #ffffff;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, #071127 0%, #08142e 100%);
+  color: #edf2fc;
+  text-align: center;
+}
+.mc-arc-clock { position: relative; z-index: 1; padding: 1.5rem 1.5rem 1.25rem; }
+.mc-arc-kicker { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem 0.5rem; color: #9cb0d6; font-size: 13px; line-height: 18px; }
+.mc-arc-badge { border-radius: 4px; padding: 0 0.375rem; font-size: 11px; line-height: 18px; font-weight: 600; letter-spacing: 0.04em; }
+.mc-arc-badge.is-plain { background: #8fbbff; color: #051029; }
+.mc-arc-badge.is-hold { background: var(--mc-amber); color: #1d1d1f; }
+.mc-arc-badge.is-overdue { background: #ff7d69; color: #2a0a05; }
+.mc-arc-figure { margin-top: 0.25rem; color: #ffffff; font-family: "IBM Plex Sans Condensed", var(--font-sans); font-size: clamp(64px, 14cqw, 112px); line-height: 1; font-weight: 600; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.mc-arc-figure.is-red { color: #ff8a76; }
+.mc-arc-figure.is-muted, .mc-arc-figure.is-word { color: #b9c6e2; }
+.mc-arc-figure.is-word { font-size: clamp(40px, 8cqw, 64px); }
+.mc-arc-unit { margin-left: 0.625rem; color: #9cb0d6; font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 500; letter-spacing: 0; }
+.mc-arc-hold { max-width: 60ch; margin: 0.5rem auto 0; color: #edf2fc; font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
+.mc-arc-track { display: none; position: relative; aspect-ratio: 1000 / 205; margin-top: 0.75rem; }
+.mc-arc-track svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.mc-arc-points { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.mc-arc-point { position: absolute; width: 0; height: 0; }
+.mc-arc-point > button { position: absolute; top: 0; left: 0; display: flex; width: clamp(54px, 7.7cqw, 86px); transform: translateX(-50%); flex-direction: column; align-items: center; gap: 1px; border-radius: 8px; padding: 18px 2px 4px; color: #8fa3cf; font-family: "IBM Plex Sans Condensed", var(--font-sans); text-align: center; transition: color 150ms ease; }
+.mc-arc-point > button:hover { color: #ffffff; }
+.mc-arc-point > button:focus-visible { outline: 2px solid #8fbbff; outline-offset: 2px; }
+.mc-arc-dot { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 1.5px solid #6f86bd; border-radius: 999px; background: #0e2152; transition: transform 150ms ease; }
+.mc-arc-point > button:hover .mc-arc-dot { transform: translate(-50%, -50%) scale(1.3); }
+.mc-arc-point.is-complete .mc-arc-dot { border-color: #ffffff; background: #ffffff; }
+.mc-arc-point.is-current .mc-arc-dot { width: 18px; height: 18px; border: 2.5px solid #ffffff; background: radial-gradient(circle, #ffffff 0 3px, #071127 3.5px); box-shadow: 0 0 0 6px rgb(143 187 255 / 0.18); }
+.mc-arc-point.is-hold .mc-arc-dot { border-color: var(--mc-amber); box-shadow: 0 0 0 6px color-mix(in oklab, var(--mc-amber) 22%, transparent); }
+.mc-arc-point.is-late .mc-arc-dot { border-color: var(--mc-readiness-hold); box-shadow: 0 0 0 6px color-mix(in oklab, var(--mc-readiness-hold) 22%, transparent); }
+.mc-arc-n { font-size: 14px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.mc-arc-name { font-size: 11.5px; line-height: 13.5px; overflow-wrap: break-word; hyphens: manual; }
+.mc-arc-point.is-complete > button { color: #c3d1ec; }
+.mc-arc-point.is-current > button { color: #ffffff; font-weight: 600; }
+.mc-arc-note { margin-top: 3px; border-radius: 4px; background: #eaf2ff; padding: 0 6px; color: #051029; font-size: 11.5px; line-height: 16px; font-weight: 600; white-space: nowrap; }
+/* The note for the phase in work sits above its point, clear of the neighbouring names. */
+.mc-arc-point.is-current .mc-arc-note { position: absolute; top: -36px; left: 50%; margin: 0; transform: translateX(-50%); }
+.mc-arc-point.is-current:first-child .mc-arc-note { left: 0; transform: none; }
+.mc-arc-point.is-current:last-child .mc-arc-note { right: 0; left: auto; transform: none; }
+.mc-arc-point.is-award:not(.is-current) .mc-arc-note { background: transparent; color: #b7d3ff; box-shadow: inset 0 0 0 1px #4a5f94; }
+.mc-arc-point.is-hold .mc-arc-note { background: var(--mc-amber); color: #1d1d1f; }
+.mc-arc-point.is-late .mc-arc-note { background: var(--mc-readiness-hold); color: #2a1204; }
+.mc-arc-lit { stroke-dasharray: 1; stroke-dashoffset: 0; }
+@keyframes mc-arc-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: no-preference) { .mc-arc-lit { animation: mc-arc-draw 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; } }
+/* With room for twelve names the horizon carries the phases and the phase row steps aside. */
+@container filemain (min-width: 700px) {
+  .mc-arc-track { display: block; }
+  .mc-arc-clock { padding-bottom: 0; }
+  .mc-stepper { display: none; }
+}
+/* The clock cell is now words only, so the four glance cells share the row evenly. */
+.mc-glance-clock { padding: 1.125rem 1.5rem 1.25rem; }
+.mc-glance-clock .mc-glance-state { margin-top: 0.375rem; font-size: 18px; line-height: 24px; }
+@container filemain (min-width: 600px) {
+  .mc-file-glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mc-glance-clock { grid-row: auto; }
+  .mc-glance-next { grid-column: auto; }
+}
+@container filemain (min-width: 1080px) {
+  .mc-file-glance { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media print {
+  .mc-arc { border: 0; background: none; color: #000000; text-align: left; }
+  .mc-arc-clock { padding: 0 0 0.5rem; }
+  .mc-arc-kicker { justify-content: flex-start; color: #000000; }
+  .mc-arc-figure, .mc-arc-figure.is-red, .mc-arc-figure.is-muted, .mc-arc-figure.is-word { color: #000000; font-size: 28px; }
+  .mc-arc-unit, .mc-arc-hold { color: #000000; }
+  .mc-arc-badge { background: none !important; color: #000000 !important; border: 1px solid #000000; }
+}
+
+/*
+ * A document read as a page: white paper in both appearances, set in the serif
+ * face, in the order Export PDF writes it. The Fields view is the form.
+ */
+.mc-docview { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.875rem; max-width: 80ch; margin-bottom: 1rem; }
+.mc-docview-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; background: var(--muted); padding: 3px; }
+.mc-docview-seg button { border-radius: 7px; padding: 0.3125rem 1rem; color: var(--muted-foreground); font-size: 13px; line-height: 18px; font-weight: 500; }
+.mc-docview-seg button:hover { color: var(--foreground); }
+.mc-docview-seg button.is-on { background: var(--foreground); color: var(--background); }
+.mc-docview-seg button:focus-visible { outline: 2px solid var(--mc-focus, var(--ring)); outline-offset: 2px; }
+.mc-docview-note { flex: 1; min-width: 14rem; color: var(--muted-foreground); font-size: 13px; line-height: 18px; }
+.mc-doc-form.is-page-view > :not(#doc-save-export) { display: none; }
+.mc-doc-form.is-page-view > #doc-save-export { margin-bottom: 1rem; }
+.mc-page { max-width: 80ch; margin-bottom: 2.5rem; border-radius: 3px; background: #ffffff; padding: clamp(1.5rem, 7cqw, 4.5rem) clamp(1.25rem, 7.5cqw, 4.5rem) 2.5rem; color: #16181d; font-family: "IBM Plex Serif", Georgia, "Times New Roman", serif; font-size: 15px; line-height: 24px; box-shadow: 0 0 0 1px rgb(15 23 42 / 0.08), 0 30px 60px -30px rgb(15 23 42 / 0.35); overflow-wrap: anywhere; }
+:root[data-theme="night"] .mc-page { box-shadow: 0 0 0 1px rgb(143 187 255 / 0.1), 0 40px 80px -30px rgb(0 0 0 / 0.85); }
+.mc-page p { margin: 0; }
+.mc-page-cui { margin-bottom: 1rem !important; font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-align: center; }
+.mc-page-cui.is-foot { margin: 1.5rem 0 0 !important; }
+.mc-page-letterhead { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.375rem; font-family: var(--font-sans); font-size: 12.5px; line-height: 18px; color: #333a47; }
+.mc-page-letterhead img { flex: none; width: 78px; height: 72px; object-fit: contain; }
+.mc-page-agency { color: #16181d; font-size: 13.5px; font-weight: 600; }
+.mc-page-date { margin-bottom: 0.875rem !important; }
+.mc-page-head { margin: 0 0 1.25rem; }
+.mc-page-row { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 0.5rem; margin-bottom: 0.125rem; }
+.mc-page-row dt { padding-top: 1px; color: #4b5468; font-family: var(--font-sans); font-size: 12px; line-height: 24px; }
+.mc-page-row dd { margin: 0; }
+.mc-page-row dd span { display: block; }
+.mc-page-para { margin-bottom: 0.625rem !important; }
+.mc-page-body { margin: 0; padding: 0; list-style: none; counter-reset: mc-page-para; }
+.mc-page-body > li { margin-bottom: 0.75rem; counter-increment: mc-page-para; }
+.mc-page-body > li > p::before { content: counter(mc-page-para) ". "; }
+.mc-page-body ul { margin: 0.25rem 0 0; padding: 0 0 0 1.5rem; list-style: none; }
+.mc-page-body ul li { margin-bottom: 0.0625rem; }
+.mc-page-sign { width: 16.5rem; max-width: 100%; margin-top: 2.25rem; }
+.mc-page-sign.is-concur { margin-top: 1.25rem; }
+.mc-page-signline { display: block; height: 2rem; margin-bottom: 0.25rem; border-bottom: 1px solid #16181d; }
+.mc-page-after { margin-top: 1.25rem !important; }
+.mc-page-strong { font-weight: 600; }
+.mc-page-list { margin: 0.125rem 0 0; padding: 0 0 0 0.75rem; list-style: none; }
+.mc-page-list.is-numbered { padding-left: 2rem; list-style: decimal; }
+.mc-page-block { margin-bottom: 0.875rem; }
+.mc-page-block h3 { margin: 1rem 0 0.375rem; font-size: 15px; line-height: 24px; font-weight: 600; }
+.mc-page-block p { margin-bottom: 0.375rem; white-space: pre-wrap; }
+.mc-page-block p.is-center { text-align: center; }
+.mc-page-block p.is-bold { font-weight: 600; }
+.mc-page-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; margin-top: 2.5rem; border-top: 1px solid #d9dee8; padding-top: 0.5rem; color: #5b6478; font-family: var(--font-sans); font-size: 11px; line-height: 16px; }
+@media print { .mc-page { max-width: none; box-shadow: none; padding: 0; } }
+
+/*
+ * Landing (signed out). Always the night deck, whatever the saved appearance:
+ * the opening sentence, the two ways in, and the launch sequence as a horizon.
+ */
+.mc-landing { display: flex; min-height: 100vh; flex-direction: column; background: radial-gradient(1100px 620px at 80% -8%, #12285a 0%, rgb(18 40 90 / 0) 62%), #060d1f; color: #edf2fc; }
+.mc-landing-top { padding: 1.5rem clamp(1.25rem, 6vw, 5rem) 0; }
+.mc-landing-mark { color: #ffffff; font-size: 20px; line-height: 24px; font-weight: 600; }
+.mc-landing-mark span { margin-left: 0.5rem; color: #9cb0d6; font-size: 13px; font-weight: 400; }
+.mc-landing-main { flex: 1; padding: clamp(2.5rem, 9vh, 6.5rem) clamp(1.25rem, 6vw, 5rem) 2rem; }
+.mc-landing-main h1 { max-width: 17ch; color: #ffffff; font-size: clamp(34px, 5.4vw, 64px); line-height: 1.06; font-weight: 600; letter-spacing: -0.022em; text-wrap: balance; }
+.mc-landing-sub { max-width: 52ch; margin-top: 1.5rem; color: #b9c6e2; font-size: clamp(16px, 1.5vw, 19px); line-height: 1.5; }
+.mc-landing-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2.25rem; }
+.mc-landing-primary, .mc-landing-secondary { min-height: 2.875rem; border-radius: 10px; padding: 0.625rem 1.375rem; font-size: 16px; line-height: 22px; font-weight: 500; transition: background-color 150ms ease, border-color 150ms ease, transform 150ms ease; }
+.mc-landing-primary { background: #ffffff; color: #051029; }
+.mc-landing-primary:hover { background: #dbe8ff; }
+.mc-landing-primary:active, .mc-landing-secondary:active { transform: translateY(1px); }
+.mc-landing-secondary { border: 1px solid #3a5596; color: #edf2fc; }
+.mc-landing-secondary:hover { border-color: #8fbbff; background: rgb(143 187 255 / 0.08); }
+.mc-landing-primary:focus-visible, .mc-landing-secondary:focus-visible { outline: 2px solid #8fbbff; outline-offset: 3px; }
+.mc-landing-horizon { position: relative; width: 100%; aspect-ratio: 1200 / 190; min-height: 150px; }
+.mc-landing-horizon svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mc-landing-horizon ol { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.mc-landing-horizon li { position: absolute; display: flex; width: 7.5rem; transform: translateX(-50%); flex-direction: column; align-items: center; gap: 0.25rem; padding-top: 1.125rem; color: #c3d1ec; font-size: clamp(11px, 1.05vw, 14px); line-height: 1.25; text-align: center; }
+.mc-landing-dot { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border-radius: 999px; background: #ffffff; }
+.mc-landing-horizon li.is-launch { color: #ffffff; font-weight: 600; }
+.mc-landing-horizon li.is-launch .mc-landing-dot { width: 18px; height: 18px; border: 2.5px solid #ffffff; background: radial-gradient(circle, #ffffff 0 3px, #071127 3.5px); box-shadow: 0 0 0 7px rgb(143 187 255 / 0.18); }
+.mc-landing-launch { border-radius: 4px; background: #eaf2ff; padding: 0 0.375rem; color: #051029; font-size: 11.5px; line-height: 16px; font-weight: 600; }
+.mc-landing-facts { display: grid; gap: 0.75rem 2.5rem; margin: 0; background: #060d1f; padding: 1.75rem clamp(1.25rem, 6vw, 5rem) 0.5rem; list-style: none; color: #b9c6e2; font-size: 15px; line-height: 22px; }
+@media (min-width: 860px) { .mc-landing-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.mc-landing-facts li { max-width: 34ch; border-top: 1px solid #1e2e55; padding-top: 0.875rem; }
+.mc-landing-foot { background: #060d1f; padding: 1.5rem clamp(1.25rem, 6vw, 5rem) 1.75rem; color: #8fa3cf; font-size: 13px; line-height: 18px; }
+@media (max-width: 560px) { .mc-landing-horizon li { width: 4.25rem; } .mc-landing-horizon li:nth-child(even) .mc-landing-step { display: none; } }
