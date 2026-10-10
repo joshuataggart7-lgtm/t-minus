@@ -45,7 +45,7 @@ function csv(headers: string[], rows: (string | number | null | undefined)[][]):
 }
 
 function page(acquisitionId: string, stamp: string, title: string, body: string): string {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)} — ${esc(acquisitionId)}</title>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)} · ${esc(acquisitionId)}</title>
 <style>
   body { font-family: "IBM Plex Sans", Arial, sans-serif; color: #1D1D1F; background: #fff; font-size: 15px; line-height: 22px; margin: 32px; }
   header { border-bottom: 1px solid #D9DEE8; padding-bottom: 8px; margin-bottom: 24px; font-size: 13px; color: #5B6478; display: flex; justify-content: space-between; gap: 16px; }
@@ -66,7 +66,7 @@ ${body}
 function table(headers: string[], data: (string | number | null)[][]): string {
   if (!data.length) return `<p>Nothing recorded.</p>`;
   return `<table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${data
-    .map((r) => `<tr>${r.map((c) => `<td>${esc(c ?? "—")}</td>`).join("")}</tr>`)
+    .map((r) => `<tr>${r.map((c) => `<td>${esc(c ?? "Not recorded")}</td>`).join("")}</tr>`)
     .join("")}</tbody></table>`;
 }
 
@@ -195,12 +195,12 @@ export async function exportEvidencePack(
         ["Saved at", d.saved_at ?? null],
         ["Reviewed by", d.reviewed_by ?? null],
         ["Reviewed at", d.reviewed_at ?? null],
-        ["Official copy", isOfficialFinal(d.field_values) ? "Filed as the official copy" : "Draft — not filed as official"],
+        ["Official copy", isOfficialFinal(d.field_values) ? "Filed as the official copy" : "Draft, not filed as official"],
       ],
     );
     const fileName = `documents/${String(i + 1).padStart(2, "0")}-${slug(tab) || "no-tab"}-${slug(name)}-v${d.version ?? 1}.html`;
-    add(fileName, page(acquisitionId, stamp, `${name} — version ${d.version ?? 1}`, `${provenance}${body}`));
-    indexRows.push([tab || "—", name, `v${d.version ?? 1}`, d.saved_by ?? "—", d.saved_at ?? "—", fileName]);
+    add(fileName, page(acquisitionId, stamp, `${name} · version ${d.version ?? 1}`, `${provenance}${body}`));
+    indexRows.push([tab || "Not recorded", name, `v${d.version ?? 1}`, d.saved_by ?? "Not recorded", d.saved_at ?? "Not recorded", fileName]);
   });
 
   // ------------------------------------------------------------- research
@@ -281,7 +281,7 @@ export async function exportEvidencePack(
   const cover = page(
     acquisitionId,
     stamp,
-    `Evidence pack — ${input.title ?? acquisitionId}`,
+    `Evidence pack · ${input.title ?? acquisitionId}`,
     `<p>${input.isSample ? "Sample record. " : ""}Synthetic prototype data. This pack was built from what is recorded on this file. It is not an official contract file and nothing was written to an external system.</p>
      <h2>Documents in NF 1098 name order</h2>
      ${table(["NF 1098 tab", "Document", "Version", "Saved by", "Saved at", "File in this pack"], indexRows)}

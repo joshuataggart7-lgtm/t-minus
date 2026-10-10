@@ -115,7 +115,7 @@ export function setAsidePreawardMarkers(ctx: SetAsidePreawardContext): MarkerMap
     "[[OFFEROR_NAME]]": addressLines[1] ?? (unsuccessful ? KEEP : selected || KEEP),
     "[[OFFEROR_STREET]]": addressLines[2] ?? KEEP,
     "[[OFFEROR_CITY_STATE_ZIP]]": addressLines[3] ?? KEEP,
-    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || KEEP,
+    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || "Not recorded",
     "[[ACQ_TITLE]]": title,
     "[[SALUTATION_NAME]]": value("poc_name") || selected || KEEP,
 

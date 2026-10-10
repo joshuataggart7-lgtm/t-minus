@@ -84,9 +84,9 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
   const values = ctx.values ?? {};
   const acq = ctx.acq ?? {};
   const value = (key: string) => clean(values[key]);
-  const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
+  const center = str(ctx.centerName) || value("center_name") || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
-  const scope = value("scope") || clean(acq["description_of_requirement"]);
+  const scope = (value("scope") || clean(acq["description_of_requirement"])).replace(/[.\s]+$/, "");
   const competition = value("competition_type") || clean(acq["competition"]);
   const contractType = value("contract_type") || clean(acq["contract_type"]);
   const pop = [value("pop_form"), value("pop_detail")].filter(Boolean).join(" ");
@@ -130,7 +130,7 @@ export function drfpCoverMarkers(ctx: DrfpCoverContext): MarkerMap {
     "[[CENTER_NAME]]": center,
     "[[CENTER_ADDRESS]]": str(ctx.centerAddress) || KEEP,
     "[[ORG_CODE]]": value("org_code") || str(ctx.organizationCode) || KEEP,
-    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || KEEP,
+    "[[SOLICITATION_NUMBER]]": value("solicitation_number") || str(acq["solicitation_number"]) || "Not recorded",
     "[[ACQ_TITLE]]": title,
     "[[INTRO]]": `You are invited to review and comment on the National Aeronautics and Space Administration (NASA) ${center} ${title} draft solicitation. This DRFP supports early exchanges with industry under RFO FAR 15.101(b) and NFS CG 1815.11.${scope ? ` The principal purpose of this requirement is to provide ${scope}.` : ""}`,
     "[[COMMENTS_REQUEST]]": `Potential offerors are encouraged to comment on all aspects of the draft solicitation, including the requirements, schedules, proposal instructions, evaluation approaches, and perceived safety, occupational health, security including information technology security, environmental, export control, or other programmatic risk issues associated with performance of the work. Potential offerors should identify any unnecessary or inefficient requirements.${commentFocus ? ` The Government also requests comment on ${commentFocus}.` : ""}`,

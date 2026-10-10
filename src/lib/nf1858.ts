@@ -262,16 +262,23 @@ export type MemoDoc = {
  * paragraphs: one paragraph per section, its heading leading the sentence.
  * The record block is rendered as labeled lines so the facts read as facts.
  */
-const SIGNER_LABEL = /^(?:Contracting Officer|Contracting officer signature|Date signed|Signature|Signature date|Signed by|Signed on)$/i;
+const SIGNER_LABEL = /^(?:Contracting Officer|Contracting officer signature|Date signed|Date of determination|Determination date|Signature|Signature date|Signed by|Signed on)$/i;
 
-export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { date?: string }): MemoParagraph[] {
+const BARE_DATE = /^(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}\.?$/;
+const ENCLOSURE_LABEL = /^(?:Attachments?|Enclosures?)$/i;
+
+export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { date?: string; enclosures?: string[] }): MemoParagraph[] {
   const clean = (text: string) => plainDatesInText(humanMemoProse(text))
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in a memorandum body.
     .replace(/(?:^|\s)Draft,\s*confirm\.\s*/gi, " ")
     .replace(/\s+([,.;:])/g, "$1")
+    // A quoted factor ending "; and" or ";" before its finding reads as
+    // "factor: finding", not "factor;: The finding".
+    .replace(/;(?:\s+and)?:\s+/g, ": ")
     .replace(/([.;:!?])[.:]+/g, "$1")
+
     .replace(/\s{2,}/g, " ")
     .trim();
   // The numbered heading names the paragraph, so the field prompt that opens
@@ -295,8 +302,12 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
     entityCounts.reduce((sum, count) => sum + count, 0) > uniqueCount &&
     !/de-duplicated across (?:the )?sources and geographies/i.test(bodyText);
 
+  const bodyBlocks = doc.blocks.filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition");
+  const lastBodyBlock = bodyBlocks[bodyBlocks.length - 1];
   return doc.blocks
-    .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
+    .filter((b) => !b.heading.startsWith("Signatures") && !/^(?:\d+\.\s*)?SIGNATURE PAGE\b/i.test(b.heading) && b.heading !== "Acquisition")
+    // The memo numbers its own paragraphs, so a heading's own number is dropped.
+    .map((b) => ({ ...b, heading: b.heading.replace(/^\s*\d+\.\s+/, "") }))
     .map((b) => {
       const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —") && !l.endsWith(`: ${EMPTY_FIELD}`));
       // Signer and date fields belong in the signature block, never in prose.
@@ -304,8 +315,19 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
         const at = line.indexOf(": ");
         return at > 0 && at <= 60 && !/[.!?]/.test(line.slice(0, at)) ? line.slice(0, at) : "";
       };
+      const lastBlock = !!lastBodyBlock && b.lines === lastBodyBlock.lines;
       const kept = lines.filter((line) => {
+        // A bare date closing the final section is the signing date.
+        if (lastBlock && BARE_DATE.test(line)) {
+          if (sig && !sig.date) sig.date = line;
+          return false;
+        }
         const label = labelOf(line);
+        if (ENCLOSURE_LABEL.test(label)) {
+          const value = line.slice(label.length + 2).trim();
+          if (sig && value && value !== EMPTY_FIELD) (sig.enclosures ??= []).push(value);
+          return false;
+        }
         if (!SIGNER_LABEL.test(label)) return true;
         if (/date/i.test(label) && sig) sig.date = line.slice(label.length + 2).trim();
         return false;
@@ -315,10 +337,10 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
       const isFact = (line: string) => {
         const label = labelOf(line);
         const value = line.slice(label.length + 2);
-        return !!label && value.length <= 100 && !/[.!?]\s+[A-Z][a-z]/.test(value);
+        return !!label && value.length <= 240 && !/[.!?]\s+[A-Z][a-z]/.test(value);
       };
       const facts = kept.filter(isFact);
-      if (facts.length >= 3) {
+      if (facts.length >= 3 || (facts.length >= 2 && facts.length === kept.length)) {
         const lead = kept.filter((line) => !isFact(line)).map(clean).filter(Boolean).join(" ");
         return { text: clean(`${b.heading.replace(/[.:]+$/, "")}.${lead ? ` ${lead}` : ""}`), lines: facts };
       }
@@ -332,13 +354,13 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
         return {
           text: fileTab
             ? `Filing. This memorandum is filed under NF 1098 tab ${fileTab}.`
-            : "Filing. [Contracting officer to complete: the NF 1098 tab this memorandum is filed under]",
+            : `Filing. ${EMPTY_FIELD}.`,
           lines: [],
         };
       }
       if (templateKey === "memorandum-for-record" && b.heading === "Purpose" && prose.length === 0) {
         return {
-          text: "Purpose. [Contracting officer to complete: purpose of this memorandum]",
+          text: `Purpose. ${EMPTY_FIELD}.`,
           lines: [],
         };
       }
@@ -347,7 +369,13 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
         const intro = prose.slice(0, sourceStart + 1).join(" ");
         return { text: `${b.heading}. ${intro}`.trim(), lines: prose.slice(sourceStart + 1) };
       }
-      const text = clean(`${b.heading.replace(/[.:]+$/, "")}. ${prose.join(" ")}`);
+      // A closing ("V/R,") or a heading-only section is not a numbered
+      // paragraph; any other empty section says so instead of a bare heading.
+      if (/^(?:V\/R|Very respectfully|Respectfully|Sincerely)\b/i.test(b.heading)) return { text: "", lines: [] };
+      if (!prose.length && /\bheading$/i.test(b.heading.trim())) return { text: "", lines: [] };
+      // A section that only held the signer is the signature block, not a paragraph.
+      if (!prose.length && (SIGNER_LABEL.test(b.heading.trim()) || /^signatures?\b/i.test(b.heading.trim()))) return { text: "", lines: [] };
+      const text = clean(`${b.heading.replace(/[.:,]+$/, "")}. ${prose.length ? prose.join(" ") : `${EMPTY_FIELD}.`}`);
       return {
         text:
           needsDedupeNote && /findings/i.test(b.heading)
@@ -360,8 +388,10 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
 }
 
 export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader, templateKey?: string): MemoDoc {
-  const sig: { date?: string } = {};
+  const sig: { date?: string; enclosures?: string[] } = {};
   const paragraphs = memoParagraphs(doc, templateKey, sig);
+  // Enclosures named in the document print in the Enclosure line of the memo.
+  if (sig.enclosures?.length && !header.enclosures.length) header = { ...header, enclosures: sig.enclosures };
   const signedOn = sig.date && sig.date !== EMPTY_FIELD && sig.date !== "—" ? sig.date : undefined;
   return { header, paragraphs, badgeLine: doc.badgeLine, title: doc.title, signedOn };
 }
@@ -382,7 +412,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     { text: h.centerName, size: 10, gap: 0 },
     { text: h.centerAddress, size: 10, gap: 22 },
     { text: h.date, gap: 14 },
-    { text: `Reply to Attn of:  ${h.replyTo}`, gap: 20 },
+    { text: `Reply to Attn of:  ${h.replyTo || EMPTY_FIELD}`, gap: 20 },
   );
   const labelled = (label: string, value: string) => ({ text: `${label.padEnd(10, " ")}${value}`, gap: 2 });
   blocks.push(labelled("TO:", h.to));
@@ -400,7 +430,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
   // The signature block stays whole: blank signature line, typed name, title.
   blocks.push(
     { text: "", gap: 24 },
-    { text: "______________________________", gap: 2, keepWith: 60, keepWithPrevious: true },
+    { text: "______________________________", gap: 2, keepWith: memo.signedOn ? 78 : 64, keepWithPrevious: true },
     { text: h.signatureName, gap: 0 },
     { text: h.signatureTitle, gap: memo.signedOn ? 2 : 16 },
     ...(memo.signedOn ? [{ text: `Date: ${memo.signedOn}`, gap: 16 }] : []),
@@ -413,8 +443,11 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     }
   }
   if (h.enclosures.length) {
-    blocks.push({ text: "Enclosures:", bold: true, gap: 4 });
-    h.enclosures.forEach((e, i) => blocks.push({ text: `${i + 1}. ${e}`, indent: 12, gap: 2 }));
+    if (h.enclosures.length === 1) blocks.push({ text: `Enclosure: ${h.enclosures[0]}`, gap: 8 });
+    else {
+      blocks.push({ text: "Enclosures:", bold: true, gap: 4 });
+      h.enclosures.forEach((e, i) => blocks.push({ text: `${i + 1}. ${e}`, indent: 12, gap: 2 }));
+    }
   }
   if (h.distribution.length) {
     blocks.push({ text: "Distribution:", bold: true, gap: 4 });
@@ -441,6 +474,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
   const {
     Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, ImageRun,
     HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom, TextWrappingType,
+    Table, TableRow, TableCell, WidthType, BorderStyle,
   } = await import("docx");
   const h = memo.header;
   // The insignia from the official blank, first page only.
@@ -506,7 +540,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
     new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ ...small, text: h.centerName })] }),
     new Paragraph({ spacing: { after: 360 }, children: [new TextRun({ ...small, text: h.centerAddress })] }),
     p(h.date, { after: 240 }),
-    p(`Reply to Attn of:  ${h.replyTo}`, { after: 280 }),
+    p(`Reply to Attn of:  ${h.replyTo || EMPTY_FIELD}`, { after: 280 }),
     labelled("TO:", h.to),
   );
   h.thru.forEach((t, i) => children.push(labelled(i === 0 ? "THRU:" : "", t)));
@@ -514,10 +548,14 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
   h.ref.forEach((r, i) => children.push(labelled(i === 0 ? "REF:" : "", r)));
   if (h.salutation) children.push(p(h.salutation, { after: 200 }));
   children.push(p("", { after: 120 }));
-  memo.paragraphs.forEach((para, i) => {
-    // The last paragraph stays on the page with the signature block.
-    const last = i === memo.paragraphs.length - 1 && !para.lines.length;
-    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200, keepNext: last }));
+  // The last paragraph rides in the signature table below, so the two can
+  // never be split across pages.
+  const lastPara = memo.paragraphs.length && !memo.paragraphs[memo.paragraphs.length - 1]!.lines.length
+    ? memo.paragraphs[memo.paragraphs.length - 1]!
+    : null;
+  const bodyParas = lastPara ? memo.paragraphs.slice(0, -1) : memo.paragraphs;
+  bodyParas.forEach((para, i) => {
+    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200 }));
     for (const line of para.lines) {
       children.push(
         new Paragraph({
@@ -530,12 +568,35 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
     if (para.lines.length) children.push(p("", { after: 140 }));
   });
   // The signature block stays whole: blank signature line, typed name, title.
+  const none = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const sigCell = [
+    ...(lastPara ? [p(`${memo.paragraphs.length}. ${lastPara.text}`, { after: 200 })] : []),
+    p("", { after: 400 }),
+    p("______________________________", { after: 40 }),
+    p(h.signatureName),
+    p(h.signatureTitle, { after: memo.signedOn ? 40 : 0 }),
+    ...(memo.signedOn ? [p(`Date: ${memo.signedOn}`, { after: 0 })] : []),
+  ];
   children.push(
-    p("", { after: 400, keepNext: true }),
-    p("______________________________", { after: 40, keepNext: true }),
-    p(h.signatureName, { keepNext: true }),
-    p(h.signatureTitle, { after: memo.signedOn ? 40 : 240, keepNext: true }),
-    ...(memo.signedOn ? [p(`Date: ${memo.signedOn}`, { after: 240, keepNext: true })] : []),
+    new Table({
+      width: { size: 9360, type: WidthType.DXA },
+      columnWidths: [9360],
+      borders: { top: none, bottom: none, left: none, right: none, insideHorizontal: none, insideVertical: none },
+      rows: [
+        new TableRow({
+          cantSplit: true,
+          children: [
+            new TableCell({
+              width: { size: 9360, type: WidthType.DXA },
+              margins: { top: 0, bottom: 0, left: 0, right: 0 },
+              borders: { top: none, bottom: none, left: none, right: none },
+              children: sigCell,
+            }),
+          ],
+        }),
+      ],
+    }) as unknown as InstanceType<typeof Paragraph>,
+    p("", { after: 240 }),
   );
   if (h.concurrence.length) {
     children.push(p("CONCURRENCE:", { bold: true, keepNext: true }));
@@ -545,8 +606,12 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
     }
   }
   if (h.enclosures.length) {
-    children.push(p("Enclosures:", { bold: true, after: 60 }));
-    h.enclosures.forEach((e, i) => children.push(p(`${i + 1}. ${e}`, { after: 40 })));
+    // Memo format: "Enclosure:" for one, a numbered "Enclosures:" list for more.
+    if (h.enclosures.length === 1) children.push(p(`Enclosure: ${h.enclosures[0]}`, { after: 120 }));
+    else {
+      children.push(p("Enclosures:", { bold: true, after: 60 }));
+      h.enclosures.forEach((e, i) => children.push(p(`${i + 1}. ${e}`, { after: 40 })));
+    }
   }
   if (h.distribution.length) {
     children.push(p("Distribution:", { bold: true, after: 60, keepNext: true }));

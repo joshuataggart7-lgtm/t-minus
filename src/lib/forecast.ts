@@ -124,7 +124,7 @@ export function forecastCsv(entries: ForecastEntry[]): string {
         const v = String(e[c.key] ?? "");
         return cell(
           c.key === "anticipated_award_date" && v === ANTICIPATED_AWARD_TBD
-            ? `${ANTICIPATED_AWARD_TBD} — ${ANTICIPATED_AWARD_TBD_NOTE}`
+            ? `${ANTICIPATED_AWARD_TBD}: ${ANTICIPATED_AWARD_TBD_NOTE}`
             : v,
         );
       }).join(","),

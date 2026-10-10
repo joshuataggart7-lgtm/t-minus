@@ -177,31 +177,34 @@ export function lsjMarkers(ctx: LsjDocxContext): MarkerMap {
       : centerName || KEEP;
 
   const solicitation = value("solicitation_name") || ctx.acquisitionId || KEEP;
-  const buying = value("buying_location") || centerCode || "________________";
-  const contractor = value("contractor_name") || value("contractors") || "________________";
+  const recordAcqEarly = () => (ctx.acq ?? {}) as Record<string, unknown>;
+  const buying = value("buying_location") || centerCode || "Not recorded";
+  const contractor = value("contractor_name") || value("contractors") || str(recordAcqEarly()["vendor_legal_name"]) || "Not recorded";
   const action = (value("action_type") || "new order").toLowerCase();
   const actionDescription = (
     value("action_description") ||
     value("requirement_description") ||
-    "________________"
+    str((ctx.acq as Record<string, unknown> | undefined)?.["title"]) ||
+    "Not recorded"
   ).replace(/[.!?]+$/, "");
   const contractType = value("contract_type") || "firm-fixed price";
   const fssDetails = value("fss_details");
-  const fss = value("fss_number") || (fssDetails ? "" : "________________");
+  const fss = value("fss_number") || (fssDetails ? "" : "Not recorded");
   const fssTitle = value("fss_title") || "";
   const sin = value("sin") || "";
   const sinTitle = value("sin_title") || "";
   const program = value("program_name") || value("mission_supported") || "";
 
-  const popStart = humanDate(value("pop_start"));
-  const popEnd = humanDate(value("pop_end"));
+  const recordAcq = (ctx.acq ?? {}) as Record<string, unknown>;
+  const popStart = humanDate(value("pop_start") || str(recordAcq["period_of_performance_start"]));
+  const popEnd = humanDate(value("pop_end") || str(recordAcq["period_of_performance_end"]));
   const periodFree = value("period");
   const popRange =
     popStart || popEnd
-      ? `${popStart || "____________"} to ${popEnd || "____________"}`
-      : periodFree || "________________";
+      ? `${popStart || "Not recorded"} to ${popEnd || "Not recorded"}`
+      : periodFree || "Not recorded";
 
-  const rationale = value("authority_rationale") || value("lsj_rationale") || value("rationale") || KEEP;
+  const rationale = value("authority_rationale") || value("lsj_rationale") || value("rationale") || "Not recorded";
 
   const techRep = blankName(str(ctx.technicalRepresentativeName));
   const coName = blankName(str(ctx.coName));
@@ -213,7 +216,7 @@ export function lsjMarkers(ctx: LsjDocxContext): MarkerMap {
   const hqOgcName = blankName(value("hq_ogc_name") || "Office of the General Counsel at Headquarters");
   const agencyCaName = blankName(value("agency_ca_name") || value("agency_competition_advocate_name"));
   const speName = blankName(value("spe_name"));
-  const programAcq = [program, ctx.acquisitionId].filter(Boolean).join(" — ") || ctx.acquisitionId || KEEP;
+  const programAcq = [program, ctx.acquisitionId].filter(Boolean).join(" · ") || ctx.acquisitionId || KEEP;
 
   const fssBits = fssDetails || [fss, fssTitle, sin && `SIN ${sin}`, sinTitle].filter(Boolean).join(", ");
 
@@ -222,10 +225,10 @@ export function lsjMarkers(ctx: LsjDocxContext): MarkerMap {
     "[[FOR_SOLICITATION_CONTRACT]]": `For ${solicitation}`,
     "[[BUYING_LOCATION_PROSE]]": `This is a Limited-Sources Justification (LSJ) prepared by the National Aeronautics and Space Administration (NASA) ${buying}.`,
     "[[ACTION_MAS_PROSE]]": `This acquisition will be conducted under the Multiple Awards Schedule (MAS) Program (Title 41 U.S.C. 152(3)). This action is ${withArticle(action)} (${contractType}) for ${actionDescription}.`,
-    "[[CONTRACTOR_FSS_PROSE]]": `It is anticipated that award(s) will be made to ${contractor} under General Services Administration (GSA) Federal Supply Schedule (FSS) ${fssBits || "________________"}.`,
+    "[[CONTRACTOR_FSS_PROSE]]": `It is anticipated that award(s) will be made to ${contractor} under General Services Administration (GSA) Federal Supply Schedule (FSS) ${fssBits || "Not recorded"}.`,
     "[[VALUE_POP_PROSE]]": estimated
       ? `The total estimated price or ceiling amount of the proposed order or BPA is ${moneyProse(estimated)} and the estimated period of performance or lead-time for delivery is ${popRange}.`
-      : `The total estimated price or ceiling amount of the proposed order or BPA is $________________ and the estimated period of performance or lead-time for delivery is ${popRange}.`,
+      : `The total estimated price or ceiling amount of the proposed order or BPA is not recorded and the estimated period of performance or lead-time for delivery is ${popRange}.`,
     "[[AUTHORITY_RATIONALE]]": rationale,
     "[[SIG_PROGRAM_ACQ_ID]]": programAcq,
     "[[TECH_REP_NAME]]": techRep,

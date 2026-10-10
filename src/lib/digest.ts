@@ -159,7 +159,7 @@ export function digestSections(d: Digest): DigestSection[] {
             (r) =>
               `${r.id} · ${r.center} · ${r.title} · ${r.blocker} · owner ${r.owner} · ${
                 r.daysToAward === null
-                  ? "— days to award"
+                  ? "days to award not set"
                   : r.daysToAward < 0
                     ? `${Math.abs(r.daysToAward)} ${dayWord(Math.abs(r.daysToAward))} past target`
                     : `${r.daysToAward} ${dayWord(r.daysToAward)} to award`

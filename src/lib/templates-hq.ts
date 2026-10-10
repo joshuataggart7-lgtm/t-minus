@@ -895,6 +895,8 @@ function contractTypeDandF(opts: {
         citation: opts.approvalCitation,
         tier: "binding",
         standingText: opts.determination,
+        // Two-variant D&Fs print only the paragraph for the chosen variant.
+        standingTextFor: (v: Values) => determinationForVariant(opts.determination, v["variant"] ?? ""),
         fields: [{ key: "determined_on", label: "Date", kind: "date" }],
       },
       signaturePage(opts.signaturePageTitle, opts.signatureBlocks, opts.approvalCitation),
@@ -1603,3 +1605,16 @@ export function contractTypeTemplateKey(contractType: string): string | null {
 export const NO_DANDF_NOTE = "No D&F required for CPFF, RFO FAR 16.304.";
 
 export type { Values };
+
+
+/** The determination paragraph for the selected variant, or all when none matches. */
+function determinationForVariant(text: string, variant: string): string {
+  const key = variant.toLowerCase().split(/\s+/).slice(0, 2).join(" ").replace(/s$/, "");
+  if (!key) return text;
+  const paras = text.split(/\n+/);
+  const hit = paras.filter((p) => {
+    const lead = p.slice(0, Math.max(0, p.indexOf(":"))).toLowerCase();
+    return /^for (?:a |an )?/.test(lead) && lead.replace(/^for (?:a |an )?/, "").startsWith(key);
+  });
+  return hit.length === 1 ? hit[0]! : text;
+}

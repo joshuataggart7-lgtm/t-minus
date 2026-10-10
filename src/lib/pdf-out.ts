@@ -145,7 +145,14 @@ export async function renderPdf(blocks: PdfBlock[], options: PdfOptions): Promis
     // A continuation page carries no letterhead: the subject line only.
     if (options.runningHead) {
       const head = sanitize(options.runningHead);
-      page.drawText(head.slice(0, 120), { x: margins.left, y, size: 10, font: roman, color: rgb(0.25, 0.25, 0.25) });
+      // Fit the subject to the line, cutting at a word with an ellipsis.
+      let fit = head;
+      if (roman.widthOfTextAtSize(fit, 10) > maxWidth) {
+        const words = head.split(" ");
+        while (words.length > 1 && roman.widthOfTextAtSize(`${words.join(" ")}...`, 10) > maxWidth) words.pop();
+        fit = `${words.join(" ").replace(/[\s,;:-]+$/, "")}...`;
+      }
+      page.drawText(fit, { x: margins.left, y, size: 10, font: roman, color: rgb(0.25, 0.25, 0.25) });
       y -= 26;
     }
   };

@@ -3050,7 +3050,7 @@ function genericContextBlocks(ctx: ExportContext): PrintBlock[] {
               ? competitionLabel(cleanExportText(raw))
               : cleanExportText(raw);
       if (!value && !f.required) continue;
-      lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
+      lines.push(labelLine(f.label, value || EMPTY_FIELD));
     }
     if (lines.length) out.push({ heading: section.title, lines });
   }
@@ -3177,7 +3177,7 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
   const out: PrintBlock[] = [
     { lines: ["NATIONAL AERONAUTICS AND SPACE ADMINISTRATION"], center: true, bold: true },
     { lines: [ctx.centerName || "", ctx.centerAddress || "", ctx.preparedDate || ""].filter(Boolean), center: true },
-    { lines: [def.name.toUpperCase()], center: true, bold: true },
+    { lines: [printTitle(def.name)], center: true, bold: true },
   ];
   // The printed page already carries the agency line and the document title,
   // so a standing line that repeats either of them is not printed again.
@@ -3213,8 +3213,10 @@ function hqPrintBlocks(ctx: ExportContext): PrintBlock[] {
       if (!value && !field.required) continue;
       // Short identification fields print with their label so a reader can
       // tell a NAICS from a PSC; prose (textarea) prints as written.
-      const labelled = field.printLabel ?? field.kind !== "textarea";
-      lines.push(labelled ? `${field.label}: ${value || blankLine}` : value || blankLine);
+      // A bare date says nothing on its own, so dates always carry their label.
+      const bareDate = /^(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}$/.test(value.trim());
+      const labelled = field.kind === "date" || bareDate || (field.printLabel ?? field.kind !== "textarea");
+      lines.push(labelled ? labelLine(field.label, value || blankLine) : value || blankLine);
     }
     if (!lines.length) continue;
     out.push({ heading: section.title, lines });
@@ -3233,7 +3235,15 @@ export function exportBlocks(doc: RenderedDoc, context?: ExportContext): PrintBl
   if (context?.def.key === "jofoc") return jofocPrintBlocks(context);
   if (context?.def.key === "technical-evaluation-report") return terPrintBlocks(context);
   if (context?.def.layout) return withRecordLine(hqPrintBlocks(context), context, 3);
-  if (context) return withRecordLine(genericContextBlocks(context), context, 0);
+  if (context) {
+    // Every printed document opens with the agency line, Center, date and title.
+    const head: PrintBlock[] = [
+      { lines: ["NATIONAL AERONAUTICS AND SPACE ADMINISTRATION"], center: true, bold: true },
+      { lines: [context.centerName || "", context.centerAddress || "", context.preparedDate || ""].filter(Boolean), center: true },
+      { lines: [printTitle(context.def.name)], center: true, bold: true },
+    ];
+    return withRecordLine([...head, ...genericContextBlocks(context)], context, 3);
+  }
   return genericPrintBlocks(doc);
 }
 
@@ -3258,7 +3268,7 @@ export function renderDocument(
             : f.key === "competition"
               ? competitionLabel(raw)
               : raw;
-      lines.push(`${f.label}: ${value || EMPTY_FIELD}`);
+      lines.push(labelLine(f.label, value || EMPTY_FIELD));
     }
     return { heading: s.title, citation: sectionCitation(s, v), lines };
   });
@@ -3376,4 +3386,23 @@ function withRecordLine(blocks: PrintBlock[], ctx: ExportContext, at: number): P
   const out = [...blocks];
   out.splice(Math.min(at, out.length), 0, { lines: [line] });
   return out;
+}
+
+
+/**
+ * "Label: value", without doubling punctuation the label already carries:
+ * "Center:" or "Is this recurring?" take the value after a space, and a label
+ * ending in a period drops it before the colon.
+ */
+export function labelLine(label: string, rawValue: string): string {
+  const l = label.trim();
+  // A Word dropdown's unchosen prompt is not an answer.
+  const value = /^Choose an item\.?$/i.test(rawValue.trim()) ? EMPTY_FIELD : rawValue;
+  if (/[:?]$/.test(l)) return `${l} ${value}`;
+  return `${l.replace(/\.+$/, "")}: ${value}`;
+}
+
+/** Printed document title: upper case, without a stray trailing dash or colon. */
+export function printTitle(name: string): string {
+  return name.replace(/[\s\-\u2013\u2014:]+$/, "").toUpperCase();
 }

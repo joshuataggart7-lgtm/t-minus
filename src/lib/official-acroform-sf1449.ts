@@ -372,8 +372,11 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     },
     administering_office: { name_address: officeName, code: str(a["center_code"]) },
     contractor: {
-      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]),
-      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]),
+      // A single vendor on the record is the contractor; a multiple-award
+      // record (names joined by ";") needs one SF 1449 per awardee, so block
+      // 17a is not guessed from the list.
+      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]) || (str(a["vendor_legal_name"]).includes(";") ? "" : str(a["vendor_legal_name"])),
+      code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || (str(a["vendor_uei"]).includes(";") ? "" : str(a["vendor_uei"])),
       facility_code: str(a["awardee_cage"]) || str(a["intended_awardee_cage"]),
       phone: str(a["awardee_phone"]) || str(a["intended_awardee_phone"]),
       remittance_differs: false,

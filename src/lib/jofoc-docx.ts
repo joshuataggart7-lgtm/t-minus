@@ -326,7 +326,9 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
   const hqOgcName = value("hq_ogc_name") || "Office of the General Counsel, NASA Headquarters";
   const agencyCaName = blankName(value("agency_ca_name") || value("agency_competition_advocate_name"));
   const speName = blankName(value("spe_name"));
-  const programAcq = [program, ctx.acquisitionId].filter(Boolean).join(" · ") || ctx.acquisitionId;
+  // Signature-page title: the program name or acquisition title, never a bare mission code.
+  const sigTitle = value("program_name") || str((ctx.acq as Record<string, unknown> | undefined)?.["title"]) || program;
+  const programAcq = [sigTitle, ctx.acquisitionId].filter(Boolean).join(" · ") || ctx.acquisitionId;
 
   const map: MarkerMap = {
     "[[CENTER_NAME_ACRONYM]]": centerAcronym || KEEP,
@@ -336,7 +338,7 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
     "[[ACTION_ALT_MOD]]": "",
     "[[ACTION_ALT_EXTENSION]]": "",
     "[[REQUIREMENT_DESCRIPTION]]": value("requirement_description") || actionDescription || KEEP,
-    "[[MISSION_SUPPORTED]]": value("mission_supported") || program || KEEP,
+    "[[MISSION_SUPPORTED]]": (value("mission_supported") || program) ? `Mission supported: ${value("mission_supported") || program}` : KEEP,
     "[[POP_RANGE]]": popRange,
     "[[ESTIMATED_VALUE_PROSE]]": estimated ? `The estimated value is ${moneyProse(estimated)}.` : KEEP,
     "[[AUTHORITY_10USC_STEM]]": authority10Stem,
