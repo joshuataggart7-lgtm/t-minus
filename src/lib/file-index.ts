@@ -307,15 +307,23 @@ export function buildFileIndex(
     // doc_key (the RFP cover letter) is its own document, not an SF 1449
     // version. Only doc_key "sf-1449-official" counts toward the SF 1449.
     const values = d.field_values;
+    // The same holds for any other official form record (the SF 30): an
+    // export whose doc_key is not that form's own is listed by its own label,
+    // with a note saying where it was filed.
+    const isSf30 = /^SF 30\b/.test(tpl.name);
+    const ownKey = isSf1449(tpl.name) ? "sf-1449-official" : isSf30 ? "sf-30-official" : "";
     const strayExport =
       values?.kind === "official-export" &&
-      isSf1449(tpl.name) &&
+      ownKey !== "" &&
       typeof values.doc_key === "string" &&
       values.doc_key !== "" &&
-      values.doc_key !== "sf-1449-official" &&
+      values.doc_key !== ownKey &&
       typeof values.doc_label === "string" &&
       values.doc_label.trim() !== "";
-    const rowName = strayExport ? String(values?.doc_label).trim() : tpl.name;
+    const formShort = tpl.name.split(",")[0]!.trim();
+    const rowName = strayExport
+      ? `${String(values?.doc_label).trim()} (filed under the ${formShort} record by mistake)`
+      : tpl.name;
     const key = `${tab}|${rowName}`;
     const entry =
       present.get(key) ??

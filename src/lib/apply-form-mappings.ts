@@ -7,7 +7,7 @@
  * empty value is never written, so an unmapped or unrecorded box stays blank.
  */
 
-import type { PDFForm } from "pdf-lib";
+import type { PDFForm, PDFFont, StandardFonts } from "pdf-lib";
 import type { FormFieldMapping } from "@/lib/form-field-mappings";
 import { pdfGlyphs } from "@/lib/pdf-out";
 
@@ -36,6 +36,17 @@ export function displayDate(value: unknown): string {
   return m ? `${m[2]}/${m[3]}/${m[1]}` : raw;
 }
 
+const fonts = new WeakMap<PDFForm, PDFFont>();
+/** Helvetica measured for fitting, embedded once per document. */
+function helveticaFor(form: PDFForm): PDFFont {
+  let f = fonts.get(form);
+  if (!f) {
+    f = form.doc.embedStandardFont("Helvetica" as unknown as StandardFonts);
+    fonts.set(form, f);
+  }
+  return f;
+}
+
 /** Write a text field. Empty values are skipped; a missing field is ignored. */
 export function pdfText(form: PDFForm, name: string, value: unknown, size = 8, maxLen?: number): void {
   let text = pdfGlyphs(asText(value)).replace(
@@ -47,8 +58,21 @@ export function pdfText(form: PDFForm, name: string, value: unknown, size = 8, m
   try {
     const field = form.getTextField(name);
     field.setText(text);
+    // A one-line box shrinks the type so the whole value shows (down to 5 pt)
+    // rather than clipping it, measured in the Helvetica the appearances use.
+    let fit = size;
     try {
-      field.setFontSize(size);
+      if (!field.isMultiline()) {
+        const width = field.acroField.getWidgets()[0]?.getRectangle().width ?? 0;
+        const font = helveticaFor(form);
+        const at = font.widthOfTextAtSize(text, size);
+        if (width > 0 && at > width - 4) fit = Math.max(5, (size * (width - 4)) / at);
+      }
+    } catch {
+      /* no widget geometry; keep the mapped size */
+    }
+    try {
+      field.setFontSize(Math.floor(fit * 2) / 2);
     } catch {
       /* the blank fixes the size on some fields */
     }
