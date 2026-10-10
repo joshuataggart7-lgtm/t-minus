@@ -3539,8 +3539,9 @@ table thead,
 .mc-arc-note { margin-top: 3px; border-radius: 4px; background: #eaf2ff; padding: 0 6px; color: #051029; font-size: 11.5px; line-height: 16px; font-weight: 600; white-space: nowrap; }
 /* The note for the phase in work sits above its point, clear of the neighbouring names. */
 .mc-arc-point.is-current .mc-arc-note { position: absolute; top: -36px; left: 50%; margin: 0; transform: translateX(-50%); }
-.mc-arc-point.is-current:first-child .mc-arc-note { left: 50%; transform: translateX(-16px); }
-.mc-arc-point.is-current:last-child .mc-arc-note { right: 50%; left: auto; transform: translateX(16px); }
+/* At either end the note runs inward, so it sits higher to clear the next point on the curve. */
+.mc-arc-point.is-current:first-child .mc-arc-note { top: -52px; left: 50%; transform: translateX(-16px); }
+.mc-arc-point.is-current:last-child .mc-arc-note { top: -52px; right: 50%; left: auto; transform: translateX(16px); }
 .mc-arc-point.is-award:not(.is-current) .mc-arc-note { background: transparent; color: #b7d3ff; box-shadow: inset 0 0 0 1px #4a5f94; }
 .mc-arc-point.is-hold .mc-arc-note { background: var(--mc-amber); color: #1d1d1f; }
 .mc-arc-point.is-late .mc-arc-note { background: var(--mc-readiness-hold); color: #2a1204; }
