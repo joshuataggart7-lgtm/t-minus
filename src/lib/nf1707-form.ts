@@ -41,6 +41,14 @@ export function buildNf1707Form(ctx: FormCtx): GeneratedForm {
             ...(str(a["center_code"]) ? {} : { gap: "No Center recorded on the acquisition." }),
           },
           {
+            // The blank's choice list labels the number box: a requisition
+            // number or a P-Card log number.
+            path: "form1.Page1.Header.PurchaseType",
+            label: "Purchase type",
+            value: str(a["pr_number"]) ? "Requisition Number" : "",
+            ...(str(a["pr_number"]) ? {} : { gap: "No purchase request number recorded." }),
+          },
+          {
             path: "form1.Page1.Header.ReqNumber",
             label: "Requisition number",
             value: str(a["pr_number"]),

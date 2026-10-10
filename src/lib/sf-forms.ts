@@ -36,6 +36,7 @@ const field = (path: string, label: string, value: FormValue, gap?: string) =>
   (gap === undefined ? { path, label, value } : { path, label, value, gap });
 
 const issuedBy = (a: Record<string, unknown>): string =>
+  str(a["issuing_office_name_address"]) ||
   [str(a["center_name"]) || str(a["center_code"]), str(a["branch_code"])].filter(Boolean).join(", ");
 
 /** Text broken into at most `rows` lines of about `width` characters. */
@@ -124,7 +125,8 @@ export function buildSf1449(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.TextField1[4]",
           "Issued by (block 9)",
-          issuedBy(a) || TO_COMPLETE("record the issuing office"),
+          issuedBy(a),
+          issuedBy(a) ? undefined : TO_COMPLETE("record the issuing office"),
         ),
         field("topmostSubform.contactname", "Point of contact (block 7)", str(a["co_name"])),
         field("topmostSubform.contactphone", "Telephone (block 7)", str(a["co_phone"])),
@@ -423,11 +425,14 @@ const scheduleTotal = (rows: FormClin[]): number | null => {
 /** Accepted item numbers, written as the list the record holds. */
 const acceptedItems = (rows: FormClin[]): string => rows.map((r) => r.clinNumber).join(", ");
 
+// A single vendor of record is the awardee; a list of holders (joined by ";")
+// is never collapsed to one name.
+const single = (v: unknown): string => (str(v).includes(";") ? "" : str(v));
 const awardee = (a: Record<string, unknown>): string =>
-  str(a["awardee_name"]) || str(a["intended_awardee_name"]);
+  str(a["awardee_name"]) || str(a["intended_awardee_name"]) || single(a["vendor_legal_name"]);
 
 const awardeeUei = (a: Record<string, unknown>): string =>
-  str(a["awardee_uei"]) || str(a["intended_awardee_uei"]);
+  str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || single(a["vendor_uei"]);
 
 const parentContract = (a: Record<string, unknown>): string => str(a["parent_contract_number"]);
 
@@ -654,7 +659,8 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.EFECTDATE3",
           "Effective date (block 3)",
-          str(a["award_date"]) || str(a["period_of_performance_start"]),
+          // The award's effective date only; a performance start is not it.
+          str(a["award_date"]),
           str(a["award_date"]) ? undefined : "No award date on the record; the contracting officer sets it.",
         ),
         field(

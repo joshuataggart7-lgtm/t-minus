@@ -222,7 +222,10 @@ export function mappedNf1707(fields:Nf1707Field[], answers:NfAnswers, approvals:
  // Section 1, strategic sourcing.
  box("Section1.Section1.Available",yes("s1_strategy")); text("Section1.Section1.MandatoryContractNum",yes("s1_strategy")?a["s1_contract_number"]:""); box("Section1.Section1.NotAvailable",no("s1_strategy"));
  // Section 2, complete only one subsection.
- const s2=a["s2_authorization"]??(a["gate.it"]==="no"?"under_limit":"");
+ // III (under $7.5M, no IT) is a statement about value: a no-IT buy at or over
+ // $7.5M takes the No IT authorization line instead, never the under-limit box.
+ const s2Value=Number(String(facts?.estimated_value??"").replace(/[^0-9.]/g,""))||0;
+ const s2=a["s2_authorization"]??(a["gate.it"]==="no"?(s2Value>=7500000?"none":"under_limit"):"");
  if(s2==="citr")text("Section2.Section2.CITRAuth",a["s2_citr_number"]); if(s2==="orca")text("Section2.Section2.ORCAAuth",a["s2_orca_number"]);
  box("Section2.Section2.UnderLimitNoIT",s2==="under_limit"); if(s2==="none")text("Section2.Section2.NoITAuth",a["s2_no_authorization_reason"]); box("Section2.Section2.NotReviewed",s2==="not_reviewed");
  // Section 3-I, GPC; 3-III, NEPA.

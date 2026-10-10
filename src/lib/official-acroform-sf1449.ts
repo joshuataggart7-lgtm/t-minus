@@ -14,6 +14,7 @@
  * This is a prototype export; no field-by-field Adobe check has been done.
  */
 
+import { awardeeAddress } from "@/lib/award-facts";
 import type { FormCtx } from "@/lib/nf1787";
 import { isStreamlined } from "@/lib/format-scaffold";
 import { mappingsFor } from "@/lib/form-field-mappings";
@@ -235,6 +236,7 @@ export function validateSf1449ClinReconciliation(
   const lines = rows.reduce((sum, row) => sum + moneyValue(row["amount"]), 0);
   const total = moneyValue((data["award"] as Record<string, unknown> | undefined)?.["total_amount"]);
   if (lines === 0 && total === 0) return { ok: true };
+  if ((data["award"] as Record<string, unknown> | undefined)?.["idiq_minimum"]) return { ok: true };
   if (Math.abs(lines - total) <= 0.01) return { ok: true };
   return {
     ok: false,
@@ -308,14 +310,41 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const partialSetAside = /partial/i.test(setAside);
   const totalSmallBusiness = Boolean(setAside) && !partialSetAside;
 
-  const schedule: Record<string, string>[] = [
-    {
-      item_number: "0001",
-      description: wrapLines(title, 52, 1)[0] ?? "",
-      ...priced,
-    },
-    ...narrativeLines.map((line) => ({ description: line })),
-  ];
+  // A holder on a multiple-award vehicle prints its own priced lines: the
+  // unit prices are its awarded rates, the quantities the evaluated sample mix.
+  const holderClins = Array.isArray(a["awardee_clins"]) ? (a["awardee_clins"] as Record<string, unknown>[]) : [];
+  const money = (n: unknown) => (n === null || n === undefined || n === "" ? "" : dollars(Number(n)));
+  const ceiling = Number(a["vehicle_ceiling"]) || 0;
+  const schedule: Record<string, string>[] = holderClins.length
+    ? [
+        ...holderClins.flatMap((c) => {
+          const lines = wrapLines(str(c["description"]), 52, 1);
+          return [
+            {
+              item_number: str(c["clin_number"]),
+              description: lines[0] ?? "",
+              quantity: c["quantity"] === null || c["quantity"] === undefined ? "" : Number(c["quantity"]).toLocaleString("en-US"),
+              unit: str(c["unit"]),
+              unit_price: money(c["unit_price"]),
+              amount: money(c["amount"]),
+            },
+            ...lines.slice(1).map((line) => ({ description: line })),
+          ];
+        }),
+        ...wrapLines(
+          `Estimated quantities for the evaluated sample order mix; orders obligate funds. Guaranteed minimum ${dollars(price)}${ceiling ? `; vehicle ceiling ${dollars(ceiling)} shared by all awardees` : ""}.${pop ? ` Ordering period ${pop}.` : ""}`,
+          52,
+          4,
+        ).map((line) => ({ description: line })),
+      ]
+    : [
+        {
+          item_number: "0001",
+          description: wrapLines(title, 52, 1)[0] ?? "",
+          ...priced,
+        },
+        ...narrativeLines.map((line) => ({ description: line })),
+      ];
   // Rows 1 to 8 are the face of the form; rows 9 and beyond are the back page.
   // Empty rows keep the continuation text on the rows the reader is sent to.
   if (continuationLines.length) {
@@ -335,18 +364,18 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     pagination: { page: "1", pages: "" },
     contract: {
       number: str(a["contract_number"]),
-      // The award date is completed by the contracting officer.
-      award_effective_date: "",
+      // The award date as recorded at award; blank until then.
+      award_effective_date: displayDate(str(a["award_date"])) || str(a["award_date"]),
     },
     order: { number: str(a["order_number"]) },
     solicitation: {
       number: str(a["solicitation_number"]),
-      issue_date: str(a["solicitation_issue_date"]),
+      issue_date: displayDate(str(a["solicitation_issue_date"])) || str(a["solicitation_issue_date"]),
       offer_due_local: str(a["offers_due"]),
       contact: { name: coName, phone: str(a["co_phone"]) },
       method,
     },
-    issuing_office: { code: str(a["center_code"]), name_address: officeName },
+    issuing_office: { code: str(a["center_code"]), name_address: str(a["issuing_office_name_address"]) || officeName },
 
     acquisition: {
       restriction: setAside ? "set_aside" : "unrestricted",
@@ -370,25 +399,30 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
 
       deliver_to: { name_address: place, code: "" },
     },
-    administering_office: { name_address: officeName, code: str(a["center_code"]) },
+    administering_office: {
+      name_address: str(a["administering_office_name_address"]) || officeName,
+      code: str(a["administering_office_code"]) || str(a["center_code"]),
+    },
     contractor: {
       // A single vendor on the record is the contractor; a multiple-award
       // record (names joined by ";") needs one SF 1449 per awardee, so block
       // 17a is not guessed from the list.
-      name_address: str(a["awardee_name"]) || str(a["intended_awardee_name"]) || (str(a["vendor_legal_name"]).includes(";") ? "" : str(a["vendor_legal_name"])),
+      name_address: (str(a["awardee_street"]) ? awardeeAddress(a) : "") || str(a["awardee_name"]) || str(a["intended_awardee_name"]) || (str(a["vendor_legal_name"]).includes(";") ? "" : str(a["vendor_legal_name"])),
       code: str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || (str(a["vendor_uei"]).includes(";") ? "" : str(a["vendor_uei"])),
       facility_code: str(a["awardee_cage"]) || str(a["intended_awardee_cage"]),
       phone: str(a["awardee_phone"]) || str(a["intended_awardee_phone"]),
       remittance_differs: false,
     },
-    payment: { office: { code: "", name_address: str(a["payment_office"]) } },
+    payment: { office: { code: str(a["payment_office_code"]), name_address: str(a["payment_office"]) } },
 
     schedule,
     accounting: { data: str(a["funding_source"]) },
-    award: { total_amount: dollars(price) },
+    // On an IDIQ holder the award obligates the guaranteed minimum; the priced
+    // lines above are estimates, so they are not reconciled to it.
+    award: { total_amount: price ? dollars(price) : "", idiq_minimum: holderClins.length > 0 },
     offer: {
-      copies: "",
-      reference: "",
+      copies: str(a["sf1449_award_block"]) === "28" ? str(a["sf1449_copies"]) : "",
+      reference: str(a["sf1449_award_block"]) === "29" ? str(a["sf1449_offer_reference"]) : "",
       exceptions: "",
       discount_terms: str(a["discount_terms"]),
     },
@@ -396,10 +430,14 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
 
     clauses: {
       mode: commercial ? "addendum" : "schedule",
-      box1_0: false,
-      box1_1: false,
-      box1_2: false,
-      box1_3: false,
+      // 27a marks a solicitation, 27b a contract or order; the ARE / ARE NOT
+      // answers beside them only stand when the box itself is checked.
+      box1_0: Boolean(str(a["solicitation_number"])),
+      box1_1: Boolean(str(a["contract_number"]) && str(a["award_date"])),
+      // Block 28 (contractor signs and returns copies) or block 29 (award by
+      // acceptance of the offer), as recorded at award. Never assumed.
+      box1_2: str(a["sf1449_award_block"]) === "28",
+      box1_3: str(a["sf1449_award_block"]) === "29",
       are1: addenda27a === true,
       arenot1: addenda27a === false,
       are2: addenda27b === true,

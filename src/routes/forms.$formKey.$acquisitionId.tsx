@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { renderNf1707PrintPdf } from "@/lib/nf1707-print";
+import { vehicleAwardees, withAwardFacts } from "@/lib/award-facts";
 import { retiredNote } from "@/lib/file-index";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -124,6 +126,9 @@ function FormPage() {
   // Soft §8: the lineage overlay is off until the reader turns it on, so the
   // preview reads exactly as before by default.
   const [showLineage, setShowLineage] = useState(false);
+  // On a multiple-award vehicle each holder has its own contract; the form is
+  // filled for the holder chosen here.
+  const [holderIndex, setHolderIndex] = useState(0);
 
   // A read receipt for this visit. Soft tracking only; a failure is silent and
   // nothing on the file is held by it.
@@ -210,7 +215,7 @@ function FormPage() {
       // own mod number. No modification is invented when the table is empty.
       const mods = await supabase
         .from("contract_modifications")
-        .select("mod_number,mod_type,authority_text,description,sf30_13a,sf30_13b,sf30_13c,sf30_13d,created_at")
+        .select("mod_number,mod_type,authority_text,description,sf30_13a,sf30_13b,sf30_13c,sf30_13d,value_change,period_change_end,funds_line,state,created_at")
         .eq("acquisition_id", acquisitionId)
         .order("created_at", { ascending: true });
       return {
@@ -243,7 +248,7 @@ function FormPage() {
 
   const formCtx = useMemo<FormCtx | null>(() => {
     if (!q.data?.acq || !isFormKey(formKey)) return null;
-    const acq = q.data.acq;
+    const acq = withAwardFacts(q.data.acq, holderIndex);
     const answers = (acq["nf1707_answers"] ?? {}) as Record<string, unknown>;
     const gate = (name: string): boolean | null => {
       const v = answers[`gate.${name}`];
@@ -297,7 +302,10 @@ function FormPage() {
       })),
     };
     return ctx;
-  }, [q.data, formKey, acquisitionId]);
+  }, [q.data, formKey, acquisitionId, holderIndex]);
+  const holders = useMemo(() => vehicleAwardees(q.data?.acq ?? null), [q.data]);
+  // On a multiple-award file the export name carries the holder's contract number.
+  const holderTag = holders.length > 1 && formCtx?.acq["contract_number"] ? `-${String(formCtx.acq["contract_number"])}` : "";
 
   const baseForm = useMemo(
     () => (formCtx && isFormKey(formKey) ? buildForm(formKey, formCtx) : null),
@@ -571,6 +579,30 @@ function FormPage() {
 
   const exportFlat = async () => {
     if (!form) return;
+    if (form.key === "nf-1707" && q.data?.acq) {
+      // NF 1707 prints laid out after the official 03/25 form: header grid,
+      // Sections 1 to 12 with every statement and its box, signature lines.
+      const acqRow = q.data.acq;
+      const head = (label: string) => String(form.sections[0]?.fields.find((f) => f.label === label)?.value ?? "");
+      const bytes = await renderNf1707PrintPdf({
+        acquisitionId,
+        center: head("Center"),
+        purchaseType: head("Purchase type"),
+        reqNumber: head("Requisition number"),
+        reqOrg: head("Requisitioning organization"),
+        description: head("Description of requirement"),
+        answers: normalizeNf1707Stored((acqRow["nf1707_answers"] ?? {}) as Record<string, unknown>, acqRow),
+        signoffs: nf1707SignoffRows,
+      });
+      const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: "application/pdf" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `nf-1707-${acquisitionId}-print.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setMessage("NF 1707 print copy exported.");
+      return;
+    }
     // Short line for print: file, form, countdown.
     const printCountdown = !countdown
       ? "countdown not recorded"
@@ -735,7 +767,7 @@ function FormPage() {
       }
       const revision = pinnedRevision ?? currentFormRevision("sf1449");
       const bytes = await generateOfficialSf1449Pdf(formCtx, { formRevision: revision });
-      const fileName = `sf-1449-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
+      const fileName = `sf-1449-${acquisitionId}${holderTag}-official-rev-${revision.replace("/", "-")}.pdf`;
       downloadPdfBytes(bytes, fileName);
       setMessage(
         `Official PDF exported on blank revision ${revision}. ` +
@@ -782,7 +814,7 @@ function FormPage() {
             : formId === "sf33"
               ? "SF 33"
               : "SF 30";
-      const fileName = `${formKey}-${acquisitionId}-official-rev-${revision.replace("/", "-")}.pdf`;
+      const fileName = `${formKey}-${acquisitionId}${holderTag}-official-rev-${revision.replace("/", "-")}.pdf`;
       downloadPdfBytes(bytes, fileName);
       const base =
         `${label} official PDF exported on blank revision ${revision}. ` +
@@ -928,6 +960,26 @@ function FormPage() {
 
       {form ? (
         <>
+          {holders.length > 1 && /^(sf-1449|sf-30|sf-26|of-347)$/.test(formKey) ? (
+            <div className="mb-4 max-w-[80ch] text-[15px]">
+              <label htmlFor="award-holder" className="mr-2 font-medium">Award holder</label>
+              <select
+                id="award-holder"
+                className="rounded border border-border bg-background px-2 py-1 text-[15px]"
+                value={holderIndex}
+                onChange={(e) => setHolderIndex(Number(e.target.value))}
+              >
+                {holders.map((h, i) => (
+                  <option key={h.name} value={i}>
+                    {h.name}{h.contract_number ? ` · ${h.contract_number}` : ""}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                A multiple-award vehicle issues a separate contract to each holder. This form is filled for the holder chosen.
+              </p>
+            </div>
+          ) : null}
           <div id="form-actions" className="mc-work-toolbar mb-6 flex flex-wrap">
             {canWrite ? (
             <Button

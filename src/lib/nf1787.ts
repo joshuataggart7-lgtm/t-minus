@@ -61,6 +61,7 @@ export type FormClin = {
   source: string;
 };
 
+import { competitionLabel } from "@/lib/display-labels";
 import {
   findingText,
   rawFinding,
@@ -158,7 +159,9 @@ export const FORM_NAMES: Record<FormKey, string> = {
   "of-347": "OF 347, Order for Supplies or Services",
 };
 
-const TO_COMPLETE = (what: string) => `[Contracting officer to complete: ${what}]`;
+// An official form never prints guidance. What the record does not hold stays
+// blank on the form; the field's gap note says what to record.
+const TO_COMPLETE = (_what: string) => "";
 
 const str = (v: unknown): string => (v === null || v === undefined ? "" : String(v));
 
@@ -491,7 +494,7 @@ function soleSourceAuthority(a: Record<string, unknown>): string {
   const cited = str(a["jofoc_authority_citation"])
     .replace(/\[[^\]]*\]/g, "")
     .trim();
-  return cited || TO_COMPLETE("select the RFO FAR 6.103 authority on the justification");
+  return cited || "the RFO FAR 6.103 authority, not yet recorded on the justification";
 }
 
 /** The Remarks paragraph: an opening line of prose, then the findings. */
@@ -504,7 +507,7 @@ function remarksText(ctx: FormCtx, sole: boolean): string {
       : "no set-aside.";
   const opening = sole
     ? `Sole source under ${soleSourceAuthority(a)}; ${setAsideWords}`
-    : `${str(a["competition"]) || "Competed"}; ${setAsideWords}`;
+    : `${competitionLabel(str(a["competition"])) || "Competed"}; ${setAsideWords}`;
   const findings = sole
     ? soleSourceFindings(a, counts(ctx.findings), false)
     : findingText(ctx.findings, "nf1787.remarks");
@@ -703,7 +706,8 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
         citation: "Completed in the Approvals step",
         fields: [
           { path: "form1.Page2.SignSub.ContractSp", label: "Contract specialist", value: "" },
-          { path: "form1.Page2.SignSub.ContractorOfficerName", label: "Contracting officer", value: "" },
+          // The officer's typed name prints; the signature stays empty.
+          { path: "form1.Page2.SignSub.ContractorOfficerName", label: "Contracting officer", value: str(ctx.acq["co_name"]) || ctx.coName || "" },
           { path: "form1.Page2.SignSub.SBA_SPECIALIST", label: "Small business specialist", value: "" },
           { path: "form1.Page2.SignSub.S16.SBA_Rep", label: "SBA procurement center representative", value: "" },
         ],

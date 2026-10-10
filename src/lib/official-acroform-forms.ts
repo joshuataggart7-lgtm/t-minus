@@ -13,7 +13,8 @@ import { mappingsFor } from "@/lib/form-field-mappings";
 import { currentFormRevision, resolveFormTemplate, type FormTemplateId } from "@/lib/form-templates";
 import { withCanonical } from "@/lib/canonical-adapters";
 import { applyFormMappings } from "@/lib/apply-form-mappings";
-import { setAsideKey } from "@/lib/official-acroform-sf1449";
+import { setAsideKey, displayDate } from "@/lib/official-acroform-sf1449";
+import { awardeeAddress } from "@/lib/award-facts";
 import { dedupeClins, of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
 import { sf30Blocks, MOD_TYPES } from "@/lib/vehicles";
@@ -112,11 +113,13 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
       // The order date is written by the ordering officer, not invented here.
       date: str(a["award_date"]),
       number: str(a["order_number"]),
-      reference: str(a["pr_number"]),
+      // "Reference your" cites the contractor's quote or proposal, when recorded.
+      reference: str(a["quote_reference"]),
       kind: isDeliveryOrder ? "delivery" : "purchase",
     },
     contract: { number: parent || str(a["contract_number"]) },
-    requisition: { number: str(a["pr_number"]), reference: str(a["acquisition_id"]) },
+    // Block 10 names the requisitioning office, never the file number.
+    requisition: { number: str(a["pr_number"]), reference: str(a["requester_org_code"]) },
     issuing_office: { name_address: officeOf(a), code: str(a["center_code"]) },
     solicitation: { contact: { name: str(a["co_name"]) } },
     contractor: {
@@ -140,7 +143,8 @@ export function of347CtxToRogerData(ctx: FormCtx): RogerFormData {
     },
     acquisition: {
       set_aside_program: setAside ? setAsideKey(setAside) : "",
-      restriction: setAside ? "set_aside" : "other_than_small",
+      // Block 11 business classification only from a recorded set-aside or size.
+      restriction: setAside ? "set_aside" : str(a["business_size"]) === "other_than_small" ? "other_than_small" : "",
     },
     accounting: { data: str(a["funding_source"]) },
     offer: { discount_terms: str(a["discount_terms"]) },
@@ -162,9 +166,10 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   const amends = !str(a["contract_number"]);
   // Block 8 names a contractor only when one is recorded for this action. On a
   // multiple-award vehicle no single holder is picked.
-  const single = !isMultipleAward(a);
+  // A selected holder on a multiple-award vehicle is this action's contractor.
+  const single = !isMultipleAward(a) || Boolean(str(a["awardee_name"]));
   const contractorName = single
-    ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) || str(a["vendor_legal_name"])
+    ? (str(a["awardee_street"]) ? awardeeAddress(a) : "") || str(a["awardee_name"]) || str(a["intended_awardee_name"]) || str(a["vendor_legal_name"])
     : "";
   const contractorCode = single
     ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || str(a["vendor_uei"])
@@ -174,7 +179,17 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     : "";
   const issuingOffice = recordedOffice(a, "issuing");
   const administeringOffice = recordedOffice(a, "administering");
-  const description = str(mod["description"]);
+  // Item 14 states the effect on the total contract price (SF 30
+  // instruction (h)(2)): increased, decreased or unchanged.
+  const change = Number(mod["value_change"]) || 0;
+  const priceLine =
+    change > 0
+      ? `Total contract price increased by ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(change)}.`
+      : change < 0
+        ? `Total contract price decreased by ${new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(-change)}.`
+        : "Total contract price unchanged.";
+  const recorded = str(mod["description"]);
+  const description = recorded && !/total contract price/i.test(recorded) ? `${recorded}\n${priceLine}` : recorded;
   const pageCount = description.length > 1600 ? "2" : "1";
 
   // Block 13: the recorded flags rule. Where none is recorded, the block for
@@ -213,7 +228,7 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       // P0-2: block 2 carries the recorded modification number only. The
       // contract number belongs in block 10 and is never reused here.
       number: str(mod["mod_number"]),
-      effective_date: str(mod["effective_date"]),
+      effective_date: displayDate(str(mod["effective_date"])) || str(mod["effective_date"]),
       project_number: str(a["acquisition_id"]),
       description: description.slice(0, 1600),
       // A continuation page only when the recorded prose runs past block 14.
@@ -234,7 +249,7 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       item_13a_authority: block13.a ? authorityText : "",
       item_13c_authority: block13.c ? authorityText : "",
       item_13d_authority: block13.d ? authorityText : "",
-      // Block E follows the block 13 category (RFO FAR 43.103): a supplemental
+      // Block E follows the block 13 category (RFO FAR 43.203): a supplemental
       // agreement (13C) is bilateral; a change order (13A), an administrative
       // change (13B) or an option exercise is unilateral. With no category
       // recorded, nothing is assumed.
@@ -246,24 +261,28 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
     contract: {
       id_code: str(a["contract_id_code"]),
       number: str(a["contract_number"]),
-      award_effective_date: str(a["award_date"]),
+      award_effective_date: displayDate(str(a["award_date"])) || str(a["award_date"]),
     },
     solicitation: {
       // Block 9A only when a solicitation is being amended.
       number: amends ? str(a["solicitation_number"]) : "",
-      issue_date: str(a["solicitation_issue_date"]),
+      // Block 9B dates the solicitation being amended; a modification leaves it blank.
+      issue_date: amends ? displayDate(str(a["solicitation_issue_date"])) || str(a["solicitation_issue_date"]) : "",
     },
     issuing_office: { code: issuingOffice.code, name_address: issuingOffice.nameAddress },
-    administering_office: {
-      code: administeringOffice.code,
-      name_address: administeringOffice.nameAddress,
-    },
+    // Block 7 reads "If other than Item 6": the same office is not repeated.
+    administering_office:
+      administeringOffice.nameAddress === issuingOffice.nameAddress && administeringOffice.code === issuingOffice.code
+        ? { code: "", name_address: "" }
+        : { code: administeringOffice.code, name_address: administeringOffice.nameAddress },
     contractor: {
       name_address: contractorName,
       code: contractorCode,
       facility_code: contractorCage,
     },
-    accounting: { data: str(a["funding_source"]) || str(mod["funds_line"]) },
+    // Block 12 "if required" (SF 30 instruction (f)): the accounting line the
+    // modification changes. A change that moves no funds leaves it blank.
+    accounting: { data: str(mod["funds_line"]) || (change !== 0 ? str(a["funding_source"]) : "") },
     // Signature blocks stay empty; only the officer of record's name prints.
     signer: { contracting_officer: resolveOfficerName(a, ctx.coName), name_title: "" },
   };
