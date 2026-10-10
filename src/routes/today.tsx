@@ -6,6 +6,7 @@ import { AppShell, LoadingNote, ErrorNote, EmptyState } from "@/components/app-s
 import { McPageHeader, DataTable, StatusChip, type StatusTone } from "@/components/ui-mc";
 import { dueView, phasePosition, phasePositionText } from "@/lib/file-timeline";
 import { formatDate } from "@/lib/metrics";
+import { todayCT } from "@/lib/calendar-date";
 import { useRole } from "@/components/role-context";
 import { useDeskData, daysSince, daysUntil, type DeskCard } from "@/lib/desk-data";
 import { urgencyRank } from "@/lib/metrics";
@@ -271,7 +272,7 @@ function TodayPage() {
   return (
     <AppShell kit>
       <McPageHeader
-        eyebrow={formatDate(new Date().toISOString().slice(0, 10))}
+        eyebrow={formatDate(todayCT())}
         title="Today"
         lead={`What is waiting on ${user.name}, what is waiting on someone else, and the three things to do next.`}
       />

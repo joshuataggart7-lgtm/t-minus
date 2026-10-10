@@ -3218,7 +3218,7 @@ function FilePage() {
                             className="text-[13px]"
                           >
                             {saved
-                              ? `Saved, version ${saved.version}${saved.savedAt ? `, ${formatDate(String(saved.savedAt).slice(0, 10))}` : ""}`
+                              ? `Saved, version ${saved.version}${saved.savedAt ? `, ${formatDate(String(saved.savedAt))}` : ""}`
                               : `Needs ${d.label}`}
                           </StatusMark>
                           {d.templateKey ? (

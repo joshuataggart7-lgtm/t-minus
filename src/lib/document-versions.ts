@@ -7,6 +7,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { officialMeta } from "@/lib/official-file";
+import { dateCT } from "@/lib/calendar-date";
 
 export type DocVersionRow = {
   document_id: string;
@@ -80,9 +81,8 @@ export async function loadDocumentVersions(acquisitionId: string): Promise<{
 export function stampOrBlank(value: string | null | undefined): string {
   const v = (value ?? "").trim();
   if (!v) return "Not recorded";
-  const t = new Date(v);
-  if (Number.isNaN(t.getTime())) return v;
-  return t.toISOString().slice(0, 10);
+  // The America/Chicago calendar date, the same clock the countdown uses.
+  return dateCT(v) ?? v;
 }
 
 export function textOrBlank(value: string | null | undefined): string {
