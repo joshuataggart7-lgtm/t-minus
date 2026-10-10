@@ -130,7 +130,7 @@ export type ModificationRow = {
  * the change may trigger, not the authority for the change.
  *
  * Form use RFO 43.401; modification types RFO 43.203. Administrative changes
- * take the form cite at RFO FAR 43.203(b). NASA Interim NFS 1843 is not general
+ * take the form cite at RFO FAR 43.203(b)(1). NASA Interim NFS 1843 is not general
  * block 13 text and the NFS Companion Guide is process only, so neither is
  * printed in the block 13 blank.
  */
@@ -141,7 +141,7 @@ export const MOD_TYPES: {
   /** Plain description of where the authority comes from. */
   authority: string;
 }[] = [
-  { key: "administrative", label: "Administrative change", block: "13B", authority: "RFO FAR 43.203(b) administrative change" },
+  { key: "administrative", label: "Administrative change", block: "13B", authority: "RFO FAR 43.203(b)(1) administrative change" },
   { key: "funding", label: "Funding modification", block: "13D", authority: "The clause of the contract that authorizes the change" },
   { key: "option_exercise", label: "Option exercise", block: "13D", authority: "The option clause of the contract" },
   { key: "change_order", label: "Change order", block: "13A", authority: "The Changes clause of the contract" },
@@ -182,7 +182,7 @@ export function modAuthorityText(
   switch (type) {
     case "administrative":
       // The only block 13 entry that is a form cite rather than a clause.
-      return "RFO FAR 43.203(b), administrative change signed by the contracting officer alone";
+      return "RFO FAR 43.203(b)(1), administrative change signed by the contracting officer alone";
     case "change_order":
       if (commercial) return "RFO FAR 52.212-4(d) Changes, the Changes clause of this contract";
       if (has("52.243")) return `${clauses.find((c) => c.startsWith("52.243"))} Changes, as awarded in this contract`;

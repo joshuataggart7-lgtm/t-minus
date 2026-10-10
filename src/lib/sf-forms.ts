@@ -19,6 +19,7 @@ import { isStreamlined } from "@/lib/format-scaffold";
 import { faceLine, packSentences, setAsideFlags } from "@/lib/official-acroform-sf1449";
 import { of347Face } from "@/lib/of347-face";
 import { isMultipleAward } from "@/lib/award-holders";
+import { awardeeAddress } from "@/lib/award-facts";
 import { isSoftWalkCommercialSample, resolveOfficerName } from "@/lib/softwalk-samples";
 import { simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
 
@@ -681,7 +682,8 @@ export function buildSf26(ctx: FormCtx): GeneratedForm {
         field(
           "topmostSubform.NAMEADDY7",
           "Name and address of contractor (block 7)",
-          awardee(a),
+          // Name, street, and city, state and ZIP code on their own lines.
+          str(a["awardee_street"]) ? awardeeAddress({ ...a, awardee_name: awardee(a) }) : awardee(a),
           awardee(a) ? undefined : "No awardee on the record; filled at award.",
         ),
         field(
