@@ -17,6 +17,7 @@ export function ReviewCard({
   showPhase = false,
   showOverdue = true,
   launched = false,
+  advisoryNote,
 }: {
   entry: BoardEntry;
   explain?: ReactNode;
@@ -26,6 +27,8 @@ export function ReviewCard({
   showOverdue?: boolean;
   /** A launched file: an entry with no decision reads as history, not as Pending. */
   launched?: boolean;
+  /** A plain line under the header, for a requested review the rules do not require. */
+  advisoryNote?: string | null;
 }) {
   const noRecord = launched && !entry.decision && entry.vote === "pending";
   const outcome = entry.decision ? DECISION_LABEL[entry.decision] : noRecord ? "No decision recorded in T-Minus" : "Pending";
@@ -46,6 +49,7 @@ export function ReviewCard({
         <StatusChip label={outcome} tone={tone} />
       </div>
       {entry.poll_id || noRecord ? null : <p className="mc-review-note">Review not requested yet</p>}
+      {advisoryNote ? <p className="mc-review-note">{advisoryNote}</p> : null}
       {entry.reason ? (
         <div className="mc-review-reason">
           <p className="mc-review-label">{reasonLabel}</p>

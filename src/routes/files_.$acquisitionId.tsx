@@ -61,6 +61,7 @@ import {
   stepLabel,
   phaseOverrunDays,
   pollBoard,
+  requestedReviewsOffBoard,
   reviewerNameForRole,
   jofocAuthorityFor,
   REVIEW_PHASES,
@@ -924,6 +925,18 @@ function FilePage() {
   }, [acq, q.data, ref]);
 
   const board = useMemo(() => Object.values(boards).flat(), [boards]);
+
+  // Reviews requested on this file that the review rules do not require for
+  // it. Shown and counted with the rest, and kept off the rule board so phase
+  // exit still reads required reviews only.
+  const requestedExtras = useMemo(() => {
+    const out: Record<string, BoardEntry[]> = {};
+    if (!acq) return out;
+    for (const phase of REVIEW_PHASES) {
+      out[phase] = requestedReviewsOffBoard(acq, q.data?.polls ?? [], boards[phase] ?? [], phase, q.data?.people ?? []);
+    }
+    return out;
+  }, [acq, q.data, boards]);
 
   const lifecycle = useMemo(() => {
     if (!acq) return null;
@@ -2543,9 +2556,14 @@ function FilePage() {
 
   // Phases that carry a review board, in launch sequence order, and the
   // requested reviews still waiting for a decision.
-  const reviewPhases = phases.filter((p) => (boards[p.phase] ?? []).length > 0);
+  const reviewPhases = phases.filter(
+    (p) => (boards[p.phase] ?? []).length > 0 || (requestedExtras[p.phase] ?? []).length > 0,
+  );
   const pendingReviewCount = reviewPhases.reduce(
-    (n, p) => n + (boards[p.phase] ?? []).filter((b) => b.poll_id && b.vote === "pending").length,
+    (n, p) =>
+      n +
+      [...(boards[p.phase] ?? []), ...(requestedExtras[p.phase] ?? [])].filter((b) => b.poll_id && b.vote === "pending")
+        .length,
     0,
   );
 
@@ -4654,6 +4672,14 @@ function FilePage() {
             {lifecycle.upcomingReviews.map((review) => (
               <li key={`${review.phase}-${review.reviewer_role}`}>{review.phase} · {review.reviewer_role} · {review.reviewer_name}</li>
             ))}
+            {phases
+              .filter((p) => p.status !== "complete")
+              .flatMap((p) => (requestedExtras[p.phase] ?? []).filter((b) => b.vote === "pending"))
+              .map((review) => (
+                <li key={`requested-${review.phase}-${review.reviewer_role}`}>
+                  {review.phase} · {review.reviewer_role} · {review.reviewer_name} · requested, not a required review for this buy
+                </li>
+              ))}
           </ul>
         </section>
       ) : null}
@@ -4837,6 +4863,15 @@ function FilePage() {
                         </Button>
                       ) : null
                     }
+                  />
+                ))}
+                {(requestedExtras[p.phase] ?? []).map((b) => (
+                  <ReviewCard
+                    key={`requested-${b.phase}-${b.reviewer_role}`}
+                    entry={b}
+                    showOverdue={effectiveState !== "launched"}
+                    launched={effectiveState === "launched"}
+                    advisoryNote={b.note}
                   />
                 ))}
               </div>
