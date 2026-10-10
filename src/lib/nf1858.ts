@@ -11,7 +11,7 @@
  * Name, Concurrence, Enclosures, Distribution, cc, bcc, CUISheetText.
  */
 
-import { EMPTY_FIELD, TEMPLATES, type RenderedDoc } from "@/lib/template-engine";
+import { EMPTY_FIELD, TEMPLATES, plainDatesInText, type RenderedDoc } from "@/lib/template-engine";
 import { renderPdf, type PdfBlock } from "@/lib/pdf-out";
 import { humanMemoProse } from "@/lib/memo-prose";
 
@@ -96,6 +96,13 @@ const DEFAULT_ON = new Set([
   "fdo-appointment",
   "co-appointment-letter",
   "co-appointment-termination",
+  // The determination templates carry a "-determination" key; the short keys
+  // above are kept for routing rows that name them.
+  "consolidation-determination",
+  "bundling-determination",
+  "economy-act-determination",
+  "commercial-tm-lh-determination",
+  "option-exercise-determination",
   // Contracting officer memoranda to the file with no HQ master of their own.
   "single-source-dandf",
   "only-one-source-record",
@@ -254,7 +261,7 @@ export type MemoDoc = {
  * The record block is rendered as labeled lines so the facts read as facts.
  */
 export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoParagraph[] {
-  const clean = (text: string) => humanMemoProse(text)
+  const clean = (text: string) => plainDatesInText(humanMemoProse(text))
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in a memorandum body.

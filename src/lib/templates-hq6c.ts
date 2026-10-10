@@ -54,8 +54,8 @@ const bondRow = (key: string, item: string, na: string[] = []): FieldDef[] =>
   (["sf24", "sf25", "sf25a"] as const).map((form) => {
     const formLabel = form === "sf24" ? "SF 24" : form === "sf25" ? "SF 25" : "SF 25-A";
     return na.includes(form)
-      ? S(`${key}_${form}`, `${item} \u2014 ${formLabel}`, ["N/A"], "N/A")
-      : S(`${key}_${form}`, `${item} \u2014 ${formLabel}`, ["Not reviewed", "X", "N/A"], "Not reviewed");
+      ? S(`${key}_${form}`, `${item}: ${formLabel}`, ["N/A"], "N/A")
+      : S(`${key}_${form}`, `${item}: ${formLabel}`, ["Not reviewed", "X", "N/A"], "Not reviewed");
   });
 
 // -------------------------------------------- digital signature instructions
@@ -117,6 +117,7 @@ const qasp: TemplateDef = {
       title: "Cover",
       citation: "RFO FAR 46.401",
       tier: "binding",
+      standingTextFor: (v) => fillQaspInserts(QASP_COVER, v),
       standingText:
         "NATIONAL AERONAUTICS AND SPACE ADMINISTRATION\n(Insert Center name)\nQUALITY ASSURANCE SURVEILLANCE PLAN (QASP)\nFOR THE\n(Insert name of acquisition)\n\nThis Quality Assurance Surveillance Plan (QASP) was prepared by the following:",
       fields: [
@@ -149,6 +150,7 @@ const qasp: TemplateDef = {
       id: "s1",
       title: "1 INTRODUCTION",
       tier: "binding",
+      standingTextFor: (v) => fillQaspInserts(QASP_INTRO, v),
       standingText:
         "This quality assurance surveillance plan (QASP) is pursuant to the requirements listed in the performance work statement (PWS) entitled (insert name of services). This plan sets forth the procedures and guidelines NASA (insert Center name and or program/project office performing monitoring/surveillance activity) will use in ensuring the required performance standards or services levels are achieved by the contractor.\n\n1.1 Purpose\n\n1.1.1 The purpose of the QASP is to describe the systematic methods used to monitor performance and identify required documentation and resources to be employed. The QASP provides a means for evaluating whether the contractor is meeting the performance standards/quality levels identified in the PWS and the contractor's quality control plan (QCP), and ensure the Government pays only for the level of services received.\n\n1.1.2 This QASP defines the roles and responsibilities of all surveillance members, identifies the performance objectives, defines the methodologies used to monitor and evaluate the contractor's performance, describes quality assurance documentation requirements, and describes the analysis of quality assurance monitoring results.",
       fields: [
@@ -309,7 +311,7 @@ const sbirPhaseIii: TemplateDef = {
     tier: "binding",
     revision: "HQ reference checklist",
   },
-  lead: "SBIR/STTR PHASE III \u2014 CONTRACTING OFFICER CHECKLIST.",
+  lead: "SBIR/STTR PHASE III: CONTRACTING OFFICER CHECKLIST.",
   layout: "plan",
   sections: [
     {
@@ -348,7 +350,7 @@ const sbirPhaseIii: TemplateDef = {
     },
     {
       id: "s3_yes",
-      title: "3. Award Strategy Decision \u2014 If Direct Award IS Practicable",
+      title: "3. Award Strategy Decision: If Direct Award IS Practicable",
       citation: "15 U.S.C. \u00a7 638(r)(4)",
       tier: "binding",
       showIf: (v) => (v["s2_practicable"] ?? "Practicable") === "Practicable",
@@ -361,7 +363,7 @@ const sbirPhaseIii: TemplateDef = {
     },
     {
       id: "s3_no",
-      title: "3. Award Strategy Decision \u2014 If Direct Award is NOT Practicable",
+      title: "3. Award Strategy Decision: If Direct Award is NOT Practicable",
       citation: "15 U.S.C. \u00a7 638(r)(4)",
       tier: "binding",
       showIf: (v) => (v["s2_practicable"] ?? "Practicable") === "Not practicable",
@@ -851,6 +853,19 @@ const constructionBonds: TemplateDef = {
     },
   ],
 };
+
+/** HQ QASP text with its "(Insert ...)" slots filled from the record; an empty slot prints a blank line. */
+const QASP_COVER = "NATIONAL AERONAUTICS AND SPACE ADMINISTRATION\n(Insert Center name)\nQUALITY ASSURANCE SURVEILLANCE PLAN (QASP)\nFOR THE\n(Insert name of acquisition)\n\nThis Quality Assurance Surveillance Plan (QASP) was prepared by the following:";
+const QASP_INTRO = "This quality assurance surveillance plan (QASP) is pursuant to the requirements listed in the performance work statement (PWS) entitled (insert name of services). This plan sets forth the procedures and guidelines NASA (insert Center name and or program/project office performing monitoring/surveillance activity) will use in ensuring the required performance standards or services levels are achieved by the contractor.\n\n1.1 Purpose\n\n1.1.1 The purpose of the QASP is to describe the systematic methods used to monitor performance and identify required documentation and resources to be employed. The QASP provides a means for evaluating whether the contractor is meeting the performance standards/quality levels identified in the PWS and the contractor's quality control plan (QCP), and ensure the Government pays only for the level of services received.\n\n1.1.2 This QASP defines the roles and responsibilities of all surveillance members, identifies the performance objectives, defines the methodologies used to monitor and evaluate the contractor's performance, describes quality assurance documentation requirements, and describes the analysis of quality assurance monitoring results.";
+const QASP_SLOTS: [RegExp, string][] = [
+  [/\(insert Center name and or program\/project office performing monitoring\/surveillance activity\)/i, "monitoring_activity"],
+  [/\(Insert Center name\)/i, "center_name"],
+  [/\(Insert name of acquisition\)/i, "acquisition_name"],
+  [/\(insert name of services\)/i, "services_name"],
+];
+function fillQaspInserts(text: string, v: Record<string, string>): string {
+  return QASP_SLOTS.reduce((t, [re, key]) => t.replace(re, (v[key] ?? "").trim() || "____________________"), text);
+}
 
 export const HQ6C_TEMPLATES: TemplateDef[] = [
   digitalSignature,

@@ -63,7 +63,7 @@ function signaturePage(
 ): SectionDef {
   return {
     id: "signature_page",
-    title: `SIGNATURE PAGE — ${pageTitle}`,
+    title: `SIGNATURE PAGE: ${pageTitle}`,
     citation,
     tier: "binding",
     standingText: LEGAL_CONCURRENCE,
@@ -677,7 +677,7 @@ const psmAddendum: TemplateDef = {
     },
     {
       id: "signature_page",
-      title: "SIGNATURE PAGE — Addendum Outlining Significant Changes to Approved PSM/Written Acquisition Plan",
+      title: "SIGNATURE PAGE: Addendum Outlining Significant Changes to Approved PSM/Written Acquisition Plan",
       citation: "NFS CG 1802.2",
       tier: "binding",
       standingText: "Additional signatures may be added below to comply with local Center procedures.",
@@ -798,7 +798,7 @@ const rdtLetters: TemplateDef = {
   sections: [
     {
       id: "letter1",
-      title: "Letter 1 — Requirements Development Team (RDT) Membership Request",
+      title: "Letter 1: Requirements Development Team (RDT) Membership Request",
       citation: "RFO FAR Part 7; NFS CG 1807.12(a)",
       tier: "guidance",
       standingText:
@@ -825,7 +825,7 @@ const rdtLetters: TemplateDef = {
     },
     {
       id: "letter2",
-      title: "Letter 2 — Appointment of the Requirements Development Team (RDT)",
+      title: "Letter 2: Appointment of the Requirements Development Team (RDT)",
       citation: "RFO FAR 3.104; NFS 1803.104",
       tier: "guidance",
       standingText:
@@ -846,7 +846,7 @@ const rdtLetters: TemplateDef = {
     },
     {
       id: "enclosure",
-      title: "Enclosure — RDT ACQUISITION PACKAGE PRODUCTS AND SUPPORT",
+      title: "Enclosure: RDT ACQUISITION PACKAGE PRODUCTS AND SUPPORT",
       citation: "NFS CG 1807.12(a)",
       tier: "guidance",
       standingText: RDT_CHECKLIST.join("\n"),
@@ -920,7 +920,7 @@ const dandfCpif = contractTypeDandF({
   sectionThree: [
     {
       id: "iii_a",
-      title: "III. CONSIDERATION OF CONTRACT TYPES — A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
+      title: "III. CONSIDERATION OF CONTRACT TYPES: A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
       citation: "RFO FAR 16.301-3",
       tier: "binding",
       standingText:
@@ -1050,7 +1050,7 @@ const dandfFpaf = contractTypeDandF({
   sectionThree: [
     {
       id: "iii_a",
-      title: "III. CONSIDERATION OF CONTRACT TYPES — A. USE OF A FIXED-PRICE CONTRACT TYPE",
+      title: "III. CONSIDERATION OF CONTRACT TYPES: A. USE OF A FIXED-PRICE CONTRACT TYPE",
       citation: "RFO FAR 16.202-2; RFO FAR 16.202-1",
       tier: "binding",
       fields: [
@@ -1103,7 +1103,7 @@ const dandfFpi = contractTypeDandF({
   sectionThree: [
     {
       id: "iii_a",
-      title: "III. CONSIDERATION OF CONTRACT TYPES — A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
+      title: "III. CONSIDERATION OF CONTRACT TYPES: A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
       citation: "RFO FAR 16.202",
       tier: "binding",
       standingText: "A firm-fixed-price contract is not suitable for the following reasons:",
@@ -1166,7 +1166,7 @@ function tmLhDandF(opts: {
     },
     {
       id: "finding_1",
-      title: "Findings — 1. Description of the Requirement.",
+      title: "Findings: 1. Description of the Requirement.",
       citation: "RFO FAR 16.601",
       tier: "binding",
       fields: [
@@ -1329,7 +1329,7 @@ const dandfOverFiveYears: TemplateDef = {
     },
     {
       id: "finding_1",
-      title: "Findings — 1. Nature and/or description of the action being approved.",
+      title: "Findings: 1. Nature and/or description of the action being approved.",
       citation: "NFS CG 1817.22",
       tier: "binding",
       fields: [
@@ -1361,7 +1361,7 @@ const dandfOverFiveYears: TemplateDef = {
     },
     {
       id: "signature_page",
-      title: "SIGNATURE PAGE — DETERMINATION AND FINDINGS FOR AUTHORITY TO ENTER INTO AN ACTION EXCEEDING 5 YEARS",
+      title: "SIGNATURE PAGE: DETERMINATION AND FINDINGS FOR AUTHORITY TO ENTER INTO AN ACTION EXCEEDING 5 YEARS",
       citation: "PIC 24-06",
       tier: "binding",
       standingText: LEGAL_CONCURRENCE,
@@ -1414,7 +1414,7 @@ const dandfSingleAwardIdiq: TemplateDef = {
     },
     {
       id: "finding_1",
-      title: "Findings — 1. The exception relied on",
+      title: "Findings: 1. The exception relied on",
       citation: "RFO FAR 16.504-3(a)(4)(i)",
       tier: "binding",
       standingText:
@@ -1553,7 +1553,7 @@ const popDeviationRequest: TemplateDef = {
     },
     {
       id: "signature_page",
-      title: "SIGNATURE PAGE — DEVIATION REQUEST",
+      title: "SIGNATURE PAGE: DEVIATION REQUEST",
       citation: "PIC 24-06",
       tier: "binding",
       standingText:
