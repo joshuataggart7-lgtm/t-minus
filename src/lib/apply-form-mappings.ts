@@ -48,15 +48,30 @@ function helveticaFor(form: PDFForm): PDFFont {
 }
 
 /** Write a text field. Empty values are skipped; a missing field is ignored. */
-export function pdfText(form: PDFForm, name: string, value: unknown, size = 8, maxLen?: number): void {
-  let text = pdfGlyphs(asText(value)).replace(
-    /[^\x20-\x7E\u00A0-\u00FF\u0152\u0153\u0160\u0161\u0178\u017D\u017E\u0192\u02C6\u02DC\u2013\u2014\u2018\u2019\u201A\u201C\u201D\u201E\u2020\u2021\u2030\u2039\u203A\u20AC\u2122]/g,
-    " ",
-  );
+export function pdfText(
+  form: PDFForm,
+  name: string,
+  value: unknown,
+  size = 8,
+  maxLen?: number,
+): void {
+  // Line breaks are kept: an address prints name, street and city on their own
+  // lines in a multiline box, and is joined with commas in a one-line box.
+  const lines = asText(value)
+    .split(/\r?\n/)
+    .map((line) =>
+      pdfGlyphs(line.trim()).replace(
+        /[^\x20-\x7E\u00A0-\u00FF\u0152\u0153\u0160\u0161\u0178\u017D\u017E\u0192\u02C6\u02DC\u2013\u2014\u2018\u2019\u201A\u201C\u201D\u201E\u2020\u2021\u2030\u2039\u203A\u20AC\u2122]/g,
+        " ",
+      ),
+    )
+    .filter((line) => line.trim() !== "");
+  let text = lines.join("\n");
   if (!text) return;
   if (maxLen && text.length > maxLen) text = text.slice(0, maxLen);
   try {
     const field = form.getTextField(name);
+    if (!field.isMultiline()) text = text.replace(/\n/g, ", ");
     field.setText(text);
     // A one-line box shrinks the type so the whole value shows (down to 5 pt)
     // rather than clipping it, measured in the Helvetica the appearances use.
@@ -101,7 +116,12 @@ export function pdfMoney(form: PDFForm, name: string, value: unknown, size = 8):
   const n = Number(value);
   if (!Number.isFinite(n) || n === 0) return;
   // Dollars with thousands separators, as the SF 1449 face prints them.
-  pdfText(form, name, n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), size);
+  pdfText(
+    form,
+    name,
+    n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    size,
+  );
 }
 
 const listOf = (v: unknown): string[] =>

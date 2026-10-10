@@ -29,6 +29,16 @@ const AWARD_KEYS = [
   "sf1449_award_block",
   "sf1449_copies",
   "sf1449_offer_reference",
+  // The holder of a single-award contract, or the holder an order is placed
+  // with, as recorded at award.
+  "awardee_name",
+  "awardee_uei",
+  "awardee_cage",
+  "awardee_street",
+  "awardee_city",
+  "awardee_state",
+  "awardee_postal_code",
+  "awardee_phone",
 ] as const;
 
 export type AwardeeClin = {
