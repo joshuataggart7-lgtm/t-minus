@@ -3517,11 +3517,13 @@ table thead,
 .mc-arc-figure.is-word { font-size: clamp(40px, 8cqw, 64px); }
 .mc-arc-unit { margin-left: 0.625rem; color: #9cb0d6; font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 500; letter-spacing: 0; }
 .mc-arc-hold { max-width: 60ch; margin: 0.5rem auto 0; color: #edf2fc; font-size: 13px; line-height: 18px; overflow-wrap: anywhere; }
-.mc-arc-track { display: none; position: relative; aspect-ratio: 1000 / 205; margin-top: 0.75rem; }
+/* --arc-gap is the room between two points. When it is under 66 px the names alternate on two rows. */
+.mc-arc-track { --arc-gap: calc(91.2cqw / (var(--arc-n, 12) - 1)); --arc-stagger: clamp(0px, calc((66px - var(--arc-gap)) * 9999), 44px); display: none; position: relative; aspect-ratio: 1000 / 205; margin-top: 0.75rem; margin-bottom: var(--arc-stagger); }
 .mc-arc-track svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .mc-arc-points { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
 .mc-arc-point { position: absolute; width: 0; height: 0; }
-.mc-arc-point > button { position: absolute; top: 0; left: 0; display: flex; width: clamp(54px, 7.7cqw, 86px); transform: translateX(-50%); flex-direction: column; align-items: center; gap: 1px; border-radius: 8px; padding: 18px 2px 4px; color: #8fa3cf; font-family: "IBM Plex Sans Condensed", var(--font-sans); text-align: center; transition: color 150ms ease; }
+.mc-arc-point > button { position: absolute; top: 0; left: 0; display: flex; width: clamp(54px, calc(var(--arc-gap) - 4px + var(--arc-stagger) * 1.1), 108px); transform: translateX(-50%); flex-direction: column; align-items: center; gap: 1px; border-radius: 8px; padding: 18px 2px 4px; color: #8fa3cf; font-family: "IBM Plex Sans Condensed", var(--font-sans); text-align: center; transition: color 150ms ease; }
+.mc-arc-point:nth-child(even) > button { padding-top: calc(18px + var(--arc-stagger)); }
 .mc-arc-point > button:hover { color: #ffffff; }
 .mc-arc-point > button:focus-visible { outline: 2px solid #8fbbff; outline-offset: 2px; }
 .mc-arc-dot { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 1.5px solid #6f86bd; border-radius: 999px; background: #0e2152; transition: transform 150ms ease; }
@@ -3537,8 +3539,8 @@ table thead,
 .mc-arc-note { margin-top: 3px; border-radius: 4px; background: #eaf2ff; padding: 0 6px; color: #051029; font-size: 11.5px; line-height: 16px; font-weight: 600; white-space: nowrap; }
 /* The note for the phase in work sits above its point, clear of the neighbouring names. */
 .mc-arc-point.is-current .mc-arc-note { position: absolute; top: -36px; left: 50%; margin: 0; transform: translateX(-50%); }
-.mc-arc-point.is-current:first-child .mc-arc-note { left: 0; transform: none; }
-.mc-arc-point.is-current:last-child .mc-arc-note { right: 0; left: auto; transform: none; }
+.mc-arc-point.is-current:first-child .mc-arc-note { left: 50%; transform: translateX(-16px); }
+.mc-arc-point.is-current:last-child .mc-arc-note { right: 50%; left: auto; transform: translateX(16px); }
 .mc-arc-point.is-award:not(.is-current) .mc-arc-note { background: transparent; color: #b7d3ff; box-shadow: inset 0 0 0 1px #4a5f94; }
 .mc-arc-point.is-hold .mc-arc-note { background: var(--mc-amber); color: #1d1d1f; }
 .mc-arc-point.is-late .mc-arc-note { background: var(--mc-readiness-hold); color: #2a1204; }

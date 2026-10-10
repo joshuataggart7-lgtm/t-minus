@@ -114,7 +114,11 @@ export function LaunchArc({
       </div>
 
       {count > 1 ? (
-        <nav aria-label="Phases on this file" className="mc-arc-track no-print">
+        <nav
+          aria-label="Phases on this file"
+          className="mc-arc-track no-print"
+          style={{ ["--arc-n" as string]: String(count) }}
+        >
           <svg viewBox={`0 0 ${VB_W} ${VB_H}`} aria-hidden="true" focusable="false">
             <defs>
               <linearGradient id="mc-arc-limb" x1="0" y1="0" x2="0" y2="1">
