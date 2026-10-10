@@ -255,6 +255,7 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
   const setAside = str(a["set_aside"]);
   const pop = [str(a["period_of_performance_start"]), str(a["period_of_performance_end"])]
     .filter(Boolean)
+    .map((d) => displayDate(d) || d)
     .join(" to ");
   const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
   const price = Number(a["proposed_price"]) || Number(a["award_amount"]) || 0;
@@ -322,7 +323,11 @@ export function sf1449CtxToRogerData(ctx: FormCtx): RogerSf1449Data {
     for (const line of continuationLines) schedule.push({ description: line });
   }
 
-  const method = commercial ? "rfq" : "rfp";
+  // Block 14: a request for quotation under simplified procedures (RFO FAR
+  // 12.201-1 or Part 13); a request for proposals on a Part 15 negotiation,
+  // including a commercial buy under RFO FAR 12.201-2.
+  const methodText = str(a["acquisition_method"]);
+  const method = /simplified|12\.201-1|13\.5|\bpart 13\b|far 13\b/i.test(methodText) ? "rfq" : "rfp";
   const coName = str(a["co_name"]);
 
   const data: RogerSf1449Data = {

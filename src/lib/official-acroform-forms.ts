@@ -163,7 +163,9 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
   // Block 8 names a contractor only when one is recorded for this action. On a
   // multiple-award vehicle no single holder is picked.
   const single = !isMultipleAward(a);
-  const contractorName = single ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) : "";
+  const contractorName = single
+    ? str(a["awardee_name"]) || str(a["intended_awardee_name"]) || str(a["vendor_legal_name"])
+    : "";
   const contractorCode = single
     ? str(a["awardee_uei"]) || str(a["intended_awardee_uei"]) || str(a["vendor_uei"])
     : "";
@@ -232,9 +234,13 @@ export function sf30CtxToRogerData(ctx: FormCtx): RogerFormData {
       item_13a_authority: block13.a ? authorityText : "",
       item_13c_authority: block13.c ? authorityText : "",
       item_13d_authority: block13.d ? authorityText : "",
-      // Nothing is assumed about whether the contractor must sign.
-      contractor_signature_required: false,
-      contractor_signature_not_required: false,
+      // Block E follows the block 13 category (RFO FAR 43.103): a supplemental
+      // agreement (13C) is bilateral; a change order (13A), an administrative
+      // change (13B) or an option exercise is unilateral. With no category
+      // recorded, nothing is assumed.
+      contractor_signature_required: block13.c,
+      contractor_signature_not_required:
+        block13.a || block13.b || (block13.d && str(mod["mod_type"]) === "option_exercise"),
     },
     requisition: { number: str(a["pr_number"]) || str(mod["requisition_number"]) },
     contract: {

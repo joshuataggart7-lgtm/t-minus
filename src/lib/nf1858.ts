@@ -253,6 +253,8 @@ export type MemoDoc = {
   paragraphs: MemoParagraph[];
   badgeLine: string;
   title: string;
+  /** Date the signer signed, from the template's own date-signed field. */
+  signedOn?: string | undefined;
 };
 
 /**
@@ -260,13 +262,16 @@ export type MemoDoc = {
  * paragraphs: one paragraph per section, its heading leading the sentence.
  * The record block is rendered as labeled lines so the facts read as facts.
  */
-export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoParagraph[] {
+const SIGNER_LABEL = /^(?:Contracting Officer|Contracting officer signature|Date signed|Signature|Signature date|Signed by|Signed on)$/i;
+
+export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { date?: string }): MemoParagraph[] {
   const clean = (text: string) => plainDatesInText(humanMemoProse(text))
     .replace(/\s*\[[^\]]*\]/g, "")
     .replace(/\s*(?:Drafted from the record, confirm\.?|drafted from the record, confirm\.?|Draft, confirm\.?)/gi, "")
     // On-screen draft flags never print in a memorandum body.
     .replace(/(?:^|\s)Draft,\s*confirm\.\s*/gi, " ")
     .replace(/\s+([,.;:])/g, "$1")
+    .replace(/([.;:!?])[.:]+/g, "$1")
     .replace(/\s{2,}/g, " ")
     .trim();
   // The numbered heading names the paragraph, so the field prompt that opens
@@ -294,7 +299,30 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoPara
     .filter((b) => !b.heading.startsWith("Signatures") && b.heading !== "Acquisition")
     .map((b) => {
       const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —") && !l.endsWith(`: ${EMPTY_FIELD}`));
-      const prose = lines.map(withoutPrompt).map(clean).filter((line) => line && line !== "—" && line !== EMPTY_FIELD);
+      // Signer and date fields belong in the signature block, never in prose.
+      const labelOf = (line: string) => {
+        const at = line.indexOf(": ");
+        return at > 0 && at <= 60 && !/[.!?]/.test(line.slice(0, at)) ? line.slice(0, at) : "";
+      };
+      const kept = lines.filter((line) => {
+        const label = labelOf(line);
+        if (!SIGNER_LABEL.test(label)) return true;
+        if (/date/i.test(label) && sig) sig.date = line.slice(label.length + 2).trim();
+        return false;
+      });
+      // A section of three or more short record facts prints as labeled
+      // lines, not as a run-on of bare values.
+      const isFact = (line: string) => {
+        const label = labelOf(line);
+        const value = line.slice(label.length + 2);
+        return !!label && value.length <= 100 && !/[.!?]\s+[A-Z][a-z]/.test(value);
+      };
+      const facts = kept.filter(isFact);
+      if (facts.length >= 3) {
+        const lead = kept.filter((line) => !isFact(line)).map(clean).filter(Boolean).join(" ");
+        return { text: clean(`${b.heading.replace(/[.:]+$/, "")}.${lead ? ` ${lead}` : ""}`), lines: facts };
+      }
+      const prose = kept.map(withoutPrompt).map(clean).filter((line) => line && line !== "—" && line !== EMPTY_FIELD);
       if (templateKey === "memorandum-for-record" && b.heading === "Filing") {
         const fileTab = b.lines
           .flatMap((line) => line.split("\n"))
@@ -319,7 +347,7 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoPara
         const intro = prose.slice(0, sourceStart + 1).join(" ");
         return { text: `${b.heading}. ${intro}`.trim(), lines: prose.slice(sourceStart + 1) };
       }
-      const text = `${b.heading}. ${prose.join(" ")}`.trim();
+      const text = clean(`${b.heading.replace(/[.:]+$/, "")}. ${prose.join(" ")}`);
       return {
         text:
           needsDedupeNote && /findings/i.test(b.heading)
@@ -332,7 +360,10 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string): MemoPara
 }
 
 export function buildMemoDoc(doc: RenderedDoc, header: MemoHeader, templateKey?: string): MemoDoc {
-  return { header, paragraphs: memoParagraphs(doc, templateKey), badgeLine: doc.badgeLine, title: doc.title };
+  const sig: { date?: string } = {};
+  const paragraphs = memoParagraphs(doc, templateKey, sig);
+  const signedOn = sig.date && sig.date !== EMPTY_FIELD && sig.date !== "—" ? sig.date : undefined;
+  return { header, paragraphs, badgeLine: doc.badgeLine, title: doc.title, signedOn };
 }
 
 /**
@@ -371,7 +402,8 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     { text: "", gap: 24 },
     { text: "______________________________", gap: 2, keepWith: 60, keepWithPrevious: true },
     { text: h.signatureName, gap: 0 },
-    { text: h.signatureTitle, gap: 16 },
+    { text: h.signatureTitle, gap: memo.signedOn ? 2 : 16 },
+    ...(memo.signedOn ? [{ text: `Date: ${memo.signedOn}`, gap: 16 }] : []),
   );
   if (h.concurrence.length) {
     blocks.push({ text: "CONCURRENCE:", bold: true, gap: 4, keepWith: 24 + h.concurrence.length * 32 });
@@ -398,16 +430,18 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     headerLine,
     prototype: true,
     // The agency insignia at the size and position the blank NF 1858 uses:
-    // 27.2mm by 24.0mm, top right of the first page only.
-    insignia: { url: INSIGNIA_URL, width: 77, height: 68 },
+    // 1.08 by 1.00 in (the HQ master), top right of the first page only.
+    insignia: { url: INSIGNIA_URL, width: 78, height: 72 },
     runningHead: h.subject,
   });
 }
 
 /** Word export in the 1858 layout. */
 export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine = "") {
-  const { Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, AlignmentType, ImageRun } =
-    await import("docx");
+  const {
+    Document, Packer, Paragraph, TextRun, TabStopType, PageBreak, Header, Footer, PageNumber, ImageRun,
+    HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom, TextWrappingType,
+  } = await import("docx");
   const h = memo.header;
   // The insignia from the official blank, first page only.
   let insignia: ArrayBuffer | null = null;
@@ -443,7 +477,32 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
     children.push(p(CUI_BANNER, { bold: true, center: true }));
   }
   children.push(
-    new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ ...small, bold: true, text: AGENCY_LINE })] }),
+    // Insignia placed as the HQ NF 1858 master places it: in the body, anchored
+    // to the agency line, 4,579,289 EMU from the left margin, 31,750 EMU down,
+    // 1,033,145 x 955,040 EMU (1.08 x 1.00 in), no text wrap. Body placement
+    // keeps it visible in viewers that drop headers.
+    new Paragraph({
+      spacing: { after: 0 },
+      children: [
+        ...(insignia
+          ? [
+              new ImageRun({
+                type: "png",
+                data: insignia,
+                transformation: { width: 104, height: 96 },
+                floating: {
+                  horizontalPosition: { relative: HorizontalPositionRelativeFrom.MARGIN, offset: 4579289 },
+                  verticalPosition: { relative: VerticalPositionRelativeFrom.PARAGRAPH, offset: 31750 },
+                  wrap: { type: TextWrappingType.NONE },
+                  allowOverlap: true,
+                },
+                altText: { title: "NASA insignia", description: "NASA insignia", name: "NASA insignia" },
+              }),
+            ]
+          : []),
+        new TextRun({ ...small, bold: true, text: AGENCY_LINE }),
+      ],
+    }),
     new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ ...small, text: h.centerName })] }),
     new Paragraph({ spacing: { after: 360 }, children: [new TextRun({ ...small, text: h.centerAddress })] }),
     p(h.date, { after: 240 }),
@@ -456,7 +515,9 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
   if (h.salutation) children.push(p(h.salutation, { after: 200 }));
   children.push(p("", { after: 120 }));
   memo.paragraphs.forEach((para, i) => {
-    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200 }));
+    // The last paragraph stays on the page with the signature block.
+    const last = i === memo.paragraphs.length - 1 && !para.lines.length;
+    children.push(p(`${i + 1}. ${para.text}`, { after: para.lines.length ? 60 : 200, keepNext: last }));
     for (const line of para.lines) {
       children.push(
         new Paragraph({
@@ -473,7 +534,8 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
     p("", { after: 400, keepNext: true }),
     p("______________________________", { after: 40, keepNext: true }),
     p(h.signatureName, { keepNext: true }),
-    p(h.signatureTitle, { after: 240, keepNext: true }),
+    p(h.signatureTitle, { after: memo.signedOn ? 40 : 240, keepNext: true }),
+    ...(memo.signedOn ? [p(`Date: ${memo.signedOn}`, { after: 240, keepNext: true })] : []),
   );
   if (h.concurrence.length) {
     children.push(p("CONCURRENCE:", { bold: true, keepNext: true }));
@@ -510,30 +572,11 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
       ],
     });
 
-  // First page: the agency insignia, at the size and position the blank uses
-  // (27.2mm by 24.0mm, top right). Continuation pages: subject line only.
+  // First page carries only the export line; the insignia sits in the body.
   const firstHeader = new Header({
-    children: [
-      ...(headerLine
-        ? [new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ font: "Times New Roman", size: 18, color: "444444", text: headerLine })] })]
-        : []),
-      ...(insignia
-      ? [
-          new Paragraph({
-            alignment: AlignmentType.RIGHT,
-            spacing: { after: 0 },
-            children: [
-              new ImageRun({
-                type: "png",
-                data: insignia,
-                transformation: { width: 77, height: 68 },
-                altText: { title: "NASA insignia", description: "NASA insignia", name: "NASA insignia" },
-              }),
-            ],
-          }),
-        ]
-      : [new Paragraph({ spacing: { after: 0 }, children: [] })]),
-    ],
+    children: headerLine
+      ? [new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ font: "Times New Roman", size: 18, color: "444444", text: headerLine })] })]
+      : [new Paragraph({ spacing: { after: 0 }, children: [] })],
   });
   const runningHeader = new Header({
     children: [

@@ -691,6 +691,8 @@ function FormPage() {
     key: string;
     label: string;
     note?: string;
+    /** The template the filed copy belongs to; defaults to this form's own. */
+    templateId?: string | null;
   }): Promise<string> => {
     if (!canWrite || readOnly) return " Not filed to the contract file (read-only view).";
     try {
@@ -700,7 +702,7 @@ function FormPage() {
       });
       await fileGeneratedExport({
         acquisitionId,
-        templateId: q.data?.templateId ?? null,
+        templateId: input.templateId !== undefined ? input.templateId : (q.data?.templateId ?? null),
         key: input.key,
         label: input.label,
         file,
@@ -802,6 +804,11 @@ function FormPage() {
 
 
   /** The RFP cover letter in Word, written into the NASA master. */
+  const rfpCoverTemplateId = async (): Promise<string | null> => {
+    const r = await supabase.from("templates").select("template_id").eq("name", "Final Request for Proposal (RFP) Cover Letter").maybeSingle();
+    return (r.data as { template_id?: string } | null)?.template_id ?? null;
+  };
+
   const exportRfpCover = async () => {
     if (!formCtx) return;
     try {
@@ -818,6 +825,8 @@ function FormPage() {
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         key: "rfp-cover",
         label: "RFP cover letter draft (prototype)",
+        // The letter is filed under its own template, not under the form page it was made from.
+        templateId: await rfpCoverTemplateId(),
       });
       setMessage(base + filed);
     } catch (error) {

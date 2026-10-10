@@ -76,7 +76,8 @@ export function pdfMoney(form: PDFForm, name: string, value: unknown, size = 8):
   }
   const n = Number(value);
   if (!Number.isFinite(n) || n === 0) return;
-  pdfText(form, name, n.toFixed(2), size);
+  // Dollars with thousands separators, as the SF 1449 face prints them.
+  pdfText(form, name, n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), size);
 }
 
 const listOf = (v: unknown): string[] =>

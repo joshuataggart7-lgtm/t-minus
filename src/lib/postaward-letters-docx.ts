@@ -97,7 +97,8 @@ function officerBlock(ctx: PostawardDocxContext) {
 export function postawardSuccessMarkers(ctx: PostawardDocxContext): MarkerMap {
   const v = ctx.values ?? {};
   const acq = ctx.acq ?? {};
-  const value = (key: string) => cleanProse(str(v[key]));
+  const value = (key: string) =>
+    cleanProse(str(v[key])) || (key === "effective_date" ? awardDateOf(ctx.acq ?? {}) : "");
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
@@ -139,7 +140,8 @@ export function postawardSuccessMarkers(ctx: PostawardDocxContext): MarkerMap {
 export function postawardUnsuccessMarkers(ctx: PostawardDocxContext): MarkerMap {
   const v = ctx.values ?? {};
   const acq = ctx.acq ?? {};
-  const value = (key: string) => cleanProse(str(v[key]));
+  const value = (key: string) =>
+    cleanProse(str(v[key])) || (key === "effective_date" ? awardDateOf(ctx.acq ?? {}) : "");
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
@@ -219,7 +221,8 @@ async function buildCompanionDocx(
   const { Document, Packer, Paragraph, TextRun } = await import("docx");
   const v = ctx.values ?? {};
   const acq = ctx.acq ?? {};
-  const value = (key: string) => cleanProse(str(v[key]));
+  const value = (key: string) =>
+    cleanProse(str(v[key])) || (key === "effective_date" ? awardDateOf(ctx.acq ?? {}) : "");
   const co = officerBlock(ctx);
   const center = value("center_name") || str(ctx.centerName) || str(acq["center_code"]) || "NASA";
   const title = value("acquisition_title") || str(acq["title"]) || ctx.acquisitionId;
@@ -327,4 +330,15 @@ export async function generatePostawardUnsuccessCompanionDocx(
   ctx: PostawardDocxContext,
 ): Promise<Uint8Array> {
   return await buildCompanionDocx(ctx, false);
+}
+
+
+/**
+ * The award date on the record: the recorded award date, or on an awarded
+ * (launched) file the target award date it was awarded on. Never invented.
+ */
+function awardDateOf(acq: Record<string, unknown>): string {
+  const recorded = str(acq["award_date"]);
+  if (recorded) return recorded;
+  return String(acq["clock_state"] ?? "").toLowerCase() === "launched" ? str(acq["target_award_date"]) : "";
 }
