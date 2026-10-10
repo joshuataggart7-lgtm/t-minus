@@ -555,6 +555,51 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_research_findings_a0101_20261010b: {
+        Row: {
+          acquisition_id: string | null
+          confirmed: boolean | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string | null
+          finding_id: string | null
+          label: string | null
+          run_id: string | null
+          source: string | null
+          source_date: string | null
+          target: string | null
+          value: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          confirmed?: boolean | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          finding_id?: string | null
+          label?: string | null
+          run_id?: string | null
+          source?: string | null
+          source_date?: string | null
+          target?: string | null
+          value?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          confirmed?: boolean | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string | null
+          finding_id?: string | null
+          label?: string | null
+          run_id?: string | null
+          source?: string | null
+          source_date?: string | null
+          target?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
       branches: {
         Row: {
           branch_code: string
