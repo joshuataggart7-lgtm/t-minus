@@ -49,8 +49,66 @@ export async function applyMarkers(
       continue;
     }
     t.textContent = plainDates(val);
+    // A signer's name stays on the page with its signature line and title.
+    if (/_NAME\]\]$/.test(key) && p) {
+      const keep = (para: Node | null) => {
+        if (!para || (para as Element).localName !== "p") return;
+        let pPr = Array.from(para.childNodes).find((n) => (n as Element).localName === "pPr") as Element | undefined;
+        if (!pPr) {
+          pPr = doc.createElementNS(WNS, "w:pPr");
+          para.insertBefore(pPr, para.firstChild);
+        }
+        if (!Array.from(pPr.childNodes).some((n) => (n as Element).localName === "keepNext")) {
+          // Schema order: pStyle first, then keepNext.
+          const style = Array.from(pPr.childNodes).find((n) => (n as Element).localName === "pStyle");
+          pPr.insertBefore(doc.createElementNS(WNS, "w:keepNext"), style ? style.nextSibling : pPr.firstChild);
+        }
+      };
+      keep(p);
+      let prev = p.previousSibling;
+      while (prev && (prev as Element).localName !== "p") prev = prev.previousSibling;
+      keep(prev);
+    }
+    // A filled marker drops the master's fill-in highlight.
+    const run = findAncestorLocal(t, "r");
+    const rPr = run ? Array.from(run.childNodes).find((n) => (n as Element).localName === "rPr") : undefined;
+    if (rPr) for (const h of Array.from((rPr as Element).childNodes)) if ((h as Element).localName === "highlight") rPr.removeChild(h);
+    // A bare marker run takes the paragraph's font and size, not the style's.
+    if (run && !rPr && p) {
+      const pPr = Array.from(p.childNodes).find((n) => (n as Element).localName === "pPr") as Element | undefined;
+      const markRPr = pPr ? (Array.from(pPr.childNodes).find((n) => (n as Element).localName === "rPr") as Element | undefined) : undefined;
+      if (markRPr) {
+        const keep = Array.from(markRPr.childNodes).filter((n) => ["rFonts", "sz", "szCs"].includes((n as Element).localName));
+        if (keep.length) {
+          const fresh = doc.createElementNS(WNS, "w:rPr");
+          for (const k of keep) fresh.appendChild(k.cloneNode(true));
+          run.insertBefore(fresh, run.firstChild);
+        }
+      }
+    }
   }
-  xml = new XMLSerializer().serializeToString(doc);
+  // Nothing but empty paragraphs after the last section break: the final
+  // section continues on the same page instead of adding a blank page.
+  const body = doc.getElementsByTagNameNS(WNS, "body")[0];
+  const bodySect = body ? (Array.from(body.childNodes).filter((n) => (n as Element).localName === "sectPr").pop() as Element | undefined) : undefined;
+  if (body && bodySect) {
+    const paras = Array.from(body.childNodes).filter((n) => (n as Element).localName === "p") as Element[];
+    let i = paras.length - 1;
+    while (i >= 0 && !(paras[i]!.textContent ?? "").trim() && !paras[i]!.getElementsByTagNameNS(WNS, "sectPr").length) i -= 1;
+    const tailEmpty = i >= 0 && paras[i]!.getElementsByTagNameNS(WNS, "sectPr").length > 0;
+    const hasType = Array.from(bodySect.childNodes).some((n) => (n as Element).localName === "type");
+    if (tailEmpty && !hasType) {
+      const t = doc.createElementNS(WNS, "w:type");
+      t.setAttributeNS(WNS, "w:val", "continuous");
+      const refs = Array.from(bodySect.childNodes).filter((n) => ["headerReference", "footerReference"].includes((n as Element).localName));
+      bodySect.insertBefore(t, refs.length ? refs[refs.length - 1]!.nextSibling : bodySect.firstChild);
+    }
+  }
+  xml = new XMLSerializer().serializeToString(doc)
+    // The master's red double-underlined guidance styling never prints.
+    .replace(/<w:color w:val="FF0000"\/>(<w:u w:val="double"\/>)?/g, "")
+    // Master guidance highlights (yellow fill-ins, green approval lines) never print.
+    .replace(/<w:highlight w:val="[a-zA-Z]+"\/>/g, "");
   zip.file("word/document.xml", xml);
   return await zip.generateAsync({
     type: "uint8array",

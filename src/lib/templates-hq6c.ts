@@ -10,6 +10,7 @@
  * blue drafter prompts never print; they appear here only as field help.
  */
 
+import { EMPTY_FIELD } from "@/lib/template-engine";
 import type { FieldDef, SectionDef, TemplateDef, Values } from "@/lib/template-engine";
 
 const T = (key: string, label: string, help?: string): FieldDef => ({
@@ -864,7 +865,11 @@ const QASP_SLOTS: [RegExp, string][] = [
   [/\(insert name of services\)/i, "services_name"],
 ];
 function fillQaspInserts(text: string, v: Record<string, string>): string {
-  return QASP_SLOTS.reduce((t, [re, key]) => t.replace(re, (v[key] ?? "").trim() || "____________________"), text);
+  // The monitoring activity defaults to the Center; an unfilled slot names the
+  // Center rather than leaving a blank line.
+  const fallback = (key: string) =>
+    key === "monitoring_activity" ? (v["center_name"] ?? "").trim() || "the Center" : EMPTY_FIELD;
+  return QASP_SLOTS.reduce((t, [re, key]) => t.replace(re, (v[key] ?? "").trim() || fallback(key)), text);
 }
 
 export const HQ6C_TEMPLATES: TemplateDef[] = [

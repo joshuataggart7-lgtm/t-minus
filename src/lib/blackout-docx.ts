@@ -65,7 +65,7 @@ export function blackoutMarkers(ctx: BlackoutContext): MarkerMap {
   const values = ctx.values ?? {};
   const acq = ctx.acq ?? {};
   const value = (key: string) => clean(values[key]);
-  const center = value("center_name") || str(ctx.centerName) || str(acq["center_name"]) || str(acq["center_code"]);
+  const center = str(ctx.centerName) || value("center_name") || str(acq["center_name"]) || str(acq["center_code"]);
   const title = value("acquisition_name") || str(acq["title"]) || ctx.acquisitionId;
   const scope = value("scope") || clean(acq["description_of_requirement"]);
   const solicitationKind = value("solicitation_kind") || "Final Request for Proposal (RFP)";
@@ -83,7 +83,7 @@ export function blackoutMarkers(ctx: BlackoutContext): MarkerMap {
     "[[ATTN_OF]]": value("attn_of") || str(ctx.organizationCode) || "Office of Procurement",
     "[[FROM_LINE]]": ["Office of Procurement", programOffice].filter(Boolean).join(" and "),
     "[[SUBJECT_LINE]]": `National Aeronautics and Space Administration (NASA) Blackout Notice for ${solicitationKind}${solicitationNumber ? ` ${solicitationNumber}` : ""}, ${title}`,
-    "[[ACQUISITION_INTRO]]": `${withArticle(solicitationKind.toLowerCase(), true)} for ${title} is being released to industry.${scope ? ` The resulting contract will provide ${scope}.` : ""} The solicitation is located at the Governmentwide point of entry and may be found using its solicitation number.`,
+    "[[ACQUISITION_INTRO]]": `${withArticle(solicitationKind.replace(/\b[A-Z][a-z]+\b/g, (w) => w.toLowerCase()), true)} for ${title} is being released to industry.${scope ? ` The resulting contract will provide ${scope.replace(/[.\s]+$/, "")}.` : ""} The solicitation is located at the Governmentwide point of entry and may be found using its solicitation number.`,
     "[[BLACKOUT_BODY]]": "Effective immediately, all NASA personnel will cease communications with industry concerning this acquisition. This blackout period will continue through receipt and evaluation of proposals, contract award, and release of the evaluation board from its responsibilities.",
     "[[CO_REFERRAL]]": `NASA personnel must refer anyone seeking information regarding this acquisition to the designated Contracting Officer${coContact ? `, ${coContact},` : ""}${center ? ` at ${center}` : ""}. Improper communication could jeopardize the integrity or successful completion of this acquisition. Compliance will ensure uniform responses and eliminate preferential treatment. This notice does not terminate all communication with offerors; the Contracting Officer may continue to provide information that creates no unfair competitive advantage and reveals no proprietary data.`,
     "[[RELATED_CONTRACTS]]": `NASA personnel administering existing contracts or agreements related to ${title} must remain aware of this acquisition's sensitive nature. Communications concerning ongoing contract work must remain limited to those contracts or agreements and must not expand into this acquisition. Under no circumstances will this acquisition be discussed.`,

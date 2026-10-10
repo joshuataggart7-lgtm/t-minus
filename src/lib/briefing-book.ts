@@ -116,7 +116,7 @@ export function briefingFacts(acq: Record<string, unknown>): { label: string; va
 
 function markPage(input: BriefingInput, stamp: string): string {
   const sample = input.isSample ? " · Sample data" : "";
-  return `<div class="mark"><span>${esc(input.acquisitionId)} · ${esc(stamp)}${esc(sample)}</span><span>Synthetic / Prototype — not an official NASA system</span></div>`;
+  return `<div class="mark"><span>${esc(input.acquisitionId)} · ${esc(stamp)}${esc(sample)}</span><span>Synthetic / Prototype, not an official NASA system</span></div>`;
 }
 
 const line = (l: { text: string; citation: string | null }) =>
@@ -130,7 +130,7 @@ function sectionKBlock(input: BriefingInput): string {
     ? k.checklist
         .map(
           (r) =>
-            `<li>${esc(r.label)} — ${esc(r.status)}${r.note ? ` <span class="sub" style="font-size:13px">${esc(r.note)}</span>` : ""}</li>`,
+            `<li>${esc(r.label)} · ${esc(r.status)}${r.note ? ` <span class="sub" style="font-size:13px">${esc(r.note)}</span>` : ""}</li>`,
         )
         .join("")
     : `<li>No representations are recorded on this file.</li>`;
@@ -303,8 +303,8 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
           : `${input.days} ${dayWord(input.days)} to the target award date`;
 
   const countdownFigure = countdown
-    ? countdown.days === null ? "—" : countdown.pastTarget ? String(countdown.days) : `${countdown.prefix} ${countdown.days}`
-    : input.days === null ? "—" : String(Math.abs(input.days));
+    ? countdown.days === null ? "Not recorded" : countdown.pastTarget ? String(countdown.days) : `${countdown.prefix} ${countdown.days}`
+    : input.days === null ? "Not recorded" : String(Math.abs(input.days));
   const clockSubLine = `${input.currentPhase} · ${input.clockState}${
     input.targetAwardDate
       ? ` · target ${input.targetAwardDate}`
@@ -319,13 +319,13 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
     ? input.exampleClauses
         .map(
           (c) =>
-            `<tr><td>${esc(c.clause_number)}</td><td>${esc(c.title ?? "—")}</td><td>${esc(c.ucf_section ?? "—")}</td><td>${esc(c.reason ?? "—")}</td></tr>`,
+            `<tr><td>${esc(c.clause_number)}</td><td>${esc(c.title ?? "Not recorded")}</td><td>${esc(c.ucf_section ?? "Not recorded")}</td><td>${esc(c.reason ?? "Not recorded")}</td></tr>`,
         )
         .join("")
     : `<tr><td colspan="4">No clauses recommended from this record yet.</td></tr>`;
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>Briefing book — ${esc(input.acquisitionId)}</title>
+<title>Briefing book · ${esc(input.acquisitionId)}</title>
 <style>
   @page { size: letter landscape; margin: 0.5in; }
   * { box-sizing: border-box; }
@@ -370,7 +370,7 @@ export function buildBriefingHtml(input: BriefingInput, stamp: string): string {
       <p style="font-size:20px;line-height:28px;margin:4px 0 0">${esc(input.nextAction)}</p>
       ${
         input.blocker && input.blocker !== "None"
-          ? `<p class="sub" style="margin-top:16px">Blocker</p><p style="font-size:18px;line-height:26px;margin:4px 0 0">${esc(input.blocker)}${input.blockerOwner ? ` — ${esc(input.blockerOwner)}` : ""}</p>`
+          ? `<p class="sub" style="margin-top:16px">Blocker</p><p style="font-size:18px;line-height:26px;margin:4px 0 0">${esc(input.blocker)}${input.blockerOwner ? ` · ${esc(input.blockerOwner)}` : ""}</p>`
           : `<p class="sub" style="margin-top:16px">No required item is outstanding in this phase.</p>`
       }
     </div>

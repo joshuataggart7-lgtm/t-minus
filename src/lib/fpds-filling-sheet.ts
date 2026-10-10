@@ -67,7 +67,7 @@ function f(label: string, source: string, value: string | null, note?: string, b
 /** A field the record can suggest but the keyer must confirm against the award. */
 function uncertain(label: string, source: string, value: string | null, note: string): FpdsField {
   if (!value) return { label, source, value: NOT_RECORDED, state: "blank", note };
-  return { label, source, value, state: "uncertain", note: `Uncertain — confirm before keying. ${note}` };
+  return { label, source, value, state: "uncertain", note: `Uncertain: confirm before keying. ${note}` };
 }
 
 export type FpdsInput = {
@@ -198,7 +198,7 @@ const stateWord = (s: FpdsFieldState) =>
 export function buildFpdsHtml(sheet: FpdsSheet, stamp: string): string {
   const mark = `<div class="mark"><span>${esc(sheet.acquisitionId)} · ${esc(stamp)}${
     sheet.isSample ? " · Sample data" : ""
-  }</span><span>Prototype — not an official NASA system</span></div>`;
+  }</span><span>Prototype, not an official NASA system</span></div>`;
 
   const sections = sheet.sections
     .map(
@@ -218,7 +218,7 @@ export function buildFpdsHtml(sheet: FpdsSheet, stamp: string): string {
     .join("");
 
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>FPDS filling sheet — ${esc(sheet.acquisitionId)}</title>
+<title>FPDS filling sheet · ${esc(sheet.acquisitionId)}</title>
 <style>
   @page { size: letter portrait; margin: 0.6in; }
   * { box-sizing: border-box; }
@@ -246,7 +246,7 @@ export function buildFpdsHtml(sheet: FpdsSheet, stamp: string): string {
   <h1>FPDS filling sheet</h1>
   <p class="sub">${esc(sheet.title)} · ${esc(sheet.acquisitionId)}${sheet.isSample ? " · Sample data" : ""}</p>
   <div class="banner">
-    <p>Fill aid for FPDS — not a live FPDS submission.</p>
+    <p>Fill aid for FPDS, not a live FPDS submission.</p>
     <p class="sub">T-Minus does not connect to FPDS and does not write to NCMS. Values are read from this acquisition record; blanks are left blank on purpose. Confirm every line against the signed award before keying.</p>
   </div>
   <p class="count">${esc(sheet.recordedCount)} fields read from the record · ${esc(sheet.uncertainCount)} to confirm · ${esc(sheet.blankCount)} not recorded on this file.</p>

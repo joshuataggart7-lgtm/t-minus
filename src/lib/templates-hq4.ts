@@ -1277,7 +1277,6 @@ const gfpDetermination: TemplateDef = {
           "Both Installation-Accountable Government Property and Government-Furnished Property",
         ], "Government-Furnished Property (GFP)"),
         S("instrument", "Instrument", ["contract", "order", "Blanket Purchase Agreement (BPA)"], "contract"),
-        { key: "prepared_on", label: "Date", kind: "date" },
       ],
     },
     {
@@ -1326,7 +1325,10 @@ const gfpDetermination: TemplateDef = {
         "After considering the factors detailed at RFO FAR 45.102(b) and NFS CG 1845.11 as described above, I hereby determine that it is in the Government's best interest to provide Government property and services to the Contractor for use under this acquisition since the benefit to the procurement outweighs the increased cost of administration, the assumption of risk (property and performance) is not substantially increased, and the Government requirements cannot otherwise be met.",
       fields: [
         X("sig_co", "Contracting Officer", "co_name"),
-        S("attachments", "Attachments:", [
+        // Same key as before, so a saved determination keeps its date; it
+        // prints under the signature, not in the heading lines.
+        { key: "prepared_on", label: "Date signed", kind: "date", printLabel: true },
+        S("attachments", "Enclosure", [
           "List of Government Furnished Property",
           "List of Installation-Accountable Government Property",
           "List of Installation-Accountable Government Property and List of Government Furnished Property",
@@ -1782,7 +1784,8 @@ const precontractCostsApproval: TemplateDef = {
         T("condition_a", "(a) The start date for incurrence of the precontract costs, which shall cease on the effective date of the contract"),
         T("condition_b", "(b) The limitation on the amount of precontract costs"),
         X("response_days", "Number of days the contractor has to sign and return the letter"),
-        X("letter_contact", "Contracting officer or contract specialist name, phone number and email address", "co_name"),
+        // Labeled, so the contact reads as a contact line, not a trailing signature.
+        { ...X("letter_contact", "Point of contact for this letter", "co_name"), printLabel: true },
       ],
     },
     {

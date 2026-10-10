@@ -7,7 +7,7 @@
 import { matchStrategy, type RefData } from "@/lib/intake";
 import { phaseAlias, REVIEW_PHASE } from "@/lib/phase-alias";
 import { DECISION_LABEL, decisionOutcome, normalizeDecision, reviewKindFor, isDecided, PHASE_EXIT_RULE, type ReviewDecision, type ReviewKind, type ReviewOutcome } from "@/lib/review-decisions";
-import { overrideValue } from "@/lib/center-config";
+import { overrideValue, todayISO } from "@/lib/center-config";
 import { jofocVariant, scenarioContext, scenarioOf, triggeredDocs } from "@/lib/scenario";
 import { NF1787_CITATION, nf1787Trigger } from "@/lib/nf1787-trigger";
 import { HQ_TEMPLATE_KEYS, NO_DANDF_NOTE } from "@/lib/templates-hq";
@@ -1939,7 +1939,7 @@ const longDate = (isoDate: string) =>
   new Date(`${isoDate}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
 
 /** The CPARS row is offered, with its due date shown, until it falls due. */
-function cparsNotYetDue(acq: AcqRow | null | undefined, today = new Date().toISOString().slice(0, 10)) {
+function cparsNotYetDue(acq: AcqRow | null | undefined, today = todayISO()) {
   const due = cparsDueDate(acq);
   if (!due || today >= due) return {};
   return { optional: true, note: `Not due yet; due by ${longDate(due)} (RFO FAR 42.1102(a)).` };

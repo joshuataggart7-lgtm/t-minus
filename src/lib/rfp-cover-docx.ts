@@ -1,3 +1,4 @@
+import { todayISO } from "@/lib/center-config";
 /**
  * Soft §5 — RFP cover letter in Word, written into the genuine NASA master
  * held at /forms/RFP_COVER_MASTER.docx. Nothing is generated from scratch:
@@ -50,7 +51,7 @@ export function rfpCoverMarkers(ctx: FormCtx): MarkerMap {
   const competition = str(a["competition"]) || "competitive acquisition";
   const contractType = str(a["contract_type"]) || str(a["hybrid_contract_type"]);
   const place = str(a["place_of_performance_standardized"]) || str(a["place_of_performance"]);
-  const description = str(a["description_of_requirement"]) || title;
+  const description = (str(a["description_of_requirement"]) || title).replace(/[.\s]+$/, "");
   const solicitation = str(a["solicitation_number"]) || str(a["pr_number"]) || ctx.acquisitionId;
   const office = str(a["requester_org_code"]) || str(a["co_code"]) || str(a["branch_code"]);
   const commercial = /commercial/i.test(str(a["acquisition_method"]) || str(a["contract_format"]));
@@ -59,7 +60,7 @@ export function rfpCoverMarkers(ctx: FormCtx): MarkerMap {
   return {
     "[[CENTER_NAME]]": required(center),
     "[[CENTER_ADDRESS]]": place || center || NOT_RECORDED,
-    "[[LETTER_DATE]]": humanDate(new Date().toISOString()),
+    "[[LETTER_DATE]]": humanDate(todayISO()),
     "[[REPLY_ATTN]]": office ? `Reply to Attn of:\t\t${office}` : "",
     "[[SUBJECT_LINE]]": `SUBJECT:  \tRequest for Proposal (RFP), Solicitation No. ${solicitation}, for`,
     "[[SUBJECT_TITLE_LINE]]": `\t\t\t${required(title)}`,

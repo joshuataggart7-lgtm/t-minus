@@ -23,8 +23,10 @@ export type CenterOverrideRow = {
 
 export const CENTER_POLICY_NOTE = "Center policy";
 
+/** Today's date where the user is, not in UTC (an evening CT export is still today). */
 export function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 /** The override in effect for this Center, kind, and target today, if any. */

@@ -33,7 +33,7 @@ function tabRank(tab: string | null | undefined): number {
 }
 
 function page(acquisitionId: string, stamp: string, title: string, body: string): string {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)} — ${esc(acquisitionId)}</title>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${esc(title)} · ${esc(acquisitionId)}</title>
 <style>
   body { font-family: "IBM Plex Sans", Arial, sans-serif; color: #1D1D1F; background: #fff; font-size: 15px; line-height: 22px; margin: 32px; }
   header { border-bottom: 1px solid #D9DEE8; padding-bottom: 8px; margin-bottom: 24px; font-size: 13px; color: #5B6478; display: flex; justify-content: space-between; gap: 16px; }
@@ -56,7 +56,7 @@ ${body}
 function rows(headers: string[], data: (string | number | null)[][]): string {
   if (!data.length) return `<p>Nothing recorded.</p>`;
   return `<table><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${data
-    .map((r) => `<tr>${r.map((c) => `<td>${esc(c ?? "—")}</td>`).join("")}</tr>`)
+    .map((r) => `<tr>${r.map((c) => `<td>${esc(c ?? "Not recorded")}</td>`).join("")}</tr>`)
     .join("")}</tbody></table>`;
 }
 
@@ -179,8 +179,8 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     const fileName = `documents/${String(i + 1).padStart(2, "0")}-${slug(tab) || "no-tab"}-${slug(name)}-v${
       d.version ?? 1
     }.html`;
-    add(fileName, page(acquisitionId, stamp, `${name} — version ${d.version ?? 1}`, `${provenance}${body}`));
-    indexRows.push([tab || "—", name, `v${d.version ?? 1}`, d.saved_by ?? "—", d.saved_at ?? "—", fileName]);
+    add(fileName, page(acquisitionId, stamp, `${name} · version ${d.version ?? 1}`, `${provenance}${body}`));
+    indexRows.push([tab || "Not recorded", name, `v${d.version ?? 1}`, d.saved_by ?? "Not recorded", d.saved_at ?? "Not recorded", fileName]);
   });
 
   // ---------------------------------------------------------- NF 1707 filed
@@ -190,7 +190,7 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     const key = `${field.section ?? ""}.${field.subform ?? ""}.${field.field_name ?? ""}`;
     const approval = approvalByField.get(field.field_name ?? "");
     const approvalValue = approval?.status === "complete"
-      ? `${approval.owner_name ?? approval.approval_role} — ${approval.completed_at?.slice(0, 10) ?? "complete"}`
+      ? `${approval.owner_name ?? approval.approval_role} · ${approval.completed_at?.slice(0, 10) ?? "complete"}`
       : undefined;
     const value = approvalValue ?? answers[key] ?? "";
     return [field.caption_full ?? field.caption ?? field.field_name ?? key, typeof value === "object" && value !== null ? JSON.stringify(value) : String(value)] as (string | null)[];
@@ -215,8 +215,8 @@ export async function exportNearBundle(acquisitionId: string, actor: string): Pr
     ? samChecks
         .map(
           (c) =>
-            `<section><h2>${esc(c.check_type ?? "Check")} — ${esc(c.vendor_uei ?? "no UEI")}</h2>` +
-            `<p class="cite">Checked by ${esc(c.checked_by ?? "—")} on ${esc(c.checked_at ?? "—")}</p>` +
+            `<section><h2>${esc(c.check_type ?? "Check")} · ${esc(c.vendor_uei ?? "no UEI")}</h2>` +
+            `<p class="cite">Checked by ${esc(c.checked_by ?? "Not recorded")} on ${esc(c.checked_at ?? "Not recorded")}</p>` +
             `<pre>${esc(JSON.stringify(c.response_json ?? {}, null, 2))}</pre></section>`,
         )
         .join("")
