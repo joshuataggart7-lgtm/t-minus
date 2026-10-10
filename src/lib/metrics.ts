@@ -73,7 +73,11 @@ const dayFmt = (iso: string | null) => {
   if (!iso) return "no date";
   // A calendar date or a full timestamp both read as a calendar date here,
   // so a checked_at stamp never renders as "Invalid Date".
-  const when = new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
+  // A timestamp is read as its America/Chicago calendar date, the same clock
+  // the countdown and the documents use, so a save made in the evening does
+  // not print as the next day. A bare calendar date prints as written.
+  const day = iso.length === 10 ? iso : (dateCT(iso) ?? iso);
+  const when = new Date(day.length === 10 ? `${day}T00:00:00Z` : day);
   if (Number.isNaN(when.getTime())) return "no date";
   return when.toLocaleDateString("en-US", {
     month: "short",

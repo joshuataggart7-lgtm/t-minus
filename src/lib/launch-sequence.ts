@@ -1572,6 +1572,55 @@ export function pollBoard(
   });
 }
 
+/** Shown on a requested review that the review rules do not require for this buy. */
+export const REQUESTED_NOT_REQUIRED_NOTE = "Requested on this file. Not a required review for this buy.";
+
+/**
+ * Reviews requested on this file that the review rules do not require for it,
+ * for example small business coordination offered at $2,000,000 or less
+ * (NFS CG 1819.11(a)). The reviewer inbox and the invite panel list every
+ * requested review, so the file page shows and counts these too. They are
+ * kept off the rule board, which is what phase exit reads.
+ */
+export function requestedReviewsOffBoard(
+  acq: AcqRow,
+  polls: PollRow[],
+  board: BoardEntry[],
+  phase: string = REVIEW_PHASE,
+  roster: ReviewerPerson[] = [],
+): BoardEntry[] {
+  const onBoard = new Set(board.map((b) => b.reviewer_role.trim().toLowerCase()));
+  const center = (acq['center_code'] ?? null) as string | null;
+  const seen = new Set<string>();
+  const out: BoardEntry[] = [];
+  for (const row of polls) {
+    if (phaseAlias(row.phase ?? REVIEW_PHASE) !== phase) continue;
+    const role = (row.reviewer_role ?? "").trim();
+    const key = role.toLowerCase();
+    if (!role || onBoard.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    const kind = reviewKindFor(role);
+    const decision = normalizeDecision(row.vote, kind);
+    const vote = decisionOutcome(decision);
+    out.push({
+      poll_id: row.poll_id,
+      phase,
+      reviewer_role: role,
+      reviewer_name: (vote !== "pending" ? row.reviewer_name : null) ?? reviewerNameForRole(role, center, roster),
+      vote,
+      decision,
+      kind,
+      reason: row.reason ?? null,
+      due_date: row.due_date ?? null,
+      planned_days: null,
+      citation: reviewCitationForDisplay(role, null) || null,
+      trigger: null,
+      note: REQUESTED_NOT_REQUIRED_NOTE,
+    });
+  }
+  return out;
+}
+
 // ------------------------------------------------------------------ sequence
 
 export type PhaseView = {

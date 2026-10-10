@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { LaunchCountdownCompact, type CountdownView } from "@/components/launch-countdown";
 import { MissionReadinessChip } from "@/components/mission-control/primitives";
 import type { ReadinessExplanation } from "@/components/mission-control/readiness";
+import { dateCT } from "@/lib/calendar-date";
 
 export type SaveState =
   | { kind: "saving" }
@@ -19,7 +20,7 @@ export function SaveStateNote({ state }: { state: SaveState }) {
   else {
     const details = [
       `Saved · version ${state.version}`,
-      state.at ? String(state.at).slice(0, 10) : null,
+      state.at ? (dateCT(String(state.at)) ?? String(state.at).slice(0, 10)) : null,
       state.by ? `by ${state.by}` : null,
     ].filter(Boolean);
     text = details.join(" · ");
