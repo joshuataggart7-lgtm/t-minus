@@ -239,6 +239,19 @@ export async function fileGeneratedExport(input: {
   if (upload.error) throw new Error(upload.error.message);
 
   const savedAt = new Date().toISOString();
+  // Each filed export is the next version of that document on the file, not
+  // another version 1.
+  let nextVersion = 1;
+  if (input.templateId) {
+    const prior = await supabase
+      .from("documents")
+      .select("version")
+      .eq("acquisition_id", input.acquisitionId)
+      .eq("template_id", input.templateId)
+      .order("version", { ascending: false })
+      .limit(1);
+    nextVersion = Number((prior.data?.[0] as { version?: number } | undefined)?.version ?? 0) + 1;
+  }
   const { error } = await supabase.from("documents").insert({
     acquisition_id: input.acquisitionId,
     template_id: input.templateId,
@@ -251,7 +264,7 @@ export async function fileGeneratedExport(input: {
       content_type: input.file.type || null,
       ...(input.formRevision ? { form_revision: input.formRevision } : {}),
     } as never,
-    version: 1,
+    version: nextVersion,
     saved_by: actor,
     saved_at: savedAt,
     ai_model: "T-Minus form engine (official blank, record values, no model)",

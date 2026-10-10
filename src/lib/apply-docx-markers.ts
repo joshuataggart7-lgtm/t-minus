@@ -15,6 +15,16 @@ function findAncestorLocal(node: Node | null, name: string): Element | null {
   return n && (n as Element).localName === name ? (n as Element) : null;
 }
 
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** A value written into a master never carries a raw ISO date; it reads as "March 15, 2027". */
+function plainDates(text: string): string {
+  return text.replace(/\b(20\d\d)-(\d\d)-(\d\d)\b(?!T)/g, (m, y: string, mo: string, d: string) => {
+    const name = MONTHS[Number(mo) - 1];
+    return name ? `${name} ${Number(d)}, ${y}` : m;
+  });
+}
+
 /** Marker map: known [[TOKEN]] to value. Empty, null or undefined deletes the paragraph. */
 export type MarkerMap = Record<string, string | null | undefined>;
 
@@ -38,7 +48,7 @@ export async function applyMarkers(
       if (p?.parentNode) p.parentNode.removeChild(p);
       continue;
     }
-    t.textContent = val;
+    t.textContent = plainDates(val);
   }
   xml = new XMLSerializer().serializeToString(doc);
   zip.file("word/document.xml", xml);

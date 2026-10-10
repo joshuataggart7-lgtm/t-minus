@@ -1,3 +1,4 @@
+import { displayDate } from "@/lib/apply-form-mappings";
 /**
  * NF 1787 (Small Business Coordination) and NF 1787A (Market Research) as
  * generated forms.
@@ -586,7 +587,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
           {
             path: "form1.Page2.BorderSub.TotLengthContract",
             label: "Delivery or period of performance",
-            value: start && end ? `${start} through ${end}` : TO_COMPLETE("record the period of performance"),
+            value: start && end ? `${displayDate(start) || start} through ${displayDate(end) || end}` : TO_COMPLETE("record the period of performance"),
           },
           {
             path: "form1.Page2.ItemDescription",

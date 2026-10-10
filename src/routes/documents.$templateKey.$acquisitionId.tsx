@@ -142,6 +142,7 @@ import {
   exportMemoPdf,
   memoDefaultFor,
   AGENCY_LINE,
+  INSIGNIA_URL,
   type MemoHeader,
   type MemoRoutingRow,
 } from "@/lib/nf1858";
@@ -2781,8 +2782,9 @@ function DocumentPage() {
             </span>
           </div>
           {memoOn && memoHeader ? (
-            <div className="mt-4 max-w-[80ch]">
-              {/* Laid out like the NF 1858 head: agency, Center and address, then date and Reply to Attn of. */}
+            <div className="relative mt-4 max-w-[80ch]">
+              {/* Laid out like the NF 1858 head: insignia top right as on the HQ master, agency, Center and address, then date and Reply to Attn of. */}
+              <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} className="float-right ml-3 mb-2 h-[72px] w-[78px]" />
               <p className="mb-0 text-[13px] font-semibold">{AGENCY_LINE}</p>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 {memoHeader.centerName}
@@ -2866,6 +2868,9 @@ function DocumentPage() {
                   />
                 </div>
               </div>
+              {memoDoc?.signedOn ? (
+                <p className="mb-3 text-[15px]">Signature block date, from the Date signed field: {memoDoc.signedOn}</p>
+              ) : null}
               <div className="mb-3">
                 <label htmlFor="memo-conc" className="text-[15px]">Concurrence, one official per line as name, title</label>
                 <textarea
