@@ -190,7 +190,7 @@ export function AuthScreen() {
         ) : null}
 
         <p className="mt-12 text-[13px] text-chrome-muted">
-          Prototype. Not an official NASA system.
+          Prototype built for NASA by a NASA employee. Not an official NASA system.
         </p>
       </main>
     </div>

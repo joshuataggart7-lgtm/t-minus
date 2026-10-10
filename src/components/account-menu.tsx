@@ -14,11 +14,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useRole } from "@/components/role-context";
 import { ROLE_LABELS, SEEDED_USERS, type PersonaRole } from "@/lib/roles";
 import { usePresenter, setPresenter } from "@/lib/presenter";
+import { setTheme, useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 function initialsOf(name: string): string {
-  const words = name.replace(/\(.*?\)/g, " ").split(/[\s.]+/).filter(Boolean);
-  return (words.slice(0, 2).map((w) => w.charAt(0)).join("") || "?").toUpperCase();
+  const words = name
+    .replace(/\(.*?\)/g, " ")
+    .split(/[\s.]+/)
+    .filter(Boolean);
+  return (
+    words
+      .slice(0, 2)
+      .map((w) => w.charAt(0))
+      .join("") || "?"
+  ).toUpperCase();
 }
 
 const DEMO_BADGE_TIP = "Demo session: view only. Nothing is saved.";
@@ -52,6 +61,7 @@ export function DemoBadge() {
 export function AccountMenu() {
   const { role, roles, user, setRole, isAnonymous, canSwitchPersona, signOut } = useRole();
   const presenter = usePresenter();
+  const theme = useTheme();
   const navigate = useNavigate();
   const isAdministrator = roles.includes("administrator");
   const roleLabel = role ? ROLE_LABELS[role] : roles[0] ? ROLE_LABELS[roles[0]] : "Signed in";
@@ -83,7 +93,12 @@ export function AccountMenu() {
         </span>
         <ChevronDown className="size-4 shrink-0 opacity-70 max-sm:hidden" aria-hidden="true" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} collisionPadding={12} className="mc-account-menu">
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        collisionPadding={12}
+        className="mc-account-menu"
+      >
         <div className="mc-account-head">
           <span className="mc-account-avatar is-lg" aria-hidden="true">
             {initialsOf(user.name)}
@@ -91,7 +106,9 @@ export function AccountMenu() {
           <span className="min-w-0">
             <span className="mc-account-head-name">{user.name}</span>
             <span className="mc-account-head-role">
-              {canSwitchPersona && persona ? persona.title : roles.map((r) => ROLE_LABELS[r]).join(", ")}
+              {canSwitchPersona && persona
+                ? persona.title
+                : roles.map((r) => ROLE_LABELS[r]).join(", ")}
             </span>
           </span>
         </div>
@@ -109,7 +126,11 @@ export function AccountMenu() {
             <DropdownMenuLabel className="mc-account-label">View the demo as</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={role ?? ""} onValueChange={switchTo}>
               {SEEDED_USERS.map((u) => (
-                <DropdownMenuPrimitive.RadioItem key={u.role} value={u.role} className="mc-account-radio">
+                <DropdownMenuPrimitive.RadioItem
+                  key={u.role}
+                  value={u.role}
+                  className="mc-account-radio"
+                >
                   <span className="mc-account-radio-mark" aria-hidden="true">
                     <DropdownMenuPrimitive.ItemIndicator>
                       <Check className="size-4" />
@@ -140,6 +161,29 @@ export function AccountMenu() {
             </DropdownMenuItem>
           </>
         ) : null}
+
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="mc-account-label">Appearance</DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={theme} onValueChange={(v) => setTheme(v as Theme)}>
+          {(
+            [
+              ["night", "Night", "Dark deck. The default."],
+              ["day", "Day", "Light surfaces."],
+            ] as const
+          ).map(([value, name, note]) => (
+            <DropdownMenuPrimitive.RadioItem key={value} value={value} className="mc-account-radio">
+              <span className="mc-account-radio-mark" aria-hidden="true">
+                <DropdownMenuPrimitive.ItemIndicator>
+                  <Check className="size-4" />
+                </DropdownMenuPrimitive.ItemIndicator>
+              </span>
+              <span className="min-w-0">
+                <span className="mc-account-radio-role">{name}</span>
+                <span className="mc-account-radio-who">{note}</span>
+              </span>
+            </DropdownMenuPrimitive.RadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
 
         {isAnonymous ? <p className="mc-account-note">{DEMO_BADGE_TIP}</p> : null}
 
