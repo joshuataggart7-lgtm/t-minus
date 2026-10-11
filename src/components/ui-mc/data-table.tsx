@@ -15,6 +15,7 @@ export type DataColumn<T> = {
   width?: string;
   /** Render this column's cells as row headers (th scope="row"). */
   rowHeader?: boolean;
+  /** Class on the column's header and body cells, for width or visibility rules in CSS. */
   className?: string;
 };
 
@@ -69,7 +70,7 @@ export function DataTable<T>({
                   key={c.key}
                   scope="col"
                   style={c.width ? { width: c.width } : undefined}
-                  className={cn(c.numeric && "is-numeric", c.nowrap && "is-nowrap") || undefined}
+                  className={cn(c.numeric && "is-numeric", c.nowrap && "is-nowrap", c.className) || undefined}
                 >
                   {c.header}
                 </th>
