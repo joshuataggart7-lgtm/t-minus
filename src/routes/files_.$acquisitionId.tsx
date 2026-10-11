@@ -2985,8 +2985,9 @@ function FilePage() {
           </div>
         </div>
 
+        {/* The arc has the room, so it carries the hold reason in full. */}
         <LaunchArc
-          view={heroCountdownView}
+          view={fileCountdownView}
           phases={phases}
           daysToPhaseExit={lifecycle?.nextDecision?.startsWith("Exit") ? lifecycle.daysToNextDecision : null}
           onSelect={showPhase}
