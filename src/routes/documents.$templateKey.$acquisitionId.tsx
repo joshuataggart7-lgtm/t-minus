@@ -248,7 +248,17 @@ function stripDraftMarks(values: Values): Values {
   return out;
 }
 
+/**
+ * One page instance per document. The router keeps this component mounted when only
+ * the address parameters change, so without the key the state of the last document
+ * (memo header, field values, view) would carry into the next one.
+ */
 function DocumentPage() {
+  const { templateKey, acquisitionId } = Route.useParams();
+  return <DocumentPageInner key={`${templateKey}/${acquisitionId}`} />;
+}
+
+function DocumentPageInner() {
   const { templateKey, acquisitionId } = Route.useParams();
   const search = Route.useSearch() as { offeror?: number; standalone?: 1; situation?: 1 };
   const { authState, hasRole, hasAnyRole, user, readOnly } = useRole();
@@ -2613,6 +2623,8 @@ function DocumentPage() {
               </p>
             ) : null}
             {sectionBody(s) ? <p className="mb-3 text-[15px] leading-[22px]">{sectionBody(s)}</p> : null}
+            {/* An instruction for whoever fills the section in. On the form only; it never prints. */}
+            {s.guidance ? <p className="no-print mb-3 text-[13px] leading-[18px] text-muted-foreground">{s.guidance}</p> : null}
             {visibleFields(s, values).map((f) => {
               const id = `${s.id}-${f.key}`;
               const err = touched ? errors[f.key] : undefined;

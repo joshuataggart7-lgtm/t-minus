@@ -374,7 +374,17 @@ const FILE_TABS = [
 type FileTabKey = (typeof FILE_TABS)[number]["key"];
 const FILE_TAB_LABEL: Record<FileTabKey, string> = Object.fromEntries(FILE_TABS.map((t) => [t.key, t.label])) as Record<FileTabKey, string>;
 
+/**
+ * One page instance per file. The router keeps this component mounted when only
+ * the address parameters change, so without the key the state of the last file
+ * (open tab, open sequence, panels) would carry into the next one.
+ */
 function FilePage() {
+  const { acquisitionId } = Route.useParams();
+  return <FilePageInner key={acquisitionId} />;
+}
+
+function FilePageInner() {
   const { acquisitionId } = Route.useParams();
   const coldPathSample = acquisitionId === "A-2027-0101" || acquisitionId === "A-2027-0102";
   const { authState, user, readOnly } = useRole();
