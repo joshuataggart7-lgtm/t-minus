@@ -3212,3 +3212,16 @@ Presentation-only Mission Control refinement. The Executive Overview now carries
   running, forecast, hold, overdue, launched and stopped states at phone, tablet and desktop widths.
 - Simplest option taken: the NASA insignia stays where it already was. Joshua decided this on
   Oct 10, 2026.
+
+## Files list fits its own width (Oct 10, 2026)
+
+The Files table used the window's width to decide its layout, so on a laptop
+with the rail open the seven columns wrapped a word a line. It now uses a
+container query on the table itself (`filestable`). At about 1,300 px of table
+and up it shows all seven columns. Below that, down to 600 px, Plan to award
+and Value and method are hidden and one line under the title carries mission,
+value, method and planned days. Under 600 px the phone stack is unchanged.
+Chosen over a horizontal scroll (hides the next action) and over cards at
+laptop width (a table scans faster for 29 files). Hours stay on the file page
+and in the wide table. The launch arc now shows the full hold reason; the
+short label stays on the small clock and the rail.
