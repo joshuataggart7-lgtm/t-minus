@@ -2768,6 +2768,31 @@ html:has(.mc-intake-savebar) { scroll-padding-bottom: 7rem; }
 .mc-files-meta { display: block; margin-top: 0.125rem; color: var(--mc-meta-ink); font-size: 14px; line-height: 20px; }
 .mc-files-strong { display: block; margin-top: 0.125rem; font-size: 15px; line-height: 22px; font-weight: 500; }
 .mc-files-table .mc-work-table-row.is-scrubbed > :first-child { border-left: 3px solid var(--border); }
+/*
+ * The Files table reads its own width, not the window's, so it is right with the
+ * rail open or closed. Wide: all seven columns. Narrower (a laptop or a desktop
+ * window with the rail open): the plan and value columns step aside and one line under the title
+ * carries mission, value, method and planned days, so no column wraps a word a
+ * line. Phones keep the stacked cards.
+ */
+.mc-files-table { container: filestable / inline-size; }
+.mc-files-brief { display: none; color: var(--mc-meta-ink); font-size: 14px; line-height: 20px; font-weight: 400; }
+.mc-files-table .mc-files-col-file { width: 24%; }
+.mc-files-table .mc-files-col-plan { width: 15%; }
+.mc-files-table .mc-files-col-buy { width: 16%; }
+.mc-files-table .mc-files-col-next { width: 15%; }
+@container filestable (min-width: 600px) and (max-width: 1299px) {
+  .mc-files-table .mc-files-col-plan, .mc-files-table .mc-files-col-buy { display: none; }
+  .mc-files-table .mc-files-brief { display: block; }
+  .mc-files-table .mc-files-brief + .mc-files-brief { margin-top: 0; }
+  .mc-files-table .mc-files-file > .mc-files-brief:first-of-type { margin-top: 0.25rem; }
+  .mc-files-table .mc-files-col-file { width: 40%; }
+  .mc-files-table .mc-files-col-status { width: 17%; }
+  .mc-files-table .mc-files-col-t { width: 12%; white-space: normal; }
+  .mc-files-table .mc-files-col-t > span { flex-wrap: wrap; row-gap: 0.125rem; }
+  .mc-files-table .mc-files-col-owner { width: 12%; }
+  .mc-files-table .mc-files-col-next { width: 19%; }
+}
 
 /* Keyboard hint (Batch 2) */
 .mc-row-keys { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem 1.25rem; color: var(--mc-meta-ink); font-size: 13px; line-height: 20px; }
@@ -3456,6 +3481,8 @@ a.mc-today-stat:focus-visible { outline: 2px solid var(--accent-cyan); outline-o
  */
 table thead,
 .mc-dt thead th,
+.mc-dt.stack tbody td::before,
+.mc-dt.stack tbody th::before,
 .mc-loe-table thead th,
 .mc-label,
 .mc-label-light,

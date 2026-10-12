@@ -164,8 +164,8 @@ function FilesPage() {
       key: "file",
       header: "Acquisition",
       rowHeader: true,
-      width: "24%",
-      cell: ({ acq }) => {
+      className: "mc-files-col-file",
+      cell: ({ acq, plan, mission }) => {
         const copyOf = String(acq['source_tag'] ?? "").startsWith("Copy of") ? String(acq['source_tag']) : null;
         return (
           <div className="mc-files-file">
@@ -177,6 +177,17 @@ function FilesPage() {
             {acq['source_tag'] === "backfilled" ? (
               <span className="mc-files-meta">Backfilled{acq['contract_number'] ? ` · contract ${acq['contract_number']}` : ""}</span>
             ) : null}
+            {/* In a narrow table the plan and value columns step aside and this line carries them. */}
+            <span className="mc-files-brief">
+              {mission?.name ?? "No mission linked"} · {String(acq.center_code ?? "Not recorded")}
+            </span>
+            <span className="mc-files-brief" data-numeric>
+              {acq.estimated_value ? `IGCE ${formatMoney(Number(acq.estimated_value))}` : "IGCE not recorded"}
+              {" · "}
+              {methodDisplayLabel(String(acq.acquisition_method ?? "Not recorded"))}
+              {" · "}
+              {plan.plannedDays ? `${plan.plannedDays} planned days` : "No phase plan"}
+            </span>
           </div>
         );
       },
@@ -185,6 +196,7 @@ function FilesPage() {
       key: "status",
       header: "Status",
       mobileLabel: "Status",
+      className: "mc-files-col-status",
       cell: (row) =>
         isScrubbed(row) ? (
           <div>
@@ -204,6 +216,7 @@ function FilesPage() {
       header: "T±",
       mobileLabel: "Countdown",
       nowrap: true,
+      className: "mc-files-col-t",
       cell: (row) =>
         isScrubbed(row) ? (
           <span className="mc-files-meta">No countdown</span>
@@ -215,7 +228,7 @@ function FilesPage() {
       key: "plan",
       header: "Plan to award",
       mobileLabel: "Plan to award",
-      width: "15%",
+      className: "mc-files-col-plan",
       cell: ({ acq, plan }) => (
         <div>
           <span className="mc-files-strong" data-numeric>
@@ -230,7 +243,7 @@ function FilesPage() {
       key: "buy",
       header: "Value and method",
       mobileLabel: "Value and method",
-      width: "16%",
+      className: "mc-files-col-buy",
       cell: ({ acq, mission }) => (
         <div>
           <span className="mc-files-strong" data-numeric>
@@ -247,13 +260,14 @@ function FilesPage() {
       key: "owner",
       header: "Owner",
       mobileLabel: "Owner",
+      className: "mc-files-col-owner",
       cell: ({ acq }) => String(acq.co_name ?? "").trim() || <span className="mc-files-meta">Not recorded</span>,
     },
     {
       key: "next",
       header: "Next action",
       mobileLabel: "Next action",
-      width: "15%",
+      className: "mc-files-col-next",
       cell: (row) => (isScrubbed(row) ? <span className="mc-files-meta">None</span> : row.readiness.nextAction),
     },
   ];
