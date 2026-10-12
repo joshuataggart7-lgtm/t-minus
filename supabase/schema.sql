@@ -302,7 +302,10 @@ create table if not exists public.polls (
   phase text,
   reviewer_role text,
   reviewer_name text,
-  vote text check (vote in ('go','no-go','pending')) default 'pending',
+  -- Matches the live constraint polls_vote_check as read on Oct 12, 2026: the formal review decisions
+  -- (Round I, Oct 7, 2026) plus the older go / no-go values, which still read.
+  vote text check (vote in ('pending','legally_sufficient','legally_sufficient_with_comments','not_legally_sufficient',
+    'concur','concur_with_comments','nonconcur','nonconcur_resolved','approve','disapprove','go','no-go')) default 'pending',
   reason text,
   due_date date,
   voted_at timestamptz
