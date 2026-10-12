@@ -3231,3 +3231,9 @@ short label stays on the small clock and the rail.
 - When gao.gov cannot be reached, the GAO fetch loads three labelled sample decisions (see B11). They carry a "Sample" chip on the Watch page.
 - The Executive Overview's "new items in the last 14 days" line counted them with no label. It now counts real items only (`WatchCard` in `src/routes/index.tsx`).
 - No data was changed. The sample rows are still on the Watch page.
+
+## Server role check counts an assigned Contracting role (Oct 12, 2026)
+
+- `currentActor` in `src/lib/actor.ts` read `user_roles` and passed each value through `normalizeRole`, which had no case for `specialist`. An account whose only assigned role was Contracting ended with no role on the server, so drafting, market research, SAM entity checks, set-aside evidence, contract award lookups and the Watch fetch refused it, while the browser (which reads `user_roles` directly) showed the buttons.
+- Assigned roles now go through `membershipRole`, which accepts every value of the `app_role` enum. `normalizeRole` is unchanged and still reads the free-text role on a profile or seeded users row, where 'contracting' and 'co' get no role.
+- Who this changes: accounts an administrator gave the Contracting role in People and roles. Nobody else. Administrator, HQ, reviewer, requester and executive behave as before. Demo sessions stay view only.
