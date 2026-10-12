@@ -309,7 +309,11 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
     // The memo numbers its own paragraphs, so a heading's own number is dropped.
     .map((b) => ({ ...b, heading: b.heading.replace(/^\s*\d+\.\s+/, "") }))
     .map((b) => {
-      const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(l)).filter((l) => l && !l.endsWith(": —") && !l.endsWith(`: ${EMPTY_FIELD}`));
+      // An answer that is still only the drafter's marker ("[Contracting officer to
+      // complete: ...]") is an unwritten answer. It reads as Not recorded, the same
+      // as an empty field, so the memo never prints a prompt with nothing after it.
+      const unwritten = (l: string) => l.replace(/^(.*?:\s+)?\[Contracting officer to complete:[^\]]*\]\.?\s*$/, (_m, label: string | undefined) => `${label ?? ""}${EMPTY_FIELD}`);
+      const lines = b.lines.flatMap((l) => l.split("\n")).map((l) => clean(unwritten(l))).filter((l) => l && l !== EMPTY_FIELD && !l.endsWith(": —") && !l.endsWith(`: ${EMPTY_FIELD}`));
       // Signer and date fields belong in the signature block, never in prose.
       const labelOf = (line: string) => {
         const at = line.indexOf(": ");

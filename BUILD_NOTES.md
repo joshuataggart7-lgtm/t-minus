@@ -3226,6 +3226,13 @@ laptop width (a table scans faster for 29 files). Hours stay on the file page
 and in the wide table. The launch arc now shows the full hold reason; the
 short label stays on the small clock and the rail.
 
+## Unwritten memo sections print as Not recorded and count as still to complete (Oct 12, 2026)
+
+- Found by a real save and export on the scratch copy A-2027-0117. A drafted memo holds "[Contracting officer to complete: ...]" where the record cannot answer a field. The memo printer strips bracketed text, so that section printed its prompt with nothing after it ("4. Findings. What the research found about each source:"), and the form said "Required fields complete."
+- `memoParagraphs` in `src/lib/nf1858.ts` now reads an answer that is only that marker as an empty answer, so the section prints "Not recorded." like any other empty section. The page view and the PDF and Word exports share this code.
+- `validate` in `src/lib/template-engine.ts` counts a required field that still holds only the marker as still to complete (`isUnwritten`). Saving is not blocked; the form now says how many required fields are left.
+- Not changed: a marker in the middle of real text is still stripped on export, and the other exporters (generic document, JOFOC, LSJ, NF 1787) still strip bracketed text the old way.
+
 ## The live database is ahead of the SQL in this repo for review decisions (Oct 12, 2026)
 
 - Lovable's scan reported that review decisions could not save, because `supabase/schema.sql` allowed only go, no-go and pending in `polls.vote` while the screens write the formal decisions.

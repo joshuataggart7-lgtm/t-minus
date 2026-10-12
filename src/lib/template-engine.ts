@@ -2966,15 +2966,22 @@ export function visibleFields(s: SectionDef, v: Values): FieldDef[] {
   return s.fields.filter((f) => !f.showIf || f.showIf(v));
 }
 
+/** True when a value is empty or still only the drafter's "[Contracting officer to complete: ...]" marker. */
+export function isUnwritten(value: string | null | undefined): boolean {
+  const text = (value ?? "").trim();
+  return !text || /^\[Contracting officer to complete:[^\]]*\]\.?$/.test(text);
+}
+
 /**
  * Fields still to complete. A version saves with any field empty, so this is a
- * list shown on the form and on the phase, never a gate on the save.
+ * list shown on the form and on the phase, never a gate on the save. A field
+ * that still holds only the drafter's marker has not been written, so it counts.
  */
 export function validate(def: TemplateDef, v: Values): Record<string, string> {
   const errors: Record<string, string> = {};
   for (const s of visibleSections(def, v)) {
     for (const f of visibleFields(s, v)) {
-      if (f.required && !(v[f.key] ?? "").trim()) errors[f.key] = `${f.label} is required.`;
+      if (f.required && isUnwritten(v[f.key])) errors[f.key] = `${f.label} is required.`;
     }
   }
   return errors;
