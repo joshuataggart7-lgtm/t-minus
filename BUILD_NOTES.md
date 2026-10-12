@@ -3226,15 +3226,15 @@ laptop width (a table scans faster for 29 files). Hours stay on the file page
 and in the wide table. The launch arc now shows the full hold reason; the
 short label stays on the small clock and the rail.
 
-## Watch count on the Executive Overview leaves out sample rows (Oct 12, 2026)
-
-- When gao.gov cannot be reached, the GAO fetch loads three labelled sample decisions (see B11). They carry a "Sample" chip on the Watch page.
-- The Executive Overview's "new items in the last 14 days" line counted them with no label. It now counts real items only (`WatchCard` in `src/routes/index.tsx`).
-- No data was changed. The sample rows are still on the Watch page.
-
 ## The live database is ahead of the SQL in this repo for review decisions (Oct 12, 2026)
 
 - Lovable's scan reported that review decisions could not save, because `supabase/schema.sql` allowed only go, no-go and pending in `polls.vote` while the screens write the formal decisions.
 - Read from the live database on Oct 12, 2026 (read only): `polls_vote_check` already accepts pending, the nine formal decisions, and go / no-go. The table holds approve, concur, legally_sufficient, nonconcur and pending rows. `v_report_acquisitions` already counts no-go, nonconcur, disapprove and not_legally_sufficient as unfavorable. There are no triggers on `polls`.
 - So the report was a false alarm caused by stale SQL in the repo. Nothing in the database was changed. `supabase/schema.sql` now carries the live rule so the next reader, or scanner, sees what the database enforces.
 - The widened constraint and the view change were made through Lovable and have no migration file here. The view definition in `supabase/migrations/20260911121153_*.sql` is the old one.
+
+## Watch count on the Executive Overview leaves out sample rows (Oct 12, 2026)
+
+- When gao.gov cannot be reached, the GAO fetch loads three labelled sample decisions (see B11). They carry a "Sample" chip on the Watch page.
+- The Executive Overview's "new items in the last 14 days" line counted them with no label. It now counts real items only (`WatchCard` in `src/routes/index.tsx`).
+- No data was changed. The sample rows are still on the Watch page.
