@@ -3225,3 +3225,9 @@ Chosen over a horizontal scroll (hides the next action) and over cards at
 laptop width (a table scans faster for 29 files). Hours stay on the file page
 and in the wide table. The launch arc now shows the full hold reason; the
 short label stays on the small clock and the rail.
+
+## Watch count on the Executive Overview leaves out sample rows (Oct 12, 2026)
+
+- When gao.gov cannot be reached, the GAO fetch loads three labelled sample decisions (see B11). They carry a "Sample" chip on the Watch page.
+- The Executive Overview's "new items in the last 14 days" line counted them with no label. It now counts real items only (`WatchCard` in `src/routes/index.tsx`).
+- No data was changed. The sample rows are still on the Watch page.
