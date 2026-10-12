@@ -3251,3 +3251,8 @@ short label stays on the small clock and the rail.
 - `currentActor` in `src/lib/actor.ts` read `user_roles` and passed each value through `normalizeRole`, which had no case for `specialist`. An account whose only assigned role was Contracting ended with no role on the server, so drafting, market research, SAM entity checks, set-aside evidence, contract award lookups and the Watch fetch refused it, while the browser (which reads `user_roles` directly) showed the buttons.
 - Assigned roles now go through `membershipRole`, which accepts every value of the `app_role` enum. `normalizeRole` is unchanged and still reads the free-text role on a profile or seeded users row, where 'contracting' and 'co' get no role.
 - Who this changes: accounts an administrator gave the Contracting role in People and roles. Nobody else. Administrator, HQ, reviewer, requester and executive behave as before. Demo sessions stay view only.
+
+## Oct 12, 2026: export header, memo file names, closeout label
+- Export headers now print days to the forecast award date when no target award date is recorded, so every printed page carries days to award as the print rule asks. With neither date, the header still says the target is not yet determined.
+- Memo exports whose template key already ends in "-memo" no longer save as "...-memo-memo-...".
+- The closeout row on the launch sequence reads "closing statement" (the regulation's item, RFO FAR 4.308-1(a)) in place of "release of claims". Label only; no gate or phase logic changed.
