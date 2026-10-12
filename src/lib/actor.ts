@@ -18,7 +18,22 @@ type Ctx = {
   userId: string;
 };
 
-/** 'contracting', 'co', empty and anything unrecognised get no role (null). */
+const MEMBERSHIP_ROLES: readonly ActorRole[] = ["administrator", "executive", "specialist", "reviewer", "requester", "hq"];
+
+/**
+ * A user_roles row holds an app_role value an administrator assigned, so every
+ * value of that enum counts, Contracting ("specialist") included. The browser
+ * reads the same rows the same way (role-context.tsx).
+ */
+export function membershipRole(value: string | null | undefined): ActorRole | null {
+  const role = (value ?? "").trim().toLowerCase();
+  return (MEMBERSHIP_ROLES as readonly string[]).includes(role) ? (role as ActorRole) : null;
+}
+
+/**
+ * Free-text role on a profile or a seeded users row. 'contracting', 'co', empty
+ * and anything unrecognised get no role (null).
+ */
 export function normalizeRole(value: string | null | undefined): ActorRole | null {
   switch ((value ?? "").trim().toLowerCase()) {
     case "executive":
@@ -43,7 +58,7 @@ export async function currentActor(context: Ctx): Promise<Actor> {
     .select("role")
     .eq("user_id", context.userId);
   if (memberships.error) throw new Error(memberships.error.message);
-  const assigned = ((memberships.data ?? []) as { role: string }[]).map((row) => normalizeRole(row.role)).filter((r): r is ActorRole => r !== null);
+  const assigned = ((memberships.data ?? []) as { role: string }[]).map((row) => membershipRole(row.role)).filter((r): r is ActorRole => r !== null);
   const seeded = await context.supabase
     .from("users")
     .select("name,role")
