@@ -341,8 +341,12 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
       };
       const facts = kept.filter(isFact);
       if (facts.length >= 3 || (facts.length >= 2 && facts.length === kept.length)) {
-        const lead = kept.filter((line) => !isFact(line)).map(clean).filter(Boolean).join(" ");
-        return { text: clean(`${b.heading.replace(/[.:]+$/, "")}.${lead ? ` ${lead}` : ""}`), lines: facts };
+        // Only the prose ahead of the first fact opens the paragraph. A longer
+        // answer further down (a reason, a basis) keeps its place among the
+        // labeled lines, so "Quoter 1: reason" still follows "Quoter 1: name".
+        const firstFact = kept.findIndex(isFact);
+        const lead = kept.slice(0, firstFact).map(clean).filter(Boolean).join(" ");
+        return { text: clean(`${b.heading.replace(/[.:]+$/, "")}.${lead ? ` ${lead}` : ""}`), lines: kept.slice(firstFact) };
       }
       const prose = kept.map(withoutPrompt).map(clean).filter((line) => line && line !== "—" && line !== EMPTY_FIELD);
       if (templateKey === "memorandum-for-record" && b.heading === "Filing") {
@@ -375,7 +379,10 @@ export function memoParagraphs(doc: RenderedDoc, templateKey?: string, sig?: { d
       if (!prose.length && /\bheading$/i.test(b.heading.trim())) return { text: "", lines: [] };
       // A section that only held the signer is the signature block, not a paragraph.
       if (!prose.length && (SIGNER_LABEL.test(b.heading.trim()) || /^signatures?\b/i.test(b.heading.trim()))) return { text: "", lines: [] };
-      const text = clean(`${b.heading.replace(/[.:,]+$/, "")}. ${prose.length ? prose.join(" ") : `${EMPTY_FIELD}.`}`);
+      // Each answer closes as a sentence, so a short one ("Lowest price
+      // technically acceptable") does not run into the answer after it.
+      const sentences = prose.map((line) => (/[.!?:;]["')\]]?$/.test(line) ? line : `${line}.`));
+      const text = clean(`${b.heading.replace(/[.:,]+$/, "")}. ${sentences.length ? sentences.join(" ") : `${EMPTY_FIELD}.`}`);
       return {
         text:
           needsDedupeNote && /findings/i.test(b.heading)

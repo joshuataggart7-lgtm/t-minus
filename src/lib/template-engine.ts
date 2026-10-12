@@ -56,6 +56,11 @@ export type SectionDef = {
   standingText?: string;
   /** Standing body that depends on the record's acquisition method. */
   standingTextFor?: (v: Values) => string;
+  /**
+   * An instruction to the person filling the section in. Shown on the form
+   * only. It never prints in the memorandum, the page view or an export.
+   */
+  guidance?: string;
   fields: FieldDef[];
   showIf?: (v: Values) => boolean;
   /** Back-up material: shown collapsed on the form, printed in full. */
@@ -739,7 +744,7 @@ const nonresponsibility: TemplateDef = {
       title: "SAM.gov entity check of record",
       citation: "RFO FAR 52.204-7; RFO FAR 9.104-6",
       tier: "binding",
-      standingText:
+      guidance:
         "These values are read from the entity check stored on this acquisition. Re-run the check on the Checks page if they are out of date.",
       fields: [
         { key: "sam_registration", label: "Registration status", kind: "readonly", bind: "sam_registration_status" },
@@ -898,7 +903,7 @@ const pnm: TemplateDef = {
       citation: "RFO FAR 12.204(a) simplified, RFO FAR 15.404-1(b)(2) part 15",
       citationFor: (v) => (simplifiedValues(v) ? simplifiedPriceCite(v["__method"]) : "RFO FAR 15.404-1(b)(2)"),
       tier: "binding",
-      standingText:
+      guidance:
         "Run comparables to pull prior awards for this NAICS and PSC between half and double the estimated value. Prior awards support the comparison; they do not replace the contracting officer's judgment.",
       fields: [
         {
@@ -2741,7 +2746,7 @@ const evaluationOfQuotations: TemplateDef = {
       title: "Quotations received",
       citation: "RFO FAR 12.204(b)(1)",
       tier: "binding",
-      standingText:
+      guidance:
         "Record every quotation received: the quoter, its UEI, the price quoted, the technical rating and the reason for that rating. Leave unused rows blank.",
       fields: [...quoterRow(1), ...quoterRow(2), ...quoterRow(3), ...quoterRow(4)],
     },

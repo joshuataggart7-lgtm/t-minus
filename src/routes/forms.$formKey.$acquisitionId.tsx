@@ -117,7 +117,17 @@ function respondentsFromRaw(raw: unknown): FormRespondent[] {
   });
 }
 
+/**
+ * One page instance per form. The router keeps this component mounted when only
+ * the address parameters change, so without the key the state of the last form
+ * (answers, open sections, preview) would carry into the next one.
+ */
 function FormPage() {
+  const { formKey, acquisitionId } = Route.useParams();
+  return <FormPageInner key={`${formKey}/${acquisitionId}`} />;
+}
+
+function FormPageInner() {
   const { formKey, acquisitionId } = Route.useParams();
   const { authState, user, readOnly } = useRole();
   const canWrite = useCanWrite();
