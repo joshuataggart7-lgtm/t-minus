@@ -339,7 +339,8 @@ export function ExecutiveOverview() {
 }
 
 function WatchCard({ items }: { items: ReturnType<typeof sortNewestFirst> }) {
-  const recent = items.filter((i) => withinDays(i, 14));
+  // Labelled sample rows (loaded when gao.gov cannot be reached) are not news; they stay on the Watch page only.
+  const recent = items.filter((i) => !i.sample && withinDays(i, 14));
   return (
     <section aria-label="Watch" className="mc-kpanel">
       <div className="mc-kpanel-head"><div><h2 className="mc-kpanel-title">Watch</h2></div></div>
