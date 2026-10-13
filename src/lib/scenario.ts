@@ -314,6 +314,7 @@ export const TRIGGERS: TriggerDef[] = [
               ? "commercial-tm-lh-determination"
               : "dandf-tm-lh-noncommercial",
         tab: "010",
+        note: "On an order, required unless the contract allows only time-and-materials or labor-hour orders; then the D&F is required only for the basic contract (RFO FAR 12.104(c)(2)(ii)). When the base period plus options exceed three years, the head of the contracting activity approves the D&F before the base period is executed (RFO FAR 16.601-3(a)(2)).",
       },
     ],
   },

@@ -69,7 +69,9 @@ export function optionSchedule(acq: AcqRow | null | undefined, _awardDate: strin
       label: period.label ?? `Option period ${index + 1}`,
       start,
       end: period.end ?? null,
-      noticeDue: start ? isoAdd(start, { days: -noticeLeadDays }) : null,
+      // 52.217-9 counts the lead "before the contract expires": the day
+      // before this option period begins.
+      noticeDue: start ? isoAdd(start, { days: -(noticeLeadDays + 1) }) : null,
     };
   });
   return {

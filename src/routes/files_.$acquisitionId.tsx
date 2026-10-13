@@ -64,6 +64,7 @@ import {
   requestedReviewsOffBoard,
   reviewerNameForRole,
   jofocAuthorityFor,
+  pnmCitation,
   REVIEW_PHASES,
   reviewRulesForPhase,
   type AcqRow,
@@ -2416,7 +2417,9 @@ function FilePageInner() {
     () => retentionView(q.data?.thresholds ?? [], pa.final_payment_date ?? null, awardDate),
     [q.data?.thresholds, pa.final_payment_date, awardDate],
   );
-  const delta = useMemo(() => clauseDelta(q.data?.clauses ?? []), [q.data?.clauses]);
+  // The delta reads the clauses this file carries (the packet built from the
+  // record), not every candidate clause in the matrices.
+  const delta = useMemo(() => clauseDelta(packetSelection), [packetSelection]);
   // The clause set on an IDIQ vehicle is not reconciled yet, so the delta is
   // withheld rather than shown as if it were the vehicle's clause set.
   const clauseDeltaWithheld = useMemo(() => {
@@ -3594,7 +3597,7 @@ function FilePageInner() {
                     Open the price negotiation memorandum
                   </Link>
                   <span className="ml-2 text-muted-foreground">
-                    RFO FAR 12.204(a) · where the price reasonableness finding is recorded
+                    {pnmCitation(acq as AcqRow | null)} · where the price reasonableness finding is recorded
                   </span>
                 </p>
               ) : null}
@@ -3873,8 +3876,8 @@ function FilePageInner() {
                     </div>
                     <p className="mc-pa-sub">
                       Option dates come only from the contract schedule on the record. The
-                      preliminary notice is due {options.noticeLeadDays} days before the option period begins (FAR
-                      52.217-9 fill-in).
+                      preliminary notice is due {options.noticeLeadDays} days before the contract would expire, the
+                      day before the option period begins (RFO FAR 52.217-9 fill-in).
                     </p>
                     <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label="Option periods table">
 <table className="mc-dt stack">
