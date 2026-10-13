@@ -3466,9 +3466,7 @@ function FilePageInner() {
                                </label>
                              )
                            ) : null}
-                           {d.note ? (
-                             <span className="block w-full text-[13px] text-muted-foreground">{d.note}</span>
-                           ) : null}
+                           {/* The row note prints once, after the row's controls (below). */}
                            <span className="block w-full">
                               <span className="flex flex-wrap items-center gap-2">
                                 <ExplainThis explanation={explainDocRow(d, p.phase, Boolean(attached))} label={attached ? "Why this row" : "Why?"} />
