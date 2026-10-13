@@ -1206,7 +1206,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           templateKey: "closeout-checklist",
         },
         {
-          label: "Closeout record: deobligation, final invoice, release of claims, property",
+          label: "Closeout record: deobligation, final invoice, closing statement, property",
           citation: "RFO FAR 4.308-1(a)",
           docKey: "closeout-record",
           tab: "120",

@@ -3252,6 +3252,10 @@ short label stays on the small clock and the rail.
 - Assigned roles now go through `membershipRole`, which accepts every value of the `app_role` enum. `normalizeRole` is unchanged and still reads the free-text role on a profile or seeded users row, where 'contracting' and 'co' get no role.
 - Who this changes: accounts an administrator gave the Contracting role in People and roles. Nobody else. Administrator, HQ, reviewer, requester and executive behave as before. Demo sessions stay view only.
 
+## Oct 12, 2026: export header, memo file names, closeout label
+- Export headers now print days to the forecast award date when no target award date is recorded, so every printed page carries days to award as the print rule asks. With neither date, the header still says the target is not yet determined.
+- Memo exports whose template key already ends in "-memo" no longer save as "...-memo-memo-...".
+- The closeout row on the launch sequence reads "closing statement" (the regulation's item, RFO FAR 4.308-1(a)) in place of "release of claims". Label only; no gate or phase logic changed.
 ## Oct 12, 2026: fixes from the side-road audit
 Rule text read live on acquisition.gov (RFO FAR, 09/28/2026) unless noted.
 - Brand-name orders: the fair opportunity record stays required. RFO FAR 16.507-7 limits the item, not the awardees, and above $40,000 the justification goes out with the solicitation to every awardee (16.507-7(c)(1)). Only the 16.507-6(b) sole-source exceptions make the record optional. This changes which rows a brand-name order must clear.
