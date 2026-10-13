@@ -1596,6 +1596,7 @@ function DocumentPageInner() {
     approvingOfficialTitle: approvingOfficialTitle(
       q.data.routing?.approving_official_title,
       !(signature && signature.blocks.length > 2),
+      signature?.blocks ?? [],
     ),
     technicalRepresentativeName: technicalRepresentative(q.data.acq as Record<string, unknown>),
     centerName: q.data.center?.center_name ?? String(q.data.acq["center_code"] ?? ""),
@@ -2775,6 +2776,7 @@ function DocumentPageInner() {
               {approvingOfficialTitle(
                 q.data?.routing?.approving_official_title,
                 !(signature && signature.blocks.length > 2),
+                signature?.blocks ?? [],
               )}
             </p>
             <ul className="mt-2">
