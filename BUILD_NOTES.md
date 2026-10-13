@@ -3251,3 +3251,21 @@ short label stays on the small clock and the rail.
 - `currentActor` in `src/lib/actor.ts` read `user_roles` and passed each value through `normalizeRole`, which had no case for `specialist`. An account whose only assigned role was Contracting ended with no role on the server, so drafting, market research, SAM entity checks, set-aside evidence, contract award lookups and the Watch fetch refused it, while the browser (which reads `user_roles` directly) showed the buttons.
 - Assigned roles now go through `membershipRole`, which accepts every value of the `app_role` enum. `normalizeRole` is unchanged and still reads the free-text role on a profile or seeded users row, where 'contracting' and 'co' get no role.
 - Who this changes: accounts an administrator gave the Contracting role in People and roles. Nobody else. Administrator, HQ, reviewer, requester and executive behave as before. Demo sessions stay view only.
+
+## Oct 12, 2026: export header, memo file names, closeout label
+- Export headers now print days to the forecast award date when no target award date is recorded, so every printed page carries days to award as the print rule asks. With neither date, the header still says the target is not yet determined.
+- Memo exports whose template key already ends in "-memo" no longer save as "...-memo-memo-...".
+- The closeout row on the launch sequence reads "closing statement" (the regulation's item, RFO FAR 4.308-1(a)) in place of "release of claims". Label only; no gate or phase logic changed.
+## Oct 12, 2026: fixes from the side-road audit
+Rule text read live on acquisition.gov (RFO FAR, 09/28/2026) unless noted.
+- Brand-name orders: the fair opportunity record stays required. RFO FAR 16.507-7 limits the item, not the awardees, and above $40,000 the justification goes out with the solicitation to every awardee (16.507-7(c)(1)). Only the 16.507-6(b) sole-source exceptions make the record optional. This changes which rows a brand-name order must clear.
+- Orders under a task or delivery order contract now carry subpart 16.5 phase cites (16.507-2(a)(3), 16.506(a), (b), (f)) instead of Part 15 ones. The order price note reads 16.506(f) as written: the CO establishes order prices under subpart 15.4.
+- Notice of intent to sole source: optional with a 5.101(b)(2) note when the authority is 6.103-2 through 6.103-5 or 6.103-7; otherwise the note follows Table 5-2 (15 days before solicitation, or combined with the solicitation on a commercial buy over the SAT). Replaces "Allow at least 15 days for responses." This changes whether an urgency file must clear its synopsis row.
+- JOFOC approving official shows the Table 6-1 name (Advocate for competition, Head of the procuring activity). Roster matching still uses the old title.
+- Ratification files get two Reviews and approvals rows: legal concurrence (RFO FAR 1.405(c)(5)) and the ratifying official (1.405(b)(2)). Their Reviews phase now needs decisions.
+- Option preliminary notice counts the 52.217-9 lead from contract expiration (the day before the option period starts), so it lands one day earlier.
+- The SF 30 clause delta reads the file's own clause packet, not every candidate clause.
+- The price memo link line cites the path's rule (pnmCitation).
+- NF 1707 intake row at or below the SAT no longer says "forecast, above the SAT".
+- T&M D&F row note: order-level D&F unless the contract allows only T&M orders (12.104(c)(2)(ii)); HCA approval over three years (16.601-3(a)(2)).
+- verified-reg-text.ts: 12.104(b)(1) now matches the live page (two items; the 16.104 item is gone). Hand edit to a generated file, recorded here.

@@ -1090,11 +1090,7 @@ export const VERIFIED_REG_TEXT: Record<string, VerifiedRegEntry> = {
 ],
 [
 3,
-"(ii) Obtain approval of a justification in accordance with 16.104, if applicable;"
-],
-[
-3,
-"(iii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
+"(ii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
 ],
 [
 2,
@@ -1153,11 +1149,7 @@ export const VERIFIED_REG_TEXT: Record<string, VerifiedRegEntry> = {
 ],
 [
 3,
-"(ii) Obtain approval of a justification in accordance with 16.104, if applicable;"
-],
-[
-3,
-"(iii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
+"(ii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
 ],
 [
 2,
@@ -1180,11 +1172,7 @@ export const VERIFIED_REG_TEXT: Record<string, VerifiedRegEntry> = {
 ],
 [
 3,
-"(ii) Obtain approval of a justification in accordance with 16.104, if applicable;"
-],
-[
-3,
-"(iii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
+"(ii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
 ]
 ],
 "s": "12.104",
@@ -1206,7 +1194,7 @@ export const VERIFIED_REG_TEXT: Record<string, VerifiedRegEntry> = {
 "p": [
 [
 3,
-"(ii) Obtain approval of a justification in accordance with 16.104, if applicable;"
+"(ii) Include in the contract a ceiling price that the contractor exceeds at its own risk."
 ]
 ],
 "s": "12.104",

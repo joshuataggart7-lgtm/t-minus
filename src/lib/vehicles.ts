@@ -244,7 +244,7 @@ export function modRows(
   const rows: ModRow[] = [];
   if (mod.mod_type === "option_exercise") {
     rows.push(
-      { label: "Preliminary notice of intent to exercise the option", citation: "RFO FAR 17.204-1(b)(1)", state: "required", templateKey: "option-exercise-notification" },
+      { label: "Preliminary notice of intent to exercise the option", citation: "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)", state: "required", templateKey: "option-exercise-notification" },
       { label: "Determination to exercise the option", citation: "RFO FAR 17.204-1(b)", state: "required", templateKey: "option-exercise-determination" },
     );
   }

@@ -258,6 +258,29 @@ export function jofocAuthorityFor(acq?: AcqRow | null): string {
   return "10 U.S.C. 3204(a)(1) as implemented by RFO FAR 6.103-1 (only one responsible source)";
 }
 
+/**
+ * RFO FAR 5.101(b)(2): no presolicitation notice is required when using other
+ * than full and open competition, except under 6.103-1 (only one responsible
+ * source) and 6.103-6 (national security). Read from the authority the file
+ * relies on.
+ */
+export function presolicitationExempt(acq?: AcqRow | null): boolean {
+  const authority = jofocAuthorityFor(acq);
+  return /6\.103-(2|3|4|5|7)\b/.test(authority);
+}
+
+/** Where the price reasonableness finding sits on this record's path. */
+export function pnmCitation(acq?: AcqRow | null): string {
+  const path = awardPath(acq);
+  return path === "order"
+    ? "RFO FAR 16.506(f)"
+    : path === "negotiated" || path === "letter_contract"
+      ? "RFO FAR 15.408-2(a)"
+      : path === "simplified"
+        ? "RFO FAR 13.203(a)"
+        : "RFO FAR 12.204(a)";
+}
+
 /** Table 12-1 authority for a commercial sole source over the SAT on simplified procedures. */
 export const COMMERCIAL_SIMPLIFIED_AUTHORITY = "41 U.S.C. 1901 (RFO FAR 12.102(b), Table 12-1)";
 
@@ -386,6 +409,15 @@ const PART_15_PHASE_CITATIONS: Record<string, string> = {
   Award: "RFO FAR 15.207-1 (award to successful offeror); NFS CG 1804.11(b) (award written in NCMS)",
 };
 
+/** Orders under a task or delivery order contract (subpart 16.5). */
+const ORDER_PHASE_CITATIONS: Record<string, string> = {
+  "Solicitation/Quote":
+    "RFO FAR 16.507-2(a)(3) (ordering is not subject to part 6, subpart 15.3 or part 14); NFS CG 1804.11(b) (NCMS is the system of record)",
+  "Technical Evaluation": "RFO FAR 16.507-2(a)(3) (subpart 15.3 does not apply to ordering)",
+  "Price Reasonableness": "RFO FAR 16.506(f) (order prices under subpart 15.4 when the contract did not set them)",
+  Award: "RFO FAR 16.506(a), (b) (order within scope, period and maximum); NFS CG 1804.11(b) (order written in NCMS)",
+};
+
 /** The citation a phase carries on this record's path. */
 export function phaseCitation(phase: string, acq?: AcqRow | null): string {
   const method = String(((acq ?? {}) as Record<string, unknown>)["acquisition_method"] ?? "");
@@ -407,6 +439,12 @@ export function phaseCitation(phase: string, acq?: AcqRow | null): string {
       return "RFO FAR 12.102(b) (justification and approval as in RFO FAR 6.104 above the SAT); RFO FAR 6.104-2 Table 6-1; NFS CG 1806.16";
     return "RFO FAR 6.104; RFO FAR 6.104-2 Table 6-1; NFS CG 1806.15(a); NFS CG 1806.16";
   }
+  // An order under a task or delivery order contract follows subpart 16.5:
+  // no presolicitation notice (RFO FAR 5.101(b)(1)(iv)), and the ordering
+  // process is not subject to part 6, subpart 15.3 or part 14 (RFO FAR
+  // 16.507-2(a)(3)).
+  if (acquisitionProfile((acq ?? {}) as Record<string, unknown>) === "order_under_idiq" && ORDER_PHASE_CITATIONS[phase])
+    return ORDER_PHASE_CITATIONS[phase]!;
   if (soleSource && phase === "Synopsis") return "RFO FAR 5.101(c)(4)(vii) (notice of intent to sole source)";
   // A sole source never runs a combined synopsis/solicitation, so the
   // commercial FAR 12.603 citation has no part in its Solicitation/Quote row.
@@ -691,11 +729,17 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
   switch (phase) {
     case "Intake":
       return [
-        {
-          label: "NF 1707 intake, Acquisition Forecast affirmed",
-          citation: "NFS CG 1807.711(a); NFS CG 1807.703(a) (forecast, above the SAT)",
-          field: "acquisition_forecast_verified",
-        },
+        Number(acq?.estimated_value ?? 0) > SIMPLIFIED_ACQUISITION_THRESHOLD
+          ? {
+              label: "NF 1707 intake, Acquisition Forecast affirmed",
+              citation: "NFS CG 1807.711(a); NFS CG 1807.703(a) (forecast, above the SAT)",
+              field: "acquisition_forecast_verified",
+            }
+          : {
+              label: "NF 1707 intake",
+              citation: "NFS CG 1807.711(a)",
+              field: "acquisition_forecast_verified",
+            },
         {
           label: "Independent government cost estimate (IGCE)",
           citation: igceCite(String(acq?.acquisition_method ?? ""), Number(acq?.estimated_value ?? 0)),
@@ -812,7 +856,12 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               citation: "RFO FAR 5.101(c)(4)(vii)",
               link: "templates",
               templateKey: "sam-notice",
-              note: "Allow at least 15 days for responses unless an exception applies.",
+              ...(presolicitationExempt(acq) ? { optional: true } : {}),
+              note: presolicitationExempt(acq)
+                ? "Not required: a presolicitation notice is not required when using other than full and open competition under an authority other than RFO FAR 6.103-1 or 6.103-6 (RFO FAR 5.101(b)(2))."
+                : isCommercialBuy(acq) && Number(acq?.estimated_value ?? 0) > SIMPLIFIED_ACQUISITION_THRESHOLD
+                  ? "For a commercial buy over the SAT the notice is combined with the solicitation (RFO FAR 5.101(d), Table 5-2)."
+                  : "Post at least 15 days before the solicitation is issued (RFO FAR 5.101(d), Table 5-2).",
             }
           : awardPath(acq) === "simplified" || awardPath(acq) === "negotiated"
             ? {
@@ -919,6 +968,10 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         vehicle.fair_opportunity === "competed" ? null : exceptionLabel(String(vehicle.fair_opportunity));
       const schedule = profile === "fss_order";
       const tier = fairOpportunityTier(value);
+      // A brand-name requirement limits the item, not the awardees: every
+      // awardee is still considered (RFO FAR 16.507-7(a), (c)(1)). Only the
+      // sole-source exceptions in RFO FAR 16.507-6(b) replace the record.
+      const soleSourceException = exception && exception.key !== "brand_name" ? exception : null;
       const rows: RequiredDoc[] = [
         {
           label: schedule
@@ -930,11 +983,11 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           attachOnly: true,
           // With an exception recorded, the exception justification below is
           // the record; no awardee-by-awardee consideration is required.
-          ...(exception && !schedule ? { optional: true } : {}),
+          ...(soleSourceException && !schedule ? { optional: true } : {}),
           note: schedule
             ? "The ordering procedure follows the order value."
-            : exception
-              ? `Not required: the contracting officer relies on the ${exception.label.toLowerCase()} exception (${exception.citation}), documented in the justification below. ${tier.note}`
+            : soleSourceException
+              ? `Not required: the contracting officer relies on the ${soleSourceException.label.toLowerCase()} exception (${soleSourceException.citation}), documented in the justification below. ${tier.note}`
               : `Record how each awardee under the vehicle was given a fair opportunity to be considered. ${tier.note}`,
         },
       ];
@@ -942,10 +995,14 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
         rows.push(
           exception.key === "brand_name"
             ? {
-                label: "Fair opportunity exception: brand name justification",
+                label: "Brand name justification",
                 citation: exception.citation,
                 link: "templates",
                 templateKey: "fair-opportunity-brand-name",
+                note:
+                  value > 40_000
+                    ? "Justify restricting the order to an item peculiar to one manufacturer. Above $40,000, post the justification with the solicitation or provide it to every awardee (RFO FAR 16.507-7(a), (c)(1)). Every awardee is still considered."
+                    : "Justify restricting the order to an item peculiar to one manufacturer (RFO FAR 16.507-7(a)). Every awardee is still considered.",
               }
             : {
                 label: `Fair opportunity exception: ${exception.label.toLowerCase()} justification`,
@@ -993,14 +1050,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
             note: definitizationNote(acq),
           },
         ];
-      const citation =
-        path === "order"
-          ? "RFO FAR 16.506(f)"
-          : path === "negotiated"
-            ? "RFO FAR 15.408-2(a)"
-            : path === "simplified"
-              ? "RFO FAR 13.203(a)"
-              : "RFO FAR 12.204(a)";
+      const citation = pnmCitation(acq);
       return [
         {
           label: "Price negotiation memorandum (PNM)",
@@ -1008,7 +1058,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           link: "templates",
           templateKey: "pnm",
           note: path === "order"
-            ? "The contracting officer determines the order price fair and reasonable under RFO FAR 16.506(f). The PNM is the determination of record."
+            ? "If the contract did not establish the price, the contracting officer establishes the order price using subpart 15.4 (RFO FAR 16.506(f)), which looks to a fair and reasonable price (RFO FAR 15.402(a)). The PNM is the determination of record."
             : "The PNM is the price reasonableness determination of record. No separate determination is generated.",
         },
       ];
@@ -1112,7 +1162,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           ? [
               {
                 label: "Option exercise: preliminary notice to the contractor",
-                citation: "RFO FAR 17.204-1(b)(1)",
+                citation: "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)",
                 link: "templates" as const,
                 templateKey: "option-exercise-notification",
                 optional: true,
@@ -1156,7 +1206,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           templateKey: "closeout-checklist",
         },
         {
-          label: "Closeout record: deobligation, final invoice, release of claims, property",
+          label: "Closeout record: deobligation, final invoice, closing statement, property",
           citation: "RFO FAR 4.308-1(a)",
           docKey: "closeout-record",
           tab: "120",
@@ -1337,17 +1387,21 @@ export function shortRole(role: string): string {
   return head.replace(/review|coordination|authorization|meeting/gi, "").trim().toLowerCase() || role.toLowerCase();
 }
 
+/** The role name the ratifying official votes under (RFO FAR 1.405(b)(2)). */
+export const RATIFYING_OFFICIAL_ROLE = "Ratification approving official";
+
 /** The role name the JOFOC approving official votes under. */
 export const JOFOC_APPROVER_ROLE = "JOFOC approving official";
 
 /**
  * The approval level RFO FAR 6.104-2 Table 6-1 sets for this file's value, and the
  * office that holds it. The dollar tiers come from the thresholds table.
+ * `title` matches the reviewer roster; `official` is the Table 6-1 name shown.
  */
 export function jofocApprovalTier(
   acq: AcqRow,
   ref: RefData,
-): { tierLabel: string; title: string } {
+): { tierLabel: string; title: string; official: string } {
   const thr = (name: string, fallback: number) =>
     ref.thresholds.find((t) => (t.name ?? "").toLowerCase() === name.toLowerCase())?.value ?? fallback;
   const co = thr("JOFOC approval tier: contracting officer certification", 900_000);
@@ -1355,12 +1409,12 @@ export function jofocApprovalTier(
   const hca = thr("JOFOC approval tier: head of contracting activity (NASA)", 150_000_000);
   const dollars = (n: number) => `$${n.toLocaleString("en-US")}`;
   const value = num(acq.estimated_value);
-  if (value <= co) return { tierLabel: `Up to ${dollars(co)}`, title: "Contracting Officer" };
+  if (value <= co) return { tierLabel: `Up to ${dollars(co)}`, title: "Contracting Officer", official: "Contracting officer" };
   if (value <= ca)
-    return { tierLabel: `Over ${dollars(co)} to ${dollars(ca)}`, title: "Competition Advocate" };
+    return { tierLabel: `Over ${dollars(co)} to ${dollars(ca)}`, title: "Competition Advocate", official: "Advocate for competition" };
   if (value <= hca)
-    return { tierLabel: `Over ${dollars(ca)} to ${dollars(hca)}`, title: "Head of Contracting Activity" };
-  return { tierLabel: `Over ${dollars(hca)}`, title: "Senior Procurement Executive" };
+    return { tierLabel: `Over ${dollars(ca)} to ${dollars(hca)}`, title: "Head of Contracting Activity", official: "Head of the procuring activity" };
+  return { tierLabel: `Over ${dollars(hca)}`, title: "Senior Procurement Executive", official: "Senior procurement executive" };
 }
 
 /** True on a sole-source file that carries a JOFOC authority. */
@@ -1380,6 +1434,36 @@ export function reviewRulesForPhase(
 ): ReviewRuleRow[] {
   const applicable = rules.filter((r) => reviewApplies(r, acq, ref));
   if (phase === "JOFOC") return applicable.filter((r) => /^legal review/i.test(r.reviewer_role));
+  if (phase === REVIEW_PHASE && isRatification(acq as Record<string, unknown>)) {
+    // RFO FAR 1.405(c)(5): the contracting officer recommends payment and
+    // legal counsel concurs. RFO FAR 1.405(b)(2): the head of the contracting
+    // activity ratifies, delegable no lower than the chief of the contracting
+    // office.
+    const hasLegal = applicable.some((r) => /^legal review/i.test(r.reviewer_role));
+    return [
+      ...applicable,
+      ...(hasLegal
+        ? []
+        : [
+            {
+              rule_id: "ratification-legal-concurrence",
+              reviewer_role: "Legal review (Center Chief Counsel)",
+              trigger: "Ratification of an unauthorized commitment",
+              citation: "RFO FAR 1.405(c)(5)",
+              planned_days: null,
+              note: "Legal counsel concurs in the contracting officer's recommendation for payment (RFO FAR 1.405(c)(5)).",
+            } as ReviewRuleRow,
+          ]),
+      {
+        rule_id: "ratification-approving-official",
+        reviewer_role: RATIFYING_OFFICIAL_ROLE,
+        trigger: "Ratification of an unauthorized commitment",
+        citation: "RFO FAR 1.405(b)(2)",
+        planned_days: null,
+        note: "The head of the contracting activity ratifies; the authority may not be delegated below the chief of the contracting office (RFO FAR 1.405(b)(2)).",
+      } as ReviewRuleRow,
+    ];
+  }
   if (phase === REVIEW_PHASE) {
     if (!hasJofoc(acq)) return applicable;
     // A sole-source file carries the JOFOC approving official as a reviewer.
@@ -1394,7 +1478,7 @@ export function reviewRulesForPhase(
         trigger: "Sole source with a justification on the file",
         citation: "RFO FAR 6.104-2 Table 6-1",
         planned_days: null,
-        note: `${tier.tierLabel}: ${tier.title}.`,
+        note: `${tier.tierLabel}: ${tier.official} (RFO FAR 6.104-2 Table 6-1).`,
       },
     ];
   }
@@ -1551,8 +1635,10 @@ export function pollBoard(
     const byRole = tier
       ? (tier.title === "Contracting Officer" ? String(acq['co_name'] ?? "").trim() : "") ||
         reviewerNameForTitle(tier.title, center, roster) ||
-        tier.title
-      : reviewerNameForRole(r.reviewer_role, center, roster);
+        tier.official
+      : r.reviewer_role === RATIFYING_OFFICIAL_ROLE
+        ? reviewerNameForTitle("Head of Contracting Activity", center, roster) || "Head of the contracting activity"
+        : reviewerNameForRole(r.reviewer_role, center, roster);
     const voted = vote !== "pending";
     return {
       poll_id: row?.poll_id ?? null,

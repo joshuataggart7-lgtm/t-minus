@@ -104,7 +104,7 @@ export function deadlineRows(opts: {
     label: "Option preliminary notice due",
     date: nextOption?.noticeDue ?? postAward(acq as never).option_notice_date ?? null,
     from: nextOption?.start
-      ? `${options.noticeLeadDays} days before the option period starts ${nextOption.start}`
+      ? `${options.noticeLeadDays} days before the contract would expire, the day before the option period starts ${nextOption.start}`
       : "no option period is recorded",
     count: "calendar days",
     citation: "RFO FAR 52.217-9, as filled in on this contract",

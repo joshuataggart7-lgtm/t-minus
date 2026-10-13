@@ -1670,11 +1670,15 @@ function DocumentPageInner() {
   // Export headers use only the recorded target award date.
   const targetDate = awardDate;
   const daysToAward = targetDate ? daysBetween(todayISO(), targetDate) : null;
+  // Keys that already end in "-memo" keep a single "memo" in the file name.
+  const memoFileStem = `${(def?.key ?? templateKey).replace(/-memo$/, "")}-memo-${acquisitionId}`;
   const exportHeaderLine = `${acquisitionId} · ${
     chromeCountdown?.pastTarget
       ? countdownText(chromeCountdown)
       : chromeCountdown && chromeCountdown.mode === "hold" && chromeCountdown.days !== null
         ? countdownText(chromeCountdown)
+        : daysToAward === null && chromeCountdown?.mode === "forecast" && chromeCountdown.days !== null
+          ? `${chromeCountdown.days} ${dayWord(chromeCountdown.days)} to forecast award. No target date on file.`
         : daysToAward === null
           ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
           : daysToAward < 0
@@ -2553,7 +2557,7 @@ function DocumentPageInner() {
                         )
                         .catch(() => setMessage("The Word file did not export. Try again, or export PDF."));
                     }
-                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, `${def.key}-memo-${acquisitionId}`, exportHeaderLine);
+                  } else if (memoOn && memoDoc) void exportMemoDocx(memoDoc, memoFileStem, exportHeaderLine);
                   else if (def.key === "jofoc-8a-over-30m" && exportContext) {
                     // The 8(a) justification is written into the NASA OP master.
                     if (!isJofoc8aPath(exportContext)) {
@@ -2597,7 +2601,7 @@ function DocumentPageInner() {
               <DropdownMenuItem
                 onSelect={() => {
                   if (memoOn && memoDoc) {
-                    void exportMemoPdf(memoDoc, exportHeaderLine, `${def.key}-memo-${acquisitionId}`).catch(() =>
+                    void exportMemoPdf(memoDoc, exportHeaderLine, memoFileStem).catch(() =>
                       setMessage("The PDF did not export. Try again, or export Word."),
                     );
                     return;
