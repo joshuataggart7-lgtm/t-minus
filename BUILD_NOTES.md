@@ -3269,3 +3269,7 @@ Rule text read live on acquisition.gov (RFO FAR, 09/28/2026) unless noted.
 - NF 1707 intake row at or below the SAT no longer says "forecast, above the SAT".
 - T&M D&F row note: order-level D&F unless the contract allows only T&M orders (12.104(c)(2)(ii)); HCA approval over three years (16.601-3(a)(2)).
 - verified-reg-text.ts: 12.104(b)(1) now matches the live page (two items; the 16.104 item is gone). Hand edit to a generated file, recorded here.
+
+## Oct 12, 2026: living people's names off the sample files
+- The seed names many sample people after astronauts, labeled fictional. Those who are living and appear as a file's contracting officer, requester or COR now carry invented names: A-2027-0127 CO R. Okafor (was Eileen Collins), A-2027-0126 requester Dr. A. Brennan (was Kathryn Sullivan) and COR K. Imani (was Story Musgrave), A-2027-0128 requester Dr. T. Varga (was Ellen Ochoa). The live database gets the same change through Lovable, guarded by the old values.
+- Not changed: activity records and the audit log (document checkouts, read receipts, research runs, NF 1707 approvals, saved document versions) that name the demo specialists Fred Haise and Charlie Duke. They are records of what happened and stay as written.
