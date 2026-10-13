@@ -2951,7 +2951,16 @@ export function technicalRepresentative(acq: Record<string, unknown>): string {
  * officer's tier, the approval is the contracting officer's and nothing else
  * is printed; a routing note that is not a title never prints as one.
  */
-export function approvingOfficialTitle(routingTitle: string | null | undefined, withinCoTier: boolean): string {
+export function approvingOfficialTitle(
+  routingTitle: string | null | undefined,
+  withinCoTier: boolean,
+  blocks: string[] = [],
+): string {
+  // A template whose signature page names its approver ("APPROVAL: Head of the
+  // Contracting Activity") states the official the rule names; no value tier
+  // or Center routing overrides it (for example RFO FAR 1.405(b)(2)).
+  const named = blocks.find((b) => /^APPROVAL:\s*/i.test(b));
+  if (named) return named.replace(/^APPROVAL:\s*/i, "").trim();
   if (withinCoTier) return "Contracting Officer";
   const title = (routingTitle ?? "").trim();
   if (!title || /^per\s+far/i.test(title) || /approval level/i.test(title)) return "Contracting Officer";
