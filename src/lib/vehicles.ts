@@ -39,6 +39,25 @@ export const VEHICLE_DEFAULTS: VehicleProfile = {
   brand_name_justification_on_contract: false,
 };
 
+/**
+ * True when the file's clause packet carries RFO FAR 52.217-9 (the stored
+ * clause list, or a 52.217-9 fill-in on the post-award record).
+ */
+export function hasOptionClause(acq: Record<string, unknown> | null | undefined): boolean {
+  const list = acq?.["contract_clauses"];
+  if (Array.isArray(list) && list.some((c) => /^(?:RFO FAR |FAR )?52\.217-9\b/.test(String(c).trim()))) return true;
+  const post = (acq?.["post_award"] ?? {}) as Record<string, unknown>;
+  const fills = (post["clause_fill_ins"] ?? {}) as Record<string, unknown>;
+  return fills["52.217-9"] !== undefined && fills["52.217-9"] !== null && fills["52.217-9"] !== "";
+}
+
+/** Preliminary option notice cite: 52.217-9(a) only when the packet includes 52.217-9. */
+export function optionNoticeCitation(acq: Record<string, unknown> | null | undefined): string {
+  return hasOptionClause(acq)
+    ? "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)"
+    : "RFO FAR 17.204-1(b)(1)";
+}
+
 export function vehicleOf(acq: Record<string, unknown> | null | undefined): VehicleProfile {
   const raw = (acq?.["vehicle"] ?? {}) as Partial<VehicleProfile>;
   return { ...VEHICLE_DEFAULTS, ...raw };
