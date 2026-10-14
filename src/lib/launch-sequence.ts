@@ -733,7 +733,7 @@ function simplifiedRoutingRows(acq?: AcqRow): RequiredDoc[] {
     return [
       {
         label: "Purchase card for a micro-purchase",
-        citation: "NFS CG 1812.42(a)",
+        citation: "RFO FAR 12.403(a)(1); NFS CG 1812.42(a)",
         optional: true,
         note: "The NASA purchase card must be used for micro-purchase threshold transactions to the maximum extent practicable (NFS CG 1812.42(a)).",
       },
