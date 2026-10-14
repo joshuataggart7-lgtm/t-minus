@@ -1600,7 +1600,7 @@ Verified on Sample 1 (A-2027-0101): downloaded `evidence-pack-A-2027-0101.zip`,
   instead of "Choose one". The saved A-2027-0102 justification value was aligned to that option.
 - PNM: "Draft, confirm." / "Drafted from the record, confirm." are stripped from every drafted
   field body; the confirmation stays as the chip beside the field. Basis of the IGCE,
-  Certified cost or pricing data (Not required; commercial products or services, FAR 15.403-1(b)(3)
+  Certified cost or pricing data (Not required; commercial products or services, RFO FAR 15.403-2(b)(3)
   on a commercial simplified file) and Date of determination now prefill from the record.
 - Unchanged and verified: Polar Survey sample UEI DEMOSAMPLE01, PNM citations RFO FAR 12.204(a); FAR 13.106-3(b)(3),
   and the RFO Reserved note for 52.212-3 / 52.212-5 in the clause picker.
@@ -2713,7 +2713,7 @@ No residual citation bugs found in this pass.
 ## Sample 1 QA — PNM draft chips, prefill, index tab 065
 
 - Draft wording ("Drafted from the record, confirm." / "Draft, confirm.") is stripped from prefilled and stored field bodies on the document form; the flag stays as a chip beside the field. Applies to the PNM negotiation summary and determination statement.
-- PNM prefill on simplified commercial files already fills Basis of the IGCE, Certified cost or pricing data ("Not required; commercial products or services (FAR 15.403-1(b)(3))") and Date of determination from the record; unchanged.
+- PNM prefill on simplified commercial files already fills Basis of the IGCE, Certified cost or pricing data ("Not required; commercial products or services (RFO FAR 15.403-2(b)(3))") and Date of determination from the record; unchanged.
 - PNM cites unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files, never a bare FAR 15.406-3.
 - NF 1098 tab 065 is display-only and gates nothing; saving the generated PNM satisfies it. No seed change.
 - CO of record on A-2027-0101 stays J. Rivera (fictional CO); the signed-in admin name is never substituted.
@@ -2722,7 +2722,7 @@ No residual citation bugs found in this pass.
 ## Walk QA Sample 1 — unstick
 
 - PNM body text carries no draft wording; the "Drafted from the record — confirm." flag is a chip beside the field only (document form, prefilled and stored values alike).
-- A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (FAR 15.403-1(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI DEMOSAMPLE01, prices and clock are untouched.
+- A saved PNM version 1 now exists on A-2027-0101, drafted from the record (IGCE basis, technique, negotiation summary, certified cost or pricing data "Not required; commercial products or services (RFO FAR 15.403-2(b)(3))", determination, date of determination). NF 1098 tab 065 is satisfied for the Walk. No seed row rewritten; the evaluation record, UEI DEMOSAMPLE01, prices and clock are untouched.
 - Contracting officer of record on A-2027-0101 restored to J. Rivera (fictional CO) on the file header, evaluation and PNM sign-off; the signed-in admin name is never written onto the synthetic file.
 - P0.3 reserved-clause note stays visible on the Sample 1 clause packet.
 - PNM citations unchanged: RFO FAR 12.204(a); FAR 13.106-3(b)(3) on simplified files.
