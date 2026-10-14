@@ -694,6 +694,255 @@ export type Database = {
         }
         Relationships: []
       }
+      acquisition_facts_bak2_20261014: {
+        Row: {
+          acquisition_forecast_verified: boolean | null
+          acquisition_id: string
+          acquisition_method: string | null
+          backfill_source: Json | null
+          branch_code: string | null
+          center_code: string | null
+          center_name: string | null
+          clock_state: string | null
+          closeout: Json
+          co_code: string | null
+          co_name: string | null
+          commercial_determination: string | null
+          competition: string | null
+          contract_clauses: Json | null
+          contract_format: string | null
+          contract_number: string | null
+          contract_type: string | null
+          cor_name: string | null
+          created_at: string
+          created_by: string | null
+          current_phase: string | null
+          debriefing_date: string | null
+          description_of_requirement: string | null
+          enterprise_psl_check: string | null
+          estimated_value: number | null
+          funding_fiscal_year: string | null
+          funds_certified: boolean | null
+          hardware_deliverable: boolean | null
+          hold_owner: string | null
+          hold_reason: string | null
+          hold_started_at: string | null
+          hybrid_contract_type: string | null
+          igce_attached: boolean | null
+          includes_it: boolean | null
+          intake_estimate: Json | null
+          is_critical_path: boolean | null
+          is_package_complete: boolean
+          is_reimbursable: boolean
+          is_seed: boolean
+          jofoc_authority_citation: string | null
+          lead_to_delivery_days: number | null
+          mission_directorate_code: string | null
+          mission_directorate_name: string | null
+          mission_directorate_other: string | null
+          mission_id: string | null
+          naics_code: string | null
+          need_date: string | null
+          nf1707_answers: Json | null
+          note: string | null
+          parent_contract_number: string | null
+          period_of_performance_end: string | null
+          period_of_performance_start: string | null
+          place_of_performance: string | null
+          place_of_performance_standardized: string | null
+          post_award: Json
+          pr_number: string | null
+          proposed_price: number | null
+          proposed_price_received: string | null
+          psc_code: string | null
+          psc_note: string | null
+          regulatory_baseline_date: string | null
+          requester_name: string | null
+          requester_org_code: string | null
+          responsibility_finding: string | null
+          restrictive_clause_review: string | null
+          right_to_repair_statement: boolean | null
+          scenario: Json
+          set_aside: string | null
+          source_tag: string | null
+          sow_attached: boolean | null
+          sponsoring_agency: string | null
+          status: string | null
+          successor_of: string | null
+          target_award_date: string | null
+          title: string | null
+          updated_at: string
+          vehicle: Json
+          vendor_cage: string | null
+          vendor_legal_name: string | null
+          vendor_uei: string | null
+        }
+        Insert: {
+          acquisition_forecast_verified?: boolean | null
+          acquisition_id: string
+          acquisition_method?: string | null
+          backfill_source?: Json | null
+          branch_code?: string | null
+          center_code?: string | null
+          center_name?: string | null
+          clock_state?: string | null
+          closeout?: Json
+          co_code?: string | null
+          co_name?: string | null
+          commercial_determination?: string | null
+          competition?: string | null
+          contract_clauses?: Json | null
+          contract_format?: string | null
+          contract_number?: string | null
+          contract_type?: string | null
+          cor_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: string | null
+          debriefing_date?: string | null
+          description_of_requirement?: string | null
+          enterprise_psl_check?: string | null
+          estimated_value?: number | null
+          funding_fiscal_year?: string | null
+          funds_certified?: boolean | null
+          hardware_deliverable?: boolean | null
+          hold_owner?: string | null
+          hold_reason?: string | null
+          hold_started_at?: string | null
+          hybrid_contract_type?: string | null
+          igce_attached?: boolean | null
+          includes_it?: boolean | null
+          intake_estimate?: Json | null
+          is_critical_path?: boolean | null
+          is_package_complete?: boolean
+          is_reimbursable?: boolean
+          is_seed?: boolean
+          jofoc_authority_citation?: string | null
+          lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
+          mission_id?: string | null
+          naics_code?: string | null
+          need_date?: string | null
+          nf1707_answers?: Json | null
+          note?: string | null
+          parent_contract_number?: string | null
+          period_of_performance_end?: string | null
+          period_of_performance_start?: string | null
+          place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
+          post_award?: Json
+          pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
+          psc_code?: string | null
+          psc_note?: string | null
+          regulatory_baseline_date?: string | null
+          requester_name?: string | null
+          requester_org_code?: string | null
+          responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
+          scenario?: Json
+          set_aside?: string | null
+          source_tag?: string | null
+          sow_attached?: boolean | null
+          sponsoring_agency?: string | null
+          status?: string | null
+          successor_of?: string | null
+          target_award_date?: string | null
+          title?: string | null
+          updated_at?: string
+          vehicle?: Json
+          vendor_cage?: string | null
+          vendor_legal_name?: string | null
+          vendor_uei?: string | null
+        }
+        Update: {
+          acquisition_forecast_verified?: boolean | null
+          acquisition_id?: string
+          acquisition_method?: string | null
+          backfill_source?: Json | null
+          branch_code?: string | null
+          center_code?: string | null
+          center_name?: string | null
+          clock_state?: string | null
+          closeout?: Json
+          co_code?: string | null
+          co_name?: string | null
+          commercial_determination?: string | null
+          competition?: string | null
+          contract_clauses?: Json | null
+          contract_format?: string | null
+          contract_number?: string | null
+          contract_type?: string | null
+          cor_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_phase?: string | null
+          debriefing_date?: string | null
+          description_of_requirement?: string | null
+          enterprise_psl_check?: string | null
+          estimated_value?: number | null
+          funding_fiscal_year?: string | null
+          funds_certified?: boolean | null
+          hardware_deliverable?: boolean | null
+          hold_owner?: string | null
+          hold_reason?: string | null
+          hold_started_at?: string | null
+          hybrid_contract_type?: string | null
+          igce_attached?: boolean | null
+          includes_it?: boolean | null
+          intake_estimate?: Json | null
+          is_critical_path?: boolean | null
+          is_package_complete?: boolean
+          is_reimbursable?: boolean
+          is_seed?: boolean
+          jofoc_authority_citation?: string | null
+          lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
+          mission_id?: string | null
+          naics_code?: string | null
+          need_date?: string | null
+          nf1707_answers?: Json | null
+          note?: string | null
+          parent_contract_number?: string | null
+          period_of_performance_end?: string | null
+          period_of_performance_start?: string | null
+          place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
+          post_award?: Json
+          pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
+          psc_code?: string | null
+          psc_note?: string | null
+          regulatory_baseline_date?: string | null
+          requester_name?: string | null
+          requester_org_code?: string | null
+          responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
+          scenario?: Json
+          set_aside?: string | null
+          source_tag?: string | null
+          sow_attached?: boolean | null
+          sponsoring_agency?: string | null
+          status?: string | null
+          successor_of?: string | null
+          target_award_date?: string | null
+          title?: string | null
+          updated_at?: string
+          vehicle?: Json
+          vendor_cage?: string | null
+          vendor_legal_name?: string | null
+          vendor_uei?: string | null
+        }
+        Relationships: []
+      }
       announcement_acks: {
         Row: {
           acknowledged_at: string
@@ -2032,6 +2281,60 @@ export type Database = {
           document_id?: string | null
           field_values?: Json | null
           is_seed?: boolean | null
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
+      documents_bak2_20261014: {
+        Row: {
+          acquisition_id: string | null
+          ai_generated_at: string | null
+          ai_model: string | null
+          created_by: string | null
+          document_id: string
+          field_values: Json | null
+          is_seed: boolean
+          issue_on_nf1858: boolean | null
+          memo_header: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          saved_at: string | null
+          saved_by: string | null
+          template_id: string | null
+          version: number | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string
+          field_values?: Json | null
+          is_seed?: boolean
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string
+          field_values?: Json | null
+          is_seed?: boolean
           issue_on_nf1858?: boolean | null
           memo_header?: Json | null
           reviewed_at?: string | null
