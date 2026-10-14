@@ -12,6 +12,8 @@
  * buys, and T-Minus's own prior acquisitions under the same NAICS.
  */
 
+import { receiptsSizeStandard } from "@/lib/size-standard";
+
 type JsonRecord = Record<string, unknown>;
 
 export const object = (v: unknown): JsonRecord =>
@@ -439,7 +441,7 @@ export async function runEngine(options: {
       sizeStandardText =
         row.standard_type === "employees"
           ? `${row.employees ?? "not reported"} employees`
-          : `${money(row.receipts_usd === null ? null : Number(row.receipts_usd))} average annual receipts`;
+          : row.receipts_usd === null ? "receipts standard not reported" : receiptsSizeStandard(Number(row.receipts_usd));
       record({
         source: `SBA table of small business size standards, NAICS ${naics}`,
         query: `naics_size_standards where naics_code = ${naics}`,

@@ -1,4 +1,5 @@
 # Phase exit
+- [x] Complete Oct 14 follow-ups: About note, NAICS size standard, set-aside citation, shared review counts, and CT dates; back up changed tables and add regression tests (no publishing)
 - [x] Clean remaining astronaut names in source and live records, back up affected tables, and verify the Sample 1 PNM signature
 - [x] Ship ORBIT visual identity Chunk 1: dark shared chrome, light workspace, cyan active/focus treatment, and legible prototype notice
 - [x] Exclude Offered rows from blockers, holds, hero actions, and exit gates

@@ -1678,6 +1678,11 @@ export function pollBoard(
   });
 }
 
+/** Pending counts always read the rule-derived required board, not optional requests. */
+export function pendingRequiredReviews(board: BoardEntry[]): BoardEntry[] {
+  return board.filter((entry) => entry.vote === "pending");
+}
+
 /** Shown on a requested review that the review rules do not require for this buy. */
 export const REQUESTED_NOT_REQUIRED_NOTE = "Requested on this file. Not a required review for this buy.";
 
@@ -1685,7 +1690,7 @@ export const REQUESTED_NOT_REQUIRED_NOTE = "Requested on this file. Not a requir
  * Reviews requested on this file that the review rules do not require for it,
  * for example small business coordination offered at $2,000,000 or less
  * (NFS CG 1819.11(a)). The reviewer inbox and the invite panel list every
- * requested review, so the file page shows and counts these too. They are
+ * requested review, so the file page shows these separately. They are
  * kept off the rule board, which is what phase exit reads.
  */
 export function requestedReviewsOffBoard(

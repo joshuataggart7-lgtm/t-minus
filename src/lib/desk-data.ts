@@ -2,7 +2,7 @@
 // CO Today. Every figure is recomputed from the record with the same helpers
 // the Work Queue and the file page use. Nothing new is stored.
 
-import { calendarDaysBetween, todayCT } from "@/lib/calendar-date";
+import { calendarDaysBetween, dateCT, todayCT } from "@/lib/calendar-date";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,17 +165,20 @@ export function useDeskData(enabled: boolean) {
 }
 
 /** Whole days between an ISO date or timestamp and today, never negative. */
-export function daysSince(value: string | null | undefined): number | null {
+export function daysSince(value: string | null | undefined, now: Date = new Date()): number | null {
   if (!value) return null;
-  const then = new Date(value.length <= 10 ? `${value}T00:00:00Z` : value).getTime();
-  if (Number.isNaN(then)) return null;
-  return Math.max(0, Math.floor((Date.now() - then) / 86_400_000));
+  const day = dateCT(value);
+  if (!day) return null;
+  const days = calendarDaysBetween(day, todayCT(now));
+  return Number.isNaN(days) ? null : Math.max(0, days);
 }
 
 /** Whole days until an ISO date. Negative means the date has passed. */
-export function daysUntil(value: string | null | undefined): number | null {
+export function daysUntil(value: string | null | undefined, now: Date = new Date()): number | null {
   if (!value) return null;
-  const days = calendarDaysBetween(todayCT(), value.slice(0, 10));
+  const day = dateCT(value);
+  if (!day) return null;
+  const days = calendarDaysBetween(todayCT(now), day);
   return Number.isNaN(days) ? null : days;
 }
 

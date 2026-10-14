@@ -1,4 +1,5 @@
 import { displayDate } from "@/lib/apply-form-mappings";
+import { receiptsSizeStandard } from "@/lib/size-standard";
 /**
  * NF 1787 (Small Business Coordination) and NF 1787A (Market Research) as
  * generated forms.
@@ -558,7 +559,7 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
       ? `${size.employees.toLocaleString("en-US")} employees`
       : "";
   const receiptsStandard =
-    size && size.standardType === "receipts" && size.receiptsUsd ? dollars(size.receiptsUsd) : "";
+    size && size.standardType === "receipts" && size.receiptsUsd ? receiptsSizeStandard(size.receiptsUsd) : "";
 
   const sat = ctx.simplifiedAcquisition ?? null;
   const overSat = sat ? value > sat.value : null;

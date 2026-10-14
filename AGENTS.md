@@ -11,3 +11,5 @@
 
 - Reuse `useOperationalDisplay` for cross-route read-only acquisition state so UI never exposes raw clock/phase fields without Launched-audit evidence.
 - Resolve Sample 1 memorandum signatures through the shared sample helper after merging saved headers, so an older header cannot introduce a second contracting officer.
+- Derive required-review pending counts from `pollBoard` via `pendingRequiredReviews`; show optional requested reviews separately so they never inflate required-review counts.
+- Format receipts size standards with the shared `receiptsSizeStandard` helper using values read from the SBA table, so memorandum and form wording agrees without regulatory fallbacks.
