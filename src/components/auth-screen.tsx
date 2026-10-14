@@ -187,7 +187,7 @@ export function AuthScreen() {
       </ul>
 
       <footer className="mc-landing-foot">
-        Prototype built for NASA by a NASA employee. Not an official NASA system.
+        Prototype built by a NASA contracting officer. Not an official NASA system.
       </footer>
     </div>
   );
