@@ -20,7 +20,9 @@ import {
   acquisitionProfile,
   exceptionLabel,
   fssOrderCitation,
+  hasOptionClause,
   isOrderProfile,
+  optionNoticeCitation,
   vehicleOf,
 } from "@/lib/vehicles";
 import { igceCite, isCommercialSimplifiedMethod, simplifiedPriceCite } from "@/lib/rfo-simplified-cites";
@@ -1470,7 +1472,7 @@ export function reviewRulesForPhase(
   if (phase === "JOFOC") return applicable.filter((r) => /^legal review/i.test(r.reviewer_role));
   if (phase === REVIEW_PHASE && isRatification(acq as Record<string, unknown>)) {
     // RFO FAR 1.405(c)(5): the contracting officer recommends payment and
-    // legal counsel concurs. RFO FAR 1.405(b)(2): the head of the contracting
+    // legal counsel concurs. RFO FAR 1.405(b)(2)(i), (ii): the head of the contracting
     // activity ratifies, delegable no lower than the chief of the contracting
     // office.
     const hasLegal = applicable.some((r) => /^legal review/i.test(r.reviewer_role));

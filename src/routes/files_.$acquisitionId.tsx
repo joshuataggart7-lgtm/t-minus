@@ -2409,7 +2409,7 @@ function FilePageInner() {
     const method = String(acqRow?.["acquisition_method"] ?? "");
     return {
       authority: modAuthorityText("option_exercise", acqRow),
-      rows: modRows({ mod_type: "option_exercise" }, { method }),
+      rows: modRows({ mod_type: "option_exercise" }, { method, acq: acqRow }),
     };
   }, [acq]);
   const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);

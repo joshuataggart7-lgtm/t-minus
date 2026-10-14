@@ -257,7 +257,7 @@ export function modOutOfScope(mod: { clause_delta?: unknown }): boolean {
 
 export function modRows(
   mod: { mod_type: string; value_change?: number | string | null; clause_delta?: unknown },
-  opts: { method: string; sat?: number; outOfScope?: boolean },
+  opts: { method: string; sat?: number; outOfScope?: boolean; acq?: Record<string, unknown> | null },
 ): ModRow[] {
   const outOfScope = opts.outOfScope ?? modOutOfScope(mod);
   const sat = opts.sat ?? 350_000;
@@ -266,7 +266,7 @@ export function modRows(
   const rows: ModRow[] = [];
   if (mod.mod_type === "option_exercise") {
     rows.push(
-      { label: "Preliminary notice of intent to exercise the option", citation: "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)", state: "required", templateKey: "option-exercise-notification" },
+      { label: "Preliminary notice of intent to exercise the option", citation: optionNoticeCitation(opts.acq), state: "required", templateKey: "option-exercise-notification", ...(hasOptionClause(opts.acq) ? {} : { note: "Give the preliminary notice within the time specified in the contract." }) },
       { label: "Determination to exercise the option", citation: "RFO FAR 17.204-1(b)", state: "required", templateKey: "option-exercise-determination" },
     );
   }

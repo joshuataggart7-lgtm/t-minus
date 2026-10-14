@@ -468,7 +468,7 @@ const ratification: TemplateDef = {
       tier: "binding",
       showIf: isRequest,
       standingText:
-        "In accordance with the limitations set forth in RFO FAR 1.405(c) and NFS CG 1801.43(b), the authority to ratify an unauthorized commitment may be exercised only when \u2013\n\n1. Supplies or services have been provided to and accepted by the Government, or the Government otherwise has obtained or will obtain a benefit resulting from performance of the unauthorized commitment.\n\n2. The ratifying official has the authority to enter into a contractual commitment. Under the authority provided in RFO FAR 1.405(b)(2) the Head of the Contracting Activity (HCA) may ratify unauthorized commitments and has the authority to enter into a contractual commitment.\n\n3. The resulting contract would otherwise have been proper if made by an appropriate contracting officer (CO). A valid and legitimate requirement existed at the time the unauthorized commitment was made, and the unauthorized commitment was not made to evade any statutes/regulations. Standard acquisition procedures could have been used for obtaining these supplies or services and would have been proper if made by a warranted CO.\n\n4. The CO reviewing the unauthorized commitment determines the price to be fair and reasonable.\n\n5. The CO recommends payment and legal counsel concurs in the recommendation, unless agency procedures expressly do not require such concurrence. The CO and legal counsel concur in the recommendations set forth in this memorandum as evidenced by the signatures below.\n\n6. Funds were available at the time the unauthorized commitment was made and are currently available.\n\n7. The ratification is in accordance with any other limitations prescribed under agency policy. In accordance with NFS CG 1801.43(b), the authority in RFO FAR 1.405 may be exercised only when \u2013",
+        "In accordance with the limitations set forth in RFO FAR 1.405(c) and NFS CG 1801.43(b), the authority to ratify an unauthorized commitment may be exercised only when \u2013\n\n1. Supplies or services have been provided to and accepted by the Government, or the Government otherwise has obtained or will obtain a benefit resulting from performance of the unauthorized commitment.\n\n2. The ratifying official has the authority to enter into a contractual commitment. Under the authority provided in RFO FAR 1.405(b)(2)(i), (ii) the Head of the Contracting Activity (HCA) may ratify unauthorized commitments and has the authority to enter into a contractual commitment.\n\n3. The resulting contract would otherwise have been proper if made by an appropriate contracting officer (CO). A valid and legitimate requirement existed at the time the unauthorized commitment was made, and the unauthorized commitment was not made to evade any statutes/regulations. Standard acquisition procedures could have been used for obtaining these supplies or services and would have been proper if made by a warranted CO.\n\n4. The CO reviewing the unauthorized commitment determines the price to be fair and reasonable.\n\n5. The CO recommends payment and legal counsel concurs in the recommendation, unless agency procedures expressly do not require such concurrence. The CO and legal counsel concur in the recommendations set forth in this memorandum as evidenced by the signatures below.\n\n6. Funds were available at the time the unauthorized commitment was made and are currently available.\n\n7. The ratification is in accordance with any other limitations prescribed under agency policy. In accordance with NFS CG 1801.43(b), the authority in RFO FAR 1.405 may be exercised only when \u2013",
       fields: [
         T("finding_1_benefit", "1. Benefit obtained by the Government"),
         T("finding_3_requirement", "3. The requirement that existed when the commitment was made"),
@@ -498,7 +498,7 @@ const ratification: TemplateDef = {
     {
       id: "recommendation",
       title: "Recommendation",
-      citation: "RFO FAR 1.405(b)(2)",
+      citation: "RFO FAR 1.405(b)(2)(i), (ii)",
       tier: "binding",
       showIf: isRequest,
       standingText:
@@ -534,8 +534,8 @@ const ratification: TemplateDef = {
   ],
   signature: () => ({
     tierLabel: "Contracting officer, counsel and head of the contracting activity",
-    citation: "RFO FAR 1.405(b)(2)",
-    blocks: ["Contracting Officer", "Date", "CONCURRENCE: Office of the General Counsel", "Date", "APPROVAL: Head of the Contracting Activity", "Date"],
+    citation: "RFO FAR 1.405(b)(2)(i), (ii)",
+    blocks: ["Contracting Officer", "Date", "CONCURRENCE: Office of the General Counsel", "Date", "APPROVAL: Head of the contracting activity, or a delegate no lower than the chief of the contracting office (RFO FAR 1.405(b)(2)(i), (ii))", "Date"],
   }),
 };
 

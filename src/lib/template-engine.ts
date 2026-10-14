@@ -2958,7 +2958,7 @@ export function approvingOfficialTitle(
 ): string {
   // A template whose signature page names its approver ("APPROVAL: Head of the
   // Contracting Activity") states the official the rule names; no value tier
-  // or Center routing overrides it (for example RFO FAR 1.405(b)(2)).
+  // or Center routing overrides it (for example RFO FAR 1.405(b)(2)(i), (ii)).
   const named = blocks.find((b) => /^APPROVAL:\s*/i.test(b));
   if (named) return named.replace(/^APPROVAL:\s*/i, "").trim();
   if (withinCoTier) return "Contracting Officer";
