@@ -122,7 +122,7 @@ import {
   sectionLLines,
   sectionMLines,
 } from "@/lib/solicitation-lm";
-import { acquisitionProfile, modAuthorityText, modRows } from "@/lib/vehicles";
+import { acquisitionProfile, hasOptionClause, modAuthorityText, modRows } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { loadSectionK, sectionKForPacket } from "@/lib/solicitation-k";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
