@@ -3710,6 +3710,7 @@ export type Database = {
       }
     }
     Functions: {
+      fictionalize_20261014: { Args: { s: string }; Returns: string }
       has_any_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
