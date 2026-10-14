@@ -3873,9 +3873,10 @@ function FilePageInner() {
                       />
                     </div>
                     <p className="mc-pa-sub">
-                      Option dates come only from the contract schedule on the record. The
-                      preliminary notice is due {options.noticeLeadDays} days before the contract would expire, the
-                      day before the option period begins (RFO FAR 52.217-9 fill-in).
+                      Option dates come only from the contract schedule on the record.{" "}
+                      {hasOptionClause(acq as unknown as Record<string, unknown>)
+                        ? `The preliminary notice is due ${options.noticeLeadDays} days before the contract would expire, the day before the option period begins (RFO FAR 52.217-9 fill-in).`
+                        : "The preliminary notice is due within the time specified in the contract (RFO FAR 17.204-1(b)(1))."}
                     </p>
                     <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label="Option periods table">
 <table className="mc-dt stack">

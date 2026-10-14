@@ -783,6 +783,12 @@ export const TRIGGERS: TriggerDef[] = [
     when: (c) => c.s.ratification_requested,
     docs: [
       { doc_key: "ratification", label: "Ratification of an unauthorized commitment", citation: "RFO FAR 1.405; NFS CG 1801.43", phase: "Intake", state: "required", templateKey: "ratification-unauthorized-commitment", tab: "005" },
+      // NFS CG 1801.43(b)(3): "The procurement request is submitted through the
+      // director of the cognizant program office at the contracting activity, or
+      // comparable official. In the procurement request, the director must
+      // describe measures taken to prevent the recurrence of the unauthorized
+      // commitment."
+      { doc_key: "ratification-pr-director", label: "Procurement request submitted through the program office director, with measures to prevent recurrence", citation: "NFS CG 1801.43(b)(3)", phase: "Intake", state: "required", tab: "005" },
     ],
   },
 ];
