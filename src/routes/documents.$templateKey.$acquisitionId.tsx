@@ -119,7 +119,7 @@ import {
 import { generateFoeBrandDocx, isFoeBrandPath } from "@/lib/foe-brand-docx";
 import { generateUcaJustDocx, isUcaJustPath } from "@/lib/uca-just-docx";
 import { BLACKOUT_UNAVAILABLE, generateBlackoutDocx, isBlackoutPath } from "@/lib/blackout-docx";
-import { isSoftWalkCommercialSample } from "@/lib/softwalk-samples";
+import { isSoftWalkCommercialSample, resolveSampleMemoSignature } from "@/lib/softwalk-samples";
 import {
   generatePostawardSuccessDocx,
   generatePostawardUnsuccessDocx,
@@ -1517,7 +1517,14 @@ function DocumentPageInner() {
     // A market-research memorandum is signed by the contracting officer named
     // on the current file. An older saved header must not leave a second name
     // below a FROM line that has already followed the record.
-    setMemoHeader(def.key === "market-research-memo" ? { ...merged, signatureName: built.signatureName } : merged);
+    setMemoHeader({
+      ...merged,
+      signatureName: resolveSampleMemoSignature(
+        acquisitionId,
+        def.key === "market-research-memo" ? built.signatureName : merged.signatureName,
+        built.signatureName,
+      ),
+    });
   }, [def, q.data, memoHeader, acquisitionId, coRecord, enclosures, board]);
 
   // Situation memo starter: the unexpected-event purpose is chosen for the
