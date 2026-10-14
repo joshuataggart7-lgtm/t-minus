@@ -1,4 +1,6 @@
 import { writeAudit } from "@/lib/audit";
+import { receiptsSizeStandard } from "@/lib/size-standard";
+import { formatDate } from "@/lib/metrics";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
@@ -578,7 +580,7 @@ function DocumentPageInner() {
           ran_at: string;
         }[],
         sizeStandard: sizeStandard.data as
-          | { standard_type: string; employees: number | null; receipts_usd: number | null; citation: string | null }
+          | { standard_type: string; employees: number | null; receipts_usd: number | null; citation: string | null; effective_date: string | null }
           | null,
         clauseRows: (clauseRows.data ?? []) as ClauseRow[],
         attachments: (attachments.data ?? []) as {
@@ -1005,7 +1007,7 @@ function DocumentPageInner() {
     const row = q.data?.sizeStandard;
     if (!row) return null;
     if (row.receipts_usd)
-      return `${money(Number(row.receipts_usd))} average annual receipts (${row.citation ?? "13 CFR 121.201"})`;
+      return `${receiptsSizeStandard(Number(row.receipts_usd))} (${row.citation ?? "13 CFR 121.201"}, effective ${formatDate(row.effective_date)})`;
     if (row.employees) return `${row.employees} employees (${row.citation ?? "13 CFR 121.201"})`;
     return row.standard_type;
   }, [q.data?.sizeStandard]);

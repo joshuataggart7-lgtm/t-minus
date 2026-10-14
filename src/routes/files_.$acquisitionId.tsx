@@ -61,6 +61,7 @@ import {
   stepLabel,
   phaseOverrunDays,
   pollBoard,
+  pendingRequiredReviews,
   requestedReviewsOffBoard,
   reviewerNameForRole,
   jofocAuthorityFor,
@@ -939,7 +940,7 @@ function FilePageInner() {
   const board = useMemo(() => Object.values(boards).flat(), [boards]);
 
   // Reviews requested on this file that the review rules do not require for
-  // it. Shown and counted with the rest, and kept off the rule board so phase
+  // it. Shown separately, and kept off the rule board so phase
   // exit still reads required reviews only.
   const requestedExtras = useMemo(() => {
     const out: Record<string, BoardEntry[]> = {};
@@ -2569,15 +2570,14 @@ function FilePageInner() {
   ];
 
   // Phases that carry a review board, in launch sequence order, and the
-  // requested reviews still waiting for a decision.
+  // required reviews still waiting for a decision. Optional requests remain visible.
   const reviewPhases = phases.filter(
     (p) => (boards[p.phase] ?? []).length > 0 || (requestedExtras[p.phase] ?? []).length > 0,
   );
   const pendingReviewCount = reviewPhases.reduce(
     (n, p) =>
       n +
-      [...(boards[p.phase] ?? []), ...(requestedExtras[p.phase] ?? [])].filter((b) => b.poll_id && b.vote === "pending")
-        .length,
+      pendingRequiredReviews(boards[p.phase] ?? []).length,
     0,
   );
 

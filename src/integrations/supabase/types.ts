@@ -2346,6 +2346,60 @@ export type Database = {
         }
         Relationships: []
       }
+      documents_bak3_20261014: {
+        Row: {
+          acquisition_id: string | null
+          ai_generated_at: string | null
+          ai_model: string | null
+          created_by: string | null
+          document_id: string
+          field_values: Json | null
+          is_seed: boolean
+          issue_on_nf1858: boolean | null
+          memo_header: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          saved_at: string | null
+          saved_by: string | null
+          template_id: string | null
+          version: number | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string
+          field_values?: Json | null
+          is_seed?: boolean
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string
+          field_values?: Json | null
+          is_seed?: boolean
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Relationships: []
+      }
       enterprise_strategies: {
         Row: {
           applies: string | null
@@ -3115,6 +3169,51 @@ export type Database = {
           },
         ]
       }
+      research_findings_bak3_20261014: {
+        Row: {
+          acquisition_id: string
+          confirmed: boolean
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          finding_id: string
+          label: string
+          run_id: string | null
+          source: string
+          source_date: string | null
+          target: string
+          value: string
+        }
+        Insert: {
+          acquisition_id: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          finding_id?: string
+          label: string
+          run_id?: string | null
+          source: string
+          source_date?: string | null
+          target: string
+          value: string
+        }
+        Update: {
+          acquisition_id?: string
+          confirmed?: boolean
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          finding_id?: string
+          label?: string
+          run_id?: string | null
+          source?: string
+          source_date?: string | null
+          target?: string
+          value?: string
+        }
+        Relationships: []
+      }
       research_log: {
         Row: {
           acquisition_id: string
@@ -3155,6 +3254,39 @@ export type Database = {
             referencedColumns: ["run_id"]
           },
         ]
+      }
+      research_log_bak3_20261014: {
+        Row: {
+          acquisition_id: string
+          log_id: string
+          outcome: string
+          query: string
+          ran_at: string
+          result_count: number | null
+          run_id: string
+          source: string
+        }
+        Insert: {
+          acquisition_id: string
+          log_id?: string
+          outcome: string
+          query: string
+          ran_at?: string
+          result_count?: number | null
+          run_id: string
+          source: string
+        }
+        Update: {
+          acquisition_id?: string
+          log_id?: string
+          outcome?: string
+          query?: string
+          ran_at?: string
+          result_count?: number | null
+          run_id?: string
+          source?: string
+        }
+        Relationships: []
       }
       research_runs: {
         Row: {

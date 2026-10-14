@@ -95,16 +95,17 @@ export function formatDate(iso: string | null) {
 /** A date or a timestamp, shown as a real date and time. Never "Invalid Date". */
 export function formatStamp(value: string | null | undefined) {
   if (!value) return "no date";
-  const raw = value.length === 10 ? `${value}T00:00:00Z` : value;
-  const when = new Date(raw);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return formatDate(value);
+  const when = new Date(value);
   if (Number.isNaN(when.getTime())) return "no date";
   return when.toLocaleString("en-US", {
+    timeZone: "America/Chicago",
     month: "short",
     day: "numeric",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  });
+  }) + " CT";
 }
 
 export function statusColor(status: StatusWord) {

@@ -71,6 +71,13 @@
       "when": 1791971937558,
       "tag": "0009_backup_remaining_name_records_20261014",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791999429811,
+      "tag": "0010_backup_oct14_followup_records",
+      "breakpoints": true
     }
   ]
 }

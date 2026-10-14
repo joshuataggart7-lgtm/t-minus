@@ -18,6 +18,7 @@ import { missionReadinessClass, type MissionReadiness } from "@/components/missi
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import { dayWord } from "@/lib/pluralize";
 import { phaseAlias } from "@/lib/phase-alias";
+import { pendingRequiredReviews } from "@/lib/launch-sequence";
 import { changesSince, loadChangesSince, useLastLook } from "@/lib/since-last-look";
 import { SinceLastLookPanel } from "@/components/since-last-look-panel";
 
@@ -189,9 +190,12 @@ function TodayPage() {
 
   const reviewsDue = useMemo(() => {
     if (!desk) return [];
-    const ids = new Set(mine.map((c) => c.m.acq.acquisition_id));
-    return desk.polls
-      .filter((p) => (p.vote ?? "pending") === "pending" && p.acquisition_id && ids.has(p.acquisition_id))
+    return mine.flatMap((card) =>
+      pendingRequiredReviews([...card.m.board, ...card.m.upcomingReviews]).map((entry) => ({
+        ...entry,
+        acquisition_id: card.m.acq.acquisition_id,
+      })),
+    )
       .sort((a, b) => String(a.due_date ?? "9999").localeCompare(String(b.due_date ?? "9999")));
   }, [desk, mine]);
 
@@ -501,7 +505,7 @@ function TodayPage() {
                       const due = daysUntil(p.due_date);
                       const late = due !== null && due < 0;
                       return (
-                        <li key={p.poll_id}>
+                        <li key={`${p.acquisition_id}-${p.phase}-${p.reviewer_role}`}>
                           <div className="min-w-0">
                             <Link
                               to="/files/$acquisitionId"
@@ -517,8 +521,8 @@ function TodayPage() {
                               {p.phase ? phaseAlias(p.phase) : "Phase not recorded"} ·{" "}
                               {p.due_date
                                 ? late
-                                  ? `due ${p.due_date}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
-                                  : `due ${p.due_date}, ${due} ${dayWord(due)} left`
+                                  ? `due ${formatDate(p.due_date)}, ${Math.abs(due)} ${dayWord(Math.abs(due))} past due`
+                                  : `due ${formatDate(p.due_date)}, ${due} ${dayWord(due)} left`
                                 : "no due date recorded"}
                             </span>
                           </div>
@@ -564,7 +568,7 @@ function TodayPage() {
                             </span>
                             <span className="mc-today-meta">
                               {t.status}
-                              {t.deadline_date ? ` · deadline ${t.deadline_date}` : ""}
+                              {t.deadline_date ? ` · deadline ${formatDate(t.deadline_date)}` : ""}
                             </span>
                           </div>
                         </li>

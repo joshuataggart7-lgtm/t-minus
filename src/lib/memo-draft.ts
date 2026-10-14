@@ -320,6 +320,7 @@ function marketResearch(ctx: MemoDraftCtx): Values {
   const commercialityOnFile = ctx.fileDocuments.some((d) => /commercial/i.test(d));
 
   const research = [researchParagraph(ctx)];
+  if (ctx.sizeStandard) research.push(`The SBA small business size standard for NAICS ${str(a["naics_code"])} is ${ctx.sizeStandard}.`);
   if (prior) research.push(`The contract file for the prior acquisition ${prior} was reviewed.`);
 
   // The conclusion is prose written from the method, never the method or
