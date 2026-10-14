@@ -306,7 +306,8 @@ export function jofocMarkers(ctx: JofocDocxContext): MarkerMap {
       .replace(/\b10\s*U\.?\s*S\.?\s*C\.?\s*3204\([a-z]\)(\(\d+\))?/gi, "")
       .replace(/^[\s,;:.-]+/, "")
       .trim();
-    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (RFO FAR 12.102 procedures)"}`;
+    // Table 12-1: the justification is approved as described in RFO FAR 6.104.
+    authority41Line = `41 U.S.C. ${statuteNumber}${remainder ? ` ${remainder}` : " (RFO FAR 12.102 procedures)"}; justification approved as described in RFO FAR 6.104`;
   } else if (is10 || authority) {
     // Exception number + name after the 10 U.S.C. 3204(a) stem, or full cite if stem deleted.
     const m = authority.match(/3204\(a\)\s*(.*)$/i);

@@ -807,7 +807,7 @@ const nonresponsibility: TemplateDef = {
           key: "sba_referral",
           label: "Small business: referred to the Small Business Administration for a Certificate of Competency",
           kind: "select",
-          options: ["Yes, referred under RFO FAR 19.204", "No, the vendor is not a small business", "No, the finding is not one of the referable factors"],
+          options: ["Yes, referred under RFO FAR 19.204; if SBA issues a Certificate of Competency, award to the concern (RFO FAR 9.105-2(a)(2))", "No, the vendor is not a small business", "No, the finding is not one of the referable factors"],
           required: true,
         },
         {
@@ -1172,7 +1172,7 @@ const fairOpportunity: TemplateDef = {
             "Only one capable source, RFO FAR 16.507-6(b)(2)",
             "Logical follow-on, RFO FAR 16.507-6(b)(3)",
             "Minimum guarantee, RFO FAR 16.507-6(b)(4)",
-            "Required by statute, RFO FAR 16.507-6(b)(5)",
+            "For orders exceeding the SAT, a statute expressly authorizes or requires a specified source, RFO FAR 16.507-6(b)(5)",
             "Brand name only; fair opportunity given, RFO FAR 11.204",
           ],
         },

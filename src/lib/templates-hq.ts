@@ -923,10 +923,10 @@ const dandfCpif = contractTypeDandF({
     {
       id: "iii_a",
       title: "III. CONSIDERATION OF CONTRACT TYPES: A. A FIRM-FIXED PRICE CONTRACT IS NOT SUITABLE",
-      citation: "RFO FAR 16.301-3",
+      citation: "RFO FAR 12.104(d)",
       tier: "binding",
       standingText:
-        "The acquisition is not for commercial products or commercial services (see parts 2 and 12) since use of cost-reimbursement contracts are prohibited for these acquisition IAW 16.301-3.",
+        "The acquisition is not for commercial products or commercial services (see parts 2 and 12). Do not use any cost-reimbursement contract type to procure commercial products or commercial services (RFO FAR 12.104(d)).",
       fields: [T("iii_a", "Why a firm-fixed-price contract is not suitable")],
     },
     {

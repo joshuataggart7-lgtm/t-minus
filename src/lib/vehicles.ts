@@ -101,7 +101,7 @@ export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label
   { key: "only_one_capable", label: "Only one awardee is capable", citation: "RFO FAR 16.507-6(b)(2)" },
   { key: "logical_follow_on", label: "Logical follow-on", citation: "RFO FAR 16.507-6(b)(3)" },
   { key: "minimum_guarantee", label: "Minimum guarantee", citation: "RFO FAR 16.507-6(b)(4)" },
-  { key: "statutory", label: "Statutory authority", citation: "RFO FAR 16.507-6(b)(5)" },
+  { key: "statutory", label: "Statutory authority (for orders exceeding the SAT)", citation: "RFO FAR 16.507-6(b)(5)" },
   { key: "brand_name", label: "Brand name", citation: "RFO FAR 16.507-7" },
 ];
 
