@@ -75,6 +75,17 @@ export function resolveOfficerName(
   return "";
 }
 
+/** Sample 1's saved signature must not override its officer of record. */
+export function resolveSampleMemoSignature(
+  acquisitionId: string,
+  savedSignature: string,
+  recordSignature: string,
+): string {
+  return norm(acquisitionId) === "A-2027-0101"
+    ? recordSignature || SOFT_WALK_OFFICERS["A-2027-0101"] || ""
+    : savedSignature;
+}
+
 /** True where the file is a Soft Walk commercial sample. */
 export function isSoftWalkCommercialSample(
   acq: Record<string, unknown> | null | undefined,

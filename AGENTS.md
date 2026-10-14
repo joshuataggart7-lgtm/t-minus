@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Reuse `useOperationalDisplay` for cross-route read-only acquisition state so UI never exposes raw clock/phase fields without Launched-audit evidence.
+- Resolve Sample 1 memorandum signatures through the shared sample helper after merging saved headers, so an older header cannot introduce a second contracting officer.

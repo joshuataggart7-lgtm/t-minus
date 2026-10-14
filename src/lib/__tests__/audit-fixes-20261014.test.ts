@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { presolicitationNote } from "@/lib/presolicitation-note";
 import { hasOptionClause, optionNoticeCitation } from "@/lib/vehicles";
+import { resolveSampleMemoSignature } from "@/lib/softwalk-samples";
+
+describe("Sample 1 officer of record", () => {
+  it("uses J. Rivera instead of a stale saved signature on A-2027-0101", () => {
+    expect(resolveSampleMemoSignature("A-2027-0101", "M. Corvane (fictional CO)", "J. Rivera (fictional CO)"))
+      .toBe("J. Rivera (fictional CO)");
+  });
+  it("keeps other files' saved signatures unchanged", () => {
+    expect(resolveSampleMemoSignature("A-2027-0102", "S. Varnell (fictional CO)", "J. Rivera (fictional CO)"))
+      .toBe("S. Varnell (fictional CO)");
+  });
+});
 
 describe("Table 5-2 presolicitation note (RFO FAR 5.101(d))", () => {
   it("over $20,000 to $25,000 is 10 days with the GPE exemption", () => {
