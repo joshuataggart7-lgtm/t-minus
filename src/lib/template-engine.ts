@@ -940,6 +940,7 @@ const pnm: TemplateDef = {
         {
           key: "cost_pricing_data",
           label: "Certified cost or pricing data",
+          help: "The exception for commercial products or services is RFO FAR 15.403-2(b)(3).",
           kind: "select",
           required: true,
           options: [
