@@ -37,6 +37,8 @@ import {
   TM_ORDER_PLAN,
   type NewContractFacts,
 } from "@/lib/phase-plan-key";
+import { presolicitationNote } from "@/lib/presolicitation-note";
+export { presolicitationNote };
 import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
 
@@ -286,26 +288,6 @@ export function pnmCitation(acq?: AcqRow | null): string {
 /** Table 12-1 authority for a commercial sole source over the SAT on simplified procedures. */
 export const COMMERCIAL_SIMPLIFIED_AUTHORITY = "41 U.S.C. 1901 (RFO FAR 12.102(b), Table 12-1)";
 
-const GPE_EXEMPT_NOTE =
-  " Not required if the solicitation is posted to the GPE and permits electronic responses (RFO FAR 5.101(b)(1)(i)).";
-
-/**
- * The presolicitation notice timing by value, RFO FAR 5.101(d), Table 5-2:
- * >$20,000 to <=$25,000 posted for 10 days; >$25,000 to <=SAT 15 days before
- * solicitation issuance; over the SAT combined with the solicitation on a
- * commercial buy, otherwise 15 days before issuance. The GPE exemption
- * (5.101(b)(1)(i)) is the Table's footnote on the two lower rows.
- */
-export function presolicitationNote(acq: AcqRow | null | undefined, commercial: boolean): string {
-  const value = Number(acq?.estimated_value ?? 0);
-  if (value > SIMPLIFIED_ACQUISITION_THRESHOLD)
-    return commercial
-      ? "For a commercial buy over the SAT the notice is combined with the solicitation (RFO FAR 5.101(d), Table 5-2)."
-      : "Post at least 15 days before the solicitation is issued (RFO FAR 5.101(d), Table 5-2).";
-  if (value > 25_000) return `15 days before solicitation (RFO FAR 5.101(d), Table 5-2).${GPE_EXEMPT_NOTE}`;
-  if (value > 20_000) return `10 days (RFO FAR 5.101(d), Table 5-2).${GPE_EXEMPT_NOTE}`;
-  return "Post at least 15 days before the solicitation is issued (RFO FAR 5.101(d), Table 5-2), unless the solicitation is posted in the GPE and allows electronic offers (RFO FAR 5.101(b)(1)(i)).";
-}
 
 /**
  * A commercial sole source over the SAT and at or below $9 million on the

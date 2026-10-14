@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { presolicitationNote } from "@/lib/launch-sequence";
+import { presolicitationNote } from "@/lib/presolicitation-note";
 import { hasOptionClause, optionNoticeCitation } from "@/lib/vehicles";
 
 describe("Table 5-2 presolicitation note (RFO FAR 5.101(d))", () => {
