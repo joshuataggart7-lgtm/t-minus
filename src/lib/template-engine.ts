@@ -807,6 +807,7 @@ const nonresponsibility: TemplateDef = {
           key: "sba_referral",
           label: "Small business: referred to the Small Business Administration for a Certificate of Competency",
           kind: "select",
+          help: "If SBA issues a Certificate of Competency, the contracting officer awards the contract to the concern (RFO FAR 9.105-2(a)(2)).",
           options: ["Yes, referred under RFO FAR 19.204", "No, the vendor is not a small business", "No, the finding is not one of the referable factors"],
           required: true,
         },
@@ -1172,7 +1173,7 @@ const fairOpportunity: TemplateDef = {
             "Only one capable source, RFO FAR 16.507-6(b)(2)",
             "Logical follow-on, RFO FAR 16.507-6(b)(3)",
             "Minimum guarantee, RFO FAR 16.507-6(b)(4)",
-            "Required by statute, RFO FAR 16.507-6(b)(5)",
+            "For orders exceeding the SAT, a statute expressly authorizes or requires a specified source, RFO FAR 16.507-6(b)(5)",
             "Brand name only; fair opportunity given, RFO FAR 11.204",
           ],
         },
@@ -2958,7 +2959,7 @@ export function approvingOfficialTitle(
 ): string {
   // A template whose signature page names its approver ("APPROVAL: Head of the
   // Contracting Activity") states the official the rule names; no value tier
-  // or Center routing overrides it (for example RFO FAR 1.405(b)(2)).
+  // or Center routing overrides it (for example RFO FAR 1.405(b)(2)(i), (ii)).
   const named = blocks.find((b) => /^APPROVAL:\s*/i.test(b));
   if (named) return named.replace(/^APPROVAL:\s*/i, "").trim();
   if (withinCoTier) return "Contracting Officer";

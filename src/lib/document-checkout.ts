@@ -23,7 +23,7 @@ export function isExpired(checkedOutAt: string) {
 
 /**
  * Two display names that read as the same person. Case, punctuation and extra
- * spacing are ignored, so "Joshua Taggart" and "joshua  taggart" match. Two
+ * spacing are ignored, so "J. Tarrance" and "j.  tarrance" match. Two
  * genuinely different names never match.
  */
 export function samePersonName(a: string | null | undefined, b: string | null | undefined) {
@@ -108,7 +108,7 @@ export async function claimCheckout(args: {
   const userId = auth.user?.id;
   if (!userId) return null;
   // The check-out records the account display name, so a lapse row later reads
-  // "Check-out by Joshua Taggart lapsed", never a placeholder.
+  // "Check-out by J. Tarrance (fictional) lapsed", never a placeholder.
   const userName = await signedInName(args.userName);
 
   const existing = await supabase

@@ -22,6 +22,8 @@ export type VehicleProfile = {
   fair_opportunity: "competed" | FairOpportunityException;
   clause_set: string;
   awardees: Awardee[];
+  /** A brand-name justification covering the order's requirements was previously approved for the contract under RFO FAR 6.103-1(d) (RFO FAR 16.507-7(b)(1)). */
+  brand_name_justification_on_contract?: boolean;
 };
 
 export const VEHICLE_DEFAULTS: VehicleProfile = {
@@ -34,7 +36,27 @@ export const VEHICLE_DEFAULTS: VehicleProfile = {
   fair_opportunity: "competed",
   clause_set: "",
   awardees: [],
+  brand_name_justification_on_contract: false,
 };
+
+/**
+ * True when the file's clause packet carries RFO FAR 52.217-9 (the stored
+ * clause list, or a 52.217-9 fill-in on the post-award record).
+ */
+export function hasOptionClause(acq: Record<string, unknown> | null | undefined): boolean {
+  const list = acq?.["contract_clauses"];
+  if (Array.isArray(list) && list.some((c) => /^(?:RFO FAR |FAR )?52\.217-9\b/.test(String(c).trim()))) return true;
+  const post = (acq?.["post_award"] ?? {}) as Record<string, unknown>;
+  const fills = (post["clause_fill_ins"] ?? {}) as Record<string, unknown>;
+  return fills["52.217-9"] !== undefined && fills["52.217-9"] !== null && fills["52.217-9"] !== "";
+}
+
+/** Preliminary option notice cite: 52.217-9(a) only when the packet includes 52.217-9. */
+export function optionNoticeCitation(acq: Record<string, unknown> | null | undefined): string {
+  return hasOptionClause(acq)
+    ? "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)"
+    : "RFO FAR 17.204-1(b)(1)";
+}
 
 export function vehicleOf(acq: Record<string, unknown> | null | undefined): VehicleProfile {
   const raw = (acq?.["vehicle"] ?? {}) as Partial<VehicleProfile>;
@@ -79,7 +101,7 @@ export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label
   { key: "only_one_capable", label: "Only one awardee is capable", citation: "RFO FAR 16.507-6(b)(2)" },
   { key: "logical_follow_on", label: "Logical follow-on", citation: "RFO FAR 16.507-6(b)(3)" },
   { key: "minimum_guarantee", label: "Minimum guarantee", citation: "RFO FAR 16.507-6(b)(4)" },
-  { key: "statutory", label: "Statutory authority", citation: "RFO FAR 16.507-6(b)(5)" },
+  { key: "statutory", label: "Statutory authority (for orders exceeding the SAT)", citation: "RFO FAR 16.507-6(b)(5)" },
   { key: "brand_name", label: "Brand name", citation: "RFO FAR 16.507-7" },
 ];
 
@@ -215,7 +237,7 @@ export function sf30Blocks(type: string): { sf30_13a: boolean; sf30_13b: boolean
   };
 }
 
-export type ModRow = { label: string; citation: string; state: "required" | "offered"; templateKey?: string };
+export type ModRow = { label: string; citation: string; state: "required" | "offered"; templateKey?: string; note?: string };
 
 /**
  * The rows a modification carries. A change order or bilateral supplemental
@@ -235,7 +257,7 @@ export function modOutOfScope(mod: { clause_delta?: unknown }): boolean {
 
 export function modRows(
   mod: { mod_type: string; value_change?: number | string | null; clause_delta?: unknown },
-  opts: { method: string; sat?: number; outOfScope?: boolean },
+  opts: { method: string; sat?: number; outOfScope?: boolean; acq?: Record<string, unknown> | null },
 ): ModRow[] {
   const outOfScope = opts.outOfScope ?? modOutOfScope(mod);
   const sat = opts.sat ?? 350_000;
@@ -244,7 +266,7 @@ export function modRows(
   const rows: ModRow[] = [];
   if (mod.mod_type === "option_exercise") {
     rows.push(
-      { label: "Preliminary notice of intent to exercise the option", citation: "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)", state: "required", templateKey: "option-exercise-notification" },
+      { label: "Preliminary notice of intent to exercise the option", citation: optionNoticeCitation(opts.acq), state: "required", templateKey: "option-exercise-notification", ...(hasOptionClause(opts.acq) ? {} : { note: "Give the preliminary notice within the time specified in the contract." }) },
       { label: "Determination to exercise the option", citation: "RFO FAR 17.204-1(b)", state: "required", templateKey: "option-exercise-determination" },
     );
   }

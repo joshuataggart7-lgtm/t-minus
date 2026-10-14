@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.fictionalize_20261014(text);

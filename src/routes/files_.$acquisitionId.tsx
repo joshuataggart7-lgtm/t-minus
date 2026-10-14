@@ -122,7 +122,7 @@ import {
   sectionLLines,
   sectionMLines,
 } from "@/lib/solicitation-lm";
-import { acquisitionProfile, modAuthorityText, modRows } from "@/lib/vehicles";
+import { acquisitionProfile, hasOptionClause, modAuthorityText, modRows } from "@/lib/vehicles";
 import { buildFormatScaffold, scaffoldForPacket } from "@/lib/format-scaffold";
 import { loadSectionK, sectionKForPacket } from "@/lib/solicitation-k";
 import { FormatScaffoldPanel } from "@/components/format-scaffold-panel";
@@ -2409,7 +2409,7 @@ function FilePageInner() {
     const method = String(acqRow?.["acquisition_method"] ?? "");
     return {
       authority: modAuthorityText("option_exercise", acqRow),
-      rows: modRows({ mod_type: "option_exercise" }, { method }),
+      rows: modRows({ mod_type: "option_exercise" }, { method, acq: acqRow }),
     };
   }, [acq]);
   const cpars = useMemo(() => cparsView(acq, q.data?.thresholds ?? [], awardDate), [acq, awardDate, q.data?.thresholds]);
@@ -3873,9 +3873,10 @@ function FilePageInner() {
                       />
                     </div>
                     <p className="mc-pa-sub">
-                      Option dates come only from the contract schedule on the record. The
-                      preliminary notice is due {options.noticeLeadDays} days before the contract would expire, the
-                      day before the option period begins (RFO FAR 52.217-9 fill-in).
+                      Option dates come only from the contract schedule on the record.{" "}
+                      {hasOptionClause(acq as unknown as Record<string, unknown>)
+                        ? `The preliminary notice is due ${options.noticeLeadDays} days before the contract would expire, the day before the option period begins (RFO FAR 52.217-9 fill-in).`
+                        : "The preliminary notice is due within the time specified in the contract (RFO FAR 17.204-1(b)(1))."}
                     </p>
                     <TableScrollRegion baseClassName="mc-dt-wrap mt-3" className="stack" label="Option periods table">
 <table className="mc-dt stack">

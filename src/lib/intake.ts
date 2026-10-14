@@ -416,7 +416,7 @@ export function scanRedFlags(f: IntakeFacts, ref: RefData, docs?: IntakeDocs): R
       id: "micro-purchase",
       title: "Estimated value is at or below the micro-purchase threshold",
       detail: `${formatMoney(value)} is at or below ${formatMoney(mpt)}. The NASA purchase card must be used for micro-purchase threshold transactions to the maximum extent practicable. Consider the purchase card before opening a full acquisition file. T-Minus does not hold the clock for this.`,
-      citation: "RFO FAR 2.101 (micro-purchase threshold); NFS CG 1812.42(a)",
+      citation: "RFO FAR 2.101 (micro-purchase threshold); RFO FAR 12.403(a)(1); NFS CG 1812.42(a)",
       blocking: false,
     });
 

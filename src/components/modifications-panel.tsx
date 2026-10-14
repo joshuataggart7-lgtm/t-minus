@@ -123,7 +123,7 @@ export function ModificationsPanel({
   const clauseDeltaWithheld = profile === "idiq_parent" || profile === "order_under_idiq";
   const draftRows = modRows(
     { mod_type: type, value_change: valueChange.trim() ? Number(valueChange) : null },
-    { method, outOfScope },
+    { method, outOfScope, acq },
   );
   const fpdsSheet = [
     `FPDS-NG fill sheet, ${acquisitionId}`,
@@ -334,7 +334,7 @@ export function ModificationsPanel({
                     ) : null}
                   </dl>
                   {m.description ? <p className="mc-pa-text mt-2">{m.description}</p> : null}
-                  {rowChips(modRows(m, { method }))}
+                  {rowChips(modRows(m, { method, acq }))}
                 </li>
               );
             })}
