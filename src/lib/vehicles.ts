@@ -237,7 +237,7 @@ export function sf30Blocks(type: string): { sf30_13a: boolean; sf30_13b: boolean
   };
 }
 
-export type ModRow = { label: string; citation: string; state: "required" | "offered"; templateKey?: string };
+export type ModRow = { label: string; citation: string; state: "required" | "offered"; templateKey?: string; note?: string };
 
 /**
  * The rows a modification carries. A change order or bilateral supplemental
