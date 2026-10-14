@@ -1010,7 +1010,19 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
       if (exception) {
         rows.push(
           exception.key === "brand_name"
-            ? {
+            ? vehicle.award_type === "single" || vehicle.brand_name_justification_on_contract === true
+              ? {
+                  label: "Brand name justification",
+                  citation: "RFO FAR 16.507-7(b)",
+                  link: "templates",
+                  templateKey: "fair-opportunity-brand-name",
+                  optional: true,
+                  note:
+                    vehicle.award_type === "single"
+                      ? "Not required: the base contract is a single-award contract (RFO FAR 16.507-7(b)(2))."
+                      : "Not required: a justification covering the requirements in the order was previously approved for the contract in accordance with 6.103-1(d) (RFO FAR 16.507-7(b)(1)).",
+                }
+              : {
                 label: "Brand name justification",
                 citation: exception.citation,
                 link: "templates",
@@ -1178,11 +1190,13 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
           ? [
               {
                 label: "Option exercise: preliminary notice to the contractor",
-                citation: "RFO FAR 17.204-1(b)(1); RFO FAR 52.217-9(a) (preliminary notice)",
+                citation: optionNoticeCitation(acq as Record<string, unknown>),
                 link: "templates" as const,
                 templateKey: "option-exercise-notification",
                 optional: true,
-                note: "The record carries option periods.",
+                note: hasOptionClause(acq as Record<string, unknown>)
+                  ? "The record carries option periods."
+                  : "The record carries option periods. Give the preliminary notice within the time specified in the contract.",
               },
               {
                 label: "Option exercise: determination to exercise",
@@ -1403,8 +1417,12 @@ export function shortRole(role: string): string {
   return head.replace(/review|coordination|authorization|meeting/gi, "").trim().toLowerCase() || role.toLowerCase();
 }
 
-/** The role name the ratifying official votes under (RFO FAR 1.405(b)(2)). */
+/** The role name the ratifying official votes under (RFO FAR 1.405(b)(2)(i), (ii)). */
 export const RATIFYING_OFFICIAL_ROLE = "Ratification approving official";
+
+/** Who ratifies, as RFO FAR 1.405(b)(2)(i) and (ii) state it. */
+export const RATIFYING_OFFICIAL_TITLE =
+  "Head of the contracting activity, or a delegate no lower than the chief of the contracting office (RFO FAR 1.405(b)(2)(i), (ii))";
 
 /** The role name the JOFOC approving official votes under. */
 export const JOFOC_APPROVER_ROLE = "JOFOC approving official";
@@ -1474,9 +1492,9 @@ export function reviewRulesForPhase(
         rule_id: "ratification-approving-official",
         reviewer_role: RATIFYING_OFFICIAL_ROLE,
         trigger: "Ratification of an unauthorized commitment",
-        citation: "RFO FAR 1.405(b)(2)",
+        citation: "RFO FAR 1.405(b)(2)(i), (ii)",
         planned_days: null,
-        note: "The head of the contracting activity ratifies; the authority may not be delegated below the chief of the contracting office (RFO FAR 1.405(b)(2)).",
+        note: `${RATIFYING_OFFICIAL_TITLE}.`,
       } as ReviewRuleRow,
     ];
   }
@@ -1653,7 +1671,9 @@ export function pollBoard(
         reviewerNameForTitle(tier.title, center, roster) ||
         tier.official
       : r.reviewer_role === RATIFYING_OFFICIAL_ROLE
-        ? reviewerNameForTitle("Head of Contracting Activity", center, roster) || "Head of the contracting activity"
+        ? reviewerNameForTitle("Ratification delegate", center, roster) ||
+          reviewerNameForTitle("Head of Contracting Activity", center, roster) ||
+          RATIFYING_OFFICIAL_TITLE
         : reviewerNameForRole(r.reviewer_role, center, roster);
     const voted = vote !== "pending";
     return {

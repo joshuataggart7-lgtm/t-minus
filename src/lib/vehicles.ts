@@ -22,6 +22,8 @@ export type VehicleProfile = {
   fair_opportunity: "competed" | FairOpportunityException;
   clause_set: string;
   awardees: Awardee[];
+  /** A brand-name justification covering the order's requirements was previously approved for the contract under RFO FAR 6.103-1(d) (RFO FAR 16.507-7(b)(1)). */
+  brand_name_justification_on_contract?: boolean;
 };
 
 export const VEHICLE_DEFAULTS: VehicleProfile = {
@@ -34,6 +36,7 @@ export const VEHICLE_DEFAULTS: VehicleProfile = {
   fair_opportunity: "competed",
   clause_set: "",
   awardees: [],
+  brand_name_justification_on_contract: false,
 };
 
 export function vehicleOf(acq: Record<string, unknown> | null | undefined): VehicleProfile {
