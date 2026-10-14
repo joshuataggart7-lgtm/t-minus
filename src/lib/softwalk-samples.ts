@@ -41,14 +41,14 @@ const SAMPLE_COMMERCIAL_IDS = new Set([
  * Sample people are fictional and labelled so; no real person is named here.
  */
 const SOFT_WALK_OFFICERS: Record<string, string> = {
-  "A-2027-0101": "Michael Collins (fictional CO)",
-  "A-2027-0102": "John Young (fictional CO)",
-  "A-2026-0090": "Jim Lovell (fictional CO)",
-  "80ARC26D0090": "Jim Lovell (fictional CO)",
-  "BF-80SAMPLE2026C0001": "Frank Borman (fictional CO)",
-  "80SAMPLE2026C0001": "Frank Borman (fictional CO)",
-  "BF-80SAMPLE2026C0002": "Wally Schirra (fictional CO)",
-  "80SAMPLE2026C0002": "Wally Schirra (fictional CO)",
+  "A-2027-0101": "J. Rivera (fictional CO)",
+  "A-2027-0102": "S. Varnell (fictional CO)",
+  "A-2026-0090": "D. Okonkwo-Hale (fictional CO)",
+  "80ARC26D0090": "D. Okonkwo-Hale (fictional CO)",
+  "BF-80SAMPLE2026C0001": "F. Ashmere (fictional CO)",
+  "80SAMPLE2026C0001": "F. Ashmere (fictional CO)",
+  "BF-80SAMPLE2026C0002": "W. Delacorte (fictional CO)",
+  "80SAMPLE2026C0002": "W. Delacorte (fictional CO)",
 };
 
 const idsOf = (a: Record<string, unknown> | null | undefined): string[] =>
