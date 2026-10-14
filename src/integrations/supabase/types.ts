@@ -445,6 +445,255 @@ export type Database = {
           },
         ]
       }
+      acquisition_facts_bak_20261014: {
+        Row: {
+          acquisition_forecast_verified: boolean | null
+          acquisition_id: string | null
+          acquisition_method: string | null
+          backfill_source: Json | null
+          branch_code: string | null
+          center_code: string | null
+          center_name: string | null
+          clock_state: string | null
+          closeout: Json | null
+          co_code: string | null
+          co_name: string | null
+          commercial_determination: string | null
+          competition: string | null
+          contract_clauses: Json | null
+          contract_format: string | null
+          contract_number: string | null
+          contract_type: string | null
+          cor_name: string | null
+          created_at: string | null
+          created_by: string | null
+          current_phase: string | null
+          debriefing_date: string | null
+          description_of_requirement: string | null
+          enterprise_psl_check: string | null
+          estimated_value: number | null
+          funding_fiscal_year: string | null
+          funds_certified: boolean | null
+          hardware_deliverable: boolean | null
+          hold_owner: string | null
+          hold_reason: string | null
+          hold_started_at: string | null
+          hybrid_contract_type: string | null
+          igce_attached: boolean | null
+          includes_it: boolean | null
+          intake_estimate: Json | null
+          is_critical_path: boolean | null
+          is_package_complete: boolean | null
+          is_reimbursable: boolean | null
+          is_seed: boolean | null
+          jofoc_authority_citation: string | null
+          lead_to_delivery_days: number | null
+          mission_directorate_code: string | null
+          mission_directorate_name: string | null
+          mission_directorate_other: string | null
+          mission_id: string | null
+          naics_code: string | null
+          need_date: string | null
+          nf1707_answers: Json | null
+          note: string | null
+          parent_contract_number: string | null
+          period_of_performance_end: string | null
+          period_of_performance_start: string | null
+          place_of_performance: string | null
+          place_of_performance_standardized: string | null
+          post_award: Json | null
+          pr_number: string | null
+          proposed_price: number | null
+          proposed_price_received: string | null
+          psc_code: string | null
+          psc_note: string | null
+          regulatory_baseline_date: string | null
+          requester_name: string | null
+          requester_org_code: string | null
+          responsibility_finding: string | null
+          restrictive_clause_review: string | null
+          right_to_repair_statement: boolean | null
+          scenario: Json | null
+          set_aside: string | null
+          source_tag: string | null
+          sow_attached: boolean | null
+          sponsoring_agency: string | null
+          status: string | null
+          successor_of: string | null
+          target_award_date: string | null
+          title: string | null
+          updated_at: string | null
+          vehicle: Json | null
+          vendor_cage: string | null
+          vendor_legal_name: string | null
+          vendor_uei: string | null
+        }
+        Insert: {
+          acquisition_forecast_verified?: boolean | null
+          acquisition_id?: string | null
+          acquisition_method?: string | null
+          backfill_source?: Json | null
+          branch_code?: string | null
+          center_code?: string | null
+          center_name?: string | null
+          clock_state?: string | null
+          closeout?: Json | null
+          co_code?: string | null
+          co_name?: string | null
+          commercial_determination?: string | null
+          competition?: string | null
+          contract_clauses?: Json | null
+          contract_format?: string | null
+          contract_number?: string | null
+          contract_type?: string | null
+          cor_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_phase?: string | null
+          debriefing_date?: string | null
+          description_of_requirement?: string | null
+          enterprise_psl_check?: string | null
+          estimated_value?: number | null
+          funding_fiscal_year?: string | null
+          funds_certified?: boolean | null
+          hardware_deliverable?: boolean | null
+          hold_owner?: string | null
+          hold_reason?: string | null
+          hold_started_at?: string | null
+          hybrid_contract_type?: string | null
+          igce_attached?: boolean | null
+          includes_it?: boolean | null
+          intake_estimate?: Json | null
+          is_critical_path?: boolean | null
+          is_package_complete?: boolean | null
+          is_reimbursable?: boolean | null
+          is_seed?: boolean | null
+          jofoc_authority_citation?: string | null
+          lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
+          mission_id?: string | null
+          naics_code?: string | null
+          need_date?: string | null
+          nf1707_answers?: Json | null
+          note?: string | null
+          parent_contract_number?: string | null
+          period_of_performance_end?: string | null
+          period_of_performance_start?: string | null
+          place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
+          post_award?: Json | null
+          pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
+          psc_code?: string | null
+          psc_note?: string | null
+          regulatory_baseline_date?: string | null
+          requester_name?: string | null
+          requester_org_code?: string | null
+          responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
+          scenario?: Json | null
+          set_aside?: string | null
+          source_tag?: string | null
+          sow_attached?: boolean | null
+          sponsoring_agency?: string | null
+          status?: string | null
+          successor_of?: string | null
+          target_award_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vehicle?: Json | null
+          vendor_cage?: string | null
+          vendor_legal_name?: string | null
+          vendor_uei?: string | null
+        }
+        Update: {
+          acquisition_forecast_verified?: boolean | null
+          acquisition_id?: string | null
+          acquisition_method?: string | null
+          backfill_source?: Json | null
+          branch_code?: string | null
+          center_code?: string | null
+          center_name?: string | null
+          clock_state?: string | null
+          closeout?: Json | null
+          co_code?: string | null
+          co_name?: string | null
+          commercial_determination?: string | null
+          competition?: string | null
+          contract_clauses?: Json | null
+          contract_format?: string | null
+          contract_number?: string | null
+          contract_type?: string | null
+          cor_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_phase?: string | null
+          debriefing_date?: string | null
+          description_of_requirement?: string | null
+          enterprise_psl_check?: string | null
+          estimated_value?: number | null
+          funding_fiscal_year?: string | null
+          funds_certified?: boolean | null
+          hardware_deliverable?: boolean | null
+          hold_owner?: string | null
+          hold_reason?: string | null
+          hold_started_at?: string | null
+          hybrid_contract_type?: string | null
+          igce_attached?: boolean | null
+          includes_it?: boolean | null
+          intake_estimate?: Json | null
+          is_critical_path?: boolean | null
+          is_package_complete?: boolean | null
+          is_reimbursable?: boolean | null
+          is_seed?: boolean | null
+          jofoc_authority_citation?: string | null
+          lead_to_delivery_days?: number | null
+          mission_directorate_code?: string | null
+          mission_directorate_name?: string | null
+          mission_directorate_other?: string | null
+          mission_id?: string | null
+          naics_code?: string | null
+          need_date?: string | null
+          nf1707_answers?: Json | null
+          note?: string | null
+          parent_contract_number?: string | null
+          period_of_performance_end?: string | null
+          period_of_performance_start?: string | null
+          place_of_performance?: string | null
+          place_of_performance_standardized?: string | null
+          post_award?: Json | null
+          pr_number?: string | null
+          proposed_price?: number | null
+          proposed_price_received?: string | null
+          psc_code?: string | null
+          psc_note?: string | null
+          regulatory_baseline_date?: string | null
+          requester_name?: string | null
+          requester_org_code?: string | null
+          responsibility_finding?: string | null
+          restrictive_clause_review?: string | null
+          right_to_repair_statement?: boolean | null
+          scenario?: Json | null
+          set_aside?: string | null
+          source_tag?: string | null
+          sow_attached?: boolean | null
+          sponsoring_agency?: string | null
+          status?: string | null
+          successor_of?: string | null
+          target_award_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+          vehicle?: Json | null
+          vendor_cage?: string | null
+          vendor_legal_name?: string | null
+          vendor_uei?: string | null
+        }
+        Relationships: []
+      }
       announcement_acks: {
         Row: {
           acknowledged_at: string
@@ -548,6 +797,45 @@ export type Database = {
           field?: string | null
           log_id?: string
           logged_at?: string
+          new_value?: string | null
+          old_value?: string | null
+          phase?: string | null
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      audit_log_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          action: string | null
+          actor: string | null
+          field: string | null
+          log_id: string | null
+          logged_at: string | null
+          new_value: string | null
+          old_value: string | null
+          phase: string | null
+          reason: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          action?: string | null
+          actor?: string | null
+          field?: string | null
+          log_id?: string | null
+          logged_at?: string | null
+          new_value?: string | null
+          old_value?: string | null
+          phase?: string | null
+          reason?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          action?: string | null
+          actor?: string | null
+          field?: string | null
+          log_id?: string | null
+          logged_at?: string | null
           new_value?: string | null
           old_value?: string | null
           phase?: string | null
@@ -1312,6 +1600,60 @@ export type Database = {
           },
         ]
       }
+      document_attachments_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          attachment_id: string | null
+          content_type: string | null
+          created_at: string | null
+          doc_key: string | null
+          doc_label: string | null
+          file_name: string | null
+          is_seed: boolean | null
+          nf_1098_tab: string | null
+          parsed_total: number | null
+          size_bytes: number | null
+          storage_path: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+          uploaded_by_name: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          attachment_id?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          doc_key?: string | null
+          doc_label?: string | null
+          file_name?: string | null
+          is_seed?: boolean | null
+          nf_1098_tab?: string | null
+          parsed_total?: number | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          attachment_id?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          doc_key?: string | null
+          doc_label?: string | null
+          file_name?: string | null
+          is_seed?: boolean | null
+          nf_1098_tab?: string | null
+          parsed_total?: number | null
+          size_bytes?: number | null
+          storage_path?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          uploaded_by_name?: string | null
+        }
+        Relationships: []
+      }
       document_checkouts: {
         Row: {
           acquisition_id: string
@@ -1345,6 +1687,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_name?: string
+        }
+        Relationships: []
+      }
+      document_checkouts_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          checked_out_at: string | null
+          checkout_id: string | null
+          created_at: string | null
+          released_at: string | null
+          template_key: string | null
+          updated_at: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          checked_out_at?: string | null
+          checkout_id?: string | null
+          created_at?: string | null
+          released_at?: string | null
+          template_key?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          checked_out_at?: string | null
+          checkout_id?: string | null
+          created_at?: string | null
+          released_at?: string | null
+          template_key?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_name?: string | null
         }
         Relationships: []
       }
@@ -1411,6 +1789,48 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      document_read_receipts_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          created_at: string | null
+          doc_key: string | null
+          doc_kind: string | null
+          doc_label: string | null
+          opened_at: string | null
+          opened_by: string | null
+          poll_id: string | null
+          receipt_id: string | null
+          source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          created_at?: string | null
+          doc_key?: string | null
+          doc_kind?: string | null
+          doc_label?: string | null
+          opened_at?: string | null
+          opened_by?: string | null
+          poll_id?: string | null
+          receipt_id?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          created_at?: string | null
+          doc_key?: string | null
+          doc_kind?: string | null
+          doc_label?: string | null
+          opened_at?: string | null
+          opened_by?: string | null
+          poll_id?: string | null
+          receipt_id?: string | null
+          source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       document_shares: {
         Row: {
@@ -1568,6 +1988,60 @@ export type Database = {
             referencedColumns: ["template_id"]
           },
         ]
+      }
+      documents_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          ai_generated_at: string | null
+          ai_model: string | null
+          created_by: string | null
+          document_id: string | null
+          field_values: Json | null
+          is_seed: boolean | null
+          issue_on_nf1858: boolean | null
+          memo_header: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          saved_at: string | null
+          saved_by: string | null
+          template_id: string | null
+          version: number | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string | null
+          field_values?: Json | null
+          is_seed?: boolean | null
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          ai_generated_at?: string | null
+          ai_model?: string | null
+          created_by?: string | null
+          document_id?: string | null
+          field_values?: Json | null
+          is_seed?: boolean | null
+          issue_on_nf1858?: boolean | null
+          memo_header?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          saved_at?: string | null
+          saved_by?: string | null
+          template_id?: string | null
+          version?: number | null
+        }
+        Relationships: []
       }
       enterprise_strategies: {
         Row: {
@@ -1849,6 +2323,54 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      nf1707_approvals_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          approval_id: string | null
+          approval_role: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string | null
+          due_date: string | null
+          form_field_name: string | null
+          form_section: string | null
+          note: string | null
+          owner_name: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          approval_id?: string | null
+          approval_role?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          form_field_name?: string | null
+          form_section?: string | null
+          note?: string | null
+          owner_name?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          approval_id?: string | null
+          approval_role?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          form_field_name?: string | null
+          form_section?: string | null
+          note?: string | null
+          owner_name?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       nf1707_fields: {
         Row: {
@@ -2364,6 +2886,39 @@ export type Database = {
         }
         Relationships: []
       }
+      research_runs_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          acquisition_method: string | null
+          naics_code: string | null
+          psc_code: string | null
+          ran_at: string | null
+          ran_by: string | null
+          run_id: string | null
+          state_code: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          acquisition_method?: string | null
+          naics_code?: string | null
+          psc_code?: string | null
+          ran_at?: string | null
+          ran_by?: string | null
+          run_id?: string | null
+          state_code?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          acquisition_method?: string | null
+          naics_code?: string | null
+          psc_code?: string | null
+          ran_at?: string | null
+          ran_by?: string | null
+          run_id?: string | null
+          state_code?: string | null
+        }
+        Relationships: []
+      }
       review_rules: {
         Row: {
           citation: string | null
@@ -2442,6 +2997,36 @@ export type Database = {
             referencedColumns: ["acquisition_id"]
           },
         ]
+      }
+      sam_checks_bak_20261014: {
+        Row: {
+          acquisition_id: string | null
+          check_id: string | null
+          check_type: string | null
+          checked_at: string | null
+          checked_by: string | null
+          response_json: Json | null
+          vendor_uei: string | null
+        }
+        Insert: {
+          acquisition_id?: string | null
+          check_id?: string | null
+          check_type?: string | null
+          checked_at?: string | null
+          checked_by?: string | null
+          response_json?: Json | null
+          vendor_uei?: string | null
+        }
+        Update: {
+          acquisition_id?: string | null
+          check_id?: string | null
+          check_type?: string | null
+          checked_at?: string | null
+          checked_by?: string | null
+          response_json?: Json | null
+          vendor_uei?: string | null
+        }
+        Relationships: []
       }
       scenario_trigger_config: {
         Row: {

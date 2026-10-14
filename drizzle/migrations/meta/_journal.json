@@ -43,6 +43,13 @@
       "when": 1791606752598,
       "tag": "0005_backup_research_findings_a0101_20261010b",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791962561802,
+      "tag": "0006_backup_tables_20261014",
+      "breakpoints": true
     }
   ]
 }
