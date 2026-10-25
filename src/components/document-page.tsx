@@ -1,4 +1,4 @@
-import { AGENCY_LINE, CUI_BANNER, INSIGNIA_URL, type MemoDoc } from "@/lib/nf1858";
+import { AGENCY_LINE, CUI_BANNER, INSIGNIA_URL, SHOW_AGENCY_INSIGNIA, type MemoDoc } from "@/lib/nf1858";
 import { EMPTY_FIELD, type exportBlocks } from "@/lib/template-engine";
 
 /**
@@ -68,7 +68,7 @@ function MemoPage({ memo }: { memo: MemoDoc }) {
           <p>{h.centerName}</p>
           <p>{h.centerAddress}</p>
         </div>
-        <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} />
+        {SHOW_AGENCY_INSIGNIA ? <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} /> : null}
       </header>
       <p className="mc-page-date">{h.date}</p>
       <dl className="mc-page-head">
