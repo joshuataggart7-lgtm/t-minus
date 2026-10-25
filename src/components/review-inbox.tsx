@@ -28,6 +28,7 @@ import { loadReceiptsForAcquisitions, receiptStamp, recordReadReceiptQuietly, ty
 import { explainWorkReadiness } from "@/components/mission-control/readiness";
 import type { MissionReadiness } from "@/components/mission-control/primitives";
 import { dayWord } from "@/lib/pluralize";
+import { todayCT } from "@/lib/calendar-date";
 
 // The reviewer inbox and the approver's landing share this screen. Each card is
 // one file with the reviews waiting on it; the decision panel beside the cards
@@ -213,7 +214,7 @@ export function ReviewInbox({ mode }: { mode: InboxMode }) {
         decision: input.choice,
         reviewerName: who,
         reviewerRole: input.row.poll.reviewer_role ?? "Reviewer",
-        date: new Date().toISOString().slice(0, 10),
+        date: todayCT(),
         rationale: reason,
         previousRaw: input.row.poll.vote,
         previousReason: input.row.poll.reason,

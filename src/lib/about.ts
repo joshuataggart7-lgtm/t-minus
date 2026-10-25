@@ -63,7 +63,7 @@ export const SEED_SOURCES: { name: string; asOf: string }[] = [
   // implemented 8/05/26 and the 9/11/26 update.
   { name: "NFS Companion Guide", asOf: "Updated September 11, 2026 (earlier update August 5, 2026)" },
   { name: "PCD 26-03B clause matrix", asOf: "June 25, 2026" },
-  { name: "NFS applicability matrix", asOf: "July 23, 2026 version of the interim NFS" },
+  { name: "NFS applicability matrix", asOf: "July 23, 2026 matrix with prescriptions re-checked against the September 15, 2026 interim NFS (PCD 26-03B); rows still to verify are listed in the audit fix log" },
   { name: "OP template list", asOf: "September 10, 2026" },
   { name: "Thresholds", asOf: "verified September 11, 2026" },
 ];
