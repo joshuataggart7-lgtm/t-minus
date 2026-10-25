@@ -18,6 +18,7 @@
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { dayWord } from "@/lib/pluralize";
+import { todayCT, addCalendarDays } from "@/lib/calendar-date";
 
 export const DEVIATION_TEMPLATE = {
   key: "far-nfs-deviation",
@@ -112,9 +113,7 @@ export const daysBetween = (from: Date, to: Date) =>
   Math.round((to.setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / 86_400_000);
 
 export function addDays(from: Date, days: number) {
-  const d = new Date(from);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return addCalendarDays(todayCT(from), days);
 }
 
 /** Days to the decision date, and what the clock line should read. */

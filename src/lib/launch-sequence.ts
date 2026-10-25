@@ -37,7 +37,7 @@ import {
   TM_ORDER_PLAN,
   type NewContractFacts,
 } from "@/lib/phase-plan-key";
-import { presolicitationNote } from "@/lib/presolicitation-note";
+import { presolicitationNote, presolicitationNotRequired } from "@/lib/presolicitation-note";
 export { presolicitationNote };
 import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
@@ -861,7 +861,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               citation: "RFO FAR 5.101(c)(4)(vii)",
               link: "templates",
               templateKey: "sam-notice",
-              ...(presolicitationExempt(acq) ? { optional: true } : {}),
+              ...(presolicitationExempt(acq) || presolicitationNotRequired(acq) ? { optional: true } : {}),
               note: presolicitationExempt(acq)
                 ? "Not required: a presolicitation notice is not required when using other than full and open competition under an authority other than RFO FAR 6.103-1 or 6.103-6 (RFO FAR 5.101(b)(2))."
                 : presolicitationNote(acq, isCommercialBuy(acq)),
@@ -874,6 +874,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
                 citation: "RFO FAR 5.101",
                 link: "templates",
                 templateKey: "sam-notice",
+                ...(presolicitationNotRequired(acq) ? { optional: true } : {}),
                 note: presolicitationNote(acq, false),
               }
             : {
