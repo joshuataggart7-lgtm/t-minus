@@ -10,6 +10,7 @@
  * Both write one audit entry per run and never store more than the summary line.
  */
 import { partTags, toISODate } from "@/lib/watch";
+import { todayCT, addCalendarDays } from "@/lib/calendar-date";
 
 export type FetchOutcome = {
   source: "GAO" | "Federal Register";
@@ -74,7 +75,7 @@ function parseGao(html: string): Row[] {
 /** Clearly labelled stand-in rows so the demo never depends on gao.gov being reachable. */
 function gaoSample(): Row[] {
   const today = new Date();
-  const back = (days: number) => new Date(today.getTime() - days * 86400000).toISOString().slice(0, 10);
+  const back = (days: number) => addCalendarDays(todayCT(today), -days);
   return [
     {
       source: "GAO",
@@ -162,7 +163,7 @@ export async function fetchGaoDecisions(actor: string): Promise<FetchOutcome> {
 }
 
 export async function fetchFederalRegister(actor: string): Promise<FetchOutcome> {
-  const since = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
+  const since = addCalendarDays(todayCT(), -90);
   const rows = new Map<string, Row>();
   let providerError: string | undefined;
 

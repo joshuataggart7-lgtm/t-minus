@@ -1174,8 +1174,35 @@ const fairOpportunity: TemplateDef = {
             "Logical follow-on, RFO FAR 16.507-6(b)(3)",
             "Minimum guarantee, RFO FAR 16.507-6(b)(4)",
             "For orders exceeding the SAT, a statute expressly authorizes or requires a specified source, RFO FAR 16.507-6(b)(5)",
-            "Brand name only; fair opportunity given, RFO FAR 11.204",
+            "For NASA, an exception listed in RFO FAR 6.103, RFO FAR 16.507-6(b)(6)",
           ],
+        },
+        {
+          // Audit 2026-10-25, M7. RFO FAR 16.507-6(b)(6): "For DoD, NASA, and the
+          // Coast Guard, the order satisfies one of the exceptions permitting the
+          // use of other than full and open competition listed in part 6.103
+          // (10 U.S.C. 3406(c)(5)). The public interest exception must not be
+          // used unless Congress is notified in accordance with 10 U.S.C. 3204(a)(7)."
+          // A brand-name order is not an exception to fair opportunity; it is
+          // justified under RFO FAR 16.507-7 in the Brand name sections below (L10).
+          key: "part6_exception",
+          label: "Which RFO FAR 6.103 exception",
+          kind: "select",
+          required: true,
+          options: [
+            "6.103-1 Only one responsible source and no other supplies or services will satisfy agency requirements",
+            "6.103-2 Unusual and compelling urgency",
+            "6.103-3 Industrial mobilization; engineering, developmental, or research capability; or expert services",
+            "6.103-4 International agreement",
+            "6.103-5 Authorized or required by statute",
+            "6.103-6 National security",
+            "6.103-7 Public interest",
+          ],
+          showIf: (v) => (v["exception"] ?? "").includes("16.507-6(b)(6)"),
+          helpFor: (v) =>
+            (v["part6_exception"] ?? "").startsWith("6.103-7")
+              ? "The public interest exception must not be used unless Congress is notified in accordance with 10 U.S.C. 3204(a)(7) (RFO FAR 16.507-6(b)(6))."
+              : undefined,
         },
         { key: "exception_rationale", label: "Why the exception applies", kind: "textarea", required: true },
         {
@@ -1197,7 +1224,7 @@ const fairOpportunity: TemplateDef = {
     {
       id: "brand",
       title: "Brand name justification",
-      citation: "RFO FAR 11.204; RFO FAR 8.401(b); GSAR subpart 538.71",
+      citation: "RFO FAR 16.507-7(a), (c)(1); RFO FAR 11.204; RFO FAR 8.401(b); GSAR subpart 538.71",
       tier: "binding",
       showIf: (v) => (v["brand_name_required"] ?? "") === "Yes",
       fields: [
@@ -1219,7 +1246,7 @@ const fairOpportunity: TemplateDef = {
     {
       id: "flags",
       title: "Brand name",
-      citation: "RFO FAR 11.204",
+      citation: "RFO FAR 16.507-7(a); RFO FAR 11.204",
       tier: "binding",
       fields: [
         {
@@ -2401,7 +2428,7 @@ const samNotice: TemplateDef = {
           ],
 
           required: true,
-          help: "Set from the record; change it when the contracting officer posts a sources sought instead.",
+          help: "Set from the record; change it when the contracting officer posts a sources sought instead. A presolicitation notice is required only for actions expected to be greater than $20,000 (RFO FAR 5.101(a)).",
         },
         { key: "title", label: "Title", kind: "text", bind: "title", required: true },
         { key: "naics_code", label: "NAICS", kind: "text", bind: "naics_code", required: true },

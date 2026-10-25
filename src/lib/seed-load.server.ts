@@ -306,7 +306,7 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   await wipe(db, "nfs_clause_matrix", "row_id");
   await put(
     "nfs_clause_matrix",
-    parseCsv(read("nfs_clause_matrix_2026-07-23.csv")).map((r) => ({
+    parseCsv(read("nfs_clause_matrix_2026-09-15.csv")).map((r) => ({
       clause_number: r["Clause/Provision Number"],
       title: nul(r["Title"]),
       clause_date: nul(r["Date"]),
