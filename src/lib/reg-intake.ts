@@ -136,7 +136,7 @@ export const DATASETS: Dataset[] = [
   {
     id: "nfs_clause_matrix",
     label: "NFS clause matrix",
-    fileHint: "nfs_clause_matrix_2026-07-23.csv",
+    fileHint: "nfs_clause_matrix_2026-09-15.csv",
     table: "nfs_clause_matrix",
     pk: "row_id",
     effectiveColumn: "clause_date",

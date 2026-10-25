@@ -24,6 +24,14 @@ export const AGENCY_LINE = "National Aeronautics and Space Administration";
  */
 export const INSIGNIA_URL = "/letterhead/nasa-insignia.png";
 
+/**
+ * Audit 2026-10-25, H2: T-Minus is not a NASA system, so the NASA insignia is
+ * off on every screen and export. The rule on insignia use (14 CFR 1221) has
+ * not been quoted yet, so this stays off until it is verified and approved.
+ * Turning it back on is this one line.
+ */
+export const SHOW_AGENCY_INSIGNIA = false;
+
 export const CUI_BANNER = "CUI";
 
 export const CUI_SHEET_TEXT = [
@@ -475,7 +483,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     prototype: true,
     // The agency insignia at the size and position the blank NF 1858 uses:
     // 1.08 by 1.00 in (the HQ master), top right of the first page only.
-    insignia: { url: INSIGNIA_URL, width: 78, height: 72 },
+    ...(SHOW_AGENCY_INSIGNIA ? { insignia: { url: INSIGNIA_URL, width: 78, height: 72 } } : {}),
     runningHead: h.subject,
   });
 }
@@ -491,6 +499,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
   // The insignia from the official blank, first page only.
   let insignia: ArrayBuffer | null = null;
   try {
+    if (!SHOW_AGENCY_INSIGNIA) throw new Error("insignia off");
     const res = await fetch(INSIGNIA_URL);
     if (res.ok) insignia = await res.arrayBuffer();
   } catch {
