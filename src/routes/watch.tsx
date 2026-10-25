@@ -19,6 +19,7 @@ import {
   type FeedItem,
   type WatchSource,
 } from "@/lib/watch";
+import { todayCT } from "@/lib/calendar-date";
 
 export const Route = createFileRoute("/watch")({
   head: () => ({
@@ -280,7 +281,7 @@ function FeedRow({ item }: { item: FeedItem }) {
 function OpNoticeForm({ actor, onPosted }: { actor: string; onPosted: () => void }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayCT());
   const [summary, setSummary] = useState("");
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
