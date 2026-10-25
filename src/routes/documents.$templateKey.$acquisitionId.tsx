@@ -147,12 +147,14 @@ import {
   memoDefaultFor,
   AGENCY_LINE,
   INSIGNIA_URL,
+  SHOW_AGENCY_INSIGNIA,
   type MemoHeader,
   type MemoRoutingRow,
 } from "@/lib/nf1858";
 import { dayWord } from "@/lib/pluralize";
 import { AdvisoryTag } from "@/components/advisory-tag";
 import { DetailsList, DetailsSection, WithDetailsPanel } from "@/components/ui-mc";
+import { todayCT } from "@/lib/calendar-date";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
@@ -710,7 +712,7 @@ function DocumentPageInner() {
         decision: choice,
         reviewerName: user.name,
         reviewerRole: mySeat.reviewer_role,
-        date: new Date().toISOString().slice(0, 10),
+        date: todayCT(),
         rationale: reason ?? `${def?.name ?? "document"} reviewed`,
         previousRaw: mySeat.decision,
         previousReason: mySeat.reason,
@@ -2840,7 +2842,7 @@ function DocumentPageInner() {
           {memoOn && memoHeader ? (
             <div className="relative mt-4 max-w-[80ch]">
               {/* Laid out like the NF 1858 head: insignia top right as on the HQ master, agency, Center and address, then date and Reply to Attn of. */}
-              <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} className="float-right ml-3 mb-2 h-[72px] w-[78px]" />
+              {SHOW_AGENCY_INSIGNIA ? <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} className="float-right ml-3 mb-2 h-[72px] w-[78px]" /> : null}
               <p className="mb-0 text-[13px] font-semibold">{AGENCY_LINE}</p>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 {memoHeader.centerName}
