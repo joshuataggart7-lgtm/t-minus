@@ -39,7 +39,7 @@ export const PCD_MATRIX_BASELINE: { name: string; asOf: string }[] = SEED_SOURCE
 );
 
 export const PCD_BASELINE_VS_FILE_NOTE =
-  "This is the issuance date of the policy baseline the clause matrix is built on. It is not the regulatory baseline date on the file, which is the date the officer recorded for this acquisition.";
+  "The \"issued\" dates are when the sources behind the clause matrix were issued. The first row is a separate fact: the regulatory baseline date the officer recorded for this acquisition.";
 
 /** The Companion Guide is process guidance. It never binds, and its text is not loaded. */
 export const COMPANION_GUIDE_TIER_NOTE =

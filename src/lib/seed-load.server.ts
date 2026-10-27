@@ -253,7 +253,8 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
       name: r["name"],
       hq_revision_date: nul(r["hq_effective_date"]),
       status: nul(r["status"]),
-      governing_citation: nul(r["governing_citation"]),
+      // Audit LA14: "[fill from template header]" is a seed stub, not a citation.
+      governing_citation: /^\[fill from/i.test((r["governing_citation"] ?? "").trim()) ? null : nul(r["governing_citation"]),
       citation_tier: nul(r["citation_tier"]),
     })),
   );
