@@ -186,6 +186,10 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const userId = session?.user?.id ?? null;
+  // The account whose profile read has finished (loaded or given up). Until it
+  // has, a real account shows the loading screen instead of the Executive / HQ
+  // defaults, so the name, role and Center never flip after first paint (LA1).
+  const [profileFor, setProfileFor] = useState<string | null>(null);
 
   // Load account defaults. Demo sessions keep their session-only persona and do
   // not need a persisted role membership. A failed read keeps the last known
@@ -210,12 +214,16 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       return true;
     };
     void (async () => {
-      if (await load()) return;
+      if (await load()) {
+        if (!cancelled) setProfileFor(userId);
+        return;
+      }
       await new Promise((resolve) => setTimeout(resolve, 1200));
       if (cancelled) return;
       if (!(await load()) && !cancelled) {
         setAuthMessage("Your profile did not load. Sign out and back in to try again.");
       }
+      if (!cancelled) setProfileFor(userId);
     })();
     return () => {
       cancelled = true;
@@ -262,6 +270,8 @@ export function RoleProvider({ children }: { children: ReactNode }) {
               ? "Signed-in user"
               : accountName(profile?.display_name ?? metaName, profile?.email ?? session.user.email),
             email: profile?.email ?? session.user.email ?? seeded.email,
+            // A real account reads its own Center, not the persona default.
+            center_code: profile?.last_center_code?.trim() ? profile.last_center_code.trim().toUpperCase() : seeded.center_code,
           };
     return {
       role,
@@ -287,7 +297,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
 
   return (
     <RoleContext.Provider value={value}>
-      {!ready || (isAnonymous && !personaRestored) ? (
+      {!ready || (isAnonymous && !personaRestored) || (session && !isAnonymous && profileFor !== userId) ? (
         <SessionStatus slow={slow && !ready} />
       ) : !session ? (
         <AuthScreen />

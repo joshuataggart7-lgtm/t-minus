@@ -27,13 +27,17 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
   const q = useQuery({
     queryKey: ["people-roles"],
     queryFn: async () => {
-      const [profiles, memberships] = await Promise.all([
-        supabase.from("profiles").select("id,email,display_name").order("created_at"),
+      // Named accounts only. Demo sessions carry no name and no email, so they
+      // are counted, never listed as bare account IDs.
+      const [profiles, memberships, unnamed] = await Promise.all([
+        supabase.from("profiles").select("id,email,display_name").or("email.not.is.null,display_name.neq.").order("created_at"),
         supabase.from("user_roles").select("id,user_id,role"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).is("email", null).or("display_name.is.null,display_name.eq."),
       ]);
       if (profiles.error) throw new Error(profiles.error.message);
       if (memberships.error) throw new Error(memberships.error.message);
       return {
+        unnamedCount: unnamed.count ?? 0,
         profiles: (profiles.data ?? []) as ProfileRow[],
         memberships: (memberships.data ?? []) as MembershipRow[],
       };
@@ -67,7 +71,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
       acquisition_id: null,
       actor: actorName,
       action: enabled ? "Role added" : "Role removed",
-      field: row.email ?? row.id,
+      field: row.email ?? (row.display_name || "Unnamed account"),
       old_value: enabled ? null : ROLE_LABELS[role],
       new_value: enabled ? ROLE_LABELS[role] : null,
       reason: "Center configuration",
@@ -114,7 +118,7 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
                   <td className="p-2">{row.email || "Not recorded"}</td>
                   <td className="p-2">
                     <fieldset className="flex flex-wrap gap-x-4 gap-y-2">
-                      <legend className="sr-only">Roles for {row.email ?? row.id}</legend>
+                      <legend className="sr-only">Roles for {row.email ?? (row.display_name || "unnamed account")}</legend>
                       {ASSIGNABLE_ROLES.map((role) => (
                         <label key={role} className="inline-flex items-center gap-2">
                           <input
@@ -133,6 +137,11 @@ export function PeopleRoles({ actorName }: { actorName: string }) {
           </tbody>
         </table>
       )}
+      {q.data && q.data.unnamedCount > 0 ? (
+        <p className="mt-2 text-[13px] text-muted-foreground">
+          {q.data.unnamedCount.toLocaleString("en-US")} demo {q.data.unnamedCount === 1 ? "session has" : "sessions have"} no name or email and {q.data.unnamedCount === 1 ? "is" : "are"} not listed.
+        </p>
+      ) : null}
     </section>
   );
 }
