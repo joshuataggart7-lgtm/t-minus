@@ -26,9 +26,15 @@ export const INSIGNIA_URL = "/letterhead/nasa-insignia.png";
 
 /**
  * Audit 2026-10-25, H2: T-Minus is not a NASA system, so the NASA insignia is
- * off on every screen and export. The rule on insignia use (14 CFR 1221) has
- * not been quoted yet, so this stays off until it is verified and approved.
- * Turning it back on is this one line.
+ * off on every screen and export. Verified 2026-10-27 against the eCFR text of
+ * 14 CFR 1221.110 (current as of 2026-10-23):
+ *   (c)(3) "No approval for use of the NASA Insignia will be authorized when its
+ *   use can be construed as an endorsement by NASA of a product or service."
+ *   (d) "Use of the NASA Insignia for any other purpose than as prescribed in
+ *   this section is prohibited, except that the Associate Administrator for
+ *   Public Affairs may authorize on a case-by-case basis..."
+ * Misuse is subject to 18 U.S.C. 701 (14 CFR 1221.115(b)). Keep this false
+ * unless the Associate Administrator for Public Affairs approves the use.
  */
 export const SHOW_AGENCY_INSIGNIA = false;
 

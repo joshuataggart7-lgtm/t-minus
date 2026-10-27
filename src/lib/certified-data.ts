@@ -7,6 +7,12 @@
  * reads $2.5 million. The award date decides which figure the file reads: the
  * target award date on the record, else a forecast award date when the caller
  * has one, else today.
+ *
+ * Verified 2026-10-27 against 10 U.S.C. 3702(a)(1): "(A) in the case of a prime
+ * contract entered into after June 30, 2026, the price of the contract to the
+ * United States is expected to exceed $10,000,000; and (B) in the case of a
+ * prime contract entered into on or before June 30, 2026, the price of the
+ * contract to the United States is expected to exceed $2,000,000."
  */
 
 export const CERTIFIED_FAR_TEXT_NAME = "Certified cost or pricing data (FAR text)";

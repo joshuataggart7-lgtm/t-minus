@@ -50,10 +50,11 @@ describe("M7/L10 fair opportunity exceptions", () => {
 
 import { nf1787aExplanation } from "@/lib/nf1787";
 describe("L11 NF 1787A at $2M", () => {
-  it("required only above $2M, recommended at exactly $2M", () => {
+  it("required only when exceeding $2M (NFS CG 1810.12(c)(1)); exactly $2M is not required", () => {
     expect(nf1787aExplanation(2_000_001)).toMatch(/required/);
     expect(nf1787aExplanation(2_000_001)).not.toMatch(/not required/);
-    expect(nf1787aExplanation(2_000_000)).toMatch(/recommended/);
+    expect(nf1787aExplanation(2_000_000)).toMatch(/not required/);
+    expect(nf1787aExplanation(2_000_000)).not.toMatch(/recommended/);
     expect(nf1787aExplanation(1_999_999)).toMatch(/optional/);
   });
 });
