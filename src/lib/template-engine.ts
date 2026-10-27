@@ -2391,6 +2391,14 @@ const MOD_MODES = ["Modification to a notice", "Modification to a combination sy
 const RFI_MODES = ["Request for information: draft solicitation or statement of work", "Request for information: organizational conflict of interest"];
 const isPresol = (v: Values) => PRESOL_MODES.includes(String(v["notice_type"] ?? ""));
 const isMod = (v: Values) => MOD_MODES.includes(String(v["notice_type"] ?? ""));
+/** True when the record's estimated value is known and at or below $20,000 (RFO FAR 5.101(a)). */
+export const presolNotRequired = (v: Values) => {
+  const raw = String(v["estimated_value"] ?? "").trim();
+  // Plain amounts only ("$18,500.00"). "TBD", "$1.2M" or "15K" are not read as known values.
+  if (!/^\$?\s*[0-9][0-9,]*(\.[0-9]+)?$/.test(raw)) return false;
+  const n = Number(raw.replace(/[^0-9.]/g, ""));
+  return Number.isFinite(n) && n <= 20_000;
+};
 const isRfi = (v: Values) => RFI_MODES.includes(String(v["notice_type"] ?? ""));
 
 
@@ -2429,7 +2437,14 @@ const samNotice: TemplateDef = {
 
           required: true,
           help: "Set from the record; change it when the contracting officer posts a sources sought instead. A presolicitation notice is required only for actions expected to be greater than $20,000 (RFO FAR 5.101(a)).",
+          // Audit LA17: a sub-$20,000 file can still pick a presolicitation mode
+          // (the agency may post one), but say plainly that none is required.
+          helpFor: (v) =>
+            isPresol(v) && presolNotRequired(v)
+              ? "This file's estimated value is $20,000 or less, so no presolicitation notice is required (RFO FAR 5.101(a))."
+              : undefined,
         },
+        { key: "estimated_value", label: "Estimated value of record", kind: "readonly", bind: "estimated_value" },
         { key: "title", label: "Title", kind: "text", bind: "title", required: true },
         { key: "naics_code", label: "NAICS", kind: "text", bind: "naics_code", required: true },
         { key: "psc_code", label: "PSC", kind: "text", bind: "psc_code", required: true },

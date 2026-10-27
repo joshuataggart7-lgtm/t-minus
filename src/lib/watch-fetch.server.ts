@@ -162,6 +162,19 @@ export async function fetchGaoDecisions(actor: string): Promise<FetchOutcome> {
   return { source: "GAO", fetched: rows.length, inserted, note, ...(providerError ? { providerError } : {}) };
 }
 
+/** Agencies that issue acquisition rules, forms and contractor obligations. */
+const ACQUISITION_AGENCY =
+  /General Services Administration|Defense Department|Defense Acquisition|National Aeronautics and Space|Federal Procurement Policy|Cost Accounting Standards|Small Business Administration|Federal Contract Compliance/i;
+
+/** Title or abstract names acquisition regulation or contracting, not just the full text. */
+export function isAcquisitionRelevant(title?: string | null, abstract?: string | null, agency?: string | null): boolean {
+  if (ACQUISITION_AGENCY.test(agency ?? "")) return true;
+  const text = `${title ?? ""} ${abstract ?? ""}`;
+  // Acronyms match case-sensitively so "thus far" does not count as FAR.
+  if (/\b(FAR|DFARS|NFS|GSAR)\b/.test(text)) return true;
+  return /acquisition regulation|FAR Supplement|procurement|contract(s|ing|or|ors)?\b|solicitation|small business|protest|Unified Agenda/i.test(text);
+}
+
 export async function fetchFederalRegister(actor: string): Promise<FetchOutcome> {
   const since = addCalendarDays(todayCT(), -90);
   const rows = new Map<string, Row>();
@@ -198,6 +211,9 @@ export async function fetchFederalRegister(actor: string): Promise<FetchOutcome>
       for (const doc of payload.results ?? []) {
         const id = doc.document_number ?? doc.html_url ?? doc.title;
         if (!id) continue;
+        // Audit LA15: conditions[term] is full text, so an unrelated rule that
+        // mentions the FAR anywhere in its body came back (a Medicare Part D rule).
+        if (!isAcquisitionRelevant(doc.title, doc.abstract, (doc.agencies ?? []).map((a) => a.name).join(", "))) continue;
         rows.set(id, {
           source: "Federal Register",
           external_id: id,

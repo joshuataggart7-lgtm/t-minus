@@ -57,7 +57,7 @@ function AnnouncementsPage() {
         loadAnnouncements(),
         loadAcks(),
         currentUserId(),
-        supabase.from("users").select("user_id,center_code"),
+        supabase.from("staff_directory").select("user_id,center_code"),
       ]);
       setItems(all);
       setAcks(a);
