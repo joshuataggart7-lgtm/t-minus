@@ -5,7 +5,7 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.208-82,Federal Automotive Statistical Tool Reporting,2026-03-01,1808.17,C,H,IBR,,,PCD 25-18A,,,,A,A,,,,A,,,A,,
 1852.209-71,Limitation of Future Contracting,DEC 1998,1809.507-2,C,H,FT,X,X,,O,O,O,O,O,O,O,O,O,,O,O,O,
 1852.214-70,Caution To Offerors Furnishing Descriptinve Literature,DEC 2025 (DEVIATION),1814.207-70 (a),P,L,IBR,,,PCD 25-39,A,,,,A,,A,,,,A,,,
-1852.214-71,Award Grouping,DEC 2025 (DEVIATION),1814.207-70 (b),P,M,FT,X,,PCD 35-39,A,O,,,A,O,A,,O,,A,A,,
+1852.214-71,Award Grouping,DEC 2025 (DEVIATION),1814.207-70 (b),P,M,FT,X,,PCD 25-39,A,O,,,A,O,A,,O,,A,A,,
 1852.215-77,Preproposal/Pre-bid Conference,APR 2015,1815.110-70(a),P,L,FT,X,,,A,A,A,A,A,A,A,A,A,,A,A,,
 1852.215-78,Make or Buy Program Requirements,DEC 2025 (DEVIATION),1815.110-70(b),P,L,IBR,,,PCD 25-49,A,A,A,A,A,A,,,A,,A,,,
 1852.215-79,"Price Adjustmen for ""Make-or-Buy"" Changes",JUN 2018,1815.110-70 ( c),C,I,FT,,,,A,A,A,A,A,A,,,A,,A,,,
@@ -27,8 +27,8 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.216-84,Estimated Cost and Incentive Fee,OCT 1996,1816.406-70 (d),C,B,FT,X,,,,O,,O,,O,,O,,,,,,
 1852.216-85,Estimated Cost and Award Fee,SEP 1993,1816.406-70 (e ),C,B,FT,X,,,,O,,O,,O,,O,,,,,,
 1852.216-85,Alternate I,SEP 1993,1816.406-70 (e ),C,B,FT,X,,,,O,,O,,O,,O,,,,,,
-1852.216-88,Performance Incentive,APR 2015,1816.406-70 (f ),C,B,FT,X,X,,,O,,O,,,,,,,,,,A
-1852.216-89,Assignment and Release of Forms,DEC 2025 (DEVIATION),1816.406-70 (f),C,I,IBR,,,PCD 25-53,,A,,A,,A,,A,A,,A,A,,
+1852.216-88,Performance Incentive,APR 2015,1816.406-70(f),C,B,FT,X,X,,,O,,O,,,,,,,,,,A
+1852.216-89,Assignment and Release Forms,DEC 2025 (DEVIATION),1816.305-70(f),C,I,IBR,,,PCD 25-53,,A,,A,,A,,A,A,,A,A,,
 1852.216-90,Allowability of Legal Costs Incurrred in Connection with a Whistleblower Proceeding,JUL 2023,1816.305-70(g),C,I,IBR,,,,,A,,A,,A,,A,A,A,A,A,O,
 1852.217-71,Phased Acquisition Using Down-Selection Procedures,SEP 2025 (DEVIATION),1817.7002 (a),C,I,FT,X,X,PCD 25-35,,,,A,,,,,,,,,,
 1852.217-72,Phase Acquisition Using Progressive Competition Down-Selection Procedures,SEP 2025 (DEVIATION),1817.7002(b),C,I,FT,X,X,PCD 25-35,,,,A,,,,,,,,,,
@@ -36,9 +36,9 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.219-18,Notification of Competition Limited to Eligible 8 (a) Concerns,APR 2015,1819.108-70(d),C,I,FT,X,,PCD 15-35,,A,A,A,A,A,A,A,A,A,A,A,,
 1852.219-73,Small Business Subcontracting Plan,MAY 1999,1819.108-70(a),P,L,FT,X,,PPD 99-35,,A,A,A,A,A,A,A,A,,A,A,,A
 1852.219-75,Individual Subcontracting Reports,APR 2015,1819.108-70(b),C,I,IBR,,,PCD 15-35,,A,A,A,A,A,A,A,A,,A,A,,
-1952.219-77,NASA Small Business Supplier Development Program,FEB 2026 (DEVIATION),1819.7208,C,I,IBR,,,PCD 26-48A,,A,A,A,A,A,A,A,A,,A,A,,
+1852.219-77,NASA Small Business Supplier Development Program,FEB 2026 (DEVIATION),1819.7204(a),C,I,IBR,,,PCD 25-48A,,A,A,A,A,A,A,A,A,,A,A,,
 1852.219-79,Mentor Requirements and Evaluation,FEB 2026 (DEVIATION),1819.7208,C,I,IBR,,,PCD 26-48A,A,A,A,A,A,A,A,A,A,,A,A,A,
-1852.219-80,Limitation on Subcontracting -- SBIR Phase I Program,(OCT 2026),1819.7302(a),C,I,IBR,,,PCD 026-35,A,A,A,A,A,A,A,A,A,,A,A,A,
+1852.219-80,Limitation on Subcontracting -- SBIR Phase I Program,OCT 2006,1819.7302(a),C,I,IBR,,,PCD 026-35,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.219-81,Limitation on Subcontracting -- SBIR Phase II Program,(OCT 2006),1819.7302(b),C,I,IBR,,,PCD 006-35,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.219-82,Limitation on Subcontracting STTR Program,(OCT 2006),1819.7302(c ),C,I,IBR,,,PCD 006-35,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.219-83,Limitation of the Principal Investigator - SBIR Program,(OCT 2006),1819.7302(d),C,I,FT,X,,PCD 006-35,A,A,A,A,A,A,A,A,A,,A,A,A,
@@ -49,7 +49,7 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.225-71,Restriction on Funding Activity with China,DEC 2025 (DEVIATION),1825.7001-70(a),C,I,FT,,,PCD 25-54,R,R,R,R,R,R,R,R,R,R,R,R,R,
 1852.225-72,Restriction on Funding Activity with China - Representation,DEC 2025 (DEVIATION),1825.7001-70(b),P,K,FT,,,PCD 25-55,R,R,R,R,R,R,R,R,R,R,R,R,R,
 1852.225-73,Travel Outside of the United States,2026-02-01,1825.7101(a),C,G,IBR,,,PCD 26-54A,,,,A,,A,,A,A,,A,A,,
-1852.225-74,Emergency Medical Services and Evacuation,2026-02-01,1825.7101 (b),C,H,IBR,,,PCD 26-54A,A,A,A,A,A,A,A,A,A,,A,A,A,
+1852.225-74,Emergency Medical Services and Evacuation,FEB 2026,1825.7101(b),C,H,IBR,,,PCD 25-54A,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.226-70,Drug-and Alchohol-Free Workplace,2026-02-01,1826.570-2,C,I,IBR,,,PCD 26-17A,A,A,,A,A,A,A,A,A,A,A,A,,
 1852.226-71,Safety and Health Measures and Mishap Reporting,2026-02-01,1826.7001 (a),C,H,IBR,,,PCD 26-17A,,A,A,A,A,A,A,A,A,A,A,A,A,A
 1852.226-72,Safety and Health Plan,2026-02-01,1826.7001 (c),P,L,IBR,,,PCD 26-17A,A,A,A,A,A,A,A,A,A,A,A,A,A,A
@@ -72,7 +72,7 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.228-80,Insurance - Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(b),P,L,IBR,,,PCD 25-29,,,,R,,,,,,,,,,
 1852.228-81,Insurance - Partial Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(c ),C,I,IBR,,,PCD 25-29,,,,A,,,,,,,,,,
 1852.228-82,Insurance - Total Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(d),C,I,IBR,,,PCD 25-29,,,,A,,,,,,,,,,
-1852.231-70,Precontract Costs,AUG 2025 (DEVIATION),,C,I,FT,X,,PCD 25-12,,A,,A,,A,,A,A,,A,A,A,
+1852.231-70,Precontract Costs,AUG 2025 (DEVIATION),1831.205-70,C,I,FT,X,,PCD 25-12,,A,,A,,A,,A,A,,A,A,A,
 1852.232-70,NASA Modification of FAR 52.232-12,APR 2015,1832.412-70,C,I,FT,,,PCD 15-35,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.232-77,Limitation of Funds (Fixed Price Contract),MAR 1989,1832.706-270(a),C,H,FT,X,X,PCD 89-35,A,,A,,A,,A,,,,,,,
 1852.232-79,Payment for On-Site Preparatory Costs,SEP1987,1832.111-70,C,I,IBR,,,PCD 7-35,,,,,,,A,,,,,,,
@@ -101,7 +101,6 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.240-76,Security Requirements for Unclassified Information Technology Resources,JAN 2026 (DEVIATION),1840.303-2,C,I,IBR,,,PCD 26-03A,A,A,A,A,A,A,A,A,A,,A,A,A,A
 1852.242-72,Denied Access to NASA Facilities,DEC 2025 (DEVIATION),1842.7001,C,H,IBR,,,PCD 25-51,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.242-73,NASA Contractor Financial Management Reporting,DEC 2025 (DEVIATION),1842.7202,C,G,IBR,,,PCD 25-51,A,R,A,R,A,R,A,R,R,,A,R,,
-1852.242-78,Emergency Medical Services and Evacuation,DEC 2025 (DEVIATION),1842.7003,C,I,IBR,,,PCD 25-51,A,A,A,A,A,A,A,A,A,,A,A,A,
 1852.243-72,Equitable Adjustments,JUL 2025 (DEVIATION),1843.305-70,C,H,IBR,X,,PCD 25-07,,,,,,,O,,,,,,,
 1852.245-70,Contractor request for Government provided property,JULY 2026 (DEVIATION),1845.107-70(a)(1),C,G,IBR,,,PCD 25-36,,A,,A,,A,,A,A,,,,,
 1852.245-71,Installation - accountable Government property,DEC 2025 (DEVIATION),1845.107-70(b)(1),C,G,FT,,,PCD 25-36,A,A,A,A,A,A,A,A,A,A,,,,
