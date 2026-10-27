@@ -1,8 +1,8 @@
 Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or FT,Fill In,Mod or Sub,App Dev,Supply FP,Supply CR,R&D FP,R&D CR,Service FP,Service CR,Construction FP,Construction CR,Time & Material/ Labor Hour,Archetecture & Engineering,Idefinite Delivery,Transportation,Simplified Acquisition Procedures,Commercial Items
 1852.203-70,Display of Inspector General Hotline Posters,SEP 2025 (DEVIATION),1803.7001,C,I,IBR,,,PCD 25-34,A,A,A,A,A,A,A,A,A,A,A,A,,
-1852.203-71,Requirements to Inform Employees of Whistleblower Rights,SEP 2025 (DEVIATION),1803.97,C,I,IBR,,,PCD 25-34,R,R,R,R,R,R,R,R,R,R,R,R,R,
-1852.208-81,Restrictions on Printing and Duplicating,SEP 2025 (DEVIATION),1808.57,C,H,IBR,,,PCD 25-18,A,A,,A,A,A,,,A,,A,A,A,
-1852.208-82,Federal Automotive Statistical Tool Reporting,2026-03-01,1808.17,C,H,IBR,,,PCD 25-18A,,,,A,A,,,,A,,,A,,
+1852.203-71,Requirements to Inform Employees of Whistleblower Rights,SEP 2025 (DEVIATION),1803.970,C,I,IBR,,,PCD 25-34,R,R,R,R,R,R,R,R,R,R,R,R,R,
+1852.208-81,Restrictions on Printing and Duplicating,SEP 2025 (DEVIATION),1808.570,C,H,IBR,,,PCD 25-18,A,A,,A,A,A,,,A,,A,A,A,
+1852.208-82,Federal Automotive Statistical Tool Reporting,2026-03-01,1808.170,C,H,IBR,,,PCD 25-18A,,,,A,A,,,,A,,,A,,
 1852.209-71,Limitation of Future Contracting,DEC 1998,1809.507-2,C,H,FT,X,X,,O,O,O,O,O,O,O,O,O,,O,O,O,
 1852.214-70,Caution To Offerors Furnishing Descriptinve Literature,DEC 2025 (DEVIATION),1814.207-70 (a),P,L,IBR,,,PCD 25-39,A,,,,A,,A,,,,A,,,
 1852.214-71,Award Grouping,DEC 2025 (DEVIATION),1814.207-70 (b),P,M,FT,X,,PCD 25-39,A,O,,,A,O,A,,O,,A,A,,
@@ -19,9 +19,9 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.216-76,Award Fee for Service Contracts,DEC 2025 (DEVIATION),1816.406-70 (a),C,G,FT,,,PCD 25-53,,,A,A,A,A,,,A,A,A,,,
 1852.216-77,Award Fee for End Item Contracts,DEC 2025 (DEVIATION),1816.406-70 (b),C,G,FT,,,PCD 25-53,,A,A,A,,,A,A,,,A,,,
 1852.216-78,Firm Fixed Price,DEC 2025 (DEVIATION),1816.202-70,C,B,FT,,,PCD 25-53,,A,,A,,A,,A,,A,,,,
-1852.216-80,Task Ordering Procedure,DEC 2025 (DEVIATION),1816.506-70,C,I,FT,,,PCD 25-53,,A,A,A,A,A,A,A,,,A,A,,
-1852.216-80,Alternate 1,APR 2018,1816.506-70(a),C,I,FT,,,,,A,A,A,A,A,A,A,,,A,A,,AA
-1852.216-80,Alternate II,APR 2018,1816.506-70(b),C,I,FT,,,,A,,A,A,A,,A,,,,A,A,,
+1852.216-80,Task Ordering Procedure,DEC 2025 (DEVIATION),1816.505-70,C,I,FT,,,PCD 25-53,,A,A,A,A,A,A,A,,,A,A,,
+1852.216-80,Alternate 1,APR 2018,1816.505-70(a),C,I,FT,,,,,A,A,A,A,A,A,A,,,A,A,,AA
+1852.216-80,Alternate II,APR 2018,1816.505-70(b),C,I,FT,,,,A,,A,A,A,,A,,,,A,A,,
 1852.216-81,Estimated Cost,DEC 1988,1816.305-70(d),C,B,FT,X,,,,A,,A,,A,,A,A,,,,,
 1852.216-83,Fixed Price Incentive,OCT 1996,1816.406-70(c),C,B,FT,X,X,,O,,,,O,,O,,O,,,,O,
 1852.216-84,Estimated Cost and Incentive Fee,OCT 1996,1816.406-70 (d),C,B,FT,X,,,,O,,O,,O,,O,,,,,,
@@ -63,12 +63,12 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.227-84,Patent Rights Clauses,APR 2015,1827.303(a)(1),P,L,IBR,,,,,,A,A,A,A,A,A,A,,,,A,
 1852.227-85,Invention Reporting and Rights -- Foreign,JUN 2026 (DEVIATION),1827.303(e )(1),C,G,IBR,,,PCD 26-02A,,,,A,A,A,A,A,A,,,,A,
 1852.227-86,Commercial Computer Software,JUN 2026 (DEVIATION),1827.409(g),C,G,IBR,,,PCD 26-02A,A,A,A,A,A,A,A,A,A,,A,,A,
-1852.227-88,Government-furnished computter software and related technical data,APR 2015,1827.409(j),C,I,IBR,,,PCD 26-01,A,A,A,A,A,A,A,A,A,A,A,A,A,A
+1852.227-88,Government-furnished computter software and related technical data,APR 2015,1827.409(m),C,I,IBR,,,PCD 26-01,A,A,A,A,A,A,A,A,A,A,A,A,A,A
 1852.228-70,Aircraft Ground and Flight Risk,SEP 2025 (DEVIATION),1828.370(a),C,H,IBR,X,,PCD 25-29,,A,,A,,A,,,A,,A,A,A,
 1852.228-71,Aircraft Flight Risks,SEP 2025 (DEVIATION),1828.311-270(a),C,H,IBR,,,PCD 25-29,,A,,A,,A,,,A,,A,A,A,
 1852.228-75,Minimum Insurance Coverage,SEP 2025 (DEVIATION),1828.372,C,I,IBR,,X,PCD 25-29,O,O,O,O,O,O,O,O,O,,O,O,O,
-1852.228-76,Cross-Waiver of Liability for International Space Station Activities,SEP 2025 (DEVIATION),1828.370(c ),C,H,IBR,,,PCD 25-29,A,A,A,A,A,A,A,A,A,,A,A,A,A
-1852.228-78,Cross-Waiver of Liability for Science or Space Exploration Activities Unrelated to the International Space Station,SEP 2025 (DEVIATION),1828.370(b),C,H,IBR,,,PCD 25-29,A,A,A,A,A,A,A,A,A,,A,A,A,A
+1852.228-76,Cross-Waiver of Liability for International Space Station Activities,SEP 2025 (DEVIATION),1828.371(c),C,H,IBR,,,PCD 25-29,A,A,A,A,A,A,A,A,A,,A,A,A,A
+1852.228-78,Cross-Waiver of Liability for Science or Space Exploration Activities Unrelated to the International Space Station,SEP 2025 (DEVIATION),1828.371(b),C,H,IBR,,,PCD 25-29,A,A,A,A,A,A,A,A,A,,A,A,A,A
 1852.228-80,Insurance - Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(b),P,L,IBR,,,PCD 25-29,,,,R,,,,,,,,,,
 1852.228-81,Insurance - Partial Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(c ),C,I,IBR,,,PCD 25-29,,,,A,,,,,,,,,,
 1852.228-82,Insurance - Total Immunity from Tort Liability,SEP 2025 (DEVIATION),1828.311-270(d),C,I,IBR,,,PCD 25-29,,,,A,,,,,,,,,,
@@ -88,9 +88,9 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.235-72,Instructions for Responding to NASA Research Announcements,AUG 2025 (DEVIATION),1835.101-70(c),P,L,IBR,,,PCD 25-13,,,,A,A,A,A,A,A,,,,O,
 1852.235-73,Final Scientific and Technical Reports,SEP 2025 (DEVIATION),1835.101-70(d),C,H,IBR,,,PCD 25-13,,A,R,R,,,,,,,,,A,
 1852.235-74,Additional Reports of Work - Research and Development,SEP 2025 (DEVIATION),1835.101-70(e ),C,H,FT,X,X,PCD 25-13,,A,A,A,,,,,,,,,A,
-1852.236-71,Additive or Deductive Items,AUG 2025 (DEVIATION),1836.101-770(b),P,L,IBR,,,PCD 25-14,,,,,,,A,,,,,,,
-1852.236-72,Bids with Unit Prices,AUG 2025 (DEVIATION),1836.101-770(c),P,L,IBR,,,PCD 25-14,,,,,,,A,,,,,,,
-1852.236-73,Hurrican Plan,AUG 2025 (DEVIATION),1836.101-770(d),C,I,IBR,,,PCD 25-14,,,,,,,A,A,,,,,,
+1852.236-71,Additive or Deductive Items,AUG 2025 (DEVIATION),1836.101-770(l),P,L,IBR,,,PCD 25-14,,,,,,,A,,,,,,,
+1852.236-72,Bids with Unit Prices,AUG 2025 (DEVIATION),1836.101-770(m),P,L,IBR,,,PCD 25-14,,,,,,,A,,,,,,,
+1852.236-73,Hurrican Plan,AUG 2025 (DEVIATION),1836.101-770(n),C,I,IBR,,,PCD 25-14,,,,,,,A,A,,,,,,
 1852.236-75,Partnering for Construction Contracts,AUG 2025 (DEVIATION),1836.7004,C,H,FT,X,,PCD 25-14,,,,,,,O,O,,,,,,
 1852.237-70,Emergency Evacuation Procedures,DEC 2025 (DEVIATION),1837.802-71 (a),C,I,IBR,,,PCD 25-40,,,A,A,A,,A,A,A,,,A,,A
 1852.237-71,Pension Portability,DEC 2025 (DEVIATION),1837.802-71(b),C,I,IBR,,,PCD 25-40,,,,,A,A,,,,,,,,
@@ -116,9 +116,9 @@ Clause/Provision Number,Title,Date,Prescribed In,Provision or Clause,UCF,IBR or 
 1852.245-81,List of available Government property,DEC 2025 (DEVIATION),1845.107-70(l),P,L,FT,X,,PCD 25-36,A,A,A,A,A,A,A,A,A,A,,,A,
 1852.245-82,Occupancy management requirements,DEC 2025 (DEVIATION),1845.107-70(m),C,G,FT,X,,PCD 25-36,A,A,A,A,A,A,A,A,A,A,,,A,
 1852.245-83,Real property management information,DEC 2025 (DEVIATION),1845.107-70(n),C,G,FT,X,,PCD 25-36,A,A,,A,A,A,A,A,A,A,,,A,
-1852.246-71,Government Cotnract Quality Assurance,SEP 2025 (DEVIATION),1846.47,C,E,FT,X,X,PCD 25-26,O,O,O,O,O,O,O,O,O,,O,O,,
-1852.246-72,Material Inspection and Receiving Report,SEP 2025 (DEVIATION),1846.67,C,E,FT,X,X,PCD 25-26,A,A,A,A,A,A,A,A,A,,A,A,A,A
-1852.246-73,Human Space Flight Item,SEP 2025 (DEVIATION),1846.37,C,E,IBR,,,PCD 25-26,A,A,A,A,,,,,A,,A,,A,
+1852.246-71,Government Cotnract Quality Assurance,SEP 2025 (DEVIATION),1846.470,C,E,FT,X,X,PCD 25-26,O,O,O,O,O,O,O,O,O,,O,O,,
+1852.246-72,Material Inspection and Receiving Report,SEP 2025 (DEVIATION),1846.670,C,E,FT,X,X,PCD 25-26,A,A,A,A,A,A,A,A,A,,A,A,A,A
+1852.246-73,Human Space Flight Item,SEP 2025 (DEVIATION),1846.370,C,E,IBR,,,PCD 25-26,A,A,A,A,,,,,A,,A,,A,
 1852.246-74,Contractor Counterfeit Electronic Part Detection and Avoidance,SEP 2025 (DEVIATION),1846.7003,C,I,IBR,,,PCD 25-26,A,A,A,A,A,A,A,A,A,A,A,A,A,A
 1852.247-71,Protection of the Florida Manatee,JUN 2018,1847.7001,C,H,IBR,,,PCD 18-35,A,A,A,A,A,A,A,A,A,,A,A,A,A
 1852.247-72,Advance Notice of Shipment,OCT 1998,1847.305-70(a),C,F,FT,X,X,PCD 25-42,O,O,O,O,,,,,O,,O,,O,
