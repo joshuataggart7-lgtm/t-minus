@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { todayCT, addCalendarDays } from "@/lib/calendar-date";
-import { addDays } from "@/lib/deviations";
+import { addDays, daysBetween } from "@/lib/deviations";
 
 // Audit 2026-10-25, H4: "today" must be the America/Chicago date, not the UTC date.
 describe("H4 local dates", () => {
@@ -52,7 +52,15 @@ import { nf1787aExplanation } from "@/lib/nf1787";
 describe("L11 NF 1787A at $2M", () => {
   it("required only above $2M, recommended at exactly $2M", () => {
     expect(nf1787aExplanation(2_000_001)).toMatch(/required/);
+    expect(nf1787aExplanation(2_000_001)).not.toMatch(/not required/);
     expect(nf1787aExplanation(2_000_000)).toMatch(/recommended/);
     expect(nf1787aExplanation(1_999_999)).toMatch(/optional/);
+  });
+});
+
+describe("deviations daysBetween on the CT calendar", () => {
+  it("counts a YYYY-MM-DD target without a UTC shift", () => {
+    expect(daysBetween(new Date("2026-10-26T03:00:00Z"), "2026-10-27")).toBe(2);
+    expect(daysBetween("2026-10-25", "2026-10-25")).toBe(0);
   });
 });

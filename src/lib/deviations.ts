@@ -109,8 +109,11 @@ export type DeviationVoteRow = {
   voted_at: string | null;
 };
 
-export const daysBetween = (from: Date, to: Date) =>
-  Math.round((to.setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / 86_400_000);
+/** Calendar days between two America/Chicago dates. A Date is read on the CT clock; a YYYY-MM-DD string is used as is. */
+export const daysBetween = (from: Date | string, to: Date | string) => {
+  const iso = (d: Date | string) => (typeof d === "string" ? d.slice(0, 10) : todayCT(d));
+  return Math.round((Date.parse(`${iso(to)}T00:00:00Z`) - Date.parse(`${iso(from)}T00:00:00Z`)) / 86_400_000);
+};
 
 export function addDays(from: Date, days: number) {
   return addCalendarDays(todayCT(from), days);
@@ -119,7 +122,7 @@ export function addDays(from: Date, days: number) {
 /** Days to the decision date, and what the clock line should read. */
 export function deviationClock(row: DeviationRow) {
   const decided = Boolean(row.decided_at);
-  const days = row.target_decision_date ? daysBetween(new Date(), new Date(row.target_decision_date)) : null;
+  const days = row.target_decision_date ? daysBetween(new Date(), row.target_decision_date) : null;
   const state = decided
     ? row.decision === "approved"
       ? "Approved"
