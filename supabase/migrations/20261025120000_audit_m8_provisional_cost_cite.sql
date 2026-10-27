@@ -12,6 +12,6 @@ WHERE trigger_key = 'interagency' AND doc_key = 'provisional-cost-increase'
   AND citation = 'NFS 1832.704-71';
 
 UPDATE public.scenario_trigger_config
-SET citation = 'NFS 1832.704-71 (not found in NFS as of 9/15/2026, PCD 26-03B; verify)', updated_at = now()
+SET citation = 'NFS 1832.704-71 (not found in NFS as of 9/15/2026 per PCD 26-03B; verify)', updated_at = now()
 WHERE trigger_key = 'interagency' AND doc_key = 'provisional-cost-increase'
   AND citation = 'NFS 1832.704-71';
