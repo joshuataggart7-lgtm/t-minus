@@ -233,17 +233,35 @@ export async function loadSelfCheckSources(acquisitionIds: string[]): Promise<{
   templates: { template_id: string; name: string }[];
 }> {
   if (acquisitionIds.length === 0) return { documents: [], clins: [], templates: [] };
+  // Paged past the API row cap, so Today reads every saved version the file page reads.
+  const paged = async <T,>(table: "documents" | "acquisition_clins", columns: string, order: string): Promise<T[]> => {
+    const out: T[] = [];
+    for (let from = 0; from < 100000; ) {
+      const { data, error } = await supabase
+        .from(table)
+        .select(columns)
+        .in("acquisition_id", acquisitionIds)
+        .order(order, { ascending: true })
+        .range(from, from + 999);
+      if (error) throw new Error(error.message);
+      const rows = (data ?? []) as unknown as T[];
+      out.push(...rows);
+      if (rows.length === 0) break;
+      from += rows.length;
+    }
+    return out;
+  };
   const [docs, clins, templates] = await Promise.all([
-    supabase.from("documents").select("acquisition_id,template_id,version,field_values").in("acquisition_id", acquisitionIds),
-    supabase.from("acquisition_clins").select("acquisition_id,quantity,unit_of_issue,description").in("acquisition_id", acquisitionIds),
+    paged<{ acquisition_id: string | null; template_id: string | null; version: number | null; field_values: unknown }>(
+      "documents", "acquisition_id,template_id,version,field_values", "document_id"),
+    paged<{ acquisition_id: string; quantity: number | null; unit_of_issue: string | null; description: string }>(
+      "acquisition_clins", "acquisition_id,quantity,unit_of_issue,description", "clin_id"),
     supabase.from("templates").select("template_id,name"),
   ]);
-  if (docs.error) throw new Error(docs.error.message);
-  if (clins.error) throw new Error(clins.error.message);
   if (templates.error) throw new Error(templates.error.message);
   return {
-    documents: docs.data ?? [],
-    clins: (clins.data ?? []) as { acquisition_id: string; quantity: number | null; unit_of_issue: string | null; description: string }[],
+    documents: docs,
+    clins: clins as { acquisition_id: string; quantity: number | null; unit_of_issue: string | null; description: string }[],
     templates: templates.data ?? [],
   };
 }

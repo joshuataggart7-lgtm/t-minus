@@ -42,11 +42,12 @@ export function samePersonName(a: string | null | undefined, b: string | null | 
 export function checkoutTime(iso: string) {
   const d = new Date(iso);
   const time = d
-    .toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+    .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Chicago" })
     .replace("AM", "a.m.")
     .replace("PM", "p.m.");
-  const sameDay = new Date().toDateString() === d.toDateString();
-  return sameDay ? time : `${d.toLocaleDateString()} ${time}`;
+  const dayOf = (x: Date) => x.toLocaleDateString("en-US", { timeZone: "America/Chicago" });
+  const sameDay = dayOf(new Date()) === dayOf(d);
+  return `${sameDay ? time : `${dayOf(d)} ${time}`} CT`;
 }
 
 async function logCheckout(

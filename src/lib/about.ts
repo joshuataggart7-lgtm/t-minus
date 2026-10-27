@@ -1,3 +1,4 @@
+import { stampCT } from "@/lib/calendar-date";
 import buildNotes from "../../BUILD_NOTES.md?raw";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -109,7 +110,7 @@ export function buildStamp(): string {
   const raw = typeof __BUILD_STAMP__ === "string" ? __BUILD_STAMP__ : "";
   if (!raw) return "not recorded";
   const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? raw : d.toUTCString().replace("GMT", "UTC");
+  return Number.isNaN(d.getTime()) ? raw : stampCT(raw);
 }
 
 /** Newest first by parsed effective_date; rows whose date does not parse go last. */

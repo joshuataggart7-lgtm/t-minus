@@ -71,3 +71,18 @@ export function calendarDaysBetween(fromISO: string, toISO: string): number {
 export function addCalendarDays(iso: string, days: number): string {
   return civilFromDays(parseISODate(iso) + Math.trunc(days));
 }
+
+/** A timestamp as a Central time date and time, labeled CT. Never "Invalid Date". */
+export function stampCT(value: string | null | undefined): string {
+  if (!value) return "no date";
+  const when = new Date(value);
+  if (Number.isNaN(when.getTime())) return "no date";
+  return when.toLocaleString("en-US", {
+    timeZone: "America/Chicago",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }) + " CT";
+}
