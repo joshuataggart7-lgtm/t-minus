@@ -92,7 +92,9 @@ export async function loadAboutData() {
   if (refs.error) throw new Error(refs.error.message);
   return {
     templates: (tpl.data ?? []) as unknown as TemplateRow[],
-    refs: (refs.data ?? []) as unknown as RefRow[],
+    // Audit LA14: effective_date is text ("September 30, 2025"), so the database
+    // order is alphabetical. Sort by the parsed date, newest first, undated last.
+    refs: sortRefsNewestFirst((refs.data ?? []) as unknown as RefRow[]),
   };
 }
 
@@ -108,4 +110,13 @@ export function buildStamp(): string {
   if (!raw) return "not recorded";
   const d = new Date(raw);
   return Number.isNaN(d.getTime()) ? raw : d.toUTCString().replace("GMT", "UTC");
+}
+
+/** Newest first by parsed effective_date; rows whose date does not parse go last. */
+export function sortRefsNewestFirst<T extends { effective_date: string | null }>(rows: T[]): T[] {
+  const t = (r: T) => {
+    const n = r.effective_date ? Date.parse(r.effective_date) : NaN;
+    return Number.isNaN(n) ? -Infinity : n;
+  };
+  return [...rows].sort((a, b) => t(b) - t(a));
 }

@@ -35,3 +35,15 @@ describe("option notice cite", () => {
     expect(hasOptionClause(null)).toBe(false);
   });
 });
+
+import { presolNotRequired } from "@/lib/template-engine";
+describe("LA17 presolicitation not required at or below $20,000", () => {
+  it("flags $8,500 and passes $25,000 and blank", () => {
+    expect(presolNotRequired({ estimated_value: "$8,500" })).toBe(true);
+    expect(presolNotRequired({ estimated_value: "25000" })).toBe(false);
+    expect(presolNotRequired({})).toBe(false);
+    expect(presolNotRequired({ estimated_value: "TBD" })).toBe(false);
+    expect(presolNotRequired({ estimated_value: "$1.2M" })).toBe(false);
+    expect(presolNotRequired({ estimated_value: "$20,000.00" })).toBe(true);
+  });
+});
