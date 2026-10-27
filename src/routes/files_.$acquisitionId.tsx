@@ -493,7 +493,7 @@ function FilePageInner() {
           .select("center_code,aging_threshold_days"),
         supabase.from("center_overrides").select("*"),
         supabase
-          .from("users")
+          .from("staff_directory")
           .select("name,role,title,center_code,warrant_limit"),
         supabase
           .from("acquisition_facts")
@@ -1444,7 +1444,7 @@ function FilePageInner() {
               badge: hasTargetAward ? (days < 0 ? "OVERDUE" : null) : "FORECAST",
               caption: days < 0
                 ? hasTargetAward ? `target ${formatDate(effectiveTargetAward)}` : "days past the forecast award date"
-                : hasTargetAward ? "days to the target award date" : "days to forecast award. No target date on file.",
+                : hasTargetAward ? "days to the target award date" : "days to the forecast award date. No target award date is recorded, so the forecast is shown.",
               holdReason: null,
               tone: hasTargetAward && days < 0 ? "red" : "cyan",
               pastTarget: days < 0,
@@ -2635,7 +2635,7 @@ function FilePageInner() {
         id: "reviews-approvals",
         label: "Reviews and approvals",
         group: FILE_TAB_LABEL.reviews,
-        badge: pendingReviewCount > 0 ? { tone: "watch" as const, text: `${pendingReviewCount} pending` } : null,
+        badge: pendingReviewCount > 0 ? { tone: "watch" as const, text: `${pendingReviewCount} required pending` } : null,
       },
       {
         id: "companion-gates",
@@ -2666,7 +2666,7 @@ function FilePageInner() {
 
   const fileTabBadges: Partial<Record<FileTabKey, string>> = {
     ...(selfCheck.length > 0 ? { overview: String(selfCheck.length) } : {}),
-    ...(pendingReviewCount > 0 ? { reviews: `${pendingReviewCount} pending` } : {}),
+    ...(pendingReviewCount > 0 ? { reviews: `${pendingReviewCount} required pending` } : {}),
     ...(fileIndex.missing.length > 0 ? { documents: `${fileIndex.missing.length} missing` } : {}),
     ...((q.data?.auditCount ?? 0) > 0 ? { audit: String(q.data?.auditCount ?? 0) } : {}),
   };
