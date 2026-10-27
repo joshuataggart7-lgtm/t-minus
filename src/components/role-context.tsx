@@ -214,17 +214,23 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       return true;
     };
     void (async () => {
-      if (await load()) {
+      if (await load().catch(() => false)) {
         if (!cancelled) setProfileFor(userId);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, 1200));
       if (cancelled) return;
-      if (!(await load()) && !cancelled) {
-        setAuthMessage("Your profile did not load. Sign out and back in to try again.");
+      const second = await load().catch(() => false);
+      if (cancelled) return;
+      if (second) {
+        setProfileFor(userId);
+        return;
       }
-      if (!cancelled) setProfileFor(userId);
-    })();
+      // Stay on the session screen (with Reload) rather than render default roles.
+      setAuthMessage("Your profile did not load. Sign out and back in to try again.");
+    })().catch(() => {
+      if (!cancelled) setAuthMessage("Your profile did not load. Sign out and back in to try again.");
+    });
     return () => {
       cancelled = true;
     };
@@ -298,7 +304,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
   return (
     <RoleContext.Provider value={value}>
       {!ready || (isAnonymous && !personaRestored) || (session && !isAnonymous && profileFor !== userId) ? (
-        <SessionStatus slow={slow && !ready} />
+        <SessionStatus slow={(slow && !ready) || (!!authMessage && !!session && !isAnonymous && profileFor !== userId)} />
       ) : !session ? (
         <AuthScreen />
       ) : (

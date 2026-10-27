@@ -3306,3 +3306,7 @@ Rule text as quoted by the owner from the live RFO FAR and NFS Companion Guide. 
 - LA14: 78 "[fill from template header]" governing citations set to NULL (backup templates_bak_20261027). Loaders trim before matching the stub.
 - LA15: 3 unrelated Federal Register rows removed (backup watch_items_bak_20261027). The acronym test (FAR, DFARS, NFS, GSAR) is now case-sensitive so "thus far" does not count. Rechecked live: no other row is affected.
 - LA17: presolicitation modes stay selectable at or below $20,000 with a warning. RFO FAR 5.101(a): "For proposed contract actions expected to be greater than $20,000, post a presolicitation notice to the GPE unless an exemption in paragraph (b) applies." `presolNotRequired` now reads plain amounts only; "TBD", "$1.2M" and "15K" count as unknown.
+
+## Oct 27, 2026 round 4
+- Dropped the 5 Oct 14 leftover tables after exporting them to backups/db_20261027/oct14_tables (outside the repo).
+- Fixed 15 nfs_clause_matrix prescription cites against the Sept 15, 2026 NFS. Live backup table: nfs_clause_matrix_bak_20261027r4.

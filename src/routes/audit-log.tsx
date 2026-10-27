@@ -197,8 +197,8 @@ function AuditLogPage() {
       {q.data ? (
         <div className="mc-pa-stats mb-6">
           <div className="is-info"><strong data-numeric>{filtering && filteredTotal !== null ? filteredTotal : filtered.length}</strong><span>{(filtering && filteredTotal !== null ? filteredTotal : filtered.length) === 1 ? "Entry" : "Entries"}{filtering ? (filteredTotal !== null && filteredTotal > filtered.length ? ` for this filter, the newest ${filtered.length.toLocaleString("en-US")} shown` : " for this filter") : totalQ.data != null && totalQ.data > (q.data?.length ?? 0) ? ` shown, the newest of ${totalQ.data.toLocaleString("en-US")} recorded` : " recorded"}</span></div>
-          <div><strong data-numeric>{groups.filter(([id]) => id !== "No acquisition").length}</strong><span>Acquisitions with activity</span></div>
-          <div><strong data-numeric>{filteredActors}</strong><span>People and services acting</span></div>
+          <div><strong data-numeric>{groups.filter(([id]) => id !== "No acquisition").length}</strong><span>Acquisitions with activity{(filtering ? filteredTotal !== null && filteredTotal > filtered.length : totalQ.data != null && totalQ.data > (q.data?.length ?? 0)) ? " in the entries shown" : ""}</span></div>
+          <div><strong data-numeric>{filteredActors}</strong><span>People and services acting{(filtering ? filteredTotal !== null && filteredTotal > filtered.length : totalQ.data != null && totalQ.data > (q.data?.length ?? 0)) ? " in the entries shown" : ""}</span></div>
         </div>
       ) : null}
 
@@ -243,11 +243,15 @@ function AuditLogPage() {
 
       {q.isLoading ? <LoadingNote what="the log" /> : null}
 
+      {filtering && filteredQ.isError ? (
+        <ErrorNote message="This filter did not load. Refresh the page or clear the filter." />
+      ) : null}
+
       {q.isError ? (
         <ErrorNote message="The log did not load. Refresh the page; if it fails again, switch roles in the header to sign in as a seeded user." />
       ) : null}
 
-      {!q.isLoading && !q.isError && !(filtering && filteredQ.isLoading) && !groups.length ? (
+      {!q.isLoading && !q.isError && !(filtering && (filteredQ.isLoading || filteredQ.isError)) && !groups.length ? (
         <EmptyState
           sentence="Nothing is recorded yet for this filter."
           action={
