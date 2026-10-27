@@ -1,3 +1,4 @@
+import { formatStamp } from "@/lib/metrics";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicScorecard, VALUE_FLOOR, CELL_FLOOR } from "@/lib/scorecard.functions";
@@ -159,7 +160,7 @@ function ScorecardPage() {
       </section>
 
       <p className="mt-10 text-[13px] leading-[18px] text-muted-foreground" data-numeric>
-        Generated {new Date(s.generatedAt).toISOString().slice(0, 16).replace("T", " ")} UTC.
+        Generated {formatStamp(s.generatedAt)}.
       </p>
     </Frame>
   );

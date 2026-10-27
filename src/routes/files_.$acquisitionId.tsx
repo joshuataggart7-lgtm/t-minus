@@ -307,7 +307,7 @@ function statusColor(state: string | null | undefined) {
 
 /* The launch sequence phase line. Plain wording built only from the phase row's
  * own figures: days worked so far, the planned days, and the phase name. */
-function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "planned_days">) {
+function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "planned_days" | "actual_estimated">) {
   const dayWord = (n: number) => (n === 1 ? "day" : "days");
   const planned = p.planned_days;
   const actual = p.actual_days;
@@ -320,6 +320,9 @@ function phaseDayLine(p: Pick<PhaseView, "phase" | "status" | "actual_days" | "p
   if (p.status === "complete") {
     const note = actual > planned ? `${diff} over` : actual < planned ? `${diff} under` : "on plan";
     return `Took ${actual} ${dayWord(actual)}, ${planned} planned (${note})`;
+  }
+  if (p.status === "current" && p.actual_estimated) {
+    return `No start date recorded for ${phaseLabel(p)}, ${planned} planned ${dayWord(planned)}`;
   }
   if (p.status === "current") {
     const over = phaseOverrunDays(p);
@@ -1281,7 +1284,7 @@ function FilePageInner() {
   // "Explain this" for the status and the hold, built from the same rules.
   const statusExplanation = useMemo(() => {
     const behind = phases.find(
-      (p) => p.status === "current" && p.actual_days !== null && p.actual_days > p.planned_days,
+      (p) => p.status === "current" && p.actual_days !== null && !p.actual_estimated && p.actual_days > p.planned_days,
     );
     const soon = board.find(
       (b) => b.vote === "pending" && b.due_date && daysBetween(todayISO(), b.due_date) <= 3,
@@ -2583,9 +2586,10 @@ function FilePageInner() {
 
   const selfCheck = useMemo(() => {
     if (!acq) return [];
+    // Same inputs as the Today page (lifecycle metrics), so the two counts agree.
     return fileSelfCheck({
-      acq,
-      phases,
+      acq: lifecycle?.acq ?? acq,
+      phases: lifecycle?.phases ?? phases,
       attachedKeys: keysFrom(attachments),
       savedKeys,
       documents: checkDocsFrom(q.data?.documents ?? [], q.data?.templates ?? []),
@@ -2595,7 +2599,7 @@ function FilePageInner() {
         description: line.description,
       })),
     });
-  }, [acq, phases, attachments, savedKeys, q.data?.documents, q.data?.templates, clinQ.data]);
+  }, [acq, lifecycle, phases, attachments, savedKeys, q.data?.documents, q.data?.templates, clinQ.data]);
 
   const missionNavItems = useMemo<MissionNavItem[]>(() => {
     const phaseOpenCount = missingCurrentRequirements.length + pendingCurrentReviews.length;
@@ -5433,7 +5437,7 @@ function FilePageInner() {
             <tbody>
               {auditRows.map((row) => (
                 <tr key={row.log_id} className="border-b border-border align-top">
-                  <td className="p-2">{new Date(row.logged_at).toLocaleString()}</td>
+                  <td className="p-2">{formatStamp(row.logged_at)}</td>
                   <td className="p-2">{row.actor}</td>
                   <td className="p-2" title={storedAs(row.action, auditActionLabel(row.action))}>{auditActionLabel(row.action)}</td>
                   <td className="p-2" title={storedAs(row.field, auditFieldLabel(row.field))}>{auditFieldLabel(row.field)}</td>

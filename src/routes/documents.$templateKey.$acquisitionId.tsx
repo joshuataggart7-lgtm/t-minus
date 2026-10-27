@@ -1,6 +1,6 @@
 import { writeAudit } from "@/lib/audit";
 import { receiptsSizeStandard } from "@/lib/size-standard";
-import { formatDate } from "@/lib/metrics";
+import { formatDate, formatStamp } from "@/lib/metrics";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
@@ -1915,7 +1915,7 @@ function DocumentPageInner() {
     const meta = aiMeta[f.key];
     const lines: string[] = [];
     if (meta) {
-      lines.push(`AI draft written by ${meta.model} on ${new Date(meta.generatedAt).toLocaleString()}.`);
+      lines.push(`AI draft written by ${meta.model} on ${formatStamp(meta.generatedAt)}.`);
       lines.push(`Template revision: ${meta.templateRevision} · Item: ${meta.templateItem}`);
       lines.push(`Template instruction used: ${meta.templateText}`);
       lines.push(`Record fields used: ${meta.recordFields.map((r) => `${r.field} = ${r.value}`).join("; ")}`);
@@ -3111,11 +3111,11 @@ function DocumentPageInner() {
                   <p>Saved from the live acquisition record.</p>
                   <p className="mt-1">
                     Model: {latest.ai_model ?? "Not recorded"} · Generated:{" "}
-                    {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "Not recorded"}
+                    {latest.ai_generated_at ? formatStamp(latest.ai_generated_at) : "Not recorded"}
                   </p>
                   <p className="mt-1">
                     Reviewed by: {latest.reviewed_by ?? "Not recorded"} · Reviewed at:{" "}
-                    {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "Not recorded"}
+                    {latest.reviewed_at ? formatStamp(latest.reviewed_at) : "Not recorded"}
                   </p>
                   {canWrite && !latest.reviewed_by ? (
                     <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => markReviewed.mutate()} disabled={markReviewed.isPending}>
@@ -3329,7 +3329,7 @@ function DocumentPageInner() {
             {q.data.comments.map((c) => (
               <li key={c.comment_id} className="border-b border-border p-3 last:border-0">
                 <p className="text-[13px] text-muted-foreground">
-                  {c.author ?? "Author not recorded"} · {new Date(c.created_at).toLocaleString()}
+                  {c.author ?? "Author not recorded"} · {formatStamp(c.created_at)}
                 </p>
                 <p className="text-[15px] leading-[22px]">{c.body}</p>
               </li>
@@ -3394,7 +3394,7 @@ function DocumentPageInner() {
                     {v.version}
                   </td>
                   <td className="px-3 py-2">{v.saved_by ?? "Not recorded"}</td>
-                  <td className="px-3 py-2">{v.saved_at ? new Date(v.saved_at).toLocaleString() : "Not recorded"}</td>
+                  <td className="px-3 py-2">{v.saved_at ? formatStamp(v.saved_at) : "Not recorded"}</td>
                 </tr>
               ))}
             </tbody>

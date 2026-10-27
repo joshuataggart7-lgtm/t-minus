@@ -1,3 +1,4 @@
+import { formatStamp } from "@/lib/metrics";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -166,7 +167,7 @@ function SeedStatus() {
           <p className="mt-2 text-[13px] text-muted-foreground">
             Last reset:{" "}
             <span data-numeric>
-              {lastReset.data ? new Date(lastReset.data).toLocaleString() : "not reset yet"}
+              {lastReset.data ? formatStamp(lastReset.data) : "not reset yet"}
             </span>
           </p>
           {confirming ? (
