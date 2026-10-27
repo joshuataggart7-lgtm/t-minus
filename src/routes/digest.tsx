@@ -13,7 +13,7 @@ import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys, withResolvedHolds } from "@/lib/hold";
-import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
+import { computeMetrics, holdSince, type AcqMetrics, type MissionRow, formatStamp } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
 import { executiveBlocker } from "@/lib/executive-wording";
@@ -202,7 +202,7 @@ function DigestPage() {
       {digest ? (
         <>
           <p className="text-[15px] leading-[22px] text-muted-foreground" data-numeric>
-            Week of {digest.weekStart} through {digest.weekEnd}. Generated {new Date(digest.generatedAt).toLocaleString()}.{" "}
+            Week of {digest.weekStart} through {digest.weekEnd}. Generated {formatStamp(digest.generatedAt)}.{" "}
             <Link to="/" className="text-primary underline">Compare with the Acquisitions tab</Link>
           </p>
           {msg ? <p role="status" className="mt-3 max-w-[80ch] text-[15px]">{msg}</p> : null}
