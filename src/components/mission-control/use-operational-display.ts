@@ -23,7 +23,7 @@ export function useOperationalDisplay(enabled: boolean) {
         supabase.from("review_rules").select("*"),
         supabase.from("polls").select("*"),
         loadStateAuditRows(),
-        supabase.from("users").select("name,title,center_code"),
+        supabase.from("staff_directory").select("name,title,center_code"),
         loadAttachmentKeyRows(),
         loadDocumentKeyRows(),
         supabase.from("templates").select("template_id,name"),

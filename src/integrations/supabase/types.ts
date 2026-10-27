@@ -3979,6 +3979,20 @@ export type Database = {
       }
     }
     Views: {
+      staff_directory: {
+        Row: {
+          branch_code: string | null
+          center_code: string | null
+          created_at: string
+          name: string
+          role: string
+          supervisor_name: string
+          title: string | null
+          user_id: string
+          warrant_limit: number | null
+        }
+        Relationships: []
+      }
       v_report_acquisitions: {
         Row: {
           acquisition_id: string | null
