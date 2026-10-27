@@ -1,3 +1,4 @@
+import { formatStamp } from "@/lib/metrics";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -71,7 +72,7 @@ export function ExclusionsSweepPanel() {
     }
   };
 
-  const stamp = last.data?.logged_at ? new Date(last.data.logged_at).toLocaleString() : null;
+  const stamp = last.data?.logged_at ? formatStamp(last.data.logged_at) : null;
 
   return (
     <section className="mc-kpanel mt-10 w-full [&_p]:max-w-[80ch]" aria-labelledby="exclusions-sweep-heading">

@@ -6,6 +6,7 @@
  * and always shows its sources with their tier.
  */
 
+import { formatStamp } from "@/lib/metrics";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
@@ -120,7 +121,7 @@ export function AskTMinus() {
                 ))}
               </ul>
               <p className="mt-3 text-[13px] text-muted-foreground" data-numeric>
-                Drafted by {result.model} on {new Date(result.answeredAt).toLocaleString()}.
+                Drafted by {result.model} on {formatStamp(result.answeredAt)}.
               </p>
             </div>
           ) : null}
