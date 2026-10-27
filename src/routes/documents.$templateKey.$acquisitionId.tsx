@@ -1690,7 +1690,7 @@ function DocumentPageInner() {
       : chromeCountdown && chromeCountdown.mode === "hold" && chromeCountdown.days !== null
         ? countdownText(chromeCountdown)
         : daysToAward === null && chromeCountdown?.mode === "forecast" && chromeCountdown.days !== null
-          ? `${chromeCountdown.days} ${dayWord(chromeCountdown.days)} to forecast award. No target date on file.`
+          ? `${chromeCountdown.days} ${dayWord(chromeCountdown.days)} to the forecast award date. No target award date is recorded, so the forecast is shown.`
         : daysToAward === null
           ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
           : daysToAward < 0

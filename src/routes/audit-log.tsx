@@ -48,6 +48,8 @@ type LogRow = {
   logged_at: string;
 };
 
+const AUDIT_LOG_PAGE = 1000;
+
 /** Each file's timeline opens on its latest entries; the rest are one click away. */
 const AUDIT_GROUP_TOP = 10;
 
@@ -57,6 +59,17 @@ function AuditLogPage() {
   const [actor, setActor] = useState("");
   const [phase, setPhase] = useState("");
 
+  // Audit LA13: the page loads the newest AUDIT_LOG_PAGE rows; say so when
+  // more exist instead of presenting the cap as the total.
+  const totalQ = useQuery({
+    queryKey: ["audit-log-total"],
+    enabled: authState === "signed-in",
+    queryFn: async () => {
+      const { count } = await supabase.from("audit_log").select("*", { count: "exact", head: true });
+      return count ?? null;
+    },
+  });
+
   const q = useQuery({
     queryKey: ["audit-log"],
     enabled: authState === "signed-in",
@@ -65,7 +78,7 @@ function AuditLogPage() {
         .from("audit_log")
         .select("*")
         .order("logged_at", { ascending: false })
-        .limit(1000);
+        .limit(AUDIT_LOG_PAGE);
       if (error) throw new Error(error.message);
       return (data ?? []) as LogRow[];
     },
@@ -134,7 +147,7 @@ function AuditLogPage() {
 
       {q.data ? (
         <div className="mc-pa-stats mb-6">
-          <div className="is-info"><strong data-numeric>{filtered.length}</strong><span>{filtered.length === 1 ? "Entry" : "Entries"}{actor || phase ? " for this filter" : " recorded"}</span></div>
+          <div className="is-info"><strong data-numeric>{filtered.length}</strong><span>{filtered.length === 1 ? "Entry" : "Entries"}{actor || phase ? " for this filter" : totalQ.data != null && totalQ.data > (q.data?.length ?? 0) ? ` shown, the newest of ${totalQ.data.toLocaleString("en-US")} recorded` : " recorded"}</span></div>
           <div><strong data-numeric>{groups.filter(([id]) => id !== "No acquisition").length}</strong><span>Acquisitions with activity</span></div>
           <div><strong data-numeric>{filteredActors}</strong><span>People and services acting</span></div>
         </div>

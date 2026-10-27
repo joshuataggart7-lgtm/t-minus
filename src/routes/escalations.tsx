@@ -1,3 +1,4 @@
+import { loadStaffWithSupervisorContact } from "@/lib/staff-directory";
 import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -56,7 +57,7 @@ function EscalationsPage() {
         supabase.from("acquisition_facts").select("*"),
         supabase.from("polls").select("*"),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days").order("center_code"),
-        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
+        loadStaffWithSupervisorContact(),
       ]);
       const [plan, attachments] = await Promise.all([
         supabase.from("phase_plan").select("acquisition_type,phase,planned_days,order,note"),

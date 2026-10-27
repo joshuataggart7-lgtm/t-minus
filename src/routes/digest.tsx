@@ -1,3 +1,4 @@
+import { loadStaffWithSupervisorContact } from "@/lib/staff-directory";
 import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -58,7 +59,7 @@ function DigestPage() {
         supabase.from("polls").select("*"),
         loadStateAuditRows(),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
-        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
+        loadStaffWithSupervisorContact(),
         loadLaunchEvents(),
       ]);
       const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
