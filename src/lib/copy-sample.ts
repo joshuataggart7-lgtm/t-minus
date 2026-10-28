@@ -9,6 +9,7 @@ import { DEMO_READ_ONLY_NOTE, isDemoSession } from "@/lib/demo-guard";
 import { writeAudit } from "@/lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { signedInName } from "@/lib/account-name";
+import { todayCT } from "@/lib/calendar-date";
 
 /** Intake facts only. Vendor, award, hold and post-award fields never copy. */
 const INTAKE_FIELDS = [
@@ -105,7 +106,7 @@ export async function copyAsNewSample(sourceId: string, actorFallback: string): 
   facts["hold_reason"] = null;
   facts["hold_owner"] = null;
   facts["hold_started_at"] = null;
-  facts["regulatory_baseline_date"] = new Date().toISOString().slice(0, 10);
+  facts["regulatory_baseline_date"] = todayCT();
   facts["is_seed"] = false;
   facts["is_package_complete"] = false;
   facts["source_tag"] = `Copy of ${sourceId}`;

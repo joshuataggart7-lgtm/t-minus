@@ -1,6 +1,6 @@
 import { writeAudit } from "@/lib/audit";
 import { receiptsSizeStandard } from "@/lib/size-standard";
-import { formatDate } from "@/lib/metrics";
+import { formatDate, formatStamp } from "@/lib/metrics";
 import { phaseAlias, storedPhaseNames } from "@/lib/phase-alias";
 import { DECISION_LABEL, REVIEW_KIND_LABEL, decisionAudit, decisionOptions, decisionOutcome, type ReviewDecision } from "@/lib/review-decisions";
 import { ReviewDecisionFields, rationaleMissing } from "@/components/review-decision-fields";
@@ -147,12 +147,14 @@ import {
   memoDefaultFor,
   AGENCY_LINE,
   INSIGNIA_URL,
+  SHOW_AGENCY_INSIGNIA,
   type MemoHeader,
   type MemoRoutingRow,
 } from "@/lib/nf1858";
 import { dayWord } from "@/lib/pluralize";
 import { AdvisoryTag } from "@/components/advisory-tag";
 import { DetailsList, DetailsSection, WithDetailsPanel } from "@/components/ui-mc";
+import { todayCT } from "@/lib/calendar-date";
 
 export const Route = createFileRoute("/documents/$templateKey/$acquisitionId")({
   // An unsuccessful-offeror letter can be opened straight onto one quoter on
@@ -710,7 +712,7 @@ function DocumentPageInner() {
         decision: choice,
         reviewerName: user.name,
         reviewerRole: mySeat.reviewer_role,
-        date: new Date().toISOString().slice(0, 10),
+        date: todayCT(),
         rationale: reason ?? `${def?.name ?? "document"} reviewed`,
         previousRaw: mySeat.decision,
         previousReason: mySeat.reason,
@@ -1688,7 +1690,7 @@ function DocumentPageInner() {
       : chromeCountdown && chromeCountdown.mode === "hold" && chromeCountdown.days !== null
         ? countdownText(chromeCountdown)
         : daysToAward === null && chromeCountdown?.mode === "forecast" && chromeCountdown.days !== null
-          ? `${chromeCountdown.days} ${dayWord(chromeCountdown.days)} to forecast award. No target date on file.`
+          ? `${chromeCountdown.days} ${dayWord(chromeCountdown.days)} to the forecast award date. No target award date is recorded, so the forecast is shown.`
         : daysToAward === null
           ? `Target award date: ${ANTICIPATED_AWARD_TBD}. ${ANTICIPATED_AWARD_TBD_NOTE}`
           : daysToAward < 0
@@ -1913,7 +1915,7 @@ function DocumentPageInner() {
     const meta = aiMeta[f.key];
     const lines: string[] = [];
     if (meta) {
-      lines.push(`AI draft written by ${meta.model} on ${new Date(meta.generatedAt).toLocaleString()}.`);
+      lines.push(`AI draft written by ${meta.model} on ${formatStamp(meta.generatedAt)}.`);
       lines.push(`Template revision: ${meta.templateRevision} · Item: ${meta.templateItem}`);
       lines.push(`Template instruction used: ${meta.templateText}`);
       lines.push(`Record fields used: ${meta.recordFields.map((r) => `${r.field} = ${r.value}`).join("; ")}`);
@@ -2840,7 +2842,7 @@ function DocumentPageInner() {
           {memoOn && memoHeader ? (
             <div className="relative mt-4 max-w-[80ch]">
               {/* Laid out like the NF 1858 head: insignia top right as on the HQ master, agency, Center and address, then date and Reply to Attn of. */}
-              <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} className="float-right ml-3 mb-2 h-[72px] w-[78px]" />
+              {SHOW_AGENCY_INSIGNIA ? <img src={INSIGNIA_URL} alt="NASA insignia" width={78} height={72} className="float-right ml-3 mb-2 h-[72px] w-[78px]" /> : null}
               <p className="mb-0 text-[13px] font-semibold">{AGENCY_LINE}</p>
               <p className="mb-3 text-[13px] text-muted-foreground">
                 {memoHeader.centerName}
@@ -3109,11 +3111,11 @@ function DocumentPageInner() {
                   <p>Saved from the live acquisition record.</p>
                   <p className="mt-1">
                     Model: {latest.ai_model ?? "Not recorded"} · Generated:{" "}
-                    {latest.ai_generated_at ? new Date(latest.ai_generated_at).toLocaleString() : "Not recorded"}
+                    {latest.ai_generated_at ? formatStamp(latest.ai_generated_at) : "Not recorded"}
                   </p>
                   <p className="mt-1">
                     Reviewed by: {latest.reviewed_by ?? "Not recorded"} · Reviewed at:{" "}
-                    {latest.reviewed_at ? new Date(latest.reviewed_at).toLocaleString() : "Not recorded"}
+                    {latest.reviewed_at ? formatStamp(latest.reviewed_at) : "Not recorded"}
                   </p>
                   {canWrite && !latest.reviewed_by ? (
                     <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => markReviewed.mutate()} disabled={markReviewed.isPending}>
@@ -3327,7 +3329,7 @@ function DocumentPageInner() {
             {q.data.comments.map((c) => (
               <li key={c.comment_id} className="border-b border-border p-3 last:border-0">
                 <p className="text-[13px] text-muted-foreground">
-                  {c.author ?? "Author not recorded"} · {new Date(c.created_at).toLocaleString()}
+                  {c.author ?? "Author not recorded"} · {formatStamp(c.created_at)}
                 </p>
                 <p className="text-[15px] leading-[22px]">{c.body}</p>
               </li>
@@ -3392,7 +3394,7 @@ function DocumentPageInner() {
                     {v.version}
                   </td>
                   <td className="px-3 py-2">{v.saved_by ?? "Not recorded"}</td>
-                  <td className="px-3 py-2">{v.saved_at ? new Date(v.saved_at).toLocaleString() : "Not recorded"}</td>
+                  <td className="px-3 py-2">{v.saved_at ? formatStamp(v.saved_at) : "Not recorded"}</td>
                 </tr>
               ))}
             </tbody>

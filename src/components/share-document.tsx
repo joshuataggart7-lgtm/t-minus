@@ -5,6 +5,7 @@
  * email, good for seven days, revocable at any time by the issuing office.
  */
 
+import { formatStamp } from "@/lib/metrics";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { TableScrollRegion } from "@/components/table-scroll-region";
 import { useServerFn } from "@tanstack/react-start";
@@ -185,7 +186,7 @@ export function ShareDocument({
                   <td className="px-3 py-2" data-numeric>
                     {r.open_count}
                     {r.last_opened_at ? (
-                      <span className="block text-muted-foreground">{new Date(r.last_opened_at).toLocaleString()}</span>
+                      <span className="block text-muted-foreground">{formatStamp(r.last_opened_at)}</span>
                     ) : null}
                   </td>
                   <td className="px-3 py-2">

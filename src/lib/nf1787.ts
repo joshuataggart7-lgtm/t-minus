@@ -680,15 +680,17 @@ export function buildNf1787(ctx: FormCtx): GeneratedForm {
           rowField("form1.Page2.Sec9Sub.PriorYes", "Prior contract for this requirement", Boolean(prior)),
           rowField("form1.Page2.Sec9Sub.PriorNo", "No prior contract", !prior),
           { path: "form1.Page2.Sec9Sub.YesText1", label: "Prior contract file", value: prior },
-          rowField("form1.Page2.LowerSection.MRRsub.MRRreqYes", "NF 1787A required", value >= 2_000_000),
-          rowField("form1.Page2.LowerSection.MRRsub.MRRreqNo", "NF 1787A not required", value < 2_000_000),
+          // NFS CG 1810.12(c): "(1) For procurements exceeding $2 million, the contracting officer
+          // must document market research results utilizing NASA Form (NF) 1787A ... (2) For
+          // procurements under $2 million, use of the NF 1787A is optional." The "must" applies only
+          // when the value exceeds $2M, so exactly $2M is not required (audit 2026-10-25, L11;
+          // CG text re-pulled 2026-10-27).
+          rowField("form1.Page2.LowerSection.MRRsub.MRRreqYes", "NF 1787A required", value > 2_000_000),
+          rowField("form1.Page2.LowerSection.MRRsub.MRRreqNo", "NF 1787A not required", value <= 2_000_000),
           {
             path: "form1.Page2.LowerSection.MRRsub.Explain",
             label: "Explanation",
-            value:
-              value >= 2_000_000
-                ? "Estimated value is $2,000,000 or more; the NF 1787A is required (NFS CG 1810.12(c))."
-                : "Estimated value is under $2,000,000; the market research memorandum is the document of record (NFS CG 1810.12(c)).",
+            value: nf1787aExplanation(value),
           },
           {
             path: "form1.Page2.Remarks",
@@ -786,4 +788,13 @@ export function xfaDatasets(form: GeneratedForm): string {
   return `<?xml version="1.0" encoding="UTF-8"?><xfa:datasets xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/"><xfa:data>${render(
     root,
   )}</xfa:data></xfa:datasets>`;
+}
+
+/** NF 1787A explanation line by estimated value (NFS CG 1810.12(c)). */
+export function nf1787aExplanation(value: number): string {
+  if (value > 2_000_000)
+    return "Estimated value exceeds $2,000,000; the NF 1787A is required (NFS CG 1810.12(c)).";
+  if (value === 2_000_000)
+    return "Estimated value is exactly $2,000,000; the NF 1787A is not required because NFS CG 1810.12(c)(1) requires it only for procurements exceeding $2 million. Market research must still be documented, appropriate to the size and complexity of the procurement (NFS CG 1810.12(c)(2)).";
+  return "Estimated value is under $2,000,000; the NF 1787A is optional and the market research memorandum is the document of record (NFS CG 1810.12(c)).";
 }

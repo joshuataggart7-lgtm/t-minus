@@ -291,7 +291,7 @@ function TodayPage() {
           <SinceLastLookPanel since={lastLook.since} ready={lastLook.ready} changes={sinceChanges} />
           {disagreements.length > 0 ? (
             <section className="mc-kpanel mb-6" aria-label="Files that disagree with themselves">
-              <h2 className="mc-kpanel-title">This file disagrees with itself</h2>
+              <h2 className="mc-kpanel-title">{disagreements.length === 1 ? "1 file disagrees with itself" : `${disagreements.length} files disagree with themselves`}</h2>
               <p className="mt-1 max-w-[70ch] text-[15px] leading-[22px] text-muted-foreground">
                 Contradictions the record can prove. Open the file to see each one. Nothing here changes a file.
               </p>

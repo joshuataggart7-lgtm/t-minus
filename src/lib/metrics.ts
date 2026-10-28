@@ -301,7 +301,7 @@ export function computeMetrics(
     .reduce((sum, p) => sum + (p.planned_days - (p.actual_days ?? p.planned_days)), 0);
 
   const behind = phases.some(
-    (p) => p.status === "current" && p.actual_days !== null && p.actual_days > p.planned_days,
+    (p) => p.status === "current" && p.actual_days !== null && !p.actual_estimated && p.actual_days > p.planned_days,
   );
   const pollSoon = board.some(
     (b) => b.vote === "pending" && b.due_date && daysBetween(today, b.due_date) <= 3,

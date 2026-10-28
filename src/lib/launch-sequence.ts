@@ -37,7 +37,7 @@ import {
   TM_ORDER_PLAN,
   type NewContractFacts,
 } from "@/lib/phase-plan-key";
-import { presolicitationNote } from "@/lib/presolicitation-note";
+import { presolicitationNote, presolicitationNotRequired } from "@/lib/presolicitation-note";
 export { presolicitationNote };
 import { MICRO_PURCHASE_THRESHOLD, MICRO_PURCHASE_THRESHOLD_NAME } from "@/lib/micro-purchase";
 import { certifiedDataBasis, CERTIFIED_FAR_TEXT_NAME, CERTIFIED_STATUTE_NAME } from "@/lib/certified-data";
@@ -861,7 +861,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
               citation: "RFO FAR 5.101(c)(4)(vii)",
               link: "templates",
               templateKey: "sam-notice",
-              ...(presolicitationExempt(acq) ? { optional: true } : {}),
+              ...(presolicitationExempt(acq) || presolicitationNotRequired(acq) ? { optional: true } : {}),
               note: presolicitationExempt(acq)
                 ? "Not required: a presolicitation notice is not required when using other than full and open competition under an authority other than RFO FAR 6.103-1 or 6.103-6 (RFO FAR 5.101(b)(2))."
                 : presolicitationNote(acq, isCommercialBuy(acq)),
@@ -874,6 +874,7 @@ function baseDocs(phase: string, acq?: AcqRow): RequiredDoc[] {
                 citation: "RFO FAR 5.101",
                 link: "templates",
                 templateKey: "sam-notice",
+                ...(presolicitationNotRequired(acq) ? { optional: true } : {}),
                 note: presolicitationNote(acq, false),
               }
             : {
@@ -1740,6 +1741,8 @@ export type PhaseView = {
   order: number;
   status: "complete" | "current" | "upcoming";
   actual_days: number | null;
+  /** True when actual_days is a baseline-anchored estimate, not a recorded phase start. */
+  actual_estimated?: boolean;
   docs: RequiredDoc[];
   citation: string;
   guidance: string;
@@ -1797,8 +1800,10 @@ export const phaseLabel = (p: Pick<PhaseView, "phase" | "label">): string => p.l
  * its start is not recorded). The rail, the file page action line and the
  * launch sequence "(N over)" all read this one number.
  */
-export function phaseOverrunDays(p: Pick<PhaseView, "actual_days" | "planned_days">): number | null {
-  if (p.actual_days === null) return null;
+export function phaseOverrunDays(p: Pick<PhaseView, "actual_days" | "planned_days"> & { actual_estimated?: boolean }): number | null {
+  // An estimate from the baseline date is not a recorded phase start, so it never
+  // reads as an overrun (it would contradict the award countdown).
+  if (p.actual_days === null || p.actual_estimated) return null;
   const over = p.actual_days - p.planned_days;
   return over > 0 ? over : null;
 }
@@ -1904,6 +1909,7 @@ export function buildSequence(
             ? "current"
             : "upcoming";
     let actual: number | null = null;
+    let estimated = false;
     if (status === "complete") {
       // Only real recorded dates: the day this phase began to the day the next began.
       const start = startOf(i);
@@ -1913,7 +1919,10 @@ export function buildSequence(
     if (status === "current") {
       const start = startOf(i);
       if (start) actual = Math.max(0, daysBetween(start, todayISO));
-      else if (!recordedPhases && elapsed !== null) actual = Math.max(0, elapsed - before);
+      else if (!recordedPhases && elapsed !== null) {
+        actual = Math.max(0, elapsed - before);
+        estimated = true;
+      }
     }
     const phase = phaseName;
     const awardAt = rows.findIndex((row) => String(row.phase ?? "").toLowerCase() === "award");
@@ -1931,6 +1940,7 @@ export function buildSequence(
       order: r.order ?? i + 1,
       status,
       actual_days: actual,
+      ...(estimated ? { actual_estimated: true } : {}),
       docs,
       citation: phaseCitation(phase, acq),
       guidance: phase === "JOFOC" ? jofocGuidance(acq) : (PHASE_GUIDANCE[phase] ?? ""),

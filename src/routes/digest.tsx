@@ -1,3 +1,4 @@
+import { loadStaffWithSupervisorContact } from "@/lib/staff-directory";
 import { writeAudit } from "@/lib/audit";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +13,7 @@ import type { CenterOverrideRow } from "@/lib/center-config";
 import type { RefData } from "@/lib/intake";
 import type { AcqRow, PhasePlanRow, PollRow, ReviewRuleRow } from "@/lib/launch-sequence";
 import { attachedKeys as keysFrom, savedDocKeys, withResolvedHolds } from "@/lib/hold";
-import { computeMetrics, holdSince, type AcqMetrics, type MissionRow } from "@/lib/metrics";
+import { computeMetrics, holdSince, type AcqMetrics, type MissionRow, formatStamp } from "@/lib/metrics";
 import { agingItems, type CenterRow, type UserRow } from "@/lib/aging";
 import { buildDigest, digestSections, digestAnnouncementBody, exportDigestPdf } from "@/lib/digest";
 import { executiveBlocker } from "@/lib/executive-wording";
@@ -58,7 +59,7 @@ function DigestPage() {
         supabase.from("polls").select("*"),
         loadStateAuditRows(),
         supabase.from("centers").select("center_code,center_name,aging_threshold_days"),
-        supabase.from("users").select("name,role,title,center_code,supervisor_name,supervisor_email"),
+        loadStaffWithSupervisorContact(),
         loadLaunchEvents(),
       ]);
       const attachments = await supabase.from("document_attachments").select("acquisition_id,doc_key");
@@ -201,7 +202,7 @@ function DigestPage() {
       {digest ? (
         <>
           <p className="text-[15px] leading-[22px] text-muted-foreground" data-numeric>
-            Week of {digest.weekStart} through {digest.weekEnd}. Generated {new Date(digest.generatedAt).toLocaleString()}.{" "}
+            Week of {digest.weekStart} through {digest.weekEnd}. Generated {formatStamp(digest.generatedAt)}.{" "}
             <Link to="/" className="text-primary underline">Compare with the Acquisitions tab</Link>
           </p>
           {msg ? <p role="status" className="mt-3 max-w-[80ch] text-[15px]">{msg}</p> : null}

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { currentActor, requireRealUser } from "@/lib/actor";
 import type { Json } from "@/integrations/supabase/types";
+import { todayCT } from "@/lib/calendar-date";
 
 /**
  * fetch_subawards
@@ -230,7 +231,7 @@ export const fetchSubawards = createServerFn({ method: "POST" })
       const today = new Date();
       const fiveYearsAgo = new Date(today);
       fiveYearsAgo.setFullYear(today.getFullYear() - 5);
-      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      const iso = (d: Date) => todayCT(d);
       let lastError = "";
       let fetched: unknown = null;
       for (const path of paths) {

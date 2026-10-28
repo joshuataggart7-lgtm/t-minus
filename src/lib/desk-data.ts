@@ -65,7 +65,7 @@ export function useDeskData(enabled: boolean) {
           supabase.from("enterprise_strategies").select("*"),
           supabase.from("polls").select("*"),
           loadStateAuditRows(),
-          supabase.from("users").select("name,title,center_code"),
+          supabase.from("staff_directory").select("name,title,center_code"),
           supabase.from("centers").select("center_code,aging_threshold_days"),
           loadLaunchEvents(),
         ]);

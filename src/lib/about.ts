@@ -1,3 +1,4 @@
+import { stampCT } from "@/lib/calendar-date";
 import buildNotes from "../../BUILD_NOTES.md?raw";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -63,7 +64,7 @@ export const SEED_SOURCES: { name: string; asOf: string }[] = [
   // implemented 8/05/26 and the 9/11/26 update.
   { name: "NFS Companion Guide", asOf: "Updated September 11, 2026 (earlier update August 5, 2026)" },
   { name: "PCD 26-03B clause matrix", asOf: "June 25, 2026" },
-  { name: "NFS applicability matrix", asOf: "July 23, 2026 version of the interim NFS" },
+  { name: "NFS applicability matrix", asOf: "July 23, 2026 matrix with prescriptions re-checked against the September 15, 2026 interim NFS (PCD 26-03B); rows still to verify are listed in the audit fix log" },
   { name: "OP template list", asOf: "September 10, 2026" },
   { name: "Thresholds", asOf: "verified September 11, 2026" },
 ];
@@ -92,7 +93,9 @@ export async function loadAboutData() {
   if (refs.error) throw new Error(refs.error.message);
   return {
     templates: (tpl.data ?? []) as unknown as TemplateRow[],
-    refs: (refs.data ?? []) as unknown as RefRow[],
+    // Audit LA14: effective_date is text ("September 30, 2025"), so the database
+    // order is alphabetical. Sort by the parsed date, newest first, undated last.
+    refs: sortRefsNewestFirst((refs.data ?? []) as unknown as RefRow[]),
   };
 }
 
@@ -107,5 +110,14 @@ export function buildStamp(): string {
   const raw = typeof __BUILD_STAMP__ === "string" ? __BUILD_STAMP__ : "";
   if (!raw) return "not recorded";
   const d = new Date(raw);
-  return Number.isNaN(d.getTime()) ? raw : d.toUTCString().replace("GMT", "UTC");
+  return Number.isNaN(d.getTime()) ? raw : stampCT(raw);
+}
+
+/** Newest first by parsed effective_date; rows whose date does not parse go last. */
+export function sortRefsNewestFirst<T extends { effective_date: string | null }>(rows: T[]): T[] {
+  const t = (r: T) => {
+    const n = r.effective_date ? Date.parse(r.effective_date) : NaN;
+    return Number.isNaN(n) ? -Infinity : n;
+  };
+  return [...rows].sort((a, b) => t(b) - t(a));
 }

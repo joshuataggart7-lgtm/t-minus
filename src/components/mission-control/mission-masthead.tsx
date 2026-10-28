@@ -21,7 +21,7 @@ const CENTER_NAMES: Record<string, string> = {
 
 function scopeLabel(centerCode: string | null | undefined): string {
   const code = String(centerCode ?? "").trim().toUpperCase();
-  if (code === "HQ") return "NASA Headquarters · Agency view";
+  if (code === "HQ") return "Headquarters · Agency view (sample)";
   const name = CENTER_NAMES[code];
   return name ? `${name} · Office of Procurement` : "Ames Research Center · Office of Procurement";
 }
@@ -48,7 +48,7 @@ export function MissionMasthead() {
       <div className="mc-masthead-brand">
         <img src="/brand/tminus-mark.png" alt="T-Minus" className="mc-masthead-insignia" width={816} height={816} />
         <div className="min-w-0">
-          <p className="mc-masthead-kicker">NASA · T–MINUS</p>
+          <p className="mc-masthead-kicker">T–MINUS · Prototype, not an official NASA system</p>
           <h1 id="executive-overview-title" className="mc-masthead-title">
             Procurement Mission Control
           </h1>

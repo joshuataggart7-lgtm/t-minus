@@ -36,7 +36,7 @@ export function deriveExceptions(metrics: AcqMetrics[]): Exception[] {
     const r = (m as ExceptionMetric).readiness;
     if (r?.state !== "HOLD" && r?.state !== "WATCH") continue;
     const current = m.phases.find((p) => p.status === "current");
-    if (current && current.actual_days !== null && current.actual_days > current.planned_days) {
+    if (current && current.actual_days !== null && !current.actual_estimated && current.actual_days > current.planned_days) {
       out.push({ kind: "Overdue gate", id, detail: `${current.phase}: ${current.actual_days} days against ${current.planned_days} planned` });
     }
     if (r?.targetAtRisk) {

@@ -94,6 +94,7 @@ export type FairOpportunityException =
   | "logical_follow_on"
   | "minimum_guarantee"
   | "statutory"
+  | "part6_nasa"
   | "brand_name";
 
 export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label: string; citation: string }[] = [
@@ -102,7 +103,11 @@ export const FAIR_OPPORTUNITY_EXCEPTIONS: { key: FairOpportunityException; label
   { key: "logical_follow_on", label: "Logical follow-on", citation: "RFO FAR 16.507-6(b)(3)" },
   { key: "minimum_guarantee", label: "Minimum guarantee", citation: "RFO FAR 16.507-6(b)(4)" },
   { key: "statutory", label: "Statutory authority (for orders exceeding the SAT)", citation: "RFO FAR 16.507-6(b)(5)" },
-  { key: "brand_name", label: "Brand name", citation: "RFO FAR 16.507-7" },
+  // RFO FAR 16.507-6(b)(6): "For DoD, NASA, and the Coast Guard, the order satisfies one of the
+  // exceptions permitting the use of other than full and open competition listed in part 6.103".
+  { key: "part6_nasa", label: "NASA: an exception listed in RFO FAR 6.103", citation: "RFO FAR 16.507-6(b)(6)" },
+  // Brand name is justified under RFO FAR 16.507-7(a), not as a 16.507-6(b) exception.
+  { key: "brand_name", label: "Brand name (item peculiar to one manufacturer)", citation: "RFO FAR 16.507-7(a)" },
 ];
 
 export function exceptionLabel(

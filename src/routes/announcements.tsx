@@ -27,6 +27,7 @@ import {
   type Ack,
   type Announcement,
 } from "@/lib/announcements";
+import { todayCT } from "@/lib/calendar-date";
 
 // The evaluator and approver demo personas are not audiences an announcement can target.
 const ROLE_OPTIONS: { id: RoleId; label: string }[] = [ADMINISTRATOR_DEFAULTS, ...SEEDED_USERS]
@@ -56,7 +57,7 @@ function AnnouncementsPage() {
         loadAnnouncements(),
         loadAcks(),
         currentUserId(),
-        supabase.from("users").select("user_id,center_code"),
+        supabase.from("staff_directory").select("user_id,center_code"),
       ]);
       setItems(all);
       setAcks(a);
@@ -217,7 +218,7 @@ function PostForm({ actor, onPosted }: { actor: string; onPosted: () => Promise<
   const [severity, setSeverity] = useState<string>("notice");
   const [roles, setRoles] = useState<RoleId[]>([]);
   const [centers, setCenters] = useState<string>("");
-  const [from, setFrom] = useState(new Date().toISOString().slice(0, 10));
+  const [from, setFrom] = useState(todayCT());
   const [until, setUntil] = useState("");
   const [link, setLink] = useState("");
   const [ack, setAck] = useState(true);

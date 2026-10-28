@@ -24,6 +24,20 @@ export const AGENCY_LINE = "National Aeronautics and Space Administration";
  */
 export const INSIGNIA_URL = "/letterhead/nasa-insignia.png";
 
+/**
+ * Audit 2026-10-25, H2: T-Minus is not a NASA system, so the NASA insignia is
+ * off on every screen and export. Verified 2026-10-27 against the eCFR text of
+ * 14 CFR 1221.110 (current as of 2026-10-23):
+ *   (c)(3) "No approval for use of the NASA Insignia will be authorized when its
+ *   use can be construed as an endorsement by NASA of a product or service."
+ *   (d) "Use of the NASA Insignia for any other purpose than as prescribed in
+ *   this section is prohibited, except that the Associate Administrator for
+ *   Public Affairs may authorize on a case-by-case basis..."
+ * Misuse is subject to 18 U.S.C. 701 (14 CFR 1221.115(b)). Keep this false
+ * unless the Associate Administrator for Public Affairs approves the use.
+ */
+export const SHOW_AGENCY_INSIGNIA = false;
+
 export const CUI_BANNER = "CUI";
 
 export const CUI_SHEET_TEXT = [
@@ -475,7 +489,7 @@ export async function exportMemoPdf(memo: MemoDoc, headerLine: string, fileName:
     prototype: true,
     // The agency insignia at the size and position the blank NF 1858 uses:
     // 1.08 by 1.00 in (the HQ master), top right of the first page only.
-    insignia: { url: INSIGNIA_URL, width: 78, height: 72 },
+    ...(SHOW_AGENCY_INSIGNIA ? { insignia: { url: INSIGNIA_URL, width: 78, height: 72 } } : {}),
     runningHead: h.subject,
   });
 }
@@ -491,6 +505,7 @@ export async function exportMemoDocx(memo: MemoDoc, fileName: string, headerLine
   // The insignia from the official blank, first page only.
   let insignia: ArrayBuffer | null = null;
   try {
+    if (!SHOW_AGENCY_INSIGNIA) throw new Error("insignia off");
     const res = await fetch(INSIGNIA_URL);
     if (res.ok) insignia = await res.arrayBuffer();
   } catch {

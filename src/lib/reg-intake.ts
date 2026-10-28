@@ -41,7 +41,8 @@ export const DATASETS: Dataset[] = [
       name: r["name"] ?? "",
       hq_revision_date: nul(r["hq_effective_date"]),
       status: nul(r["status"]),
-      governing_citation: nul(r["governing_citation"]),
+      // Audit LA14: "[fill from template header]" is a seed stub, not a citation.
+      governing_citation: /^\[fill from/i.test((r["governing_citation"] ?? "").trim()) ? null : nul(r["governing_citation"]),
       citation_tier: nul(r["citation_tier"]),
     }),
     keyOf: (r) => `${String(r["nf_1098_tab"] ?? "")}|${String(r["name"] ?? "")}`,
@@ -136,7 +137,7 @@ export const DATASETS: Dataset[] = [
   {
     id: "nfs_clause_matrix",
     label: "NFS clause matrix",
-    fileHint: "nfs_clause_matrix_2026-07-23.csv",
+    fileHint: "nfs_clause_matrix_2026-09-15.csv",
     table: "nfs_clause_matrix",
     pk: "row_id",
     effectiveColumn: "clause_date",

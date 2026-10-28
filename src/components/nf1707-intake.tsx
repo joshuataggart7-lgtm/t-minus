@@ -47,10 +47,10 @@ export const NF1707_SECTIONS: Section[] = [
     q("s3_catex", "CatEx number", "text", {short:"CatEx number",  when:a=>a["s3_nepa"]==="nerf" }),
   ]},
   { key: "4", title: "Service contracting", citation: "RFO FAR 37.201-1; RFO FAR 37.202-1; NFS 1837.201-1; RFO FAR 7.503; OMB Circular A-76", gates:["services"], questions:[
-    q("s4_not_personal", "Will not be used for the performance of personal services. (FAR 37.104 and NFS 1837.104)", "check", {required:true, short:"Not personal services"}),
+    q("s4_not_personal", "Will not be used for the performance of personal services. (FAR 37.104 and NFS 1837.104)", "check", {required:true, short:"Not personal services", help:"These are the form\u2019s own pre-RFO references. The current NFS (September 15, 2026) covers service contracting policy at NFS 1837.201-1."}),
     q("s4_not_governmental", "Will not be used for the performance of inherently governmental functions. (FAR 7.503)", "check", {required:true, short:"Not inherently governmental"}),
     q("s4_not_employees", "Are not presently being performed, nor recently performed, by government employees. (OMB Circular A-76)", "check", {required:true, short:"Not performed by government employees"}),
-    q("s4_advisory", "Will be advisory and assistance services. (FAR 2.1, FAR 37.204, and NFS 1837.204)", "check", {short:"Advisory and assistance services"}),
+    q("s4_advisory", "Will be advisory and assistance services. (FAR 2.1, FAR 37.204, and NFS 1837.204)", "check", {short:"Advisory and assistance services", help:"These are the form\u2019s own pre-RFO references. The current NFS (September 15, 2026) covers service contracting policy at NFS 1837.201-1."}),
   ]},
   { key:"5.I", title:"Space flight and ground support programs", citation:"NF 1707 Section 5-I; NPR 7120.5", gates:["space"], questions:[
     q("s5_space_standards", "Are the cited technical standards and specifications the most recent version, tailored, and registered in a standards.nasa.gov watch list?", "radio", {yesText:"Standards are current and registered", noText:"Approved exceptions to standards are attached", options:[{value:"yes",label:"Yes"},{value:"no",label:"No. Exceptions approved by the technical authorities are attached"}]}),

@@ -253,7 +253,8 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
       name: r["name"],
       hq_revision_date: nul(r["hq_effective_date"]),
       status: nul(r["status"]),
-      governing_citation: nul(r["governing_citation"]),
+      // Audit LA14: "[fill from template header]" is a seed stub, not a citation.
+      governing_citation: /^\[fill from/i.test((r["governing_citation"] ?? "").trim()) ? null : nul(r["governing_citation"]),
       citation_tier: nul(r["citation_tier"]),
     })),
   );
@@ -306,7 +307,7 @@ export async function reloadSeed(client: Db): Promise<Record<string, number>> {
   await wipe(db, "nfs_clause_matrix", "row_id");
   await put(
     "nfs_clause_matrix",
-    parseCsv(read("nfs_clause_matrix_2026-07-23.csv")).map((r) => ({
+    parseCsv(read("nfs_clause_matrix_2026-09-15.csv")).map((r) => ({
       clause_number: r["Clause/Provision Number"],
       title: nul(r["Title"]),
       clause_date: nul(r["Date"]),

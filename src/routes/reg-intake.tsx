@@ -32,6 +32,7 @@ import {
   type SectionUpload,
 } from "@/lib/regulation-sections";
 import { corpusLabel } from "@/lib/corpus-label";
+import { todayCT } from "@/lib/calendar-date";
 
 /** The two text intake types. Both stage a difference before anything is written. */
 const TEXT_TYPES = [
@@ -86,7 +87,7 @@ export const Route = createFileRoute("/reg-intake")({
   component: RegIntakePage,
 });
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+const todayISO = () => todayCT();
 
 function RegIntakePage() {
   const { authState, hasRole, user, readOnly } = useRole();

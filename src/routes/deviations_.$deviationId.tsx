@@ -19,6 +19,7 @@ import {
   loadDeviation,
   logDeviation,
 } from "@/lib/deviations";
+import { todayCT } from "@/lib/calendar-date";
 
 export const Route = createFileRoute("/deviations_/$deviationId")({
   head: () => ({
@@ -119,7 +120,7 @@ function DeviationDetail() {
         action: `Deviation review: ${DEVIATION_VOTE_LABEL[v.choice]}`,
         field: `poll.${v.reviewerRole.toLowerCase()}`,
         newValue: v.choice,
-        reason: `${DEVIATION_VOTE_LABEL[v.choice]}. ${user.name}, ${v.reviewerRole}, ${new Date().toISOString().slice(0, 10)}.${reason ? ` Rationale: ${reason}` : ""}`,
+        reason: `${DEVIATION_VOTE_LABEL[v.choice]}. ${user.name}, ${v.reviewerRole}, ${todayCT()}.${reason ? ` Rationale: ${reason}` : ""}`,
       });
     },
     onSuccess: () => {

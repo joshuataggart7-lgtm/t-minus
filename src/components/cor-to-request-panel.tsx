@@ -3,6 +3,7 @@
  * Advisory only: it never holds a phase exit and never writes to NCMS.
  */
 
+import { formatStamp } from "@/lib/metrics";
 import { writeAudit } from "@/lib/audit";
 import { useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -87,7 +88,7 @@ export function CorToRequestPanel({
           <StatusChip label={empty ? "Not written yet" : "Recorded"} tone={empty ? "neutral" : "ontrack"} />
           {saved.updated_at ? (
             <span className="mc-req-meta" data-numeric>
-              Last saved {new Date(saved.updated_at).toLocaleString()}
+              Last saved {formatStamp(saved.updated_at)}
             </span>
           ) : null}
         </div>
