@@ -3310,3 +3310,6 @@ Rule text as quoted by the owner from the live RFO FAR and NFS Companion Guide. 
 ## Oct 27, 2026 round 4
 - Dropped the 5 Oct 14 leftover tables after exporting them to backups/db_20261027/oct14_tables (outside the repo).
 - Fixed 15 nfs_clause_matrix prescription cites against the Sept 15, 2026 NFS. Live backup table: nfs_clause_matrix_bak_20261027r4.
+
+## Oct 28, 2026
+- .env is tracked again on main, holding only the 6 publishable Supabase entries (URL, project ID, sb_publishable key). Lovable builds have no other source for them, and the preview failed to load after PR 18 removed the file. No service_role or secret key is in it. .env.* stays ignored.
